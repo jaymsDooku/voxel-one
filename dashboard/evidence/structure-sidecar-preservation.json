@@ -1,0 +1,77 @@
+{
+  "parent_head": "ad46906ff7495ae2c1b07cce69bbc56d692083c5",
+  "status": "private_world_sidecar_preservation_passed_production_migration_pending",
+  "source_sha256": {
+    "tools/structures/RegionSidecarsPrototype.java": "15794fc9a3496e49981dbd48ac93d1b15230a4f2200f7c9faaabc75b69348d06",
+    "tools/structures/RegionSidecarsCheck.java": "fee5b0526b3b00eec2f68da0bbea9263a17efbc9f28994233333300078cd18bf",
+    "tools/structures/RegionWorldLibraryPrototype.java": "0efad5dcdaa5b5cb1d5aa328769eb99769a192f4bd022f0667597904f6dc8ff1",
+    "tools/structures/RegionGenerationPrototype.java": "e62378c3e42f805654b0bf9bc35e202b49dd614a24a0be191535d60464e0fd91",
+    "tools/structures/RegionAuthorityPrototype.java": "b19f7642cd13d94e144a536ccaaec27a771ef2d871097f22b693e3bb4e18856a",
+    "tools/structures/RegionOfflineImportPrototype.java": "0ed37a0b765b1f4db644cc464ba4e31f24d7b016266b17af5466f2d8366e67ef",
+    "tools/structures/RegionGenerationEvidence.java": "ebc1ca8f6f98da1b9cfed45476fea0797328a367a4c493ae3114e20b72f5a732",
+    "tools/structures/test_region_history.py": "55e67b1297c53b59596b481066b2fee0573b1fe45a6e590b031185fcf0105e1a",
+    "src/main/java/dev/jayms/net/city/CitySimulation.java": "8b5111182547916b95ffb3b9a190ad7236d685bd3a12cec7af3ea31db8850b26",
+    "src/main/java/dev/jayms/net/city/CityHistory.java": "60e6fa2f4019ce6739f5fbd2b2b2ccc2fc294e24249989f3df0ecc413d2bf5a9"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; not measured peak memory",
+    "execution": "Actual CitySimulation.save/load and CityHistory.load on generated synthetic files; private region/import/generation restart. No game graphics/server or real user files.",
+    "capture": "Window-only actual child CLI output on inherited assigned DISPLAY/XAUTHORITY; no authentication values read or printed"
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionOfflineMetadataPrototype.java tools/structures/RegionSidecarsPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionOfflineImportPrototype.java tools/structures/RegionSidecarsCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionSidecarsCheck > target/structure-sidecar-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionSidecarsCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-sidecar-preservation-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "city_bytes": 39949,
+    "history_bytes": 239147,
+    "rejection_cases": 21,
+    "generation_restart": true,
+    "production_integration": false,
+    "semantic_city_validation": false,
+    "qualification": false
+  },
+  "tests": {
+    "initial_affected_integration_tests": 10,
+    "final_structure_tool_tests": 43,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "initial_compile_correction": "The first standalone checker referenced a nonexistent CityHistory.note getter. Changed validation to actual public catalog/identity/revision/latest APIs before passing checks."
+  },
+  "implementation": {
+    "scope": "Typed immutable city and optional city-history bytes in private world/library envelope v3; outer private generation frame remains v2. No arbitrary filenames/paths, structure-package contents or production save changes. Offline metadata is required when sidecars are attached.",
+    "bounds": "4 MiB combined sidecar bytes plus 20 framing bytes; existing 16 MiB whole generation payload limit still applies. This diagnostic sidecar cap is below the existing CityHistory 64 MiB maximum: larger valid files reject rather than truncate.",
+    "integrity": "Check known city format magic1..17; history magic/version, 64-byte SHA-256 fingerprint of exact city bytes, and stored CRC32. Own envelope uses bounded lengths and CRC. Copy source/getter bytes. City/history bodies are not semantically validated by this envelope.",
+    "publication": "Optional root sidecars survive later geometry commits and restart. Synthetic updates change source-root identity; stale stages reject. A store stage cannot omit existing sidecars. Actual ordinary game city saves, source-file discovery and coordinated legacy multi-file restoration are not integrated."
+  },
+  "fixture_provenance": "CitySimulation generated a synthetic city sidecar and its bound history; actual sizes 39949 and 239147 bytes. A synthetic LocalGame base file was imported alongside the pair and staged into private storage. All temporary source/restored files were removed. No real user, account or city files were read.",
+  "cases": [
+    "Generated city/history bytes survive private import, generation publication, authority restart and a later geometry edit/save byte for byte",
+    "Restored CitySimulation.load equals the original frame; CityHistory.load retains nonempty catalog, identity, revision and latest time",
+    "Source arrays and returned arrays cannot mutate snapshots; absent history stays absent",
+    "Omitting existing sidecars rejects without changing generation bytes; changed sidecar root invalidates staged publication and retry preserves current state",
+    "Mismatched city/history fingerprint, damaged history CRC, unknown city magic, undersized history, over-budget content/envelope, truncated/trailing/corrupt envelopes reject",
+    "Offline metadata required for sidecar-bearing world envelope; pre/mid-cancel and thread interruption reject",
+    "Exactly 4 MiB prefix-only synthetic city bytes round-trip to test transport capacity. These bytes are deliberately not a valid semantic CityFrame and were not passed to the city loader",
+    "Original generated city/history/base source bytes remain unchanged; existing codecs, all offline formats and engine/private authority regressions pass"
+  ],
+  "playtest": "Playtest: actual generated city/history save/load CLI through private import and generation storage, including a later geometry commit, omission/stale edges and original-source regression checks. Expected exact-byte preservation and normal-loader parity for generated valid files; observed passed with 21 rejection cases. Fresh actual child exit0/result captured on the assigned display and visually inspected. Browser/game playtesting does not apply to tools-only storage code. All 224 native workflow source hashes remain unchanged.",
+  "image": {
+    "path": "dashboard/evidence/structure-sidecar-preservation-cli.png",
+    "bytes": 6009,
+    "sha256": "24aace141b0a7c4291f1d145ccbe9ab116a7ceff70202ced6ec0300d25670082",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent ad46906f has eight successful platform build entries; publication skipped. These results do not cover pending edits.",
+  "limitations": "Sidecar envelope is a byte-preservation and binding check, not a semantic validator for arbitrary CityFrame/history bodies. Not connected to LocalGame/server persistence, automatic migration, source-file snapshot discovery, live simulation ownership or coordinated multi-file restoration. Server-player state, ordinary-edit persistence and persistent runtime undo remain pending. Synthetic updates are dirty until later publication. No peak-memory/main-thread latency/directory-fsync/power-loss claim.",
+  "qualification": "Full city/maximum admission and 20-run timing/memory/frame/tick/traffic, physical GPU and shaped-network/32-rendered-client qualification remain pending; no production caps raised or ready/stable rollout claim.",
+  "next": "Complete responsive production migration/legacy-file coordination and server state preservation, then qualify both full fixtures."
+}

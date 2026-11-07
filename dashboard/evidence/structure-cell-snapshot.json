@@ -1,0 +1,92 @@
+{
+  "parent": "7a148dd4097d5b22d659a7c6d0d801279f030b03",
+  "change": "Owner-created WorldVoxels.CellSnapshot combines distinct-cell cursor and COW world snapshot. Owner-only nextBatch/unchanged validate world and history identity/revisions plus even terrain generation. Worker cell reads use frozen detached geometry and terrain checks before/after. Geometry revision advances on replace, nonempty clear and patch-result merge. Final owner check under authority lock required before publication.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "inherited assigned display; synthetic own window"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureCellReplayTest,StructureValidationStampTest test",
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target tools/structures/WorldCellSnapshotCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes WorldCellSnapshotCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_actual_engine_authority",
+    "java -cp target:target/classes RegionGenerationEvidence WorldCellSnapshotCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-cell-snapshot-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "production_tests": [
+    {
+      "class": "WorldCellSnapshotTest",
+      "tests": 5,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryCellCursorTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "WorldHistoryIndexTest",
+      "tests": 10,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureOfflineHistoryStagingTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureCellReplayTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "StructureValidationStampTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tool_tests": "3 integrations passed in15.195s; no skips.",
+  "cli": {
+    "status": "passed",
+    "cells": 2054,
+    "batches": 3,
+    "cell_wire_bytes": 36980,
+    "fractional_air_models": true,
+    "owner_world_history_fence": true,
+    "production_region_backend": false,
+    "qualification": false
+  },
+  "playtest": "Playtest: actual synthetic LocalGame v9 save/reload,2054 distinct cells in3 owner batches, worker threads read detached cells, owner validates after each batch, existing CellState wire roundtrip36980bytes and detached world reconstruction. Expected fractional geometry, explicit air, negative positions and model definitions unchanged; observed pass. Later same-value history mutation rejects exhausted capture; detached geometry and original save bytes retained. Unit edge cases cover world-only edits, identity/history replacement, clear-and-restore, terrain generation ABA, wrong-thread validation and COW patch isolation. Direct CLI and displayed child exit0; fresh image inspected. Noninteractive persistence path; browser/native rendering does not apply.",
+  "scope": "Snapshot clones the chunk map under owner control; this work does not establish100ms stall or memory budgets. Caller must separately fence models, metadata and publication. No new save format or backend selected. Small functional fixture only.",
+  "native_baseline": "221 of224 historical native source files unchanged; LocalGame, WorldVoxels and CityHistory differ. Old native media is not exact-source proof for these persistence changes.",
+  "hosted": "Controller observed four feature platform builds successful; direct PR rollup showed seven successful builds and one mac-intel running, publication skipped. No polling. New edits await exact-head publication/checks.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "941f3639029972461fdf225d1e8c059fb22791f5a5d329a764f876c979e043e0",
+    "src/test/java/dev/jayms/WorldCellSnapshotTest.java": "d211f36b7857bdcebaaa16141d8a30e553a142e65ad9e2830bc3d9db36f8ba4c",
+    "tools/structures/WorldCellSnapshotCheck.java": "5aefbd7b9210be445cd9928fda651ddc522ca0ed6beb1da9a3a12a8ccb30eb6c",
+    "tools/structures/RegionGenerationEvidence.java": "a2c8c6fe19cc1468b804f96f1f14515c84f3989533adcf74afb59a6a51154c8f"
+  },
+  "media": {
+    "file": "structure-cell-snapshot-cli.png",
+    "sha256": "6d8d4f81dd7997d5427f9f13f5a0270287078af24f16b4bbfa8f674d0626d990",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions. git diff --check passed.",
+  "pending": "Production region persistence/streaming/owner installation, full city/maximum admission and20-run budgets, physical GPU, shaped32-client synchronization, stalls/peak memory and directory durability. Caps and rollout gates unchanged."
+}

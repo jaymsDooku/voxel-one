@@ -1,0 +1,107 @@
+{
+  "head": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+  "scope": "Available exact parent hosted summaries; pending save-staging edits excluded. Controller receipt reports successful scoped platform checks. No additional unchanged wait requested.",
+  "artifacts": [
+    {
+      "run": 39897213480,
+      "artifact": 12478066188,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897213480,
+      "artifact": 12477756466,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897213480,
+      "artifact": 12477592381,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897213480,
+      "artifact": 12477532476,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897216229,
+      "artifact": 12478100327,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "d2d266473aa574765a470a82a39e58c6d3cdc582",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897216229,
+      "artifact": 12477866638,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "d2d266473aa574765a470a82a39e58c6d3cdc582",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897216229,
+      "artifact": 12477850726,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "d2d266473aa574765a470a82a39e58c6d3cdc582",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39897216229,
+      "artifact": 12477393165,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "d2d266473aa574765a470a82a39e58c6d3cdc582",
+      "totals": {
+        "tests": 847,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "mergeHead": "d2d266473aa574765a470a82a39e58c6d3cdc582",
+  "mergeParents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "8dc67be4a0f8ba92e0ff8bdcd0df9ecdbe00b010"
+  ]
+}

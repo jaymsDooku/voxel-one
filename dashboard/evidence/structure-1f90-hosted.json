@@ -1,0 +1,83 @@
+{
+  "sourceHead": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39860956148,
+      "artifact": 12462780311,
+      "head": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860956148,
+      "artifact": 12462521803,
+      "head": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860956148,
+      "artifact": 12461727558,
+      "head": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860956148,
+      "artifact": 12461693950,
+      "head": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860961155,
+      "artifact": 12463111864,
+      "head": "e7902d2271021f02f8faab5d99252358516005e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860961155,
+      "artifact": 12461757253,
+      "head": "e7902d2271021f02f8faab5d99252358516005e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860961155,
+      "artifact": 12461393672,
+      "head": "e7902d2271021f02f8faab5d99252358516005e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39860961155,
+      "artifact": 12461194707,
+      "head": "e7902d2271021f02f8faab5d99252358516005e5",
+      "tests": 806,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5"
+  ],
+  "scope": "Actual available parent sanitized summaries only; not new validation-stamp or city/max qualification."
+}

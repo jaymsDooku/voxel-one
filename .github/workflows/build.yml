@@ -33,6 +33,8 @@ jobs:
           java-version: '17'
           cache: maven
       - run: mvn --batch-mode verify
+      - name: Check structure validation tooling
+        run: python3 -m unittest discover -s tools/structures -p "test_*.py" -v
       - name: Check bundled MP3 decoder in shipped client
         run: java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java
       - name: Summarize Maven tests without runtime data

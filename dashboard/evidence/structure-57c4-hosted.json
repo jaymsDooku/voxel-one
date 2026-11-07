@@ -1,0 +1,40 @@
+{
+  "sourceHead": "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "push_run": 39643738149,
+  "pr_run": 39643743570,
+  "push_artifact_heads": [
+    "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+    "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+    "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+    "57c477db1f6f2512d678fc52a5d8215ea8e660b8"
+  ],
+  "pr_artifact_head": "8241d0b381011467a7bbe9423ed32cda5ad74af6",
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "57c477db1f6f2512d678fc52a5d8215ea8e660b8"
+  ],
+  "platforms": [
+    "linux",
+    "mac-arm",
+    "mac-intel",
+    "windows"
+  ],
+  "summary_artifact_ids": [
+    12367571450,
+    12366746850,
+    12366697217,
+    12365949351,
+    12367107602,
+    12366921496,
+    12366253636,
+    12365689492
+  ],
+  "each_summary": {
+    "tests": 782,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "scope": "Eight Maven summaries inspected; no city/max or physical GPU qualification. New fixture utility and documentation are local edits pending controller publication."
+}

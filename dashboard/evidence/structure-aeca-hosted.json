@@ -1,0 +1,108 @@
+{
+  "head": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+  "scope": "Published parent hosted artifacts; new cadence edits excluded.",
+  "artifacts": [
+    {
+      "run": 39886030546,
+      "artifact": 12473695209,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886030546,
+      "artifact": 12473266286,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886030546,
+      "artifact": 12472996779,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886030546,
+      "artifact": 12472831972,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "aeca8f67a4a0f4240f0fb151781f78274c8c8654",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886032772,
+      "artifact": 12473710466,
+      "name": "maven-test-summary-mac-intel",
+      "sourceHead": "29e6f2d7770e543d378c5d83cc512754de96e4bf",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886032772,
+      "artifact": 12473520389,
+      "name": "maven-test-summary-linux",
+      "sourceHead": "29e6f2d7770e543d378c5d83cc512754de96e4bf",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886032772,
+      "artifact": 12473141505,
+      "name": "maven-test-summary-mac-arm",
+      "sourceHead": "29e6f2d7770e543d378c5d83cc512754de96e4bf",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    },
+    {
+      "run": 39886032772,
+      "artifact": 12472972161,
+      "name": "maven-test-summary-windows",
+      "sourceHead": "29e6f2d7770e543d378c5d83cc512754de96e4bf",
+      "totals": {
+        "tests": 828,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 1
+      }
+    }
+  ],
+  "verifiedMergeParents": {
+    "29e6f2d7770e543d378c5d83cc512754de96e4bf": [
+      "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+      "aeca8f67a4a0f4240f0fb151781f78274c8c8654"
+    ]
+  }
+}

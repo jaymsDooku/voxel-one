@@ -1,0 +1,137 @@
+{
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_fixtures.py'",
+    "python3 tools/structures/fixtures.py verify maximum --manifest target/structure-fixtures/maximum-history-cost.json > target/structure-fixtures/maximum-history-cost-summary.json",
+    "python3 tools/structures/fixtures.py verify city --manifest target/structure-fixtures/city-history-cost.json > target/structure-fixtures/city-history-cost-summary.json",
+    "javac --release 17 -cp target/classes -d target tools/structures/HistoryRecordCountProbe.java",
+    "java -cp target:target/classes HistoryRecordCountProbe > target/structure-fixtures/history-record-oracle.jsonl",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'"
+  ],
+  "environment": {
+    "execution": "Linux CLI; no renderer, server, network or physical-GPU qualification",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2"
+  },
+  "fixtures": [
+    {
+      "artifact": "city-v1.vxbf.gz",
+      "bounds": [
+        512,
+        128,
+        512
+      ],
+      "canonical_history_limit_exceeded": false,
+      "canonical_history_record_limit": 2000000,
+      "canonical_history_records": 1008528,
+      "compressed_bytes": 33506457,
+      "compressed_sha256": "99fcd753636143639f0965931003304ff5354a51045d7b24495bfa93cc50639d",
+      "decoded_bytes": 49139366,
+      "decoded_sha256": "5a545e58436dba8b1de1c3a55398e585d382f095518436111ed95e1f9f1c4263",
+      "dependency_bytes": 33558272,
+      "fixture": "city",
+      "format": "VXBF",
+      "fractional_leaf_count": 30240,
+      "generator_sha256": "8314da0bb5e35dd5706ab23e59c8d0c79566f1b09955e05611dd09be7a06ffa5",
+      "history_counter_bytes": 32768,
+      "history_metric": "Empty destination; air prefix plus fractional leaves; full cells and model instances each retain one record. Counts only, not a new storage format or qualification.",
+      "instances": 10240,
+      "leaves": 968048,
+      "maximum_chunk_history_records": 1528,
+      "model_resolution": 32,
+      "model_surface_unit_faces": 1572864,
+      "models": 256,
+      "occupied_cells": 978288,
+      "occupied_chunks": 2173,
+      "publication": "Pending controller publication; regenerate binary from versioned source",
+      "python_version": "3.11.2",
+      "qualification": "Unqualified intermediate benchmark input; not a player package",
+      "seed": 87129111,
+      "source_url": "https://github.com/jaymsDooku/voxel-one/blob/feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437/tools/structures/fixtures.py",
+      "surface_quad_metric": "exposed geometry leaf faces before greedy merging; excludes model surfaces",
+      "surface_quads": 2031032,
+      "version": 1,
+      "zlib_version": "1.2.13"
+    },
+    {
+      "artifact": "maximum-v1.vxbf.gz",
+      "bounds": [
+        1024,
+        256,
+        1024
+      ],
+      "canonical_history_limit_exceeded": true,
+      "canonical_history_record_limit": 2000000,
+      "canonical_history_records": 11967232,
+      "compressed_bytes": 54394399,
+      "compressed_sha256": "79ab475b835306b345528533262a496b766a1dccf2cdb3a1c5c83ec6336df1e3",
+      "decoded_bytes": 136019628,
+      "decoded_sha256": "315d8686d18044df38abb6ce7f64bcad47983d9fb0f6769ff01f512cc7f27a30",
+      "dependency_bytes": 8396288,
+      "fixture": "maximum",
+      "format": "VXBF",
+      "fractional_leaf_count": 7967232,
+      "generator_sha256": "8314da0bb5e35dd5706ab23e59c8d0c79566f1b09955e05611dd09be7a06ffa5",
+      "history_counter_bytes": 262144,
+      "history_metric": "Empty destination; air prefix plus fractional leaves; full cells and model instances each retain one record. Counts only, not a new storage format or qualification.",
+      "instances": 16384,
+      "leaves": 7967232,
+      "maximum_chunk_history_records": 1536,
+      "model_resolution": 16,
+      "model_surface_unit_faces": 786432,
+      "models": 512,
+      "occupied_cells": 4000000,
+      "occupied_chunks": 8192,
+      "publication": "Pending controller publication; regenerate binary from versioned source",
+      "python_version": "3.11.2",
+      "qualification": "Unqualified intermediate benchmark input; not a player package",
+      "seed": 87129111,
+      "source_url": "https://github.com/jaymsDooku/voxel-one/blob/feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437/tools/structures/fixtures.py",
+      "surface_quad_metric": "exposed geometry leaf faces before greedy merging; excludes model surfaces",
+      "surface_quads": 47803392,
+      "version": 1,
+      "zlib_version": "1.2.13"
+    }
+  ],
+  "limits": "Counts assume an empty destination and do not include existing destination history, later edits or model-definition storage. Chunk counters are bounded to 262144 bytes for these accepted headers, independent of leaf count. No per-cell Edit objects are created by the Python count. Input hashes identify the files actually read; these differ from older fixture receipts and are not interchangeable performance evidence.",
+  "playtest": "Playtest: CLI verification streamed both complete retained VXBF fixtures through header/dependency/geometry/overlap/CRC/EOF checks. Expected counts matched occupied cells plus fractional leaves. Actual Java canonical indexed and legacy maps agreed for whole geometry, model instances, one fractional leaf and two separated leaves; repeated and later full-cell replacement passed. Malformed fixture and existing structure-tool regressions passed. Browser playtesting does not apply to this diagnostic-only CLI change; game source and existing native source manifest are unchanged.",
+  "qualification": "No admission, persistence, rendering or network behavior changed. Full city/maximum packages still fail provisional gates. Counts are not timing, peak-memory or physical-GPU/32-client qualification. Stable rollout remains gated.",
+  "source_head_before_diagnostic_change": "d637c329fbb05ccb0d2926797a57d103093434db",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5099c7edf02e50111b99a08f9b25cc06211ef8333e6bff141eb4718155be67df",
+    "tools/structures/HistoryRecordCountProbe.java": "1d6be93b168d550fea228b657bbb3499b46c573786beee759d2b31e3b2549c51",
+    "tools/structures/fixtures.py": "8314da0bb5e35dd5706ab23e59c8d0c79566f1b09955e05611dd09be7a06ffa5"
+  },
+  "status": "diagnostic_passed_qualification_pending",
+  "tests": {
+    "all_structure_tool_tests": 33,
+    "failures": 0,
+    "fixture_parser_tests": 6,
+    "java_oracle_cases": [
+      {
+        "case": "whole_geometry",
+        "indexed_legacy_equal": true,
+        "records": 1,
+        "replacement_checked": true
+      },
+      {
+        "case": "model_instance",
+        "indexed_legacy_equal": true,
+        "records": 1,
+        "replacement_checked": true
+      },
+      {
+        "case": "single_fractional_leaf",
+        "indexed_legacy_equal": true,
+        "records": 2,
+        "replacement_checked": true
+      },
+      {
+        "case": "two_separated_fractional_leaves",
+        "indexed_legacy_equal": true,
+        "records": 3,
+        "replacement_checked": true
+      }
+    ]
+  }
+}

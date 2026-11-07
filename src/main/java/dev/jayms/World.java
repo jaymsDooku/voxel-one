@@ -14,10 +14,11 @@ public class World implements AutoCloseable {
     private int visualMinX,visualMaxX,visualMinZ,visualMaxZ;
     private static ChunkPos column(ChunkPos p){return new ChunkPos(p.chunkX(),0,p.chunkZ());}
     private boolean canonicalMutation;
+    private Set<ChunkPos> deferredNeighborChunks;
     void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){if(c.takeGeometryChange()){changedSky(column(p));if(!c.terrainEquivalent&&!canonicalMutation)columnGeometryVersions.put(column(p),++geometryEpoch);}dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
     void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneRevision++;}}
     Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
-    private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||columnMembers.get(p).size()==10);for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
+    private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||baseComplete(columnMembers.get(p)));for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
 
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     public record EditedCell(int x,int y,int z,SparseVoxelOctree voxels) {}
@@ -66,7 +67,7 @@ public class World implements AutoCloseable {
     private final java.util.concurrent.ConcurrentHashMap<ChunkPos,Boolean> skyPositions=new java.util.concurrent.ConcurrentHashMap<>();
     public Collection<ChunkPos> skyColumns(){return skyPositions.keySet();}
     public Collection<ChunkPos> skyMembers(ChunkPos p){return columnMembers.getOrDefault(p,Set.of());}
-    public boolean skyColumnReady(ChunkPos p){return !streamingColumns.contains(p)||columnMembers.getOrDefault(p,Set.of()).size()==10;}
+    public boolean skyColumnReady(ChunkPos p){return !streamingColumns.contains(p)||baseComplete(columnMembers.get(p));}
     public long skyEditRevision(ChunkPos p){return skyEditVersions.getOrDefault(p,0L);}
     public Iterator<Protocol.Edit> skyEdits(ChunkPos p){return skyEditChunks.getOrDefault(p,Set.of()).stream().flatMap(c->edits.get(c).values().stream()).iterator();}
     private final Terrain terrain;
@@ -89,6 +90,13 @@ public class World implements AutoCloseable {
     private TerrainScheduler.Result preparing;
     private Iterator<Protocol.Edit> replay;
     private final Set<ChunkPos> streamingColumns = new HashSet<>();
+    private Iterator<ChunkPos> structureScan=Collections.emptyIterator();
+    private long structureScanVersion=-1;
+    private static boolean baseComplete(Set<ChunkPos> members) {
+        if(members==null||members.size()<10)return false;
+        int count=0;for(var p:members)if(p.chunkY()>= -2&&p.chunkY()<=7)count++;
+        return count==10;
+    }
     private boolean closed;
     public long streamAttachNanos, streamReplayNanos, streamDisposeNanos, streamRequestNanos, streamGenerationNanos;
     public int streamAttached, streamUnloaded;
@@ -176,6 +184,7 @@ public class World implements AutoCloseable {
     }
 
     private void dirtyNeighbors(ChunkPos p) {
+        if(deferredNeighborChunks!=null){deferredNeighborChunks.add(p);return;}
         for (Face f : Face.values()) {
             Chunk c =
                     loadedChunks.get(
@@ -238,6 +247,68 @@ public class World implements AutoCloseable {
                 : c.cell(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16));
     }
 
+    private record StructureChunkStamp(Chunk chunk,long revision,Object canonical) {}
+    private record StructureResident(SparseVoxelOctree geometry,Object stamp) {}
+
+    /** Owner-thread capture of immutable geometry, including directly supplied resident chunks. */
+    public dev.jayms.net.structure.StructurePackage.Source structureSnapshot() {
+        var geometry=voxels.snapshot();var definitions=models().copy();
+        var resident=new HashMap<ChunkPos,StructureResident>();long generation=geometry.terrainRevision();
+        for(var entry:loadedChunks.entrySet()) {
+            var chunk=entry.getValue();
+            resident.put(entry.getKey(),new StructureResident(chunk.snapshot(),
+                    new StructureChunkStamp(chunk,chunk.geometryVersion(),geometry.chunkStamp(entry.getKey()))));
+        }
+        return structureSource(geometry,definitions,resident,generation);
+    }
+
+    /** Begin on the owner; workers obtain only bounded detached batches through the owner queue. */
+    public StructureSnapshotPlan beginStructureSnapshot(){return new StructureSnapshotPlan();}
+    public final class StructureSnapshotPlan {
+        private final Thread owner=Thread.currentThread();
+        private final long edits=editsVersion,geometry=geometryEpoch,generation=terrain.geometryRevision();
+        private final ModelLibrary library=models(),definitions=library.copy();
+        private final long modelsRevision=library.revision();
+        private StructureSnapshotPlan(){validate();}
+        public long terrainRevision(){return generation;}
+        public Terrain terrain(){return World.this.terrain;}
+        public void validate(){
+            if(Thread.currentThread()!=owner)throw new IllegalStateException("Structure snapshot requires owner thread");
+            if(closed||editsVersion!=edits||geometryEpoch!=geometry||terrain.geometryRevision()!=generation||(generation&1)!=0||models()!=library||library.revision()!=modelsRevision)
+                throw new ConcurrentModificationException("World changed while snapshotting structure; retry");
+        }
+        public dev.jayms.net.structure.StructurePackage.Source batch(List<ChunkPos> positions){
+            validate();if(positions.size()>128)throw new IllegalArgumentException("Structure snapshot batch exceeds 128 chunks");
+            var detached=voxels.snapshot(positions);var resident=new HashMap<ChunkPos,StructureResident>();
+            for(var position:positions){var chunk=loadedChunks.get(position);if(chunk!=null)resident.put(position,new StructureResident(chunk.snapshot(),new StructureChunkStamp(chunk,chunk.geometryVersion(),detached.chunkStamp(position))));}
+            validate();return structureSource(detached,definitions,resident,generation);
+        }
+    }
+    private dev.jayms.net.structure.StructurePackage.Source structureSource(WorldVoxels geometry,ModelLibrary definitions,Map<ChunkPos,StructureResident> resident,long generation) {
+        return new dev.jayms.net.structure.StructurePackage.Source() {
+            public SparseVoxelOctree cell(int x,int y,int z){
+                var chunk=resident.get(ChunkPos.fromBlock(x,y,z));
+                return chunk==null?geometry.cell(x,y,z):chunk.geometry().region(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16);
+            }
+            public boolean emptyCell(int x,int y,int z){
+                var chunk=resident.get(ChunkPos.fromBlock(x,y,z));
+                return chunk==null?geometry.type(x,y,z)==0:chunk.geometry().uniform(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16)==0;
+            }
+            public boolean emptyChunk(ChunkPos position){var chunk=resident.get(position);return chunk==null?geometry.emptyChunk(position):chunk.geometry().isEmpty();}
+            public ModelLibrary models(){return definitions;}
+            public Object chunkStamp(ChunkPos position){
+                if(geometry.terrainRevision()!=generation)return null;
+                var chunk=resident.get(position);return chunk==null?geometry.chunkStamp(position):chunk.stamp();
+            }
+        };
+    }
+
+    /** Owner-thread proof includes resident identity/version and canonical geometry/terrain state. */
+    public Object structureChunkStamp(ChunkPos position) {
+        var chunk=loadedChunks.get(position);var canonical=voxels.chunkStamp(position);
+        return chunk==null?canonical:new StructureChunkStamp(chunk,chunk.geometryVersion(),canonical);
+    }
+
     public int region(Protocol.Edit e) {
         int side = 16 >> e.depth();
         int type =
@@ -271,6 +342,66 @@ public class World implements AutoCloseable {
         dirtyNeighbors(p);
     }
 
+    /** Detached worker preparation. Contains no world references or publication authority. */
+    public static final class CellReplacement {
+        private final Protocol.CellState state;
+        private final WorldVoxels.CellImage canonical;
+        private final int replayCount;
+        private final String cellKey;
+        private final WorldVoxels.CellReplay replay;
+        private CellReplacement(Protocol.CellState state,WorldVoxels.CellImage canonical,WorldVoxels.CellReplay replay) {
+            this.state=state;this.canonical=canonical;this.replayCount=replay.editCount();this.cellKey=replay.cellKey();this.replay=replay;
+        }
+        public Protocol.CellState replayState(){return state;}
+        public WorldVoxels.CellReplay replay(){return replay;}
+    }
+    /** Validate and canonicalize before publication; caller edits cannot change the result. */
+    public static CellReplacement prepareCellReplacement(int x,int y,int z,SparseVoxelOctree source) {
+        Objects.requireNonNull(source,"source");
+        if(source.size()!=16||!new Protocol.Edit(x,y,z,0).valid())throw new IllegalArgumentException("Invalid world cell");
+        var detached=source.copy().freeze();
+        var state=new Protocol.CellState(x,y,z,detached);var replay=WorldVoxels.prepareCellReplay(state);
+        var canonical=new SparseVoxelOctree(16);canonical.replaceRegion(0,0,0,detached);canonical.freeze();
+        return new CellReplacement(state,WorldVoxels.prepareCellImage(canonical),replay);
+    }
+    /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
+    public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
+        replaceCell(prepareCellReplacement(x,y,z,source));
+    }
+    /** Owner-thread batch. Coalesce neighbor mesh invalidations per changed chunk;
+     * geometry/history and virtual per-cell installation retain their existing order.
+     * Flush even on failure. This is not a transaction; caller owns rollback. */
+    public void replaceCells(List<CellReplacement> replacements) {
+        var cells=List.copyOf(replacements);
+        if(deferredNeighborChunks!=null){for(var cell:cells)replaceCell(cell);return;}
+        var changed=new LinkedHashSet<ChunkPos>();deferredNeighborChunks=changed;
+        try{for(var cell:cells)replaceCell(cell);}
+        finally {
+            deferredNeighborChunks=null;
+            for(var position:changed)dirtyNeighbors(position);
+        }
+    }
+    /** Owner-thread installation of detached validated data. Authoritative checks remain caller-owned. */
+    public void replaceCell(CellReplacement replacement) {
+        Objects.requireNonNull(replacement,"replacement");
+        var state=replacement.state;int x=state.x(),y=state.y(),z=state.z();
+        var canonical=replacement.canonical.tree();var cellKey=replacement.cellKey;int replayCount=replacement.replayCount;
+        var p=ChunkPos.fromBlock(x,y,z);editsVersion+=replayCount;
+        var skyColumn=column(p);changedSky(skyColumn);skyPositions.put(skyColumn,true);if(y>Terrain.MAX_Y)editedCeilings.add(skyColumn);
+        skyEditChunks.computeIfAbsent(skyColumn,k->new HashSet<>()).add(p);skyEditVersions.put(skyColumn,editsVersion);
+        if(preparing!=null&&preparing.position().equals(p))replay=null;
+        voxels.installCellImage(x,y,z,replacement.canonical);
+        editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(cellKey,new EditedCell(x,y,z,canonical));
+        var history=edits.computeIfAbsent(p,k->new WorldVoxels.History());WorldVoxels.rememberCell(history,replacement.replay);
+        var chunk=loadedChunks.get(p);
+        if(chunk!=null) {
+            boolean equivalent=chunk.terrainEquivalent,prior=canonicalMutation;canonicalMutation=true;
+            try{chunk.replaceCell(Math.floorMod(x,16),Math.floorMod(y,16),Math.floorMod(z,16),canonical);}
+            finally{chunk.terrainEquivalent=equivalent;canonicalMutation=prior;}
+        }
+        dirtyNeighbors(p);
+    }
+
     /** Remove resident geometry while retaining authoritative edits for reload. */
     public void unloadChunk(ChunkPos position)throws Exception {
         if(terrainScheduler!=null)terrainScheduler.cancel(position);
@@ -294,7 +425,7 @@ public class World implements AutoCloseable {
                 for (int b = -ring; b <= ring; b++) {
                     if (Math.max(Math.abs(a), Math.abs(b)) != ring) continue;
                     var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-                    if (members!=null&&members.size()==10) continue;
+                    if (baseComplete(members)) continue;
                     for (int y = -2; y <= 7; y++) {
                         ChunkPos p = new ChunkPos(cx + a, y, cz + b);
                         if(!loadedChunks.containsKey(p))addChunk(p, ChunkGenerator.generate(p, terrain));
@@ -308,7 +439,7 @@ public class World implements AutoCloseable {
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
         for(int a=-radius;a<=radius;a++)for(int b=-radius;b<=radius;b++) {
             var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-            if(members==null||members.size()!=10)return false;
+            if(!baseComplete(members))return false;
         }
         return true;
     }
@@ -323,7 +454,7 @@ public class World implements AutoCloseable {
         streamAttached=streamUnloaded=0;
         long deadline=System.nanoTime()+Math.max(0,budgetNanos);
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
-        int cy=Math.max(-2,Math.min(7,Math.floorDiv((int)Math.floor(y),16)));
+        int cy=Math.max(-64,Math.min(65,Math.floorDiv((int)Math.floor(y),16)));
         streamDirectionX=streamHistory?Float.compare(x,lastStreamX):0;streamDirectionZ=streamHistory?Float.compare(z,lastStreamZ):0;
         lastStreamX=x;lastStreamZ=z;streamHistory=true;
         if(terrainScheduler==null)terrainScheduler=new TerrainScheduler(terrain.seed,terrain.version);
@@ -341,7 +472,7 @@ public class World implements AutoCloseable {
             while(replay.hasNext()&&System.nanoTime()<deadline)preparing.chunk().apply(replay.next());
             streamReplayNanos+=System.nanoTime()-stage;
             if(replay.hasNext()||System.nanoTime()>=deadline)break;
-            if(loadedChunks.size()>=1690)break;
+            if(loadedChunks.size()>=(editedCeilings.isEmpty()&&cy>= -2&&cy<=7?1690:2048))break;
             preparing.chunk().terrainEquivalent=true;
             stage=System.nanoTime();attachChunk(p,preparing.chunk(),false);streamAttachNanos+=System.nanoTime()-stage;
             streamAttached++;preparing=null;replay=null;
@@ -357,8 +488,23 @@ public class World implements AutoCloseable {
         streamDisposeNanos=System.nanoTime()-stage;
         streamingColumns.removeIf(p->!columnMembers.containsKey(p)&&(Math.abs(p.chunkX()-cx)>4||Math.abs(p.chunkZ()-cz)>4));
         stage=System.nanoTime();requestNear(cx,cy,cz,x,z,deadline);streamRequestNanos+=System.nanoTime()-stage;
+        // Edited high/low structure chunks participate in the existing bounded worker queue.
+        if(structureScanVersion!=editsVersion){structureScan=editedCells.keySet().iterator();structureScanVersion=editsVersion;}
+        if(!structureScan.hasNext())structureScan=editedCells.keySet().iterator();
+        for(int scanned=0;scanned<64&&structureScan.hasNext()&&System.nanoTime()<deadline;scanned++) {
+            var p=structureScan.next();
+            if((p.chunkY()< -2||p.chunkY()>7)&&Math.abs(p.chunkX()-cx)<=4&&Math.abs(p.chunkZ()-cz)<=4
+                    &&!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))
+                requestStreamingChunk(p);
+        }
+
     }
     private void requestNear(int cx,int cy,int cz,float x,float z,long deadline){
+        if(cy< -2||cy>7)for(int dx=-1;dx<=1;dx++)for(int dz=-1;dz<=1;dz++)for(int dy=-1;dy<=1;dy++) {
+            if(System.nanoTime()>=deadline)return;var p=new ChunkPos(cx+dx,cy+dy,cz+dz);
+            if((p.chunkY()< -2||p.chunkY()>7)&&!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))requestStreamingChunk(p);
+        }
+        int terrainCy=Math.max(-2,Math.min(7,cy));
         int minX=Math.floorDiv((int)Math.floor(x-24),16),maxX=Math.floorDiv((int)Math.floor(x+24),16);
         int minZ=Math.floorDiv((int)Math.floor(z-24),16),maxZ=Math.floorDiv((int)Math.floor(z+24),16);
         int leadX=streamDirectionX*16,leadZ=streamDirectionZ*16;
@@ -378,14 +524,18 @@ public class World implements AutoCloseable {
             // A complete column cannot contain a missing request. Avoid rescanning
             // all ten heights twice per frame in the resident world.
             var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-            if(members!=null&&members.size()==10)continue;
+            if(baseComplete(members))continue;
             for(int d=0;d<=9;d++)for(int sign=d==0?0:-1;sign<=1;sign+=2) {
                 if(System.nanoTime()>=deadline||terrainScheduler.pending()>=TerrainScheduler.CAPACITY)break outer;
-                int yy=cy+d*sign;if(yy< -2||yy>7)continue;
+                int yy=terrainCy+d*sign;if(yy< -2||yy>7)continue;
                 ChunkPos p=new ChunkPos(cx+a,yy,cz+b);
-                if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p))&&terrainScheduler.request(p,terrain.stressGrid()))streamingColumns.add(column(p));
+                if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p)))requestStreamingChunk(p);
             }
         }
+    }
+    /** High chunks also require natural base coverage before their column is ready. */
+    private void requestStreamingChunk(ChunkPos p) {
+        if(terrainScheduler.request(p,terrain.stressGrid())&&streamingColumns.add(column(p)))dirtyColumns.add(column(p));
     }
 
     @Override

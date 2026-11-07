@@ -1,0 +1,105 @@
+{
+  "schema": 1,
+  "parent_head": "0663f242877e1e441a6abc8780f96de2223a64a7",
+  "status": "Sparse capture optimization validated locally; full acceptance unfinished",
+  "changes": [
+    "Conservative empty-cell hint defaults to unknown, retaining exactly one cell read for existing Source implementations",
+    "Immutable World snapshots answer known-empty queries through WorldVoxels.type without constructing empty octrees",
+    "Bounds, cancellation and progress remain per-coordinate; fractional/model geometry retains existing package validation"
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureOccupancyTest,StructureMultiplayerTest,MusicMp3Test test",
+    "python3 -m unittest deploy.tests.test_hub_preview_registration",
+    "javac --release 17 -cp target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar -d target/structure-sparse-probe tools/structures/SparseCaptureProbe.java",
+    "java -Xmx512m -cp target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-sparse-probe SparseCaptureProbe",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "tests": [
+    {
+      "name": "dev.jayms.StructureTest",
+      "tests": "18",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureOccupancyTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.MusicMp3Test",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "hub_tests": {
+    "tests": 6,
+    "failures": 0
+  },
+  "expected": "Preserve identical package bytes and geometry/model data; skip known-empty octree materialization; keep old Source read count, validation, cancellation and progress",
+  "observed": "31 Java tests and six Hub tests passed. Probe produced byte-identical packages for default and hinted capture. Native capture/import/placement workflow passed.",
+  "probe": [
+    {
+      "fast_hint": false,
+      "volume": 1048576,
+      "occupied": 1,
+      "octree_reads": 1048576,
+      "capture_ms": 285.947,
+      "qualification": "single CPU integration run only"
+    },
+    {
+      "fast_hint": true,
+      "volume": 1048576,
+      "occupied": 1,
+      "octree_reads": 1,
+      "capture_ms": 218.369,
+      "qualification": "single CPU integration run only"
+    }
+  ],
+  "probe_limits": "Single CPU integration run per path, fallback first/hinted second; includes JVM warmup/order effects. 1048576 scanned cells and one occupied cell. Not city capture, statistical timing, GPU/network or memory qualification. Native software rendering active.",
+  "prior_failure": "Initial new fixture incorrectly used an ARGB-model setter with encoded LED geometry; fixed fixture to use geometry fill, then all tests passed. No pass inferred from failed attempt.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "38e96c71f167458d19afba162b5874a5177ba3af6683382343d8df95e6de6d87",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "media_inspection": "Fresh capture screenshot and decoded F10 frame inspected; H264 17 frames, 28.728 s.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "logical_cpus": 4,
+    "java": "25.0.3",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)"
+  },
+  "diff_audit": "No files deleted against review base 8c68a1cd72ec3f344711ef721cdcaffd86c45638. MP3 code/fixtures/smoke checks and POM match base. Master Hub version change 0.1 -> 1.0 for macOS packaging and added registration tests retained; six tests passed. git diff --check passed.",
+  "remaining": "City/max admission limits, partitioned persistence, bounded owner-thread application and full frame/tick/traffic/20-run qualification remain unfinished. Physical-GPU and shaped-network qualification pending. Not ready.",
+  "publication": "Pending controller publication and new exact-source hosted validation",
+  "media": {
+    "structure-workflow.mp4": {
+      "sha256": "9b515d51e213c97a3408ebcf09bb923beef27b3aa9f6bf46e91246183ff93225",
+      "bytes": 417647
+    },
+    "structure-library-capture.png": {
+      "sha256": "753d7526f4e10b96f95fe5aa8deaba15f4a1ca9edae198d829eeca0dfde0ff71",
+      "bytes": 143875
+    }
+  }
+}

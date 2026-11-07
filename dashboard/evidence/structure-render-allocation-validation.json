@@ -1,0 +1,127 @@
+{
+  "schema": 1,
+  "parent_head": "a41b2c8033d03cc8c69bf1cc95023772148c2c3e",
+  "qualification": "PENDING",
+  "scope": "Model render scratch allocation only; no structure limit increase",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "rendering": "Native workflow forces llvmpipe on inherited display; synthetic profile"
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,ModelFaceCountTest,VoxelModelTest,ModelSculptorTest,DetailedMeshSchedulerTest' test",
+    "javac --release 17 -cp target/classes -d target/structure-render-control/classes target/structure-render-control/src/ModelMesher.java",
+    "javac --release 17 -cp target/classes -d target tools/structures/ModelFaceCountProbe.java",
+    "java -Xmx1g -cp target/structure-render-control/classes:target:target/classes ModelFaceCountProbe control",
+    "java -Xmx1g -cp target:target/classes ModelFaceCountProbe current",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=ModelFaceCountTest test"
+  ],
+  "tests": {
+    "existing_targeted": {
+      "tests": 107,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "new_golden_test": {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "note": "Focused ModelFaceCountTest rerun includes the two existing tests and one new golden test; 108 distinct targeted tests passed across both commands."
+    }
+  },
+  "probe": {
+    "control": [
+      {
+        "implementation": "control",
+        "render_array_sha256": "39a6a09f93231f026425c3d20eda01ee780ac1508328e2c4ba57b68a4e367dc0",
+        "fixtures": 12
+      },
+      {
+        "operation": "full-render-output",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 84.55,
+        "p95_ms": 109.632,
+        "worst_ms": 120.433,
+        "median_thread_allocated_bytes": 85284352
+      },
+      {
+        "operation": "count-only",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 56.488,
+        "p95_ms": 79.11,
+        "worst_ms": 87.174,
+        "median_thread_allocated_bytes": 140800
+      }
+    ],
+    "current": [
+      {
+        "implementation": "current",
+        "render_array_sha256": "39a6a09f93231f026425c3d20eda01ee780ac1508328e2c4ba57b68a4e367dc0",
+        "fixtures": 12
+      },
+      {
+        "operation": "full-render-output",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 78.655,
+        "p95_ms": 86.878,
+        "worst_ms": 87.925,
+        "median_thread_allocated_bytes": 59332096
+      },
+      {
+        "operation": "count-only",
+        "batch": 64,
+        "resolution": 16,
+        "quads_per_model": 1536,
+        "runs": 20,
+        "median_ms": 52.462,
+        "p95_ms": 53.973,
+        "worst_ms": 56.056,
+        "median_thread_allocated_bytes": 140800
+      }
+    ],
+    "note": "Exact parent compiled separately. 12 fixtures match bit for bit. Timed batches use 3 warmups and 20 measured runs, 64 models each. Tests ran concurrently; timings diagnostic. Thread allocation is cumulative per batch, not peak memory."
+  },
+  "execution_note": "Initial probe compilation raced Maven rebuilding target/classes and failed with missing class symbols. Retried after classes became available; both probe executions then passed. No failed execution counted as passed.",
+  "native": {
+    "first_attempt": "Exit 143; no result or failure artifact, no remaining test client. Not passed.",
+    "retry": {
+      "status": "passed",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "result": {
+        "status": "passed",
+        "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+        "source_manifest": "structure-native-source.json",
+        "source_manifest_sha256": "13c0591ce1c348c6217176ede79a3f7882165085110e3dd8f40e6926878b4e36",
+        "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+        "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+        "publication": "Local evidence pending controller publication"
+      },
+      "video_bytes": 364085,
+      "video_sha256": "b6efdfb474fb2d8ab01852b2da4ebd3fe229ce1f7b61952ae8d8a77bf8c6314c",
+      "video": "H264, 16 frames, 25.31 s",
+      "inspection": "Decoded and inspected a video frame and fresh placed-structures screenshot. Green footprint and two independent brick structures visible. HUD 1 FPS; functional only."
+    }
+  },
+  "pending": [
+    "Full city and maximum fixture admission",
+    "20-run full-pipeline benchmarks",
+    "Physical GPU",
+    "Shaped network with 32 rendered clients",
+    "Memory, frame, tick and traffic qualification"
+  ],
+  "audit": "219 source manifest entries match; git diff --check passes against recorded base; no deleted paths."
+}

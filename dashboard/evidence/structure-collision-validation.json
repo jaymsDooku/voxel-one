@@ -1,0 +1,113 @@
+{
+  "schema": 1,
+  "scope": "Experimental collision review fix; no stable performance claims",
+  "source_manifest": "structure-collision-source.json",
+  "published_base": "3f7ab54c500e77b664312a780f39fdf4bed901d9",
+  "changes": [
+    "Shared whole-cell body reservation before mutation in offline/server authority commits, including undo",
+    "Current offline player supplier wired from Main through F12 menu",
+    "Live city frame and peer poses revalidated under authority lock shared with city ticks"
+  ],
+  "commands": [
+    "mvn -q -DskipTests test-compile",
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureOccupancyTest,StructureTest,FractionalWorldTest,VoxelModelTest -Dsurefire.timeout=600 surefire:test",
+    "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureOccupancyTest -Dsurefire.timeout=600 surefire:test"
+  ],
+  "focused_suites": [
+    {
+      "name": "dev.jayms.StructureOccupancyTest",
+      "tests": "5",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureTest",
+      "tests": "13",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.VoxelModelTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "regressions": [
+    "Horse/player enter after staging: entire placement rejected, no geometry/dependency/save/history leak",
+    "Player leaves: retry accepted; body present during empty undo: safe removal accepted",
+    "Server production TLS protocol: horse overlap rejected, retry accepted after leaving, empty undo accepted",
+    "Authority restoring solid geometry into a horse: rejected offline/server before mutation"
+  ],
+  "failures_during_work": [
+    "First compile failed because synthetic Ground fixture used a lambda for a multi-method interface; fixed and compilation passed",
+    "First native harness attempted to mutate Player.position(), which returns a copy; harness assertion failed. Fixed by installing synthetic Player at target; full rerun passed. No production pass inferred from failed run."
+  ],
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "665d25b1bb96d248b7fdc279db5b8042ce34b049eb27bfbba5df103a8302def9",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "cohort32": {
+    "status": "passed",
+    "sessions": 32,
+    "topology": "Single-host loopback functional test, not distributed/network performance qualification",
+    "result": {
+      "name": "dev.jayms.StructureMultiplayerTest(collision32)",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "345.913"
+    },
+    "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureMultiplayerTest -Dvoxel.structure.clients=32 -Dsurefire.reportNameSuffix=collision32 -Dsurefire.timeout=900 surefire:test"
+  },
+  "hosted": "Pending new controller publication; previous hosted results apply to older source only",
+  "qualification": "City/max, physical GPU, shaped-network, 20-run performance and stable rollout remain gated",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS"
+  },
+  "diff_audit": "No deleted files or unmerged paths; intended replacement removes incomplete server player-only check in favor of shared live body validation",
+  "publication": "Local sanitized reports and media pending controller publication",
+  "media": {
+    "structure-player-conflict.png": {
+      "sha256": "e9e3d720f1f2cfa0cd7ee8939c031f7df6a985f311df57a125fe442438a30574",
+      "bytes": 145359,
+      "publication": "pending controller publication"
+    },
+    "structure-world-placed.png": {
+      "sha256": "1262ca4355beea66daab55bbe83115f8fa69f8d8ba363b00fb63718ae59d3ac3",
+      "bytes": 337202,
+      "publication": "pending controller publication"
+    },
+    "structure-workflow.mp4": {
+      "sha256": "2fe49a161a24beaf9c5fdb6b5e5a68ded20f7051cd8a4f0f8514e3a6b3da269e",
+      "bytes": 362040,
+      "publication": "pending controller publication"
+    }
+  },
+  "media_inspection": "Fresh player rejection screenshot and placed-world screenshot inspected. Native source manifest unchanged through test. Fresh H264 recording decoded: 15 frames, 26.273 s; decoded frame inspected.",
+  "focused_totals": {
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  }
+}

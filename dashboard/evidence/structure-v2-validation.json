@@ -1,0 +1,183 @@
+{
+  "schema": 1,
+  "parentHead": "4902a95b47c5e1434b8093e4bd13a292e2fd9d0e",
+  "format": "VSTR v2 dependency mode 0: existing octree; mode 1: bounded bitmap and RGB. v1 reads retained. Existing model/world codecs unchanged. Noncanonical trees retain exact original fingerprints via mode 0.",
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureModelCodecTest,StructurePlacementCellsTest,StructureTest,StructureOccupancyTest,WorldStreamingTest,MusicMp3Test,StructureMultiplayerTest test",
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureModelCodecTest test",
+      "java -cp target/classes tools/structures/NativeFixture.java --self-test"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": 7,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+        "tests": 2,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": 8,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.WorldStreamingTest",
+        "tests": 6,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": 4,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": 1,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    ],
+    "total": 52,
+    "scope": "Final reports: 45 existing regressions plus seven codec cases. Focused rerun includes independent byte-layout test added after the full run. No unexecuted pass claimed."
+  },
+  "fixtures": [
+    {
+      "fixture": "city",
+      "input_vxbf_sha256": "99fcd753636143639f0965931003304ff5354a51045d7b24495bfa93cc50639d",
+      "v1": {
+        "fixture": "city",
+        "cells": 978288,
+        "decoded_bytes": 58000837,
+        "compressed_bytes": 38191053,
+        "sha256": "ed6b452ea7d9348fcce29b8802e5346aa410a68c125a5afeda1535877c06e47a",
+        "production_decode": "rejected: Experimental geometry cap",
+        "qualification": "native wire fixture only; no placement or performance qualification"
+      },
+      "v2": {
+        "fixture": "city",
+        "cells": 978288,
+        "decoded_bytes": 41073093,
+        "compressed_bytes": 30258485,
+        "sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+        "production_decode": "rejected: Experimental dependency surface cap",
+        "qualification": "native wire fixture only; no placement or performance qualification"
+      }
+    },
+    {
+      "fixture": "maximum",
+      "input_vxbf_sha256": "79ab475b835306b345528533262a496b766a1dccf2cdb3a1c5c83ec6336df1e3",
+      "v1": {
+        "fixture": "maximum",
+        "cells": 4000000,
+        "decoded_bytes": 309713208,
+        "compressed_bytes": 55607892,
+        "sha256": "830a315b629e78cc5db9a1742a799fd01c1f2e1e89b1f045db9b5ba519281889",
+        "production_decode": "rejected: Experimental geometry cap",
+        "qualification": "native wire fixture only; no placement or performance qualification"
+      },
+      "v2": {
+        "fixture": "maximum",
+        "cells": 4000000,
+        "decoded_bytes": 305479992,
+        "compressed_bytes": 53637310,
+        "sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+        "production_decode": "rejected: Experimental geometry cap",
+        "qualification": "native wire fixture only; no placement or performance qualification"
+      }
+    }
+  ],
+  "fixture_commands": [
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java city target/structure-fixtures/city-v1.vxbf.gz target/structure-fixtures/city-v2.vstr",
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java maximum target/structure-fixtures/maximum-v1.vxbf.gz target/structure-fixtures/maximum-v2.vstr",
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java city target/structure-fixtures/city-v1.vxbf.gz target/structure-fixtures/city-v2-repeat.vstr",
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java maximum target/structure-fixtures/maximum-v1.vxbf.gz target/structure-fixtures/maximum-v2-repeat.vstr"
+  ],
+  "final_admission_command": "java -Xmx1g -cp target/classes target/StructureAdmission.java target/structure-fixtures/city-v2.vstr target/structure-fixtures/maximum-v2.vstr",
+  "final_admission": [
+    "city-v2.vstr: rejected: Experimental dependency surface cap",
+    "maximum-v2.vstr: rejected: Experimental geometry cap"
+  ],
+  "qualification": "NOT PASSED. City bytes fit 16\u201332 MiB now, but city rejects dependency surface cap and maximum rejects geometry cap. No capture/export/placement/save/load/sync/upload latency, peak-memory, FPS, tick or traffic budget passed. Physical GPU and shaped 32-client qualification pending. Caps and rollout gates unchanged.",
+  "notes": "First graphical run discarded by source-hash guard after a compatibility fix. Fresh frozen-source run passed before the pause; after authorized continuation its media was decoded/inspected and source/media hashes verified. No stale media or physical GPU qualification claimed.",
+  "publication": "Local report and implementation pending controller publication. Generated large binary fixtures remain under target; do not publish them as small dashboard artifacts.",
+  "reproducibility": "Two conversions per corpus produce identical byte counts and SHA-256. Two runs are a byte reproducibility check, not 20-run performance qualification.",
+  "pause_checkpoint": {
+    "reason": "Shared quota or service control pause requested. No further implementation or tests started.",
+    "native_process_exit": 0,
+    "native_report": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "22a18c3dd653c1b976fd27567c14bf1660552386180d9d3ba455a157c8b20664",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "remaining": "Inspect the fresh video and conflict screenshot, verify source/media hashes, finish evidence and request controller publication/fresh exact-head checks after authorized continuation. City/max admission and system qualification remain unfinished."
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Capture, export/import and all rotations preserve both sparse 32-resolution and packed dense 8-resolution dependencies, alongside rejection/cancellation/undo/persistence and inventory/editor regressions.",
+    "observed": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "22a18c3dd653c1b976fd27567c14bf1660552386180d9d3ba455a157c8b20664",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_manifest": "All production source paths and harness paths match the recorded manifest, with no extra/missing files.",
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "display": "Inherited assigned DISPLAY and XAUTHORITY; no authentication cookie read or printed.",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)"
+    },
+    "media": {
+      "video": "structure-workflow.mp4",
+      "video_bytes": 330913,
+      "video_sha256": "66d922cfb08acbc6bfbc55587e5b66dd0682d723389de7450b0f4333fbba5671",
+      "frames": 17,
+      "seconds": 27.033,
+      "inspected": [
+        "Decoded video frame",
+        "structure-player-conflict.png",
+        "structure-component-closeup.png"
+      ],
+      "publication": "Pending controller publication"
+    }
+  },
+  "resume_validation": "Pause ended under controller authorization. Fresh-media inspection and hash verification complete; publish source/media for hosted checks. Full acceptance remains unfinished.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "cd27c74e461e5bd2d6c6089c28b1d433e3387c7a6b8d9af9d046d9affde567ee",
+    "src/main/java/dev/jayms/net/structure/StructureModelCodec.java": "7b211dd7e8214a6186e2c356b87bccc6a08ea24b6760670e0d64e3ac4daec98b",
+    "deploy/StructurePlaytest.java": "74bc39a2f8ed86a04634e1522dec0a950b90a05013ea8fd2caa825647cf0cd81"
+  }
+}

@@ -1,0 +1,95 @@
+{
+  "codec_check": {
+    "golden_bytes": 96,
+    "qualification": false,
+    "rejection_cases": 47,
+    "status": "passed"
+  },
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionHistoryPrototypeCheck.java tools/structures/RegionHistoryCodecCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionHistoryCodecCheck > target/structure-region-codec-check.json",
+    "java -Xmx512m -cp target:target/classes RegionHistoryPrototypeCheck > target/structure-region-codec-replay.jsonl",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'"
+  ],
+  "environment": {
+    "execution": "Detached synthetic CLI workflows on Linux",
+    "java_heap_cap": "-Xmx512m; not a peak-memory measurement",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2"
+  },
+  "hosted_observation": "Exact assigned head matched. Controller reports required platform builds passed. Fresh PR observation showed seven successful build entries and one additional Intel Mac build in progress; publication skipped. No repeated wait requested.",
+  "initial_test_correction": "The initial mid-decode cancellation test assumed more than40 callbacks for a96-byte container. The JDK uses bulk primitive reads, so the test now first measures callback count and cancels halfway; final-result cancellation is checked separately. No unexecuted threshold bound is claimed.",
+  "limitations": "Input/output byte bounds are enforced, but these counts are not heap/decoded-memory measurements. Leaf budget is checked after each size16 tree parses; at most one additional4096-leaf tree can be parsed before rejection. Branch allocation is bounded by the size16 parser and8MiB input, not measured here. Encoder retains a bounded growable buffer and final copy. Decode accepts an already allocated detached byte array. No compression, streaming disk publication, model dependency definitions, atomic world-generation swap, undo or network transfer is integrated.",
+  "next": "Add and validate a bounded global dependency manifest, then integrate region codec with versioned save/load, atomic generation publication, conflict-safe undo and late joining while retaining old-world compatibility.",
+  "parent_head": "d809f70074a651a19b3b5e32646f03ce7d512c08",
+  "playtest": "Playtest: CLI encoded and decoded all three migrated terrain-version cohorts, checked byte-exact re-encoding, and replayed every decoded cell against raw and legacy canonical worlds. Expected preserved air, LED/materials, model IDs, negative/world boundaries and untouched terrain; observed equality. Hostile-input/cancellation/retry and existing tool regressions passed. Browser/native playtesting does not apply to this tools-only codec change. All224 production/harness source hashes remain unchanged; existing native media still matches game source.",
+  "qualification": "Production admission caps and saves/network/history are unchanged. Full city/maximum admission,20-run performance and physical-GPU/shaped-network/32-rendered-client qualification remain pending. Stable rollout remains gated.",
+  "replay_cohorts": [
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "encoded_bytes": 15362,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 1,
+      "wire_sha256": "ead26fda8390efca8a97085b635f3884df43c996b58352d217cfb88b2ed9e326"
+    },
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "encoded_bytes": 15362,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 2,
+      "wire_sha256": "df7d3f7a7f0566e51b3163d7de7bada28c28d0934a98b7eeb8bd6539482535e2"
+    },
+    {
+      "canonical_records": 489,
+      "cells": 102,
+      "encoded_bytes": 15362,
+      "qualification": false,
+      "raw_edits": 5004,
+      "regions": 35,
+      "seed": 123,
+      "status": "passed",
+      "terrain_version": 3,
+      "wire_sha256": "a2eb332ebf43eac3d9205b8803a69fdaac96d7d173699b67a38f002c77d72be3"
+    }
+  ],
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5",
+    "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "4f3b3c2f96e232067193e454ef89f6e25e2b0290e950941ff896978ddc5e993a",
+    "tools/structures/RegionHistoryCodecCheck.java": "082b0c941eeea8dc1496f2319afa86803c60c57511b9f41d52bedfc5f5a91fc7",
+    "tools/structures/RegionHistoryPrototype.java": "8513534fe3c1e755d0e70c1b4538f5eb9438ae8fdd4a740661b83cca47d52288",
+    "tools/structures/RegionHistoryPrototypeCheck.java": "e5982282d8daf72d5e6005c44c05933003de697debe56f9634ac3b349fc0fb30",
+    "tools/structures/test_region_history.py": "b3d18e69a9e7630d1d0dd7c8adb5bb99f79168f4d508b942904128f1590c422f"
+  },
+  "status": "private_codec_checks_passed_production_integration_pending",
+  "tests": {
+    "broad_tool_tests": 35,
+    "errors": 0,
+    "executions": 37,
+    "failures": 0,
+    "final_affected_tests": 2,
+    "rejections": "47 executed cases include format/version/count/coordinate limits, duplicate regions, duplicate/unordered cell indices, region/index mismatch, invalid octree resolution/tag/material and fractional model, CRC, trailing bytes, truncation, byte/cell/region/leaf budgets, cancellation before/during encode/decode and immediately before result return, and interruption. Golden container bytes are constructed independently of the prototype encoder; semantic mutations recompute CRC. Exact budgets, empty records, byte-exact round trips and retry succeed.",
+    "skips": 0
+  },
+  "wire": {
+    "fields": "Big-endian magic/version, seed, terrain generator version, region count, unique region coordinates, unsigned16 cell count, strictly increasing unsigned16 local cell index plus validated Protocol.CellState payload; CRC32 trailer.",
+    "magic": "0x56524850",
+    "maximum_bytes": 8388608,
+    "maximum_cells": 100000,
+    "maximum_leaves": 131072,
+    "maximum_regions": 1024,
+    "publication": "Decode validates a private complete result before returning. Encoding checks cancellation again after copying final output bytes. No live world is mutated.",
+    "scope": "Private, uncompressed diagnostic format; no game importer accepts it.",
+    "version": 1
+  }
+}

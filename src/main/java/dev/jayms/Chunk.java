@@ -102,6 +102,20 @@ public class Chunk implements AutoCloseable {
         return blocks.region(x * 16, y * 16, z * 16, 16);
     }
 
+    /** Install one complete validated world cell without replaying individual leaves. */
+    public void replaceCell(int x,int y,int z,dev.jayms.net.model.SparseVoxelOctree source) {
+        if(!inside(x,y,z))throw new IndexOutOfBoundsException("Block outside chunk: "+x+", "+y+", "+z);
+        if(source.size()!=16)throw new IllegalArgumentException("World cell resolution must be 16");
+        boolean wasFractional=getBlock(x,y,z)==dev.jayms.net.Blocks.PARTIAL;
+        blocks.replaceRegion(x*16,y*16,z*16,source);
+        int value=blocks.uniform(x*16,y*16,z*16,16);
+        boolean nowFractional=value==-1;
+        if(wasFractional!=nowFractional)fractionalCells+=nowFractional?1:-1;
+        int type=dev.jayms.net.WorldVoxels.decode(value),key=index(x,y,z);
+        if(dev.jayms.net.Blocks.isModel(type))models.put(key,type);else models.remove(key);
+        terrainEquivalent=false;geometryVersion++;markDirty();
+    }
+
     public dev.jayms.net.model.SparseVoxelOctree snapshot() {
         return blocks.copy().freeze();
     }

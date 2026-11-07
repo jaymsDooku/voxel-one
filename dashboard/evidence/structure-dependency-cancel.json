@@ -1,0 +1,112 @@
+{
+  "schema": 1,
+  "scope": "Production VSTR version-2 dependency codec cancellation during import/export",
+  "hosted_parent": {
+    "head": "e56e30709a07cc4ed8d30b565bdae56403d8862e",
+    "four_platform_builds": "success",
+    "publish": "skipped"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureModelCodecTest,StructureTest,StructureBufferedCodecTest,StructureBufferedWireTest test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureImportStageTest,StructureSaveStagingTest,StructureMultiplayerTest,StructureRegionSnapshotTest compiler:testCompile surefire:test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureModelCodecTest compiler:testCompile surefire:test"
+  ],
+  "tests": [
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructureModelCodecTest",
+      "seconds": 0.856
+    },
+    {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureTest",
+      "seconds": 1.665
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructureBufferedCodecTest",
+      "seconds": 0.303
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructureBufferedWireTest",
+      "seconds": 0.426
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureSaveStagingTest",
+      "seconds": 7.561
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureMultiplayerTest",
+      "seconds": 13.993
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureRegionSnapshotTest",
+      "seconds": 0.175
+    }
+  ],
+  "unique_tests": 52,
+  "notes": [
+    "StructureImportStageTest does not exist; the selected regression command executed only its three matching classes. No import-stage-class pass is claimed.",
+    "Final codec retest includes file-load cancellation and byte-preserving retry.",
+    "No full-suite rerun claimed this turn.",
+    "Standalone legacy model serialization/validation remains bounded by existing per-model limits, without incremental cancellation.",
+    "No geometry/instance/chunk/persistence cap raised; fullcity/maximum and physicalGPU/32client performance qualification pending."
+  ],
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "1959ca9f60b97610efdb9644c294f90254194a92e8f360eb26c1c6bd4ba0647b",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureModelCodec.java": "0df26890245d750277edbc33bb92d6eda4613062b7a5e6ebc97c0407f1780f71",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "26a5c0a70bbc4ece96521358efcc0dfa7125c1b56d9a84138b7c65fbfdebb111",
+    "src/test/java/dev/jayms/net/structure/StructureModelCodecTest.java": "4482f493869752de7b5d02b407282132e65a8bfd865d453110f3767199995522"
+  },
+  "diff_check": "passed",
+  "tracked_deletions_against_review_base": [],
+  "media": {
+    "decodedFrames": 25,
+    "durationSeconds": 43.186,
+    "bytes": 505619,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "1bcbea6c501eccbd0b1ac767ba5da478492cf76f10b0df41ddaaa7847d5aa822",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "Decoded midpoint shows green footprint/anchor and staging; occupied-conflict screenshot shows red bounds, 90-degree rotation and rejection. Both inspected; HUD 1 FPS, functional evidence only."
+  },
+  "source_manifest_entries_verified": 227,
+  "publication": "Pending controller publication",
+  "report_freshness": "All seven selected class reports postdate their corresponding command-output file birth time."
+}

@@ -1,0 +1,36 @@
+{
+  "decision": "recover",
+  "resolved_file": "dashboard/progress.json",
+  "observed": {
+    "upstream_items_unchanged": 102,
+    "resolved_item_count": 103,
+    "structure_item_preserved": true,
+    "root_timestamp": "2026-10-20T13:59:47+00:00",
+    "conflict_markers_remaining": 0
+  },
+  "tests": [
+    {
+      "command": "python3 tools/structures/test_handoff.py",
+      "result": "7 passed"
+    },
+    {
+      "command": "python3 tools/structures/test_probe.py",
+      "result": "5 passed"
+    },
+    {
+      "command": "python3 tools/structures/test_fixtures.py",
+      "result": "6 passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0"
+    },
+    {
+      "command": "git diff --name-only --diff-filter=U",
+      "result": "dashboard/progress.json remains unmerged in index by design; runner owns staging/continuation"
+    }
+  ],
+  "playtest": "Playtest: noninteractive JSON recovery checked parseability, unique IDs, preservation of every upstream item and the local structure item, newest root timestamp and absence of conflict markers. All18 fixture/probe/handoff CLI tests passed. Browser/native gameplay does not apply to this metadata-only resolution; no new gameplay or qualification claim.",
+  "handoff": "Controller must stage resolution and continue Git. No stage, commit, reset, abort, rebase continuation or push performed. Preserve all local prerequisite files.",
+  "pending": "After controller continuation, inspect final source and rebuild source-hashed execution bundle if needed. Identify execution-provider path autonomously; do not repeat the provider-naming question. Reference qualification and feature implementation remain incomplete."
+}

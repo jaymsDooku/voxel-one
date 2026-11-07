@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "parentHead": "1f90b789bc4ef0e7339c765de19bc7e7f56d44e5",
+  "change": "Server prepared-placement validation reuses prior detached chunk mesh validation only when trusted geometry stamps match. Unknown/offline sources fully revalidate. Stamps contain terrain identity/stable even generation plus chunk-bucket identity/revision; detached server snapshots permanently lose stamp trust after any terrain generation change. Cache is perPrepared and bounded by unchanged 256-chunk admission. Destination occupancy, model revision, cancellation and authority live-body checks remain active.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureValidationStampTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest,WorldVoxelSnapshotTest test",
+    "total": 42,
+    "suites": [
+      {
+        "name": "dev.jayms.StructureValidationStampTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.324"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "2.371"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "12.108"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.811"
+      },
+      {
+        "name": "dev.jayms.WorldVoxelSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.077"
+      }
+    ],
+    "coverage": "Untouched reuse, unknown fallback, same-chunk neighbour edits force revalidation, outside-chunk edits preserve unrelated interactivity, terrain ABA and repeated owned-bucket edits invalidate stamps, snapshot stability, changed destination/model library and cancellation reject. Adding 171 fragmented model neighbours after prepare exceeds the existing chunk instance-surface cap and is rejected before authority commit; existing neighbour edits preserved. Offline/TLS/occupancy/snapshot regressions passed.",
+    "initial_run": "41 cases passed before adding the stronger actual changed-neighbour budget failure case; final selected run passed 42."
+  },
+  "probe": {
+    "compile": "javac --release 17 -cp target/classes -d target tools/structures/PreparedValidationProbe.java",
+    "commands": [
+      "java -Xms1g -Xmx1g -cp target:target/classes PreparedValidationProbe unknown > target/structure-validation-unknown-probe.json",
+      "java -Xms1g -Xmx1g -cp target:target/classes PreparedValidationProbe stamped > target/structure-validation-stamped-probe.json"
+    ],
+    "results": [
+      {
+        "source": "unknown",
+        "cells": 16,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "commit_cell_reads": 4096,
+        "median_ms": 62.724459,
+        "p95_ms": 120.903876,
+        "worst_ms": 131.616655,
+        "median_thread_allocated_bytes": 74834720
+      },
+      {
+        "source": "stamped",
+        "cells": 16,
+        "leaves_per_cell": 512,
+        "warmups": 3,
+        "runs": 20,
+        "commit_cell_reads": 16,
+        "median_ms": 0.234065,
+        "p95_ms": 0.447535,
+        "worst_ms": 0.51493,
+        "median_thread_allocated_bytes": 6600
+      }
+    ],
+    "scope": "16 unchanged cells, 512 fractional leaves each, one affected chunk. Three warmups/20 samples in separate JVMs. Both use current source; unknown source deliberately exercises full fallback. Timed Prepared.commit includes final destination checks, validation and a synthetic authority commit that installs geometry only. Real history construction, disk save, body simulation, traffic and rendering excluded. Prepare excluded; exact resulting cell leaves checked each sample. Thread allocation is not peak memory. No city/max, full commit, frame/tick or system qualification."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Current development VPS hardware/OS checked with platform.platform() and filtered lscpu --json. Native renderer recorded by playtest. Not reference physical-GPU/network qualification."
+  },
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Full native offline workflow/regressions retain full unknown-source validation; changed server reuse path exercised by real TLS integration test.",
+    "scope": "Native Main/GLFW/X11, inherited display/authentication and synthetic profile; browser testing does not apply.",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "209ac101b61d03e73e895a92789528ff824dcf821df687ccfdfe924fdb81f5c5",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "observed": "Native offline regression exited 0 with full unknown-source validation retained. Fresh conflict screenshot and decoded F10 frame inspected. All 213 production/harness source paths and hashes match. New server reuse path exercised through actual TLS integration. llvmpipe about 1 FPS, not reference physical-GPU/frame-time qualification.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 16,
+      "seconds": 26.62,
+      "bytes": 439154,
+      "sha256": "591134870b071fb669a8d24d68706588d2e5200dff546777e27b71fccb7eb73a"
+    }
+  },
+  "limits": "Trusted process-local stamps only; no wire tokens. Authority must hold its existing mutation lock. Offline/default sources remain conservative because their observable chunk state is not covered by server voxel stamps. Per-bucket revision field adds storage overhead; no retained/peak-memory improvement claimed. Destination per-cell checks and history/save bottlenecks remain.",
+  "qualification": "Required city/max fixtures still exceed unchanged provisional limits. Full admission, history persistence ceiling, atomic world transaction and physical GPU/shaped-network/32 rendered-client/20-run system budgets unfinished. Not ready; rollout gates closed.",
+  "delegate": "Helper failed without output; explicitly resolved self. Independently audited COW identity/revision, terrain ABA, snapshot trust, source contracts and unchanged authority guards; actual tests/probes executed locally.",
+  "audit": "No files deleted against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended repeated final detached validation is replaced only for matching trusted stamps; full fallback preserved. MP3/Hub/Asset Manager features retained.",
+  "publication": "Local source/report/media require controller publication, current-master integration and fresh exact-source hosted checks. No repeated parent completed-check request.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/Terrain.java": "6ebe8434adb002ba2fcaa74e5bfed64b7bf4741e3e422138b37c96d03eee5845",
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5ff36f4166134c5f47bb20af6d36b64ad451803aab19e36136a69721e051695f",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "ddfbb5cf7d0c291154b93e7bb34626428086896831f2efe00f3d1b61ba1d34d5",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "e6913fb80ea2c22ac9c95adb58cabc55dadb8293ce889df7d6cb01374143cbca",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "98a3b40c3ac972645207fab4662942a33f974d2e14851524a6038f25e9d4c71c",
+    "src/test/java/dev/jayms/StructureValidationStampTest.java": "295c3ef229936d101031715fa5a3cf343aec5c62f996e14a442199a88588e6f4",
+    "tools/structures/PreparedValidationProbe.java": "e973a33b3b7be158f7ca7f4676a958cce2d808685f7f488972bf5a75a107af7f"
+  }
+}

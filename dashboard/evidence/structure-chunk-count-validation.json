@@ -1,0 +1,156 @@
+{
+  "schema": 1,
+  "parent_head": "07fd590d26d974a3f3a967c05c8a2900b7a0b853",
+  "scope": "Count-only chunk mesh budget validation; no admission, protocol, world format or rollout gate changes.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)"
+  },
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest,FractionalWorldTest,DetailedMeshSchedulerTest' test > target/structure-chunk-count-tests.log 2>&1",
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureChunkMeshCountTest test > target/structure-chunk-count-focused-tests.log 2>&1"
+    ],
+    "results": {
+      "tests": 136,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "execution_detail": "Initial 135 tests passed. Added one engine atomic-rejection test, then all five focused tests passed: 136 distinct tested cases, 140 executions. No production changes between runs.",
+    "expected": "Count equals rendered quads across empty/full/neighbor/material/water/model/fractional fixtures; counting preserves render bytes; same aggregate mesh-budget error; engine rejects before publication and clears busy; interruption cancels both modes.",
+    "observed": "All assertions passed. Thirteen isolated checkerboard cells emit 159744 quads and pass; fourteen reject the vertex budget in both modes. Engine rejection leaves commits at zero, model count/revision unchanged and busy false."
+  },
+  "probe": {
+    "commands": [
+      "mkdir -p target/structure-chunk-count-control/src target/structure-chunk-count-control/classes",
+      "git show HEAD:src/main/java/dev/jayms/MeshDataGenerator.java > target/structure-chunk-count-control/src/MeshDataGenerator.java",
+      "javac --release 17 -cp target/classes -d target/structure-chunk-count-control/classes target/structure-chunk-count-control/src/MeshDataGenerator.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/ChunkMeshCountProbe.java",
+      "java -Xmx1g -cp target/structure-chunk-count-control/classes:target:target/classes ChunkMeshCountProbe render > target/structure-chunk-count-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes ChunkMeshCountProbe count > target/structure-chunk-count-current.jsonl"
+    ],
+    "parent_generator_sha256": "a6f12df8651301ae1a6d9b7f90acf15fadfac13ace883b17b8f744b9ad63cf8a",
+    "parent": [
+      {
+        "operation": "render",
+        "fixture": 0,
+        "quads": 720,
+        "render_sha256": "682e96c014474f86950fe81dfa32d4eafd5848bfdcea661d4c4c03f4a87d44b9",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 2.373,
+        "p95_ms": 3.671,
+        "worst_ms": 3.927,
+        "median_thread_allocated_bytes": 224752
+      },
+      {
+        "operation": "render",
+        "fixture": 1,
+        "quads": 98304,
+        "render_sha256": "7bad67137ece6416623d48bae39a12348d90472f1d5f2683e6962dc6bbb415d3",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 65.96,
+        "p95_ms": 71.883,
+        "worst_ms": 121.753,
+        "median_thread_allocated_bytes": 123572272
+      },
+      {
+        "operation": "render",
+        "fixture": 2,
+        "quads": 98304,
+        "render_sha256": "cd2010873ae87602c0e200b902eb803f7fe85159745644b28f4ce7c7880e5e7e",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 66.201,
+        "p95_ms": 68.604,
+        "worst_ms": 74.641,
+        "median_thread_allocated_bytes": 123572272
+      }
+    ],
+    "current": [
+      {
+        "operation": "count",
+        "fixture": 0,
+        "quads": 720,
+        "render_sha256": "682e96c014474f86950fe81dfa32d4eafd5848bfdcea661d4c4c03f4a87d44b9",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 2.658,
+        "p95_ms": 3.268,
+        "worst_ms": 4.057,
+        "median_thread_allocated_bytes": 104
+      },
+      {
+        "operation": "count",
+        "fixture": 1,
+        "quads": 98304,
+        "render_sha256": "7bad67137ece6416623d48bae39a12348d90472f1d5f2683e6962dc6bbb415d3",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 16.302,
+        "p95_ms": 16.868,
+        "worst_ms": 17.466,
+        "median_thread_allocated_bytes": 17832
+      },
+      {
+        "operation": "count",
+        "fixture": 2,
+        "quads": 98304,
+        "render_sha256": "cd2010873ae87602c0e200b902eb803f7fe85159745644b28f4ce7c7880e5e7e",
+        "runs": 20,
+        "warmups": 3,
+        "median_ms": 10.481,
+        "p95_ms": 11.014,
+        "worst_ms": 11.178,
+        "median_thread_allocated_bytes": 17832
+      }
+    ],
+    "method": "Three warmups and 20 measured runs per fixture. Parent first, separate JVMs, no concurrent Maven or native playtest. Build fixtures and hash complete render arrays outside timing. Count invokes through reflection, included in time/allocation. All three parent/current render hashes and quad counts match.",
+    "limitations": "CPU component only; current-thread allocation is not peak process memory. Small full-cell median/worst increased. Fixed thread-local scratch and fractional masks remain. No placement, city/maximum, GPU, frame/tick or network qualification.",
+    "probe_repair": "First parent diagnostic exited 1 when its synthetic colored fixture used the model-only set API for encoded fractional material. Changed fixture construction to fill, which accepts world material values; then both complete runs exited 0. Failed partial output was replaced, not used."
+  },
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-chunk-count-native.log 2>&1",
+    "exit_code": 0,
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_count": 220,
+    "source_manifest_sha256": "3cd8194e318bb2c909397781323902a154a7b81773141d978563619b97cd59fc",
+    "source_verification": "Exact 220-file production/harness set and SHA-256 values match source after completion. No Maven compilation or production/harness edits while Main ran.",
+    "media": {
+      "filename": "structure-workflow.mp4",
+      "bytes": 383216,
+      "sha256": "d32d204541aa1531f2578e989f1b8a3be5a0fbd7d07c2842edede157c3101210",
+      "codec": "H264",
+      "frames": 15,
+      "duration_s": 24.407,
+      "publication": "Pending controller publication",
+      "inspection": "Decoded and inspected a preview/staging frame with bounds/anchor, then inspected the fresh placed-world screenshot showing two copies. Track metadata reports H264, 15 frames, 24.407 s. HUD reports 1 FPS: functional software-renderer evidence only."
+    },
+    "media_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-chunk-count-frame.png"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "diff_check": "passed",
+    "deleted_paths": [],
+    "intended_deletions": "None. MP3 and Hub restorations remain."
+  },
+  "remaining": [
+    "Offline history copying, durable save and publication still run on owner thread.",
+    "Placement/undo graph retention and partitioned persistence/publication need further work.",
+    "Both full fixture admission caps and full physical-GPU/shaped-network/32-rendered-client/20-run qualification remain pending.",
+    "New exact-head platform checks and independent review remain required. No supported city limits published."
+  ],
+  "source_sha256": {
+    "src/main/java/dev/jayms/MeshDataGenerator.java": "70f36a8d7511f7f43f13aa73b0714e19d801e300dc37a9a548d9c0d72ed4340e",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "35b2fdf4a795d0d928d703b428f724323b2575e6cd6a925e74b5d3cb09f4e234",
+    "src/test/java/dev/jayms/net/structure/StructureChunkMeshCountTest.java": "7f4a6f56a88157bd7ef0f32943ba31b524089dd85cc74da122703189b09358a6",
+    "tools/structures/ChunkMeshCountProbe.java": "1723730ba15580690aefee520d3dd97fe7dc0f61de21ed4fdbd167caea0b0d8f"
+  }
+}

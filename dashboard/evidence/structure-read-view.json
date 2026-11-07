@@ -1,0 +1,80 @@
+{
+  "status": "passed",
+  "scope": "Private owner-side fence for immutable async region reads; no live game wiring or placement authorization",
+  "parent_head": "01abb0ecf9e5c06c8138dc1c44da3c38d220b2c3",
+  "hosted_parent": {
+    "builds": 8,
+    "result": "success",
+    "publication": "skipped"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-read-view tools/structures/DiskPackageIndexPrototype.java tools/structures/DiskRegionCachePrototype.java tools/structures/DiskRegionCacheCheck.java tools/structures/AsyncRegionReadPrototype.java tools/structures/RegionReadViewPrototype.java tools/structures/RegionReadViewCheck.java",
+    "java -Xmx256m -cp target/structure-read-view:target/classes RegionReadViewCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_region_read_view tools.structures.test_region_history.RegionHistoryIntegrationTest.test_async_region_reads tools.structures.test_region_history.RegionHistoryIntegrationTest.test_disk_region_cache -v",
+    "java -Xmx256m -cp target/structure-read-view:target/classes RegionReadViewCheck --evidence"
+  ],
+  "tests": {
+    "selected_integrations": 3,
+    "seconds": 14.183,
+    "exit": 0,
+    "cli_exit": 0,
+    "rejection_cases": 12,
+    "cases": [
+      "Completed result rejects affected-chunk edit.",
+      "Different world object rejects.",
+      "Same world with new root publication epoch rejects (root ABA fence).",
+      "Different model library identity rejects.",
+      "Model revision change rejects.",
+      "Clearing a populated affected chunk rejects.",
+      "Unrelated chunk edit remains valid.",
+      "Foreign owner thread rejects.",
+      "Cancelled, exceptional, wrong-count and wrong-position results reject.",
+      "Real disk result is exact, remains usable after unrelated edit, and becomes stale after affected edit.",
+      "Stale/failed views never revive; storage-thread cleanup removes owned decoded cache."
+    ],
+    "initial_test_note": "Initial clear fixture had no affected override to clear, so its chunk stamp correctly stayed unchanged. The final fixture populates that chunk before capture and verifies real removal; root-epoch obligations remain unchanged."
+  },
+  "playtest": {
+    "entry": "Playtest: actual CLI and its own Swing result window completed with exit 0; screenshot captured on inherited assigned display/authentication and inspected.",
+    "steps": [
+      "Capture owner/world/root/model/chunk fences around a pending read.",
+      "Complete the read and change each guarded state; verify stale/failed results never become ready again.",
+      "Open and read the real disk index/cache on its storage worker; verify exact cell, unrelated-edit validity, affected-edit rejection and cleanup."
+    ],
+    "expected": "Pending remains distinct from absence; completed results revalidate; stale/failed reads cannot provide current ready data.",
+    "observed": "All assertions passed; 12 rejection cases.",
+    "browser": "Not applicable to CLI-only change. Production/native harness unchanged; all 228 source hashes still match completed native workflow.",
+    "image": "structure-read-view.png",
+    "image_sha256": "69e3100d28f64df1ca119452956f9ad7a8d6fd9785961b3d256f25944638b10d"
+  },
+  "source_sha256": {
+    "tools/structures/RegionReadViewPrototype.java": "70db8fa9aadb47b575ba890b537d6b3feb14ab4eefc82dc1d916f4c5f3de0272",
+    "tools/structures/RegionReadViewCheck.java": "bf633c83d27fcf9e23b0609d6379e1f5dee0cb352399ae905ceae37cdc866b04",
+    "tools/structures/AsyncRegionReadPrototype.java": "05e83578d3f72952e0e4e44b2c8acc04b1cb3e1878f661c10632e4c3e188435b",
+    "tools/structures/DiskRegionCachePrototype.java": "8179b66b9c29212d76e2354e0bf2b65927048f91667fc15cc9333fe3bb38e258",
+    "tools/structures/test_region_history.py": "d2b63a3a4568f8d108b0cdd449865dc69fdab0c71e4ae1664611eb65850c83a1"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "heap": "-Xmx256m",
+    "gpu_drivers": "No GPU/driver performance measured"
+  },
+  "limits": [
+    "Capture/poll require the same owner and its world mutation lock.",
+    "Caller must replace the root epoch on every root publication, including ABA.",
+    "Ready is immutable read data, not placement authorization. Retained ready results require current owner/authority checks again before mutation.",
+    "The index/cache is the trusted validated immutable data source; this fence is not package or dependency validation.",
+    "Views retain their captured references; caller must bound live views and release stale data. No total memory or owner timing qualification claimed.",
+    "No live game wiring, save/renderer/physics/server integration, full city/maximum admission or required 20-run qualification completed.",
+    "Physical GPU, shaped 32-client and all remaining frame/tick/traffic/memory/stall/durability budgets stay pending; stable rollout gated."
+  ],
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deletions": 0,
+    "intended_unrelated_deletions": [],
+    "restored_mp3_and_hub_match_base": true
+  },
+  "publication": "New tooling/tests/docs/media pending controller publication and exact-source hosted checks"
+}
