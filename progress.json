@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:00:02+00:00",
+  "updatedAt": "2026-11-09T13:04:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4008,11 +4008,17 @@
     {
       "id": "agent-recovery-20261109",
       "title": "Resume blocked development work",
-      "description": "Live audit found four blocked records, no unanswered questions, healthy controller and available actual quota. Two unfinished product items are being returned to their original developers with concrete review corrections; two older internal diagnostics are preserved while their completed parent outcomes are checked.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Live audit found four blocked records, no unanswered questions, healthy controller and available actual quota. Two unfinished product items are being returned to their original developers with concrete review corrections; two older internal diagnostics are preserved while their completed parent outcomes are checked.",
-      "updatedAt": "2026-11-09T13:00:02+00:00"
+      "description": "Operational recovery of blocked structures and launcher work; product development remains ongoing.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "agent recovery 2026 11 09.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agent-recovery-2026-11-09.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Both original developers now have active turns: developer-1 on structures and developer-3 on the launcher. Actual quota is available; controller is healthy; no unanswered owner questions. Verified launcher catalog/shell metadata return HTTP200 and preview shell matches SHA256; sent fresh facts to developer. Two superseded internal diagnostic records remain retained and do not block work. Product acceptance and genuine hardware qualification remain intact.",
+      "updatedAt": "2026-11-09T13:04:14+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
