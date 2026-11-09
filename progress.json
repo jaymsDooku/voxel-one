@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T15:15:19+00:00",
+  "updatedAt": "2026-11-09T15:23:10+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4044,11 +4044,16 @@
           "kind": "link",
           "label": "Current hosted validation",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42640703574"
+        },
+        {
+          "kind": "link",
+          "label": "Reviewed implementation",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/79"
         }
       ],
       "status": "in_progress",
-      "note": "2952 exact-head independent qualification:44 native focused tests pass; deterministic healthy/pressured CLI fixtures replace host-dependent test. Full hosted npm test stage now passes; required worker-regression, display and build stages still running. Base review and dependent activation work c8bebbab remain required. Adapted systemd units verify successfully; no production installation/deletion.",
-      "updatedAt": "2026-11-09T15:15:19+00:00"
+      "note": "PR79 independently approved and merged as d21d1bb after75 focused reviewer checks, Chromium workflow and successful hosted CI. Dependent setup work c8bebbab is now active on developer-2 for schema-only initialization, authenticated initial activation and paused-service acknowledgement. Root deployment guard requires both approved merges; production monitoring/cleanup not yet activated.",
+      "updatedAt": "2026-11-09T15:23:10+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
