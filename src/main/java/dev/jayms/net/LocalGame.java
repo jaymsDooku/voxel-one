@@ -57,7 +57,10 @@ public final class LocalGame {
                 inventory = Inventory.read(in,version>=8);
                 health = in.readUnsignedByte();
                 if (health > 20) throw new IOException("Invalid saved health");
-                if(regionalSaves)RegionReplay.read(in,edits,e->true,cancel,progress);
+                if(regionalSaves) {
+                    var body=readRegionalBody(Path.of(System.getProperty("java.io.tmpdir")),in,edits,cancel,progress);
+                    drops.putAll(body.drops());nextDrop=body.nextDrop();
+                }
                 else {
                     int n = in.readInt();
                     if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
@@ -75,19 +78,48 @@ public final class LocalGame {
                     }
                     progress.accept(n);StructurePackage.cancelled(cancel);
                 }
-                int n = in.readInt();
-                if (n < 0 || n > 100000) throw new IOException("Invalid drops");
-                for (int i = 0; i < n; i++) {
-                    StructurePackage.cancelled(cancel);
-                    ItemDrop d = ItemDrop.read(in,version>=8);
-                    drops.put(d.id(), d);
-                    nextDrop = Math.max(nextDrop, d.id());
+                if(!regionalSaves) {
+                    int n=in.readInt();
+                    if(n<0||n>100000)throw new IOException("Invalid drops");
+                    for(int i=0;i<n;i++) {
+                        StructurePackage.cancelled(cancel);var drop=ItemDrop.read(in,version>=8);
+                        drops.put(drop.id(),drop);nextDrop=Math.max(nextDrop,drop.id());
+                    }
                 }
-                if(regionalSaves&&in.read()!=-1)throw new IOException("Trailing regional offline world");
             }
         StructurePackage.cancelled(cancel);
         seed = worldSeed;
         generatorVersion = generator;
+    }
+
+    record LoadedDrops(Map<Integer,ItemDrop> drops,int nextDrop) {}
+    private static LoadedDrops readDrops(DataInputStream in,boolean current,BooleanSupplier cancel)throws IOException {
+        int count=in.readInt();
+        if(count<0||count>100000)throw new IOException("Invalid drops");
+        var drops=new LinkedHashMap<Integer,ItemDrop>();int next=0;
+        for(int i=0;i<count;i++) {
+            StructurePackage.cancelled(cancel);var drop=ItemDrop.read(in,current);
+            drops.put(drop.id(),drop);next=Math.max(next,drop.id());
+        }
+        return new LoadedDrops(Collections.unmodifiableMap(drops),next);
+    }
+    /** Worker-private target only. Validate the whole source tail before expanding
+     * global history. Drain still builds eager history and is not live paging.
+     * Progress counts source records, not completion of the later private drain. */
+    static LoadedDrops readRegionalBody(Path directory,DataInputStream in,Map<String,Protocol.Edit> target,
+            BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(target);
+        if(!target.isEmpty())throw new IllegalArgumentException("Fresh private regional history required");
+        try(var spool=RegionReplaySpool.stage(directory,
+                in,edit->true,cancel,RegionReplaySpool.MAX_BYTES,progress)) {
+            var drops=readDrops(in,true,cancel);
+            if(in.read()!=-1)throw new IOException("Trailing regional offline world");
+            StructurePackage.cancelled(cancel);
+            spool.visit(edit->true,cancel,(region,section)->{
+                for(var edit:section){StructurePackage.cancelled(cancel);WorldVoxels.rememberValidated(target,edit);}
+            });
+            StructurePackage.cancelled(cancel);return drops;
+        }
     }
 
     /** Below buffering, checks cancellation around at most 64 KiB per read.

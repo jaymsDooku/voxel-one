@@ -52,7 +52,7 @@
     "src/main/java/dev/jayms/net/Inventory.java": "251f649394c0a2bb7d4bea7bdefac27f9b3dc14f2ccb7403d934b0cae0b1567b",
     "src/main/java/dev/jayms/net/ItemDrop.java": "2249a4531a2354761a514755999c87fca085becf892bdb23b50e9c3543d9d946",
     "src/main/java/dev/jayms/net/Items.java": "fb52ebaa3c4ecca1c0f34a606561cb2ef28514349ab71b97ff890996c4958a49",
-    "src/main/java/dev/jayms/net/LocalGame.java": "784744ba3611588bbb478759587fca6a27eabe1b84899daa6dd9012b98c8f5b0",
+    "src/main/java/dev/jayms/net/LocalGame.java": "f236d188385255eabe36e129c5e23c53f5b774e01d68770d5aabc4c14cbe87cf",
     "src/main/java/dev/jayms/net/LongLruCache.java": "6dfb38f20d138bf5e3ca2faf021b9b533005ed14ddf824297179c92d42f2e9e1",
     "src/main/java/dev/jayms/net/MultiplayerClient.java": "251b0b66037d29b970c93f15fc1b2798d7043a0f8365cd915020b9ad0a25488a",
     "src/main/java/dev/jayms/net/MultiplayerServer.java": "ece0b1a613bcce325bc24a9774a2dcdff0a8882a5138212e22a108937a9b76cb",
@@ -60,7 +60,7 @@
     "src/main/java/dev/jayms/net/PersistentOrderedMap.java": "3d52cea209ba2d393324e2e08bbb1232d8ee5b52aee6fab29d5163c74514cb55",
     "src/main/java/dev/jayms/net/Protocol.java": "64ca66ffb8b5a592385d4ab5b33f8ad854b1c43b6e04242399911fae8a019c11",
     "src/main/java/dev/jayms/net/RegionReplay.java": "1dd535526cc13d84f4742e90a89e0ead4389ec9a78a8fd787bd938b313a79e48",
-    "src/main/java/dev/jayms/net/RegionReplaySpool.java": "12444183f063d5d0d8b2343fab488771c1464629589e05cffdc508ef97399945",
+    "src/main/java/dev/jayms/net/RegionReplaySpool.java": "b36a0037f7667ec4e237c3178444bb44ea6c05182babbb2cd006dec5ec069581",
     "src/main/java/dev/jayms/net/RemotePlayer.java": "1cc1ec5600b563e01a3077899ae427c47df2b6a86d52b6069c6500f3ffeef26c",
     "src/main/java/dev/jayms/net/SecureTransport.java": "6d04aa968e17a151ba1694c1ac637722d4e84f33253ac44c1e59be10502b6d41",
     "src/main/java/dev/jayms/net/ServerTickCadence.java": "833da326244c1e2626067725562819fbe1e5f860f15d82fe2deceb693e5964b3",
@@ -234,6 +234,6 @@
     "src/main/java/dev/jayms/ui/StructureMenu.java": "f2b04d43f0b32fed7d5159fe6acd54b67aa96527f0ec4b9523a2a7478ecede73",
     "src/main/java/dev/jayms/window/KeyAction.java": "a2d892382438b9b81b69ad7773f192beeac17a1d739ec1a3248c2cc000dcdaf8",
     "src/main/java/dev/jayms/window/Window.java": "9953ca693c8c74631ebcb8d45b81587fc944afad15cec865edbe31dbc8f1a27d",
-    "deploy/OfflineLoadPlaytest.java": "4077b066ffab05c1e7c2e3bc901eadb09b359971353d2279e5653574751bb3cf"
+    "deploy/OfflineLoadPlaytest.java": "96035d16e945f4653f4e953b76042215e1e9d3ba5284c6c88f214df5799974d1"
   }
 }

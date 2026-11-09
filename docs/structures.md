@@ -1587,3 +1587,26 @@ full-fixture runs. Protocol clients do not render frames. The report deliberatel
 sets `qualification` to `false`. It does not qualify city/maximum admission,
 physical GPUs, shaped-network synchronization, traffic, peak memory, frame times,
 action acknowledgements or main-thread stalls.
+
+### Regional offline load staging
+
+Version-10 offline loads now use the bounded replay spool before rebuilding the
+private edit history. The loader validates every replay section, reads and
+validates the drop list, and requires exact source EOF before expanding history.
+Malformed or truncated tails therefore fail before global history allocation.
+The source save is never rewritten by loading.
+
+The worker owns one temporary file in `java.io.tmpdir`, capped at 88,000,004 bytes
+by the existing two-million-record replay limit. It rechecks length, count,
+section CRCs, edit validity and exact spool EOF during replay. Success, failure,
+callback failure and cooperative cancellation close/delete the spool. Cleanup
+I/O failures propagate; the incomplete private result cannot be published.
+Blocking filesystem calls still require a worker and cannot promise immediate
+cancellation. The owner does not interrupt or join that worker.
+
+Progress counts validated source records at 128-record intervals. It may reach
+the record total before the private history drain finishes; task completion is
+separate. The valid-load tradeoff is temporary disk space and a second disk pass.
+The history and geometry remain eager after startup. This is neither resident
+region paging nor a city/maximum performance qualification. Versions 3–9 and all
+save/package/admission caps remain unchanged.
