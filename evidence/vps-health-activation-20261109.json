@@ -1,0 +1,63 @@
+{
+  "status": "complete",
+  "verifiedAt": "2026-11-09T15:54:05.978625+00:00",
+  "dashboard": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/#vps-health",
+  "siteVersion": 44,
+  "reviewedMerge": "091fdcf1bc59b4f737bee5326c9aa3753154c213",
+  "implementationReviews": [
+    "https://github.com/jaymsDooku/codex-development-dashboard/pull/79",
+    "https://github.com/jaymsDooku/codex-development-dashboard/pull/80"
+  ],
+  "verification": {
+    "independentFocusedNativeTests": 52,
+    "ChromiumChecks": 10,
+    "LinuxWebKitChecks": 10,
+    "normalReviewerFocusedChecks": [
+      75,
+      46
+    ],
+    "hostedCI": [
+      "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42640703574",
+      "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42644539681"
+    ],
+    "actualScheduledObservations": 3,
+    "serviceToDashboardAcknowledgementVerified": true,
+    "ordinaryCoordinatorPolicyWritesDenied": true,
+    "serviceHardeningVerified": true,
+    "timerEnabled": true,
+    "runsAfterLogout": {
+      "command": "loginctl show-user debian --property=Linger",
+      "observed": "Linger=yes"
+    },
+    "workerSettingsAndConfigurationPreserved": true,
+    "installedSourceClean": true
+  },
+  "operation": {
+    "intervalMs": 300000,
+    "modelCallsPerObservation": 0,
+    "configuredMode": "cleanup",
+    "policyRevision": 1,
+    "maximumCandidatesPerSweep": 2,
+    "maximumBytesPerSweep": 2147483648,
+    "minimumReviewAgeHours": 72,
+    "minimumScratchAgeDays": 7,
+    "ownerControls": [
+      "observe",
+      "pause",
+      "dry_run",
+      "bounded_cleanup"
+    ],
+    "cleanupHistoryAvailable": true
+  },
+  "productionCleanup": {
+    "deletedCandidates": 0,
+    "reclaimedBytes": 0,
+    "currentlyHeldForProtectedSavedActivity": true,
+    "unknownHistoricalDataPreserved": true
+  },
+  "limitations": [
+    "Saved native diagnostics do not establish a verified input scope. Cleanup remains fail-closed; source, assets, sessions, unique reports and unknown old data remain protected.",
+    "Browser tests used isolated synthetic data and Linux Chromium/WebKit; no physical iPhone certification."
+  ],
+  "detailedPrivateEvidence": "https://github.com/jaymsDooku/codex-development-dashboard/blob/77df72db066e9220e5e647fe444f89c8647042e5/dashboard/evidence/vps-health-20261109/live-final-verification-private.json"
+}
