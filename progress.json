@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T23:09:45+00:00",
+  "updatedAt": "2026-11-09T23:14:51+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4089,11 +4089,21 @@
           "kind": "image",
           "label": "vps health design operations phone 20261109.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-design-operations-phone-20261109.png"
+        },
+        {
+          "kind": "link",
+          "label": "Open interactive health mockups",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health-mockups/"
+        },
+        {
+          "kind": "report",
+          "label": "vps health design verification 20261109.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-design-verification-20261109.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Two designs passed responsive Chromium/WebKit QA and full hosted dashboard/worker CI at exact source 576b50f. Independent review and private publication are next. Screenshots show labelled sample data only.",
-      "updatedAt": "2026-11-09T23:09:45+00:00"
+      "status": "complete",
+      "note": "Two interactive VPS Health mockups independently reviewed, merged and published. Dashboard Health mockups link and live assets verified against reviewed source; desktop/phone layouts and five sample states tested in Chromium and Linux WebKit. Controls are preview-only.",
+      "updatedAt": "2026-11-09T23:14:51+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
