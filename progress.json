@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T14:05:13+00:00",
+  "updatedAt": "2026-11-09T14:40:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4029,11 +4029,16 @@
           "kind": "link",
           "label": "Health specialist implementation and review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/79"
+        },
+        {
+          "kind": "link",
+          "label": "Independent implementation review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/79#issuecomment-6742761921"
         }
       ],
       "status": "in_progress",
-      "note": "PR79 is in correction after independent review. First head fixed overflow/native-lane/quarantine-collision cases; remaining fixes cover saved descendant protection on both cleanup paths, inode/hysteresis pressure and dashboard Health controls/history. Original developer2 is active and adding persistent controls plus schema migration. No production deletion or activation; existing private dashboard remains live.",
-      "updatedAt": "2026-11-09T14:05:13+00:00"
+      "note": "Private PR79 now includes Health navigation, authenticated mode controls and cleanup history. Independent native qualification:39 focused tests pass, saved-work/overflow/no-clobber protections pass. Three scoped corrections returned: schema-only initialization, authorized initial activation and paused first-reading acknowledgement. Service activation waits for corrected exact-head review; production deletions remain zero.",
+      "updatedAt": "2026-11-09T14:40:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
