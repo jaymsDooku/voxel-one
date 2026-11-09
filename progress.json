@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:14:54+00:00",
+  "updatedAt": "2026-11-09T13:19:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4023,11 +4023,11 @@
     {
       "id": "vps-health-specialist-20261109",
       "title": "VPS health specialist and safe transient cleanup",
-      "description": "Host audit found 94percent disk use and about9.2GiB free. Implementing deterministic monitoring independent of model quota, conservative explicit-provenance cleanup, protected source/assets/sessions/evidence, bounded audit and private dashboard health visibility. Existing developers remain on their work; idle developer slot assigned implementation with independent safety QA.",
+      "description": "Dashboard feature for VPS health, safe bounded transient cleanup and owner controls; local monitoring continues independently of model quota.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Host audit found 94percent disk use and about9.2GiB free. Implementing deterministic monitoring independent of model quota, conservative explicit-provenance cleanup, protected source/assets/sessions/evidence, bounded audit and private dashboard health visibility. Existing developers remain on their work; idle developer slot assigned implementation with independent safety QA.",
-      "updatedAt": "2026-11-09T13:14:54+00:00"
+      "note": "Developer2 is implementing the local health/cleanup modules and lifecycle hooks. Owner clarified this is a first-class dashboard feature with live/stale metrics, cleanup history and pause/dry-run controls. Independent safety QA is reviewing deletion paths. Read-only historical preflight preserved108dirty/ignored review copies; only8clean terminal older copies qualify for further checks. No production deletion or activation yet.",
+      "updatedAt": "2026-11-09T13:19:54+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
