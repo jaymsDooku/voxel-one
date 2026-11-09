@@ -79,7 +79,7 @@ def run(args):
     classes=work/'classes';classes.mkdir(exist_ok=True)
     source_client=root/'target/voxel-one-1.0-SNAPSHOT-client.jar'
     command([javac,'--release','17','-cp',str(source_client),'-d',classes,'tools/hub/HubPlaytest.java',
-             'tools/hub/PackageUiProbe.java','tools/hub/HubPerformanceProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java','tools/hub/ClientExitPlaytest.java'])
+             'tools/hub/PackageUiProbe.java','tools/hub/HubPerformanceProbe.java','tools/hub/ProcessQueryProbeTest.java','tools/hub/UpdaterProbe.java','tools/hub/OnlineLoginPlaytest.java','tools/hub/NativeRenderProbe.java','tools/hub/WindowFailureProbe.java','tools/hub/NativeContextProbe.java','tools/hub/PrePlayCatalogPlaytest.java','tools/hub/ClientExitPlaytest.java','tools/hub/CatalogStatusPlaytest.java'])
     jars=[];apps=[]
     from package import package
     for i in (1,2):
@@ -266,6 +266,10 @@ def run(args):
         return command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.PrePlayCatalogPlaytest',
                         work/'pre-play-profile',out/'pre-play-catalog',fixture],timeout=180,output='playtest')
     check('Catalog promotion before Play','Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required',pre_play_catalog)
+    check('Friendly library status and detail provenance',
+          'Online refresh is friendly; exact catalog version stays in details; offline failure preserves cache',
+          lambda:command([runtime,'-Djava.io.tmpdir='+str(work),'-cp',cp,'dev.jayms.launcher.CatalogStatusPlaytest',
+                          work/'catalog-status-profile',out/'catalog-status'],timeout=90,output='playtest'))
     def client_exit():
         fixture_classes=work/'exit-fixture-classes';fixture_classes.mkdir()
         command([javac,'--release','17','-d',fixture_classes,'tools/hub/DelayedExitClient.java'])

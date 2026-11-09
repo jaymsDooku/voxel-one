@@ -1,0 +1,53 @@
+{
+  "baseHead": "a16b2b830d7f4c20132a654642563add58098f51",
+  "scope": "Local source edits pending controller publication. Catalog status now says Library up to date; exact version stays in game details. Offline states and metadata are unchanged.",
+  "environment": "Linux, inherited managed DISPLAY/XAUTHORITY, JDK21.0.5 --release17, isolated synthetic profiles under assigned worktree; synthetic loopback catalog and server127.0.0.1.",
+  "commands": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -d target/hub-friendly-classes src/main/java/dev/jayms/launcher/*.java tools/hub/PrePlayCatalogPlaytest.java tools/hub/CatalogStatusPlaytest.java",
+    "cp -r src/main/resources/dev target/hub-friendly-classes/",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/hub-friendly-classes dev.jayms.launcher.CatalogStatusPlaytest target/hub-friendly-profile-2 dashboard/evidence",
+    [
+      "mvn",
+      "-q",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/maven-cache",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+      "-Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,HubShellActivationTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin",
+      "test"
+    ],
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "python3 -m py_compile tools/hub/check_packages.py",
+    "git diff --check",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D"
+  ],
+  "tests": [
+    "Playtest: actual Swing refresh against syntheticHTTP200catalog; Home/Games show friendly status and no technicalcatalogID; exactversion still present in detail. Captured scrolled detail showing version1234567890abcdef1234.",
+    "Playtest: HTTP503edge shows offline/unavailable status, never up-to-date; verified cachedcatalogbytes retained. All assertions passed; screenshots inspected.",
+    "Scoped Maven24tests passed with0failures/errors/skips; assigned target/maven-cache and target/hub-tmp used. No private runtime logs published.",
+    "12Python regressions, syntax and whitespace checks passed."
+  ],
+  "mavenCounts": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "audit": {
+    "reviewBase": "71612f09bfec4549456b3317676e76cdced085a4",
+    "currentMasterObserved": "71612f09bfec4549456b3317676e76cdced085a4",
+    "deletions": "None; no restoration needed.",
+    "productionPaths": "Reviewed launcher additions/updater/launch handoff, LoginDialog accessibility+upgrade link, and documented Mac context/numeric-error changes. No unrelated production paths modified against base. Preserve these and merged AssetManager/other features during controller integration."
+  },
+  "sourceSha256": {
+    "src/main/java/dev/jayms/launcher/CatalogStore.java": "4c4a35a9dc908e48547cc1b340304eca54c74bb2df20967899694f46f8a9a24e",
+    "tools/hub/check_packages.py": "7f8038372e82d7381ec29a534a7da95fd0ec3e45ac10b8831bc8f47feb4d3f40",
+    "tools/hub/CatalogStatusPlaytest.java": "876eb0b2b5946904a451d8ffe81d4b8266a5ba4bea6458c1b5933a2d6dc8001a"
+  },
+  "pending": [
+    "Hosted packaged validation of resulting integratedexacthead. Existing a16 preview2 bundle/captures remain historical; root must regenerate from the newly committed reviewed source.",
+    "Root is already inspecting catalog/publication; no repeated generic repair or ownerquestion raised.",
+    "Mac native rendering, physicalGPU/realWindowsDPI/performance, twoactuallypublishedHubgenerationupgrade and normal visitorbrowser/deploymentfreshness remain pending.",
+    "Independent review and stable rollout gates remain required."
+  ],
+  "mediaPublication": "friendly-catalog-status.png, catalog-version-detail.png, catalog-offline-status.png are fresh implementation captures pending controller publication."
+}

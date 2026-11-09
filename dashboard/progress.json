@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-05T10:41:04+00:00",
+  "updatedAt": "2026-11-09T13:03:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "804d9797 reports verified: Windows package checks passed; Intel shell activation/capture now passed; 24 Java tests passed on each platform. Three exact-head Windows software recordings inspected. Fixed stale hosted-web browser passes surviving preflight failure; actual CLI negative cases and fresh deployed service-view gameplay passed; 12 regressions passed. Mac rendering, physical/DPI, visitor sign-in and two published-generation gates remain pending.",
-      "updatedAt": "2026-11-05T10:41:04+00:00"
+      "note": "Nov9: audited current master71612f09 and proposed source paths; no deletions/unrelated production edits found. Fixed cataloghash in library status; exactversion retained in details. Actual Swing online/detail/503-cache playtest passed and media inspected.24scoped Java tests passed with writable localMaven/tmp paths;12Python regressions passed. New source needs exact-head packaged checks; root publication and physical/Mac qualification gates remain pending.",
+      "updatedAt": "2026-11-09T13:03:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
