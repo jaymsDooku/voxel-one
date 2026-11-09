@@ -211,7 +211,7 @@ public final class StructureEngine {
                 if(quads==null){var definition=models.get(id);if(definition==null)throw new IOException("Missing world dependency");quads=ModelMesher.count(definition.definition().voxels());modelQuads.put(id,quads);}
                 instanceQuads+=quads;if(instanceQuads>262144)throw new IOException("Experimental chunk model-instance surface cap");
             }
-            try {MeshDataGenerator.count(chunk);}
+            try {MeshDataGenerator.validateBudget(chunk);}
             catch(IllegalStateException failure){throw new IOException("Structure would exceed chunk geometry budget",failure);}
             if(stamp!=null&&stamp.equals(source.chunkStamp(position)))validated.put(position,stamp);
         }
