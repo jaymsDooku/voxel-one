@@ -22,6 +22,24 @@ class StructureOfflineHistoryStagingTest {
     static void populate(LocalGame local,int count) {
         for(int i=0;i<count;i++){var e=new Protocol.Edit(i%512,180,500+i/512,Blocks.BRICKS);local.edits.put(e.key(),e);}
     }
+    @Test void oversizedHistoryRejectsBeforeBuildingReplayRecordsOrReportingStagingProgress()throws Exception {
+        var path=folder.resolve("oversized-history.dat");var local=new LocalGame(path,42);
+        var tree=new SparseVoxelOctree(16);
+        for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)
+            tree.set(x,y,z,WorldVoxels.encode(((x+y+z)&1)==0?Blocks.STONE:Blocks.GLASS));
+        tree.freeze();assertEquals(4096,tree.leafCount());
+        var cells=new LinkedHashMap<Position,SparseVoxelOctree>();
+        for(int x=0;x<489;x++)cells.put(new Position(x,180,0),tree);
+        var progress=new AtomicInteger();var reads=new AtomicInteger();
+        try(var queue=new StructureOwnerQueue()) {
+            var failure=assertThrows(ExecutionException.class,()->worker(queue,
+                    ()->local.stageStructureHistory(cells,queue,()->false,p->progress.incrementAndGet()),()->{},reads));
+            assertInstanceOf(IOException.class,failure.getCause());
+            assertEquals("World edit persistence limit",failure.getCause().getMessage());
+        }
+        assertEquals(1,reads.get());assertEquals(0,progress.get());
+        assertTrue(local.edits.isEmpty());assertFalse(Files.exists(path));
+    }
     static <T> T worker(StructureOwnerQueue queue,Callable<T> job,Runnable beforePump,AtomicInteger reads)throws Exception {
         var task=new FutureTask<T>(job);var thread=new Thread(task,"synthetic-history-worker");thread.start();
         try {

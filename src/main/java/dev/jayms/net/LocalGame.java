@@ -338,6 +338,7 @@ public final class LocalGame {
         },cancel);
         if(source==null){progress.accept(100);return null;}
         var next=source.next();long copied=0,total=Math.max(1L,cells.size());
+        if(next.replacementSize(cells,cancel)>MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
         progress.accept(0);
         var replacements=new ArrayList<dev.jayms.World.CellReplacement>(cells.size());
         for(var entry:cells.entrySet()) {

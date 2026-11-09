@@ -2,8 +2,11 @@ package dev.jayms.net;
 
 import dev.jayms.ChunkPos;
 import dev.jayms.net.model.SparseVoxelOctree;
+import dev.jayms.net.structure.StructurePackage;
 
+import java.io.IOException;
 import java.util.*;
+import java.util.function.BooleanSupplier;
 
 /**
  * Sparse overrides on an implicit seeded world; each block subdivides to sixteen cells per axis.
@@ -123,6 +126,27 @@ public final class WorldVoxels {
         @Override public Collection<Protocol.Edit> values() { return Collections.unmodifiableCollection(ordered.values()); }
         @Override public Protocol.Edit get(Object key) { return ordered.get(key); }
         @Override public int size() { return ordered.size(); }
+        /** Count a whole-cell transaction before retaining replay keys/records.
+         * Read a private history snapshot and stable cells on the worker. Count the
+         * final size, since a later replacement may free an earlier cell's space. */
+        public long replacementSize(Map<StructurePackage.Position,SparseVoxelOctree> replacements,
+                BooleanSupplier cancel)throws IOException {
+            long total=size();
+            for(var entry:replacements.entrySet()) {
+                StructurePackage.cancelled(cancel);
+                var p=entry.getKey();var tree=Objects.requireNonNull(entry.getValue());
+                if(tree.size()!=RESOLUTION||!new Protocol.Edit(p.x(),p.y(),p.z(),0).valid())
+                    throw new IllegalArgumentException("Invalid world cell");
+                var keys=cells.get(p.x()+","+p.y()+","+p.z());
+                if(keys!=null)total-=keys.many==null?1:keys.many.size();
+                // One clear plus one record per leaf. Only a single full-cell
+                // leaf reuses the clear key. Packed cells expose cached counts;
+                // ordinary 16-cube trees have a bounded traversal, no edit list.
+                int leaves=tree.leafCount();
+                total+=leaves==1&&tree.occupied()==RESOLUTION*RESOLUTION*RESOLUTION?1:1L+leaves;
+            }
+            StructurePackage.cancelled(cancel);return total;
+        }
         @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
         @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
             if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
