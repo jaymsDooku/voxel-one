@@ -1,0 +1,92 @@
+{
+  "title": "Blocked work recovery, 9 November 2026",
+  "at": "2026-11-09T13:04:10.468724+00:00",
+  "scope": "Operational recovery completed; product implementation and independent review remain ongoing.",
+  "initialBlockedRecords": 4,
+  "activeProductItemsResumed": [
+    {
+      "id": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+      "title": "Title: Support reusable voxel structures alongside voxel models",
+      "status": "in_progress",
+      "assignee": "developer-1",
+      "revision": 411
+    },
+    {
+      "id": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+      "title": "Voxel One Hub: redesigned launcher for all games and engine work",
+      "status": "in_progress",
+      "assignee": "developer-3",
+      "revision": 947
+    }
+  ],
+  "verifiedWorkers": [
+    {
+      "agent": "developer-1",
+      "workId": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+      "activeTurn": true,
+      "phase": "running",
+      "leaseUncertain": false
+    },
+    {
+      "agent": "developer-3",
+      "workId": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+      "activeTurn": true,
+      "phase": "running",
+      "leaseUncertain": false
+    }
+  ],
+  "budgetState": "available",
+  "control": "run",
+  "unansweredOwnerQuestions": 0,
+  "catalogObservation": {
+    "checkedAt": "2026-11-09T13:02:22.722603+00:00",
+    "checks": [
+      {
+        "file": "catalog.properties",
+        "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+        "httpStatus": 200,
+        "bytes": 2858,
+        "sha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+        "version": "38b7fd39479fc15aa1ef",
+        "generation": null
+      },
+      {
+        "file": "shell.properties",
+        "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+        "httpStatus": 200,
+        "bytes": 875,
+        "sha256": "062665804dfd04276a08a77b8508ccbeb6896942019dc4f5807f0604cf3a6b00",
+        "version": null,
+        "generation": null
+      }
+    ],
+    "shellAsset": {
+      "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-1/voxel-one-shell.jar",
+      "httpStatus": 200,
+      "bytes": 885236,
+      "expectedBytes": 885236,
+      "sha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+      "expectedSha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+      "passed": true,
+      "scope": "Public shell asset integrity only; no native gameplay, second generation upgrade or physical qualification claimed."
+    }
+  },
+  "launcherDeveloperFeedback": "https://github.com/jaymsDooku/voxel-one/pull/72#issuecomment-6740737261",
+  "remaining": {
+    "supersededInternalDiagnostics": 2,
+    "diagnosticIds": [
+      "6837ed24-ac9d-4e61-8316-a70cc0672505",
+      "9663ec40-d22f-44bd-99fc-ea6640b0014f"
+    ],
+    "reason": "Parents were previously independently completed. Preserve diagnostic history; do not create empty implementation loops or claim unperformed reviews.",
+    "qualification": "Actual native gameplay, physical GPU/DPI/performance and published-generation upgrade acceptance remain subject to exact-source evidence and independent review."
+  },
+  "safety": {
+    "sourceUnchangedByRecovery": true,
+    "originalDevelopersPreserved": true,
+    "dependenciesPreserved": true,
+    "savedSessionsPreserved": true,
+    "resumptionUsedRevisionFences": true,
+    "noQuotaOrQualityLimitsExpanded": true
+  }
+}
