@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T14:40:28+00:00",
+  "updatedAt": "2026-11-09T14:57:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4034,11 +4034,16 @@
           "kind": "link",
           "label": "Independent implementation review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/79#issuecomment-6742761921"
+        },
+        {
+          "kind": "link",
+          "label": "Exact-source safety report",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/blob/23e44f7e0c1ad19a3f9edf0b862448f811e467e9/dashboard/evidence/vps-health-20261109/qa/a084-exact-head-report.json"
         }
       ],
       "status": "in_progress",
-      "note": "Private PR79 now includes Health navigation, authenticated mode controls and cleanup history. Independent native qualification:39 focused tests pass, saved-work/overflow/no-clobber protections pass. Three scoped corrections returned: schema-only initialization, authorized initial activation and paused first-reading acknowledgement. Service activation waits for corrected exact-head review; production deletions remain zero.",
-      "updatedAt": "2026-11-09T14:40:28+00:00"
+      "note": "Exact a084 main safety qualification passes43 focused native tests, including incomplete saved activity, final directory/content swaps and bounded failed scans. Chromium Health controls/history/mobile checks carry forward through identical source hashes. Three activation corrections are explicitly queued as dependent work c8bebbab; both independent merges required before private Site publication or service activation. Production deletions remain zero.",
+      "updatedAt": "2026-11-09T14:57:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
