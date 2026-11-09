@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:42:15+00:00",
+  "updatedAt": "2026-11-09T14:05:13+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4024,10 +4024,16 @@
       "id": "vps-health-specialist-20261109",
       "title": "VPS health specialist and safe transient cleanup",
       "description": "Dashboard feature for VPS health, safe bounded transient cleanup and owner controls; local monitoring continues independently of model quota.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Health specialist implementation and review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/79"
+        }
+      ],
       "status": "in_progress",
-      "note": "Implementation has local service/timer, health summary integration, historical inventory/adoption commands and regression/browser tests. Independent isolated safety repro found activity-overflow, saved-descendant and quarantine-collision cases requiring exact-head correction/recheck. Owner dashboard controls/history acceptance is recorded. Build/browser verification ongoing; no production deletion or activation. Private Site checkout and guarded deployment preparation ready.",
-      "updatedAt": "2026-11-09T13:42:15+00:00"
+      "note": "PR79 is in correction after independent review. First head fixed overflow/native-lane/quarantine-collision cases; remaining fixes cover saved descendant protection on both cleanup paths, inode/hysteresis pressure and dashboard Health controls/history. Original developer2 is active and adding persistent controls plus schema migration. No production deletion or activation; existing private dashboard remains live.",
+      "updatedAt": "2026-11-09T14:05:13+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
