@@ -22,6 +22,7 @@ class StructureChunkMeshCountTest {
         return chunk;
     }
     static void matchesRender(Chunk chunk) {
+        MeshDataGenerator.validateBudget(chunk);
         var before=MeshDataGenerator.generate(chunk);int quads=MeshDataGenerator.count(chunk);
         assertEquals(before.vertices().length/36,quads);
         assertEquals(before.indices().length/6,quads);
@@ -60,15 +61,26 @@ class StructureChunkMeshCountTest {
         var admitted=fragmented(13);assertEquals(13*12288,MeshDataGenerator.count(admitted));matchesRender(admitted);
         var rejected=fragmented(14);
         var counted=assertThrows(IllegalStateException.class,()->MeshDataGenerator.count(rejected));
+        assertThrows(IllegalStateException.class,()->MeshDataGenerator.validateBudget(rejected));
         var rendered=assertThrows(IllegalStateException.class,()->MeshDataGenerator.generate(rejected));
         assertEquals("Chunk mesh exceeds bounded vertex budget",counted.getMessage());
         assertEquals(rendered.getMessage(),counted.getMessage());
+    }
+    @Test void looseUpperBoundFallsBackWithoutRejectingDenseFractionalCells() {
+        var chunk=new Chunk();var tree=new SparseVoxelOctree(16);
+        tree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        tree.set(0,0,0,0);tree.freeze();
+        for(int i=0;i<16;i++)chunk.replaceCell(i,0,0,tree);
+        // The occupied-voxel bound exceeds the cap, but merged surfaces fit.
+        assertTrue(16L*tree.occupied()*6*36>6_000_000);
+        matchesRender(chunk);
     }
     @Test void countAndRenderObserveThreadInterruptionForEmptyAndFractionalChunks() {
         for(var chunk:List.of(new Chunk(),fragmented(1))) {
             try {
                 Thread.currentThread().interrupt();
                 assertThrows(CancellationException.class,()->MeshDataGenerator.count(chunk));
+                assertThrows(CancellationException.class,()->MeshDataGenerator.validateBudget(chunk));
                 assertThrows(CancellationException.class,()->MeshDataGenerator.generate(chunk));
             } finally {Thread.interrupted();}
             matchesRender(chunk);

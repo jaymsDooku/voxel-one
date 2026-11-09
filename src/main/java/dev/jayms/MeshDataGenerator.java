@@ -16,6 +16,20 @@ public final class MeshDataGenerator {
     public static MeshData generate(Chunk chunk) {return scan(chunk,true).mesh();}
     /** Exact render-budget validation using the same face scanner, without render arrays. */
     public static int count(Chunk chunk) {return scan(chunk,false).quads();}
+    /** Validate a detached chunk without exact surface scanning when a voxel-face
+     * upper bound already fits. This is admission only, never a render count. */
+    public static void validateBudget(Chunk chunk) {
+        long upper=0;
+        for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+            int type=chunk.getBlock(x,y,z);
+            if(type==dev.jayms.net.Blocks.PARTIAL)upper+=6L*chunk.cell(x,y,z).occupied();
+            else if(type!=0&&!dev.jayms.net.Blocks.isModel(type))upper+=6;
+            if(upper*36>MAX_VERTEX_FLOATS||upper*6>MAX_INDICES) {
+                count(chunk);return;
+            }
+        }
+    }
     private static Scan scan(Chunk chunk,boolean emit) {
         Scratch scratch=SCRATCH.get();FloatBuilder vertices=scratch.vertices;IntBuilder indices=scratch.indices;
         vertices.reset();indices.reset();

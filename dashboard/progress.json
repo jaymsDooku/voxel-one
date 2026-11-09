@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T17:33:54+00:00",
+  "updatedAt": "2026-11-09T18:09:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Direct geometry decode verified by 41 focused tests, 20-run candidate comparisons and fresh native workflow media. Full regression: 215 fresh reports, 1074 tests, zero failures/errors, one skip; exit receipt unavailable. New source awaits hosted checks. City/max qualification and rollout remain gated.",
-      "updatedAt": "2026-11-09T17:33:54+00:00"
+      "note": "Added conservative chunk mesh admission with exact fallback. 32 focused tests and fresh native workflow passed. Sparse component p95 109.789 to 0.654 ms over 20 calls; full city/max qualification remains pending. No limits raised. New source/media await hosted checks.",
+      "updatedAt": "2026-11-09T18:09:54+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
