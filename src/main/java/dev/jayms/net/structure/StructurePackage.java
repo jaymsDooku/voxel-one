@@ -111,10 +111,13 @@ public final class StructurePackage {
     }
     private static void validateMaterial(SparseVoxelOctree tree,BooleanSupplier cancel)throws IOException {
         tree.forEachLeaf((x,y,z,side,color)->{
-            cancelled(cancel);int type=WorldVoxels.decode(color);
-            if(!Blocks.valid(type)||type==0||Blocks.isModel(type)||Blocks.isPiece(type)
-                    ||side<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
+            cancelled(cancel);validateMaterial(side,color);
         });
+    }
+    static void validateMaterial(int side,int color)throws IOException {
+        int type=WorldVoxels.decode(color);
+        if(!Blocks.valid(type)||type==0||Blocks.isModel(type)||Blocks.isPiece(type)
+                ||side<16&&!Blocks.subdividable(type))throw new IOException("Invalid geometry material");
     }
     /** Immutable occupied-cell index, without reading colours, geometry or dependencies. */
     public List<Position> occupiedPositions(){return ((StructureCells)cells).occupiedPositions();}
@@ -251,17 +254,14 @@ public final class StructurePackage {
                 var p=new Position(sx*16+index%16,sy*16+index/256,sz*16+(index/16)%16);
                 if(p.x()>=bounds.x()||p.y()>=bounds.y()||p.z()>=bounds.z())throw new IOException("Invalid or duplicate structure cell");
                 long key=order(p);if(key<=last)throw new IOException("Duplicate/unordered structure cells");last=key;
-                SparseVoxelOctree tree=null;
                 if(model<0){
-                    tree=SparseVoxelOctree.read(in,16);if(tree.occupied()==0)throw new IOException("Invalid/empty cell");
-                    leaves+=tree.leafCount();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");
-                    validateMaterial(tree,cancel);
+                    leaves+=cells.readGeometry(p,in,MAX_LEAVES-leaves,cancel);
                 } else {
                     if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");
                     instanceQuads+=modelQuads[model];
                     if(instanceQuads>MAX_INSTANCE_QUADS)throw new IOException("Experimental instance surface cap");
+                    cells.add(p,null,model);
                 }
-                cells.add(p,tree==null?null:tree.freeze(),model);
                 if((i&127)==127||i==n-1){progress.accept(25+(int)((long)(i+1)*74/n));cancelled(cancel);}
             }
             if(in.read()!=-1)throw new IOException("Trailing structure bytes");

@@ -2,6 +2,7 @@ package dev.jayms.net.structure;
 
 import dev.jayms.net.model.SparseVoxelOctree;
 import java.io.DataOutputStream;
+import java.io.DataInputStream;
 import java.io.IOException;
 import java.util.AbstractList;
 import java.util.Arrays;
@@ -84,12 +85,7 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
             };
         }
         void add(Position p,SparseVoxelOctree tree,int model) throws IOException {
-            if(count>=MAX_CELLS)throw new IOException("Occupied cell limit");
-            if(count==positions.length) {
-                if(expectedCount>=0)throw new IllegalStateException("Too many structure cells");
-                int capacity=Math.min(MAX_CELLS,positions.length+positions.length/2);
-                positions=Arrays.copyOf(positions,capacity);models=Arrays.copyOf(models,capacity);values=Arrays.copyOf(values,capacity);
-            }
+            reserve();
             if(model< -1||model>=MAX_MODELS||model>=0&&tree!=null||model<0&&(tree==null||tree.size()!=16))throw new IOException("Invalid structure cell storage");
             int value=0;short code=(short)model;
             if(model<0) {
@@ -97,6 +93,20 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
                 if(color!=-1){code=UNIFORM;value=color;}else value=geometry.add(tree);
             }
             positions[count]=(int)StructurePackage.order(p);models[count]=code;values[count]=value;count++;
+        }
+        /** Caller has validated the position/order; geometry is validated before indexing it. */
+        int readGeometry(Position p,DataInputStream in,int leafBudget,java.util.function.BooleanSupplier cancel)throws IOException {
+            reserve();var decoded=geometry.readValidated(in,leafBudget,cancel);
+            positions[count]=(int)StructurePackage.order(p);models[count]=decoded.uniform()?UNIFORM:-1;
+            values[count]=decoded.value();count++;return decoded.leaves();
+        }
+        private void reserve()throws IOException {
+            if(count>=MAX_CELLS)throw new IOException("Occupied cell limit");
+            if(count==positions.length) {
+                if(expectedCount>=0)throw new IllegalStateException("Too many structure cells");
+                int capacity=Math.min(MAX_CELLS,positions.length+positions.length/2);
+                positions=Arrays.copyOf(positions,capacity);models=Arrays.copyOf(models,capacity);values=Arrays.copyOf(values,capacity);
+            }
         }
         StructureCells build() throws IOException {return build(()->false);}
         StructureCells build(java.util.function.BooleanSupplier cancel) throws IOException {return build(cancel,false);}

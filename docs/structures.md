@@ -1661,3 +1661,25 @@ Final serial model results on the shared Debian 12/Haswell VPS, Java 25.0.3 with
 Snapshot construction is slower in both cases; maximum mesh p95 and worst also regress. These component results do not establish an overall speedup. The report contains all 20 samples, medians, p95 and worst values, exact input hashes and excluded phases. Full Main/GLFW functional workflow passed on frozen source with fresh decoded/inspected F10 media; software rendering does not qualify the frame budget. The first full Java regression was interrupted and is not counted as passed; a bounded final-source retry is recorded separately in the evidence receipt.
 
 The resumed final-source Maven regression subsequently passed: 1,070 tests in 214 fresh suites, zero failures/errors and one optional browser skip, with no missing/stale source-class reports. Earlier interrupted/timeout attempts remain recorded separately. Production/native source and saved decoded media hashes still match; new source and evidence await runner publication and exact-head hosted checks. Full city/maximum qualification remains pending.
+
+
+### Direct validated geometry decoding
+
+The production importer now validates world-cell wire data directly into its bounded geometry arena instead of constructing and serializing a temporary octree for every cell. It retains the same size/tag/depth, material, empty-cell, leaf-budget and cancellation checks. Cell metadata is indexed only after a complete valid tree; the package still becomes visible only after stream CRC, length and EOF validation. Extended resolution headers normalize as before, and redundant branches keep their exact topology. Capture and public construction still validate their input trees. Production limits are unchanged.
+
+Four new tests cover 128 deterministic random differential cases, extended headers, redundant branches, segment crossings, malformed/truncated trees, invalid materials/depth, exact leaf budgets, cancellation and old snapshot independence. All 41 focused checks in five suites passed.
+
+An isolated build changes only three analysis constants: 8,388,608 leaves, 2,097,152 dependency quads and 67,108,864 instance quads. It never creates a world. Both reference fixtures pass strict decode, full decoded-body byte roundtrip, progress-based cancellation and CRC rejection in baseline/current analysis builds. The unchanged production controls still reject those fixtures. The reference maximum has 4,000,000 occupied cells and 7,967,232 leaves across 8,192 regions; it does not by itself qualify every possible spatial fragmentation pattern.
+
+Each row below uses one full-fixture warmup and 20 measured strict decodes, serial processes on the shared Haswell/Debian 12 VPS with Java 25.0.3 and a 1 GiB heap. Median/p95/worst exclude fixture hashing, System.gc, a 100 ms pause, count checks, export and rejection checks.
+
+| Fixture/build | Median decode ms | p95 ms | Worst ms | Median main-thread allocated bytes |
+| --- | ---: | ---: | ---: | ---: |
+| City baseline | 7795.957955 | 7972.094241 | 8157.483453 | 2,431,903,592 |
+| City direct decode | 7404.3129085 | 7734.470881 | 7867.686107 | 2,391,250,152 |
+| Maximum baseline | 16060.3500065 | 16352.208072 | 17129.728476 | 3,460,693,592 |
+| Maximum direct decode | 11654.3780005 | 12018.719278 | 12365.053555 | 1,101,999,500 |
+
+Maximum sampled decode heap fell from 593,287,224 to 478,323,024 bytes; maximum double-package roundtrip sampled heap fell from 1,049,063,208 to 882,860,304 bytes. City sampled decode heap rose from 181,403,240 to 263,813,528 bytes and process RSS high water rose from 377,446,400 to 423,002,112 bytes. Allocation reduction does not imply a universal peak-memory gain. Heap sampling is every 5 ms and can miss instantaneous peaks; RSS high water is cumulative within each process. The single export observations are not export p95 results.
+
+See `dashboard/evidence/structure-geometry-stream-decode.json` for raw samples, class/source provenance, commands and limitations. This decode-only experiment does not establish capture, preview, placement, durable save, cold load, upload, synchronization, frame or tick budgets. Production admission, live region-backed world/history/persistence and physical-GPU/shaped-32-rendered-client qualification remain incomplete; supported limits and stable rollout stay gated.
