@@ -1558,3 +1558,32 @@ The coarse diagnostic (16,384 whole-cell edits) had median 31.77 ms before and
 36,261,040 bytes. This is a measured tradeoff; the builder does not improve every
 replay shape. Both diagnostics ran serially after full regression. Neither is
 full-fixture or reference-environment qualification.
+
+### Real TLS observer-delivery diagnostic
+
+`StructureMultiplayerTest` supports 3–32 synthetic protocol clients through
+`-Dvoxel.structure.clients=N`. Production authentication limits remain active;
+the 32-client case waits 306 seconds between connection batches. All profiles,
+accounts and TLS files are synthetic and isolated in the test directory.
+
+For each of four road rotations, the test now waits for both endpoints on every
+client and checks the far-end dependency's rotated geometry. Sender completion
+alone is insufficient. Existing checks cover movement, occupied-cell rejection,
+cancelled upload, contested placement, undo, late join and restart recovery.
+
+An optional `-Dvoxel.structure.report=PATH` writes a sanitized JSON result only
+after all workflow assertions, including restart, pass. `PATH` must not exist;
+previous reports are never overwritten. `requestToAllClientsMs` starts before
+encoding and includes encoding, upload, validation, durable publication and
+observer polling. It is not a server-commit-to-synchronization measurement.
+Tick diagnostics summarize the server's bounded 4,096-sample window; they are
+not isolated placement-phase tick measurements. Workflow time includes login
+rate-limit waits.
+
+This is a 512-instance road with 512 sparse model dependencies on unshaped TLS
+loopback. Only its first placement starts with empty structure-dependency caches.
+Four rotations are four samples of different orientations, not 20 independent
+full-fixture runs. Protocol clients do not render frames. The report deliberately
+sets `qualification` to `false`. It does not qualify city/maximum admission,
+physical GPUs, shaped-network synchronization, traffic, peak memory, frame times,
+action acknowledgements or main-thread stalls.
