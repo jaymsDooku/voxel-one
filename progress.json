@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:04:14+00:00",
+  "updatedAt": "2026-11-09T13:14:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4019,6 +4019,15 @@
       "status": "complete",
       "note": "Both original developers now have active turns: developer-1 on structures and developer-3 on the launcher. Actual quota is available; controller is healthy; no unanswered owner questions. Verified launcher catalog/shell metadata return HTTP200 and preview shell matches SHA256; sent fresh facts to developer. Two superseded internal diagnostic records remain retained and do not block work. Product acceptance and genuine hardware qualification remain intact.",
       "updatedAt": "2026-11-09T13:04:14+00:00"
+    },
+    {
+      "id": "vps-health-specialist-20261109",
+      "title": "VPS health specialist and safe transient cleanup",
+      "description": "Host audit found 94percent disk use and about9.2GiB free. Implementing deterministic monitoring independent of model quota, conservative explicit-provenance cleanup, protected source/assets/sessions/evidence, bounded audit and private dashboard health visibility. Existing developers remain on their work; idle developer slot assigned implementation with independent safety QA.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Host audit found 94percent disk use and about9.2GiB free. Implementing deterministic monitoring independent of model quota, conservative explicit-provenance cleanup, protected source/assets/sessions/evidence, bounded audit and private dashboard health visibility. Existing developers remain on their work; idle developer slot assigned implementation with independent safety QA.",
+      "updatedAt": "2026-11-09T13:14:54+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
