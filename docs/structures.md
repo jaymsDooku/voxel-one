@@ -1638,3 +1638,26 @@ The component test excludes acquisition, capture/export, placement, saves,
 network, rendering and peak memory. Serial process order, JIT, GC and shared-host
 effects remain. It does not qualify city/max admission or required full-fixture
 performance. Supported-limit claims and stable rollout remain gated.
+
+
+### Compact imported model dependencies
+
+The package decoder now retains dense model definitions as exact octree wire bytes plus a private dense colour array. Repeated mesh sampling reads that array without rebuilding an octree. Mutable copies reconstruct the original tree; fingerprints, redundant branches, colours, per-model limits and package formats remain unchanged. Sparse models keep persistent nodes under a conservative density heuristic. Capture/public construction keeps its existing shared immutable nodes, avoiding an extra dense copy while the world library still holds the source model.
+
+Read-only full-fixture scans confirmed city counts of 978,288 occupied cells, 968,048 geometry leaves, 256 models, 10,240 instances, 2,173 regions, 1,572,864 dependency quads and 62,914,560 instance quads. Maximum counts are 4,000,000 occupied cells, 7,967,232 geometry leaves, 512 models, 16,384 instances, 8,192 regions, 786,432 dependency quads and 25,165,824 instance quads. These are diagnostic scans, not production admission or performance qualification.
+
+The model component benchmark compares decode plus immutable snapshot creation, three warmups and 20 measured runs of the first fixture model, followed by retention of all fixture dependencies with exact identity checks. Its post-GC heap delta is an estimate, not peak memory. Dense snapshots trade slower construction for lower retained storage. Full results and commands are recorded in `dashboard/evidence/structure-model-snapshots.json` after validation. No geometry, surface, chunk, history or supported limits are raised. Full city/maximum placement, durable storage, rendering, shaped 32-client synchronization and the required 20-run hardware qualification remain pending; stable rollout remains gated.
+
+The storage estimate covers unplaced decoded package dependencies only. World registries and mutable editor copies can reconstruct node graphs; the estimate is not a whole-world or placement peak-memory result. Non-sampling queries still reconstruct a bounded per-model tree. Renderer/raycast costs need their own qualification before broader use.
+
+
+Final serial model results on the shared Debian 12/Haswell VPS, Java 25.0.3 with a 768 MiB heap (tree -> packed):
+
+| Fixture | Post-GC retained dependency estimate, bytes | Decode + snapshot p95, ms | Mesh-count p95, ms |
+| --- | ---: | ---: | ---: |
+| City, 256 models | 288,276,200 -> 77,395,680 | 4.539760 -> 11.895167 | 8.313979 -> 5.991671 |
+| Maximum, 512 models | 72,310,120 -> 19,807,944 | 1.180342 -> 2.633130 | 0.715389 -> 0.968613 |
+
+Snapshot construction is slower in both cases; maximum mesh p95 and worst also regress. These component results do not establish an overall speedup. The report contains all 20 samples, medians, p95 and worst values, exact input hashes and excluded phases. Full Main/GLFW functional workflow passed on frozen source with fresh decoded/inspected F10 media; software rendering does not qualify the frame budget. The first full Java regression was interrupted and is not counted as passed; a bounded final-source retry is recorded separately in the evidence receipt.
+
+The resumed final-source Maven regression subsequently passed: 1,070 tests in 214 fresh suites, zero failures/errors and one optional browser skip, with no missing/stale source-class reports. Earlier interrupted/timeout attempts remain recorded separately. Production/native source and saved decoded media hashes still match; new source and evidence await runner publication and exact-head hosted checks. Full city/maximum qualification remains pending.

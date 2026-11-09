@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T14:48:53+00:00",
+  "updatedAt": "2026-11-09T16:14:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Single-pass package decode passed 37 focused tests, full 1,066-test regression (one optional skip), exact-roundtrip 20-run component comparisons and full native structure workflow. Fresh video decoded and inspected; source hashes match. Uniform p95 regression documented. New source/media await publication; city/max caps and full qualification remain unresolved.",
-      "updatedAt": "2026-11-09T14:48:53+00:00"
+      "note": "Compact imported model snapshots validated: full Maven 1070 tests/214 fresh suites, zero failures/errors, one optional skip. Existing native workflow/media and all source hashes match. New source/report/media need runner publication and exact-head checks; city/max admission and full qualification remain pending.",
+      "updatedAt": "2026-11-09T16:14:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

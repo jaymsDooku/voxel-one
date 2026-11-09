@@ -239,7 +239,7 @@ public final class StructurePackage {
                 if(model.voxels().occupied()==0||!identities.add(model.fingerprint()))throw new IOException("Empty or duplicate dependency");
                 modelQuads[i]=ModelMesher.count(model.voxels());dependencyQuads+=modelQuads[i];
                 if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
-                models.add(new ModelDefinition(model.name(),model.voxels().copy().freeze()));progress.accept((i+1)*25/n);cancelled(cancel);
+                models.add(new ModelDefinition(model.name(),model.voxels().packedModelCopy()));progress.accept((i+1)*25/n);cancelled(cancel);
             }
             progress.accept(25);cancelled(cancel);
             n=in.readInt();if(n<1||n>MAX_CELLS)throw new IOException("Occupied cell limit");

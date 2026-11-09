@@ -20,11 +20,19 @@ public final class SparseVoxelOctree {
     }
 
     /** Immutable marker; ordinary nodes and octree wrappers gain no storage fields. */
-    private static final class PackedCell extends Node {
+    private static class PackedCell extends Node {
         final byte[] bytes;
         final int nodes,occupied,leaves;
         PackedCell(byte[] bytes,int nodes,int occupied,int leaves) {
             super(0);this.bytes=bytes;this.nodes=nodes;this.occupied=occupied;this.leaves=leaves;
+        }
+    }
+
+    /** Model sampling stays allocation-free; exact bytes retain noncanonical tree identity. */
+    private static final class PackedModel extends PackedCell {
+        final int[] samples;
+        PackedModel(byte[] bytes,int nodes,int occupied,int leaves,int[] samples) {
+            super(bytes,nodes,occupied,leaves);this.samples=samples;
         }
     }
 
@@ -93,6 +101,7 @@ public final class SparseVoxelOctree {
 
     public int get(int x, int y, int z) {
         if (x < 0 || y < 0 || z < 0 || x >= size || y >= size || z >= size) return 0;
+        if(root instanceof PackedModel model)return model.samples[x+size*(y+size*z)];
         Node n = readRoot();
         for (int half = size / 2; n != null && n.children != null; half /= 2) {
             int index = (x >= half ? 1 : 0) | (y >= half ? 2 : 0) | (z >= half ? 4 : 0);
@@ -284,13 +293,44 @@ public final class SparseVoxelOctree {
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         return result.freeze();
     }
+
+    /** Detached model snapshot bounded by the existing 8/16/32-resolution model format.
+     * Dense trees retain wire bytes and samples instead of a node graph; sparse trees
+     * keep persistent nodes to avoid allocating a dense array for a few voxels. Mutable
+     * copies reconstruct the original tree, so edits cannot change this snapshot. */
+    public SparseVoxelOctree packedModelCopy() throws IOException {
+        if(size<8||size>32)throw new IllegalArgumentException("Model resolution 8, 16 or 32 required");
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        var result=new SparseVoxelOctree(size);
+        if(root instanceof PackedModel||root==null||root.children==null&&!(root instanceof PackedCell))result.root=root;
+        else {
+            var bytes=new ByteArrayOutputStream();try(var out=new DataOutputStream(bytes)){write(out);}
+            if(bytes.size()>ModelDefinition.MAX_BYTES)throw new IOException("Packed model byte limit");
+            // Conservative density heuristic, not a VM object-layout or memory guarantee.
+            int nodeCount=nodes();
+            if(nodeCount*16L<=bytes.size()+4L*size*size*size) {
+                result.root=readRoot();
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+                return result.freeze();
+            }
+            int[] samples=new int[size*size*size];
+            forEachLeaf((x,y,z,side,color)->{
+                if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+                for(int dz=z;dz<z+side;dz++)for(int dy=y;dy<y+side;dy++)
+                    java.util.Arrays.fill(samples,x+size*(dy+size*dz),x+side+size*(dy+size*dz),color);
+            });
+            result.root=new PackedModel(bytes.toByteArray(),nodeCount,occupied(),leafCount(),samples);
+        }
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        return result.freeze();
+    }
     private Node readRoot() {
         if(!(root instanceof PackedCell packed))return root;
         try(var input=new DataInputStream(new ByteArrayInputStream(packed.bytes))) {
-            var tree=read(input,16);
+            var tree=read(input,size);
             if(input.read()!=-1)throw new IOException("Trailing packed cell bytes");
             return tree.root;
-        } catch(IOException invalid){throw new IllegalStateException("Invalid internal packed world cell",invalid);}
+        } catch(IOException invalid){throw new IllegalStateException("Invalid internal packed octree",invalid);}
     }
 
     public SparseVoxelOctree freeze() {
