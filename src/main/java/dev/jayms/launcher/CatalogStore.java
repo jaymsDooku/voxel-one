@@ -47,7 +47,7 @@ public final class CatalogStore {
                         Files.write(temp, bytes);
                         Files.move(temp, cache, StandardCopyOption.ATOMIC_MOVE, StandardCopyOption.REPLACE_EXISTING);
                     } finally { Files.deleteIfExists(temp); }
-                    return new Snapshot(catalog, "Published catalog " + catalog.version());
+                    return new Snapshot(catalog, "Library up to date");
                 } finally { timeout.cancel(false); timer.shutdownNow(); }
             }
         } catch (InterruptedException e) {
