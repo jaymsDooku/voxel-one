@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:19:54+00:00",
+  "updatedAt": "2026-11-09T13:42:15+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4026,8 +4026,8 @@
       "description": "Dashboard feature for VPS health, safe bounded transient cleanup and owner controls; local monitoring continues independently of model quota.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Developer2 is implementing the local health/cleanup modules and lifecycle hooks. Owner clarified this is a first-class dashboard feature with live/stale metrics, cleanup history and pause/dry-run controls. Independent safety QA is reviewing deletion paths. Read-only historical preflight preserved108dirty/ignored review copies; only8clean terminal older copies qualify for further checks. No production deletion or activation yet.",
-      "updatedAt": "2026-11-09T13:19:54+00:00"
+      "note": "Implementation has local service/timer, health summary integration, historical inventory/adoption commands and regression/browser tests. Independent isolated safety repro found activity-overflow, saved-descendant and quarantine-collision cases requiring exact-head correction/recheck. Owner dashboard controls/history acceptance is recorded. Build/browser verification ongoing; no production deletion or activation. Private Site checkout and guarded deployment preparation ready.",
+      "updatedAt": "2026-11-09T13:42:15+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
