@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T22:55:09+00:00",
+  "updatedAt": "2026-11-09T23:09:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4069,10 +4069,31 @@
       "id": "vps-health-design-mockups-20261109",
       "title": "VPS Health visual design mockups",
       "description": "Designing two responsive interactive concepts with metric cards, charts, actionable cleanup status and progressive detail. Mockups will use labelled sample data and be linked from the private dashboard.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Mockup pull request",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/81"
+        },
+        {
+          "kind": "link",
+          "label": "Passed hosted CI",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42716246566"
+        },
+        {
+          "kind": "image",
+          "label": "vps health design overview 20261109.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-design-overview-20261109.png"
+        },
+        {
+          "kind": "image",
+          "label": "vps health design operations phone 20261109.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-design-operations-phone-20261109.png"
+        }
+      ],
       "status": "in_progress",
-      "note": "Two interactive responsive concepts built. Chromium and Linux WebKit checks passed across 320\u20131440px, both designs and five sample states; demo controls make no live requests. Feature-worktree integration and independent review are underway. Recovered disk capacity and resumed all blocked assignments.",
-      "updatedAt": "2026-11-09T22:55:09+00:00"
+      "note": "Two designs passed responsive Chromium/WebKit QA and full hosted dashboard/worker CI at exact source 576b50f. Independent review and private publication are next. Screenshots show labelled sample data only.",
+      "updatedAt": "2026-11-09T23:09:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
