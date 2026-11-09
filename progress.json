@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T15:56:48+00:00",
+  "updatedAt": "2026-11-09T22:41:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4064,6 +4064,15 @@
       "status": "complete",
       "note": "Implemented, independently reviewed, published private dashboard version44 and activated hardened VPS health timer.52 independent native checks plus Chromium/WebKit tests and hosted CI pass. Three real scheduled observations and service-to-dashboard cleanup revision1 acknowledgement verified; final interval5minutes,0model calls, caps2candidates/2GiB. Worker configuration preserved. Cleanup safely held for unscoped saved diagnostics; no production deletion or reclaimed-byte claim. Unknown long-term/source/asset/session/report data preserved.",
       "updatedAt": "2026-11-09T15:56:48+00:00"
+    },
+    {
+      "id": "vps-health-design-mockups-20261109",
+      "title": "VPS Health visual design mockups",
+      "description": "Designing two responsive interactive concepts with metric cards, charts, actionable cleanup status and progressive detail. Mockups will use labelled sample data and be linked from the private dashboard.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Designing two responsive interactive concepts with metric cards, charts, actionable cleanup status and progressive detail. Mockups will use labelled sample data and be linked from the private dashboard.",
+      "updatedAt": "2026-11-09T22:41:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
