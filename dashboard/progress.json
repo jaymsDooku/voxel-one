@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:53:01+00:00",
+  "updatedAt": "2026-11-09T14:48:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Version-10 offline loads now validate drops/EOF through bounded disk staging before eager history reconstruction. Passed 27 focused tests, full 1,062-test regression (one optional skip), and three native startup cases including regional success with unchanged source bytes. Fresh frame inspected; no spool leaks. New source/evidence await publication; city/max and full qualification remain open.",
-      "updatedAt": "2026-11-09T13:53:01+00:00"
+      "note": "Single-pass package decode passed 37 focused tests, full 1,066-test regression (one optional skip), exact-roundtrip 20-run component comparisons and full native structure workflow. Fresh video decoded and inspected; source hashes match. Uniform p95 regression documented. New source/media await publication; city/max caps and full qualification remain unresolved.",
+      "updatedAt": "2026-11-09T14:48:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

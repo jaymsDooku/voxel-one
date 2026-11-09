@@ -1610,3 +1610,31 @@ separate. The valid-load tradeoff is temporary disk space and a second disk pass
 The history and geometry remain eager after startup. This is neither resident
 region paging nor a city/maximum performance qualification. Versions 3–9 and all
 save/package/admission caps remain unchanged.
+
+### Single-pass package decode validation
+
+The decoder now checks geometry materials, cell bounds, dependency identity and
+aggregate instance surfaces while parsing each cell. Only after exact compressed
+stream length, checksum and EOF checks pass does it create a private decode
+receipt. Its definitions are frozen and its builder owns detached geometry bytes.
+Public package construction and capture still run their full content validator.
+No caller can supply the private receipt.
+
+Decoded cell positions have already passed strict ordering checks. Ordered
+finalization checks ordering/duplicates again and copies every published array,
+but does not allocate or sort a permutation array. Geometry segments retain the
+same immutable snapshot rules. The wire format and all caps remain unchanged.
+
+A serial parent/current public-decoder diagnostic used identical files: 100,000
+uniform cells, or 64 dense cells with 131,072 leaves. Each path had three warmups
+and 20 measured runs with a 512 MiB heap. Every run verified counts and exact
+re-encoded package bytes outside timing. Median decode times changed from
+40.29 to 32.56 ms for uniform and 22.74 to 17.52 ms for dense. Median thread
+allocation changed from 8,092,352 to 4,426,672 bytes and from 9,884,896 to
+5,312,256 bytes, respectively. Uniform p95 worsened from 64.39 to 70.36 ms;
+its allocation p95 also rose. These mixed results do not show a universal gain.
+
+The component test excludes acquisition, capture/export, placement, saves,
+network, rendering and peak memory. Serial process order, JIT, GC and shared-host
+effects remain. It does not qualify city/max admission or required full-fixture
+performance. Supported-limit claims and stable rollout remain gated.

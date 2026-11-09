@@ -99,15 +99,19 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
             positions[count]=(int)StructurePackage.order(p);models[count]=code;values[count]=value;count++;
         }
         StructureCells build() throws IOException {return build(()->false);}
-        StructureCells build(java.util.function.BooleanSupplier cancel) throws IOException {
+        StructureCells build(java.util.function.BooleanSupplier cancel) throws IOException {return build(cancel,false);}
+        /** Decoder-only ordered input. Still rejects duplicates/backtracking and copies
+         * every published array, but needs no sort or temporary permutation array. */
+        StructureCells buildOrdered(java.util.function.BooleanSupplier cancel)throws IOException {return build(cancel,true);}
+        private StructureCells build(java.util.function.BooleanSupplier cancel,boolean ordered) throws IOException {
             if(expectedCount>=0&&count!=expectedCount)throw new IllegalStateException("Incomplete structure cells");
-            int[] order=StructureOrder.indices(positions,count,cancel);
+            int[] order=ordered?null:StructureOrder.indices(positions,count,cancel);
             int[] sortedPositions=new int[count];short[] sortedModels=new short[count];
             int[] sortedValues=new int[count];int previous=-1;
             for(int i=0;i<count;i++) {
                 if((i&1023)==0)cancelled(cancel);
-                int source=order[i],key=positions[source];
-                if(key==previous)throw new IOException("Invalid or duplicate structure cell");
+                int source=ordered?i:order[i],key=positions[source];
+                if(key<=previous)throw new IOException("Invalid or duplicate structure cell");
                 previous=key;sortedPositions[i]=key;sortedModels[i]=models[source];sortedValues[i]=values[source];
             }
             // New arrays prevent this builder or its input from changing the published list.
