@@ -39,10 +39,14 @@ class StructureMultiplayerTest {
         }
         var asset=new StructurePackage("Shared road",new Bounds(512,1,1,0,0,0),definitions,cells);
         var views=new ArrayList<View>();
+        var placementMillis=new ArrayList<Double>();
+        MultiplayerServer.TickTiming measuredTicks=null;
+        int clientCount=Integer.getInteger("voxel.structure.clients",3);
+        long workflowStarted=System.nanoTime();
         try(var server=new MultiplayerServer("127.0.0.1",0,save,accounts,tls.context(),42,GameConfig.sandbox())) {
             var thread=new Thread(()->{try{server.run();}catch(Exception ignored){}});thread.setDaemon(true);thread.start();
             try {
-                int clients=Integer.getInteger("voxel.structure.clients",3);
+                int clients=clientCount;
                 assertTrue(clients>=3&&clients<=32);long firstBatch=System.nanoTime();
                 for(int i=0;i<clients;i++) {
                     // Honor the production per-address login budget; never bypass/disable it.
@@ -53,8 +57,25 @@ class StructureMultiplayerTest {
                 var player=views.get(0).client;
                 for(int r=0;r<4;r++) {
                     var target=new Position(2000+r*2000,128,2000);
+                    long placementStarted=System.nanoTime();
                     assertTrue(player.placeStructure(asset.encode(),target,r));
                     waitFor(views,()->!player.structurePending());assertTrue(player.structureMessage.startsWith("Structure placed"),player.structureMessage);
+                    // A sender acknowledgement alone does not prove observer delivery.
+                    // Verify both ends of every rotated road on every connected client.
+                    var farRelative=StructureEngine.rotate(new Position(511,0,0),512,1,r);
+                    var rotatedAnchor=StructureEngine.rotate(new Position(0,0,0),512,1,r);
+                    var far=new Position(target.x()+farRelative.x()-rotatedAnchor.x(),target.y(),
+                            target.z()+farRelative.z()-rotatedAnchor.z());
+                    waitFor(views,()->views.stream().allMatch(v->
+                            v.geometry.cell(target.x(),target.y(),target.z()).occupied()>0
+                            &&v.geometry.cell(far.x(),far.y(),far.z()).occupied()>0));
+                    placementMillis.add((System.nanoTime()-placementStarted)/1e6);
+                    for(var view:views) {
+                        int farType=WorldVoxels.decode(view.geometry.cell(far.x(),far.y(),far.z()).uniform(0,0,0,16));
+                        assertTrue(Blocks.structureModel(farType));
+                        assertTrue(StructureEngine.rotate(definitions.get(511).voxels(),r).sameValues(
+                                view.client.models.get(farType).definition().voxels()),"Rotated far-end dependency geometry");
+                    }
                     try(var in=new java.io.DataInputStream(Files.newInputStream(save))){assertEquals(Protocol.MAGIC,in.readInt());assertEquals(-10,in.readInt());}
                     var observer=views.get(1);var spawn=observer.client.spawn;
                     observer.pose=new Protocol.Pose(observer.client.id,spawn.x()+.25f,spawn.y(),spawn.z(),spawn.yaw(),spawn.pitch());
@@ -87,7 +108,7 @@ class StructureMultiplayerTest {
                 views.get(views.size()-1).client.close();views.remove(views.size()-1);Thread.sleep(100);
                 var late=new View(new MultiplayerClient("127.0.0.1",server.port(),"LateStructure","synthetic-password".toCharArray(),true,tls.fingerprint()));views.add(late);
                 assertTrue(late.geometry.cell(2000,128,2000).occupied()>0);assertTrue(late.client.models.hasStructureModels());
-                var timing=server.tickTiming();assertTrue(timing.totalTicks()>1);assertEquals(0,timing.failedTicks());
+                var timing=server.tickTiming();measuredTicks=timing;assertTrue(timing.totalTicks()>1);assertEquals(0,timing.failedTicks());
                 assertTrue(timing.windowTicks()<=4096);assertEquals(timing.windowTicks(),timing.work().samples());
                 assertEquals(timing.windowTicks()-1,timing.intervals().samples());assertTrue(timing.startsPerSecond()>0);
                 assertTrue(timing.work().worstMs()>=timing.work().p95Ms());assertTrue(timing.work().p95Ms()>=timing.work().medianMs());
@@ -106,6 +127,24 @@ class StructureMultiplayerTest {
                 assertTrue(client.models.hasStructureModels());assertTrue(client.initialEdits.stream().anyMatch(e->e.x()==2000&&e.y()==128&&Blocks.structureModel(e.type())));
                 assertEquals(0,client.inventory.countType(Blocks.FLOWER_POT));
             }
+        }
+        // Optional sanitized measurements for this real TLS workflow. Write only
+        // after late-join/restart assertions pass; never overwrite earlier evidence.
+        String report=System.getProperty("voxel.structure.report");
+        if(report!=null) {
+            var timing=Objects.requireNonNull(measuredTicks);
+            String samples=placementMillis.stream().map(Object::toString).collect(java.util.stream.Collectors.joining(","));
+            String json="{\"status\":\"passed\",\"clients\":"+clientCount
+                    +",\"dependencies\":512,\"instances\":512,\"rotations\":4"
+                    +",\"requestToAllClientsMs\":["+samples+"]"
+                    +",\"workflowMs\":"+(System.nanoTime()-workflowStarted)/1e6
+                    +",\"tickSamples\":"+timing.windowTicks()+",\"failedTicks\":"+timing.failedTicks()
+                    +",\"tickWorkMedianMs\":"+timing.work().medianMs()
+                    +",\"tickWorkP95Ms\":"+timing.work().p95Ms()
+                    +",\"tickWorkWorstMs\":"+timing.work().worstMs()
+                    +",\"tickStartsPerSecond\":"+timing.startsPerSecond()
+                    +",\"qualification\":false,\"network\":\"loopback TLS, unshaped\"}\n";
+            Files.writeString(Path.of(report),json,StandardOpenOption.CREATE_NEW);
         }
     }
 }
