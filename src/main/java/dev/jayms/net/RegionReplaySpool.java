@@ -23,17 +23,22 @@ final class RegionReplaySpool implements AutoCloseable {
 
     static RegionReplaySpool stage(Path directory,DataInputStream source,
             Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
-        return stage(directory,source,allowed,cancel,MAX_BYTES);
+        return stage(directory,source,allowed,cancel,MAX_BYTES,count->{});
     }
     /** The byte budget may only tighten the existing format limit. */
     static RegionReplaySpool stage(Path directory,DataInputStream source,
             Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,long budget)throws IOException {
+        return stage(directory,source,allowed,cancel,budget,count->{});
+    }
+    static RegionReplaySpool stage(Path directory,DataInputStream source,
+            Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,long budget,IntConsumer progress)throws IOException {
         Objects.requireNonNull(directory);Objects.requireNonNull(source);
-        Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);
+        Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
         if(budget<4||budget>MAX_BYTES)throw new IllegalArgumentException("Replay spool byte budget");
         StructurePackage.cancelled(cancel);
         Path temp=Files.createTempFile(directory,".replay-spool-",".tmp");
         try {
+            progress.accept(0);StructurePackage.cancelled(cancel);
             int[] count={0};long[] size={4};
             try(var channel=FileChannel.open(temp,StandardOpenOption.WRITE);
                 var out=new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel),64*1024))) {
@@ -44,10 +49,13 @@ final class RegionReplaySpool implements AutoCloseable {
                     long length=20L+section.size()*RegionReplay.EDIT_BYTES;
                     if(length>budget-size[0])throw new IOException("Replay spool byte budget");
                     buffer.reset();
-                    for(var edit:section){StructurePackage.cancelled(cancel);edit.write(body);}
+                    for(var edit:section){
+                        StructurePackage.cancelled(cancel);edit.write(body);
+                        if((++count[0]&127)==0){progress.accept(count[0]);StructurePackage.cancelled(cancel);}
+                    }
                     StructurePackage.cancelled(cancel);
                     RegionReplay.section(out,region,section.size(),buffer);
-                    count[0]+=section.size();size[0]+=length;
+                    size[0]+=length;
                 });
                 StructurePackage.cancelled(cancel);out.flush();
                 var header=ByteBuffer.allocate(4).putInt(count[0]);header.flip();
@@ -58,7 +66,7 @@ final class RegionReplaySpool implements AutoCloseable {
                 }
                 StructurePackage.cancelled(cancel);channel.force(true);StructurePackage.cancelled(cancel);
             }
-            StructurePackage.cancelled(cancel);
+            StructurePackage.cancelled(cancel);progress.accept(count[0]);StructurePackage.cancelled(cancel);
             return new RegionReplaySpool(temp,count[0],size[0]);
         }catch(IOException|RuntimeException|Error failure) {
             try{Files.deleteIfExists(temp);}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
