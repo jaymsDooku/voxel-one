@@ -1,0 +1,49 @@
+{
+  "head": "6ddd7f6dc2ef0124edbd4a645c9ca3ca1575b839",
+  "base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "status": "Hosted execution unavailable; no tests passed by these runs",
+  "observed": {
+    "runs": [
+      {
+        "id": 42671647314,
+        "event": "push",
+        "status": "completed",
+        "conclusion": "failure",
+        "jobs": 0,
+        "check_runs": 0
+      },
+      {
+        "id": 42671654610,
+        "event": "pull_request",
+        "status": "completed",
+        "conclusion": "failure",
+        "jobs": 0
+      }
+    ],
+    "trigger_audit": "build.yml includes push for assigned feature branch, pull_request and workflow_dispatch. HEAD changes production Java, tests and tools, outside paths-ignore."
+  },
+  "repair": "Controller may retry the failed Build and test runs or dispatch the existing workflow against the assigned feature branch, verifying the exact head before and after dispatch. Inspect only sanitized startup diagnostics if no jobs start. No source mutation, publication, spending change or qualification waiver requested.",
+  "qualification": "Full city/maximum and physical-GPU qualification remain pending.",
+  "repair_attempt": {
+    "action": "One authorized workflow_dispatch of existing build.yml on assigned feature branch",
+    "run_id": 42715939974,
+    "head": "6ddd7f6dc2ef0124edbd4a645c9ca3ca1575b839",
+    "observed_status": "in_progress",
+    "command": "gh workflow run build.yml --ref feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+    "dispatch_exit_code": 0,
+    "tests_passed_claimed": false
+  },
+  "next_implementation": "Replace flat replay-history expansion with region-backed geometry/history before increasing world persistence or placement limits. LocalGame readRegionalBody currently validates a spool then eagerly expands History. Offline MAX_SAVED_EDITS and server commit paths remain capped at 2000000 records. Keep all caps and qualification gates until integrated migration, atomicity, restart and 32-client tests pass.",
+  "published_media_verified": {
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/6ddd7f6dc2ef0124edbd4a645c9ca3ca1575b839/dashboard/evidence/structure-workflow.mp4",
+    "bytes": 497251,
+    "sha256": "6f4020527297b3e32d90f7c747fadbaded0440c96db30678c171dd810b129d25"
+  },
+  "repair_result": {
+    "run": 42715939974,
+    "head": "6ddd7f6dc2ef0124edbd4a645c9ca3ca1575b839",
+    "status": "completed",
+    "conclusion": "success",
+    "scope": "Prior exact head only; new edits require their own hosted checks"
+  }
+}
