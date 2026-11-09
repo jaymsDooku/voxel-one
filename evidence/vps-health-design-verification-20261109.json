@@ -1,0 +1,154 @@
+{
+  "title": "VPS Health mockup QA",
+  "sampleDataOnly": true,
+  "source": {
+    "reviewedHead": "576b50f47c5ed7090b8bff89e98f36802215bb97",
+    "reviewedMerge": "cc4e829db304bef4540a11af4b13100e0ef2cbef",
+    "pr": 81,
+    "workId": "d8d40b4a-cdfa-4d89-b6d5-57d09e3fb4c3",
+    "siteCheckout": "/tmp/vps-health-design-site-20261109/.sites-checkout",
+    "sourceFiles": 810,
+    "prototypeHashes": {
+      "mockups.css": "4b1a5d09a6fac5d4319fb2bf182f2f6a6ae170814bf68e92efc18d75cc807111",
+      "mockups.js": "09c3cae11fe08819b7d9877737e8463d23c343bc6fa497bae9d4fce8f7f13061",
+      "index.html": "7fdd9afc826b905658b619323e547f43f96a0cef06daec3c3705b1ecaa4035f8"
+    }
+  },
+  "responsiveChecks": [
+    {
+      "browser": "chromium",
+      "viewportWidths": [
+        1440,
+        768,
+        390,
+        320
+      ],
+      "designs": 2,
+      "scenarios": 5,
+      "checks": "No page overflow, no external requests or script errors; scenario, phone, dialogs and pause/resume controls exercised"
+    },
+    {
+      "browser": "webkit",
+      "viewportWidths": [
+        1440,
+        768,
+        390,
+        320
+      ],
+      "designs": 2,
+      "scenarios": 5,
+      "checks": "No page overflow, no external requests or script errors; scenario, phone, dialogs and pause/resume controls exercised"
+    }
+  ],
+  "controls": [
+    {
+      "browser": "chromium",
+      "dialogs": [
+        "blockers",
+        "cleanup",
+        "history",
+        "settings"
+      ],
+      "settings": "local sample policy/cadence updated only",
+      "periods": [
+        "24h",
+        "7d",
+        "30d"
+      ],
+      "keyboard": "Escape closes native dialogs",
+      "network": "static same-origin assets only",
+      "reducedMotion": true
+    },
+    {
+      "browser": "webkit",
+      "dialogs": [
+        "blockers",
+        "cleanup",
+        "history",
+        "settings"
+      ],
+      "settings": "local sample policy/cadence updated only",
+      "periods": [
+        "24h",
+        "7d",
+        "30d"
+      ],
+      "keyboard": "Escape closes native dialogs",
+      "network": "static same-origin assets only",
+      "reducedMotion": true
+    }
+  ],
+  "screenshots": [
+    "Chromium desktop light overview",
+    "Linux WebKit phone operations view"
+  ],
+  "limitations": [
+    "Linux WebKit is not a physical iPhone Safari test.",
+    "Design previews use illustrative data and cannot operate the monitor."
+  ],
+  "independentReview": "PR81 independently approved and merged at exact head576b50f47c5ed7090b8bff89e98f36802215bb97",
+  "hostedCI": {
+    "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42716246566",
+    "result": "success"
+  },
+  "publication": {
+    "at": "2026-11-09T23:14:17.411675+00:00",
+    "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health-mockups/",
+    "checks": [
+      {
+        "path": "/",
+        "dashboardNavLink": true
+      },
+      {
+        "path": "/health-mockups/mockups.css",
+        "sha256": "4b1a5d09a6fac5d4319fb2bf182f2f6a6ae170814bf68e92efc18d75cc807111",
+        "matchesReviewedSource": true
+      },
+      {
+        "path": "/health-mockups/mockups.js",
+        "sha256": "09c3cae11fe08819b7d9877737e8463d23c343bc6fa497bae9d4fce8f7f13061",
+        "matchesReviewedSource": true
+      },
+      {
+        "path": "/health-mockups/",
+        "htmlContentVerified": true,
+        "hostingInjectionAllowed": true
+      }
+    ],
+    "access": "Existing owner-private audience preserved",
+    "scope": "Static design previews; no production monitor action or owner API impersonation"
+  },
+  "recovery": {
+    "cacheCleanup": {
+      "at": "2026-11-09T22:53:08.941005+00:00",
+      "freeBytesBefore": 8527134720,
+      "freeBytesAfter": 10203492352,
+      "removed": [
+        {
+          "kind": "old_npm_content_cache",
+          "bytes": 423798796
+        },
+        {
+          "kind": "old_npm_content_cache",
+          "bytes": 412592735
+        },
+        {
+          "kind": "old_npm_content_cache",
+          "bytes": 412486558
+        },
+        {
+          "kind": "old_npm_content_cache",
+          "bytes": 412746070
+        }
+      ],
+      "preserved": "Code, assets, worktrees, browser installations, test reports and runtime state"
+    },
+    "resumedAssignments": 5,
+    "remainingBlocked": [
+      {
+        "id": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+        "qualification": "Native graphics validation remains pending after software checks"
+      }
+    ]
+  }
+}
