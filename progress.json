@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T14:57:39+00:00",
+  "updatedAt": "2026-11-09T15:15:19+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4039,11 +4039,16 @@
           "kind": "link",
           "label": "Exact-source safety report",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/blob/23e44f7e0c1ad19a3f9edf0b862448f811e467e9/dashboard/evidence/vps-health-20261109/qa/a084-exact-head-report.json"
+        },
+        {
+          "kind": "link",
+          "label": "Current hosted validation",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42640703574"
         }
       ],
       "status": "in_progress",
-      "note": "Exact a084 main safety qualification passes43 focused native tests, including incomplete saved activity, final directory/content swaps and bounded failed scans. Chromium Health controls/history/mobile checks carry forward through identical source hashes. Three activation corrections are explicitly queued as dependent work c8bebbab; both independent merges required before private Site publication or service activation. Production deletions remain zero.",
-      "updatedAt": "2026-11-09T14:57:39+00:00"
+      "note": "2952 exact-head independent qualification:44 native focused tests pass; deterministic healthy/pressured CLI fixtures replace host-dependent test. Full hosted npm test stage now passes; required worker-regression, display and build stages still running. Base review and dependent activation work c8bebbab remain required. Adapted systemd units verify successfully; no production installation/deletion.",
+      "updatedAt": "2026-11-09T15:15:19+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
