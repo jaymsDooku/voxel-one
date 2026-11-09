@@ -365,3 +365,21 @@ proof of visitor sign-in, a new deployment, a catalog promotion or freshness
 across two deployed builds. Preserve the Site audience. Public catalog entries
 must still use separately reviewed publication receipts. Keep service access out
 of launcher packages and catalog metadata.
+
+### Public native CLI selection
+
+`public-cli-playtest.py` runs an existing Linux app image against the public
+catalog and its immutable native release. It requires a fresh synthetic profile
+and an executable inside the assigned checkout. It uses an empty `PATH` to check
+the bundled runtime, bounds the accepted artifact to 100 MiB, and validates its
+size, SHA-256 and source against the release manifest. City, Sandbox and editor
+must reuse one immutable cache file. Web and unknown IDs must fail without
+changing that verified file. No account or service credential is used.
+
+The profile disables automatic shell staging so the test stays on the supplied
+package. Explicit `--update-only` still performs the native update. A new run
+clears its report before validation, so failed input cannot retain an old pass.
+This check may download the published native artifact; it is a manual read-only
+integration check, separate from deterministic CI fixtures. Cache path/hash/mtime
+observations do not measure network packet counts. It does not launch gameplay,
+exercise browser sign-in, publish a release or qualify physical hardware.

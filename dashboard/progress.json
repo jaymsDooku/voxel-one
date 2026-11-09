@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T13:03:39+00:00",
+  "updatedAt": "2026-11-09T22:59:07+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Nov9: audited current master71612f09 and proposed source paths; no deletions/unrelated production edits found. Fixed cataloghash in library status; exactversion retained in details. Actual Swing online/detail/503-cache playtest passed and media inspected.24scoped Java tests passed with writable localMaven/tmp paths;12Python regressions passed. New source needs exact-head packaged checks; root publication and physical/Mac qualification gates remain pending.",
-      "updatedAt": "2026-11-09T13:03:39+00:00"
+      "note": "Finished actual public-artifact CLI integration: empty-PATH packaged bd6118ac launcher resolved City/Sandbox/editor to one verified23,159,883-byte playtest-632 JAR with unchanged cache path/hash/mtime; web/unknownIDs refused. Launcher classes/resources byte-matched current MavenJAR.13regressions passed, including stale-evidence invalidation. Actual Macreport has no failed software assertion, only pending native context qualification. Added reusable read-only CLI test; physical/DPI/public-two-generation/review gates retained.",
+      "updatedAt": "2026-11-09T22:59:07+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
