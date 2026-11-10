@@ -47,7 +47,7 @@ class RegionReplayWorkerTest {
         var worker=worker((cancel,progress)->{assertNotSame(owner,Thread.currentThread());actual.set(Thread.currentThread());progress.accept(-1);progress.accept(100);progress.accept(3);return open.open(cancel,progress);},2);
         try {
             var request=request(worker);done(request);assertEquals(RegionReplayWorker.Phase.READY,request.outcome().phase());
-            assertEquals(3,request.checkedRows());assertEquals(100,worker.status().sourceRows());
+            assertEquals(2,request.checkedRows());assertEquals(100,worker.status().sourceRows());
             var page=request.result(REV);assertEquals(ROWS,new ArrayList<>(page.history().values()));
             var world=new WorldVoxels(new Terrain(42));ROWS.forEach(world::apply);assertTrue(world.cell(0,0,0).sameValues(page.cells().values().iterator().next().tree()));
             assertThrows(IOException.class,()->request.result(new RegionReplayWorker.Revision(2,2,3)));

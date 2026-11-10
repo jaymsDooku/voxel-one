@@ -30,56 +30,68 @@ final class RegionReplayCells implements AutoCloseable {
         this.path=path;this.region=region;this.counts=counts;this.starts=starts;this.checksums=checksums;this.records=records;
     }
     private static int key(Protocol.Edit edit){return (edit.x()&15)|((edit.z()&15)<<4)|((edit.y()&15)<<8);}
-    /** Two source traversals; no global/per-record resident directory. The
-     * fixed 4096-cell count table permits bounded counting-sort placement.
-     * Each record carries its original matching-region ordinal. */
+    /** One source traversal into a bounded checksummed row scratch, then
+     * stable counting scatter. Scratch ownership remains with source on failed
+     * cleanup; the final root transfers only after both validation passes. */
     static RegionReplayCells build(Path directory,RegionReplaySpool source,ChunkPos region,int maxRows,
             Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(directory);Objects.requireNonNull(source);Objects.requireNonNull(region);
         Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);
         if(maxRows<0||maxRows>LocalGame.MAX_SAVED_EDITS)throw new IllegalArgumentException("Replay cell-index row budget");
         StructurePackage.cancelled(cancel);
-        int[] counts=new int[4096],total={0};
-        source.visitRegion(region,maxRows,allowed,cancel,(p,rows)->{
-            for(var edit:rows) {
-                StructurePackage.cancelled(cancel);
-                if(total[0]>=maxRows)throw new IOException("Replay cell-index row budget");
-                counts[key(edit)]++;total[0]++;
-            }
-        });
-        var starts=new long[4097];var crc=new CRC32[4096];
-        for(int i=0;i<4096;i++) {
-            StructurePackage.cancelled(cancel);starts[i+1]=starts[i]+(long)counts[i]*RECORD_BYTES;
-            if(counts[i]>0)crc[i]=new CRC32();
-        }
-        if(starts[4096]>MAX_BYTES)throw new IOException("Replay cell-index byte budget");
-        Path temp=Files.createTempFile(directory,".replay-cells-",".tmp");
-        try {
-            var written=new int[4096];int[] ordinal={0};var record=ByteBuffer.allocate(RECORD_BYTES);
-            try(var channel=FileChannel.open(temp,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+        int[] counts=new int[4096],total={0};var sealed=new CRC32();
+        try(var raw=source.scratch(directory,false)) {
+            try(var channel=FileChannel.open(raw.path(),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
+                    var out=new DataOutputStream(new BufferedOutputStream(new java.util.zip.CheckedOutputStream(
+                            java.nio.channels.Channels.newOutputStream(channel),sealed),64*1024))) {
                 source.visitRegion(region,maxRows,allowed,cancel,(p,rows)->{
                     for(var edit:rows) {
-                        StructurePackage.cancelled(cancel);int cell=key(edit);
-                        if(ordinal[0]>=total[0]||written[cell]>=counts[cell])throw new IOException("Replay cell-index source changed");
-                        record.clear();record.putInt(ordinal[0]++).putInt(edit.x()).putInt(edit.y()).putInt(edit.z()).putInt(edit.type())
-                                .put((byte)edit.depth()).put((byte)edit.ix()).put((byte)edit.iy()).put((byte)edit.iz()).putInt(edit.color());
-                        record.flip();crc[cell].update(record.array(),0,RECORD_BYTES);
+                        StructurePackage.cancelled(cancel);
+                        if(total[0]>=maxRows)throw new IOException("Replay cell-index row budget");
+                        out.writeInt(total[0]++);edit.write(out);counts[key(edit)]++;
+                    }
+                });
+                out.flush();StructurePackage.cancelled(cancel);
+                if(channel.size()!=(long)total[0]*RECORD_BYTES)throw new IOException("Replay counting file length changed");
+            }
+            var starts=new long[4097];var crc=new CRC32[4096];
+            for(int i=0;i<4096;i++) {
+                StructurePackage.cancelled(cancel);starts[i+1]=starts[i]+(long)counts[i]*RECORD_BYTES;
+                if(counts[i]>0)crc[i]=new CRC32();
+            }
+            if(starts[4096]>MAX_BYTES)throw new IOException("Replay cell-index byte budget");
+            try(var candidate=source.scratch(directory,true)) {
+                var written=new int[4096];var record=ByteBuffer.allocate(RECORD_BYTES);var verified=new CRC32();
+                try(var input=FileChannel.open(raw.path(),StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS);
+                        var in=new DataInputStream(new BufferedInputStream(new java.util.zip.CheckedInputStream(
+                                java.nio.channels.Channels.newInputStream(input),verified),64*1024));
+                        var channel=FileChannel.open(candidate.path(),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                    if(input.size()!=starts[4096])throw new IOException("Replay counting file length changed");
+                    for(int ordinal=0;ordinal<total[0];ordinal++) {
+                        StructurePackage.cancelled(cancel);in.readFully(record.array());record.clear();
+                        if(record.getInt()!=ordinal)throw new IOException("Replay counting file order changed");
+                        var edit=new Protocol.Edit(record.getInt(),record.getInt(),record.getInt(),record.getInt(),
+                                Byte.toUnsignedInt(record.get()),Byte.toUnsignedInt(record.get()),Byte.toUnsignedInt(record.get()),Byte.toUnsignedInt(record.get()),record.getInt());
+                        int cell=key(edit);
+                        if(!edit.valid()||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region)||written[cell]>=counts[cell])
+                            throw new IOException("Replay counting file changed");
+                        crc[cell].update(record.array(),0,RECORD_BYTES);record.clear();
                         long position=starts[cell]+(long)written[cell]++*RECORD_BYTES;
                         while(record.hasRemaining()) {
                             StructurePackage.cancelled(cancel);int n=channel.write(record,position);
                             if(n<=0)throw new IOException("Replay cell-index write made no progress");position+=n;
                         }
                     }
-                });
-                if(ordinal[0]!=total[0]||!Arrays.equals(counts,written)||channel.size()!=starts[4096])throw new IOException("Replay cell-index source changed");
-                StructurePackage.cancelled(cancel);channel.force(true);StructurePackage.cancelled(cancel);
+                    if(in.read()!=-1||input.size()!=starts[4096]||verified.getValue()!=sealed.getValue()
+                            ||!Arrays.equals(counts,written)||channel.size()!=starts[4096])throw new IOException("Replay counting file changed");
+                    StructurePackage.cancelled(cancel);channel.force(true);StructurePackage.cancelled(cancel);
+                }
+                var checksums=new long[4096];
+                for(int i=0;i<4096;i++){StructurePackage.cancelled(cancel);checksums[i]=crc[i]==null?0:crc[i].getValue();}
+                // Delete the transient source before relinquishing the candidate.
+                raw.close();StructurePackage.cancelled(cancel);
+                var result=new RegionReplayCells(candidate.path(),region,counts,starts,checksums,total[0]);candidate.release();return result;
             }
-            var checksums=new long[4096];
-            for(int i=0;i<4096;i++){StructurePackage.cancelled(cancel);checksums[i]=crc[i]==null?0:crc[i].getValue();}
-            StructurePackage.cancelled(cancel);
-            return new RegionReplayCells(temp,region,counts,starts,checksums,total[0]);
-        }catch(IOException|RuntimeException|Error failure) {
-            try{Files.deleteIfExists(temp);}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
         }
     }
     private void check()throws IOException {

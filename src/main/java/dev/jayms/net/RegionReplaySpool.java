@@ -26,6 +26,7 @@ final class RegionReplaySpool implements AutoCloseable {
     private final int records;
     private final long bytes;
     private boolean closed,busy;
+    private final java.util.Set<Path> scratchPaths=new java.util.LinkedHashSet<>();
     private RegionReplaySpool(Path path,Path index,int records,long bytes,int sections,long indexChecksum){this.path=path;this.index=index;this.records=records;this.bytes=bytes;this.sections=sections;this.indexChecksum=indexChecksum;}
 
     static RegionReplaySpool stage(Path directory,DataInputStream source,
@@ -204,12 +205,36 @@ final class RegionReplaySpool implements AutoCloseable {
             StructurePackage.cancelled(cancel);
         }
     }
+    /** At most the raw counting file and its final cell-index candidate.
+     * Failed deletion remains owned here until explicit cleanup succeeds. */
+    final class Scratch implements AutoCloseable {
+        private final Path file;private boolean released;
+        private Scratch(Path file){this.file=file;}
+        Path path(){return file;}
+        Path release()throws IOException {
+            check();if(released||!scratchPaths.remove(file))throw new IOException("Replay scratch not owned");
+            released=true;return file;
+        }
+        @Override public void close()throws IOException {
+            if(Thread.currentThread()!=owner||busy)throw new IOException("Replay scratch worker ownership required");
+            if(!released){Files.deleteIfExists(file);scratchPaths.remove(file);released=true;}
+        }
+    }
+    Scratch scratch(Path directory,boolean cells)throws IOException {
+        check();if(scratchPaths.size()>=2||(!cells&&!scratchPaths.isEmpty()))throw new IOException("Replay scratch cleanup pending");
+        var file=Files.createTempFile(directory,cells?".replay-cells-":".replay-count-",".tmp");
+        scratchPaths.add(file);return new Scratch(file);
+    }
     @Override public void close()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay spool worker ownership required");
         if(busy)throw new IOException("Replay spool operation already active");
         if(!closed){
             IOException failure=null;
-            try{Files.deleteIfExists(path);}catch(IOException error){failure=error;}
+            for(var iterator=scratchPaths.iterator();iterator.hasNext();) {
+                try{Files.deleteIfExists(iterator.next());iterator.remove();}
+                catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
+            }
+            try{Files.deleteIfExists(path);}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             try{Files.deleteIfExists(index);}catch(IOException error){if(failure==null)failure=error;else failure.addSuppressed(error);}
             if(failure!=null)throw failure;closed=true;
         }

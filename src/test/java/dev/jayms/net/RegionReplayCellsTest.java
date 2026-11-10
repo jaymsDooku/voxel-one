@@ -28,7 +28,7 @@ class RegionReplayCellsTest {
         RegionReplayCells cells;var policy=new AtomicInteger();
         try(var spool=spool(rows)) {
             cells=RegionReplayCells.build(folder,spool,REGION,8192,e->{policy.incrementAndGet();return true;},()->false);
-            assertEquals(16384,policy.get());assertEquals(8192,cells.size());assertEquals(8192L*28,cells.encodedBytes());
+            assertEquals(8192,policy.get());assertEquals(8192,cells.size());assertEquals(8192L*28,cells.encodedBytes());
         }
         var expectedWorld=new WorldVoxels(new Terrain(42));
         for(var edit:rows)if(dev.jayms.ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(REGION))expectedWorld.apply(edit);
@@ -88,14 +88,14 @@ class RegionReplayCellsTest {
             Files.write(path,original);assertEquals(List.of(rows.get(1)),cells.readWindow(last,1,e->true,()->false));
         }
     }
-    @Test void futureSourceFrameCorruptionDuringScatterDeletesPrivatePrefixAndAllowsRetry()throws Exception {
+    @Test void futureSourceFrameCorruptionDuringCopyDeletesPrivatePrefixAndAllowsRetry()throws Exception {
         var rows=new ArrayList<Protocol.Edit>();rows.addAll(Collections.nCopies(1024,RegionReplayWindowTest.whole(0,Blocks.STONE)));
         rows.addAll(Collections.nCopies(1024,RegionReplayWindowTest.whole(4095,Blocks.GLASS)));
         try(var spool=spool(rows)) {
             var path=file(".replay-spool-");var original=Files.readAllBytes(path);var bad=original.clone();bad[4+20+1024*24+20+23]^=1;
             var calls=new AtomicInteger();
             assertThrows(IOException.class,()->RegionReplayCells.build(folder,spool,REGION,2048,e->{
-                if(calls.incrementAndGet()==2049)try{Files.write(path,bad);}catch(IOException failure){throw new UncheckedIOException(failure);}return true;
+                if(calls.incrementAndGet()==1)try{Files.write(path,bad);}catch(IOException failure){throw new UncheckedIOException(failure);}return true;
             },()->false));noCellFiles();Files.write(path,original);
             try(var cells=RegionReplayCells.build(folder,spool,REGION,2048,e->true,()->false)){assertEquals(2048,cells.size());}
         }
