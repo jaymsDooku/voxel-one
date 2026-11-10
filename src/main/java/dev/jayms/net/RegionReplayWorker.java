@@ -157,6 +157,11 @@ final class RegionReplayWorker implements AutoCloseable {
             if(request!=null)requestsIssued=true;return request;
         }
         record Window(ChunkPos region,int first) {
+            static Window atCell(int x,int y,int z) {
+                if(!new Protocol.Edit(x,y,z,Blocks.AIR).valid())throw new IllegalArgumentException("Replay demand cell bounds");
+                int key=(x&15)|((z&15)<<4)|((y&15)<<8);
+                return new Window(ChunkPos.fromBlock(x,y,z),key/64*64);
+            }
             Window {
                 Objects.requireNonNull(region);
                 if(first<0||first>4096-64||first%64!=0)throw new IllegalArgumentException("Replay window alignment");
@@ -188,6 +193,22 @@ final class RegionReplayWorker implements AutoCloseable {
                     var entry=iterator.next();if(!next.contains(entry.getKey())){entry.getValue().cancel();iterator.remove();}
                 }
                 failures.keySet().retainAll(next);desired=next;backpressure=false;
+            }
+            static final int MAX_BOUNDARIES=64;
+            /** Bounded owner-side demand hints. Reported readiness may be stale
+             * or from another view; only coordinates choose the desired windows.
+             * Preflight all hints before cancelling or replacing existing work. */
+            void desiredBoundaries(List<dev.jayms.BlockRaycaster.UnavailableCell> boundaries)throws IOException {
+                check();Objects.requireNonNull(boundaries);int count=boundaries.size();
+                if(count>MAX_BOUNDARIES)throw new IllegalArgumentException("Replay boundary hint budget");
+                var next=new LinkedHashSet<Window>();
+                for(int i=0;i<count;i++) {
+                    var cell=Objects.requireNonNull(boundaries.get(i));
+                    next.add(Window.atCell(cell.x(),cell.y(),cell.z()));
+                    if(next.size()>read.capacity)throw new IllegalArgumentException("Replay desired-window budget");
+                }
+                if(boundaries.size()!=count)throw new ConcurrentModificationException("Replay boundary hints changed");
+                desired(new ArrayList<>(next));
             }
             void retry(Window window)throws IOException {
                 check();if(!desired.contains(window))throw new IllegalArgumentException("Replay window not desired");
