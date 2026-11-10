@@ -182,7 +182,7 @@ public final class MultiplayerServer implements AutoCloseable {
             }
         }
         voxels = new WorldVoxels(terrain);
-        edits.values().forEach(voxels::apply);
+        voxels.replayInitial(edits.values(),()->false);
         citySave = save == null ? null : save.resolveSibling(save.getFileName() + ".city");
         CityFrame savedCity = CitySimulation.load(citySave);
         city =

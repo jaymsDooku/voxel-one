@@ -1820,3 +1820,19 @@ The overlay graph plus its before-snapshot measured 100808 →87344 bytes. After
 Real synthetic server integration separately checks legacy load/resave/restart, saved tail/dependencies, missing models and malformed tails, and actual TLS clients/late joins. Region-backed authority/persistence, whole-world metadata, record/chunk/geometry/instance admission barriers and full city/maximum/reference/physical-GPU/shaped-32-client qualification remain pending. Supported limits and stable rollout stay gated.
 
 Local focused validation passed 30 tests in eight suites. A full Maven invocation ended with exit 143 after 147 suites; a bounded continuation passed the 82 unfinished suites on unchanged source. Aggregate coverage matches all 229 source suites (1129 tests total, zero failures/errors, one browserWorkflow skip). This is suite coverage across two invocations, not an uninterrupted full-command pass. Actual legacy server/TLS integration and native Main/GLFW workflow passed. All fresh video frames decoded and representative staging/conflict frames were inspected. Software rendering at 1 FPS remains functional-only evidence. See `dashboard/evidence/structure-keyed-server-history.json`; new source, report and media await controller publication and exact-head hosted full validation. Full-scale qualification remains pending.
+
+### Private server startup geometry
+
+Server construction groups only adjacent rows for the same cell. It applies them in their saved order to one mutable 16³ cell tree. Multi-row runs install a packed immutable image; single-row runs keep ordinary replacement to avoid repeated packing on interleaved legacy rows. Returning cells start from their previously installed values. The global geometry change count still advances once per source row. Loaded history, material/colour encoding, terrain under unedited subcells, save formats and model limits are unchanged.
+
+This path accepts only a fresh unpublished world. Failure or cancellation requires discarding it; it does not offer rollback for a live world. It bounds temporary replay geometry to one cell, but still retains all loaded world geometry. It does not provide region paging or establish city/maximum support. Component timing and allocation results must include the sparse/interleaved cases; packing is not an unconditional speed improvement.
+
+Synthetic component measurements on the recorded Debian/Haswell virtual host (512 MiB JVM; three warmups, 20 samples per mode; complete raw samples in `dashboard/evidence/structure-server-startup-geometry.json`):
+
+| Fixture | Retained geometry bytes, per-row → grouped | p95 ms, per-row → grouped |
+| --- | ---: | ---: |
+| Two dense cells, 8194 rows | 281152 → 42560 | 7.122046 → 11.242843 |
+| 64 sparse cells | 4632 → 4632 | 0.525411 → 0.863695 |
+| Two alternating cells, 512 rows | 24832 → 24832 | 0.370908 → 0.988388 |
+
+The dense case trades startup time for a smaller retained geometry graph. Sparse/interleaved runs gain no retained-memory reduction and incur overhead. These warm synthetic measurements exclude terrain, history, models, file decoding, verification and constructors from the measured work. Retained graph size is not peak memory. They do not qualify reference hardware, cold region loads, city/maximum packages, physical GPU rendering or network synchronization.

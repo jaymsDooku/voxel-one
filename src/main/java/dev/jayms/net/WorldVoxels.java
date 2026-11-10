@@ -469,6 +469,42 @@ public final class WorldVoxels {
         replaceCell(edit.x(),edit.y(),edit.z(),tree);
     }
 
+    /** Startup only, before publication. Keeps one mutable cell at a time and
+     * preserves ordered replay, including returning to an earlier cell. Discard
+     * this private world on failure or cancellation; this is not a transaction. */
+    void replayInitial(Iterable<Protocol.Edit> rows, BooleanSupplier cancel) {
+        Objects.requireNonNull(rows);Objects.requireNonNull(cancel);
+        if(geometryRevision!=0||chunks.size()!=0)
+            throw new IllegalStateException("Initial geometry replay requires a fresh world");
+        CellPosition position=null;SparseVoxelOctree tree=null;long count=0;
+        for(var edit:rows) {
+            if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();
+            if(!Objects.requireNonNull(edit).valid())throw new IllegalArgumentException("Invalid initial replay edit");
+            if(position==null||position.x()!=edit.x()||position.y()!=edit.y()||position.z()!=edit.z()) {
+                if(position!=null)installInitialCell(position,tree,count,cancel);
+                position=new CellPosition(edit.x(),edit.y(),edit.z());
+                tree=cell(edit.x(),edit.y(),edit.z()).copy();count=0;
+            }
+            int side=16>>edit.depth(),x=edit.ix()*side,y=edit.iy()*side,z=edit.iz()*side;
+            tree.fill(x,y,z,x+side,y+side,z+side,encode(edit));count++;
+        }
+        if(position!=null)installInitialCell(position,tree,count,cancel);
+        if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();
+    }
+    private void installInitialCell(CellPosition position,SparseVoxelOctree tree,long count,BooleanSupplier cancel) {
+        // Single-row runs are common in legacy keyed order. Repacking each
+        // revisit would decode/encode the same cell repeatedly.
+        if(count==1) {
+            if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();
+            replaceCell(position.x(),position.y(),position.z(),tree);return;
+        }
+        var image=prepareCellImage(tree);
+        if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();
+        installCellImage(position.x(),position.y(),position.z(),image);
+        // Keep the same change stamp as one apply per source row.
+        geometryRevision+=count-1;
+    }
+
     /** Detached immutable cell image. Geometry/material policy remains caller-owned. */
     public static final class CellImage {
         private final SparseVoxelOctree tree;
