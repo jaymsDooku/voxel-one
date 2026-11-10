@@ -395,9 +395,11 @@ public class World implements AutoCloseable {
             if(position==null)return;
             history.finish();history=null;
             int x=position.x(),y=position.y(),z=position.z();var chunk=ChunkPos.fromBlock(x,y,z);
-            voxels.replaceCell(x,y,z,tree);
+            var image=WorldVoxels.prepareCellImage(tree);
+            checkInitialCancellation(cancel);
+            voxels.installCellImage(x,y,z,image);
             editedCells.computeIfAbsent(chunk,k->new LinkedHashMap<>()).put(x+","+y+","+z,
-                    new EditedCell(x,y,z,voxels.cell(x,y,z).copy().freeze()));
+                    new EditedCell(x,y,z,image.tree()));
             dirtyNeighbors(chunk);position=null;tree=null;
         }
     }
