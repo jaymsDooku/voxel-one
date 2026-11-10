@@ -11,13 +11,14 @@ import java.util.zip.*;
 import java.util.function.*;
 
 /** Worker-private replay staging, never an authority or durable world format.
- * Holds only paths/counts/checksum, not global edits or a resident section directory. A later
+ * Holds only paths/counts/checksum between visits, not global edits or a resident section directory. A later
  * invalid world tail must cause the caller to close this uncommitted spool. */
 final class RegionReplaySpool implements AutoCloseable {
     // Worst case: one 20-byte header for every 24-byte edit, plus total count.
     static final long MAX_BYTES=4L+LocalGame.MAX_SAVED_EDITS*(20L+RegionReplay.EDIT_BYTES);
     private final Thread owner=Thread.currentThread();
     static final int INDEX_RECORD_BYTES=28;
+    static final int SELECTED_DIRECTORY_RECORDS=4096;
     static final long MAX_INDEX_BYTES=(long)LocalGame.MAX_SAVED_EDITS*INDEX_RECORD_BYTES;
     private final Path path,index;
     private final int sections;
@@ -99,7 +100,9 @@ final class RegionReplaySpool implements AutoCloseable {
         visitSelected(null,allowed,cancel,sink);
     }
     /** Selective worker read. Reads index metadata and only matching payloads,
-     * preserving recurring sections in file order. Unselected payload integrity
+     * preserving recurring sections in file order. Up to 4096 matching section records
+     * are snapshotted from the validated index; larger selections use a second
+     * streaming index pass. Unselected payload integrity
      * is deferred until read; this is not permission to publish a whole world. */
     void visitRegion(ChunkPos region,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
         visitRegion(region,LocalGame.MAX_SAVED_EDITS,allowed,cancel,sink);
@@ -122,10 +125,19 @@ final class RegionReplaySpool implements AutoCloseable {
             if(new DataInputStream(Channels.newInputStream(data)).readInt()!=records)throw new IOException("Replay spool count changed");
             // Validate the entire sealed directory before any selected delivery.
             long[] selectedRows={0};
+            // Snapshot a bounded matching directory only after the full sealed
+            // index passes validation. Larger selections retain the streaming path.
+            var selected=select==null?null:ByteBuffer.allocate(SELECTED_DIRECTORY_RECORDS*INDEX_RECORD_BYTES);
+            boolean[] captured={selected!=null};
             readIndex(cancel,entry->{
                 if(select==null||select.test(entry.region())) {
                     selectedRows[0]+=entry.count();
                     if(selectedRows[0]>maxRows)throw new IOException("Replay region row budget");
+                    if(captured[0]) {
+                        if(selected.remaining()<INDEX_RECORD_BYTES){captured[0]=false;selected.clear();}
+                        else selected.putLong(entry.offset()).putInt(entry.region().chunkX()).putInt(entry.region().chunkY())
+                                .putInt(entry.region().chunkZ()).putInt(entry.count()).putInt((int)entry.checksum());
+                    }
                 }
             });
             if(select==null) {
@@ -136,7 +148,7 @@ final class RegionReplaySpool implements AutoCloseable {
                 StructurePackage.cancelled(cancel);return;
             }
             var frame=ByteBuffer.allocate(20+RegionReplay.MAX_BODY);long[] position={4},decodedRows={0};
-            readIndex(cancel,entry->{
+            IndexSink delivery=entry->{
                 if(!select.test(entry.region()))return;
                 // Recheck while consuming: a changed directory must not grow
                 // private staging before its final sealed-CRC rejection.
@@ -153,7 +165,15 @@ final class RegionReplaySpool implements AutoCloseable {
                 var section=RegionReplay.readSection(in,entry.count(),allowed,cancel);
                 if(in.read()!=-1)throw new IOException("Trailing replay spool section");
                 deliver(entry,section,cancel,sink);
-            });
+            };
+            if(captured[0]) {
+                selected.flip();
+                while(selected.hasRemaining()) {
+                    StructurePackage.cancelled(cancel);
+                    delivery.accept(new IndexEntry(selected.getLong(),new ChunkPos(selected.getInt(),selected.getInt(),selected.getInt()),
+                            selected.getInt(),Integer.toUnsignedLong(selected.getInt())));
+                }
+            }else readIndex(cancel,delivery);
             StructurePackage.cancelled(cancel);
             if(data.size()!=bytes)throw new IOException("Replay spool length changed");
         }finally{busy=false;}
