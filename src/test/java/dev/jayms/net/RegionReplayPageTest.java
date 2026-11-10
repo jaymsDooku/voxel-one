@@ -78,7 +78,7 @@ class RegionReplayPageTest {
             assertThrows(IOException.class,()->RegionReplayPage.load(spool,REGION,new Terrain(42),64,63,e->true,()->false));
             var empty=RegionReplayPage.load(spool,new ChunkPos(0,0,0),new Terrain(42),0,0,e->{fail();return false;},()->false);
             assertTrue(empty.history().isEmpty());assertTrue(empty.cells().isEmpty());
-            for(int[] cap:List.of(new int[]{-1,1},new int[]{4097,1},new int[]{1,-1},new int[]{1,65}))
+            for(int[] cap:List.of(new int[]{-1,1},new int[]{4098,1},new int[]{1,-1},new int[]{1,65}))
                 assertThrows(IllegalArgumentException.class,()->RegionReplayPage.load(spool,REGION,new Terrain(42),cap[0],cap[1],e->true,()->false));
         }
         try(var spool=spool(rows)){assertThrows(IOException.class,()->load(spool));}
