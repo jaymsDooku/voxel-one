@@ -393,12 +393,15 @@ public final class LocalGame {
         int editCount = edits.size();
         if (editCount < 0 || editCount > MAX_SAVED_EDITS)
             throw new IOException("World edit persistence limit");
-        Files.createDirectories(save.toAbsolutePath().getParent());
-        Path temp = save.resolveSibling(save.getFileName() + ".tmp");
-        var channel=FileChannel.open(temp,StandardOpenOption.CREATE,StandardOpenOption.TRUNCATE_EXISTING,StandardOpenOption.WRITE);
+        Path parent=save.toAbsolutePath().getParent();
+        Files.createDirectories(parent);
+        // Each attempt owns its inode through flush/force/publication. Sharing
+        // save.tmp lets a late close write into another attempt's published file.
+        Path temp=Files.createTempFile(parent,".world-save-",".tmp");
         boolean committed=false;
         try {
-            try (channel;var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
+            try (var channel=FileChannel.open(temp,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
+                    var out = new DataOutputStream(new BufferedOutputStream(Channels.newOutputStream(channel), 64 * 1024))) {
                 out.writeInt(regionalSaves?10:models.hasStructureModels()?9:8);
                 out.writeLong(seed);
                 out.writeInt(generatorVersion);

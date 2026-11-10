@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:54:09+00:00",
+  "updatedAt": "2026-11-10T22:24:53+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Current-source native Main/GLFW workflow passed: capture/import/export, four rotations, conflicts, cancellation/undo, restart and editor/inventory. Fresh 45.44 s video fully decoded and inspected; old media preserved. MP3 decode and six Hub tests passed. Four-platform parent CI green. Harness/media publication requested; city/GPU/32-client gates remain pending.",
-      "updatedAt": "2026-11-10T21:54:09+00:00"
+      "note": "Independent ordinary-save stages validated: 237 tests in 46 suites and actual file CLI/image passed. Parent/candidate probe confirms failed-writer corruption fixed; legacy scratch preserved. Last-writer semantics remain, without generation CAS or atomic sidecars. Exact-source checks requested; city/GPU/32-client and full implementation gates remain open.",
+      "updatedAt": "2026-11-10T22:24:53+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
