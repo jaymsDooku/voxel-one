@@ -1,0 +1,78 @@
+{
+  "title": "Simplified SaaS research loop design verification",
+  "type": "Interactive design prototype, not live research",
+  "source": {
+    "head": "129605410703f70f67afc7cdc6ba45499b0e25f8",
+    "pr": 84,
+    "base": "5253910635a92ebe50695f014594c6bce2d6ae6e",
+    "scope": [
+      "client/research-mockups/design.css",
+      "client/research-mockups/design.js",
+      "client/research-mockups/index.html",
+      "client/research/index.html"
+    ],
+    "prototypeHashMatch": true,
+    "researchPageLink": true,
+    "build": "passed"
+  },
+  "browserChecks": [
+    {
+      "browser": "chromium",
+      "widths": [
+        1440,
+        768,
+        390,
+        320
+      ],
+      "views": 3,
+      "checks": "No overflow or script errors; search/filter/empty state, nested drawers, keyboard close, feedback escaping/direction roundtrip, pause/resume/stop/completion and demo auto toggle passed; only static same-origin requests."
+    },
+    {
+      "browser": "webkit",
+      "widths": [
+        1440,
+        768,
+        390,
+        320
+      ],
+      "views": 3,
+      "checks": "No overflow or script errors; search/filter/empty state, nested drawers, keyboard close, feedback escaping/direction roundtrip, pause/resume/stop/completion and demo auto toggle passed; only static same-origin requests."
+    }
+  ],
+  "publication": {
+    "at": "2026-11-10T21:33:08.670025+00:00",
+    "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/research-mockups/",
+    "checks": [
+      {
+        "path": "/research/",
+        "mockupLink": true
+      },
+      {
+        "path": "/research-mockups/design.css",
+        "reviewedHashVerified": true,
+        "sha256": "060f62c45a1f91d4fd5ab8d8a80247755e33c2c26d7d7ede8109a31039e17bdc"
+      },
+      {
+        "path": "/research-mockups/",
+        "htmlContentVerified": true
+      },
+      {
+        "path": "/research-mockups/design.js",
+        "reviewedHashVerified": true,
+        "sha256": "100d58a152029536d01d001d77f911b6ead6d329f7981cd922c7a8b6f40db528"
+      }
+    ],
+    "access": "Existing owner-private Site boundary",
+    "scope": "Static prototype only; no engine, schedule, feedback or live research state changes"
+  },
+  "independentReview": {
+    "pullRequest": "https://github.com/jaymsDooku/codex-development-dashboard/pull/84",
+    "head": "129605410703f70f67afc7cdc6ba45499b0e25f8",
+    "result": "Approved and merged"
+  },
+  "limitations": [
+    "Illustrative hypotheses and placeholder evidence; not actual opportunity findings or customer validation.",
+    "All controls affect in-memory demo state only.",
+    "Linux WebKit checked; no physical iPhone Safari test."
+  ]
+}
