@@ -21,20 +21,49 @@ final class SegmentedHistory extends AbstractMap<String,Protocol.Edit> {
         void remove(String key){if(many==null){if(key.equals(single))single=null;}else{many.remove(key);if(many.size()==1){single=many.iterator().next();many=null;}}}
         List<String> keys(){return many==null?(single==null?List.of():List.of(single)):List.copyOf(many);}
     }
+    /** Immutable bounded pages. An overwrite copies at most one 32-row page
+     * and its directory, rather than every previous override in the cell. */
+    private static final class Overrides {
+        static final Overrides EMPTY=new Overrides(null);
+        final Protocol.Edit[][] pages;
+        Overrides(Protocol.Edit[][] pages){this.pages=pages;}
+        Protocol.Edit get(int slot){return pages==null||pages[slot>>>5]==null?null:pages[slot>>>5][slot&31];}
+        Overrides put(int slot,Protocol.Edit edit,int capacity) {
+            var next=pages==null?new Protocol.Edit[(capacity+31)>>>5][]:pages.clone();int page=slot>>>5;
+            var values=next[page]==null?new Protocol.Edit[Math.min(32,capacity-(page<<5))]:next[page].clone();
+            values[slot&31]=edit;next[page]=values;return new Overrides(next);
+        }
+        Overrides remove(BitSet slots) {
+            if(pages==null)return this;
+            Protocol.Edit[][] next=null;var copied=new BitSet();
+            for(int slot=slots.nextSetBit(0);slot>=0;slot=slots.nextSetBit(slot+1)) {
+                int page=slot>>>5;if(pages[page]==null||pages[page][slot&31]==null)continue;
+                if(next==null)next=pages.clone();
+                if(!copied.get(page)){next[page]=next[page].clone();copied.set(page);}
+                next[page][slot&31]=null;
+            }
+            if(next==null)return this;
+            for(int page=copied.nextSetBit(0);page>=0;page=copied.nextSetBit(page+1)) {
+                boolean empty=true;for(var value:next[page])if(value!=null){empty=false;break;}
+                if(empty)next[page]=null;
+            }
+            for(var page:next)if(page!=null)return new Overrides(next);
+            return EMPTY;
+        }
+    }
     private static final class Segment {
         final CellReplayRows rows;
         final long[] removed;
-        final Map<Integer,Protocol.Edit> overrides;
+        final Overrides overrides;
         final int size;
-        Segment(CellReplayRows rows){this(rows,null,Map.of(),rows.size);}
-        Segment(CellReplayRows rows,long[] removed,Map<Integer,Protocol.Edit> overrides,int size){this.rows=rows;this.removed=removed;this.overrides=overrides;this.size=size;}
+        Segment(CellReplayRows rows){this(rows,null,Overrides.EMPTY,rows.size);}
+        Segment(CellReplayRows rows,long[] removed,Overrides overrides,int size){this.rows=rows;this.removed=removed;this.overrides=overrides;this.size=size;}
         boolean active(int slot){return removed==null||(removed[slot>>>6]&(1L<<(slot&63)))==0;}
-        Protocol.Edit edit(int slot){var replacement=overrides.isEmpty()?null:overrides.get(slot);return replacement==null?rows.edit(slot):replacement;}
-        Segment put(int slot,Protocol.Edit edit){var next=new HashMap<>(overrides);next.put(slot,edit);return new Segment(rows,removed,Map.copyOf(next),size);}
+        Protocol.Edit edit(int slot){var replacement=overrides.get(slot);return replacement==null?rows.edit(slot):replacement;}
+        Segment put(int slot,Protocol.Edit edit){return new Segment(rows,removed,overrides.put(slot,edit,rows.size),size);}
         Segment remove(BitSet slots){
             var mask=removed==null?new long[(rows.size+63)/64]:removed.clone();
-            Map<Integer,Protocol.Edit> next=overrides;
-            if(!overrides.isEmpty()){var copy=new HashMap<>(overrides);slots.stream().forEach(copy::remove);next=Map.copyOf(copy);}
+            var next=overrides.remove(slots);
             for(int i=slots.nextSetBit(0);i>=0;i=slots.nextSetBit(i+1))mask[i>>>6]|=1L<<(i&63);
             return new Segment(rows,mask,next,size-slots.cardinality());
         }
