@@ -90,6 +90,12 @@ public final class WorldVoxels {
         private void rememberCell(Protocol.CellState state){storage.replaceCell(CellReplayRows.prepare(state));}
         private void rememberCell(CellReplay replay){storage.replaceCell(replay.rows);}
         private void remember(Protocol.Edit edit){storage.remember(edit);}
+        /** Worker-private validated replay. No row reordering or geometry rebuilding. */
+        boolean rememberCanonicalReplay(List<Protocol.Edit> rows,Runnable checkpoint) {
+            var compact=CellReplayRows.tryCanonical(rows,checkpoint);
+            if(compact==null)return false;
+            checkpoint.run();storage.replayCell(compact);return true;
+        }
     }
     /** Immutable shared primitive replay rows; no source geometry or per-leaf keys retained. */
     public static final class CellReplay {

@@ -51,12 +51,14 @@ final class RegionReplay {
             BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(edits);Objects.requireNonNull(progress);
         StructurePackage.cancelled(cancel);progress.accept(0);int[] count={0};
+        var loader=new RegionReplayLoader(edits,cancel);
         visit(in,allowed,cancel,(region,section)->{
             for(var edit:section) {
-                StructurePackage.cancelled(cancel);WorldVoxels.rememberValidated(edits,edit);
+                StructurePackage.cancelled(cancel);loader.accept(edit);
                 if((++count[0]&127)==0)progress.accept(count[0]);
             }
         });
+        loader.finish();
         StructurePackage.cancelled(cancel);progress.accept(count[0]);StructurePackage.cancelled(cancel);
     }
     /** A worker-owned staging sink. Sections retain file order, including recurring

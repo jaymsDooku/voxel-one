@@ -103,8 +103,8 @@ public final class LocalGame {
         }
         return new LoadedDrops(Collections.unmodifiableMap(drops),next);
     }
-    /** Worker-private target only. Validate the whole source tail before expanding
-     * global history. Drain still builds eager history and is not live paging.
+    /** Worker-private target only. Validate the whole source tail before building
+     * resident history. Exact canonical groups use compact rows; this is not live paging.
      * Progress counts source records, not completion of the later private drain. */
     static LoadedDrops readRegionalBody(Path directory,DataInputStream in,Map<String,Protocol.Edit> target,
             BooleanSupplier cancel,IntConsumer progress)throws IOException {
@@ -115,9 +115,11 @@ public final class LocalGame {
             var drops=readDrops(in,true,cancel);
             if(in.read()!=-1)throw new IOException("Trailing regional offline world");
             StructurePackage.cancelled(cancel);
+            var loader=new RegionReplayLoader(target,cancel);
             spool.visit(edit->true,cancel,(region,section)->{
-                for(var edit:section){StructurePackage.cancelled(cancel);WorldVoxels.rememberValidated(target,edit);}
+                for(var edit:section){StructurePackage.cancelled(cancel);loader.accept(edit);}
             });
+            loader.finish();
             StructurePackage.cancelled(cancel);return drops;
         }
     }
