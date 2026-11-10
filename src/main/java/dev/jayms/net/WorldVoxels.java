@@ -12,6 +12,25 @@ import java.util.function.BooleanSupplier;
  * Sparse overrides on an implicit seeded world; each block subdivides to sixteen cells per axis.
  */
 public final class WorldVoxels {
+    /** Bounded worker-private replay into a history. The target must have one
+     * writer and no readers until finish succeeds. Discard it on any failure.
+     * This preserves replay order; it is not a live-world transaction. */
+    public static final class ReplayWriter {
+        private final RegionReplayLoader loader;
+        private boolean finished;
+        public ReplayWriter(Map<String,Protocol.Edit> target,BooleanSupplier cancel) {
+            loader=new RegionReplayLoader(target,cancel);
+        }
+        public void accept(Protocol.Edit edit) {
+            if(finished)throw new IllegalStateException("Replay writer finished");
+            if(!Objects.requireNonNull(edit).valid())throw new IllegalArgumentException("Invalid replay edit");
+            loader.accept(edit);
+        }
+        public void finish() {
+            if(finished)throw new IllegalStateException("Replay writer finished");
+            finished=true;loader.finish();
+        }
+    }
     /** Immutable world-cell coordinate; contains no geometry or replay history. */
     public record CellPosition(int x,int y,int z) {}
     /** Ordered edits with compact, shared whole-cell replay segments. Views are read-only. */
