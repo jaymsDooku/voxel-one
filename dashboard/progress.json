@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T09:35:57+00:00",
+  "updatedAt": "2026-11-10T10:15:16+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded disk index and selective private replay reads implemented. All 65 selected tests, current 2m-record CLI with -Xmx64m, and fresh native workflow passed; all 25 video frames decoded. Extra disk and fragmented I/O regressions documented. New source needs hosted validation; live paging, city/max and physical/network qualification remain pending.",
-      "updatedAt": "2026-11-10T09:35:57+00:00"
+      "note": "Bounded private replay page staging passes 70 affected Java tests, 6 Hub tests, actual CLI checks and a fresh native workflow. New source/media need controller publication and exact-head verification. Live paging, city/max admission and reference/physical/32-client qualification remain unfinished; rollout stays gated.",
+      "updatedAt": "2026-11-10T10:15:16+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
