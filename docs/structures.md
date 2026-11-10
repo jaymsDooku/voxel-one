@@ -1996,3 +1996,11 @@ The CLI `python3 tools/structures/run_readback_metadata_check.py` exercises actu
 Metadata copies add memory, including up to the existing drop-count limit and independent model maps. They are prepared on the worker and transferred by reference; owner transfer does not iterate drop records or serialize models. This is a design property, not a measured 100 ms or peak-memory qualification. The worker/cache/file limits and existing model/drop/structure caps remain unchanged.
 
 Metadata transfer is not live paging. Stable save-generation binding, real authority/model/terrain identity/revision fences, unloaded-cell rules, page scheduling/installation, dirty overlays, global order and durable generations remain unfinished. Incomplete-state guards must stay until those paths exist; filling a history map is not completion. Required city/maximum admission, reference 20-run, physical-GPU and shaped-32-client qualification remain pending. Public supported-limit claims and stable rollout remain gated.
+
+### Observed file changes during private readback
+
+The private v10 opener checks regular-file status, size, last-modified time, creation time and file key before and after complete decoding. An observed change rejects the source and cleans its staged replay before owner metadata or pages can escape. Missing and non-regular sources reject. A successfully staged snapshot remains detached from later path changes.
+
+This is a conservative guard, not an immutable-generation guarantee. Filesystem timestamps can be coarse or restored, file keys can be unavailable, and a path can change after the final check. A caller still needs a stable source generation and actual live authority/model/terrain identity and revision checks before page installation. Partial-state save and startup guards remain in force. No live paging or public admission cap changes follow from this guard.
+
+`python3 tools/structures/run_readback_file_change_check.py` exercises production-file in-place modification, identical-byte atomic replacement preserving mtime, deletion during opening, private spool cleanup and unchanged-source/detached-snapshot regressions. Its synthetic result window is CLI evidence. Browser playtesting does not apply to this file integration. Required city/maximum, physical-GPU and shaped-32-client qualification remain pending.
