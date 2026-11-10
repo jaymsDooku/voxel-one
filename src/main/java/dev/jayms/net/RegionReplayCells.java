@@ -16,6 +16,7 @@ import java.util.zip.CRC32;
  * Callers still own model/terrain revisions and publication fences. */
 final class RegionReplayCells implements AutoCloseable {
     static final int RECORD_BYTES=4+RegionReplay.EDIT_BYTES;
+    static final int SCATTER_PAGE_BYTES=64*1024,SCATTER_PAGES=4;
     static final long MAX_BYTES=(long)LocalGame.MAX_SAVED_EDITS*RECORD_BYTES;
     static final int METADATA_PRIMITIVE_BYTES=4096*4+4097*8+4096*8;
     private final Thread owner=Thread.currentThread();
@@ -65,8 +66,9 @@ final class RegionReplayCells implements AutoCloseable {
                 try(var input=FileChannel.open(raw.path(),StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS);
                         var in=new DataInputStream(new BufferedInputStream(new java.util.zip.CheckedInputStream(
                                 java.nio.channels.Channels.newInputStream(input),verified),64*1024));
-                        var channel=FileChannel.open(candidate.path(),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
+                        var channel=FileChannel.open(candidate.path(),StandardOpenOption.READ,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS)) {
                     if(input.size()!=starts[4096])throw new IOException("Replay counting file length changed");
+                    var scatter=new Scatter(channel,starts[4096],cancel);
                     for(int ordinal=0;ordinal<total[0];ordinal++) {
                         StructurePackage.cancelled(cancel);in.readFully(record.array());record.clear();
                         if(record.getInt()!=ordinal)throw new IOException("Replay counting file order changed");
@@ -77,14 +79,11 @@ final class RegionReplayCells implements AutoCloseable {
                             throw new IOException("Replay counting file changed");
                         crc[cell].update(record.array(),0,RECORD_BYTES);record.clear();
                         long position=starts[cell]+(long)written[cell]++*RECORD_BYTES;
-                        while(record.hasRemaining()) {
-                            StructurePackage.cancelled(cancel);int n=channel.write(record,position);
-                            if(n<=0)throw new IOException("Replay cell-index write made no progress");position+=n;
-                        }
+                        scatter.write(position,record.array());
                     }
                     if(in.read()!=-1||input.size()!=starts[4096]||verified.getValue()!=sealed.getValue()
                             ||!Arrays.equals(counts,written)||channel.size()!=starts[4096])throw new IOException("Replay counting file changed");
-                    StructurePackage.cancelled(cancel);channel.force(true);StructurePackage.cancelled(cancel);
+                    scatter.flush();StructurePackage.cancelled(cancel);channel.force(true);StructurePackage.cancelled(cancel);
                 }
                 var checksums=new long[4096];
                 for(int i=0;i<4096;i++){StructurePackage.cancelled(cancel);checksums[i]=crc[i]==null?0:crc[i].getValue();}
@@ -93,6 +92,49 @@ final class RegionReplayCells implements AutoCloseable {
                 var result=new RegionReplayCells(candidate.path(),region,counts,starts,checksums,total[0]);candidate.release();return result;
             }
         }
+    }
+    /** Worker-local bounded write-back pages. Reuse evicted arrays; records
+     * may cross a page boundary. No file or buffer escapes before validation. */
+    private static final class Scatter {
+        private final FileChannel channel;private final long bytes;private final BooleanSupplier cancel;
+        private final LinkedHashMap<Long,byte[]> pages=new LinkedHashMap<>(SCATTER_PAGES,.75f,true);
+        Scatter(FileChannel channel,long bytes,BooleanSupplier cancel)throws IOException {
+            this.channel=channel;this.bytes=bytes;this.cancel=cancel;
+            if(bytes<0||bytes>MAX_BYTES)throw new IOException("Replay scatter byte budget");
+            if(bytes>0)writeFully(ByteBuffer.wrap(new byte[1]),bytes-1);
+        }
+        private int length(long page){return (int)Math.min(SCATTER_PAGE_BYTES,bytes-page*SCATTER_PAGE_BYTES);}
+        private void writeFully(ByteBuffer buffer,long position)throws IOException {
+            while(buffer.hasRemaining()) {
+                StructurePackage.cancelled(cancel);int n=channel.write(buffer,position);
+                if(n<=0)throw new IOException("Replay cell-index write made no progress");position+=n;
+            }
+        }
+        private void flush(long page,byte[] data)throws IOException {
+            writeFully(ByteBuffer.wrap(data,0,length(page)),page*SCATTER_PAGE_BYTES);
+        }
+        private byte[] page(long page)throws IOException {
+            var data=pages.get(page);if(data!=null)return data;
+            if(pages.size()==SCATTER_PAGES) {
+                var iterator=pages.entrySet().iterator();var first=iterator.next();
+                flush(first.getKey(),first.getValue());data=first.getValue();iterator.remove();
+            }else data=new byte[SCATTER_PAGE_BYTES];
+            var buffer=ByteBuffer.wrap(data,0,length(page));long position=page*SCATTER_PAGE_BYTES;
+            while(buffer.hasRemaining()) {
+                StructurePackage.cancelled(cancel);int n=channel.read(buffer,position);
+                if(n<=0)throw new EOFException("Truncated replay scatter page");position+=n;
+            }
+            pages.put(page,data);return data;
+        }
+        void write(long position,byte[] record)throws IOException {
+            if(position<0||record.length>bytes-position)throw new IOException("Replay scatter position");
+            for(int offset=0;offset<record.length;) {
+                StructurePackage.cancelled(cancel);long page=position/SCATTER_PAGE_BYTES;int within=(int)(position%SCATTER_PAGE_BYTES);
+                var data=page(page);int count=Math.min(record.length-offset,length(page)-within);
+                System.arraycopy(record,offset,data,within,count);offset+=count;position+=count;
+            }
+        }
+        void flush()throws IOException {for(var entry:pages.entrySet())flush(entry.getKey(),entry.getValue());pages.clear();}
     }
     private void check()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay cell-index worker ownership required");

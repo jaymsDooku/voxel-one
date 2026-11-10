@@ -2066,3 +2066,19 @@ Measured on Linux 6.1.0-50-cloud-amd64/glibc 2.36, Intel Core Processor (Haswell
 The candidate improved median build time but worsened build p95/worst and used more process RSS in this diagnostic. This does not establish an overall speedup. Process RSS comes from Linux `os.wait4`, including setup/warmups/JVM overhead. Per-run heap-pool peak sums are recorded separately; their peaks need not be simultaneous. Prior runs precede candidate runs, and OS/JIT/cache/GC noise can affect the comparison. No cold-cache or causal claim follows.
 
 This fixture is not the required city or maximum fragmented package. It does not establish supported limits, city budgets, main-thread stalls, frame/server ticks, durable world saves, upload or 32-client synchronization. Those qualification gates remain pending. Full raw measurements and source/class/tool hashes are in `dashboard/evidence/structure-replay-build-comparison.json`; the fresh result image shows the p95/RSS regressions explicitly. No production source or admission cap changed during this diagnostic phase.
+
+### Bounded scatter write-back pages
+
+Cell-index scatter uses four reusable 64 KiB byte arrays (262144 bytes total), plus small map/buffer objects. The candidate is pre-sized within the unchanged 56000000-byte copied-file cap. A page miss loads prior file contents; eviction flushes that page and reuses its array. A 28-byte record can cross two pages. Stable counting offsets and original row ordinals remain unchanged.
+
+Remaining pages flush after all raw copy size/order/validity/region/count/CRC checks. The candidate is then forced and transferred through existing scratch ownership rules. Failed/cancelled builds publish no copied root; failed cleanup remains owned. Page I/O and cancellation run on the private worker. This adds no Main startup, mesh readiness, gameplay paging, capture/mutation permission or save promotion. No timing or supported-limit claim follows without measurement.
+
+The scatter comparison (`python3 tools/structures/run_replay_scatter_comparison.py`) uses the same diagnostic fixture and measurement method as above, comparing prior one-pass source `f937294db8789d0bca7cdfb584354a0de89be3b7` with the paged writer. Both versions copy source rows once. Two warmups and twenty measured builds per version passed correctness/cleanup checks.
+
+| Diagnostic | Prior median / p95 / worst | Paged writer median / p95 / worst |
+| --- | --- | --- |
+| Build, ms | 99.813 / 141.523 / 144.418 | 54.977 / 82.498 / 97.867 |
+| First 64-cell window read, ms | 0.874 / 1.106 / 1.130 | 0.940 / 1.181 / 1.478 |
+| Whole-JVM process max RSS, KiB | 158988 | 170192 |
+
+Build time improved in this diagnostic; window-read p95/worst and process max RSS worsened. Fixed sequential run order and OS/JIT/cache/GC noise still limit conclusions. All earlier measurements remain preserved. Full raw samples, CPU/OS/Java, hashes and caveats are in `dashboard/evidence/structure-replay-scatter-comparison.json`. Its unchanged-source audit refers to the frozen measurement interval after compilation, not the implementation diff. No city/maximum, cold-cache, GPU, frame/tick or network qualification is claimed. Supported-limit claims and stable rollout stay gated.
