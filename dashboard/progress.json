@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:25:29+00:00",
+  "updatedAt": "2026-11-10T21:54:09+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded private ray-to-worker demand validated: 228 tests in 43 suites and actual saved-world/worker/ray CLI/image passed. At most 64 hints deduplicate into 1\u20134 windows; stale readiness reloads. Data remains unmeshed and partial save blocked. Exact-source checks requested; Main wiring and city/GPU/32-client gates remain open.",
-      "updatedAt": "2026-11-10T21:25:29+00:00"
+      "note": "Current-source native Main/GLFW workflow passed: capture/import/export, four rotations, conflicts, cancellation/undo, restart and editor/inventory. Fresh 45.44 s video fully decoded and inspected; old media preserved. MP3 decode and six Hub tests passed. Four-platform parent CI green. Harness/media publication requested; city/GPU/32-client gates remain pending.",
+      "updatedAt": "2026-11-10T21:54:09+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

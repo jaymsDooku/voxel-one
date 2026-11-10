@@ -2111,3 +2111,16 @@ This API performs no I/O, page request, geometry publication or movement. Existi
 The private replay pump can accept at most 64 ray loading-boundary cell hints. It validates world coordinate bounds, maps cells to aligned 64-cell region windows and deduplicates before applying the existing 1–4-window view capacity. Invalid/null/over-cap hints reject before replacing valid current work. Negative coordinates use floor-divided regions and local cell bits. Captured readiness flags are ignored: after eviction, even a previously ready cell must reload. Current bound-source/model/World fences and retained-frame membership still control requests and publication.
 
 Demand preflight performs no I/O, geometry sampling or worker submission. The caller must tick explicitly; existing queue/backpressure, cancellation and explicit retry behavior remain. This adapter does not install usable meshes, enable movement or grant save authority. Main partial startup remains disabled. Actual saved-world/worker/ray CLI and 228-test affected-path validation are recorded in `dashboard/evidence/structure-replay-demand.json`. No performance or city qualification follows.
+
+
+#### Preserve native playtest evidence
+
+Run the native harness on the assigned inherited display with a fresh prefix to preserve canonical and historical artifacts:
+
+```sh
+python3 deploy/run_structure_playtest.py --display "$DISPLAY" --evidence-prefix structure-review-run1
+```
+
+Choose a fresh 1–64-character prefix using lowercase letters, digits and hyphens, starting with a letter or digit. Existing prefixes reject before clearing runtime scratch. Prefix mode stages outputs inside the ignored worktree scratch directory and copies sanitized artifacts directly into `dashboard/evidence` with prefixed names only after successful workflow/source checks. Destination creation is exclusive. The source manifest includes the Python driver. Default canonical naming is still available.
+
+The current-source functional run and media checks are in `dashboard/evidence/structure-native-current-validation.json`. All four rotations, import/export, cancellation/atomicity/undo, dependencies/restart, inventory and model editor checks passed under llvmpipe software rendering. The fresh F10 clip was fully decoded and inspected. This does not establish city/maximum, physical-GPU, 30 FPS or network budgets. Those qualification gates remain.
