@@ -1856,3 +1856,21 @@ Warm synthetic comparison, three warmups and 20 alternating-order samples per mo
 Every result matches the exact row-union changed-cell set. Timing excludes fixture/snapshot creation and verification. This measures history comparison, not server lock duration, ticks, peak memory, transport, rendering or city qualification. Full raw samples, environment and the post-snapshot write-cost comparison belong in `dashboard/evidence/structure-cell-index-join.json`.
 
 The exact-parent post-snapshot write probe records the added COW cost. For 512 overwrites in one ordinary 4097-row cell, p95 rises 1.181101→2.972452 ms and median allocated bytes rise 636584→862264. The compact-cell case records p95 1.582059→1.438435 ms and allocation 725888→713808 bytes; separate JVM/JIT variation limits timing attribution. Both modes verify every old/new keyed value, row count and revision. These results exclude snapshot construction and do not measure retained or peak memory. The first ordinary-cell overwrite can clone its key index; join comparison savings are not free for writers.
+
+### Indexed private replay staging
+
+The v10 offline loader still validates a whole source and its tail before draining private replay into resident history. Its temporary replay now has a separate disk index. Each fixed 28-byte entry stores an offset, region, record count and payload checksum. An in-memory CRC seals the index; no resident section directory is built. The existing 2,000,000-record cap bounds index storage to 56,000,000 bytes and combined temporary replay/index storage to 144,000,004 bytes. These are temporary disk bounds, not a larger world or structure allowance.
+
+Full traversal remains buffered and sequential. It checks the index before delivery and each complete section against the sealed metadata. Selective traversal checks index metadata, then reads only matching region payloads, preserving recurring sections in file order. A single bounded frame is reused. Unselected payload integrity is deferred until accessed; a selected prefix is private staging and does not authorize whole-world publication. Both files are removed on failure or close. Owner-thread and reentrancy fences remain.
+
+This is a private readback foundation. LocalGame still drains all records, and live World/server state is still resident. The index is not a durable world format, region cache or live paging backend. Save/wire formats and admission caps are unchanged.
+
+Actual private-file component comparison, three warmups and 20 samples per mode/fixture on the recorded virtual host:
+
+| Fixture | Stage p95 ms, parent → indexed | Full traversal p95 ms | Selected traversal p95 ms | Combined staging bytes |
+| --- | ---: | ---: | ---: | ---: |
+| Clustered, 8192 rows | 13.075110 → 12.988322 | 10.223468 → 11.286021 | 8.399568 → 2.375791 | 196772 → 196996 |
+| Fragmented, 8192 one-row sections | 14.960719 → 22.380965 | 10.813502 → 19.195977 | 8.092057 → 10.181894 | 360452 → 589828 |
+| Empty | 1.218050 → 1.595676 | 0.161621 → 0.212694 | 0.159096 → 0.168516 | 4 → 4 |
+
+Index validation and extra private-file writes add cost. Fragmented selected traversal also regresses at p95; selective reads are not always faster. Stage includes file forces. Read callbacks include rolling row-order hashes; construction, close and cleanup are outside timing. Reads use warm OS cache. Raw samples, allocation regressions, environment and exclusions are in `dashboard/evidence/structure-replay-disk-index.json`. This does not measure cold region loads, durable world saves, live paging, retained/peak process memory, frames, server ticks, traffic or city qualification.

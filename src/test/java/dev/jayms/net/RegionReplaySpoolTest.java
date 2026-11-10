@@ -17,7 +17,7 @@ class RegionReplaySpoolTest {
         try(var paths=Files.list(folder)){return paths.filter(p->p.getFileName().toString().startsWith(".replay-spool-")).findFirst().orElseThrow();}
     }
     private void empty()throws IOException {
-        try(var paths=Files.list(folder)){assertTrue(paths.noneMatch(p->p.getFileName().toString().startsWith(".replay-spool-")));}
+        try(var paths=Files.list(folder)){assertTrue(paths.noneMatch(p->p.getFileName().toString().startsWith(".replay-")));}
     }
     @Test void boundedStagingRetainsOrderTailAndNoGlobalHistory()throws Exception {
         var history=RegionReplayTest.fixture();byte[] encoded=RegionReplayTest.encode(history);
