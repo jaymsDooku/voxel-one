@@ -80,6 +80,34 @@ final class SegmentedHistory extends AbstractMap<String,Protocol.Edit> {
             public WorldVoxels.CellPosition next(){var cell=iterator.next();if(cell.bulk!=null){var rows=((Segment)ordered.get(cell.bulk)).rows;return new WorldVoxels.CellPosition(rows.x,rows.y,rows.z);}String key=cell.many==null?cell.single:cell.many.iterator().next();var edit=(Protocol.Edit)ordered.get(key);return new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z());}
         };
     }
+    /** Stable owner/snapshot inputs only. Shared COW cell identities prove that
+     * all values are unchanged; other cells still require exact keyed equality.
+     * Scans cell indexes, not every unchanged compact row. */
+    Set<WorldVoxels.CellPosition> changedPositions(SegmentedHistory before) {
+        var changed=new LinkedHashSet<WorldVoxels.CellPosition>();
+        for(var entry:cells.entrySet()) {
+            var cell=entry.getValue();var old=before.cells.get(entry.getKey());
+            if(cell!=old&&!sameCellValues(cell,old,before))changed.add(position(cell));
+        }
+        for(var entry:before.cells.entrySet())
+            if(!cells.containsKey(entry.getKey()))changed.add(before.position(entry.getValue()));
+        return Collections.unmodifiableSet(changed);
+    }
+    private WorldVoxels.CellPosition position(Cell cell) {
+        if(cell.bulk!=null){var rows=bulk(cell).rows;return new WorldVoxels.CellPosition(rows.x,rows.y,rows.z);}
+        var edit=(Protocol.Edit)ordered.get(cell.many==null?cell.single:cell.many.iterator().next());
+        return new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z());
+    }
+    private boolean sameCellValues(Cell cell,Cell old,SegmentedHistory before) {
+        if(old==null||cell.size()!=old.size())return false;
+        for(var key:cell.keys())if(!ordered.get(key).equals(before.get(key)))return false;
+        var segment=bulk(cell);
+        if(segment!=null&&segment!=before.bulk(old))
+            for(int slot=0;slot<segment.rows.size;slot++)if(segment.active(slot)) {
+                var edit=segment.edit(slot);if(!edit.equals(before.get(segment.rows.key(slot))))return false;
+            }
+        return true;
+    }
     private Cell writable(String key){var cell=cells.get(key);if(cell==null||cell.owner!=owner){cell=new Cell(owner,cell);cells.put(key,cell);}return cell;}
     private static String cellKey(String key){int slash=key.indexOf('/');return slash<0?key:key.substring(0,slash);}
     private Segment bulk(Cell cell){return cell==null||cell.bulk==null?null:(Segment)ordered.get(cell.bulk);}
@@ -94,10 +122,10 @@ final class SegmentedHistory extends AbstractMap<String,Protocol.Edit> {
     @Override public Protocol.Edit put(String key,Protocol.Edit edit){
         if(!key.equals(edit.key()))throw new IllegalArgumentException("Edit key mismatch");
         var direct=ordered.get(key);
-        if(direct instanceof Protocol.Edit old){ordered.put(key,edit);revision++;return old;}
+        if(direct instanceof Protocol.Edit old){writable(edit.cellKey());ordered.put(key,edit);revision++;return old;}
         String position=edit.depth()==0?key:edit.cellKey();var current=cells.get(position);var segment=bulk(current);
         int slot=segment==null?-1:segment.rows.find(key);
-        if(slot>=0&&segment.active(slot)){var old=segment.edit(slot);ordered.put(current.bulk,segment.put(slot,edit));revision++;return old;}
+        if(slot>=0&&segment.active(slot)){var old=segment.edit(slot);writable(position);ordered.put(current.bulk,segment.put(slot,edit));revision++;return old;}
         if(entries==Integer.MAX_VALUE)throw new IllegalStateException("History map capacity exhausted");
         writable(position).add(key);ordered.put(key,edit);entries++;revision++;return null;
     }

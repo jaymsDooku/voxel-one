@@ -24,6 +24,8 @@ public final class MultiplayerServer implements AutoCloseable {
     /** Stable authority/snapshot inputs. Removed rows matter even when the surviving
      * clear row is unchanged, as with undo of the last fractional leaf. */
     static Set<WorldVoxels.CellPosition> changedCellPositions(Map<String,Protocol.Edit> current,Map<String,Protocol.Edit> before) {
+        if(current instanceof WorldVoxels.History indexed&&before instanceof WorldVoxels.History snapshot)
+            return indexed.changedCellPositions(snapshot);
         var changed=new LinkedHashSet<WorldVoxels.CellPosition>();
         for(var edit:current.values())if(!edit.equals(before.get(edit.key())))changed.add(new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z()));
         for(var edit:before.values())if(!edit.equals(current.get(edit.key())))changed.add(new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z()));

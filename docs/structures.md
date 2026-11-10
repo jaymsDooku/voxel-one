@@ -1836,3 +1836,23 @@ Synthetic component measurements on the recorded Debian/Haswell virtual host (51
 | Two alternating cells, 512 rows | 24832 → 24832 | 0.370908 → 0.988388 |
 
 The dense case trades startup time for a smaller retained geometry graph. Sparse/interleaved runs gain no retained-memory reduction and incur overhead. These warm synthetic measurements exclude terrain, history, models, file decoding, verification and constructors from the measured work. Retained graph size is not peak memory. They do not qualify reference hardware, cold region loads, city/maximum packages, physical GPU rendering or network synchronization.
+
+### Multiplayer join history comparison
+
+Join catch-up compares the resident cell indexes when both inputs are indexed histories. Shared snapshot cell identities prove unchanged values. Value-only ordinary and compact overwrites detach that identity before mutation. Other changed cells receive exact keyed comparisons; a second cell-index pass finds whole-cell removals. Shared bulk segments can skip unchanged compact rows. Equal-value writes and row reorderings do not create false deltas. Generic maps retain the original row-union path.
+
+The output is a set of changed cell positions; cell delivery order may differ. The existing authority lock, complete-cell payloads and dependency transfer remain. This reduces comparison work for shared snapshots. It still scans resident cell indexes and rows in changed or independently built cells, and still builds outgoing payloads under the existing lock. It is not region paging or proof of a maximum lock stall. First ordinary-cell mutation after a snapshot can copy that cell's ordinary key index.
+
+Warm synthetic comparison, three warmups and 20 alternating-order samples per mode/fixture on the recorded virtual host:
+
+| Fixture | p95 ms, row union → indexed | Median allocated bytes, row union → indexed |
+| --- | ---: | ---: |
+| Shared dense, 32776 rows | 50.891702 → 0.145536 | 29760000 → 496 |
+| One changed dense cell | 28.591457 → 0.395247 | 29760072 → 158080 |
+| Independent equal dense histories | 32.647222 → 24.948121 | 29760000 → 9176304 |
+| Shared sparse, 4096 cells | 3.596624 → 2.833929 | 656128 → 496 |
+| One wholly removed dense cell | 26.273962 → 0.036027 | 27539696 → 640 |
+
+Every result matches the exact row-union changed-cell set. Timing excludes fixture/snapshot creation and verification. This measures history comparison, not server lock duration, ticks, peak memory, transport, rendering or city qualification. Full raw samples, environment and the post-snapshot write-cost comparison belong in `dashboard/evidence/structure-cell-index-join.json`.
+
+The exact-parent post-snapshot write probe records the added COW cost. For 512 overwrites in one ordinary 4097-row cell, p95 rises 1.181101→2.972452 ms and median allocated bytes rise 636584→862264. The compact-cell case records p95 1.582059→1.438435 ms and allocation 725888→713808 bytes; separate JVM/JIT variation limits timing attribution. Both modes verify every old/new keyed value, row count and revision. These results exclude snapshot construction and do not measure retained or peak memory. The first ordinary-cell overwrite can clone its key index; join comparison savings are not free for writers.
