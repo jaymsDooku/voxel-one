@@ -32,7 +32,11 @@ public final class OfflineGameLoad implements AutoCloseable {
     public LocalGame result()throws IOException {
         if(closed||cancelled.get())throw new CancellationException("Offline world loading cancelled");
         if(!result.isDone())throw new IllegalStateException("Offline world load not complete");
-        try{return result.get();}
+        try{
+            var local=result.get();
+            if(!local.replayComplete())throw new IOException("Offline world replay is incomplete");
+            return local;
+        }
         catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new CancellationException("Offline world loading interrupted");}
         catch(ExecutionException failure){
             var cause=failure.getCause();if(cause instanceof IOException io)throw io;

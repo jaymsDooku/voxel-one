@@ -19,7 +19,7 @@ public final class LocalGame {
     public ModelLibrary models = new ModelLibrary();
     public Inventory inventory = new Inventory();
     public int health = 20;
-    public final Map<Integer, ItemDrop> drops = new LinkedHashMap<>();
+    public final Map<Integer, ItemDrop> drops;
     public Map<String, Protocol.Edit> edits = new WorldVoxels.History();
     public final long seed;
     public final int generatorVersion;
@@ -27,6 +27,43 @@ public final class LocalGame {
     private int nextDrop;
     private float fallTop;
     private final Path save;
+    private final boolean replayComplete;
+    private final String readbackFingerprint;
+    public boolean replayComplete(){return replayComplete;}
+    public String readbackFingerprint(){return readbackFingerprint;}
+    private void requireReplay()throws IOException {
+        if(!replayComplete)throw new IOException("Offline world replay is incomplete");
+    }
+    private void requireReplayState() {
+        if(!replayComplete)throw new IllegalStateException("Offline world replay is incomplete");
+    }
+    /** Worker-prepared, single-transfer owner state. Independent maps/inventory
+     * are allocated on the worker; only frozen model definitions are shared. */
+    static final class ReadbackMetadata {
+        private final Path save;
+        private final long seed;
+        private final int generator,health,nextDrop;
+        private final String fingerprint;
+        private ModelLibrary models;
+        private Inventory inventory;
+        private Map<Integer,ItemDrop> drops;
+        private boolean transferred;
+        private ReadbackMetadata(Path save,Header header,LoadedDrops loaded,String fingerprint) {
+            this.save=save;seed=header.seed();generator=header.generator();health=header.health();nextDrop=loaded.nextDrop();this.fingerprint=fingerprint;
+            models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
+        }
+        String fingerprint(){return fingerprint;}
+        synchronized LocalGame transfer()throws IOException {
+            if(transferred)throw new IOException("Replay metadata already transferred");
+            var result=new LocalGame(this);transferred=true;models=null;inventory=null;drops=null;return result;
+        }
+    }
+    /** Metadata only: no replay, live world, city simulation or writable save. */
+    private LocalGame(ReadbackMetadata metadata) {
+        save=metadata.save;seed=metadata.seed;generatorVersion=metadata.generator;health=metadata.health;nextDrop=metadata.nextDrop;
+        models=metadata.models;inventory=metadata.inventory;drops=metadata.drops;
+        edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;
+    }
 
     public LocalGame(Path save, long requestedSeed) throws IOException {
         this(save,requestedSeed,()->false,count->{});
@@ -36,6 +73,7 @@ public final class LocalGame {
      * writes the source or publishes partially decoded state. */
     public LocalGame(Path save,long requestedSeed,BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(save);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        drops=new LinkedHashMap<>();replayComplete=true;readbackFingerprint="";
         StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);
         this.save = save;
         long worldSeed = requestedSeed;
@@ -120,9 +158,10 @@ public final class LocalGame {
             }
             java.util.function.Predicate<Protocol.Edit> allowed=edit->definitions.has(edit.type());
             spool=RegionReplaySpool.stage(directory,in,allowed,cancel,RegionReplaySpool.MAX_BYTES,progress);
-            readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
-            return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,
-                    HexFormat.of().formatHex(digest.digest()));
+            var loaded=readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
+            String fingerprint=HexFormat.of().formatHex(digest.digest());
+            var metadata=new ReadbackMetadata(save,header,loaded,fingerprint);StructurePackage.cancelled(cancel);
+            return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,fingerprint,metadata);
         }catch(IOException|RuntimeException|Error failure) {
             if(spool!=null)try{spool.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
         }
@@ -189,12 +228,14 @@ public final class LocalGame {
     }
 
     public void startGame(GameConfig config, CitySimulation.Ground ground) throws IOException {
+        requireReplay();
         startGame(config, ground, ProductionCatalog.cityGame());
     }
 
     public void startGame(
             GameConfig config, CitySimulation.Ground ground, ProductionCatalog catalog)
             throws IOException {
+        requireReplay();
         var stored = CitySimulation.load(save.resolveSibling(save.getFileName() + ".city"));
         validateGame(stored, config);
         city =
@@ -220,6 +261,7 @@ public final class LocalGame {
     }
 
     public String createModel(ModelDefinition definition) throws IOException {
+        requireReplay();
         int existing = models.find(definition), id = existing < 0 ? models.nextId() : existing;
         if (!inventory.hasSpace(id))
             throw new IOException("Inventory full: make an empty slot first");
@@ -231,6 +273,7 @@ public final class LocalGame {
     }
 
     public boolean edit(Protocol.Edit e, int old, int slot) {
+        requireReplayState();
         if (!e.valid()) return false;
         if (e.type() == 0 && !Blocks.structureModel(old)) {
             if (old == 0 || old == Blocks.PARTIAL) return false;
@@ -251,6 +294,7 @@ public final class LocalGame {
     public String craft(int recipe, Protocol.Pose pose) { return craft(recipe,1,pose); }
 
     public String craft(int recipe,int quantity,Protocol.Pose pose) {
+        requireReplayState();
         if (!pose.valid()) return "Invalid craft position.";
         var result=Crafting.prepare(inventory,recipe,quantity,Crafting.MAX_DROPS-drops.size());
         if(!result.accepted()) return result.message();
@@ -270,6 +314,7 @@ public final class LocalGame {
     }
 
     public String drop(int slot,Protocol.Pose pose) {
+        requireReplayState();
         if(!pose.valid()||slot<0||slot>=Inventory.HOTBAR||inventory.count(slot)==0) return "Nothing to drop.";
         if(drops.size()>=Crafting.MAX_DROPS||nextDrop==Integer.MAX_VALUE) return "Too many ground items.";
         int type=inventory.type(slot);
@@ -285,6 +330,7 @@ public final class LocalGame {
             boolean grounded,
             float dt,
             java.util.function.ToIntFunction<Protocol.Edit> block) {
+        requireReplayState();
         if (pose.flying()) fallTop = pose.y();
         else {
             fallTop = Math.max(fallTop, pose.y());
@@ -323,6 +369,7 @@ public final class LocalGame {
     }
 
     public void save() throws IOException {
+        requireReplay();
         saveWorld();
         if (city != null) city.save(save.resolveSibling(save.getFileName() + ".city"));
     }
@@ -330,6 +377,7 @@ public final class LocalGame {
     private void saveWorld() throws IOException { saveWorld(false); }
 
     private void saveWorld(boolean requireAtomic) throws IOException {
+        requireReplay();
         int editCount = edits.size();
         if (editCount < 0 || editCount > MAX_SAVED_EDITS)
             throw new IOException("World edit persistence limit");
@@ -377,6 +425,7 @@ public final class LocalGame {
      * The result remains bound to this exact cell map and commit revision. */
     public StructureHistory stageStructureHistory(Map<StructurePackage.Position,SparseVoxelOctree> cells,
             StructureOwnerQueue owner,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        requireReplay();
         var source=owner.call(()->{
             StructurePackage.cancelled(cancel);
             // Preserve the existing synchronous path for legacy/custom map implementations.
@@ -409,6 +458,7 @@ public final class LocalGame {
 
     /** Worker only. Prepared models and history stay detached until owner revalidation. */
     public void stageStructureSave(StructureHistory history,ModelLibrary prepared,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        requireReplay();
         if(history==null)return; // Legacy history maps retain synchronous saving.
         if(history.owner!=this||history.save!=null)throw new IOException("Invalid staged history save");
         var snapshot=prepared.copy();
@@ -425,6 +475,7 @@ public final class LocalGame {
     }
 
     public dev.jayms.net.structure.StructureEngine.Authority structureAuthority(dev.jayms.World world, java.util.function.Supplier<Protocol.Pose> player,StructureHistory history) {
+        requireReplayState();
         return new dev.jayms.net.structure.StructureEngine.Authority() {
             public Object lock(){return LocalGame.this;}
             public ModelLibrary models(){return models;}

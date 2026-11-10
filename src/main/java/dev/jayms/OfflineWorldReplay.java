@@ -31,6 +31,7 @@ final class OfflineWorldReplay implements AutoCloseable {
     }
     OfflineWorldReplay(LocalGame local,StressGrid grid,Factory factory)throws IOException {
         this.local=Objects.requireNonNull(local);Objects.requireNonNull(factory);
+        if(!local.replayComplete())throw new IOException("Offline world replay is incomplete");
         if(!(local.edits instanceof WorldVoxels.History history))throw new IOException("Indexed offline replay history required");
         source=history;revision=source.revision();models=local.models;modelRevision=models.revision();
         var snapshot=WorldVoxels.History.copyOf(source);
