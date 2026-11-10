@@ -104,6 +104,14 @@ public final class LocalGame {
         }
         return new LoadedDrops(Collections.unmodifiableMap(drops),next);
     }
+    /** Shared tail gate for private resident or paged replay staging. This
+     * validates transient records without admitting a replay prefix as a world.
+     * Prefix metadata/models remain the opener's responsibility. */
+    static LoadedDrops readRegionalTail(DataInputStream in,BooleanSupplier cancel)throws IOException {
+        var drops=readDrops(in,true,cancel);
+        if(in.read()!=-1)throw new IOException("Trailing regional offline world");
+        StructurePackage.cancelled(cancel);return drops;
+    }
     /** Worker-private target only. Validate the whole source tail before building
      * resident history. Exact canonical groups use compact rows; this is not live paging.
      * Progress counts source records, not completion of the later private drain. */
@@ -113,9 +121,7 @@ public final class LocalGame {
         if(!target.isEmpty())throw new IllegalArgumentException("Fresh private regional history required");
         try(var spool=RegionReplaySpool.stage(directory,
                 in,edit->true,cancel,RegionReplaySpool.MAX_BYTES,progress)) {
-            var drops=readDrops(in,true,cancel);
-            if(in.read()!=-1)throw new IOException("Trailing regional offline world");
-            StructurePackage.cancelled(cancel);
+            var drops=readRegionalTail(in,cancel);
             var loader=new RegionReplayLoader(target,cancel);
             spool.visit(edit->true,cancel,(region,section)->{
                 for(var edit:section){StructurePackage.cancelled(cancel);loader.accept(edit);}
