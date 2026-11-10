@@ -115,6 +115,15 @@ public final class WorldVoxels {
             if(compact==null)return false;
             checkpoint.run();storage.replayCell(compact);return true;
         }
+        /** Pure keyed insertion can share a segment only for a previously absent
+         * cell. Existing keys must retain their positions and overlapping rows. */
+        boolean putNewCanonicalReplay(List<Protocol.Edit> rows,Runnable checkpoint) {
+            if(rows.isEmpty()||storage.cellSize(rows.get(0).cellKey())!=0)return false;
+            var compact=CellReplayRows.tryCanonical(rows,checkpoint);
+            if(compact==null)return false;
+            checkpoint.run();if(storage.cellSize(compact.cell)!=0)return false;
+            storage.replaceCell(compact);return true;
+        }
     }
     /** Immutable shared primitive replay rows; no source geometry or per-leaf keys retained. */
     public static final class CellReplay {

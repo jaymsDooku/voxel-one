@@ -140,6 +140,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 if(regionalSaves)RegionReplay.read(in,edits,e->models.has(e.type()));
                 else {
                 if (count < 0 || count > 2000000) throw new IOException("Invalid edit count");
+                var keyed=new KeyedReplayLoader(edits,()->false);
                 for (int i = 0; i < count; i++) {
                     var e =
                             colored
@@ -149,8 +150,9 @@ public final class MultiplayerServer implements AutoCloseable {
                                             : Protocol.Edit.readLegacy(in);
                     if (!e.valid() || !models.has(e.type()))
                         throw new IOException("Invalid saved block");
-                    edits.put(e.key(), e);
+                    keyed.accept(e);
                 }
+                keyed.finish();
                 }
                 if (modern) {
                     int players = in.readInt();
