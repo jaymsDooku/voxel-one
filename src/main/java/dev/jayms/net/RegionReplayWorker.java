@@ -150,6 +150,79 @@ final class RegionReplayWorker implements AutoCloseable {
         Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,World current)throws IOException {
             validate(current);var request=enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);requestsIssued=true;return request;
         }
+        private Request trySubmit(Window window)throws IOException {
+            validate(target);
+            var request=enqueue(window.region(),new RegionReplayPage.CellRange(window.first(),window.first()+64),
+                    RegionReplayPage.MAX_ROWS,revision,target.beginReplayFence(),this,false);
+            if(request!=null)requestsIssued=true;return request;
+        }
+        record Window(ChunkPos region,int first) {
+            Window {
+                Objects.requireNonNull(region);
+                if(first<0||first>4096-64||first%64!=0)throw new IllegalArgumentException("Replay window alignment");
+            }
+        }
+        record PumpStatus(int desired,int pending,int ready,int failed,boolean backpressure,boolean closed) {}
+        Pump openPump(World current,int maxWindows)throws IOException {
+            return new Pump(openReadView(current,maxWindows));
+        }
+        /** Owner-driven bounded ticks only; never waits for worker completion.
+         * This private read-only pump does not enable live gameplay. */
+        final class Pump implements AutoCloseable {
+            private final ReadView read;
+            private Set<Window> desired=new LinkedHashSet<>();
+            private final Map<Window,Request> pending=new LinkedHashMap<>();
+            private final Map<Window,IOException> failures=new LinkedHashMap<>();
+            private boolean closed,backpressure;
+            private Pump(ReadView read){this.read=read;}
+            private void cancelPending(){for(var request:pending.values())request.cancel();pending.clear();}
+            private void check()throws IOException {
+                owner();if(closed)throw new IOException("Replay pump closed");
+                try{validate(target);}catch(IOException failure){cancelPending();throw failure;}
+            }
+            void desired(List<Window> windows)throws IOException {
+                check();Objects.requireNonNull(windows);
+                if(windows.size()>read.capacity)throw new IllegalArgumentException("Replay desired-window budget");
+                var next=new LinkedHashSet<>(List.copyOf(windows));
+                for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
+                    var entry=iterator.next();if(!next.contains(entry.getKey())){entry.getValue().cancel();iterator.remove();}
+                }
+                failures.keySet().retainAll(next);desired=next;backpressure=false;
+            }
+            void retry(Window window)throws IOException {
+                check();if(!desired.contains(window))throw new IllegalArgumentException("Replay window not desired");
+                failures.remove(window);
+            }
+            void tick()throws IOException {
+                check();backpressure=false;
+                try {
+                    for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
+                        var entry=iterator.next();var progress=entry.getValue().outcome();
+                        switch(progress.phase()) {
+                            case READY->{publish(entry.getValue(),target);iterator.remove();}
+                            case FAILED->{failures.put(entry.getKey(),progress.failure());iterator.remove();}
+                            case CANCELLED->{failures.put(entry.getKey(),new IOException("Replay window cancelled"));iterator.remove();}
+                            default->{} // One observation; never poll or wait here.
+                        }
+                    }
+                    for(var window:desired) {
+                        if(read.frames.containsKey(window)||pending.containsKey(window)||failures.containsKey(window))continue;
+                        var request=trySubmit(window);
+                        if(request==null){backpressure=true;break;}
+                        pending.put(window,request);
+                    }
+                }catch(IOException failure){cancelPending();throw failure;}
+            }
+            IOException failure(Window window)throws IOException {check();return failures.get(window);}
+            PumpStatus status()throws IOException {
+                owner();if(closed)return new PumpStatus(0,0,0,0,false,true);
+                check();int ready=0;for(var window:desired)if(read.frames.containsKey(window))ready++;
+                return new PumpStatus(desired.size(),pending.size(),ready,failures.size(),backpressure,false);
+            }
+            @Override public void close()throws IOException {
+                owner();if(closed)return;cancelPending();desired.clear();failures.clear();backpressure=false;read.close();closed=true;
+            }
+        }
         RegionReplayPage result(Request request,World current)throws IOException {
             validate(current);Objects.requireNonNull(request);
             if(request.binding!=this)throw new IOException("Replay request belongs to another binding");
@@ -175,7 +248,6 @@ final class RegionReplayWorker implements AutoCloseable {
         }
         final class ReadView implements World.ReplayReadView {
             static final int MAX_WINDOWS=4;
-            private record Window(ChunkPos region,int first) {}
             private final int capacity;
             private final WorldVoxels implicit=new WorldVoxels(target.terrain());
             private Map<Window,RegionReplayPage> frames=new LinkedHashMap<>();
@@ -247,12 +319,15 @@ final class RegionReplayWorker implements AutoCloseable {
         return enqueue(region,range,maxRows,revision,world.beginReplayFence(),null);
     }
     private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
+        return enqueue(region,range,maxRows,revision,fence,binding,true);
+    }
+    private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,boolean rejectFull)throws IOException {
         owner();Objects.requireNonNull(region);Objects.requireNonNull(range);Objects.requireNonNull(revision);
         if(range.size()>RegionReplayPage.MAX_CELLS||maxRows<0||maxRows>RegionReplayPage.MAX_ROWS)
             throw new IllegalArgumentException("Replay worker page budget");
         synchronized(gate) {
             if(stopping.get())throw new IOException("Replay worker not accepting requests");
-            if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+            if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
             var request=new Request(region,range,maxRows,revision,fence,binding);queue.addLast(request);gate.notifyAll();return request;
         }
     }
