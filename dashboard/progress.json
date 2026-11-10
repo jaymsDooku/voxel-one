@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T19:04:18+00:00",
+  "updatedAt": "2026-11-10T19:33:35+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "All four hosted builds passed for 3227e84e. Measured 20 replay builds/version: candidate median improved, but p95 worsened 125.916\u2192131.189ms and RSS rose 147636\u2192159320KiB. Correctness/cleanup passed; fresh image inspected. No production/cap changes or overall speedup claim. City/GPU/32-client qualification and rollout remain gated.",
-      "updatedAt": "2026-11-10T19:04:18+00:00"
+      "note": "Bounded scatter pages implemented. 166 tests/35 suites and actual all-window/cancellation CLI passed. 20-run diagnostic build p95 improved 141.523\u219282.498ms; window p95 and RSS worsened, recorded honestly. Fresh images inspected. Exact-source hosted validation needed. City/live-paging/GPU/32-client qualification remains pending; rollout gated.",
+      "updatedAt": "2026-11-10T19:33:35+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
