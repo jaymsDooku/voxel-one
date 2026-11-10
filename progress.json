@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:33:37+00:00",
+  "updatedAt": "2026-11-10T21:47:18+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4114,11 +4114,26 @@
           "kind": "link",
           "label": "Root visual-state QA",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/blob/26c84522b4d25a5a510b92953e1eaacc8eeaff0b/dashboard/evidence/root-health-ui-status-20261110.md"
+        },
+        {
+          "kind": "link",
+          "label": "Current Health implementation PR",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/85"
+        },
+        {
+          "kind": "image",
+          "label": "vps health dashboard fixture desktop 20261110.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-dashboard-fixture-desktop-20261110.png"
+        },
+        {
+          "kind": "image",
+          "label": "vps health dashboard fixture phone 20261110.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-dashboard-fixture-phone-20261110.png"
         }
       ],
       "status": "in_progress",
-      "note": "Live dashboard implementation and local tests are complete, with measured disk history and existing policy CAS controls. Root QA found critical/warning/unavailable states incorrectly share a healthy-green badge; correction is required before release. Independent review and hosted CI are running.",
-      "updatedAt": "2026-11-10T21:21:24+00:00"
+      "note": "Final source corrects severity colours, readable time/GiB axes, repeated hold reasons and primary-card clutter. Independent clean-copy history/build and Chromium/WebKit actual-data rendering checks pass; full hosted CI and final independent review remain pending. Screenshots are labelled synthetic fixtures.",
+      "updatedAt": "2026-11-10T21:47:18+00:00"
     },
     {
       "id": "saas-research-design-mockups-20261110",
