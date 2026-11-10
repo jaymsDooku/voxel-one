@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T22:38:50+00:00",
+  "updatedAt": "2026-11-10T22:59:40+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Windows sky-counter fixture corrected without renderer changes or weaker checks. Local 256 tests/47 suites and actual sky-worker CLI passed; ten controlled merges cover nonzero counters. Prior Windows failure and cancelled platforms remain unqualified until fresh exact-source CI. City/GPU/32-client and full implementation gates stay open.",
-      "updatedAt": "2026-11-10T22:38:50+00:00"
+      "note": "Added legacy save row count/value checks before publication; file preservation and retry regressions running. City/maximum qualification remains pending.",
+      "updatedAt": "2026-11-10T22:59:40+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
