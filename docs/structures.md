@@ -1877,14 +1877,41 @@ Index validation and extra private-file writes add cost. Fragmented selected tra
 
 ### Bounded private replay pages
 
-`RegionReplayPage` builds one detached worker result from the temporary replay index. It is not connected to live World/server paging. Its private staging caps are 4096 source rows and 64 edited cells, with caller budgets allowed only to tighten them. These caps do not change advertised structure or world limits.
+`RegionReplayPage` builds one detached worker result from the temporary replay index. It is not connected to live World/server paging. Its private staging caps are 4097 source rows and 64 edited cells, with caller budgets allowed only to tighten them. These caps do not change advertised structure or world limits.
 
 The spool checks the selected source-row count before decoding payloads. Overwritten rows and explicit air still count. It checks the count again while consuming metadata, so changed metadata cannot enlarge staging before its final checksum rejection. Cell admission precedes history insertion. All selected rows and sealed metadata must validate before geometry construction starts. Failure or cancellation returns no page; the spool stays caller-owned and can be retried.
 
 The page retains ordered, read-only history and factory-owned frozen cell images. Geometry is built one 16³ cell at a time over the caller's implicit terrain. Relative positions, materials, LED colours, fractional holes, explicit air and model IDs survive. Model definitions and model policy remain caller-owned. A result survives spool closure; later edits to a world that installs its images fork geometry without changing the page. A future live installer must still fence authority identity, terrain/model revisions and destination edits before publication.
 
-Logical staging bounds are at most 4096 history rows, 64 cell images and one mutable cell during construction. Each image has at most 4096 leaves and 65536 encoded bytes. The image payload ceiling is therefore 4194304 bytes; Java objects, maps, temporary encoding buffers and caller-owned state add memory. This is not a measured JVM heap or peak-memory limit. Cancellation is checked between rows and cell preparation; no 100 ms stall guarantee is claimed.
+Logical staging bounds are at most 4097 history rows, 64 cell images and one mutable cell during construction. Each image has at most 4096 leaves and 65536 encoded bytes. The image payload ceiling is therefore 4194304 bytes; Java objects, maps, temporary encoding buffers and caller-owned state add memory. This is not a measured JVM heap or peak-memory limit. Cancellation is checked between rows and cell preparation; no 100 ms stall guarantee is claimed.
 
-The actual CLI checks use 577 source rows, 513 selected rows, 505 surviving history rows, 64 cells and 442 geometry leaves. Three warmups and 20 samples on the recorded shared VPS gave private stage median/p95/worst 4.140635/5.186620/10.134185 ms and page construction 9.850149/15.844318/19.173552 ms. Stage includes temporary file forces; reads use warm cache. These component measurements are not cold region loading, durable world saves, live paging or city qualification. Full samples and environment are recorded in `dashboard/evidence/structure-replay-page.json`.
+The earlier single-page CLI checks used 577 source rows, 513 selected rows, 505 surviving history rows, 64 cells and 442 geometry leaves. Three warmups and 20 samples on the recorded shared VPS gave private stage median/p95/worst 4.140635/5.186620/10.134185 ms and page construction 9.850149/15.844318/19.173552 ms. Stage includes temporary file forces; reads use warm cache. These component measurements are not cold region loading, durable world saves, live paging or city qualification. Full samples and environment are recorded in `dashboard/evidence/structure-replay-page.json`.
 
 LocalGame still drains the complete replay into resident history. Every private page read still scans the complete disk index; a region with more than 64 edited cells rejects rather than returning a partial page. Live use needs bounded cell batches, faster region lookup, cache lifetime, asynchronous requests, authority fences, dirty overlays and durable generations. Existing city/maximum admission and rollout gates remain unchanged.
+
+
+### Bounded local-cell windows
+
+`RegionReplayPage.loadWindow` returns a page for an explicit half-open local cell-key range, at most 64 keys wide. Keys use `x | (z << 4) | (y << 8)` within one 16³ region; negative world coordinates use their low four bits. The returned range also covers unedited implicit terrain, so an empty image map does not mean unknown coverage. The older whole-region entry point remains, with its caller cell/row budgets.
+
+A separate caller budget bounds all decoded rows in the selected region, up to the existing 2,000,000-record replay ceiling. The sealed index checks this budget before any payload decode. All matching-region rows still undergo CRC and model-policy validation, including cells outside the requested range. Selected source rows are counted before history insertion, including rows later overwritten. At most 4097 selected rows and 64 images are retained. One bounded 1024-row decoded section and private compaction/encoding buffers add temporary memory. No page escapes on failure or cancellation.
+
+The private selected-row cap is 4097 rather than 4096 because a complete coloured 16³ cell may need one clear plus 4096 distinct leaves. Tests retain all 4097 ordered rows and check every resulting voxel; 4098 selected rows reject even if the last row merely overwrites an earlier one. This staging cap change does not raise any public structure, model, geometry, instance, chunk or world persistence limit.
+
+Sixty-four disjoint windows can read all 4096 edited cells of one region without constructing a whole-region history in the loader. Each window preserves its filtered source order. Concatenating window histories does not reconstruct the original cross-window replay order; future persistence must preserve that order separately. Combining images into live authority still requires destination/model/terrain revision fences and atomic publication.
+
+Every window still scans the complete disk index and decodes all matching-region payloads. Reading all 64 windows repeats that work 64 times. This is a bounded private staging API, not an efficient live pager or a qualified region load. Faster lookup, indexed cell batches, cache lifetime, dirty overlays and durable generations remain unfinished. Public limits and all reference/physical/network qualification gates remain.
+
+The final cell-window CLI uses an 8192-row region with 4096 edited cells and 90112 leaves. Each of 64 windows retains 128 rows and 64 cell images. A second fixture has one fully coloured cell: 4097 ordered history rows and 4096 leaves. Both preserve air, fractional material/LED colour and model references; the complete assembled geometry matches independent replay.
+
+Three warmups and 20 warm private-file samples per fixture on the recorded shared VPS:
+
+| Component | Median ms | p95 ms | Worst ms |
+| --- | ---: | ---: | ---: |
+| 8192-row temporary stage, including forces | 7.499505 | 8.568869 | 8.614243 |
+| Sum of all 64 window loads | 229.980595 | 257.652642 | 271.506669 |
+| Complete batch including history checks and image installation | 232.702737 | 259.761855 | 274.921268 |
+| Full coloured-cell temporary stage | 5.153640 | 6.082540 | 7.894533 |
+| Full coloured-cell window load | 5.700266 | 6.360834 | 7.464834 |
+
+Fixture/oracle construction, final independent geometry verification and cleanup are excluded. Reads use warm OS cache; each window repeats all matching-region decoding. The 128 MiB JVM heap setting is not a peak-memory measurement. These results do not establish city, cold-load, durable-save, frame, tick, network, acknowledgement or main-thread stall budgets. Exact commands, environment, raw samples and exclusions are recorded in `dashboard/evidence/structure-replay-window.json`.
