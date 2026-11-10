@@ -409,7 +409,15 @@ public final class LocalGame {
                 inventory.write(out);
                 out.writeByte(health);
                 if(regionalSaves)RegionReplay.write(out,edits,()->false,p->{});
-                else {out.writeInt(editCount);for(var e:edits.values())e.write(out);}
+                else {
+                    out.writeInt(editCount);int written=0;
+                    for(var e:edits.values()) {
+                        if(written>=editCount||e==null||!e.valid())
+                            throw new IOException("Invalid world replay edit count/value");
+                        e.write(out);written++;
+                    }
+                    if(written!=editCount)throw new IOException("Incomplete world replay");
+                }
                 out.writeInt(drops.size());
                 for (var d : drops.values()) d.write(out);
                 out.flush();
