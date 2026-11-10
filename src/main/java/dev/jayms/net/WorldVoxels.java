@@ -40,6 +40,7 @@ public final class WorldVoxels {
         private History(History source){storage=new SegmentedHistory(source.storage);}
         /** Owner-thread change stamp; pair with this history identity. */
         public long revision(){return storage.revision();}
+        Set<CellPosition> changedCellPositions(History before){return storage.changedPositions(Objects.requireNonNull(before).storage);}
         public static History copyOf(Map<String,Protocol.Edit> source) {
             if(source instanceof History history)return new History(history);
             var copy=new History();copy.putAll(source);return copy;
