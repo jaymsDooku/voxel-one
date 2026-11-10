@@ -17,10 +17,12 @@ import java.util.function.*;
 final class RegionReplayWorker implements AutoCloseable {
     static final int MAX_QUEUED=8;
     record Revision(long world,long models,long terrain) {}
-    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint) {
-        Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision){this(spool,terrain,allowed,revision,"");}
+    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint,LocalGame.ReadbackMetadata metadata) {
+        Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision){this(spool,terrain,allowed,revision,"",null);}
+        Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint){this(spool,terrain,allowed,revision,fingerprint,null);}
         Source {
             Objects.requireNonNull(spool);Objects.requireNonNull(terrain);Objects.requireNonNull(allowed);Objects.requireNonNull(revision);Objects.requireNonNull(fingerprint);
+            if(metadata!=null&&!fingerprint.equals(metadata.fingerprint()))throw new IllegalArgumentException("Replay metadata fingerprint mismatch");
             if(!fingerprint.isEmpty()&&!fingerprint.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Replay source fingerprint");
         }
     }
@@ -75,7 +77,20 @@ final class RegionReplayWorker implements AutoCloseable {
     private final int capacity;
     private volatile Status status=new Status(State.OPENING,0,null);
     private volatile String fingerprint="";
+    private LocalGame.ReadbackMetadata metadata;
+    private Revision sourceRevision;
     String fingerprint(){return fingerprint;}
+    /** Owner-only, nonblocking single transfer. Prepared maps become owner-owned;
+     * the worker's private model-policy maps remain separate. No live install. */
+    LocalGame metadataResult(Revision current)throws IOException {
+        owner();Objects.requireNonNull(current);
+        synchronized(gate) {
+            if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay metadata not available");
+            if(!current.equals(sourceRevision))throw new IOException("Replay metadata revision changed");
+            if(metadata==null)throw new IOException("Replay metadata unavailable or already transferred");
+            var result=metadata.transfer();metadata=null;return result;
+        }
+    }
     private Request active; // worker-owned except under gate during close
     private boolean retryCleanup;
 
@@ -108,7 +123,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 synchronized(gate){if(!stopping.get())status=new Status(State.OPENING,Math.max(status.sourceRows(),Math.max(0,Math.min(rows,LocalGame.MAX_SAVED_EDITS))),null);}
             }));
             StructurePackage.cancelled(stopping::get);
-            fingerprint=source.fingerprint();
+            fingerprint=source.fingerprint();metadata=source.metadata();sourceRevision=source.revision();
             var opened=source;
             cache=new RegionReplayCache(directory,source.spool(),maxRegions,maxBytes,maxRegionRows,edit->{
                 var request=active;if(request!=null)request.checkedRows.incrementAndGet();return opened.allowed().test(edit);
@@ -144,7 +159,7 @@ final class RegionReplayWorker implements AutoCloseable {
                     if(failure==null)request.finish(new Outcome(Phase.CANCELLED,null,null));
                     else request.finish(new Outcome(Phase.FAILED,null,failure));
                 }
-                queue.clear();active=null;status=new Status(State.CLOSING,status.sourceRows(),failure);
+                queue.clear();active=null;metadata=null;status=new Status(State.CLOSING,status.sourceRows(),failure);
             }
             // Cleanup stays on the resource-owning worker. Retry only after an
             // explicit close call; never loop/poll on filesystem failures.
