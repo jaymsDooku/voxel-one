@@ -1,0 +1,90 @@
+diff --git a/src/main/java/dev/jayms/net/WorldVoxels.java b/src/main/java/dev/jayms/net/WorldVoxels.java
+index 71d498be..49bb4939 100644
+--- a/src/main/java/dev/jayms/net/WorldVoxels.java
++++ b/src/main/java/dev/jayms/net/WorldVoxels.java
+@@ -187,11 +187,11 @@ public final class WorldVoxels {
+         private void rememberCell(CellReplay replay) {
+             var old=cells.remove(replay.cell);
+             if(old!=null)for(var key:old.snapshot())ordered.remove(key);
+-            for(int i=0;i<replay.edits.length;i++) {
+-                ordered.put(replay.keys[i],replay.edits[i]);revision++;
++            for(int i=0;i<replay.editCount();i++) {
++                ordered.put(replay.keys[i],replay.edit(i));revision++;
+             }
+-            // The replay's owner token can never equal a history owner. Later
+-            // edits clone this index through writable(), protecting every reuse.
++            // Worker-prepared keys/index stay immutable across every installation.
++            // Later edits fork through writable(), since its token is never ours.
+             cells.put(replay.cell,replay.index);
+         }
+         private void remember(Protocol.Edit edit) {
+@@ -203,30 +203,49 @@ public final class WorldVoxels {
+             put(edit.key(),edit);
+         }
+     }
+-    /** Immutable replay records/keys and cell index. No source geometry is retained. */
++    /** Immutable staged replay, with shared coordinates and three primitive words per row.
++     * Keys/index are prepared on the worker; no source geometry or per-row Edit objects
++     * are retained. Histories materialize records on installation; committed History
++     * remains flat. This staging representation does not change replay/file order. */
+     public static final class CellReplay {
+         private final String cell;
++        private final int x,y,z;
++        private final int[] rows;
+         private final String[] keys;
+-        private final Protocol.Edit[] edits;
+         private final History.CellKeys index;
+-        private CellReplay(String cell,String[] keys,Protocol.Edit[] edits,History.CellKeys index) {
+-            this.cell=cell;this.keys=keys;this.edits=edits;this.index=index;
++        private CellReplay(String cell,int x,int y,int z,int[] rows,String[] keys,History.CellKeys index) {
++            this.cell=cell;this.x=x;this.y=y;this.z=z;this.rows=rows;this.keys=keys;this.index=index;
+         }
+         public String cellKey(){return cell;}
+         /** Includes the clear record and a possible full-cell replacement of that same key. */
+-        public int editCount(){return edits.length;}
++        public int editCount(){return rows.length/3;}
++        private Protocol.Edit edit(int index) {
++            int offset=index*3,local=rows[offset+2];
++            return new Protocol.Edit(x,y,z,rows[offset],local>>>12,(local>>>8)&15,
++                    (local>>>4)&15,local&15,rows[offset+1]);
++        }
+     }
+-    /** Prepare from stable geometry on a worker. Failure cannot change a history. */
++    /** Prepare from stable geometry on a worker. Failure cannot change a history.
++     * A 16-cube has at most 4096 leaves plus its clear row; no unbounded list grows. */
+     public static CellReplay prepareCellReplay(Protocol.CellState state) {
+         Objects.requireNonNull(state,"state");
+         if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
+-        String cell=state.x()+","+state.y()+","+state.z();
+-        var keys=new ArrayList<String>();var edits=new ArrayList<Protocol.Edit>();
+-        var index=new History.CellKeys(new Object(),null);
++        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
++        int leaves=state.tree().leafCount();
++        if(leaves<0||leaves>4096)throw new IllegalArgumentException("Invalid world cell leaf count");
++        var rows=new int[(1+leaves)*3];var keys=new String[1+leaves];int[] count={0};
++        String cell=state.x()+","+state.y()+","+state.z();var index=new History.CellKeys(new Object(),null);
+         state.forEachEdit(edit->{
+-            String key=edit.depth()==0?cell:edit.key();keys.add(key);edits.add(edit);index.add(key);
++            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
++            int offset=count[0]*3;
++            if(offset>=rows.length)throw new IllegalArgumentException("World cell changed during replay preparation");
++            rows[offset]=edit.type();rows[offset+1]=edit.color();
++            rows[offset+2]=(edit.depth()<<12)|(edit.ix()<<8)|(edit.iy()<<4)|edit.iz();
++            String key=edit.depth()==0?cell:edit.key();keys[count[0]]=key;index.add(key);count[0]++;
+         });
+-        return new CellReplay(cell,keys.toArray(String[]::new),edits.toArray(Protocol.Edit[]::new),index);
++        if(count[0]*3!=rows.length)throw new IllegalArgumentException("World cell changed during replay preparation");
++        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
++        return new CellReplay(cell,state.x(),state.y(),state.z(),rows,keys,index);
+     }
+     public static final int RESOLUTION = 16;
+     private static final int[] COLORS = new int[190];
+@@ -608,7 +627,7 @@ public final class WorldVoxels {
+     public static void rememberCell(Map<String,Protocol.Edit> history,CellReplay replay) {
+         Objects.requireNonNull(replay,"replay");
+         if(history instanceof History indexed){indexed.rememberCell(replay);return;}
+-        for(var edit:replay.edits)remember(history,edit);
++        for(int i=0;i<replay.editCount();i++)remember(history,replay.edit(i));
+     }
+ 
+     public static void remember(Map<String, Protocol.Edit> history, Protocol.Edit edit) {
