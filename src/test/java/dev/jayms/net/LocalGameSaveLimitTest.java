@@ -37,7 +37,8 @@ class LocalGameSaveLimitTest {
             assertThrows(IOException.class,game::save);
             assertArrayEquals(worldBytes,Files.readAllBytes(path));assertArrayEquals(cityBytes,Files.readAllBytes(city));assertArrayEquals(historyBytes,Files.readAllBytes(history));assertArrayEquals(sentinel,Files.readAllBytes(temp));
             game.edits=prior;var fractional=new Protocol.Edit(2,128,1,Blocks.piece(Blocks.GLASS,1),1,1,0,1);WorldVoxels.remember(game.edits,fractional);game.save();
-            var loaded=new LocalGame(path,0);assertEquals(game.seed,loaded.seed);assertEquals(12,loaded.health);assertEquals(3,loaded.inventory.countType(Blocks.STONE));assertEquals(new ArrayList<>(game.edits.values()),new ArrayList<>(loaded.edits.values()));assertFalse(Files.exists(temp));
+            var loaded=new LocalGame(path,0);assertEquals(game.seed,loaded.seed);assertEquals(12,loaded.health);assertEquals(3,loaded.inventory.countType(Blocks.STONE));assertEquals(new ArrayList<>(game.edits.values()),new ArrayList<>(loaded.edits.values()));assertArrayEquals(sentinel,Files.readAllBytes(temp));
+            try(var files=Files.list(folder)){assertFalse(files.anyMatch(p->p.getFileName().toString().startsWith(".world-save-")));}
             assertEquals(game.city.frame(),CitySimulation.load(city));
         }
     }

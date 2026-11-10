@@ -2124,3 +2124,10 @@ python3 deploy/run_structure_playtest.py --display "$DISPLAY" --evidence-prefix 
 Choose a fresh 1–64-character prefix using lowercase letters, digits and hyphens, starting with a letter or digit. Existing prefixes reject before clearing runtime scratch. Prefix mode stages outputs inside the ignored worktree scratch directory and copies sanitized artifacts directly into `dashboard/evidence` with prefixed names only after successful workflow/source checks. Destination creation is exclusive. The source manifest includes the Python driver. Default canonical naming is still available.
 
 The current-source functional run and media checks are in `dashboard/evidence/structure-native-current-validation.json`. All four rotations, import/export, cancellation/atomicity/undo, dependencies/restart, inventory and model editor checks passed under llvmpipe software rendering. The fresh F10 clip was fully decoded and inspected. This does not establish city/maximum, physical-GPU, 30 FPS or network budgets. Those qualification gates remain.
+
+
+#### Independent ordinary-save staging
+
+Ordinary LocalGame save attempts use unique `.world-save-*.tmp` files in the destination directory. Each attempt opens, serializes, flushes, forces, publishes and cleans only its own path. They no longer truncate or consume a shared `world.dat.tmp`. This prevents a failed buffered writer from rewriting another attempt's already-published file. Existing serialization and atomic-required/compatibility-fallback policies remain. An unowned legacy `.tmp` file stays unchanged.
+
+The controlled parent/candidate probe reproduced changed published bytes on the shared-temp implementation and byte preservation with the fix. Actual interleaved-save/reload/failure CLI checks and the 237-test affected-path run are in `dashboard/evidence/structure-save-isolation.json`. Successful concurrent saves keep last-writer replacement behavior. This change adds no source-generation CAS, atomic city sidecars, directory-sync/power-loss guarantee or city qualification. Partial replay saves remain rejected.
