@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+  "source_manifest": "structure-save-rows-native-structure-native-source.json",
+  "source_manifest_sha256": "e2397eb63c34ecc698b8f1e5c4aa077f7e8ccfcc84c52ac70dc8f694eb1d290f",
+  "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-save-rows-native",
+  "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+  "publication": "Local evidence pending controller publication"
+}
