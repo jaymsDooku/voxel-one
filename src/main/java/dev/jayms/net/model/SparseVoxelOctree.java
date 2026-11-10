@@ -102,6 +102,7 @@ public final class SparseVoxelOctree {
     public int get(int x, int y, int z) {
         if (x < 0 || y < 0 || z < 0 || x >= size || y >= size || z >= size) return 0;
         if(root instanceof PackedModel model)return model.samples[x+size*(y+size*z)];
+        if(root instanceof PackedCell packed)return packedUniform(packed.bytes,x,y,z,1);
         Node n = readRoot();
         for (int half = size / 2; n != null && n.children != null; half /= 2) {
             int index = (x >= half ? 1 : 0) | (y >= half ? 2 : 0) | (z >= half ? 4 : 0);
@@ -197,6 +198,7 @@ public final class SparseVoxelOctree {
 
     /** Read an aligned region without expanding any uniform nodes. -1 denotes a mixed region. */
     public int uniform(int x, int y, int z, int side) {
+        if(root instanceof PackedCell packed){checkRegion(x,y,z,side);return packedUniform(packed.bytes,x,y,z,side);}
         Node n = regionNode(x, y, z, side);
         return n == null ? 0 : n.children == null ? n.color : -1;
     }
@@ -243,20 +245,49 @@ public final class SparseVoxelOctree {
         return first==0?null:new Node(first);
     }
 
-    private Node regionNode(int x, int y, int z, int side) {
+    private void checkRegion(int x,int y,int z,int side) {
         if (side < 1
                 || side > size
                 || (side & (side - 1)) != 0
                 || x < 0
                 || y < 0
                 || z < 0
-                || x + side > size
-                || y + side > size
-                || z + side > size
+                || x > size - side
+                || y > size - side
+                || z > size - side
                 || x % side != 0
                 || y % side != 0
                 || z % side != 0)
             throw new IllegalArgumentException("Aligned octree region required");
+    }
+    /** Trusted immutable wire image: skip siblings without creating node graphs.
+     * A query may scan one cell's bytes; it never retains an index or cache. */
+    private int packedUniform(byte[] bytes,int x,int y,int z,int side) {
+        int offset=(bytes[0]&255)==0?3:1,span=size;
+        while(span>side&&bytes[offset]==2) {
+            int half=span/2,child=(x>=half?1:0)|(y>=half?2:0)|(z>=half?4:0);
+            offset++;
+            for(int i=0;i<child;i++)offset=skipPacked(bytes,offset);
+            x%=half;y%=half;z%=half;span=half;
+        }
+        return switch(bytes[offset]) {
+            case 0 -> 0;
+            case 1 -> (bytes[offset+1]&255)<<24|(bytes[offset+2]&255)<<16
+                    |(bytes[offset+3]&255)<<8|(bytes[offset+4]&255);
+            case 2 -> -1;
+            default -> throw new IllegalStateException("Invalid internal packed octree");
+        };
+    }
+    private static int skipPacked(byte[] bytes,int offset) {
+        int tag=bytes[offset++];
+        if(tag==0)return offset;
+        if(tag==1)return offset+4;
+        if(tag!=2)throw new IllegalStateException("Invalid internal packed octree");
+        for(int i=0;i<8;i++)offset=skipPacked(bytes,offset);
+        return offset;
+    }
+    private Node regionNode(int x, int y, int z, int side) {
+        checkRegion(x,y,z,side);
         Node n = readRoot();
         for (int span = size; span > side && n != null && n.children != null; ) {
             int h = span / 2;
@@ -278,7 +309,8 @@ public final class SparseVoxelOctree {
 
     /** Detached immutable 16-resolution cell with stable wrapper identity and packed geometry.
      * Uniform cells retain persistent nodes. Mixed cells retain only their exact wire image;
-     * queries reconstruct a temporary cell graph, never a retained cache. Copies are mutable.
+     * point/aligned reads walk bytes; other queries reconstruct a temporary cell graph,
+     * never a retained cache. Copies are mutable.
      * This trades bounded per-cell query work for lower retained placement/undo geometry. */
     public SparseVoxelOctree packedCellCopy() throws IOException {
         if(size!=16)throw new IllegalArgumentException("Packed world-cell resolution16 required");
