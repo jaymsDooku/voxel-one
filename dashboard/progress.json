@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T03:53:20+00:00",
+  "updatedAt": "2026-11-10T04:58:16+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Adaptive render-history snapshots locally validated: 1103 tests in 224 fresh suites, zero failures/errors, one skip; native workflow and 25-frame video verified. Sparse histories retain flat storage; dense roots reduce retained graph with documented read costs. New source/media need hosted checks; full city/max and hardware/network qualification remain pending.",
-      "updatedAt": "2026-11-10T03:53:20+00:00"
+      "note": "Bounded exact v10 replay loading locally validated: 1112 tests in 225 fresh suites, zero failures/errors, one skip; 33 focused tests, four 20-run component cases and native workflow passed. Fresh 26-frame video inspected. New source/media need hosted checks; live region persistence and full city/max/hardware/network qualification remain pending.",
+      "updatedAt": "2026-11-10T04:58:16+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

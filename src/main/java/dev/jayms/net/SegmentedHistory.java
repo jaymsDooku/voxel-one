@@ -105,6 +105,10 @@ final class SegmentedHistory extends AbstractMap<String,Protocol.Edit> {
         else{cell.bulk="\u0000"+rows.cell;cell.bulkSize=rows.size;ordered.put(cell.bulk,new Segment(rows));}
         cells.put(rows.cell,cell);entries=(int)nextSize;revision+=rows.rawCount;
     }
+    /** Ordinary replay's initial clear removes every previous row in this cell. */
+    void replayCell(CellReplayRows rows){
+        int prior=cellSize(rows.cell);replaceCell(rows);revision+=prior;
+    }
     @Override public void clear(){if(entries!=0)revision++;ordered.clear();cells.clear();entries=0;}
     @Override public Set<Entry<String,Protocol.Edit>> entrySet(){
         return Collections.unmodifiableSet(new AbstractSet<>(){
