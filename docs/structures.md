@@ -2050,3 +2050,19 @@ This coordinates private data coverage only. It adds no Main startup path, usabl
 A cell-index build copies matching validated source rows once into a temporary counting file, retaining their original region ordinals. It then reads that copy to scatter the final cell-index file. The raw copy is sealed by a CRC held in private memory. Length, order, valid edits, region membership, counts and CRC must pass before ownership of the final candidate transfers. Existing per-cell CRC and selected-page policy checks remain. Source-policy checks occur once during copying, rather than twice. Later source changes do not rewrite an already validated copy; subsequent builds still validate the source. This grants no live source-generation or overwrite authority.
 
 The raw copy is at most 56000000 logical bytes under the unchanged 2-million-row limit. Source owns at most two scratch paths: the counting copy and candidate. Failed deletion retains ownership and prevents starting a new raw build; source close retries cleanup. A successful candidate transfers explicitly to the copied-root owner. Cache byte reservations still cover the candidate and retained roots; raw scratch is separately bounded. No timing, peak-heap, cold-load or supported-city claim follows from this pass reduction. Main partial startup, gameplay paging and partial saves remain disabled.
+
+### Warm-cache replay-build diagnostic
+
+`python3 tools/structures/run_replay_build_comparison.py` compares prior feature source `f1f7112c9cf57c0a7f083f89d3ff40b6a6c2d82b` with candidate `3227e84e02a73062133d26acfb71457c9e4c7e6b`. Only the prior Cells/Spool classes are overridden; every other production source must match. Separate JVMs use the same helper and byte-identical synthetic fixture: 65536 rows, 32768 matching rows, 4096 cells, 8192 recurring sections, 1736708 encoded bytes. Each version runs two warmups and twenty measured builds. Source staging is outside timing; candidate scratch cleanup and final copied-root force are inside build timing. First/last window order, policy pass counts and cleanup pass on every run.
+
+Measured on Linux 6.1.0-50-cloud-amd64/glibc 2.36, Intel Core Processor (Haswell, no TSX), 4 logical CPUs, Java 25.0.3+9-LTS-195, `-Xmx192m`; helpers compile with `--release 17`. No GPU, renderer, network or client/server traffic is involved. p95 uses nearest rank.
+
+| Diagnostic | Prior median / p95 / worst | Candidate median / p95 / worst |
+| --- | --- | --- |
+| Build, ms | 112.167 / 125.916 / 128.984 | 91.205 / 131.189 / 161.158 |
+| First 64-cell window read, ms | 1.037 / 1.367 / 1.695 | 0.901 / 1.075 / 1.166 |
+| Whole-JVM process max RSS, KiB | 147636 | 159320 |
+
+The candidate improved median build time but worsened build p95/worst and used more process RSS in this diagnostic. This does not establish an overall speedup. Process RSS comes from Linux `os.wait4`, including setup/warmups/JVM overhead. Per-run heap-pool peak sums are recorded separately; their peaks need not be simultaneous. Prior runs precede candidate runs, and OS/JIT/cache/GC noise can affect the comparison. No cold-cache or causal claim follows.
+
+This fixture is not the required city or maximum fragmented package. It does not establish supported limits, city budgets, main-thread stalls, frame/server ticks, durable world saves, upload or 32-client synchronization. Those qualification gates remain pending. Full raw measurements and source/class/tool hashes are in `dashboard/evidence/structure-replay-build-comparison.json`; the fresh result image shows the p95/RSS regressions explicitly. No production source or admission cap changed during this diagnostic phase.
