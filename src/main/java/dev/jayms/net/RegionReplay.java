@@ -34,10 +34,13 @@ final class RegionReplay {
         StructurePackage.cancelled(cancel);
     }
     static void section(DataOutputStream out,ChunkPos region,int count,ByteArrayOutputStream bytes)throws IOException {
+        writeSection(out,region,count,bytes);
+    }
+    static long writeSection(DataOutputStream out,ChunkPos region,int count,ByteArrayOutputStream bytes)throws IOException {
         if(count<1||count>MAX_RECORDS||bytes.size()!=count*EDIT_BYTES)throw new IOException("Regional replay section budget");
         byte[] payload=bytes.toByteArray();var crc=new CRC32();crc.update(payload);
         out.writeInt(region.chunkX());out.writeInt(region.chunkY());out.writeInt(region.chunkZ());
-        out.writeShort(count);out.writeShort(payload.length);out.writeInt((int)crc.getValue());out.write(payload);
+        out.writeShort(count);out.writeShort(payload.length);out.writeInt((int)crc.getValue());out.write(payload);return crc.getValue();
     }
     /** Reads exactly the declared replay; the caller reads and validates the remaining world tail. */
     static void read(DataInputStream in,Map<String,Protocol.Edit> edits)throws IOException {
@@ -80,27 +83,31 @@ final class RegionReplay {
         int count=0;
         while(count<total) {
             StructurePackage.cancelled(cancel);
-            var region=new ChunkPos(in.readInt(),in.readInt(),in.readInt());
-            int records=in.readUnsignedShort(),length=in.readUnsignedShort();long expected=Integer.toUnsignedLong(in.readInt());
-            if(records<1||records>MAX_RECORDS||records>total-count||length!=records*EDIT_BYTES||length>MAX_BODY)throw new IOException("Regional replay section budget");
-            byte[] bytes=in.readNBytes(length);if(bytes.length!=length)throw new EOFException("Truncated regional replay section");
-            var crc=new CRC32();crc.update(bytes);if(crc.getValue()!=expected)throw new IOException("Regional replay checksum");
-            var section=new ArrayList<Protocol.Edit>(records);
-            try(var body=new DataInputStream(new ByteArrayInputStream(bytes))) {
-                for(int i=0;i<records;i++) {
-                    StructurePackage.cancelled(cancel);
-                    var edit=Protocol.Edit.read(body);
-                    if(!edit.valid()||!allowed.test(edit)||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region))throw new IOException("Invalid regional replay position/value");
-                    section.add(edit);
-                }
-                if(body.read()!=-1)throw new IOException("Trailing regional replay section");
-            }
-            // No record escapes before its entire section passes validation.
-            StructurePackage.cancelled(cancel);
-            sink.accept(region,List.copyOf(section));
-            StructurePackage.cancelled(cancel);
-            count+=records;
+            var section=readSection(in,total-count,allowed,cancel);
+            StructurePackage.cancelled(cancel);sink.accept(section.region(),section.rows());
+            StructurePackage.cancelled(cancel);count+=section.rows().size();
         }
         StructurePackage.cancelled(cancel);
     }
+    record Section(ChunkPos region,List<Protocol.Edit> rows,long checksum) {}
+    /** Reads one complete bounded section; no row escapes before validation. */
+    static Section readSection(DataInputStream in,int remaining,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
+        StructurePackage.cancelled(cancel);
+        var region=new ChunkPos(in.readInt(),in.readInt(),in.readInt());
+        int records=in.readUnsignedShort(),length=in.readUnsignedShort();long expected=Integer.toUnsignedLong(in.readInt());
+        if(records<1||records>MAX_RECORDS||records>remaining||length!=records*EDIT_BYTES||length>MAX_BODY)throw new IOException("Regional replay section budget");
+        byte[] bytes=in.readNBytes(length);if(bytes.length!=length)throw new EOFException("Truncated regional replay section");
+        var crc=new CRC32();crc.update(bytes);if(crc.getValue()!=expected)throw new IOException("Regional replay checksum");
+        var rows=new ArrayList<Protocol.Edit>(records);
+        try(var body=new DataInputStream(new ByteArrayInputStream(bytes))) {
+            for(int i=0;i<records;i++) {
+                StructurePackage.cancelled(cancel);var edit=Protocol.Edit.read(body);
+                if(!edit.valid()||!allowed.test(edit)||!ChunkPos.fromBlock(edit.x(),edit.y(),edit.z()).equals(region))throw new IOException("Invalid regional replay position/value");
+                rows.add(edit);
+            }
+            if(body.read()!=-1)throw new IOException("Trailing regional replay section");
+        }
+        StructurePackage.cancelled(cancel);return new Section(region,List.copyOf(rows),expected);
+    }
+
 }
