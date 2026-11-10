@@ -53,6 +53,7 @@ public final class LocalGame {
             models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
         }
         String fingerprint(){return fingerprint;}
+        boolean matchesTerrain(Terrain terrain){return terrain.seed==seed&&terrain.version==generator&&terrain.stressGrid()==null&&terrain.geometryRevision()==0;}
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
             var result=new LocalGame(this);transferred=true;models=null;inventory=null;drops=null;return result;

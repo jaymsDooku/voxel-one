@@ -2,6 +2,7 @@ package dev.jayms.net;
 
 import dev.jayms.ChunkPos;
 import dev.jayms.World;
+import dev.jayms.net.model.ModelLibrary;
 import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -24,6 +25,7 @@ final class RegionReplayWorker implements AutoCloseable {
         Source {
             Objects.requireNonNull(spool);Objects.requireNonNull(terrain);Objects.requireNonNull(allowed);Objects.requireNonNull(revision);Objects.requireNonNull(fingerprint);
             if(metadata!=null&&!fingerprint.equals(metadata.fingerprint()))throw new IllegalArgumentException("Replay metadata fingerprint mismatch");
+            if(metadata!=null&&!metadata.matchesTerrain(terrain))throw new IllegalArgumentException("Replay metadata terrain mismatch");
             if(!fingerprint.isEmpty()&&!fingerprint.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Replay source fingerprint");
         }
     }
@@ -39,10 +41,11 @@ final class RegionReplayWorker implements AutoCloseable {
         private final int maxRows;
         private final Revision revision;
         private final World.ReplayFence fence;
+        private final Binding binding;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
-        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence) {
-            this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding) {
+            this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;this.binding=binding;
         }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
@@ -63,6 +66,7 @@ final class RegionReplayWorker implements AutoCloseable {
          * not replace checks against actual live object identities/revisions. */
         RegionReplayPage result(Revision current)throws IOException {
             owner();
+            if(binding!=null)throw new IOException("Replay request requires its source binding");
             if(fence!=null)throw new IOException("Replay request requires its world fence");
             return extract(current);
         }
@@ -70,6 +74,10 @@ final class RegionReplayWorker implements AutoCloseable {
          * generation, dependencies, coverage and installation remain separate. */
         RegionReplayPage result(Revision current,World world)throws IOException {
             owner();
+            if(binding!=null)throw new IOException("Replay request requires its source binding");
+            return checkedWorldResult(current,world);
+        }
+        private RegionReplayPage checkedWorldResult(Revision current,World world)throws IOException {
             if(fence==null)throw new IOException("Replay request has no world fence");
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay worker no longer active");
             validateWorld(world);var page=extract(current);validateWorld(world);return page;
@@ -98,6 +106,11 @@ final class RegionReplayWorker implements AutoCloseable {
     private volatile String fingerprint="";
     private LocalGame.ReadbackMetadata metadata;
     private Revision sourceRevision;
+    // Owner-only transfer/binding receipts, never read by the worker.
+    private LocalGame transferredMetadata;
+    private ModelLibrary transferredModels;
+    private long transferredModelsRevision;
+    private Binding targetBinding;
     String fingerprint(){return fingerprint;}
     /** Owner-only, nonblocking single transfer. Prepared maps become owner-owned;
      * the worker's private model-policy maps remain separate. No live install. */
@@ -107,8 +120,51 @@ final class RegionReplayWorker implements AutoCloseable {
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay metadata not available");
             if(!current.equals(sourceRevision))throw new IOException("Replay metadata revision changed");
             if(metadata==null)throw new IOException("Replay metadata unavailable or already transferred");
-            var result=metadata.transfer();metadata=null;return result;
+            var result=metadata.transfer();metadata=null;
+            transferredMetadata=result;transferredModels=result.models;transferredModelsRevision=result.models.revision();return result;
         }
+    }
+    /** Private detached-target session. This does not mark coverage loaded,
+     * install geometry, promote metadata, or authorize a save over a live path. */
+    final class Binding {
+        private final LocalGame local;
+        private final World target;
+        private final World.ReplayFence baseline;
+        private final Revision revision=sourceRevision;
+        private final String identity=fingerprint;
+        private Binding(LocalGame local,World target){this.local=local;this.target=target;baseline=target.beginReplayFence();}
+        String fingerprint(){return identity;}
+        private void validate(World current)throws IOException {
+            owner();
+            if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay binding no longer active");
+            if(targetBinding!=this||transferredMetadata!=local||local.replayComplete()
+                    ||local.models!=transferredModels||transferredModels.revision()!=transferredModelsRevision
+                    ||!identity.equals(fingerprint)||!identity.equals(local.readbackFingerprint()))
+                throw new IOException("Replay source metadata changed");
+            try{baseline.validate(current);}
+            catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay bound target changed",changed);}
+        }
+        Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,World current)throws IOException {
+            validate(current);return enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);
+        }
+        RegionReplayPage result(Request request,World current)throws IOException {
+            validate(current);Objects.requireNonNull(request);
+            if(request.binding!=this)throw new IOException("Replay request belongs to another binding");
+            var page=request.checkedWorldResult(revision,current);validate(current);return page;
+        }
+    }
+    Binding bindTarget(LocalGame local,World target)throws IOException {
+        owner();Objects.requireNonNull(local);Objects.requireNonNull(target);
+        if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay source not available");
+        if(targetBinding!=null)throw new IOException("Replay target already bound");
+        if(local!=transferredMetadata||local.replayComplete()||local.models!=transferredModels
+                ||transferredModels.revision()!=transferredModelsRevision||!fingerprint.equals(local.readbackFingerprint())
+                ||target.models()!=transferredModels||target.terrain().seed!=local.seed||target.terrain().version!=local.generatorVersion
+                ||target.terrain().stressGrid()!=null||target.terrain().geometryRevision()!=0
+                ||target.editsVersion()!=0||target.skyGeometryRevision()!=0||!target.getLoadedChunks().isEmpty())
+            throw new IOException("Replay target does not match source metadata");
+        try{var binding=new Binding(local,target);targetBinding=binding;return binding;}
+        catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target unavailable",changed);}
     }
     private Request active; // worker-owned except under gate during close
     private boolean retryCleanup;
@@ -126,21 +182,21 @@ final class RegionReplayWorker implements AutoCloseable {
     Status status(){return status;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay worker owner required");}
     Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision)throws IOException {
-        return enqueue(region,range,maxRows,revision,null);
+        return enqueue(region,range,maxRows,revision,null,null);
     }
     /** Owner-side constant-field capture; no model/history copy or file I/O. */
     Request submitFenced(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World world)throws IOException {
         owner();Objects.requireNonNull(world);
-        return enqueue(region,range,maxRows,revision,world.beginReplayFence());
+        return enqueue(region,range,maxRows,revision,world.beginReplayFence(),null);
     }
-    private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence)throws IOException {
+    private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
         owner();Objects.requireNonNull(region);Objects.requireNonNull(range);Objects.requireNonNull(revision);
         if(range.size()>RegionReplayPage.MAX_CELLS||maxRows<0||maxRows>RegionReplayPage.MAX_ROWS)
             throw new IllegalArgumentException("Replay worker page budget");
         synchronized(gate) {
             if(stopping.get())throw new IOException("Replay worker not accepting requests");
             if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
-            var request=new Request(region,range,maxRows,revision,fence);queue.addLast(request);gate.notifyAll();return request;
+            var request=new Request(region,range,maxRows,revision,fence,binding);queue.addLast(request);gate.notifyAll();return request;
         }
     }
     private void run(Path directory,Factory factory,int maxRegions,long maxBytes,int maxRegionRows) {
@@ -166,9 +222,11 @@ final class RegionReplayWorker implements AutoCloseable {
                     if(request.cancelled())continue;
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
+                    if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
                     var page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
                             ()->stopping.get()||request.cancelled());
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());
+                    if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
                     request.finish(new Outcome(Phase.READY,page,null));
                 }catch(CancellationException cancelled){request.cancel();}
                 catch(IOException|RuntimeException error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page request failed",error)));}
@@ -207,7 +265,7 @@ final class RegionReplayWorker implements AutoCloseable {
     /** Owner-side signal only: never joins the worker or waits for I/O. A later
      * close retries failed cleanup on that same worker. Poll status for receipt. */
     @Override public void close()throws IOException {
-        owner();synchronized(gate) {
+        owner();transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {
             if(status.state()==State.CLOSED||status.state()==State.FAILED)return;
             stopping.set(true);if(status.state()==State.CLEANUP_FAILED)retryCleanup=true;
             if(active!=null)active.cancel();
