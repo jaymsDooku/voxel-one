@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T17:17:08+00:00",
+  "updatedAt": "2026-11-10T17:43:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Read-only World replay coverage implemented: unknown cells never fall back to terrain; complete bounded windows publish with FIFO eviction; edits/capture/history/stream paths stay closed. 151 tests in 31 suites and actual CLI/native regressions passed. Fresh 26-frame F10 clip inspected. Exact-source hosted validation needed. Live paging, city/max admission and physical-GPU/32-client qualification remain pending; rollout gated.",
-      "updatedAt": "2026-11-10T17:17:08+00:00"
+      "note": "Bounded replay directory snapshot implemented: up to 4096 matching records use 114688 primitive bytes and avoid one global scan; larger selections keep streaming fallback. 154 tests/32 suites and actual file CLI passed; fresh result image inspected. Hosted validation needed. City/live-paging/GPU/32-client work and rollout gates remain pending.",
+      "updatedAt": "2026-11-10T17:43:47+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
