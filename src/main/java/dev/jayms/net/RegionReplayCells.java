@@ -45,7 +45,7 @@ final class RegionReplayCells implements AutoCloseable {
             try(var channel=FileChannel.open(raw.path(),StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
                     var out=new DataOutputStream(new BufferedOutputStream(new java.util.zip.CheckedOutputStream(
                             java.nio.channels.Channels.newOutputStream(channel),sealed),64*1024))) {
-                source.visitRegion(region,maxRows,allowed,cancel,(p,rows)->{
+                source.visitIndexedRegion(region,maxRows,allowed,cancel,(p,rows)->{
                     for(var edit:rows) {
                         StructurePackage.cancelled(cancel);
                         if(total[0]>=maxRows)throw new IOException("Replay cell-index row budget");
