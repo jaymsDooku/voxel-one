@@ -102,16 +102,32 @@ final class RegionReplaySpool implements AutoCloseable {
      * preserving recurring sections in file order. Unselected payload integrity
      * is deferred until read; this is not permission to publish a whole world. */
     void visitRegion(ChunkPos region,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
-        Objects.requireNonNull(region);visitSelected(region::equals,allowed,cancel,sink);
+        visitRegion(region,LocalGame.MAX_SAVED_EDITS,allowed,cancel,sink);
+    }
+    /** Tighten the selected input-row budget before any payload decode/delivery.
+     * Counts source rows, including overwritten and explicit-air rows. */
+    void visitRegion(ChunkPos region,int maxRows,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
+        Objects.requireNonNull(region);
+        if(maxRows<0||maxRows>LocalGame.MAX_SAVED_EDITS)throw new IllegalArgumentException("Replay region row budget");
+        visitSelected(region::equals,maxRows,allowed,cancel,sink);
     }
     private void visitSelected(Predicate<ChunkPos> select,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
+        visitSelected(select,LocalGame.MAX_SAVED_EDITS,allowed,cancel,sink);
+    }
+    private void visitSelected(Predicate<ChunkPos> select,int maxRows,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
         Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);Objects.requireNonNull(sink);
         check();StructurePackage.cancelled(cancel);busy=true;
         try(var data=FileChannel.open(path,StandardOpenOption.READ,LinkOption.NOFOLLOW_LINKS)) {
             if(data.size()!=bytes||bytes>MAX_BYTES)throw new IOException("Replay spool length changed");
             if(new DataInputStream(Channels.newInputStream(data)).readInt()!=records)throw new IOException("Replay spool count changed");
             // Validate the entire sealed directory before any selected delivery.
-            readIndex(cancel,entry->{});
+            long[] selectedRows={0};
+            readIndex(cancel,entry->{
+                if(select==null||select.test(entry.region())) {
+                    selectedRows[0]+=entry.count();
+                    if(selectedRows[0]>maxRows)throw new IOException("Replay region row budget");
+                }
+            });
             if(select==null) {
                 data.position(0);var in=new DataInputStream(new BufferedInputStream(Channels.newInputStream(data),64*1024));
                 if(in.readInt()!=records)throw new IOException("Replay spool count changed");
@@ -119,9 +135,13 @@ final class RegionReplaySpool implements AutoCloseable {
                 if(in.read()!=-1)throw new IOException("Trailing replay spool data");
                 StructurePackage.cancelled(cancel);return;
             }
-            var frame=ByteBuffer.allocate(20+RegionReplay.MAX_BODY);long[] position={4};
+            var frame=ByteBuffer.allocate(20+RegionReplay.MAX_BODY);long[] position={4},decodedRows={0};
             readIndex(cancel,entry->{
                 if(!select.test(entry.region()))return;
+                // Recheck while consuming: a changed directory must not grow
+                // private staging before its final sealed-CRC rejection.
+                decodedRows[0]+=entry.count();
+                if(decodedRows[0]>maxRows)throw new IOException("Replay region row budget");
                 StructurePackage.cancelled(cancel);
                 if(position[0]!=entry.offset())data.position(entry.offset());
                 frame.clear().limit((int)entry.bytes());
