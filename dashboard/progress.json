@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T20:35:13+00:00",
+  "updatedAt": "2026-11-10T20:59:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exact-head four-platform builds passed. Actual private lookup diagnostic passed20 measured runs/method: 97-lookup pass p95 direct199.614ms vs bucket67.554ms; initial worker preparation111.614ms. Image inspected; no city/cold/GPU/network qualification claimed. Live paging/persistence and city/max gates remain open.",
-      "updatedAt": "2026-11-10T20:35:13+00:00"
+      "note": "Opt-in ray loading-boundary trace validated: 224 tests/42 suites and actual World/ray/collision CLI/image passed. Unknown and data-ready-but-unmeshed cells stop safely; legacy casts/collision retained. Exact-source hosted checks requested. Main partial startup, city/max admission and GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-11-10T20:59:39+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
