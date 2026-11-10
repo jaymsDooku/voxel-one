@@ -357,7 +357,7 @@ public class World implements AutoCloseable {
         if(closed||initialReplayComplete||initialReplay!=null||editsVersion!=0||!loadedChunks.isEmpty()||terrainScheduler!=null)
             throw new IllegalStateException("Initial replay requires a private fresh world");
         checkInitialCancellation(cancel);
-        var stage=new InitialReplay();initialReplay=stage;
+        var stage=new InitialReplay(cancel);initialReplay=stage;
         try {
             progress.accept(0);checkInitialCancellation(cancel);
             int count=0;
@@ -375,6 +375,9 @@ public class World implements AutoCloseable {
     private final class InitialReplay {
         private WorldVoxels.CellPosition position;
         private SparseVoxelOctree tree;
+        private final java.util.function.BooleanSupplier cancel;
+        private WorldVoxels.ReplayWriter history;
+        InitialReplay(java.util.function.BooleanSupplier cancel){this.cancel=cancel;}
         void apply(Protocol.Edit edit) {
             if(!edit.valid())throw new IllegalArgumentException("Invalid initial replay edit");
             if(position==null||position.x()!=edit.x()||position.y()!=edit.y()||position.z()!=edit.z()) {
@@ -384,10 +387,13 @@ public class World implements AutoCloseable {
             var chunk=noteEdit(edit);int side=16>>edit.depth();
             int x=edit.ix()*side,y=edit.iy()*side,z=edit.iz()*side;
             tree.fill(x,y,z,x+side,y+side,z+side,WorldVoxels.encode(edit));
-            WorldVoxels.rememberValidated(edits.computeIfAbsent(chunk,k->new WorldVoxels.History()),edit);
+            if(history==null)history=new WorldVoxels.ReplayWriter(
+                    edits.computeIfAbsent(chunk,k->new WorldVoxels.History()),cancel);
+            history.accept(edit);
         }
         void flush() {
             if(position==null)return;
+            history.finish();history=null;
             int x=position.x(),y=position.y(),z=position.z();var chunk=ChunkPos.fromBlock(x,y,z);
             voxels.replaceCell(x,y,z,tree);
             editedCells.computeIfAbsent(chunk,k->new LinkedHashMap<>()).put(x+","+y+","+z,
