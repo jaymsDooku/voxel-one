@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T23:14:51+00:00",
+  "updatedAt": "2026-11-10T21:00:34+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4104,6 +4104,15 @@
       "status": "complete",
       "note": "Two interactive VPS Health mockups independently reviewed, merged and published. Dashboard Health mockups link and live assets verified against reviewed source; desktop/phone layouts and five sample states tested in Chromium and Linux WebKit. Controls are preview-only.",
       "updatedAt": "2026-11-09T23:14:51+00:00"
+    },
+    {
+      "id": "vps-health-dashboard-implementation-20261110",
+      "title": "VPS Health dashboard: implement approved visual design",
+      "description": "Implementing the approved Calm overview as a real responsive health dashboard with bounded measured history, live metrics, cleanup activity and existing owner policy controls. Mockups remain accessible; implementation proceeds through feature branch and independent review.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implementing the approved Calm overview as a real responsive health dashboard with bounded measured history, live metrics, cleanup activity and existing owner policy controls. Mockups remain accessible; implementation proceeds through feature branch and independent review.",
+      "updatedAt": "2026-11-10T21:00:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
