@@ -252,12 +252,12 @@ public final class WorldVoxels {
         private long revision;
         private int singleKey=-1;
         private SparseVoxelOctree singleTree;
-        private Map<Integer,SparseVoxelOctree> cells;
+        private RegionCellTable<SparseVoxelOctree> cells;
         CellBucket(Object owner,CellBucket source) {
             this.owner=owner;
             if(source!=null) {
                 revision=source.revision;singleKey=source.singleKey;singleTree=source.singleTree;
-                if(source.cells!=null)cells=new HashMap<>(source.cells);
+                if(source.cells!=null)cells=new RegionCellTable<>(source.cells);
             }
         }
         SparseVoxelOctree get(int key){return cells==null?(key==singleKey?singleTree:null):cells.get(key);}
@@ -265,7 +265,7 @@ public final class WorldVoxels {
             revision++;
             if(cells!=null){cells.put(key,tree);return;}
             if(singleKey<0||singleKey==key){singleKey=key;singleTree=tree;return;}
-            cells=new HashMap<>(4);cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
+            cells=new RegionCellTable<>();cells.put(singleKey,singleTree);cells.put(key,tree);singleKey=-1;singleTree=null;
         }
     }
     // Immutable roots give bounded-path updates and stable iteration without map cloning.
@@ -526,8 +526,7 @@ public final class WorldVoxels {
         if(minY<=Terrain.MAX_Y&&minY+15>=Terrain.MIN_Y)return false;
         var bucket=chunk(position);if(bucket==null)return true;
         if(bucket.cells==null)return bucket.singleKey<0||bucket.singleTree.occupied()==0;
-        for(var tree:bucket.cells.values())if(tree.occupied()!=0)return false;
-        return true;
+        return !bucket.cells.anyMatch(tree->tree.occupied()!=0);
     }
 
     public int type(int x, int y, int z) {

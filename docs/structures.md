@@ -1693,3 +1693,9 @@ A shared-VPS component probe (3 warmups, 20 calls per mode, 1 GiB heap) measured
 ### History capacity preflight
 
 Offline and server worker staging now count the final canonical replay-map size before retaining replacement replay keys and records. The count subtracts every replaced cell's existing records, adds one clear record per empty or fractional cell and its nonoverlapping leaves, and counts a full-cell replacement as one key. It checks the final transaction rather than intermediate growth, because later cells can free capacity. Cancellation and the existing source revision fences remain in place. The 2,000,000-record cap is unchanged. This bounds rejected staging work; it does not replace eager flat history or provide city/maximum-size support. Region-backed authoritative state/history remains required.
+
+### Primitive live-region cell tables
+
+Multi-cell `WorldVoxels` buckets use primitive 12-bit local keys and frozen geometry references. Sparse arrays stay at most half full; inserting beyond 1,024 entries switches to 4,096 direct slots. Single-cell buckets remain unchanged. Copy-on-write snapshots clone the table arrays and share frozen values. Explicit air remains a stored override. Region occupancy scans do not allocate map entries. Generic cell iteration does create boxed immutable entries, so capture/iteration costs still need full-fixture measurement.
+
+A shared-VPS component probe used 3 warmups and 20 copies per occupancy/mode. At 4,096 cells, median allocation per bucket copy fell from 163,936 bytes (`HashMap`) to 16,448 bytes. At 1,024 cells it fell from 41,056 to 12,368 bytes; the dense transition at 1,025 cells uses 16,448 bytes. These are copy allocations, not whole-world retained memory or city performance. Exact samples and environment are in `dashboard/evidence/structure-region-cell-table.json`. World formats, replay history, model behavior, production limits and qualification gates remain unchanged.
