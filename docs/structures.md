@@ -1779,3 +1779,22 @@ The combined graph includes source and captured History, per-chunk World history
 The choice reuses the engine's existing packed cell representation and remains subject to all qualification gates. Region-backed authority/persistence, legacy-history memory, record/chunk/geometry/instance admission barriers, full city/maximum operation runs, physical GPU and shaped 32-client tests remain pending. Supported limits and stable rollout stay gated.
 
 Local validation passed 27 focused tests and the full 226-suite regression (1117 tests total, zero failures/errors, one browserWorkflow skip). Production Main/GLFW workflow passed on an isolated synthetic offline profile, including import/rotation/conflict/cancellation/undo and existing inventory/editor/model-restart regressions. All fresh video frames decoded and representative staging/conflict frames were inspected. Software rendering at 1 FPS remains functional-only evidence. See `dashboard/evidence/structure-startup-packed-geometry.json`; new source, report and media await controller publication and exact-head hosted checks. Full-scale qualification remains pending.
+
+### Legacy offline history loading (qualification pending)
+
+The private v3-v9 offline load loop now uses the bounded replay writer. Each version retains its existing record decoder; v5 fractional LEDs still restore white because that format stores no colour. Clear-led disjoint fractional groups keep compact primitive history rows in exact order. Ordinary nonclear/overlap groups retain the same fallback. Model definitions, inventory/drop parsing, replay revisions, progress counts and v3-v9 save/upgrade behavior remain. Later failure or cancellation discards the private LocalGame. The legacy multiplayer `put` path is unchanged.
+
+A component comparison rebuilt exact parent `cd84bc2251448cbd19577b731165dc395fb09f94` LocalGame against the same ordinary history implementation. Separate 512 MiB JVMs ran three warmups and 20 samples for each mode/fixture before owned full/native checks. Timings cover real warm-cache file loading, including model, inventory, history and tail decoding. Fixture construction, verification, keyed reads, save/force/complete-byte checks and graph traversal are outside load timing. Every sample checks ordered rows, history revisions, dependencies and complete saved bytes. This is not a cold-cache benchmark. Shared VPS/JIT/GC variation limits timing claims.
+
+| Fixture | Records | Retained loaded-state bytes, parent → current | Load median / p95 / worst ms, parent → current | Median allocation bytes, parent → current |
+| --- | ---: | ---: | --- | ---: |
+| v8 dense |32776|10625432 →537896|53.005144 /91.006949 /101.568274 →13.429103 /20.151027 /21.736167|56089136 →4634960|
+| v9 dense plus 32-resolution dependency |32777|10626704 →539208|53.663857 /67.141269 /68.831770 →15.868668 /21.245946 /21.918494|56105168 →4650312|
+| v8 sparse |16|72744 →69672|1.125842 /1.523757 /1.737240 →1.174170 /1.250345 /2.220329|2154248 →2146632|
+| v8 nonclear |32776|10625432 →10625432|54.717667 /75.102926 /84.357098 →60.400467 /74.391644 /85.012368|56088928 →56088976|
+
+Retained loaded-state graph includes history, model library, inventory and drops. A shared History snapshot adds 200 bytes in these fixtures. Fixture arrays, file/path objects, live World geometry, renderer and peak staging/process memory are excluded. Nonclear history still has its ordinary retained graph; its median/worst load time rises in these samples. No universal speed, peak-memory or city-budget claim is made.
+
+This removes eligible legacy-load row expansion, not the resident-world, server legacy map, 2-million-record persistence or other admission barriers. Region-backed authority/persistence, full city/maximum reference operations, physical GPU and shaped 32-client qualification remain unfinished. Supported limits and stable rollout stay gated.
+
+Local validation passed 29 focused tests and the full 227-suite regression (1122 tests total, zero failures/errors, one browserWorkflow skip). Production Main/GLFW workflow passed in an isolated synthetic offline profile, including capture/import/rotation/conflict/cancellation/undo and existing inventory/editor/model-restart flows. All fresh video frames decoded and representative frames were inspected. Software rendering at 1 FPS remains functional-only evidence. See `dashboard/evidence/structure-legacy-offline-load.json`; new source, report and media await controller publication and exact-head hosted checks. Full-scale qualification remains pending.

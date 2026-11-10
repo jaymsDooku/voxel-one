@@ -64,6 +64,7 @@ public final class LocalGame {
                 else {
                     int n = in.readInt();
                     if (n < 0 || n > MAX_SAVED_EDITS) throw new IOException("Invalid world");
+                    var replay=new WorldVoxels.ReplayWriter(edits,cancel);
                     for (int i = 0; i < n; i++) {
                         StructurePackage.cancelled(cancel);
                         var e =
@@ -73,10 +74,10 @@ public final class LocalGame {
                                                 ? Protocol.Edit.readV7(in)
                                                 : Protocol.Edit.readLegacy(in);
                         if (!e.valid()) throw new IOException("Invalid edit");
-                        WorldVoxels.rememberValidated(edits, e);
+                        replay.accept(e);
                         if(((i+1)&127)==0)progress.accept(i+1);
                     }
-                    progress.accept(n);StructurePackage.cancelled(cancel);
+                    replay.finish();progress.accept(n);StructurePackage.cancelled(cancel);
                 }
                 if(!regionalSaves) {
                     int n=in.readInt();
