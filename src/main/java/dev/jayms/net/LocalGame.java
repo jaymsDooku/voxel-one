@@ -42,21 +42,11 @@ public final class LocalGame {
         int generator = Terrain.CURRENT_VERSION;
         if (Files.exists(save))
             try (var in = new DataInputStream(new BufferedInputStream(new LoadInput(Files.newInputStream(save),cancel), 64 * 1024))) {
-                int version = in.readInt();
-                if (version != 3 && version != 4 && version != 5 && version != 6 && version != 7 && version != 8 && version != 9 && version != 10)
-                    throw new IOException("Invalid offline world");
-                regionalSaves=version==10;
-                worldSeed = in.readLong();
-                generator = version >= 7 ? in.readInt() : Terrain.LEGACY_VERSION;
-                try {
-                    new Terrain(worldSeed, generator);
-                } catch (IllegalArgumentException e) {
-                    throw new IOException("Unsupported terrain generator", e);
-                }
-                if (version >= 4) models = version>=9?ModelLibrary.readAll(in):ModelLibrary.read(in);
-                inventory = Inventory.read(in,version>=8);
-                health = in.readUnsignedByte();
-                if (health > 20) throw new IOException("Invalid saved health");
+                var header=readHeader(in,cancel);
+                int version=header.version();regionalSaves=version==10;
+                worldSeed=header.seed();generator=header.generator();
+                if(header.models()!=null)models=header.models();
+                inventory=header.inventory();health=header.health();
                 if(regionalSaves) {
                     var body=readRegionalBody(Path.of(System.getProperty("java.io.tmpdir")),in,edits,cancel,progress);
                     drops.putAll(body.drops());nextDrop=body.nextDrop();
@@ -93,13 +83,59 @@ public final class LocalGame {
         generatorVersion = generator;
     }
 
+    private record Header(int version,long seed,int generator,ModelLibrary models,Inventory inventory,int health) {}
+    /** Same prefix validation for resident loading and private regional readback. */
+    private static Header readHeader(DataInputStream in,BooleanSupplier cancel)throws IOException {
+        StructurePackage.cancelled(cancel);
+        int version=in.readInt();
+        if(version!=3&&version!=4&&version!=5&&version!=6&&version!=7&&version!=8&&version!=9&&version!=10)
+            throw new IOException("Invalid offline world");
+        long seed=in.readLong();int generator=version>=7?in.readInt():Terrain.LEGACY_VERSION;
+        try{new Terrain(seed,generator);}catch(IllegalArgumentException error){throw new IOException("Unsupported terrain generator",error);}
+        ModelLibrary models=version>=4?(version>=9?ModelLibrary.readAll(in):ModelLibrary.read(in)):null;
+        var inventory=Inventory.read(in,version>=8);int health=in.readUnsignedByte();
+        if(health>20)throw new IOException("Invalid saved health");
+        StructurePackage.cancelled(cancel);return new Header(version,seed,generator,models,inventory,health);
+    }
+    /** Read-only v10 opener for a RegionReplayWorker factory. No resident replay
+     * history is built. The complete prefix, model references, tail and EOF pass
+     * before a source escapes. The hash identifies the bytes read, not the live
+     * path or authority; callers still need real installation revision fences. */
+    static RegionReplayWorker.Source openRegionalReadback(Path save,Path directory,RegionReplayWorker.Revision revision,
+            BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(save);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
+        Objects.requireNonNull(cancel);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
+        java.security.MessageDigest digest;
+        try{digest=java.security.MessageDigest.getInstance("SHA-256");}
+        catch(java.security.NoSuchAlgorithmException error){throw new IOException("SHA-256 unavailable",error);}
+        RegionReplaySpool spool=null;
+        try(var in=new DataInputStream(new BufferedInputStream(new java.security.DigestInputStream(
+                new LoadInput(Files.newInputStream(save),cancel),digest),64*1024))) {
+            var header=readHeader(in,cancel);
+            if(header.version()!=10)throw new IOException("Regional readback requires version 10");
+            var definitions=header.models();
+            for(int slot=0;slot<Inventory.SIZE;slot++) {
+                StructurePackage.cancelled(cancel);
+                if(!definitions.has(header.inventory().type(slot)))throw new IOException("Missing saved inventory model");
+            }
+            java.util.function.Predicate<Protocol.Edit> allowed=edit->definitions.has(edit.type());
+            spool=RegionReplaySpool.stage(directory,in,allowed,cancel,RegionReplaySpool.MAX_BYTES,progress);
+            readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
+            return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,
+                    HexFormat.of().formatHex(digest.digest()));
+        }catch(IOException|RuntimeException|Error failure) {
+            if(spool!=null)try{spool.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
+        }
+    }
+
     record LoadedDrops(Map<Integer,ItemDrop> drops,int nextDrop) {}
-    private static LoadedDrops readDrops(DataInputStream in,boolean current,BooleanSupplier cancel)throws IOException {
+    private static LoadedDrops readDrops(DataInputStream in,boolean current,BooleanSupplier cancel,java.util.function.IntPredicate allowed)throws IOException {
         int count=in.readInt();
         if(count<0||count>100000)throw new IOException("Invalid drops");
         var drops=new LinkedHashMap<Integer,ItemDrop>();int next=0;
         for(int i=0;i<count;i++) {
             StructurePackage.cancelled(cancel);var drop=ItemDrop.read(in,current);
+            if(!allowed.test(drop.type()))throw new IOException("Missing dropped model");
             drops.put(drop.id(),drop);next=Math.max(next,drop.id());
         }
         return new LoadedDrops(Collections.unmodifiableMap(drops),next);
@@ -108,7 +144,10 @@ public final class LocalGame {
      * validates transient records without admitting a replay prefix as a world.
      * Prefix metadata/models remain the opener's responsibility. */
     static LoadedDrops readRegionalTail(DataInputStream in,BooleanSupplier cancel)throws IOException {
-        var drops=readDrops(in,true,cancel);
+        return readRegionalTail(in,cancel,type->true);
+    }
+    private static LoadedDrops readRegionalTail(DataInputStream in,BooleanSupplier cancel,java.util.function.IntPredicate allowed)throws IOException {
+        var drops=readDrops(in,true,cancel,allowed);
         if(in.read()!=-1)throw new IOException("Trailing regional offline world");
         StructurePackage.cancelled(cancel);return drops;
     }

@@ -17,8 +17,12 @@ import java.util.function.*;
 final class RegionReplayWorker implements AutoCloseable {
     static final int MAX_QUEUED=8;
     record Revision(long world,long models,long terrain) {}
-    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision) {
-        Source {Objects.requireNonNull(spool);Objects.requireNonNull(terrain);Objects.requireNonNull(allowed);Objects.requireNonNull(revision);}
+    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint) {
+        Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision){this(spool,terrain,allowed,revision,"");}
+        Source {
+            Objects.requireNonNull(spool);Objects.requireNonNull(terrain);Objects.requireNonNull(allowed);Objects.requireNonNull(revision);Objects.requireNonNull(fingerprint);
+            if(!fingerprint.isEmpty()&&!fingerprint.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Replay source fingerprint");
+        }
     }
     @FunctionalInterface interface Factory {Source open(BooleanSupplier cancel,IntConsumer checkedRows)throws IOException;}
     enum State {OPENING,RUNNING,CLOSING,CLEANUP_FAILED,CLOSED,FAILED}
@@ -70,6 +74,8 @@ final class RegionReplayWorker implements AutoCloseable {
     private final AtomicBoolean stopping=new AtomicBoolean();
     private final int capacity;
     private volatile Status status=new Status(State.OPENING,0,null);
+    private volatile String fingerprint="";
+    String fingerprint(){return fingerprint;}
     private Request active; // worker-owned except under gate during close
     private boolean retryCleanup;
 
@@ -102,6 +108,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 synchronized(gate){if(!stopping.get())status=new Status(State.OPENING,Math.max(status.sourceRows(),Math.max(0,Math.min(rows,LocalGame.MAX_SAVED_EDITS))),null);}
             }));
             StructurePackage.cancelled(stopping::get);
+            fingerprint=source.fingerprint();
             var opened=source;
             cache=new RegionReplayCache(directory,source.spool(),maxRegions,maxBytes,maxRegionRows,edit->{
                 var request=active;if(request!=null)request.checkedRows.incrementAndGet();return opened.allowed().test(edit);
