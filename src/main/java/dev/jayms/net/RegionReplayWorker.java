@@ -129,7 +129,9 @@ final class RegionReplayWorker implements AutoCloseable {
     final class Binding {
         private final LocalGame local;
         private final World target;
-        private final World.ReplayFence baseline;
+        private World.ReplayFence baseline;
+        private ReadView view;
+        private boolean requestsIssued;
         private final Revision revision=sourceRevision;
         private final String identity=fingerprint;
         private Binding(LocalGame local,World target){this.local=local;this.target=target;baseline=target.beginReplayFence();}
@@ -137,6 +139,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private void validate(World current)throws IOException {
             owner();
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay binding no longer active");
+            if(view!=null&&view.closed)throw new IOException("Replay read view closed");
             if(targetBinding!=this||transferredMetadata!=local||local.replayComplete()
                     ||local.models!=transferredModels||transferredModels.revision()!=transferredModelsRevision
                     ||!identity.equals(fingerprint)||!identity.equals(local.readbackFingerprint()))
@@ -145,12 +148,66 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay bound target changed",changed);}
         }
         Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,World current)throws IOException {
-            validate(current);return enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);
+            validate(current);var request=enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);requestsIssued=true;return request;
         }
         RegionReplayPage result(Request request,World current)throws IOException {
             validate(current);Objects.requireNonNull(request);
             if(request.binding!=this)throw new IOException("Replay request belongs to another binding");
             var page=request.checkedWorldResult(revision,current);validate(current);return page;
+        }
+        /** Open before the first request. Read-only data coverage is distinct
+         * from live geometry, history, mesh readiness and save authority. */
+        ReadView openReadView(World current,int maxWindows)throws IOException {
+            validate(current);
+            if(view!=null||requestsIssued)throw new IOException("Replay view must open before requests");
+            var candidate=new ReadView(maxWindows);
+            try {
+                current.attachReplayReadView(candidate);view=candidate;baseline=current.beginReplayFence();return candidate;
+            }catch(IllegalStateException|ConcurrentModificationException failure) {
+                candidate.close();throw new IOException("Replay read view unavailable",failure);
+            }
+        }
+        /** Publish one complete immutable 64-cell window. Failure leaves
+         * existing coverage unchanged. No canonical world geometry is installed. */
+        void publish(Request request,World current)throws IOException {
+            validate(current);if(view==null)throw new IOException("Replay read view not open");
+            var page=result(request,current);view.publish(page);
+        }
+        final class ReadView implements World.ReplayReadView {
+            static final int MAX_WINDOWS=4;
+            private record Window(ChunkPos region,int first) {}
+            private final int capacity;
+            private final WorldVoxels implicit=new WorldVoxels(target.terrain());
+            private Map<Window,RegionReplayPage> frames=new LinkedHashMap<>();
+            private boolean closed;
+            private ReadView(int capacity){if(capacity<1||capacity>MAX_WINDOWS)throw new IllegalArgumentException("Replay view window budget");this.capacity=capacity;}
+            private void check() {
+                try{validate(target);}catch(IOException error){throw new IllegalStateException("Replay read view unavailable",error);}
+            }
+            private RegionReplayPage find(int x,int y,int z) {
+                if(!new Protocol.Edit(x,y,z,0).valid())return null;
+                int key=(x&15)|((z&15)<<4)|((y&15)<<8);
+                return frames.get(new Window(ChunkPos.fromBlock(x,y,z),key/64*64));
+            }
+            @Override public boolean ready(int x,int y,int z){check();return find(x,y,z)!=null;}
+            @Override public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z) {
+                check();var page=find(x,y,z);
+                if(page==null)throw new World.UnloadedReplayCellException(x,y,z);
+                var image=page.cells().get(new WorldVoxels.CellPosition(x,y,z));
+                return image==null?implicit.cell(x,y,z):image.tree();
+            }
+            private void publish(RegionReplayPage page)throws IOException {
+                var range=page.range();
+                if(range.size()!=64||range.firstInclusive()%64!=0)throw new IOException("Replay view requires an aligned 64-cell window");
+                var next=new LinkedHashMap<>(frames);var key=new Window(page.region(),range.firstInclusive());next.remove(key);next.put(key,page);
+                if(next.size()>capacity)next.remove(next.keySet().iterator().next());
+                frames=next;
+            }
+            int retainedWindows()throws IOException{owner();return frames.size();}
+            @Override public void close() {
+                if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay view owner required");
+                frames=Map.of();closed=true;
+            }
         }
     }
     Binding bindTarget(LocalGame local,World target)throws IOException {
@@ -265,7 +322,8 @@ final class RegionReplayWorker implements AutoCloseable {
     /** Owner-side signal only: never joins the worker or waits for I/O. A later
      * close retries failed cleanup on that same worker. Poll status for receipt. */
     @Override public void close()throws IOException {
-        owner();transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {
+        owner();if(targetBinding!=null&&targetBinding.view!=null)targetBinding.view.close();
+        transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {
             if(status.state()==State.CLOSED||status.state()==State.FAILED)return;
             stopping.set(true);if(status.state()==State.CLEANUP_FAILED)retryCleanup=true;
             if(active!=null)active.cancel();
