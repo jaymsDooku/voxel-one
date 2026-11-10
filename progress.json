@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:00:34+00:00",
+  "updatedAt": "2026-11-10T21:02:42+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4113,6 +4113,15 @@
       "status": "in_progress",
       "note": "Implementing the approved Calm overview as a real responsive health dashboard with bounded measured history, live metrics, cleanup activity and existing owner policy controls. Mockups remain accessible; implementation proceeds through feature branch and independent review.",
       "updatedAt": "2026-11-10T21:00:34+00:00"
+    },
+    {
+      "id": "saas-research-design-mockups-20261110",
+      "title": "SaaS research loop: simplify the review experience",
+      "description": "Designing an interactive mockup centred on findings, promising opportunities and one clear next step. Direction and feedback stay prominent; technical controls move behind advanced settings. Health implementation continues independently.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Designing an interactive mockup centred on findings, promising opportunities and one clear next step. Direction and feedback stay prominent; technical controls move behind advanced settings. Health implementation continues independently.",
+      "updatedAt": "2026-11-10T21:02:42+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
