@@ -567,11 +567,14 @@ public final class WorldVoxels {
         private CellImage(SparseVoxelOctree tree){this.tree=tree;}
         public SparseVoxelOctree tree(){return tree;}
     }
-    /** Worker preparation. Never freezes the caller or retains its mutable wrapper. */
+    /** Worker preparation. Fractional backing geometry stays packed after installation.
+     * Never freezes the caller or retains its mutable wrapper. Loaded chunk geometry
+     * and ordinary single-edit replacement keep their existing mutable-copy paths. */
     public static CellImage prepareCellImage(SparseVoxelOctree source) {
         Objects.requireNonNull(source,"source");
         if(source.size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
-        return new CellImage(source.copy().freeze());
+        try {return new CellImage(source.packedCellCopy());}
+        catch(IOException failure) {throw new IllegalStateException("Cannot prepare world cell image",failure);}
     }
     /** Owner installation shares only a factory-owned frozen image; later edits fork. */
     public void installCellImage(int x,int y,int z,CellImage image) {
