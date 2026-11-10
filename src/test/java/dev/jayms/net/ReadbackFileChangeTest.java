@@ -35,12 +35,45 @@ class ReadbackFileChangeTest {
             Files.setLastModifiedTime(path,FileTime.fromMillis(before.toMillis()+2000));
         },"Saved world changed during regional readback");
     }
-    @Test void atomicReplacementWithIdenticalBytesAndTimesRejects()throws Exception {
-        rejects(path->{
-            var oldTime=Files.getLastModifiedTime(path);var replacement=folder.resolve("replacement.dat");
-            Files.write(replacement,Files.readAllBytes(path));Files.setLastModifiedTime(replacement,oldTime);
+    @Test void atomicReplacementIsRejectedOrDeniedWithoutChangingSource()throws Exception {replacement(false);}
+    @Test void deniedReplacementKeepsSourceUsableAndCanRetryAfterClose()throws Exception {replacement(true);}
+    boolean replacement(boolean injectDenial)throws Exception {
+        Path path=world(),spool=Files.createDirectory(folder.resolve("spool")),replacement=folder.resolve("replacement.dat");
+        byte[] original=Files.readAllBytes(path);var oldTime=Files.getLastModifiedTime(path);
+        Files.write(replacement,original);Files.setLastModifiedTime(replacement,oldTime);
+        var attempted=new AtomicBoolean();var denied=new AtomicBoolean();
+        RegionReplayWorker.Source source=null;IOException rejected=null;
+        try {
+            try {
+                source=LocalGame.openRegionalReadback(path,spool,REV,()->false,n->{
+                    if(n>0&&attempted.compareAndSet(false,true))try {
+                        if(injectDenial)throw new AccessDeniedException(path.toString());
+                        Files.move(replacement,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
+                    }catch(AccessDeniedException expected){denied.set(true);}
+                    catch(IOException error){throw new UncheckedIOException(error);}
+                });
+            }catch(IOException error){rejected=error;}
+            assertTrue(attempted.get());assertArrayEquals(original,Files.readAllBytes(path));
+            if(denied.get()) {
+                assertNull(rejected);assertNotNull(source);assertTrue(Files.exists(replacement));
+                assertEquals(1,source.spool().size());assertEquals(42,source.terrain().seed);
+                String fingerprint=HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(original));
+                assertEquals(fingerprint,source.fingerprint());assertEquals(fingerprint,source.metadata().transfer().readbackFingerprint());
+            }else {
+                assertNull(source);assertNotNull(rejected);assertFalse(Files.exists(replacement));
+                assertEquals("Saved world changed during regional readback",rejected.getMessage());
+            }
+        }finally{if(source!=null)source.spool().close();}
+        try(var files=Files.list(spool)){assertEquals(0,files.count());}
+        if(denied.get()) {
+            // The denied attempt did not consume the replacement; retry only
+            // after the reader is closed. No skip or platform-name branch.
             Files.move(replacement,path,StandardCopyOption.ATOMIC_MOVE,StandardCopyOption.REPLACE_EXISTING);
-        },"Saved world changed during regional readback");
+            var reopened=LocalGame.openRegionalReadback(path,spool,REV,()->false,n->{});
+            try(var owned=reopened.spool()){assertEquals(1,owned.size());assertArrayEquals(original,Files.readAllBytes(path));}
+            try(var files=Files.list(spool)){assertEquals(0,files.count());}
+        }
+        return denied.get();
     }
     @Test void deletedSourceRejectsAndCleansPrivateSpool()throws Exception {rejects(Files::delete,null);}
     @Test void nonRegularSourceRejectsBeforeSpooling()throws Exception {
