@@ -135,9 +135,7 @@ public class World implements AutoCloseable {
     }
 
     public Map<String, Protocol.Edit> editsSnapshot() {
-        Map<String, Protocol.Edit> snapshot = new LinkedHashMap<>();
-        edits.values().forEach(snapshot::putAll);
-        return Collections.unmodifiableMap(snapshot);
+        return WorldEditSnapshot.capture(edits);
     }
 
     /** Full columns take over from distant terrain only once all nonempty chunks have a mesh. */
