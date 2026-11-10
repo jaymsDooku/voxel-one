@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:19:54+00:00",
+  "updatedAt": "2026-11-10T21:21:24+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4109,10 +4109,16 @@
       "id": "vps-health-dashboard-implementation-20261110",
       "title": "VPS Health dashboard: implement approved visual design",
       "description": "Implementing the approved Calm overview as a real responsive health dashboard with bounded measured history, live metrics, cleanup activity and existing owner policy controls. Mockups remain accessible; implementation proceeds through feature branch and independent review.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Root visual-state QA",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/blob/26c84522b4d25a5a510b92953e1eaacc8eeaff0b/dashboard/evidence/root-health-ui-status-20261110.md"
+        }
+      ],
       "status": "in_progress",
-      "note": "Implementing the approved Calm overview as a real responsive health dashboard with bounded measured history, live metrics, cleanup activity and existing owner policy controls. Mockups remain accessible; implementation proceeds through feature branch and independent review.",
-      "updatedAt": "2026-11-10T21:00:34+00:00"
+      "note": "Live dashboard implementation and local tests are complete, with measured disk history and existing policy CAS controls. Root QA found critical/warning/unavailable states incorrectly share a healthy-green badge; correction is required before release. Independent review and hosted CI are running.",
+      "updatedAt": "2026-11-10T21:21:24+00:00"
     },
     {
       "id": "saas-research-design-mockups-20261110",
