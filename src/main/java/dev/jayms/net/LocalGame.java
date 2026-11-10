@@ -138,11 +138,16 @@ public final class LocalGame {
     /** Read-only v10 opener for a RegionReplayWorker factory. No resident replay
      * history is built. The complete prefix, model references, tail and EOF pass
      * before a source escapes. The hash identifies the bytes read, not the live
-     * path or authority; callers still need real installation revision fences. */
+     * path or authority; callers still need real installation revision fences.
+     * Attribute checks reject observed file changes. They are not a lock or an
+     * immutable-generation guarantee (timestamps/file keys may be unavailable,
+     * coarse, restored or change again after the final check). */
     static RegionReplayWorker.Source openRegionalReadback(Path save,Path directory,RegionReplayWorker.Revision revision,
             BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(save);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
         Objects.requireNonNull(cancel);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
+        var initial=Files.readAttributes(save,java.nio.file.attribute.BasicFileAttributes.class);
+        if(!initial.isRegularFile())throw new IOException("Regional readback requires a regular file");
         java.security.MessageDigest digest;
         try{digest=java.security.MessageDigest.getInstance("SHA-256");}
         catch(java.security.NoSuchAlgorithmException error){throw new IOException("SHA-256 unavailable",error);}
@@ -159,6 +164,12 @@ public final class LocalGame {
             java.util.function.Predicate<Protocol.Edit> allowed=edit->definitions.has(edit.type());
             spool=RegionReplaySpool.stage(directory,in,allowed,cancel,RegionReplaySpool.MAX_BYTES,progress);
             var loaded=readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
+            var current=Files.readAttributes(save,java.nio.file.attribute.BasicFileAttributes.class);
+            if(!current.isRegularFile()||initial.size()!=current.size()
+                    ||!initial.lastModifiedTime().equals(current.lastModifiedTime())
+                    ||!initial.creationTime().equals(current.creationTime())
+                    ||!Objects.equals(initial.fileKey(),current.fileKey()))
+                throw new IOException("Saved world changed during regional readback");
             String fingerprint=HexFormat.of().formatHex(digest.digest());
             var metadata=new ReadbackMetadata(save,header,loaded,fingerprint);StructurePackage.cancelled(cancel);
             return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,fingerprint,metadata);

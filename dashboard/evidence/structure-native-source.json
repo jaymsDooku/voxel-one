@@ -55,7 +55,7 @@
     "src/main/java/dev/jayms/net/ItemDrop.java": "2249a4531a2354761a514755999c87fca085becf892bdb23b50e9c3543d9d946",
     "src/main/java/dev/jayms/net/Items.java": "fb52ebaa3c4ecca1c0f34a606561cb2ef28514349ab71b97ff890996c4958a49",
     "src/main/java/dev/jayms/net/KeyedReplayLoader.java": "ccc57e3805da0b01dea7f32540f59fc95501b7db9fba2c1c0d84c1cd1134bf54",
-    "src/main/java/dev/jayms/net/LocalGame.java": "739517bdb75e73967eb09cb3595b7c67937c7eb28d5281971da73d8d38f7adce",
+    "src/main/java/dev/jayms/net/LocalGame.java": "13177d0b0fd22440d1e84cbd965cfc6034410fa50ebec432f70c5f2c107b215a",
     "src/main/java/dev/jayms/net/LongLruCache.java": "6dfb38f20d138bf5e3ca2faf021b9b533005ed14ddf824297179c92d42f2e9e1",
     "src/main/java/dev/jayms/net/MultiplayerClient.java": "251b0b66037d29b970c93f15fc1b2798d7043a0f8365cd915020b9ad0a25488a",
     "src/main/java/dev/jayms/net/MultiplayerServer.java": "056f6eb94cffd56f98c1afcab7b41957ff2535d0a77a319c66e1211bc61edfe7",
