@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T15:33:54+00:00",
+  "updatedAt": "2026-11-10T16:17:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Actual target-world replay fences passed 134 tests, production World/worker CLI and fresh native regression/media. Dark staging gaps and 1 FPS llvmpipe remain unqualified. Request exact-head hosted validation; source/dependency binding, live paging and city/max gates remain unfinished.",
-      "updatedAt": "2026-11-10T15:33:54+00:00"
+      "note": "Private source/model/target binding passed 142 tests, actual file/worker CLI and fresh native regression/media. No state promotion or live installation enabled. Request exact-head hosted validation; coverage, atomic persistence, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-10T16:17:02+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
