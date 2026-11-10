@@ -2104,3 +2104,10 @@ These warm file/CPU timings include result validation and allocations. Shared JV
 `BlockRaycaster.trace` is an opt-in owner-side query that returns the existing hit/miss plus the first unavailable geometry cell and its replay-data readiness. An unavailable cell is a stopping boundary, never known air or a target hit. Replay data can be ready while resident geometry is absent; the ray still stops. `cast` keeps its existing null-on-boundary behavior and does not add a data-readiness query or trace allocation. Collision queries keep their solid loading boundary.
 
 This API performs no I/O, page request, geometry publication or movement. Existing Main consumers still use `cast`; partial startup remains disabled. It provides coordinates for later request-pump integration. Actual World/ray/collision CLI validation and the 224-test affected-path run are recorded in `dashboard/evidence/structure-replay-ray-boundary.json`. No performance, GPU or city qualification follows.
+
+
+#### Private ray demand adapter
+
+The private replay pump can accept at most 64 ray loading-boundary cell hints. It validates world coordinate bounds, maps cells to aligned 64-cell region windows and deduplicates before applying the existing 1–4-window view capacity. Invalid/null/over-cap hints reject before replacing valid current work. Negative coordinates use floor-divided regions and local cell bits. Captured readiness flags are ignored: after eviction, even a previously ready cell must reload. Current bound-source/model/World fences and retained-frame membership still control requests and publication.
+
+Demand preflight performs no I/O, geometry sampling or worker submission. The caller must tick explicitly; existing queue/backpressure, cancellation and explicit retry behavior remain. This adapter does not install usable meshes, enable movement or grant save authority. Main partial startup remains disabled. Actual saved-world/worker/ray CLI and 228-test affected-path validation are recorded in `dashboard/evidence/structure-replay-demand.json`. No performance or city qualification follows.
