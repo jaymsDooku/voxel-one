@@ -29,7 +29,7 @@
     "src/main/java/dev/jayms/TerrainScheduler.java": "ede060e690f5f87e2142ae25622125017a7b2dc48bd2c2e2a6be76b989639fd5",
     "src/main/java/dev/jayms/Util.java": "6c1e461632350ba8660c1c7ec98c90fec66d4a146340cf907dd51032dd0b6a7a",
     "src/main/java/dev/jayms/VoxelModelRenderer.java": "e91a1f4a1beb32bbeeeefde4e5ee9dc391d8baf46b65964ab916ef92b20248a6",
-    "src/main/java/dev/jayms/World.java": "4d6f124395b10df0af110a29e8e9b0ad5c64ca1eecb2925ad48deab09abf8f74",
+    "src/main/java/dev/jayms/World.java": "e214d578bcd3de7b8cf4a9460496637c8fb84c3aa60e85b93005ca8a43dbfa97",
     "src/main/java/dev/jayms/WorldBounds.java": "691f21365fd47f33099a307b8823d2668c837d8c6cbd659a8b7a7477692a0004",
     "src/main/java/dev/jayms/WorldEditSnapshot.java": "c0df3b15ce6a882ecc424b0398527b4d63014a100b3a8bc489af52531b54f2be",
     "src/main/java/dev/jayms/assets/AssetCatalog.java": "7f976ea150e77272872227a7d865674f2976019eecde360da2aa7984eeb9879c",

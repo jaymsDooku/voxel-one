@@ -47,4 +47,42 @@ class WorldPackedCellImageTest {
         } finally {Thread.interrupted();}
         assertTrue(world.cell(0,0,0).isEmpty());assertEquals(Blocks.STONE,world.type(1,180,0));
     }
+    @Test void privateStartupSharesPackedGeometryWithEditedCellIndexAndForksOnLaterEdits() throws Exception {
+        var rows=WorldInitialReplayHistoryTest.fixture();
+        try(var expected=new World(42);var actual=new World(42)) {
+            rows.forEach(expected::apply);actual.replayInitial(rows,()->false,n->{});
+            WorldInitialReplayHistoryTest.same(expected,actual);
+            var cell=actual.cell(-17,180,-1);
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            var before=SparseVoxelPackedCellTest.bytes(cell);
+            var indexed=actual.editedCellsInChunk(ChunkPos.fromBlock(-17,180,-1)).stream()
+                    .filter(c->c.x()==-17&&c.y()==180&&c.z()==-1).findFirst().orElseThrow();
+            assertSame(cell,indexed.voxels());
+            assertThrows(IllegalStateException.class,()->cell.fill(0,0,0,16,16,16,0));
+            // Queries and serialization must not leave a decoded graph cached in the image.
+            for(int x=0;x<16;x++)for(int y=0;y<16;y++)for(int z=0;z<16;z++)
+                assertEquals(expected.cell(-17,180,-1).get(x,y,z),cell.get(x,y,z));
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            var edit=new Protocol.Edit(-17,180,-1,0,1,0,0,0);
+            expected.apply(edit);actual.apply(edit);WorldInitialReplayHistoryTest.same(expected,actual);
+            assertArrayEquals(before,SparseVoxelPackedCellTest.bytes(cell));
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            assertNotSame(cell,actual.cell(-17,180,-1));
+        }
+    }
+    @Test void privateStartupExplicitAirAndUniformCellsKeepTerrainOverridesAndIndexIdentity() throws Exception {
+        var rows=java.util.List.of(new Protocol.Edit(-1,0,-1,0),new Protocol.Edit(0,180,0,Blocks.STONE));
+        try(var expected=new World(42);var actual=new World(42)) {
+            rows.forEach(expected::apply);actual.replayInitial(rows,()->false,n->{});
+            for(var row:rows) {
+                var cell=actual.cell(row.x(),row.y(),row.z());
+                assertTrue(cell.sameValues(expected.cell(row.x(),row.y(),row.z())));
+                assertSame(cell,actual.editedCellsInChunk(ChunkPos.fromBlock(row.x(),row.y(),row.z()))
+                        .iterator().next().voxels());
+            }
+            assertEquals(0,actual.cell(-1,0,-1).occupied());
+            assertEquals(expected.editsSnapshot(),actual.editsSnapshot());
+        }
+    }
+
 }
