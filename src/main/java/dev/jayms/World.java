@@ -39,8 +39,8 @@ public class World implements AutoCloseable {
     }
     public long geometryRevision(int chunkX,int chunkZ){return columnGeometryVersions.getOrDefault(new ChunkPos(chunkX,0,chunkZ),0L);}
     /** Owner-thread views: callers must fence revisions before resuming iterators. */
-    public Collection<Protocol.Edit> editsInChunk(ChunkPos p){return Collections.unmodifiableCollection(edits.getOrDefault(p,Map.of()).values());}
-    public Collection<EditedCell> editedCellsInChunk(ChunkPos p){return Collections.unmodifiableCollection(editedCells.getOrDefault(p,Map.of()).values());}
+    public Collection<Protocol.Edit> editsInChunk(ChunkPos p){requireResidentReplay();return Collections.unmodifiableCollection(edits.getOrDefault(p,Map.of()).values());}
+    public Collection<EditedCell> editedCellsInChunk(ChunkPos p){requireResidentReplay();return Collections.unmodifiableCollection(editedCells.getOrDefault(p,Map.of()).values());}
     public long localRevision(int minX,int maxX,int minZ,int maxZ) {
         if(closed)return Long.MIN_VALUE;
         long stamp=0;
@@ -101,6 +101,7 @@ public class World implements AutoCloseable {
     public long streamAttachNanos, streamReplayNanos, streamDisposeNanos, streamRequestNanos, streamGenerationNanos;
     public int streamAttached, streamUnloaded;
     public <T> java.util.concurrent.Future<T> prepareTerrainTask(java.util.concurrent.Callable<T> task){
+        requireResidentReplay();
         if(closed)throw new IllegalStateException("World closed");
         if(terrainScheduler==null)terrainScheduler=new TerrainScheduler(terrain.seed,terrain.version);
         return terrainScheduler.prepare(task);
@@ -109,6 +110,28 @@ public class World implements AutoCloseable {
     public long terrainOldestMillis() { return Math.max(terrainScheduler==null?0:terrainScheduler.oldestMillis(),preparing==null?0:(System.nanoTime()-preparing.requestedNanos())/1_000_000); }
 
     private final WorldVoxels voxels;
+    /** Read-only private paging mode. Data readiness is separate from mesh readiness. */
+    public interface ReplayReadView extends AutoCloseable {
+        boolean ready(int x,int y,int z);
+        SparseVoxelOctree cell(int x,int y,int z);
+        @Override void close();
+    }
+    public static final class UnloadedReplayCellException extends IllegalStateException {
+        public final int x,y,z;
+        public UnloadedReplayCellException(int x,int y,int z){super("Replay cell is not loaded");this.x=x;this.y=y;this.z=z;}
+    }
+    private ReplayReadView replayReadView;
+    private void requireResidentReplay(){if(replayReadView!=null)throw new IllegalStateException("Read-only replay view is incomplete");}
+    /** Internal owner-side attachment only. No live startup or save promotion. */
+    public void attachReplayReadView(ReplayReadView view) {
+        Objects.requireNonNull(view);
+        if(closed||replayReadView!=null||editsVersion!=0||geometryEpoch!=0||!loadedChunks.isEmpty()
+                ||terrainScheduler!=null||initialReplayComplete||initialReplay!=null)
+            throw new IllegalStateException("Replay view requires a private fresh world");
+        replayReadView=view;
+    }
+    public boolean replayDataReady(int x,int y,int z){return replayReadView==null||replayReadView.ready(x,y,z);}
+
     private long editsVersion;
     private final ModelLibrary models;
 
@@ -135,15 +158,18 @@ public class World implements AutoCloseable {
     }
 
     public Map<String, Protocol.Edit> editsSnapshot() {
+        requireResidentReplay();
         return WorldEditSnapshot.capture(edits);
     }
 
     /** Full columns take over from distant terrain only once all nonempty chunks have a mesh. */
     public Set<ChunkPos> renderedColumns() {
+        requireResidentReplay();
         updateColumns();return new HashSet<>(completeColumns);
     }
     /** Cached rendering-only mask. Rebuild only at membership/mesh or distance-cell boundaries. */
     public Set<ChunkPos> renderedColumns(float x,float z,int range){
+        requireResidentReplay();
         updateColumns();int minX=(int)Math.ceil((x-range-8)/16),maxX=(int)Math.floor((x+range-8)/16),minZ=(int)Math.ceil((z-range-8)/16),maxZ=(int)Math.floor((z+range-8)/16);
         if(visualGeneration!=columnGeneration||minX!=visualMinX||maxX!=visualMaxX||minZ!=visualMinZ||maxZ!=visualMaxZ){var selected=new HashSet<ChunkPos>();for(var p:completeColumns)if(p.chunkX()>=minX&&p.chunkX()<=maxX&&p.chunkZ()>=minZ&&p.chunkZ()<=maxZ)selected.add(p);visualColumns=Collections.unmodifiableSet(selected);visualGeneration=columnGeneration;visualMinX=minX;visualMaxX=maxX;visualMinZ=minZ;visualMaxZ=maxZ;}
         return visualColumns;
@@ -162,6 +188,7 @@ public class World implements AutoCloseable {
     }
 
     public void addChunk(ChunkPos p, Chunk c) {
+        requireResidentReplay();
         attachChunk(p,c,true);
     }
 
@@ -197,12 +224,14 @@ public class World implements AutoCloseable {
     }
 
     public int getBlock(int x, int y, int z) {
+        if(replayReadView!=null)return sample(x,y,z);
         Chunk c = loadedChunks.get(ChunkPos.fromBlock(x, y, z));
         if (c == null) throw new IllegalStateException("Chunk not loaded");
         return c.getBlock(Math.floorMod(x, 16), Math.floorMod(y, 16), Math.floorMod(z, 16));
     }
 
     public int sample(int x, int y, int z) {
+        if(replayReadView!=null)return WorldVoxels.decode(replayReadView.cell(x,y,z).uniform(0,0,0,16));
         ChunkPos p = ChunkPos.fromBlock(x, y, z);
         Chunk c = loadedChunks.get(p);
         if (c != null)
@@ -211,6 +240,7 @@ public class World implements AutoCloseable {
     }
 
     public int value(int x, int y, int z) {
+        if(replayReadView!=null)return replayReadView.cell(Math.floorDiv(x,16),Math.floorDiv(y,16),Math.floorDiv(z,16)).get(Math.floorMod(x,16),Math.floorMod(y,16),Math.floorMod(z,16));
         var c =
                 loadedChunks.get(
                         new ChunkPos(
@@ -229,6 +259,7 @@ public class World implements AutoCloseable {
     }
 
     public int material(int x, int y, int z) {
+        if(replayReadView!=null)return WorldVoxels.decode(value(x,y,z));
         var p = new ChunkPos(Math.floorDiv(x, 256), Math.floorDiv(y, 256), Math.floorDiv(z, 256));
         var c = loadedChunks.get(p);
         if (c != null)
@@ -239,6 +270,7 @@ public class World implements AutoCloseable {
     }
 
     public dev.jayms.net.model.SparseVoxelOctree cell(int x, int y, int z) {
+        if(replayReadView!=null)return replayReadView.cell(x,y,z);
         var c = loadedChunks.get(ChunkPos.fromBlock(x, y, z));
         return c == null
                 ? voxels.cell(x, y, z)
@@ -250,6 +282,7 @@ public class World implements AutoCloseable {
 
     /** Owner-thread capture of immutable geometry, including directly supplied resident chunks. */
     public dev.jayms.net.structure.StructurePackage.Source structureSnapshot() {
+        requireResidentReplay();
         var geometry=voxels.snapshot();var definitions=models().copy();
         var resident=new HashMap<ChunkPos,StructureResident>();long generation=geometry.terrainRevision();
         for(var entry:loadedChunks.entrySet()) {
@@ -261,13 +294,14 @@ public class World implements AutoCloseable {
     }
 
     /** Begin on the owner; workers obtain only bounded detached batches through the owner queue. */
-    public StructureSnapshotPlan beginStructureSnapshot(){return new StructureSnapshotPlan();}
+    public StructureSnapshotPlan beginStructureSnapshot(){requireResidentReplay();return new StructureSnapshotPlan();}
     /** Owner-only fence for detached replay results. No geometry or definitions
      * are copied. This does not validate a source generation, model remapping,
      * unloaded-cell coverage, or grant permission to install a page. */
     public ReplayFence beginReplayFence(){return new ReplayFence();}
     public final class ReplayFence {
         private final Thread owner=Thread.currentThread();
+        private final ReplayReadView view=replayReadView;
         private final long edits=editsVersion,geometry=geometryEpoch;
         private final Terrain land=terrain();
         private final long generation=land.geometryRevision();
@@ -276,7 +310,7 @@ public class World implements AutoCloseable {
         private ReplayFence(){validate(World.this);}
         public void validate(World current) {
             if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay fence requires owner thread");
-            if(current!=World.this||closed||editsVersion!=edits||geometryEpoch!=geometry
+            if(current!=World.this||closed||replayReadView!=view||editsVersion!=edits||geometryEpoch!=geometry
                     ||terrain()!=land||land.geometryRevision()!=generation||(generation&1)!=0
                     ||models()!=library||library.revision()!=definitions)
                 throw new ConcurrentModificationException("World changed during replay readback");
@@ -292,6 +326,7 @@ public class World implements AutoCloseable {
         public Terrain terrain(){return World.this.terrain;}
         public void validate(){
             if(Thread.currentThread()!=owner)throw new IllegalStateException("Structure snapshot requires owner thread");
+            requireResidentReplay();
             if(closed||editsVersion!=edits||geometryEpoch!=geometry||terrain.geometryRevision()!=generation||(generation&1)!=0||models()!=library||library.revision()!=modelsRevision)
                 throw new ConcurrentModificationException("World changed while snapshotting structure; retry");
         }
@@ -323,6 +358,7 @@ public class World implements AutoCloseable {
 
     /** Owner-thread proof includes resident identity/version and canonical geometry/terrain state. */
     public Object structureChunkStamp(ChunkPos position) {
+        requireResidentReplay();
         var chunk=loadedChunks.get(position);var canonical=voxels.chunkStamp(position);
         return chunk==null?canonical:new StructureChunkStamp(chunk,chunk.geometryVersion(),canonical);
     }
@@ -355,6 +391,7 @@ public class World implements AutoCloseable {
     }
 
     public void apply(Protocol.Edit e) {
+        requireResidentReplay();
         if(initialReplay!=null){initialReplay.apply(e);return;}
         var p=noteEdit(e);
         voxels.apply(e);
@@ -373,7 +410,7 @@ public class World implements AutoCloseable {
      * Only one mutable cell is retained; interleaved visits flush in file order. */
     void replayInitial(Iterable<Protocol.Edit> source,java.util.function.BooleanSupplier cancel,
             java.util.function.IntConsumer progress) {
-        Objects.requireNonNull(source);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        requireResidentReplay();Objects.requireNonNull(source);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
         if(closed||initialReplayComplete||initialReplay!=null||editsVersion!=0||!loadedChunks.isEmpty()||terrainScheduler!=null)
             throw new IllegalStateException("Initial replay requires a private fresh world");
         checkInitialCancellation(cancel);
@@ -448,12 +485,14 @@ public class World implements AutoCloseable {
     }
     /** Owner-thread whole-cell replacement. Keep canonical replay history, graft geometry once. */
     public void replaceCell(int x,int y,int z,SparseVoxelOctree source) {
+        requireResidentReplay();
         replaceCell(prepareCellReplacement(x,y,z,source));
     }
     /** Owner-thread batch. Coalesce neighbor mesh invalidations per changed chunk;
      * geometry/history and virtual per-cell installation retain their existing order.
      * Flush even on failure. This is not a transaction; caller owns rollback. */
     public void replaceCells(List<CellReplacement> replacements) {
+        requireResidentReplay();
         var cells=List.copyOf(replacements);
         if(deferredNeighborChunks!=null){for(var cell:cells)replaceCell(cell);return;}
         var changed=new LinkedHashSet<ChunkPos>();deferredNeighborChunks=changed;
@@ -465,6 +504,7 @@ public class World implements AutoCloseable {
     }
     /** Owner-thread installation of detached validated data. Authoritative checks remain caller-owned. */
     public void replaceCell(CellReplacement replacement) {
+        requireResidentReplay();
         Objects.requireNonNull(replacement,"replacement");
         var state=replacement.state;int x=state.x(),y=state.y(),z=state.z();
         var canonical=replacement.canonical.tree();var cellKey=replacement.cellKey;int replayCount=replacement.replayCount;
@@ -486,6 +526,7 @@ public class World implements AutoCloseable {
 
     /** Remove resident geometry while retaining authoritative edits for reload. */
     public void unloadChunk(ChunkPos position)throws Exception {
+        requireResidentReplay();
         if(terrainScheduler!=null)terrainScheduler.cancel(position);
         if(preparing!=null&&preparing.position().equals(position)){preparing=null;replay=null;}
         var chunk=loadedChunks.get(position);
@@ -494,6 +535,7 @@ public class World implements AutoCloseable {
 
     /** Synchronous bootstrap/CLI compatibility. Gameplay uses streamAsync; never call this from a frame. */
     public void stream(float x, float z, int budget) throws Exception {
+        requireResidentReplay();
         if(closed)throw new IllegalStateException("World closed");
         int cx = Math.floorDiv((int) Math.floor(x), 16),
                 cz = Math.floorDiv((int) Math.floor(z), 16);
@@ -518,6 +560,7 @@ public class World implements AutoCloseable {
 
     /** Readiness checks use membership only, never synchronous fallback terrain sampling. */
     public boolean nearbyReady(float x,float z,int radius) {
+        if(replayReadView!=null)return false;
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
         for(int a=-radius;a<=radius;a++)for(int b=-radius;b<=radius;b++) {
             var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
@@ -531,6 +574,7 @@ public class World implements AutoCloseable {
      * ten vertical chunks are resident and meshed. No worker can reach this World instance.
      */
     public void streamAsync(float x,float y,float z,long budgetNanos) throws Exception {
+        requireResidentReplay();
         if(closed)throw new IllegalStateException("World closed");
         streamAttachNanos=streamReplayNanos=streamDisposeNanos=streamRequestNanos=streamGenerationNanos=0;
         streamAttached=streamUnloaded=0;
@@ -624,6 +668,7 @@ public class World implements AutoCloseable {
     public void close() throws Exception {
         closed=true;skyStamp++;Arrays.fill(skyChanges,null);
         var cleanup=new CloseSequence();
+        cleanup.run(()->{if(replayReadView!=null)replayReadView.close();});
         cleanup.run(()->{if(terrainScheduler!=null)terrainScheduler.close();});
         preparing=null;replay=null;streamingColumns.clear();skyEditChunks.clear();skyEditVersions.clear();skyPositions.clear();
         for (Chunk c : loadedChunks.values()) cleanup.run(c::close);
