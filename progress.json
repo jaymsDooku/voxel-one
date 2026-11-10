@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:21:24+00:00",
+  "updatedAt": "2026-11-10T21:33:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4134,11 +4134,26 @@
           "kind": "image",
           "label": "saas research design phone 20261110.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/saas-research-design-phone-20261110.png"
+        },
+        {
+          "kind": "link",
+          "label": "Open research design preview",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/research-mockups/"
+        },
+        {
+          "kind": "link",
+          "label": "Independent review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/84"
+        },
+        {
+          "kind": "report",
+          "label": "saas research design verification 20261110.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/saas-research-design-verification-20261110.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Interactive Brief / Opportunities / Activity mockup built. Focus: one next test, shortlist with caveats and plain-English guidance; advanced parameters are tucked away. Chromium and Linux WebKit passed desktop/phone, search, drawers, feedback escaping and preview-run controls; no live calls. Feature integration and review underway.",
-      "updatedAt": "2026-11-10T21:19:54+00:00"
+      "status": "complete",
+      "note": "Simple Brief / Opportunities / Activity mockup independently reviewed, merged and published. Research-page link and exact deployed assets verified. Desktop/phone interactions use clearly labelled examples and cannot operate the live research loop.",
+      "updatedAt": "2026-11-10T21:33:37+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
