@@ -26,11 +26,11 @@ class RegionReplayCacheTest {
     @Test void lruEvictionBoundsFilesAndDetachedPagesOutliveCache()throws Exception {
         var calls=new AtomicInteger();RegionReplayPage retained;
         try(var source=spool(ROWS);var cache=new RegionReplayCache(folder,source,2,56,1,e->{calls.incrementAndGet();return true;})) {
-            retained=load(cache,0);load(cache,1);assertEquals(6,calls.get());
-            load(cache,0);assertEquals(7,calls.get()); // hit checks selected rows only
-            load(cache,2);assertEquals(10,calls.get());assertEquals(2,cache.retainedRegions());assertEquals(56,cache.retainedBytes());assertEquals(2,copies());
-            load(cache,0);assertEquals(11,calls.get());
-            load(cache,1);assertEquals(14,calls.get()); // region 1 was least recently used
+            retained=load(cache,0);load(cache,1);assertEquals(4,calls.get());
+            load(cache,0);assertEquals(5,calls.get()); // hit checks selected rows only
+            load(cache,2);assertEquals(7,calls.get());assertEquals(2,cache.retainedRegions());assertEquals(56,cache.retainedBytes());assertEquals(2,copies());
+            load(cache,0);assertEquals(8,calls.get());
+            load(cache,1);assertEquals(10,calls.get()); // region 1 was least recently used
         }
         assertEquals(0,copies());assertEquals(List.of(ROWS.get(0)),new ArrayList<>(retained.history().values()));
         assertThrows(UnsupportedOperationException.class,()->retained.history().clear());
