@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:02:42+00:00",
+  "updatedAt": "2026-11-10T21:19:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4118,10 +4118,21 @@
       "id": "saas-research-design-mockups-20261110",
       "title": "SaaS research loop: simplify the review experience",
       "description": "Designing an interactive mockup centred on findings, promising opportunities and one clear next step. Direction and feedback stay prominent; technical controls move behind advanced settings. Health implementation continues independently.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "image",
+          "label": "saas research design desktop 20261110.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/saas-research-design-desktop-20261110.png"
+        },
+        {
+          "kind": "image",
+          "label": "saas research design phone 20261110.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/saas-research-design-phone-20261110.png"
+        }
+      ],
       "status": "in_progress",
-      "note": "Designing an interactive mockup centred on findings, promising opportunities and one clear next step. Direction and feedback stay prominent; technical controls move behind advanced settings. Health implementation continues independently.",
-      "updatedAt": "2026-11-10T21:02:42+00:00"
+      "note": "Interactive Brief / Opportunities / Activity mockup built. Focus: one next test, shortlist with caveats and plain-English guidance; advanced parameters are tucked away. Chromium and Linux WebKit passed desktop/phone, search, drawers, feedback escaping and preview-run controls; no live calls. Feature integration and review underway.",
+      "updatedAt": "2026-11-10T21:19:54+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
