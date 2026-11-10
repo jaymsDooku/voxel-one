@@ -262,6 +262,26 @@ public class World implements AutoCloseable {
 
     /** Begin on the owner; workers obtain only bounded detached batches through the owner queue. */
     public StructureSnapshotPlan beginStructureSnapshot(){return new StructureSnapshotPlan();}
+    /** Owner-only fence for detached replay results. No geometry or definitions
+     * are copied. This does not validate a source generation, model remapping,
+     * unloaded-cell coverage, or grant permission to install a page. */
+    public ReplayFence beginReplayFence(){return new ReplayFence();}
+    public final class ReplayFence {
+        private final Thread owner=Thread.currentThread();
+        private final long edits=editsVersion,geometry=geometryEpoch;
+        private final Terrain land=terrain();
+        private final long generation=land.geometryRevision();
+        private final ModelLibrary library=models();
+        private final long definitions=library.revision();
+        private ReplayFence(){validate(World.this);}
+        public void validate(World current) {
+            if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay fence requires owner thread");
+            if(current!=World.this||closed||editsVersion!=edits||geometryEpoch!=geometry
+                    ||terrain()!=land||land.geometryRevision()!=generation||(generation&1)!=0
+                    ||models()!=library||library.revision()!=definitions)
+                throw new ConcurrentModificationException("World changed during replay readback");
+        }
+    }
     public final class StructureSnapshotPlan {
         private final Thread owner=Thread.currentThread();
         private final long edits=editsVersion,geometry=geometryEpoch,generation=terrain.geometryRevision();

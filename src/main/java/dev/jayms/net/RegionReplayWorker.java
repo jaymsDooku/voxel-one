@@ -1,6 +1,7 @@
 package dev.jayms.net;
 
 import dev.jayms.ChunkPos;
+import dev.jayms.World;
 import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
 import java.nio.file.Path;
@@ -37,10 +38,11 @@ final class RegionReplayWorker implements AutoCloseable {
         private final RegionReplayPage.CellRange range;
         private final int maxRows;
         private final Revision revision;
+        private final World.ReplayFence fence;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
-        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision) {
-            this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence) {
+            this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;
         }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
@@ -60,6 +62,23 @@ final class RegionReplayWorker implements AutoCloseable {
         /** Owner-side nonblocking extraction. These supplied revision tags do
          * not replace checks against actual live object identities/revisions. */
         RegionReplayPage result(Revision current)throws IOException {
+            owner();
+            if(fence!=null)throw new IOException("Replay request requires its world fence");
+            return extract(current);
+        }
+        /** Checks actual owner/world state. Still a detached result: source
+         * generation, dependencies, coverage and installation remain separate. */
+        RegionReplayPage result(Revision current,World world)throws IOException {
+            owner();
+            if(fence==null)throw new IOException("Replay request has no world fence");
+            if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay worker no longer active");
+            validateWorld(world);var page=extract(current);validateWorld(world);return page;
+        }
+        private void validateWorld(World world)throws IOException {
+            try{fence.validate(world);}
+            catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
+        }
+        private RegionReplayPage extract(Revision current)throws IOException {
             owner();Objects.requireNonNull(current);
             if(!revision.equals(current))throw new IOException("Replay request revision changed");
             var value=outcome.get();
@@ -107,13 +126,21 @@ final class RegionReplayWorker implements AutoCloseable {
     Status status(){return status;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay worker owner required");}
     Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision)throws IOException {
+        return enqueue(region,range,maxRows,revision,null);
+    }
+    /** Owner-side constant-field capture; no model/history copy or file I/O. */
+    Request submitFenced(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World world)throws IOException {
+        owner();Objects.requireNonNull(world);
+        return enqueue(region,range,maxRows,revision,world.beginReplayFence());
+    }
+    private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence)throws IOException {
         owner();Objects.requireNonNull(region);Objects.requireNonNull(range);Objects.requireNonNull(revision);
         if(range.size()>RegionReplayPage.MAX_CELLS||maxRows<0||maxRows>RegionReplayPage.MAX_ROWS)
             throw new IllegalArgumentException("Replay worker page budget");
         synchronized(gate) {
             if(stopping.get())throw new IOException("Replay worker not accepting requests");
             if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
-            var request=new Request(region,range,maxRows,revision);queue.addLast(request);gate.notifyAll();return request;
+            var request=new Request(region,range,maxRows,revision,fence);queue.addLast(request);gate.notifyAll();return request;
         }
     }
     private void run(Path directory,Factory factory,int maxRegions,long maxBytes,int maxRegionRows) {
