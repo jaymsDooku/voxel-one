@@ -103,11 +103,29 @@ needs further memory work.
 Placement staging retains mixed 16-resolution cells as immutable packed wire
 images rather than retaining their child-node graphs. Each cell image is at most
 64 KiB. Its wrapper identity stays stable for map lookups and undo; uniform cells
-and model instances keep their shared trees. Value queries reconstruct a temporary
-cell graph without retaining a decoded cache. Ordinary world storage takes its
-normal independent copy. This trades additional per-cell decoding work for lower
-retained fractional-geometry storage. It does not establish peak-memory, frame or
-operation-time budgets, and it does not change geometry or placement limits.
+and model instances keep their shared trees. Point and aligned-region queries walk
+private packed bytes. Mutable copies, raycasts and leaf/region traversal may
+reconstruct a temporary graph without retaining a decoded cache. Prepared whole-cell
+world backing images stay packed; active chunk geometry and ordinary edits retain
+their normal tree paths. This trades bounded decoding work for lower retained
+fractional backing geometry. It does not establish peak-memory, frame or operation-time
+budgets, and it does not change geometry or placement limits.
+
+Whole-cell history replacements share compact immutable replay rows between staged
+and live histories. Uniform cells share one immutable edit; fractional cells retain
+primitive row data and a bounded local lookup index. Ordered views materialize edit
+records and keys during traversal. Direct replacements keep row position; removals
+and later edits preserve the existing global replay order. Snapshot roots share
+segments and fork edits through copy-on-write indexes. Ordinary edits and legacy
+initial replay still retain individual records. Saves and network replay keep their
+existing row formats and 2,000,000-record limit. Row scans now allocate transient
+records/keys, so serialization, late joins and eager rendering snapshots still need
+large-world qualification. Join snapshots share compact history roots rather than
+flattening every row. The ready-phase delta checks both changed current rows and
+removed snapshot rows, so undo of the final fractional leaf still clears that cell
+for a client finishing its initial load. This comparison still scans rows under
+authority locking and needs large-world timing work. This does not complete
+region-backed persistence or admit the required city/maximum fixtures.
 
 Additional provisional development caps are 131,072 geometry leaves and 16,384
 model instances per package, 1,048,576 model-definition surface quads,

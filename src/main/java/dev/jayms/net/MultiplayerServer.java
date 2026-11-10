@@ -21,6 +21,14 @@ import javax.net.ssl.SSLServerSocket;
 
 /** Authenticated headless server; world mutations and queued broadcasts have one total order. */
 public final class MultiplayerServer implements AutoCloseable {
+    /** Stable authority/snapshot inputs. Removed rows matter even when the surviving
+     * clear row is unchanged, as with undo of the last fractional leaf. */
+    static Set<WorldVoxels.CellPosition> changedCellPositions(Map<String,Protocol.Edit> current,Map<String,Protocol.Edit> before) {
+        var changed=new LinkedHashSet<WorldVoxels.CellPosition>();
+        for(var edit:current.values())if(!edit.equals(before.get(edit.key())))changed.add(new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z()));
+        for(var edit:before.values())if(!edit.equals(current.get(edit.key())))changed.add(new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z()));
+        return Collections.unmodifiableSet(changed);
+    }
     private final ServerSocket listener;
     private final AccountStore accounts;
     private final Map<Integer, Peer> peers = new HashMap<>();
@@ -340,7 +348,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 peer = new Peer(socket, out, username, safeSpawn(ids.incrementAndGet()));
                 inventories.computeIfAbsent(username, k -> new Inventory());
                 health.putIfAbsent(username, 20);
-                snapshot = new LinkedHashMap<>(edits);
+                snapshot = WorldVoxels.History.copyOf(edits);
                 initialPlayers = new ArrayList<>(peers.values());
                 initialDrops = new LinkedHashMap<>(drops);
                 initialModels = models.copy();
@@ -374,7 +382,7 @@ public final class MultiplayerServer implements AutoCloseable {
                 var changedModels=new ArrayList<ModelLibrary.Entry>();
                 for(var model:models.entries())if(initialModels.get(model.id())==null)changedModels.add(model);
                 var changedCells=new LinkedHashMap<String,Protocol.CellState>();
-                for(var e:edits.values())if(!e.equals(snapshot.get(e.key())))changedCells.put(e.cellKey(),new Protocol.CellState(e.x(),e.y(),e.z(),voxels.cell(e.x(),e.y(),e.z())));
+                for(var p:changedCellPositions(edits,snapshot))changedCells.put(p.x()+","+p.y()+","+p.z(),new Protocol.CellState(p.x(),p.y(),p.z(),voxels.cell(p.x(),p.y(),p.z())));
                 if(!changedModels.isEmpty()||!changedCells.isEmpty())peer.enqueue(structureEvent(new StructureWire.Delta(changedModels,new ArrayList<>(changedCells.values()))));
                 for (var p : peers.values())
                     peer.enqueue(new Event(Protocol.JOIN, p.pose, null, p.name, 0, true));

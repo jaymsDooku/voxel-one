@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T01:31:33+00:00",
+  "updatedAt": "2026-11-10T02:53:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Reproducible replay retention probe confirmed an isolated primitive-row optimization increases combined staged/live memory; rejected it. Production unchanged. 49 tests passed; new diagnostic/boundary sources await hosted validation. Full canonical history and city/max qualification remain pending.",
-      "updatedAt": "2026-11-10T01:31:33+00:00"
+      "note": "Shared bulk history and late-join removed-leaf fix validated: 1100 Java tests, 0 failures/errors, 1 browser skip; 6 Hub tests; real TLS regression; final native workflow and 27-frame media passed. New source/media need hosted validation. Region persistence and full city/max hardware/network qualification remain unfinished.",
+      "updatedAt": "2026-11-10T02:53:02+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

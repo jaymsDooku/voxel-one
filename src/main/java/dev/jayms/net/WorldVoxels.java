@@ -14,219 +14,93 @@ import java.util.function.BooleanSupplier;
 public final class WorldVoxels {
     /** Immutable world-cell coordinate; contains no geometry or replay history. */
     public record CellPosition(int x,int y,int z) {}
-    /** Ordered edit history with a cell index. Collection views are read-only. */
+    /** Ordered edits with compact, shared whole-cell replay segments. Views are read-only. */
     public static final class History extends AbstractMap<String, Protocol.Edit> {
-        private final PersistentOrderedMap<Protocol.Edit> ordered;
-        private final PersistentOrderedMap<CellKeys> cells;
-        private Object owner=new Object();
-        private long revision;
+        private final SegmentedHistory storage;
+        public History(){storage=new SegmentedHistory();}
+        private History(History source){storage=new SegmentedHistory(source.storage);}
         /** Owner-thread change stamp; pair with this history identity. */
-        public long revision(){return revision;}
-        // Persistent insertion indexes retain replay order without whole-map copying.
-        // Iterators walk trees directly; they never scan a sparse hash table.
-        public History(){ordered=new PersistentOrderedMap<>();cells=new PersistentOrderedMap<>();}
-        /** Begin under the authority lock; every batch read needs that same lock.
-         * Any edit-history mutation invalidates the cursor before iterator access. */
+        public long revision(){return storage.revision();}
+        public static History copyOf(Map<String,Protocol.Edit> source) {
+            if(source instanceof History history)return new History(history);
+            var copy=new History();copy.putAll(source);return copy;
+        }
+        /** Begin under the authority lock; every batch read needs that same lock. */
         public CopyCursor copyCursor(){return new CopyCursor();}
         public final class CopyCursor {
-            private final long expectedRevision=revision;
-            private final Iterator<Entry<String,Protocol.Edit>> iterator=ordered.entrySet().iterator();
-            private int remaining=ordered.size();
+            private final long expectedRevision=revision();
+            private final Iterator<Entry<String,Protocol.Edit>> iterator=entrySet().iterator();
+            private int remaining=size();
             private CopyCursor(){}
-            /** At most 1024 detached key/value pairs; copying belongs outside the lock. */
+            /** At most 1024 detached rows; exhausted cursors still check their fence. */
             public CopyBatch nextBatch() {
-                if(revision!=expectedRevision)throw new ConcurrentModificationException("History changed during copy");
-                int count=Math.min(1024,remaining);
-                if(count==0)return CopyBatch.EMPTY;
+                if(revision()!=expectedRevision)throw new ConcurrentModificationException("History changed during copy");
+                int count=Math.min(1024,remaining);if(count==0)return CopyBatch.EMPTY;
                 var keys=new String[count];var values=new Protocol.Edit[count];
                 for(int i=0;i<count;i++){var entry=iterator.next();keys[i]=entry.getKey();values[i]=entry.getValue();}
                 remaining-=count;return new CopyBatch(keys,values);
             }
         }
-        /** Begin and read every batch under the same owner lock. No spatial/order contract.
-         * Visits explicit air and every other indexed cell once, regardless of edit count. */
+        /** Begin/read under the same owner lock. Visits explicit air and every indexed cell. */
         public CellCopyCursor cellCopyCursor(){return new CellCopyCursor();}
         public final class CellCopyCursor {
-            private final long expectedRevision=revision;
-            private final Iterator<CellKeys> iterator=cells.values().iterator();
-            private int remaining=cells.size();
+            private final long expectedRevision=revision();
+            private final Iterator<CellPosition> iterator=storage.positions();
+            private int remaining=storage.cellCount();
             private CellCopyCursor(){}
-            /** At most 1024 detached positions. Any source mutation invalidates even exhaustion. */
             public List<CellPosition> nextBatch() {
-                if(revision!=expectedRevision)throw new ConcurrentModificationException("History changed during cell copy");
+                if(revision()!=expectedRevision)throw new ConcurrentModificationException("History changed during cell copy");
                 int count=Math.min(1024,remaining);if(count==0)return List.of();
-                var result=new ArrayList<CellPosition>(count);
-                for(int i=0;i<count;i++) {
-                    var keys=iterator.next();String first=keys.many==null?keys.single:keys.many.iterator().next();
-                    var edit=ordered.get(first);
-                    if(edit==null)throw new IllegalStateException("History cell index mismatch");
-                    result.add(new CellPosition(edit.x(),edit.y(),edit.z()));
-                }
+                var result=new ArrayList<CellPosition>(count);for(int i=0;i<count;i++)result.add(iterator.next());
                 remaining-=count;return List.copyOf(result);
             }
         }
-        /** Immutable cursor result. Captured keys already passed History.put validation. */
+        /** Detached immutable cursor batch; never retains a live iterator or mutable index. */
         public static final class CopyBatch extends AbstractList<Protocol.Edit> implements RandomAccess {
             private static final CopyBatch EMPTY=new CopyBatch(new String[0],new Protocol.Edit[0]);
             private final String[] keys;private final Protocol.Edit[] values;
             private CopyBatch(String[] keys,Protocol.Edit[] values){this.keys=keys;this.values=values;}
             @Override public int size(){return values.length;}
             @Override public Protocol.Edit get(int index){return values[index];}
-            /** Rebuild the private target index while reusing immutable validated key strings. */
             public void copyTo(History target,Runnable checkpoint) {
                 Objects.requireNonNull(target);Objects.requireNonNull(checkpoint);
                 for(int i=0;i<values.length;i++){checkpoint.run();target.putTrusted(keys[i],values[i]);}
             }
         }
-        private History(History source) {
-            ordered=new PersistentOrderedMap<>(source.ordered);cells=new PersistentOrderedMap<>(source.cells);
-            // Neither copy may mutate the index entries shared at this boundary.
-            source.owner=new Object();
-        }
-        /** Owner-thread constant-root transaction copy. Retains order; shares index
-         * entries until edited. This does not validate or publish a transaction. */
-        public static History copyOf(Map<String,Protocol.Edit> source) {
-            if(source instanceof History history)return new History(history);
-            var copy=new History();copy.putAll(source);return copy;
-        }
-        private CellKeys writable(String cell) {
-            var keys=cells.get(cell);
-            if(keys==null||keys.owner!=owner){keys=new CellKeys(owner,keys);cells.put(cell,keys);}
-            return keys;
-        }
-        /** Most cells have one edit; allocate a set only for fractional edit histories. */
-        private static final class CellKeys {
-            final Object owner;
-            CellKeys(Object owner,CellKeys source) {
-                this.owner=owner;
-                if(source!=null){single=source.single;if(source.many!=null)many=new LinkedHashSet<>(source.many);}
-            }
-            private String single;
-            private LinkedHashSet<String> many;
-            void add(String key) {
-                if(many!=null){many.add(key);return;}
-                if(single==null){single=key;return;}
-                if(single.equals(key))return;
-                many=new LinkedHashSet<>();many.add(single);many.add(key);single=null;
-            }
-            void remove(Object key) {
-                if(many==null){if(Objects.equals(key,single))single=null;return;}
-                many.remove(key);
-                if(many.size()==1){single=many.iterator().next();many=null;}
-            }
-            boolean isEmpty(){return many==null?single==null:many.isEmpty();}
-            List<String> snapshot(){return many==null?(single==null?List.of():List.of(single)):List.copyOf(many);}
-        }
-        @Override public Set<Entry<String, Protocol.Edit>> entrySet() {
-            // The persistent index already exposes an unmodifiable set of immutable
-            // entries. An additional map wrapper allocates a wrapper per replay row.
-            return ordered.entrySet();
-        }
-        @Override public Set<String> keySet() { return Collections.unmodifiableSet(ordered.keySet()); }
-        @Override public Collection<Protocol.Edit> values() { return Collections.unmodifiableCollection(ordered.values()); }
-        @Override public Protocol.Edit get(Object key) { return ordered.get(key); }
-        @Override public int size() { return ordered.size(); }
-        /** Count a whole-cell transaction before retaining replay keys/records.
-         * Read a private history snapshot and stable cells on the worker. Count the
-         * final size, since a later replacement may free an earlier cell's space. */
-        public long replacementSize(Map<StructurePackage.Position,SparseVoxelOctree> replacements,
-                BooleanSupplier cancel)throws IOException {
+        @Override public Set<Entry<String,Protocol.Edit>> entrySet(){return storage.entrySet();}
+        @Override public Set<String> keySet(){return Collections.unmodifiableSet(storage.keySet());}
+        @Override public Collection<Protocol.Edit> values(){return Collections.unmodifiableCollection(storage.values());}
+        @Override public Protocol.Edit get(Object key){return storage.get(key);}
+        @Override public boolean containsKey(Object key){return storage.containsKey(key);}
+        @Override public int size(){return storage.size();}
+        @Override public Protocol.Edit put(String key,Protocol.Edit edit){return storage.put(key,edit);}
+        private Protocol.Edit putTrusted(String key,Protocol.Edit edit){return storage.put(key,edit);}
+        @Override public Protocol.Edit remove(Object key){return storage.remove(key);}
+        @Override public void clear(){storage.clear();}
+        public long replacementSize(Map<StructurePackage.Position,SparseVoxelOctree> replacements,BooleanSupplier cancel)throws IOException {
             long total=size();
             for(var entry:replacements.entrySet()) {
-                StructurePackage.cancelled(cancel);
-                var p=entry.getKey();var tree=Objects.requireNonNull(entry.getValue());
-                if(tree.size()!=RESOLUTION||!new Protocol.Edit(p.x(),p.y(),p.z(),0).valid())
-                    throw new IllegalArgumentException("Invalid world cell");
-                var keys=cells.get(p.x()+","+p.y()+","+p.z());
-                if(keys!=null)total-=keys.many==null?1:keys.many.size();
-                // One clear plus one record per leaf. Only a single full-cell
-                // leaf reuses the clear key. Packed cells expose cached counts;
-                // ordinary 16-cube trees have a bounded traversal, no edit list.
-                int leaves=tree.leafCount();
+                StructurePackage.cancelled(cancel);var p=entry.getKey();var tree=Objects.requireNonNull(entry.getValue());
+                if(tree.size()!=RESOLUTION||!new Protocol.Edit(p.x(),p.y(),p.z(),0).valid())throw new IllegalArgumentException("Invalid world cell");
+                total-=storage.cellSize(p.x()+","+p.y()+","+p.z());int leaves=tree.leafCount();
                 total+=leaves==1&&tree.occupied()==RESOLUTION*RESOLUTION*RESOLUTION?1:1L+leaves;
             }
             StructurePackage.cancelled(cancel);return total;
         }
-        @Override public boolean containsKey(Object key) { return ordered.containsKey(key); }
-        @Override public Protocol.Edit put(String key, Protocol.Edit edit) {
-            if (!key.equals(edit.key())) throw new IllegalArgumentException("Edit key mismatch");
-            return putTrusted(key,edit);
-        }
-        private Protocol.Edit putTrusted(String key,Protocol.Edit edit) {
-            // A validated depth-zero key is also the cell key. Share its immutable
-            // string with the ordered map rather than retaining a duplicate.
-            return putInCell(key,edit,edit.depth()==0?key:edit.cellKey());
-        }
-        private Protocol.Edit putInCell(String key,Protocol.Edit edit,String cell) {
-            writable(cell).add(key);
-            revision++;
-            return ordered.put(key,edit);
-        }
-        @Override public Protocol.Edit remove(Object key) {
-            var old = ordered.remove(key);
-            if (old != null) {
-                revision++;
-                var keys = writable(old.cellKey()); keys.remove(key);
-                if (keys.isEmpty()) cells.remove(old.cellKey());
-            }
-            return old;
-        }
-        @Override public void clear() { if(!ordered.isEmpty())revision++; ordered.clear(); cells.clear(); }
-        private void rememberCell(Protocol.CellState state) {
-            if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
-            String cell=state.x()+","+state.y()+","+state.z();
-            var old=cells.remove(cell);
-            if(old!=null)for(var key:old.snapshot())ordered.remove(key);
-            // A complete cell starts with air, followed by nonoverlapping octree leaves.
-            // No coverage scan is needed between those leaves. Full-cell leaves share
-            // the prefix key; replacing its value retains the same final replay order.
-            // Both strings are derived here from this immutable cell and its emitted
-            // edits; external map keys still pass public put validation.
-            state.forEachEdit(edit->putInCell(edit.depth()==0?cell:edit.key(),edit,cell));
-        }
-        private void rememberCell(CellReplay replay) {
-            var old=cells.remove(replay.cell);
-            if(old!=null)for(var key:old.snapshot())ordered.remove(key);
-            for(int i=0;i<replay.edits.length;i++) {
-                ordered.put(replay.keys[i],replay.edits[i]);revision++;
-            }
-            // The replay's owner token can never equal a history owner. Later
-            // edits clone this index through writable(), protecting every reuse.
-            cells.put(replay.cell,replay.index);
-        }
-        private void remember(Protocol.Edit edit) {
-            var keys = cells.get(edit.cellKey());
-            if (keys != null) for (var key : keys.snapshot()) {
-                var old = ordered.get(key);
-                if (covered(old,edit)) remove(key);
-            }
-            put(edit.key(),edit);
-        }
+        private void rememberCell(Protocol.CellState state){storage.replaceCell(CellReplayRows.prepare(state));}
+        private void rememberCell(CellReplay replay){storage.replaceCell(replay.rows);}
+        private void remember(Protocol.Edit edit){storage.remember(edit);}
     }
-    /** Immutable replay records/keys and cell index. No source geometry is retained. */
+    /** Immutable shared primitive replay rows; no source geometry or per-leaf keys retained. */
     public static final class CellReplay {
-        private final String cell;
-        private final String[] keys;
-        private final Protocol.Edit[] edits;
-        private final History.CellKeys index;
-        private CellReplay(String cell,String[] keys,Protocol.Edit[] edits,History.CellKeys index) {
-            this.cell=cell;this.keys=keys;this.edits=edits;this.index=index;
-        }
-        public String cellKey(){return cell;}
-        /** Includes the clear record and a possible full-cell replacement of that same key. */
-        public int editCount(){return edits.length;}
+        private final CellReplayRows rows;
+        private CellReplay(CellReplayRows rows){this.rows=rows;}
+        public String cellKey(){return rows.cell;}
+        /** Includes clear and a same-key full-cell leaf, even though the Map has one row. */
+        public int editCount(){return rows.rawCount;}
     }
-    /** Prepare from stable geometry on a worker. Failure cannot change a history. */
     public static CellReplay prepareCellReplay(Protocol.CellState state) {
-        Objects.requireNonNull(state,"state");
-        if(state.tree().size()!=RESOLUTION)throw new IllegalArgumentException("Invalid world cell resolution");
-        String cell=state.x()+","+state.y()+","+state.z();
-        var keys=new ArrayList<String>();var edits=new ArrayList<Protocol.Edit>();
-        var index=new History.CellKeys(new Object(),null);
-        state.forEachEdit(edit->{
-            String key=edit.depth()==0?cell:edit.key();keys.add(key);edits.add(edit);index.add(key);
-        });
-        return new CellReplay(cell,keys.toArray(String[]::new),edits.toArray(Protocol.Edit[]::new),index);
+        return new CellReplay(CellReplayRows.prepare(Objects.requireNonNull(state,"state")));
     }
     public static final int RESOLUTION = 16;
     private static final int[] COLORS = new int[190];
@@ -320,7 +194,7 @@ public final class WorldVoxels {
     public CellSnapshot cellSnapshot(History history,int maxCells,int maxChunks) {
         Objects.requireNonNull(history);
         if(maxCells<0||maxChunks<0)throw new IllegalArgumentException("Negative cell snapshot budget");
-        if(history.cells.size()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
+        if(history.storage.cellCount()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
         return cellSnapshot(history);
     }
     /** Owner-thread capture for indexed cell persistence. Every live read and final
@@ -337,7 +211,7 @@ public final class WorldVoxels {
     public CellSnapshotBuilder beginCellSnapshot(History history,int maxCells,int maxChunks) {
         Objects.requireNonNull(history);
         if(maxCells<0||maxChunks<0)throw new IllegalArgumentException("Negative cell snapshot budget");
-        if(history.cells.size()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
+        if(history.storage.cellCount()>maxCells||chunks.size()>maxChunks)throw new IllegalArgumentException("Cell snapshot budget exceeded");
         return new CellSnapshotBuilder(this,history);
     }
     public static final class CellSnapshotBuilder {
@@ -608,7 +482,7 @@ public final class WorldVoxels {
     public static void rememberCell(Map<String,Protocol.Edit> history,CellReplay replay) {
         Objects.requireNonNull(replay,"replay");
         if(history instanceof History indexed){indexed.rememberCell(replay);return;}
-        for(var edit:replay.edits)remember(history,edit);
+        for(int i=0;i<replay.editCount();i++)remember(history,replay.rows.rawEdit(i));
     }
 
     public static void remember(Map<String, Protocol.Edit> history, Protocol.Edit edit) {
@@ -630,7 +504,7 @@ public final class WorldVoxels {
             String key=edit.key();history.remove(key);history.put(key,edit);
         }else remember(history,edit);
     }
-    private static boolean covered(Protocol.Edit old, Protocol.Edit edit) {
+    static boolean covered(Protocol.Edit old, Protocol.Edit edit) {
         return old.minX() >= edit.minX() && old.minY() >= edit.minY() && old.minZ() >= edit.minZ()
                 && old.minX()+old.size() <= edit.minX()+edit.size()
                 && old.minY()+old.size() <= edit.minY()+edit.size()
