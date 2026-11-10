@@ -272,20 +272,27 @@ class SkyVisibilitySchedulerTest {
         try(var world=new World(42);var sky=new SkyVisibilityScheduler()){
             for(int x=0;x<2;x++)for(int y=-2;y<=7;y++){var p=new ChunkPos(x,y,0);world.addChunk(p,ChunkGenerator.generate(p,world.terrain()));}
             await(sky,world,p->sky.cachedColumns()==2&&sky.pending()==0&&p.localReady(world,0,0));
-            var cache=SkyVisibilityScheduler.class.getDeclaredField("cache");cache.setAccessible(true);var values=new java.util.ArrayList<>(((java.util.Map<?,?>)cache.get(sky)).values());
-            var generation=SkyVisibilityScheduler.class.getDeclaredField("generation");generation.setAccessible(true);long current=generation.getLong(sky);int[] visited={0};
-            // Resume a cursor from before a second disjoint tile arrived. A weak
-            // iterator is allowed to omit that arrival; the follow-up must include it.
-            var iterator=java.util.List.of(values.get(0)).iterator();java.util.Iterator<Object> cursor=new java.util.Iterator<>(){public boolean hasNext(){return iterator.hasNext();}public Object next(){visited[0]++;return iterator.next();}};
-            var field=SkyVisibilityScheduler.class.getDeclaredField("packingIterator");field.setAccessible(true);field.set(sky,cursor);
-            field=SkyVisibilityScheduler.class.getDeclaredField("packingParts");field.setAccessible(true);field.set(sky,new java.util.ArrayList<>());
-            field=SkyVisibilityScheduler.class.getDeclaredField("packingGeneration");field.setAccessible(true);field.setLong(sky,current-1);
-            field=SkyVisibilityScheduler.class.getDeclaredField("dirty");field.setAccessible(true);field.setBoolean(sky,true);
-            sky.update(world,0,0,10_000_000);assertEquals(1,visited[0],"Disjoint arrivals cannot discard completed cursor work");
-            field=SkyVisibilityScheduler.class.getDeclaredField("submittedGeneration");field.setAccessible(true);assertEquals(current-1,field.getLong(sky),"Merge records the generation when capture began, not when it ended");
-            field=SkyVisibilityScheduler.class.getDeclaredField("packed");field.setAccessible(true);((Future<?>)field.get(sky)).get(10,TimeUnit.SECONDS);
-            var partial=sky.update(world,0,0,1_000_000);assertNotNull(partial);assertEquals(1,sky.partialPublications);
-            var complete=await(sky,world,p->sky.pending()==0&&p.localReady(world,16,0));assertArrayEquals(WorldSkyVisibility.build(world).data,complete.data.data,"A follow-up includes the omitted newer tile");
+            // Startup may legitimately publish partial atlases. Check this
+            // controlled merge's increment, including a nonzero baseline on round two.
+            for(int round=0;round<2;round++) {
+                long partialBefore=sky.partialPublications;
+                if(round==1)assertTrue(partialBefore>0,"Second controlled merge covers a nonzero cumulative counter");
+                var cache=SkyVisibilityScheduler.class.getDeclaredField("cache");cache.setAccessible(true);var values=new java.util.ArrayList<>(((java.util.Map<?,?>)cache.get(sky)).values());
+                var generation=SkyVisibilityScheduler.class.getDeclaredField("generation");generation.setAccessible(true);long current=generation.getLong(sky);int[] visited={0};
+                // Resume a cursor from before a second disjoint tile arrived. A weak
+                // iterator is allowed to omit that arrival; the follow-up must include it.
+                var iterator=java.util.List.of(values.get(0)).iterator();java.util.Iterator<Object> cursor=new java.util.Iterator<>(){public boolean hasNext(){return iterator.hasNext();}public Object next(){visited[0]++;return iterator.next();}};
+                var field=SkyVisibilityScheduler.class.getDeclaredField("packingIterator");field.setAccessible(true);field.set(sky,cursor);
+                field=SkyVisibilityScheduler.class.getDeclaredField("packingParts");field.setAccessible(true);field.set(sky,new java.util.ArrayList<>());
+                field=SkyVisibilityScheduler.class.getDeclaredField("packingInts");field.setAccessible(true);field.setLong(sky,0);
+                field=SkyVisibilityScheduler.class.getDeclaredField("packingGeneration");field.setAccessible(true);field.setLong(sky,current-1);
+                field=SkyVisibilityScheduler.class.getDeclaredField("dirty");field.setAccessible(true);field.setBoolean(sky,true);
+                sky.update(world,0,0,10_000_000);assertEquals(1,visited[0],"Disjoint arrivals cannot discard completed cursor work");
+                field=SkyVisibilityScheduler.class.getDeclaredField("submittedGeneration");field.setAccessible(true);assertEquals(current-1,field.getLong(sky),"Merge records the generation when capture began, not when it ended");
+                field=SkyVisibilityScheduler.class.getDeclaredField("packed");field.setAccessible(true);((Future<?>)field.get(sky)).get(10,TimeUnit.SECONDS);
+                var partial=sky.update(world,0,0,1_000_000);assertNotNull(partial);assertEquals(partialBefore+1,sky.partialPublications,"Exactly one new partial publication, independent of startup history");
+                var complete=await(sky,world,p->sky.pending()==0&&p.localReady(world,16,0));assertArrayEquals(WorldSkyVisibility.build(world).data,complete.data.data,"A follow-up includes the omitted newer tile");
+            }
         }
     }
     @Test void completedMergeSurvivesEquivalentGeneratedUnloadBeforeCollection()throws Exception {
