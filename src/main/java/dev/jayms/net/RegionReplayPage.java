@@ -66,21 +66,42 @@ final class RegionReplayPage {
         if(range.size()>MAX_CELLS)throw new IllegalArgumentException("Replay page cell range budget");
         return build(spool,region,range,terrain,maxDecodedRows,maxRows,range.size(),allowed,cancel);
     }
+    /** Read only indexed cells after a complete matching-region index build.
+     * Build validates whole-region policy; reads recheck selected rows and
+     * copied-cell CRCs. Other copied-cell corruption is deferred until read.
+     * The index may outlive its source spool, but not its owning worker. */
+    static RegionReplayPage loadIndexed(RegionReplayCells cells,CellRange range,Terrain terrain,
+            int maxRows,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cells);Objects.requireNonNull(range);Objects.requireNonNull(allowed);
+        if(range.size()>MAX_CELLS)throw new IllegalArgumentException("Replay page cell range budget");
+        return assemble(cells.region(),range,terrain,maxRows,range.size(),sink->{
+            for(var edit:cells.readWindow(range,maxRows,allowed,cancel))sink.accept(edit);
+        },cancel);
+    }
+    @FunctionalInterface private interface EditSink {void accept(Protocol.Edit edit)throws IOException;}
+    @FunctionalInterface private interface RowSource {void visit(EditSink sink)throws IOException;}
     private static RegionReplayPage build(RegionReplaySpool spool,ChunkPos region,CellRange range,Terrain terrain,
             int maxDecodedRows,int maxRows,int maxCells,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(spool);Objects.requireNonNull(region);Objects.requireNonNull(terrain);
         Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);
         if(maxRows<0||maxRows>MAX_ROWS||maxCells<0||maxCells>MAX_CELLS||maxDecodedRows<0||maxDecodedRows>LocalGame.MAX_SAVED_EDITS)
             throw new IllegalArgumentException("Replay page budget");
+        return assemble(region,range,terrain,maxRows,maxCells,sink->spool.visitRegion(region,maxDecodedRows,allowed,cancel,(position,rows)->{
+            for(var edit:rows)sink.accept(edit);
+        }),cancel);
+    }
+    private static RegionReplayPage assemble(ChunkPos region,CellRange range,Terrain terrain,
+            int maxRows,int maxCells,RowSource source,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(terrain);Objects.requireNonNull(cancel);
+        if(maxRows<0||maxRows>MAX_ROWS||maxCells<0||maxCells>MAX_CELLS)throw new IllegalArgumentException("Replay page budget");
         StructurePackage.cancelled(cancel);
         var history=new WorldVoxels.History();
         var positions=new LinkedHashSet<WorldVoxels.CellPosition>();
         var loader=new RegionReplayLoader(history,cancel);
         int[] selectedRows={0};
-        spool.visitRegion(region,maxDecodedRows,allowed,cancel,(position,rows)->{
-            for(var edit:rows) {
+        source.visit(edit->{
                 StructurePackage.cancelled(cancel);
-                if(!range.contains(edit))continue;
+                if(!range.contains(edit))return;
                 if(++selectedRows[0]>maxRows)throw new IOException("Replay page selected row budget");
                 var cell=new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z());
                 if(!positions.contains(cell)) {
@@ -88,7 +109,6 @@ final class RegionReplayPage {
                     positions.add(cell);
                 }
                 loader.accept(edit);
-            }
         });
         loader.finish();
         var grouped=new LinkedHashMap<WorldVoxels.CellPosition,List<Protocol.Edit>>();

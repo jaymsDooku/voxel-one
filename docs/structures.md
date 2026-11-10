@@ -1915,3 +1915,28 @@ Three warmups and 20 warm private-file samples per fixture on the recorded share
 | Full coloured-cell window load | 5.700266 | 6.360834 | 7.464834 |
 
 Fixture/oracle construction, final independent geometry verification and cleanup are excluded. Reads use warm OS cache; each window repeats all matching-region decoding. The 128 MiB JVM heap setting is not a peak-memory measurement. These results do not establish city, cold-load, durable-save, frame, tick, network, acknowledgement or main-thread stall budgets. Exact commands, environment, raw samples and exclusions are recorded in `dashboard/evidence/structure-replay-window.json`.
+
+### Optional copied region cell index
+
+`RegionReplayCells` builds a temporary index for one region. A fixed 4096-cell count table replaces the proposed external sort runs: the first validated traversal counts rows, and the second writes each cell's records into its assigned file range. Each 28-byte record contains a matching-region source ordinal plus the unchanged 24-byte edit. Sorting at most 4097 selected records by that ordinal restores filtered cross-cell order. No resident per-record directory is built.
+
+The root retains 81928 bytes of primitive count, offset and checksum arrays, plus Java objects. Its copied file is at most 56000000 logical bytes under the existing 2,000,000-record limit. One maximum source spool plus one copied index can use 200000004 logical disk bytes; filesystem allocation, Java objects and buffers add resources. Multiple retained indexes add their own costs and need a bounded cache before live integration. These are staging bounds, not measured peak memory or supported city limits.
+
+Build checks the complete matching region and its model policy twice before returning a root. Selected source-row counts are then available from sealed memory metadata, so oversized windows reject before payload I/O or policy callbacks. Reads validate every selected copied-cell CRC before calling policy, check positions and ordinal bounds, reject duplicate ordinals, and return immutable rows. Read policy runs only for selected rows. Post-build corruption in other copied cells is deferred until those cells are read. The original scan path keeps its stricter per-read whole-matching-region validation. Neither path authorizes whole-world publication; callers still own model/terrain/authority revision fences.
+
+The copied root works after its source spool closes. Its own close removes the file. Cancellation or failure during counting/scatter removes private prefixes; ownership and reentrancy checks remain. Build performs two matching-region payload traversals and four global source-metadata scans. The root cannot be reopened after process restart because its sealed metadata is private memory. It does not validate the original world tail or other regions; it must stay private until whole-world metadata and tail validation succeeds. It is not a durable archive or live pager. `RegionReplayPage.loadIndexed` uses the same bounded history/geometry assembler as the scan entry points. LocalGame and live World/server loading remain unchanged.
+
+Actual comparison: one 128 MiB JVM, three warmups and 20 samples per fixture, alternating scan/index read order. Shared source staging is measured separately. Index build includes both source traversals, positional writes and file force. Page-load sums exclude oracle checks, private installation and cleanup. Reads use warm OS cache on the recorded shared VPS.
+
+| Fixture / component | Median ms | p95 ms | Worst ms |
+| --- | ---: | ---: | ---: |
+| 4096 cells, 64 windows: scan reads | 230.469397 | 234.199173 | 238.284708 |
+| Index build | 22.384037 | 25.555743 | 32.753483 |
+| Indexed reads | 56.319536 | 62.905185 | 65.282851 |
+| Build plus indexed reads | 78.767660 | 87.536573 | 98.036334 |
+| One full coloured cell: scan read | 4.928441 | 6.765341 | 7.599728 |
+| Index build | 13.476200 | 16.522828 | 22.601521 |
+| Indexed read | 3.831063 | 6.729368 | 6.755726 |
+| Build plus indexed read | 17.389233 | 22.861884 | 28.307061 |
+
+The single-cell setup cost regresses total time; indexed staging is not an unconditional speedup. For the 8192-row region, copied data is 229376 bytes. Policy callbacks are 16384 during build, then 8192 across all indexed reads versus 524288 across scan reads. For the 4097-row coloured cell, copied data is 114716 bytes and setup adds 8194 policy callbacks. Full samples, shared-stage costs and environment are recorded in `dashboard/evidence/structure-replay-cells.json`. No cold-load, durable-save, retained/peak-memory, GPU, frame/tick/network, city or maximum-fixture qualification follows from these component results.
