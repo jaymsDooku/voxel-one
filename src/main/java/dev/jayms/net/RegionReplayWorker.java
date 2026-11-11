@@ -47,6 +47,7 @@ final class RegionReplayWorker implements AutoCloseable {
         // -1 selects the existing page path. Chunk requests share its queue,
         // cancellation state and single active worker slot.
         private final int maxCellLeaves;
+        private final List<ChunkPos> neighbourRegions;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicInteger completedCells=new AtomicInteger();
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
@@ -54,6 +55,10 @@ final class RegionReplayWorker implements AutoCloseable {
             this(region,range,maxRows,revision,fence,binding,-1);
         }
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves) {
+            this(region,range,maxRows,revision,fence,binding,maxCellLeaves,List.of());
+        }
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves,List<ChunkPos> neighbours) {
+            this.neighbourRegions=neighbours;
             this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;this.binding=binding;
             this.maxCellLeaves=maxCellLeaves;
         }
@@ -186,6 +191,12 @@ final class RegionReplayWorker implements AutoCloseable {
         Request submitChunk(ChunkPos region,int maxCellLeaves,World current)throws IOException {
             validate(current);
             var request=enqueueChunk(region,maxCellLeaves,revision,current.beginReplayFence(),this);
+            requestsIssued=true;return request;
+        }
+        /** Same-source detached neighbours only; mask bits are -X,+X,-Y,+Y,-Z,+Z. */
+        Request submitChunkWithNeighbours(ChunkPos region,int maxCellLeaves,int neighbourMask,World current)throws IOException {
+            validate(current);
+            var request=enqueueChunk(region,maxCellLeaves,revision,current.beginReplayFence(),this,true,neighbourMask);
             requestsIssued=true;return request;
         }
         RegionReplayChunk.Snapshot chunkResult(Request request,World current)throws IOException {
@@ -484,17 +495,38 @@ final class RegionReplayWorker implements AutoCloseable {
         owner();Objects.requireNonNull(world);
         return enqueueChunk(region,maxCellLeaves,revision,world.beginReplayFence(),null);
     }
+    /** Opt-in bounded same-source neighbour loading. No live mesh installation.
+     * Mask bits are -X,+X,-Y,+Y,-Z,+Z; zero keeps unknown exterior faces. */
+    Request submitChunkWithNeighboursFenced(ChunkPos region,int maxCellLeaves,int neighbourMask,Revision revision,World world)throws IOException {
+        owner();Objects.requireNonNull(world);
+        return enqueueChunk(region,maxCellLeaves,revision,world.beginReplayFence(),null,true,neighbourMask);
+    }
+    private static List<ChunkPos> neighbourRegions(ChunkPos region,int mask)throws IOException {
+        if(mask<0||mask>63)throw new IllegalArgumentException("Replay worker neighbour mask");
+        if(mask==0)return List.of();
+        RegionReplayChunk.checkRegion(region);var result=new ArrayList<ChunkPos>(Integer.bitCount(mask));
+        int[][] offsets={{-1,0,0},{1,0,0},{0,-1,0},{0,1,0},{0,0,-1},{0,0,1}};
+        for(int i=0;i<6;i++)if((mask&(1<<i))!=0) {
+            var d=offsets[i];var position=new ChunkPos(region.chunkX()+d[0],region.chunkY()+d[1],region.chunkZ()+d[2]);
+            RegionReplayChunk.checkRegion(position);result.add(position);
+        }
+        return List.copyOf(result);
+    }
     private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
         return enqueueChunk(region,maxCellLeaves,revision,fence,binding,true);
     }
     private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding,boolean rejectFull)throws IOException {
+        return enqueueChunk(region,maxCellLeaves,revision,fence,binding,rejectFull,0);
+    }
+    private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding,boolean rejectFull,int neighbourMask)throws IOException {
         owner();Objects.requireNonNull(region);Objects.requireNonNull(revision);
+        var neighbours=neighbourRegions(region,neighbourMask);
         if(maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
             throw new IllegalArgumentException("Replay worker chunk geometry budget");
         synchronized(gate) {
             if(stopping.get())throw new IOException("Replay worker not accepting requests");
             if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
-            var request=new Request(region,null,0,revision,fence,binding,maxCellLeaves);
+            var request=new Request(region,null,0,revision,fence,binding,maxCellLeaves,neighbours);
             queue.addLast(request);gate.notifyAll();return request;
         }
     }
@@ -544,7 +576,15 @@ final class RegionReplayWorker implements AutoCloseable {
                         var sourceMetadata=source.metadata();
                         chunk=RegionReplayModelDraws.prepare(chunk,sourceMetadata==null?type->null:sourceMetadata::sourceDefinition,
                                 ()->stopping.get()||request.cancelled());
-                        chunk=RegionReplayMesh.prepare(chunk,()->stopping.get()||request.cancelled());
+                        // At most six extra frozen roots. No neighbour render arrays,
+                        // model batches or live World queries cross onto this worker.
+                        var neighbours=new ArrayList<RegionReplayChunk.Snapshot>(request.neighbourRegions.size());
+                        for(var position:request.neighbourRegions) {
+                            StructurePackage.cancelled(()->stopping.get()||request.cancelled());
+                            neighbours.add(RegionReplayChunk.load(cache,position,source.terrain(),request.maxCellLeaves,
+                                    ()->stopping.get()||request.cancelled()));
+                        }
+                        chunk=RegionReplayMesh.prepare(chunk,neighbours,()->stopping.get()||request.cancelled());
                         if(source.terrain().geometryRevision()!=chunk.terrainRevision())throw new IOException("Replay source terrain changed");
                     }
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());

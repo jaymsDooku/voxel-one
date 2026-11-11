@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T05:38:18+00:00",
+  "updatedAt": "2026-11-11T06:01:29+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Staged-save drop counts validated; 43 scoped tests and CLI failure/retry checks passed. Fresh capture/report await runner publication. City/max implementation and qualification remain pending.",
-      "updatedAt": "2026-11-11T05:38:18+00:00"
+      "note": "Replay worker now meshes opt-in same-source face neighbors within fixed bounds. 67 scoped tests and five CLI fixtures passed; capture/report await runner publication. Main/GPU, city/max and reference qualification remain pending.",
+      "updatedAt": "2026-11-11T06:01:29+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
