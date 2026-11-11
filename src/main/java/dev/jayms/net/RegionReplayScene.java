@@ -14,7 +14,7 @@ final class RegionReplayScene implements AutoCloseable {
     private final Thread owner=Thread.currentThread();private final RegionReplayWorker.Binding binding;
     private final RegionReplayWorker.Binding.ChunkPump pump;private final World world;private final int capacity;
     private Set<ChunkPos> desired=Set.of();private Map<ChunkPos,RegionReplayChunkUpload.Resources> gpu=Map.of();
-    private final List<RegionReplayChunkUpload.Resources> retired=new ArrayList<>();private boolean closed;
+    private final List<RegionReplayChunkUpload.Resources> retired=new ArrayList<>();private boolean closed;private long renderRevision;
     RegionReplayScene(RegionReplayWorker.Binding binding,RegionReplayWorker.Binding.ChunkPump pump,World world,int capacity){this.binding=binding;this.pump=pump;this.world=world;this.capacity=capacity;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay scene owner required");}
     private void check()throws IOException{owner();if(closed)throw new IOException("Replay scene closed");if(!retired.isEmpty())throw new IOException("Replay scene cleanup pending");pump.status();}
@@ -25,6 +25,8 @@ final class RegionReplayScene implements AutoCloseable {
                 catch(IOException failure){throw new IllegalStateException("Replay scene unavailable",failure);}
             }
             @Override public boolean ready(int x,int y,int z){return data(x,y,z)!=null;}
+            @Override public long renderRevision(){try{check();return RegionReplayScene.this.renderRevision;}catch(IOException failure){throw new IllegalStateException("Replay scene unavailable",failure);}}
+            @Override public int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){try{return draw(frustum,shader,models);}catch(IOException failure){throw new IllegalStateException("Replay scene draw unavailable",failure);}}
             @Override public boolean meshReady(int x,int y,int z) {
                 if(data(x,y,z)==null)return false;
                 try{return resources(ChunkPos.fromBlock(x,y,z))!=null;}
@@ -44,7 +46,7 @@ final class RegionReplayScene implements AutoCloseable {
         var nextGpu=new LinkedHashMap<ChunkPos,RegionReplayChunkUpload.Resources>();var removed=new ArrayList<RegionReplayChunkUpload.Resources>();
         for(var entry:gpu.entrySet())if(next.contains(entry.getKey()))nextGpu.put(entry.getKey(),entry.getValue());else removed.add(entry.getValue());
         var immutable=Set.copyOf(next);var immutableGpu=Collections.unmodifiableMap(nextGpu);
-        pump.desired(List.copyOf(next));desired=immutable;gpu=immutableGpu;retired.addAll(removed);retryCleanup();
+        pump.desired(List.copyOf(next));desired=immutable;gpu=immutableGpu;if(!removed.isEmpty())renderRevision++;retired.addAll(removed);retryCleanup();
     }
     void tick()throws IOException{check();pump.tick();}
     IOException failure(ChunkPos region)throws IOException{check();return pump.failure(region);}
@@ -61,12 +63,30 @@ final class RegionReplayScene implements AutoCloseable {
     void publish(RegionReplayChunkUpload.Resources resources,BooleanSupplier cancel)throws IOException {
         owner();Objects.requireNonNull(resources);Objects.requireNonNull(cancel);var snapshot=resources.snapshot();admissible(resources,snapshot);StructurePackage.cancelled(cancel);
         var prior=gpu;var next=new LinkedHashMap<>(prior);next.put(snapshot.region(),resources);var committed=Collections.unmodifiableMap(next);
-        StructurePackage.cancelled(cancel);admissible(resources,snapshot);if(gpu!=prior)throw new IOException("Replay scene changed during publication");gpu=committed;
+        StructurePackage.cancelled(cancel);admissible(resources,snapshot);if(gpu!=prior)throw new IOException("Replay scene changed during publication");gpu=committed;renderRevision++;
     }
     /** Borrowed owner. Never close/mutate its handles; Scene owns retirement. */
     RegionReplayChunkUpload.Resources resources(ChunkPos region)throws IOException {
         check();var result=gpu.get(region);if(result==null)return null;var snapshot=result.snapshot();
         if(pump.result(region)!=snapshot)throw new IOException("Replay scene data/GPU mismatch");return result;
+    }
+    /** Validate the entire bounded scene before issuing any draw. The caller
+     * owns the bound program/pass state; this method always leaves instancing off. */
+    private int draw(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models)throws IOException {
+        check();Objects.requireNonNull(frustum);Objects.requireNonNull(shader);
+        for(var region:gpu.keySet())resources(region);
+        int draws=0;
+        shader.setInt("uVertexColor",1);shader.setInt("uInstanced",models?1:0);
+        try {
+            for(var entry:gpu.entrySet()) {
+                var p=entry.getKey();float x=p.chunkX()*16f,y=p.chunkY()*16f,z=p.chunkZ()*16f;
+                if(!frustum.testAab(x,y,z,x+16,y+16,z+16))continue;
+                var value=entry.getValue();shader.setMatrix4("uModel",new org.joml.Matrix4f().translation(x,y,z));
+                if(models){for(var batch:value.models().batches())if(batch.mesh()!=null){batch.mesh().renderPreparedInstances();draws++;}}
+                else {var mesh=value.ordinary();if(mesh!=null){mesh.render();draws++;}}
+            }
+            return draws;
+        }finally{shader.setInt("uInstanced",0);}
     }
     void retryCleanup()throws IOException {
         owner();Throwable failure=null;

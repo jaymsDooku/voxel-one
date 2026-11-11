@@ -56,6 +56,7 @@ public final class WaterRenderer implements AutoCloseable {
             ChunkPos p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             pass.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();
         }
+        world.renderReplayGeometry(frustum,pass);
         models.render(world,frustum,pass);glDisable(GL_CLIP_DISTANCE0);glFrontFace(GL_CCW);glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
     public void render(World world,Matrix4f projection,Matrix4f view,Vector3f eye,int scene,int sceneDepth,int environment,int w,int h,float jitterX,float jitterY){render(world,projection,view,eye,scene,sceneDepth,environment,w,h,jitterX,jitterY,null);}

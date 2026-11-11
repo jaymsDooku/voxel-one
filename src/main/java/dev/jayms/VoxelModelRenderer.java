@@ -63,6 +63,7 @@ public final class VoxelModelRenderer implements AutoCloseable {
             for (int i = 0; i < data.length; i++) data[i] = group.getValue().get(i);
             mesh(group.getKey()).renderInstanced(data);
         }
+        world.renderReplayModels(frustum,shader);
         shader.setInt("uInstanced", 0);
     }
 

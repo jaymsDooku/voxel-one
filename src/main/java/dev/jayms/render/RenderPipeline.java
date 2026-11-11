@@ -403,6 +403,7 @@ public final class RenderPipeline implements AutoCloseable {
                 shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
                 entry.getValue().getMesh().render();
             }
+            world.renderReplayGeometry(f,shadow);
             models.render(world, f, shadow);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -590,6 +591,8 @@ public final class RenderPipeline implements AutoCloseable {
     public long estimatedTargetBytes(){return lightingStores.retainedBytes()+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*3*4+settings.atmosphereQuality.bytes();}
     public void prepareTargets(int w,int h){int rw=Math.max(1,Math.round(w*settings.renderScale)),rh=Math.max(1,Math.round(h*settings.renderScale));resize(rw,rh);temporal.prepare(w,h);}
     public boolean gpuDriven() { return gpuDraw.enabled(); }
+    /** Replay scene owns its meshes; no resident or occlusion-cache promotion. */
+    public void replay(World world,FrustumIntersection frustum,ShaderProgram shader){visibleChunks+=world.renderReplayGeometry(frustum,shader);}
     public void chunk(Chunk chunk, ChunkPos p) {
         if (chunk.getMesh() == null) return;
         float x=p.chunkX()*16,y=p.chunkY()*16,z=p.chunkZ()*16;
