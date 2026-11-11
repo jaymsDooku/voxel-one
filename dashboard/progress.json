@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T02:01:42+00:00",
+  "updatedAt": "2026-11-11T02:19:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "All four 90674f0c hosted builds passed. Added worker CPU model batches from retained source definitions, with count-first surface admission and cancellation; affected regressions running. Live publication and full qualification remain pending.",
-      "updatedAt": "2026-11-11T02:01:42+00:00"
+      "note": "Exact-head platform builds passed. Adding bounded six-face neighbour sampling for detached CPU replay meshes; live publication, city admission and physical qualification remain pending.",
+      "updatedAt": "2026-11-11T02:19:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
