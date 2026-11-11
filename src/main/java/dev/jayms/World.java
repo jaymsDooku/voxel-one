@@ -133,6 +133,8 @@ public class World implements AutoCloseable {
         public UnloadedReplayCellException(int x,int y,int z){super("Replay cell is not loaded");this.x=x;this.y=y;this.z=z;}
     }
     private ReplayReadView replayReadView;
+    /** Read-only paging mode does not imply complete lighting or save authority. */
+    public boolean hasReplayReadView(){return replayReadView!=null;}
     private void requireResidentReplay(){if(replayReadView!=null)throw new IllegalStateException("Read-only replay view is incomplete");}
     /** Internal owner-side attachment only. No live startup or save promotion. */
     public void attachReplayReadView(ReplayReadView view) {
