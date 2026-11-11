@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T21:47:18+00:00",
+  "updatedAt": "2026-11-11T13:59:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4169,6 +4169,21 @@
       "status": "complete",
       "note": "Simple Brief / Opportunities / Activity mockup independently reviewed, merged and published. Research-page link and exact deployed assets verified. Desktop/phone interactions use clearly labelled examples and cannot operate the live research loop.",
       "updatedAt": "2026-11-10T21:33:37+00:00"
+    },
+    {
+      "id": "codex-upgrade-20261111",
+      "title": "Upgrade VPS Codex CLI",
+      "description": "Upgraded standalone Codex 0.159.3 to 0.167.1. Login, diagnostics, worker protocol, planner schema and quota checks passed without model turns or changing worker controls.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "codex upgrade 20261111.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/codex-upgrade-20261111.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Upgraded standalone Codex 0.159.3 to 0.167.1. Login, diagnostics, worker protocol, planner schema and quota checks passed without model turns or changing worker controls.",
+      "updatedAt": "2026-11-11T13:59:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
