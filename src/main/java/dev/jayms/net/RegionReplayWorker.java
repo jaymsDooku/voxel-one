@@ -262,6 +262,7 @@ final class RegionReplayWorker implements AutoCloseable {
                         if(chunk==null)throw new World.UnloadedReplayCellException(x,y,z);
                         return chunk.geometry().region(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16).freeze();
                     }
+                    @Override public void checkClose(){try{owner();}catch(IOException failure){throw new IllegalStateException("Replay chunk view close owner required",failure);}}
                     @Override public void close() {
                         try{ChunkPump.this.close();}catch(IOException failure){throw new IllegalStateException("Replay chunk read view owner required",failure);}
                     }
@@ -461,8 +462,9 @@ final class RegionReplayWorker implements AutoCloseable {
                 frames=next;
             }
             int retainedWindows()throws IOException{owner();return frames.size();}
+            @Override public void checkClose(){if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay view owner required");}
             @Override public void close() {
-                if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay view owner required");
+                checkClose();
                 frames=Map.of();closed=true;
             }
         }
