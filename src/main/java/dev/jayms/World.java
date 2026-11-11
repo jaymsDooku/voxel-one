@@ -111,11 +111,14 @@ public class World implements AutoCloseable {
 
     private final WorldVoxels voxels;
     /** Read-only private paging mode. Data readiness is separate from mesh readiness. */
+    public record ReplayWaterSurface(ChunkPos region,float height) {}
     public interface ReplayReadView extends AutoCloseable {
         boolean ready(int x,int y,int z);
         /** Data-only views never grant collision/ray mesh readiness. */
         default boolean meshReady(int x,int y,int z){return false;}
         default long renderRevision(){return 0;}
+        default ReplayWaterSurface nearestWater(float x,float y,float z){return null;}
+        default int renderWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){return 0;}
         /** Scene-owned draw path. Never transfers mutable GPU handles. */
         default int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){return 0;}
         SparseVoxelOctree cell(int x,int y,int z);
@@ -139,6 +142,15 @@ public class World implements AutoCloseable {
     /** Ordinary replay meshes use chunk-local vertices; model offsets are also chunk-local. */
     public int renderReplayGeometry(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,false);}
     public int renderReplayModels(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,true);}
+    public ReplayWaterSurface nearestReplayWater(float x,float y,float z){
+        if(!Float.isFinite(x)||!Float.isFinite(y)||!Float.isFinite(z))throw new IllegalArgumentException("Finite replay water eye required");
+        if(closed)throw new IllegalStateException("World closed");
+        return replayReadView==null?null:replayReadView.nearestWater(x,y,z);
+    }
+    public int renderReplayWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){
+        Objects.requireNonNull(frustum);Objects.requireNonNull(shader);if(closed)throw new IllegalStateException("World closed");
+        return replayReadView==null?0:replayReadView.renderWater(frustum,shader);
+    }
     private int renderReplay(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){
         Objects.requireNonNull(frustum);Objects.requireNonNull(shader);
         if(closed)throw new IllegalStateException("World closed");

@@ -28,6 +28,8 @@ public final class WaterRenderer implements AutoCloseable {
             ChunkPos p=entry.getKey();float d=new Vector3f(p.chunkX()*16+8,p.chunkY()*16+8,p.chunkZ()*16+8).distanceSquared(eye);
             if(d<nearest){nearest=d;plane=p.chunkY()*16+chunk.waterHeight();found=true;}
         }
+        var replay=world.nearestReplayWater(eye.x,eye.y,eye.z);
+        if(replay!=null){var p=replay.region();float d=new Vector3f(p.chunkX()*16+8,p.chunkY()*16+8,p.chunkZ()*16+8).distanceSquared(eye);if(d<nearest){plane=replay.height();found=true;}}
         if(!found||eye.y<plane||!optics)return;
         int rw=Math.max(1,w/2),rh=Math.max(1,h/2);
         glBindFramebuffer(GL_FRAMEBUFFER,fbo);
@@ -64,7 +66,13 @@ public final class WaterRenderer implements AutoCloseable {
         if(!found)return;Matrix4f vp=new Matrix4f().translation(jitterX,jitterY,0).mul(projection).mul(view);FrustumIntersection frustum=new FrustumIntersection(vp);
         water.bind();water.setFloat("uJitterX",jitterX);water.setFloat("uJitterY",jitterY);water.setMatrix4("uProjection",projection);water.setMatrix4("uView",view);water.setMatrix4("uInverseVP",new Matrix4f(vp).invert());water.setMatrix4("uReflectionVP",reflected);
         water.setFloat("uPlaneY",plane);water.setVector3("uCamera",eye.x,eye.y,eye.z);water.setFloat("uTime",(float)(System.nanoTime()/1e9%10000));water.setInt("uInstanced",0);water.setFloat("uWidth",w);water.setFloat("uHeight",h);water.setInt("uPlanarReady",optics&&eye.y>=plane?1:0);water.setInt("uOptics",optics?1:0);
-        if(lighting!=null)lighting.accept(water);else water.setInt("uPlanetLighting",0);
+        if(lighting!=null)lighting.accept(water);else {
+            water.setInt("uPlanetLighting",0);
+            // Active sampler types must use distinct units even when the unlit
+            // runtime branch never samples them. Unit 0 belongs to the cube.
+            water.setInt("uIrradiance",3);water.setInt("uFineRoots",4);
+            water.setInt("uFineLight",5);water.setInt("uTransmittance",6);
+        }
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);water.setInt("uEnvironment",0);
         glActiveTexture(GL_TEXTURE1);glBindTexture(GL_TEXTURE_2D,scene);water.setInt("uScene",1);
         glActiveTexture(GL_TEXTURE2);glBindTexture(GL_TEXTURE_2D,sceneDepth);water.setInt("uDepth",2);
@@ -73,6 +81,7 @@ public final class WaterRenderer implements AutoCloseable {
             ChunkPos p=entry.getKey();Chunk chunk=entry.getValue();if(chunk.getMesh()==null||!Float.isFinite(chunk.waterHeight())||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             water.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));chunk.getMesh().render();
         }
+        world.renderReplayWater(frustum,water);
         glActiveTexture(GL_TEXTURE0);
     }
     @Override public void close(){water.close();capture.close();sceneCapture.close();sky.close();glDeleteFramebuffers(fbo);glDeleteTextures(color);glDeleteRenderbuffers(depth);glDeleteVertexArrays(vao);}

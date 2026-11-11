@@ -23,7 +23,7 @@ final class RegionReplayModelDraws {
         if(source.geometry().size()!=256)throw new IllegalArgumentException("Replay model batch resolution");
         // Persistent root capture prevents a mutable caller wrapper changing the scan.
         source=new RegionReplayChunk.Snapshot(source.region(),source.geometry().copy().freeze(),source.terrainRevision(),
-                source.editedCells(),source.stagedCellLeaves(),source.mesh(),source.modelDraws());
+                source.editedCells(),source.stagedCellLeaves(),source.mesh(),source.modelDraws(),null,source.waterHeight());
         var counts=new LinkedHashMap<Integer,Integer>();
         for(int key=0;key<4096;key++) {
             StructurePackage.cancelled(cancel);int id=type(source,key);if(!Blocks.isModel(id))continue;
@@ -58,6 +58,6 @@ final class RegionReplayModelDraws {
         }
         StructurePackage.cancelled(cancel);
         return new RegionReplayChunk.Snapshot(source.region(),source.geometry(),source.terrainRevision(),source.editedCells(),
-                source.stagedCellLeaves(),source.mesh(),new Draws(List.copyOf(batches),weighted));
+                source.stagedCellLeaves(),source.mesh(),new Draws(List.copyOf(batches),weighted),null,source.waterHeight());
     }
 }

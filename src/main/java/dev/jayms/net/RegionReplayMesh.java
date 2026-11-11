@@ -48,7 +48,17 @@ final class RegionReplayMesh {
         // MeshData follows existing renderer ownership: CPU arrays are not
         // immutable. No World geometry or readiness is published by this value.
         return new RegionReplayChunk.Snapshot(source.region(),geometry,source.terrainRevision(),
-                source.editedCells(),source.stagedCellLeaves(),mesh,source.modelDraws());
+                source.editedCells(),source.stagedCellLeaves(),mesh,source.modelDraws(),null,waterHeight(mesh,cancel));
+    }
+    /** Same surface convention as Chunk.installMesh, computed on the worker. */
+    static float waterHeight(MeshData mesh,BooleanSupplier cancel) {
+        float height=Float.NaN;
+        if(mesh.surface()!=null)for(int i=0;i<mesh.vertices().length;i+=9) {
+            StructurePackage.cancelled(cancel);
+            if(mesh.surface()[i/3+2]==-2&&mesh.vertices()[i+4]>.5f)
+                height=Float.isNaN(height)?mesh.vertices()[i+1]:Math.max(height,mesh.vertices()[i+1]);
+        }
+        StructurePackage.cancelled(cancel);return height;
     }
     private static final class Input extends Chunk {
         private final SparseVoxelOctree root;private final SparseVoxelOctree[] neighbours;private final BooleanSupplier cancel;
