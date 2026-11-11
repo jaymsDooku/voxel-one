@@ -27,6 +27,9 @@ final class RegionReplayScene implements AutoCloseable {
                 catch(IOException failure){throw new IllegalStateException("Replay scene unavailable",failure);}
             }
             @Override public boolean ready(int x,int y,int z){return data(x,y,z)!=null;}
+            @Override public Map<ChunkPos,SparseVoxelOctree> lightingChunks(){
+                try{check();return pump.lightingChunks();}catch(IOException failure){throw new IllegalStateException("Replay lighting unavailable",failure);}
+            }
             @Override public long renderRevision(){try{check();return RegionReplayScene.this.renderRevision;}catch(IOException failure){throw new IllegalStateException("Replay scene unavailable",failure);}}
             @Override public int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){try{return draw(frustum,shader,models,false);}catch(IOException failure){throw new IllegalStateException("Replay scene draw unavailable",failure);}}
             @Override public World.ReplayWaterSurface nearestWater(float x,float y,float z){try{return water(x,y,z);}catch(IOException failure){throw new IllegalStateException("Replay water unavailable",failure);}}

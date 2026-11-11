@@ -365,6 +365,8 @@ public final class SparseVoxelOctree {
         } catch(IOException invalid){throw new IllegalStateException("Invalid internal packed octree",invalid);}
     }
 
+    /** Immutable publication state; reading does not freeze or copy the tree. */
+    public boolean isFrozen(){return frozen;}
     public SparseVoxelOctree freeze() {
         frozen = true;
         return this;

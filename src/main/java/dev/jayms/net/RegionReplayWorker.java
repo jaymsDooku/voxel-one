@@ -257,6 +257,9 @@ final class RegionReplayWorker implements AutoCloseable {
                         return ready.get(ChunkPos.fromBlock(x,y,z));
                     }
                     @Override public boolean ready(int x,int y,int z){return find(x,y,z)!=null;}
+                    @Override public Map<ChunkPos,dev.jayms.net.model.SparseVoxelOctree> lightingChunks(){
+                        try{return ChunkPump.this.lightingChunks();}catch(IOException failure){throw new IllegalStateException("Replay lighting unavailable",failure);}
+                    }
                     @Override public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z) {
                         var chunk=find(x,y,z);
                         if(chunk==null)throw new World.UnloadedReplayCellException(x,y,z);
@@ -302,6 +305,11 @@ final class RegionReplayWorker implements AutoCloseable {
                         requestsIssued=true;pending.put(region,request);
                     }
                 }catch(IOException failure){cancelPending();ready.clear();readyRequests.clear();throw failure;}
+            }
+            Map<ChunkPos,dev.jayms.net.model.SparseVoxelOctree> lightingChunks()throws IOException {
+                check();var snapshots=new LinkedHashMap<ChunkPos,dev.jayms.net.model.SparseVoxelOctree>();
+                for(var entry:ready.entrySet())snapshots.put(entry.getKey(),entry.getValue().geometry());
+                return Collections.unmodifiableMap(snapshots);
             }
             RegionReplayChunk.Snapshot result(ChunkPos region)throws IOException {check();return ready.get(region);}
             Request request(ChunkPos region)throws IOException {check();return readyRequests.get(region);}

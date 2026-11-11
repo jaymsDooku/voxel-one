@@ -117,6 +117,8 @@ public class World implements AutoCloseable {
         /** Data-only views never grant collision/ray mesh readiness. */
         default boolean meshReady(int x,int y,int z){return false;}
         default long renderRevision(){return 0;}
+        /** Complete CPU chunk roots only. Empty means unknown, never empty terrain. */
+        default Map<ChunkPos,SparseVoxelOctree> lightingChunks(){return Map.of();}
         default ReplayWaterSurface nearestWater(float x,float y,float z){return null;}
         default int renderWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){return 0;}
         /** Scene-owned draw path. Never transfers mutable GPU handles. */
@@ -141,6 +143,22 @@ public class World implements AutoCloseable {
         replayReadView=view;
     }
     public boolean replayDataReady(int x,int y,int z){return replayReadView==null||replayReadView.ready(x,y,z);}
+    /** Owner-side lighting snapshot. Null selects the ordinary resident path;
+     * an empty map is incomplete replay coverage. No mutable Chunk is exposed. */
+    public Map<ChunkPos,SparseVoxelOctree> replayLightingChunks() {
+        if(closed)throw new IllegalStateException("World closed");
+        if(replayReadView==null)return null;
+        var supplied=Objects.requireNonNull(replayReadView.lightingChunks());
+        if(supplied.size()>288)throw new IllegalStateException("Replay lighting snapshot budget");
+        var snapshot=new LinkedHashMap<ChunkPos,SparseVoxelOctree>();int visited=0;
+        for(var entry:supplied.entrySet()) {
+            if(visited++>=288)throw new IllegalStateException("Replay lighting snapshot budget");
+            var key=Objects.requireNonNull(entry.getKey());var tree=Objects.requireNonNull(entry.getValue());
+            if(tree.size()!=256||!tree.isFrozen())throw new IllegalStateException("Replay lighting requires frozen complete chunk roots");
+            snapshot.put(key,tree);
+        }
+        return Collections.unmodifiableMap(snapshot);
+    }
     /** Ordinary replay meshes use chunk-local vertices; model offsets are also chunk-local. */
     public int renderReplayGeometry(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,false);}
     public int renderReplayModels(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,true);}

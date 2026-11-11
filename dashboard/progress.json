@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T12:59:13+00:00",
+  "updatedAt": "2026-11-11T13:24:28+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Production lit planar bindings/draw/state checks passed on software GL. Reflected geometry stays dark without admitted near-lighting coverage; complete lit appearance and large-world qualification remain pending.",
-      "updatedAt": "2026-11-11T12:59:13+00:00"
+      "note": "Added bounded frozen replay-to-lighting snapshots. Unknown geometry never falls back to terrain; replay lighting admission still requires sky integration. 84 tests and native bridge/regression checks passed. Full qualification remains pending.",
+      "updatedAt": "2026-11-11T13:24:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
