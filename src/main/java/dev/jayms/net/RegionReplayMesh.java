@@ -27,7 +27,7 @@ final class RegionReplayMesh {
         // MeshData follows existing renderer ownership: CPU arrays are not
         // immutable. No World geometry or readiness is published by this value.
         return new RegionReplayChunk.Snapshot(source.region(),geometry,source.terrainRevision(),
-                source.editedCells(),source.stagedCellLeaves(),mesh);
+                source.editedCells(),source.stagedCellLeaves(),mesh,source.modelDraws());
     }
     private static final class Input extends Chunk {
         private final SparseVoxelOctree root;private final BooleanSupplier cancel;

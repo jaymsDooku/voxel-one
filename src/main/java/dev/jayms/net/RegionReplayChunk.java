@@ -14,7 +14,10 @@ import java.util.function.IntConsumer;
 final class RegionReplayChunk {
     static final int MAX_CELL_LEAVES=131_072;
     record Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,
-                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh) {
+                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws) {
+        Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh) {
+            this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,mesh,null);
+        }
         Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves) {
             this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,null);
         }

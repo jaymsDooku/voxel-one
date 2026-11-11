@@ -512,6 +512,9 @@ final class RegionReplayWorker implements AutoCloseable {
                     else page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
                             ()->stopping.get()||request.cancelled());
                     if(chunk!=null) {
+                        var sourceMetadata=source.metadata();
+                        chunk=RegionReplayModelDraws.prepare(chunk,sourceMetadata==null?type->null:sourceMetadata::sourceDefinition,
+                                ()->stopping.get()||request.cancelled());
                         chunk=RegionReplayMesh.prepare(chunk,()->stopping.get()||request.cancelled());
                         if(source.terrain().geometryRevision()!=chunk.terrainRevision())throw new IOException("Replay source terrain changed");
                     }
