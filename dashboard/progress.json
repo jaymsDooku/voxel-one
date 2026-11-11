@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T04:49:33+00:00",
+  "updatedAt": "2026-11-11T05:13:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fresh native Main/GLFW structure workflow passed on current source, including four rotations/cancellation/restart/editor/inventory. F10 clip fully decoded and captures inspected. Software HUD0\u20131FPS is functional evidence only; city/GPU/network gates remain pending.",
-      "updatedAt": "2026-11-11T04:49:33+00:00"
+      "note": "Exact native-evidence head has four successful platform builds. Adding private readback save snapshots with worker staging and owner/World/model/survival revalidation. Main blocking-I/O, cross-process/sidecar and city qualification gates remain pending.",
+      "updatedAt": "2026-11-11T05:13:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -60,6 +60,7 @@ public final class LocalGame {
             sourceModels=header.models();models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
         }
         String fingerprint(){return fingerprint;}
+        WorldSavePublication.Generation generation(){return generation;}
         dev.jayms.net.model.ModelDefinition sourceDefinition(int type) {
             var entry=sourceModels.get(type);return entry==null?null:entry.definition();
         }
