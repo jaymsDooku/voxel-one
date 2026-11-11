@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T13:59:49+00:00",
+  "updatedAt": "2026-11-11T14:01:37+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4129,11 +4129,31 @@
           "kind": "image",
           "label": "vps health dashboard fixture phone 20261110.png",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-dashboard-fixture-phone-20261110.png"
+        },
+        {
+          "kind": "link",
+          "label": "Open VPS Health",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health/"
+        },
+        {
+          "kind": "link",
+          "label": "Independent review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/85"
+        },
+        {
+          "kind": "link",
+          "label": "Passed CI",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42907226158"
+        },
+        {
+          "kind": "report",
+          "label": "vps health dashboard verification 20261110.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-health-dashboard-verification-20261110.json"
         }
       ],
-      "status": "in_progress",
-      "note": "Final source corrects severity colours, readable time/GiB axes, repeated hold reasons and primary-card clutter. Independent clean-copy history/build and Chromium/WebKit actual-data rendering checks pass; full hosted CI and final independent review remain pending. Screenshots are labelled synthetic fixtures.",
-      "updatedAt": "2026-11-10T21:47:18+00:00"
+      "status": "complete",
+      "note": "Independently reviewed, merged and deployed. Verified 96 real disk readings on the live backend, unchanged worker controls and cleanup safeguards, and passing full CI plus desktop/phone Chromium/WebKit checks.",
+      "updatedAt": "2026-11-11T14:01:37+00:00"
     },
     {
       "id": "saas-research-design-mockups-20261110",
