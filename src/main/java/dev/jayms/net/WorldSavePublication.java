@@ -1,6 +1,8 @@
 package dev.jayms.net;
 
 import java.io.*;
+import java.nio.channels.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.security.*;
@@ -9,8 +11,9 @@ import java.util.function.BooleanSupplier;
 import dev.jayms.net.structure.StructurePackage;
 
 /** Save publication policy. Structure transactions require atomic replacement.
- * Generation guards serialize cooperating publishers in this JVM only. Foreign
- * processes, path aliases and world/sidecar transactions need separate fencing. */
+ * Generation guards serialize cooperating publishers using the same normalized
+ * path in this JVM and across processes. Aliases, noncooperating writers and
+ * world/sidecar transactions still need separate fencing. */
 final class WorldSavePublication {
     private WorldSavePublication() {}
     private static final int STRIPES=64;
@@ -20,8 +23,30 @@ final class WorldSavePublication {
     static {for(int i=0;i<STRIPES;i++)LOCKS[i]=new Stripe();}
     private static Path normalized(Path target){return target.toAbsolutePath().normalize();}
     private static Stripe stripe(Path target){return LOCKS[Math.floorMod(target.hashCode(),STRIPES)];}
+    /** Stable sidecar inode: never delete it on release. A bounded hashed name
+     * also supports long save filenames without extending their component. */
+    static Path lockPath(Path target)throws IOException {
+        var path=normalized(target);if(path.getFileName()==null)throw new IOException("Save publication target required");
+        try{return path.resolveSibling(".voxel-publication-"+HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(path.getFileName().toString().getBytes(StandardCharsets.UTF_8)))+".lock");}
+        catch(NoSuchAlgorithmException failure){throw new IOException("SHA-256 unavailable",failure);}
+    }
+    private record Lease(FileChannel channel,FileLock held) implements AutoCloseable {
+        @Override public void close()throws IOException{try{held.release();}finally{channel.close();}}
+    }
+    private static Lease lease(Path target)throws IOException {
+        Path file=lockPath(target);
+        try{if(!Files.readAttributes(file,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).isRegularFile())throw new IOException("Save publication lock type");}
+        catch(NoSuchFileException absent){}
+        var channel=FileChannel.open(file,StandardOpenOption.CREATE,StandardOpenOption.WRITE,LinkOption.NOFOLLOW_LINKS);
+        try {
+            if(!Files.readAttributes(file,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).isRegularFile())throw new IOException("Save publication lock type");
+            FileLock held;
+            try{held=channel.tryLock();}catch(OverlappingFileLockException busy){throw new IOException("Save publication busy",busy);}
+            if(held==null)throw new IOException("Save publication busy");return new Lease(channel,held);
+        }catch(IOException|RuntimeException|Error failure){try{channel.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+    }
     /** A stripe collision can conservatively invalidate an unrelated target.
-     * Hashes describe observed bytes; external writers are not excluded. */
+     * Hashes describe observed bytes; noncooperating writers are not excluded. */
     static final class Generation {
         private final Path target;private final long revision,maxBytes;private final FileState file;
         private Generation(Path target,long revision,long maxBytes,FileState file){this.target=target;this.revision=revision;this.maxBytes=maxBytes;this.file=file;}
@@ -31,10 +56,10 @@ final class WorldSavePublication {
     static Generation capture(Path target,long maxBytes,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);if(maxBytes<0||maxBytes>MAX_GENERATION_BYTES)throw new IllegalArgumentException("Save generation byte budget");
         StructurePackage.cancelled(cancel);Path path=normalized(target);var lock=stripe(path);
-        synchronized(lock){return new Generation(path,lock.revision,maxBytes,observe(path,maxBytes,cancel));}
+        synchronized(lock){try(var ignored=lease(path)){return new Generation(path,lock.revision,maxBytes,observe(path,maxBytes,cancel));}}
     }
     /** Bind a decoded source digest to the observed destination generation.
-     * A later guarded commit still needs owner/source fences and is JVM-only. */
+     * A later guarded commit still needs owner/source fences; the lease does not span decode/staging. */
     static Generation captureMatching(Path target,String expectedDigest,long maxBytes,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(expectedDigest);
         if(!expectedDigest.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Save source digest");
@@ -69,18 +94,18 @@ final class WorldSavePublication {
     }
     static void replace(Path source, Path target, boolean requireAtomic, Move move) throws IOException {
         var path=normalized(target);var lock=stripe(path);
-        synchronized(lock){move(source,target,requireAtomic,move);lock.revision++;}
+        synchronized(lock){try(var ignored=lease(path)){move(source,target,requireAtomic,move);lock.revision++;}}
     }
     /** Atomic replace only if no cooperating publication or observed destination
      * change followed capture. Performs file I/O; use on a worker, not a frame. */
     static void replaceIfUnchanged(Path source,Path target,Generation expected,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(expected);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
         var path=normalized(target);if(!path.equals(expected.target))throw new IOException("Save generation target mismatch");var lock=stripe(path);
-        synchronized(lock) {
+        synchronized(lock) {try(var ignored=lease(path)) {
             if(lock.revision!=expected.revision)throw new IOException("Save publication generation changed");
             if(!observe(path,expected.maxBytes,cancel).equals(expected.file))throw new IOException("Save destination changed");
             StructurePackage.cancelled(cancel);move(source,target,true,Files::move);lock.revision++;
-        }
+        }}
     }
     private static void move(Path source,Path target,boolean requireAtomic,Move move)throws IOException {
         try {
