@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T08:21:33+00:00",
+  "updatedAt": "2026-11-11T08:49:57+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Combined ordinary/model GPU ownership passed real GL draw/readback, transfer-cut cancellation, staleness, owner and empty-resource checks; 72 regressions passed. Fresh framebuffer/report await runner publication. Main/World publication, city/max and required physical qualification remain pending.",
-      "updatedAt": "2026-11-11T08:21:33+00:00"
+      "note": "Private replay scene now gates mesh readiness on complete GPU publication. 73 scoped tests and real GLFW publication/ray/eviction/cleanup checks passed on llvmpipe; fresh media saved. Main integration and city/physical-GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-11-11T08:49:57+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
