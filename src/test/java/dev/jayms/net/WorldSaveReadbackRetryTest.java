@@ -12,17 +12,26 @@ public class WorldSaveReadbackRetryTest {
  @TempDir Path folder;
  @Test void heldLeaseRetriesReadbackButPublicationStaysFailBusy()throws Exception {
   var fixture=new ReadbackMetadataTest();fixture.folder=Files.createDirectory(folder.resolve("readback"));Path target=fixture.fixture(),source=folder.resolve("same.tmp");byte[] original=Files.readAllBytes(target);Files.write(source,original);
-  var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var pool=Executors.newSingleThreadExecutor();RegionReplayWorker worker=null;
+  var entered=new CountDownLatch(1);var release=new CountDownLatch(1);var inputClosed=new CountDownLatch(1);var pool=Executors.newSingleThreadExecutor();RegionReplayWorker worker=null;
   try {
    var writer=pool.submit(()->{WorldSavePublication.replace(source,target,true,(a,b,options)->{
     entered.countDown();try{if(!release.await(5,TimeUnit.SECONDS))throw new IOException("Synthetic release deadline");}catch(InterruptedException interrupted){Thread.currentThread().interrupt();throw new IOException(interrupted);}Files.move(a,b,options);
    });return null;});assertTrue(entered.await(5,TimeUnit.SECONDS));
-   worker=fixture.worker(target);var observed=worker;
-   RegionReplayWorkerTest.await(()->observed.status().sourceRows()>0);
+   Path spool=fixture.spool();
+   worker=new RegionReplayWorker(spool,(cancel,progress)->LocalGame.openRegionalReadback(target,spool,ReadbackMetadataTest.REV,cancel,progress,path->new FilterInputStream(Files.newInputStream(path)) {
+    @Override public void close()throws IOException {super.close();inputClosed.countDown();}
+   }),2,1,56,2);
+   assertTrue(inputClosed.await(5,TimeUnit.SECONDS),"Decoded source must close before admission waits");
    assertThrows(WorldSavePublication.BusyException.class,()->WorldSavePublication.capture(target,512*1024*1024L,()->false));
    release.countDown();writer.get(5,TimeUnit.SECONDS);ReadbackMetadataTest.ready(worker);
    var local=worker.metadataResult(ReadbackMetadataTest.REV);assertFalse(local.replayComplete());assertEquals(17,local.health);assertArrayEquals(original,Files.readAllBytes(target));
   }finally{release.countDown();if(worker!=null)RegionReplayWorkerTest.closed(worker);pool.shutdownNow();assertTrue(pool.awaitTermination(5,TimeUnit.SECONDS));fixture.noSpools();}
+ }
+ @Test void failedInputCloseRejectsAdmissionAndCleansSpool()throws Exception {
+  var fixture=new ReadbackMetadataTest();fixture.folder=Files.createDirectory(folder.resolve("close-failure"));Path target=fixture.fixture(),spool=fixture.spool();byte[] before=Files.readAllBytes(target);var failure=new IOException("Synthetic input close denied");
+  assertSame(failure,assertThrows(IOException.class,()->LocalGame.openRegionalReadback(target,spool,ReadbackMetadataTest.REV,()->false,n->{},path->new FilterInputStream(Files.newInputStream(path)) {
+   @Override public void close()throws IOException {super.close();throw failure;}
+  })));assertArrayEquals(before,Files.readAllBytes(target));fixture.noSpools();
  }
  @Test void busyRetryCancelsAndTimesOutWithoutMutation()throws Exception {
   Path target=folder.resolve("held.dat"),source=folder.resolve("held.tmp");Files.writeString(target,"original");Files.writeString(source,"staged");
