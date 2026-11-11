@@ -158,7 +158,13 @@ public final class LocalGame {
      * this still does not exclude foreign writers or path aliases. */
     static RegionReplayWorker.Source openRegionalReadback(Path save,Path directory,RegionReplayWorker.Revision revision,
             BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        return openRegionalReadback(save,directory,revision,cancel,progress,Files::newInputStream);
+    }
+    @FunctionalInterface interface ReadbackInput {InputStream open(Path path)throws IOException;}
+    static RegionReplayWorker.Source openRegionalReadback(Path save,Path directory,RegionReplayWorker.Revision revision,
+            BooleanSupplier cancel,IntConsumer progress,ReadbackInput input)throws IOException {
         Objects.requireNonNull(save);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
+        Objects.requireNonNull(input);
         Objects.requireNonNull(cancel);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
         var initial=Files.readAttributes(save,java.nio.file.attribute.BasicFileAttributes.class);
         if(!initial.isRegularFile())throw new IOException("Regional readback requires a regular file");
@@ -166,25 +172,31 @@ public final class LocalGame {
         try{digest=java.security.MessageDigest.getInstance("SHA-256");}
         catch(java.security.NoSuchAlgorithmException error){throw new IOException("SHA-256 unavailable",error);}
         RegionReplaySpool spool=null;
-        try(var in=new DataInputStream(new BufferedInputStream(new java.security.DigestInputStream(
-                new LoadInput(Files.newInputStream(save),cancel),digest),64*1024))) {
-            var header=readHeader(in,cancel);
-            if(header.version()!=10)throw new IOException("Regional readback requires version 10");
-            var definitions=header.models();
-            for(int slot=0;slot<Inventory.SIZE;slot++) {
-                StructurePackage.cancelled(cancel);
-                if(!definitions.has(header.inventory().type(slot)))throw new IOException("Missing saved inventory model");
+        try {
+            Header header;LoadedDrops loaded;String fingerprint;java.util.function.Predicate<Protocol.Edit> allowed;
+            try(var in=new DataInputStream(new BufferedInputStream(new java.security.DigestInputStream(
+                    new LoadInput(input.open(save),cancel),digest),64*1024))) {
+                header=readHeader(in,cancel);
+                if(header.version()!=10)throw new IOException("Regional readback requires version 10");
+                var definitions=header.models();
+                for(int slot=0;slot<Inventory.SIZE;slot++) {
+                    StructurePackage.cancelled(cancel);
+                    if(!definitions.has(header.inventory().type(slot)))throw new IOException("Missing saved inventory model");
+                }
+                allowed=edit->definitions.has(edit.type());
+                spool=RegionReplaySpool.stage(directory,in,allowed,cancel,RegionReplaySpool.MAX_BYTES,progress);
+                loaded=readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
+                var current=Files.readAttributes(save,java.nio.file.attribute.BasicFileAttributes.class);
+                if(!current.isRegularFile()||initial.size()!=current.size()
+                        ||!initial.lastModifiedTime().equals(current.lastModifiedTime())
+                        ||!initial.creationTime().equals(current.creationTime())
+                        ||!Objects.equals(initial.fileKey(),current.fileKey()))
+                    throw new IOException("Saved world changed during regional readback");
+                fingerprint=HexFormat.of().formatHex(digest.digest());
             }
-            java.util.function.Predicate<Protocol.Edit> allowed=edit->definitions.has(edit.type());
-            spool=RegionReplaySpool.stage(directory,in,allowed,cancel,RegionReplaySpool.MAX_BYTES,progress);
-            var loaded=readRegionalTail(in,cancel,definitions::has);StructurePackage.cancelled(cancel);
-            var current=Files.readAttributes(save,java.nio.file.attribute.BasicFileAttributes.class);
-            if(!current.isRegularFile()||initial.size()!=current.size()
-                    ||!initial.lastModifiedTime().equals(current.lastModifiedTime())
-                    ||!initial.creationTime().equals(current.creationTime())
-                    ||!Objects.equals(initial.fileKey(),current.fileKey()))
-                throw new IOException("Saved world changed during regional readback");
-            String fingerprint=HexFormat.of().formatHex(digest.digest());
+            // Release the world handle before waiting for publication admission.
+            // Windows replacement can reject an open reader; the spool and
+            // digest retain the decoded snapshot for the final generation check.
             var generation=WorldSavePublication.captureMatchingReadback(save,fingerprint,WorldSavePublication.MAX_GENERATION_BYTES,cancel);
             var metadata=new ReadbackMetadata(save,header,loaded,fingerprint,generation);StructurePackage.cancelled(cancel);
             return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,fingerprint,metadata);
