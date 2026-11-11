@@ -105,8 +105,20 @@ final class StagedOfflineSave implements AutoCloseable {
         }catch(IOException|RuntimeException|Error failure){try{staged.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     void publish(Inventory inventory,int health,Iterable<ItemDrop> drops,int dropCount)throws IOException {
+        publishTail(inventory,health,drops,dropCount,null,()->false);
+    }
+    /** Worker-side guarded publication for cooperating JVM writers. Does not
+     * fence foreign writers or atomically commit separate city sidecars. */
+    void publish(Inventory inventory,int health,Iterable<ItemDrop> drops,int dropCount,
+            WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(cancel);
+        publishTail(inventory,health,drops,dropCount,expected,cancel);
+    }
+    private void publishTail(Inventory inventory,int health,Iterable<ItemDrop> drops,int dropCount,
+            WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
         if(closed)throw new IOException("Staged offline save closed");
         try {
+            StructurePackage.cancelled(cancel);
             var bytes=new ByteArrayOutputStream();var survival=new DataOutputStream(bytes);
             inventory.write(survival);survival.writeByte(health);survival.flush();
             // Version 8/9/10 inventory has exactly 36 two-byte slots followed by health.
@@ -116,9 +128,12 @@ final class StagedOfflineSave implements AutoCloseable {
                 while(patch.hasRemaining())channel.write(patch);
                 channel.position(channel.size());
                 var out=new DataOutputStream(new BufferedOutputStream(java.nio.channels.Channels.newOutputStream(channel),64*1024));
-                out.writeInt(dropCount);for(var drop:drops)drop.write(out);out.flush();channel.force(true);
+                out.writeInt(dropCount);for(var drop:drops){StructurePackage.cancelled(cancel);drop.write(out);}out.flush();StructurePackage.cancelled(cancel);channel.force(true);
             }
-            WorldSavePublication.replace(temp,target,true);closed=true;
+            StructurePackage.cancelled(cancel);
+            if(expected==null)WorldSavePublication.replace(temp,target,true);
+            else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel);
+            closed=true;
         }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     /** Below buffering: cancellation also interrupts model bytes before history starts. */
