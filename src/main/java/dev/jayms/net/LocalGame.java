@@ -185,7 +185,7 @@ public final class LocalGame {
                     ||!Objects.equals(initial.fileKey(),current.fileKey()))
                 throw new IOException("Saved world changed during regional readback");
             String fingerprint=HexFormat.of().formatHex(digest.digest());
-            var generation=WorldSavePublication.captureMatching(save,fingerprint,WorldSavePublication.MAX_GENERATION_BYTES,cancel);
+            var generation=WorldSavePublication.captureMatchingReadback(save,fingerprint,WorldSavePublication.MAX_GENERATION_BYTES,cancel);
             var metadata=new ReadbackMetadata(save,header,loaded,fingerprint,generation);StructurePackage.cancelled(cancel);
             return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,fingerprint,metadata);
         }catch(IOException|RuntimeException|Error failure) {
