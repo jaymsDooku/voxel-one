@@ -28,6 +28,7 @@ public final class Mesh implements AutoCloseable {
     public static long drawCalls(){return drawCalls;}public static long triangles(){return triangles;}
     public static long estimatedResidentBytes(){return residentBytes;}
     private int instances;
+    private int preparedInstances=-1;
     private FloatBuffer instanceData;
 
     public Mesh(MeshData meshData) {
@@ -112,6 +113,49 @@ public final class Mesh implements AutoCloseable {
         public void close(){if(closed)return;closed=true;MemoryUtil.memFree(scratch);if(!taken)mesh.close();}
     }
 
+    /** Owner GL staging for a new mesh only. Positions are local xyz triples;
+     * at most one chunk (4096 instances). Closing frees scratch; Mesh owns GL. */
+    public static final class InstanceUpload implements AutoCloseable {
+        private final Mesh mesh;private final float[] positions;
+        private java.nio.ByteBuffer scratch;private int offset;private boolean closed,finished;
+        public InstanceUpload(Mesh mesh,float[] positions) {
+            java.util.Objects.requireNonNull(mesh);java.util.Objects.requireNonNull(positions);
+            if(mesh.closed||mesh.instances!=0||positions.length%3!=0||positions.length>4096*3)throw new IllegalArgumentException("Prepared instance budget/state");
+            for(float value:positions)if(!Float.isFinite(value))throw new IllegalArgumentException("Invalid instance position");
+            this.mesh=mesh;this.positions=positions;
+            if(positions.length==0)return;
+            scratch=MemoryUtil.memAlloc(48*1024);
+            try {
+                mesh.instances=glGenBuffers();glBindVertexArray(mesh.vao);glBindBuffer(GL_ARRAY_BUFFER,mesh.instances);
+                glBufferData(GL_ARRAY_BUFFER,(long)positions.length*4,GL_STATIC_DRAW);
+                glVertexAttribPointer(3,3,GL_FLOAT,false,12,0);glEnableVertexAttribArray(3);org.lwjgl.opengl.GL33.glVertexAttribDivisor(3,1);glBindVertexArray(0);
+                if(org.lwjgl.opengl.GL11.glGetError()!=org.lwjgl.opengl.GL11.GL_NO_ERROR)throw new IllegalStateException("Instance allocation failed");
+                mesh.instanceBytes=(long)positions.length*4;residentBytes+=mesh.instanceBytes;
+            }catch(RuntimeException|Error failure){MemoryUtil.memFree(scratch);scratch=null;if(mesh.instances!=0)glDeleteBuffers(mesh.instances);mesh.instances=0;throw failure;}
+        }
+        public int pump(int byteBudget,long deadline) {
+            if(closed||mesh.closed)throw new IllegalStateException("Instance upload closed");
+            if(byteBudget<0)throw new IllegalArgumentException("Instance byte budget");int written=0;
+            while(offset<positions.length&&written+4<=byteBudget&&System.nanoTime()<deadline) {
+                int count=Math.min(Math.min(scratch.capacity()/4,(byteBudget-written)/4),positions.length-offset);
+                scratch.clear();scratch.asFloatBuffer().put(positions,offset,count);scratch.limit(count*4);
+                glBindBuffer(GL_COPY_WRITE_BUFFER,mesh.instances);glBufferSubData(GL_COPY_WRITE_BUFFER,(long)offset*4,scratch);offset+=count;written+=count*4;
+            }
+            glBindBuffer(GL_COPY_WRITE_BUFFER,0);
+            if(org.lwjgl.opengl.GL11.glGetError()!=org.lwjgl.opengl.GL11.GL_NO_ERROR)throw new IllegalStateException("Instance upload failed");return written;
+        }
+        public boolean ready(){return offset==positions.length;}
+        public void finish(){if(closed||mesh.closed||!ready())throw new IllegalStateException("Instance upload incomplete");mesh.preparedInstances=positions.length/3;finished=true;}
+        @Override public void close(){if(closed)return;closed=true;if(scratch!=null)MemoryUtil.memFree(scratch);if(!finished)mesh.preparedInstances=-1;}
+    }
+    /** Uses only a completed staged instance buffer; performs no stream upload. */
+    public void renderPreparedInstances() {
+        if(closed||preparedInstances<0)throw new IllegalStateException("Prepared instances unavailable");
+        if(preparedInstances==0)return;drawCalls++;triangles+=(long)indexCount/3*preparedInstances;
+        glBindVertexArray(vao);if(surfaceBuffer==0)org.lwjgl.opengl.GL20.glVertexAttrib3f(4,0,.85f,-1);
+        org.lwjgl.opengl.GL31.glDrawElementsInstanced(GL_TRIANGLES,indexCount,GL_UNSIGNED_INT,0L,preparedInstances);glBindVertexArray(0);
+    }
+
     private void uploadVertices(float[] vertices) {
         FloatBuffer buffer = MemoryUtil.memAllocFloat(vertices.length);
 
@@ -160,6 +204,7 @@ public final class Mesh implements AutoCloseable {
     }
 
     public void renderInstanced(float[] positions) {
+        preparedInstances=-1;
         if (positions.length == 0) return;
         drawCalls++;triangles+=(long)indexCount/3*(positions.length/3);
         residentBytes+=(long)positions.length*4-instanceBytes;instanceBytes=(long)positions.length*4;
@@ -186,6 +231,7 @@ public final class Mesh implements AutoCloseable {
 
     /** Packed center, scale and color triples; one bounded streaming buffer for music boxes. */
     public void renderColoredBoxes(float[] boxes,int count) {
+        preparedInstances=-1;
         if(count==0)return;
         drawCalls++;triangles+=(long)indexCount/3*count;
         glBindVertexArray(vao);
