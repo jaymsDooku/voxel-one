@@ -14,7 +14,11 @@ import java.util.function.IntConsumer;
 final class RegionReplayChunk {
     static final int MAX_CELL_LEAVES=131_072;
     record Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,
-                    int editedCells,int stagedCellLeaves) {}
+                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh) {
+        Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves) {
+            this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,null);
+        }
+    }
     private RegionReplayChunk() {}
 
     /** At most one 4097-row cell page plus one detached 256-cubed root is
