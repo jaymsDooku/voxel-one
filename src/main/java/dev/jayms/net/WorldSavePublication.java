@@ -25,6 +25,7 @@ final class WorldSavePublication {
     static final class Generation {
         private final Path target;private final long revision,maxBytes;private final FileState file;
         private Generation(Path target,long revision,long maxBytes,FileState file){this.target=target;this.revision=revision;this.maxBytes=maxBytes;this.file=file;}
+        Path target(){return target;}
     }
     private record FileState(boolean exists,long size,Object key,Object modified,Object created,String digest) {}
     static Generation capture(Path target,long maxBytes,BooleanSupplier cancel)throws IOException {
