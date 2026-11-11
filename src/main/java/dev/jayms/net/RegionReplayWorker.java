@@ -43,6 +43,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private final int maxRows;
         private final Revision revision;
         private final World.ReplayFence fence;
+        private final World.ReplayMeshFence meshFence;
         private final Binding binding;
         // -1 selects the existing page path. Chunk requests share its queue,
         // cancellation state and single active worker slot.
@@ -61,6 +62,7 @@ final class RegionReplayWorker implements AutoCloseable {
             this.neighbourRegions=neighbours;
             this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;this.binding=binding;
             this.maxCellLeaves=maxCellLeaves;
+            this.meshFence=maxCellLeaves>=0&&fence!=null?fence.captureMeshDependencies(region):null;
         }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
@@ -101,7 +103,7 @@ final class RegionReplayWorker implements AutoCloseable {
             validateWorld(world);var page=extract(current);validateWorld(world);return page;
         }
         private void validateWorld(World world)throws IOException {
-            try{fence.validate(world);}
+            try{fence.validate(world);if(meshFence!=null)meshFence.validate(world);}
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
