@@ -21,7 +21,12 @@ class RegionReplaySceneTest {
    assertEquals(1,scene.status().data().ready());assertTrue(c.world.replayDataReady(0,160,0));
    assertEquals(Blocks.STONE,c.world.sample(0,160,0));assertFalse(c.world.isLoaded(0,160,0));
    assertTrue(c.world.getLoadedChunks().isEmpty());assertFalse(c.world.nearbyReady(0,160,1));
-   assertEquals(0,scene.status().gpuEntries());assertThrows(IOException.class,c.local::save);
+   assertEquals(0,scene.status().gpuEntries());assertNull(scene.status().uploading());
+   assertEquals(0,scene.pumpGpu(0,System.nanoTime()+1000000,()->false));
+   assertEquals(0,scene.pumpGpu(64,System.nanoTime()-1,()->false));
+   assertThrows(IllegalArgumentException.class,()->scene.pumpGpu(262145,Long.MAX_VALUE,()->false));
+   assertThrows(java.util.concurrent.CancellationException.class,()->scene.pumpGpu(64,Long.MAX_VALUE,()->true));
+   assertNull(scene.status().uploading());assertThrows(IOException.class,c.local::save);
    var error=new AtomicReference<Throwable>();var thread=new Thread(()->{try{scene.close();}catch(Throwable failure){error.set(failure);}});
    thread.start();thread.join(5000);assertFalse(thread.isAlive());assertInstanceOf(IOException.class,error.get());
    assertTrue(c.world.replayDataReady(0,160,0));scene.desired(List.of());
