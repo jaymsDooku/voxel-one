@@ -8,6 +8,8 @@ import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntConsumer;
+import java.util.function.Predicate;
+import java.util.Objects;
 
 /** Worker-written immutable prefix; patch only the fixed survival slot at publication. */
 final class StagedOfflineSave implements AutoCloseable {
@@ -27,6 +29,41 @@ final class StagedOfflineSave implements AutoCloseable {
     }
     private static StagedOfflineSave stage(Path target,long seed,int generator,ModelLibrary models,
             WorldVoxels.History edits,BooleanSupplier cancel,IntConsumer progress,boolean regional)throws IOException {
+        return stagePrefix(target,seed,generator,models,cancel,progress,regional,out->{
+            if(regional)RegionReplay.write(out,edits,cancel,progress);
+            else {
+                out.writeInt(edits.size());int count=0;
+                for(var edit:edits.values()){if((count++&1023)==0){StructurePackage.cancelled(cancel);progress.accept((int)(100L*count/Math.max(1,edits.size())));}edit.write(out);}
+            }
+        });
+    }
+    /** Worker-owned unchanged-source staging. Preserves global section/row order
+     * without materializing History. Not partial-world save authority or CAS. */
+    static StagedOfflineSave stageRegions(Path target,long seed,int generator,ModelLibrary models,
+            RegionReplaySpool source,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        int total=source.size();
+        return stagePrefix(target,seed,generator,models,cancel,progress,true,out->{
+            StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);
+            out.writeInt(total);int[] count={0};
+            var bytes=new ByteArrayOutputStream(RegionReplay.MAX_BODY);var body=new DataOutputStream(bytes);
+            source.visit(allowed,cancel,(region,section)->{
+                bytes.reset();
+                for(var edit:section) {
+                    StructurePackage.cancelled(cancel);
+                    if(count[0]>=total)throw new IOException("Replay source row count changed");
+                    edit.write(body);count[0]++;
+                    if((count[0]&127)==0||count[0]==total){progress.accept((int)(100L*count[0]/Math.max(1,total)));StructurePackage.cancelled(cancel);}
+                }
+                RegionReplay.writeSection(out,region,section.size(),bytes);
+            });
+            if(count[0]!=total)throw new IOException("Incomplete replay source");
+            StructurePackage.cancelled(cancel);
+        });
+    }
+    @FunctionalInterface private interface ReplayWriter {void write(DataOutputStream out)throws IOException;}
+    private static StagedOfflineSave stagePrefix(Path target,long seed,int generator,ModelLibrary models,
+            BooleanSupplier cancel,IntConsumer progress,boolean regional,ReplayWriter replay)throws IOException {
         Path absolute=target.toAbsolutePath();Files.createDirectories(absolute.getParent());
         var staged=new StagedOfflineSave(absolute,Files.createTempFile(absolute.getParent(),".structure-offline-",".tmp"));
         staged.regional=regional;
@@ -37,12 +74,7 @@ final class StagedOfflineSave implements AutoCloseable {
                 if(regional||models.hasStructureModels())models.writeAll(out);else models.write(out);
                 staged.survivalOffset=out.size();
                 new Inventory().write(out);out.writeByte(20);
-                if(regional)RegionReplay.write(out,edits,cancel,progress);
-                else {
-                    out.writeInt(edits.size());int count=0;
-                    for(var edit:edits.values()){if((count++&1023)==0){StructurePackage.cancelled(cancel);progress.accept((int)(100L*count/Math.max(1,edits.size())));}edit.write(out);}
-                }
-                StructurePackage.cancelled(cancel);
+                replay.write(out);StructurePackage.cancelled(cancel);
             }
             progress.accept(100);return staged;
         }catch(IOException|RuntimeException|Error failure){try{staged.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
