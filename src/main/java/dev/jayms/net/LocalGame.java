@@ -45,14 +45,20 @@ public final class LocalGame {
         private final int generator,health,nextDrop;
         private final String fingerprint;
         private ModelLibrary models;
+        // Original parsed maps stay worker-private; transfer uses the separate
+        // copy above. The row policy already retains these same definitions.
+        private final ModelLibrary sourceModels;
         private Inventory inventory;
         private Map<Integer,ItemDrop> drops;
         private boolean transferred;
         private ReadbackMetadata(Path save,Header header,LoadedDrops loaded,String fingerprint) {
             this.save=save;seed=header.seed();generator=header.generator();health=header.health();nextDrop=loaded.nextDrop();this.fingerprint=fingerprint;
-            models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
+            sourceModels=header.models();models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
         }
         String fingerprint(){return fingerprint;}
+        dev.jayms.net.model.ModelDefinition sourceDefinition(int type) {
+            var entry=sourceModels.get(type);return entry==null?null:entry.definition();
+        }
         boolean matchesTerrain(Terrain terrain){return terrain.seed==seed&&terrain.version==generator&&terrain.stressGrid()==null&&terrain.geometryRevision()==0;}
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
