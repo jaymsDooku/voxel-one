@@ -308,12 +308,49 @@ public class World implements AutoCloseable {
         private final ModelLibrary library=models();
         private final long definitions=library.revision();
         private ReplayFence(){validate(World.this);}
+        /** Capture only resident mesh dependencies on this owner. Source
+         * generation, CPU result coverage and installation authority stay separate. */
+        public ReplayMeshFence captureMeshDependencies(ChunkPos center) {
+            validate(World.this);return new ReplayMeshFence(this,Objects.requireNonNull(center));
+        }
         public void validate(World current) {
             if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay fence requires owner thread");
             if(current!=World.this||closed||replayReadView!=view||editsVersion!=edits||geometryEpoch!=geometry
                     ||terrain()!=land||land.geometryRevision()!=generation||(generation&1)!=0
                     ||models()!=library||library.revision()!=definitions)
                 throw new ConcurrentModificationException("World changed during replay readback");
+        }
+    }
+    /** Constant-size owner receipt for a center and its six face neighbors.
+     * Tracks absence, exact Chunk identity, geometry and mesh invalidation.
+     * Never copies geometry, reads a worker result, uploads GL or grants readiness. */
+    public final class ReplayMeshFence {
+        private final ReplayFence baseline;
+        private final ChunkPos[] positions=new ChunkPos[7];
+        private final Chunk[] chunks=new Chunk[7];
+        private final long[] geometry=new long[7],meshes=new long[7],attachments=new long[7];
+        private ReplayMeshFence(ReplayFence baseline,ChunkPos center) {
+            this.baseline=baseline;positions[0]=center;int index=1;
+            for(var face:Face.values()) {
+                long x=(long)center.chunkX()+face.dx(),y=(long)center.chunkY()+face.dy(),z=(long)center.chunkZ()+face.dz();
+                if(x<Integer.MIN_VALUE||x>Integer.MAX_VALUE||y<Integer.MIN_VALUE||y>Integer.MAX_VALUE||z<Integer.MIN_VALUE||z>Integer.MAX_VALUE)
+                    throw new IllegalArgumentException("Replay mesh dependency coordinate overflow");
+                positions[index++]=new ChunkPos((int)x,(int)y,(int)z);
+            }
+            for(int i=0;i<7;i++) {
+                var chunk=loadedChunks.get(positions[i]);chunks[i]=chunk;
+                if(chunk!=null){geometry[i]=chunk.geometryVersion();meshes[i]=chunk.meshRevision();attachments[i]=chunk.attachmentRevision();}
+            }
+            validate(World.this);
+        }
+        public void validate(World current) {
+            baseline.validate(current);
+            for(int i=0;i<7;i++) {
+                var chunk=loadedChunks.get(positions[i]);
+                if(chunk!=chunks[i]||chunk!=null&&(chunk.geometryVersion()!=geometry[i]||chunk.meshRevision()!=meshes[i]||chunk.attachmentRevision()!=attachments[i]))
+                    throw new ConcurrentModificationException("Replay resident mesh dependencies changed");
+            }
+            baseline.validate(current);
         }
     }
     public final class StructureSnapshotPlan {

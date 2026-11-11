@@ -17,13 +17,15 @@ public class Chunk implements AutoCloseable {
     private boolean dirty = true;
     private int fractionalCells;
     public boolean hasFractional(){return fractionalCells!=0;}
-    private long geometryVersion, meshRevision;
+    private long geometryVersion, meshRevision, attachmentRevision;
     // Only deterministic generation plus authoritative replay may retain this flag.
     boolean terrainEquivalent;long terrainSeed;int terrainVersion;Object terrainGrid;ChunkPos terrainPosition;
     boolean matchesTerrain(dev.jayms.net.Terrain terrain,ChunkPos position){return position.equals(terrainPosition)&&terrainSeed==terrain.seed&&terrainVersion==terrain.version&&terrainGrid==terrain.stressGrid();}
     private long notifiedGeometryVersion=Long.MIN_VALUE;
     boolean takeGeometryChange(){if(notifiedGeometryVersion==geometryVersion)return false;notifiedGeometryVersion=geometryVersion;return true;}
     public long meshRevision(){return meshRevision;}
+    /** Owner-side identity epoch; detects detach/re-attach of this same wrapper. */
+    public long attachmentRevision(){return attachmentRevision;}
     /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
     public long geometryVersion(){return geometryVersion;}
 
@@ -38,6 +40,7 @@ public class Chunk implements AutoCloseable {
     private ChunkPos position;
 
     public void attach(World world, ChunkPos position) {
+        attachmentRevision++;
         this.world = world;
         this.position = position;
         notifiedGeometryVersion=Long.MIN_VALUE;
