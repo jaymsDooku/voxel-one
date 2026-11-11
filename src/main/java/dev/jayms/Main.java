@@ -1393,6 +1393,7 @@ public class Main {
             Chunk c = entry.getValue();
             rendering.chunk(c, p);
         }
+        rendering.replay(world,frustum,shader);
         modelRenderer.render(world, frustum, shader);
         if (jeep != null) jeepModel.render(jeep, shader);
         for (var parked : cheatParked) jeepModel.render(parked, shader);

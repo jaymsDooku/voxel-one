@@ -58,7 +58,7 @@ public class World implements AutoCloseable {
     /** Owner-thread dependency journal. Null means the bounded history was overtaken. */
     public ChunkPos skyChange(long revision){return revision<=0||revision>skyStamp||revision<=skyStamp-SKY_CHANGE_CAPACITY?null:skyChanges[(int)(revision&(SKY_CHANGE_CAPACITY-1))];}
     /** Membership and installed-mesh changes, owned by the frame thread. */
-    public long sceneRevision(){return sceneRevision;}
+    public long sceneRevision(){return sceneRevision+(replayReadView==null?0:replayReadView.renderRevision());}
     public long skyStamp(){return skyStamp;}
     /** Noncanonical geometry changes; natural chunk residency does not alter its sky paths. */
     public long skyGeometryRevision(){return geometryEpoch;}
@@ -115,6 +115,9 @@ public class World implements AutoCloseable {
         boolean ready(int x,int y,int z);
         /** Data-only views never grant collision/ray mesh readiness. */
         default boolean meshReady(int x,int y,int z){return false;}
+        default long renderRevision(){return 0;}
+        /** Scene-owned draw path. Never transfers mutable GPU handles. */
+        default int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){return 0;}
         SparseVoxelOctree cell(int x,int y,int z);
         @Override void close();
     }
@@ -133,6 +136,14 @@ public class World implements AutoCloseable {
         replayReadView=view;
     }
     public boolean replayDataReady(int x,int y,int z){return replayReadView==null||replayReadView.ready(x,y,z);}
+    /** Ordinary replay meshes use chunk-local vertices; model offsets are also chunk-local. */
+    public int renderReplayGeometry(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,false);}
+    public int renderReplayModels(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,true);}
+    private int renderReplay(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){
+        Objects.requireNonNull(frustum);Objects.requireNonNull(shader);
+        if(closed)throw new IllegalStateException("World closed");
+        return replayReadView==null?0:replayReadView.render(frustum,shader,models);
+    }
 
     private long editsVersion;
     private final ModelLibrary models;
