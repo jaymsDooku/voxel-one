@@ -32,6 +32,15 @@ final class WorldSavePublication {
         StructurePackage.cancelled(cancel);Path path=normalized(target);var lock=stripe(path);
         synchronized(lock){return new Generation(path,lock.revision,maxBytes,observe(path,maxBytes,cancel));}
     }
+    /** Bind a decoded source digest to the observed destination generation.
+     * A later guarded commit still needs owner/source fences and is JVM-only. */
+    static Generation captureMatching(Path target,String expectedDigest,long maxBytes,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(expectedDigest);
+        if(!expectedDigest.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Save source digest");
+        var generation=capture(target,maxBytes,cancel);
+        if(!generation.file.exists()||!expectedDigest.equals(generation.file.digest()))throw new IOException("Save source digest changed");
+        return generation;
+    }
     private static FileState observe(Path path,long maxBytes,BooleanSupplier cancel)throws IOException {
         StructurePackage.cancelled(cancel);BasicFileAttributes before;
         try{before=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);}

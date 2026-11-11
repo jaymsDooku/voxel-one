@@ -29,6 +29,8 @@ public final class LocalGame {
     private final Path save;
     private final boolean replayComplete;
     private final String readbackFingerprint;
+    private final WorldSavePublication.Generation readbackGeneration;
+    WorldSavePublication.Generation readbackGeneration(){return readbackGeneration;}
     public boolean replayComplete(){return replayComplete;}
     public String readbackFingerprint(){return readbackFingerprint;}
     private void requireReplay()throws IOException {
@@ -44,6 +46,7 @@ public final class LocalGame {
         private final long seed;
         private final int generator,health,nextDrop;
         private final String fingerprint;
+        private final WorldSavePublication.Generation generation;
         private ModelLibrary models;
         // Original parsed maps stay worker-private; transfer uses the separate
         // copy above. The row policy already retains these same definitions.
@@ -51,7 +54,8 @@ public final class LocalGame {
         private Inventory inventory;
         private Map<Integer,ItemDrop> drops;
         private boolean transferred;
-        private ReadbackMetadata(Path save,Header header,LoadedDrops loaded,String fingerprint) {
+        private ReadbackMetadata(Path save,Header header,LoadedDrops loaded,String fingerprint,WorldSavePublication.Generation generation) {
+            this.generation=generation;
             this.save=save;seed=header.seed();generator=header.generator();health=header.health();nextDrop=loaded.nextDrop();this.fingerprint=fingerprint;
             sourceModels=header.models();models=header.models().copy();inventory=header.inventory().copy();drops=new LinkedHashMap<>(loaded.drops());
         }
@@ -69,7 +73,7 @@ public final class LocalGame {
     private LocalGame(ReadbackMetadata metadata) {
         save=metadata.save;seed=metadata.seed;generatorVersion=metadata.generator;health=metadata.health;nextDrop=metadata.nextDrop;
         models=metadata.models;inventory=metadata.inventory;drops=metadata.drops;
-        edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;
+        edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;readbackGeneration=metadata.generation;
     }
 
     public LocalGame(Path save, long requestedSeed) throws IOException {
@@ -80,7 +84,7 @@ public final class LocalGame {
      * writes the source or publishes partially decoded state. */
     public LocalGame(Path save,long requestedSeed,BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(save);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
-        drops=new LinkedHashMap<>();replayComplete=true;readbackFingerprint="";
+        drops=new LinkedHashMap<>();replayComplete=true;readbackFingerprint="";readbackGeneration=null;
         StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);
         this.save = save;
         long worldSeed = requestedSeed;
@@ -148,7 +152,9 @@ public final class LocalGame {
      * path or authority; callers still need real installation revision fences.
      * Attribute checks reject observed file changes. They are not a lock or an
      * immutable-generation guarantee (timestamps/file keys may be unavailable,
-     * coarse, restored or change again after the final check). */
+     * coarse, restored or change again after the final check). A second bounded
+     * hash binds the decoded bytes to a cooperating-JVM destination generation;
+     * this still does not exclude foreign writers or path aliases. */
     static RegionReplayWorker.Source openRegionalReadback(Path save,Path directory,RegionReplayWorker.Revision revision,
             BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(save);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
@@ -178,7 +184,8 @@ public final class LocalGame {
                     ||!Objects.equals(initial.fileKey(),current.fileKey()))
                 throw new IOException("Saved world changed during regional readback");
             String fingerprint=HexFormat.of().formatHex(digest.digest());
-            var metadata=new ReadbackMetadata(save,header,loaded,fingerprint);StructurePackage.cancelled(cancel);
+            var generation=WorldSavePublication.captureMatching(save,fingerprint,WorldSavePublication.MAX_GENERATION_BYTES,cancel);
+            var metadata=new ReadbackMetadata(save,header,loaded,fingerprint,generation);StructurePackage.cancelled(cancel);
             return new RegionReplayWorker.Source(spool,new Terrain(header.seed(),header.generator()),allowed,revision,fingerprint,metadata);
         }catch(IOException|RuntimeException|Error failure) {
             if(spool!=null)try{spool.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
