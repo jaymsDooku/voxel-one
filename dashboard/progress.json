@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T03:01:34+00:00",
+  "updatedAt": "2026-11-11T03:22:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Exact read-view source has four successful hosted platform builds. Adding bounded staged v10 save output directly from validated replay spool, preserving source order without resident history. Partial save authority and city qualification stay gated.",
-      "updatedAt": "2026-11-11T03:01:34+00:00"
+      "note": "Exact streamed-source-save head has four successful hosted platform builds. Adding immutable bounded ordered overlays to streamed v10 staging; existing combined persistence cap and all live/CAS/city qualification gates remain unchanged.",
+      "updatedAt": "2026-11-11T03:22:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

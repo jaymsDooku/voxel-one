@@ -41,8 +41,17 @@ final class StagedOfflineSave implements AutoCloseable {
      * without materializing History. Not partial-world save authority or CAS. */
     static StagedOfflineSave stageRegions(Path target,long seed,int generator,ModelLibrary models,
             RegionReplaySpool source,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,IntConsumer progress)throws IOException {
-        Objects.requireNonNull(source);Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
-        int total=source.size();
+        return stageRegions(target,seed,generator,models,source,RegionReplayOverlay.empty(),allowed,cancel,progress);
+    }
+    /** Append an immutable bounded overlay after the complete base, keeping all
+     * original source and overlay replay order. This does not compact history. */
+    static StagedOfflineSave stageRegions(Path target,long seed,int generator,ModelLibrary models,
+            RegionReplaySpool source,RegionReplayOverlay overlay,Predicate<Protocol.Edit> allowed,
+            BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(overlay);Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        int baseRows=source.size();long combined=(long)baseRows+overlay.rows().size();
+        if(combined>LocalGame.MAX_SAVED_EDITS)throw new IOException("World edit persistence limit");
+        int total=(int)combined;
         return stagePrefix(target,seed,generator,models,cancel,progress,true,out->{
             StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);
             out.writeInt(total);int[] count={0};
@@ -51,15 +60,31 @@ final class StagedOfflineSave implements AutoCloseable {
                 bytes.reset();
                 for(var edit:section) {
                     StructurePackage.cancelled(cancel);
-                    if(count[0]>=total)throw new IOException("Replay source row count changed");
+                    if(count[0]>=baseRows)throw new IOException("Replay source row count changed");
                     edit.write(body);count[0]++;
-                    if((count[0]&127)==0||count[0]==total){progress.accept((int)(100L*count[0]/Math.max(1,total)));StructurePackage.cancelled(cancel);}
+                    replayProgress(count[0],total,cancel,progress);
                 }
                 RegionReplay.writeSection(out,region,section.size(),bytes);
             });
-            if(count[0]!=total)throw new IOException("Incomplete replay source");
+            if(count[0]!=baseRows)throw new IOException("Incomplete replay source");
+            bytes.reset();dev.jayms.ChunkPos region=null;int sectionCount=0;
+            for(var edit:overlay.rows()) {
+                StructurePackage.cancelled(cancel);
+                if(!allowed.test(edit))throw new IOException("Replay overlay policy rejected");
+                var position=dev.jayms.ChunkPos.fromBlock(edit.x(),edit.y(),edit.z());
+                if(sectionCount>0&&(!position.equals(region)||sectionCount==RegionReplay.MAX_RECORDS)) {
+                    RegionReplay.writeSection(out,region,sectionCount,bytes);bytes.reset();sectionCount=0;
+                }
+                region=position;edit.write(body);sectionCount++;count[0]++;
+                replayProgress(count[0],total,cancel,progress);
+            }
+            if(sectionCount>0)RegionReplay.writeSection(out,region,sectionCount,bytes);
+            if(count[0]!=total)throw new IOException("Incomplete replay overlay");
             StructurePackage.cancelled(cancel);
         });
+    }
+    private static void replayProgress(int count,int total,BooleanSupplier cancel,IntConsumer progress) {
+        if((count&127)==0||count==total){progress.accept((int)(100L*count/Math.max(1,total)));StructurePackage.cancelled(cancel);}
     }
     @FunctionalInterface private interface ReplayWriter {void write(DataOutputStream out)throws IOException;}
     private static StagedOfflineSave stagePrefix(Path target,long seed,int generator,ModelLibrary models,
