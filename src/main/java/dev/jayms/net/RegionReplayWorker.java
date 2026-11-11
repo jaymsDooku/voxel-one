@@ -162,6 +162,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private final World target;
         private World.ReplayFence baseline;
         private ReadView view;
+        private ChunkPump chunkPump;
         private boolean requestsIssued;
         private final Revision revision=sourceRevision;
         private final String identity=fingerprint;
@@ -171,6 +172,7 @@ final class RegionReplayWorker implements AutoCloseable {
             owner();
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay binding no longer active");
             if(view!=null&&view.closed)throw new IOException("Replay read view closed");
+            if(chunkPump!=null&&chunkPump.closed)throw new IOException("Replay chunk pump closed");
             if(targetBinding!=this||transferredMetadata!=local||local.replayComplete()
                     ||local.models!=transferredModels||transferredModels.revision()!=transferredModelsRevision
                     ||!identity.equals(fingerprint)||!identity.equals(local.readbackFingerprint()))
@@ -190,6 +192,75 @@ final class RegionReplayWorker implements AutoCloseable {
             validate(current);Objects.requireNonNull(request);
             if(request.binding!=this)throw new IOException("Replay request belongs to another binding");
             var chunk=request.checkedWorldChunkResult(revision,current);validate(current);return chunk;
+        }
+        record ChunkPumpStatus(int desired,int pending,int ready,int failed,int stagedCells,boolean backpressure,boolean closed) {}
+        ChunkPump openChunkPump(World current,int capacity,int maxCellLeaves)throws IOException {
+            validate(current);
+            if(chunkPump!=null||view!=null||requestsIssued)throw new IOException("Replay chunk pump must open before requests or read view");
+            if(capacity<1||capacity>2||maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
+                throw new IllegalArgumentException("Replay chunk pump budget");
+            chunkPump=new ChunkPump(capacity,maxCellLeaves);return chunkPump;
+        }
+        /** Bounded owner ticks over detached CPU results only. Ready here never
+         * means installed, mesh-ready, saveable or interactive world coverage. */
+        final class ChunkPump implements AutoCloseable {
+            private final int capacity,maxCellLeaves;
+            private Set<ChunkPos> desired=new LinkedHashSet<>();
+            private final Map<ChunkPos,Request> pending=new LinkedHashMap<>();
+            private final Map<ChunkPos,RegionReplayChunk.Snapshot> ready=new LinkedHashMap<>();
+            private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
+            private boolean closed,backpressure;
+            private ChunkPump(int capacity,int maxCellLeaves){this.capacity=capacity;this.maxCellLeaves=maxCellLeaves;}
+            private void cancelPending(){for(var request:pending.values())request.cancel();pending.clear();}
+            private void check()throws IOException {
+                owner();if(closed)throw new IOException("Replay chunk pump closed");
+                try{validate(target);}catch(IOException failure){cancelPending();ready.clear();failures.clear();throw failure;}
+            }
+            void desired(List<ChunkPos> regions)throws IOException {
+                check();Objects.requireNonNull(regions);
+                int count=regions.size();
+                if(count<0||count>capacity)throw new IllegalArgumentException("Replay desired-chunk budget");
+                var next=new LinkedHashSet<ChunkPos>();
+                for(int i=0;i<count;i++)next.add(Objects.requireNonNull(regions.get(i)));
+                if(regions.size()!=count)throw new ConcurrentModificationException("Replay desired chunks changed");
+                for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
+                    var entry=iterator.next();if(!next.contains(entry.getKey())){entry.getValue().cancel();iterator.remove();}
+                }
+                ready.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
+            }
+            void retry(ChunkPos region)throws IOException {
+                check();if(!desired.contains(region))throw new IllegalArgumentException("Replay chunk not desired");failures.remove(region);
+            }
+            void tick()throws IOException {
+                check();backpressure=false;
+                try {
+                    for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
+                        var entry=iterator.next();var progress=entry.getValue().outcome();
+                        switch(progress.phase()) {
+                            case READY->{ready.put(entry.getKey(),chunkResult(entry.getValue(),target));iterator.remove();}
+                            case FAILED->{failures.put(entry.getKey(),progress.failure());iterator.remove();}
+                            case CANCELLED->{failures.put(entry.getKey(),new IOException("Replay chunk cancelled"));iterator.remove();}
+                            default->{} // Observe once; never wait for worker completion.
+                        }
+                    }
+                    for(var region:desired) {
+                        if(ready.containsKey(region)||pending.containsKey(region)||failures.containsKey(region))continue;
+                        var request=enqueueChunk(region,maxCellLeaves,revision,target.beginReplayFence(),Binding.this,false);
+                        if(request==null){backpressure=true;break;}
+                        requestsIssued=true;pending.put(region,request);
+                    }
+                }catch(IOException failure){cancelPending();ready.clear();throw failure;}
+            }
+            RegionReplayChunk.Snapshot result(ChunkPos region)throws IOException {check();return ready.get(region);}
+            IOException failure(ChunkPos region)throws IOException {check();return failures.get(region);}
+            ChunkPumpStatus status()throws IOException {
+                owner();if(closed)return new ChunkPumpStatus(0,0,0,0,0,false,true);
+                check();int staged=4096*ready.size();for(var request:pending.values())staged+=request.completedCells();
+                return new ChunkPumpStatus(desired.size(),pending.size(),ready.size(),failures.size(),staged,backpressure,false);
+            }
+            @Override public void close()throws IOException {
+                owner();if(closed)return;cancelPending();desired.clear();ready.clear();failures.clear();backpressure=false;closed=true;
+            }
         }
         private Request trySubmit(Window window)throws IOException {
             validate(target);
@@ -294,7 +365,7 @@ final class RegionReplayWorker implements AutoCloseable {
          * from live geometry, history, mesh readiness and save authority. */
         ReadView openReadView(World current,int maxWindows)throws IOException {
             validate(current);
-            if(view!=null||requestsIssued)throw new IOException("Replay view must open before requests");
+            if(view!=null||chunkPump!=null||requestsIssued)throw new IOException("Replay view must open before requests");
             var candidate=new ReadView(maxWindows);
             try {
                 current.attachReplayReadView(candidate);view=candidate;baseline=current.beginReplayFence();return candidate;
@@ -385,12 +456,15 @@ final class RegionReplayWorker implements AutoCloseable {
         return enqueueChunk(region,maxCellLeaves,revision,world.beginReplayFence(),null);
     }
     private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
+        return enqueueChunk(region,maxCellLeaves,revision,fence,binding,true);
+    }
+    private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding,boolean rejectFull)throws IOException {
         owner();Objects.requireNonNull(region);Objects.requireNonNull(revision);
         if(maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
             throw new IllegalArgumentException("Replay worker chunk geometry budget");
         synchronized(gate) {
             if(stopping.get())throw new IOException("Replay worker not accepting requests");
-            if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+            if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
             var request=new Request(region,null,0,revision,fence,binding,maxCellLeaves);
             queue.addLast(request);gate.notifyAll();return request;
         }
@@ -478,6 +552,7 @@ final class RegionReplayWorker implements AutoCloseable {
      * close retries failed cleanup on that same worker. Poll status for receipt. */
     @Override public void close()throws IOException {
         owner();if(targetBinding!=null&&targetBinding.view!=null)targetBinding.view.close();
+        if(targetBinding!=null&&targetBinding.chunkPump!=null)targetBinding.chunkPump.close();
         transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {
             if(status.state()==State.CLOSED||status.state()==State.FAILED)return;
             stopping.set(true);if(status.state()==State.CLEANUP_FAILED)retryCleanup=true;
