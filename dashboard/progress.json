@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T11:05:24+00:00",
+  "updatedAt": "2026-11-11T11:32:27+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Persistent save epochs reject stale cross-process publication, including identical bytes. 85 tests and focused native CLI/GL checks passed. City/max and required physical-GPU/32-client qualification remain pending.",
-      "updatedAt": "2026-11-11T11:05:24+00:00"
+      "note": "Busy JVM save stripes now reject for retry without monitor waits. 87 tests and native CLI/GL checks passed. City/max support and physical-GPU/32-client qualification remain unfinished.",
+      "updatedAt": "2026-11-11T11:32:27+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
