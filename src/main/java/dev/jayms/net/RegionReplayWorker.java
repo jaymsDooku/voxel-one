@@ -34,7 +34,9 @@ final class RegionReplayWorker implements AutoCloseable {
     enum Phase {QUEUED,LOADING,READY,CANCELLED,FAILED}
     record Status(State state,int sourceRows,IOException failure) {}
     record Progress(Phase phase,IOException failure) {}
-    private record Outcome(Phase phase,RegionReplayPage page,IOException failure) {}
+    private record Outcome(Phase phase,RegionReplayPage page,RegionReplayChunk.Snapshot chunk,IOException failure) {
+        Outcome(Phase phase,RegionReplayPage page,IOException failure){this(phase,page,null,failure);}
+    }
     final class Request {
         private final ChunkPos region;
         private final RegionReplayPage.CellRange range;
@@ -42,10 +44,17 @@ final class RegionReplayWorker implements AutoCloseable {
         private final Revision revision;
         private final World.ReplayFence fence;
         private final Binding binding;
+        // -1 selects the existing page path. Chunk requests share its queue,
+        // cancellation state and single active worker slot.
+        private final int maxCellLeaves;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding) {
+            this(region,range,maxRows,revision,fence,binding,-1);
+        }
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves) {
             this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;this.binding=binding;
+            this.maxCellLeaves=maxCellLeaves;
         }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
@@ -87,13 +96,31 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
+            if(maxCellLeaves>=0)throw new IOException("Replay request contains chunk geometry");
+            return extractOutcome(current).page();
+        }
+        /** Detached CPU geometry only; never installs a chunk or declares it
+         * mesh/data ready. Bound requests must use their binding's extractor. */
+        RegionReplayChunk.Snapshot chunkResult(Revision current,World world)throws IOException {
+            owner();
+            if(binding!=null)throw new IOException("Replay request requires its source binding");
+            return checkedWorldChunkResult(current,world);
+        }
+        private RegionReplayChunk.Snapshot checkedWorldChunkResult(Revision current,World world)throws IOException {
+            owner();
+            if(maxCellLeaves<0)throw new IOException("Replay request contains a cell page");
+            if(fence==null)throw new IOException("Replay request has no world fence");
+            if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay worker no longer active");
+            validateWorld(world);var chunk=extractOutcome(current).chunk();validateWorld(world);return chunk;
+        }
+        private Outcome extractOutcome(Revision current)throws IOException {
             owner();Objects.requireNonNull(current);
             if(!revision.equals(current))throw new IOException("Replay request revision changed");
             var value=outcome.get();
             if(value.phase()==Phase.CANCELLED)throw new CancellationException("Replay request cancelled");
             if(value.phase()==Phase.FAILED)throw value.failure();
             if(value.phase()!=Phase.READY)throw new IllegalStateException("Replay request not complete");
-            return value.page();
+            return value;
         }
     }
     private static boolean terminal(Phase phase){return phase==Phase.READY||phase==Phase.CANCELLED||phase==Phase.FAILED;}
@@ -149,6 +176,16 @@ final class RegionReplayWorker implements AutoCloseable {
         }
         Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,World current)throws IOException {
             validate(current);var request=enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);requestsIssued=true;return request;
+        }
+        Request submitChunk(ChunkPos region,int maxCellLeaves,World current)throws IOException {
+            validate(current);
+            var request=enqueueChunk(region,maxCellLeaves,revision,current.beginReplayFence(),this);
+            requestsIssued=true;return request;
+        }
+        RegionReplayChunk.Snapshot chunkResult(Request request,World current)throws IOException {
+            validate(current);Objects.requireNonNull(request);
+            if(request.binding!=this)throw new IOException("Replay request belongs to another binding");
+            var chunk=request.checkedWorldChunkResult(revision,current);validate(current);return chunk;
         }
         private Request trySubmit(Window window)throws IOException {
             validate(target);
@@ -339,6 +376,21 @@ final class RegionReplayWorker implements AutoCloseable {
         owner();Objects.requireNonNull(world);
         return enqueue(region,range,maxRows,revision,world.beginReplayFence(),null);
     }
+    Request submitChunkFenced(ChunkPos region,int maxCellLeaves,Revision revision,World world)throws IOException {
+        owner();Objects.requireNonNull(world);
+        return enqueueChunk(region,maxCellLeaves,revision,world.beginReplayFence(),null);
+    }
+    private Request enqueueChunk(ChunkPos region,int maxCellLeaves,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
+        owner();Objects.requireNonNull(region);Objects.requireNonNull(revision);
+        if(maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
+            throw new IllegalArgumentException("Replay worker chunk geometry budget");
+        synchronized(gate) {
+            if(stopping.get())throw new IOException("Replay worker not accepting requests");
+            if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+            var request=new Request(region,null,0,revision,fence,binding,maxCellLeaves);
+            queue.addLast(request);gate.notifyAll();return request;
+        }
+    }
     private Request enqueue(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding)throws IOException {
         return enqueue(region,range,maxRows,revision,fence,binding,true);
     }
@@ -376,11 +428,14 @@ final class RegionReplayWorker implements AutoCloseable {
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
-                    var page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
+                    RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;
+                    if(request.maxCellLeaves>=0)chunk=RegionReplayChunk.load(cache,request.region,source.terrain(),request.maxCellLeaves,
+                            ()->stopping.get()||request.cancelled());
+                    else page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
                             ()->stopping.get()||request.cancelled());
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
-                    request.finish(new Outcome(Phase.READY,page,null));
+                    request.finish(new Outcome(Phase.READY,page,chunk,null));
                 }catch(CancellationException cancelled){request.cancel();}
                 catch(IOException|RuntimeException error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page request failed",error)));}
                 catch(Error error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page worker failed",error)));throw error;}
