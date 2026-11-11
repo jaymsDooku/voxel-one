@@ -6,6 +6,7 @@ import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.function.BooleanSupplier;
+import java.util.function.IntConsumer;
 
 /** Private worker-only CPU geometry assembly. Not mesh readiness, live world
  * installation, global replay order or save authority. Source/model generation
@@ -23,8 +24,14 @@ final class RegionReplayChunk {
      * objects are created. These are logical bounds, not measured heap/time. */
     static Snapshot load(RegionReplayCache cache,ChunkPos region,Terrain terrain,
             int maxCellLeaves,BooleanSupplier cancel)throws IOException {
+        return load(cache,region,terrain,maxCellLeaves,cancel,n->{});
+    }
+    /** Worker-local progress counts completely staged cells, including implicit
+     * terrain. Even 4096 is not a successful result until final checks pass. */
+    static Snapshot load(RegionReplayCache cache,ChunkPos region,Terrain terrain,
+            int maxCellLeaves,BooleanSupplier cancel,IntConsumer progress)throws IOException {
         Objects.requireNonNull(cache);Objects.requireNonNull(region);
-        Objects.requireNonNull(terrain);Objects.requireNonNull(cancel);
+        Objects.requireNonNull(terrain);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
         if(maxCellLeaves<0||maxCellLeaves>MAX_CELL_LEAVES)
             throw new IllegalArgumentException("Replay chunk geometry budget");
         long ox=16L*region.chunkX(),oy=16L*region.chunkY(),oz=16L*region.chunkZ();
@@ -35,6 +42,7 @@ final class RegionReplayChunk {
             throw new IOException("Replay chunk outside world");
         long revision=terrain.geometryRevision();
         if((revision&1)!=0)throw new IOException("Replay terrain changed");
+        StructurePackage.cancelled(cancel);progress.accept(0);
         var geometry=new SparseVoxelOctree(256);int edited=0,leaves=0;
         for(int key=0;key<4096;key++) {
             StructurePackage.cancelled(cancel);checkTerrain(terrain,revision);
@@ -52,6 +60,7 @@ final class RegionReplayChunk {
             if(count>maxCellLeaves-leaves)throw new IOException("Replay chunk geometry budget");
             leaves+=count;StructurePackage.cancelled(cancel);checkTerrain(terrain,revision);
             geometry.replaceRegion(x*16,y*16,z*16,cell);
+            progress.accept(key+1);
         }
         StructurePackage.cancelled(cancel);checkTerrain(terrain,revision);
         return new Snapshot(region,geometry.freeze(),revision,edited,leaves);

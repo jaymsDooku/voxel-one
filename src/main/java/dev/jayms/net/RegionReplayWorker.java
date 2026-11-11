@@ -48,6 +48,7 @@ final class RegionReplayWorker implements AutoCloseable {
         // cancellation state and single active worker slot.
         private final int maxCellLeaves;
         private final AtomicInteger checkedRows=new AtomicInteger();
+        private final AtomicInteger completedCells=new AtomicInteger();
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding) {
             this(region,range,maxRows,revision,fence,binding,-1);
@@ -58,6 +59,9 @@ final class RegionReplayWorker implements AutoCloseable {
         }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
+        /** Chunk assembly only: 0..4096, including implicit terrain. This
+         * diagnostic count never grants result, data or mesh readiness. */
+        int completedCells(){return completedCells.get();}
         boolean cancelled(){return outcome.get().phase()==Phase.CANCELLED;}
         /** Nonblocking; cancellation wins if it precedes terminal publication. */
         boolean cancel() {
@@ -430,7 +434,7 @@ final class RegionReplayWorker implements AutoCloseable {
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
                     RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;
                     if(request.maxCellLeaves>=0)chunk=RegionReplayChunk.load(cache,request.region,source.terrain(),request.maxCellLeaves,
-                            ()->stopping.get()||request.cancelled());
+                            ()->stopping.get()||request.cancelled(),request.completedCells::set);
                     else page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
                             ()->stopping.get()||request.cancelled());
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());
