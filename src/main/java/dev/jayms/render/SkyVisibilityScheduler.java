@@ -38,6 +38,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
         private record Tile(ChunkPos column,WorldSkyVisibility data) {}
         public boolean belongsTo(World world){return !tickets.isEmpty()&&tickets.get(0).owner()==world;}
         public boolean localReady(World world,float x,float z){
+            if(world.isClosed()||world.hasReplayReadView()||!belongsTo(world))return false;
             int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
             for(int a=-3;a<3;a++)for(int b=-3;b<3;b++){
                 var p=new ChunkPos(cx+a,0,cz+b);
@@ -60,7 +61,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
         }
         public boolean valid(World world){
         int trace=dev.jayms.OwnerTrace.begin("sky.validate");int checks=0;try{
-            if(world.isClosed()||checked!=world||models!=world.models().revision()||grid!=world.terrain().stressGrid())return false;
+            if(world.isClosed()||world.hasReplayReadView()||checked!=world||models!=world.models().revision()||grid!=world.terrain().stressGrid())return false;
             if(stamp==validationStamp(world)&&geometry==world.skyGeometryRevision())return true;
             long latest=world.skyStamp();
             if(latest-changesChecked>64||latest<changesChecked)return false;
@@ -76,12 +77,15 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
     }
     /** GI samples sky at y96; below-boundary natural tiles are not dependencies. */
     public static boolean ceilingReady(Prepared prepared,World world,float x,float z){
+        if(world.isClosed()||world.hasReplayReadView())return false;
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
         for(int a=-3;a<3;a++)for(int b=-3;b<3;b++)if(world.requiresSkyCeiling(cx+a,cz+b)){
             if(prepared==null)return false;var part=prepared.localParts.get(new ChunkPos(cx+a,0,cz+b));if(part==null||!part.valid(world))return false;
         }return true;
     }
+    private record ReplaySkyPending(World world,int x,int z) {}
     public static Object ceilingKey(Prepared prepared,World world,float x,float z){
+        if(world.hasReplayReadView())return new ReplaySkyPending(world,Math.floorDiv((int)Math.floor(x),16),Math.floorDiv((int)Math.floor(z),16));
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);var result=new ArrayList<Prepared.Tile>();
         for(int a=-3;a<3;a++)for(int b=-3;b<3;b++)if(world.requiresSkyCeiling(cx+a,cz+b)){
             var p=new ChunkPos(cx+a,0,cz+b);var part=prepared==null?null:prepared.localParts.get(p);result.add(new Prepared.Tile(p,part==null?null:part.data));
@@ -163,6 +167,8 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
         int batch=initial?BATCH*2:BATCH;
         long start=System.nanoTime(),deadline=start+Math.max(0,nanos);Prepared ready=null;nearChecks=scanChecks=0;packingChecks=0;workerNanos=finishedWorkerNanos.getAndSet(0);
         if(closed||world.isClosed())return null;
+        // No replay sky source is bound yet. Resident absence is not clear sky.
+        if(world.hasReplayReadView()){discard();return null;}
         try {
             if(packed!=null&&packed.isDone()) {
                 completed=packed.get();packed=null;boolean fenced=completed.hasPackingFence(world);validated=fenced?packingParts.size():0;
@@ -275,5 +281,6 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
             }
         }finally{OwnerTrace.end(trace,packingChecks-before);}
     }
-    @Override public void close(){closed=true;if(pending!=null)pending.cancel(true);if(packed!=null)packed.cancel(true);pending=null;packed=null;completed=null;capture=null;cache.clear();cacheOrder.clear();tickets.clear();inputs.clear();packingParts=null;packingIterator=null;lastProduced=null;models=null;modelWorld=null;scan=null;cleaning=null;bytes=0;dirty=false;}
+    @Override public void close(){closed=true;discard();}
+    private void discard(){if(pending!=null)pending.cancel(true);if(packed!=null)packed.cancel(true);pending=null;packed=null;completed=null;capture=null;cache.clear();cacheOrder.clear();tickets.clear();inputs.clear();packingParts=null;packingIterator=null;lastProduced=null;models=null;modelWorld=null;scan=null;cleaning=null;bytes=0;dirty=false;packingWorld=null;packingGrid=null;validationGrid=null;validated=0;packingInts=0;packingLimit=0;packingCurrent=false;submittedTruncated=false;}
 }
