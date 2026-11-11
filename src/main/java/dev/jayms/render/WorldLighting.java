@@ -42,18 +42,20 @@ public final class WorldLighting implements AutoCloseable {
         final World world;final int x,z;final long stamp,modelsRevision;
         final ModelLibrary models;final Object terrainGrid;
         final long[] geometry=new long[36];final boolean[] ceilings=new boolean[36];
+        final Map<ChunkPos,SparseVoxelOctree> replayChunks;
         SparseVoxelOctree[] chunks=new SparseVoxelOctree[288];
         SparseVoxelOctree[][] overrides=new SparseVoxelOctree[288][];
         int capturedCells,editing;
         int index;Iterator<World.EditedCell> cells=Collections.emptyIterator();
         Capture(World world,int x,int z) {
-            this.world=world;this.x=x;this.z=z;terrainGrid=world.terrain().stressGrid();
+            this.world=world;this.x=x;this.z=z;terrainGrid=world.terrain().stressGrid();replayChunks=world.replayLightingChunks();
             stamp=stamp(world,x,z);modelsRevision=world.models().revision();models=world.models().copy();
             for(int i=0;i<36;i++){int a=Math.floorDiv(x-48,16)+i%6,b=Math.floorDiv(z-48,16)+i/6;geometry[i]=world.geometryRevision(a,b);ceilings[i]=world.requiresSkyCeiling(a,b);}
         }
         static long stamp(World w,int x,int z){return w.localRevision(x-48,x+47,z-48,z+47);}
         boolean valid(World w,int x,int z){
             if(world!=w||w.isClosed()||terrainGrid!=w.terrain().stressGrid()||this.x!=x||this.z!=z||modelsRevision!=w.models().revision()||stamp!=stamp(w,x,z))return false;
+            if(!Objects.equals(replayChunks,w.replayLightingChunks()))return false;
             for(int i=0;i<36;i++)if(geometry[i]!=w.geometryRevision(Math.floorDiv(x-48,16)+i%6,Math.floorDiv(z-48,16)+i/6))return false;
             return true;
         }
@@ -72,8 +74,13 @@ public final class WorldLighting implements AutoCloseable {
                     overrides[editing][Math.floorMod(c.x(),16)+16*(Math.floorMod(c.y(),16)+16*Math.floorMod(c.z(),16))]=c.voxels();capturedCells++;continue;
                 }
                 if(index==288)return true;
-                int i=index++,cx=Math.floorDiv(x-48,16)+i%6,cy=-2+i/6%8,cz=Math.floorDiv(z-48,16)+i/48;
-                var p=new ChunkPos(cx,cy,cz);var chunk=world.getLoadedChunks().get(p);
+                int i=index,cx=Math.floorDiv(x-48,16)+i%6,cy=-2+i/6%8,cz=Math.floorDiv(z-48,16)+i/48;
+                var p=new ChunkPos(cx,cy,cz);
+                if(replayChunks!=null) {
+                    var known=replayChunks.get(p);if(known==null)return false;
+                    chunks[i]=known;index++;continue;
+                }
+                index++;var chunk=world.getLoadedChunks().get(p);
                 if(chunk!=null)chunks[i]=chunk.snapshot();else{editing=i;cells=world.editedCellsInChunk(p).iterator();}
             }
             return index==288&&!cells.hasNext();
@@ -150,6 +157,9 @@ public final class WorldLighting implements AutoCloseable {
             if(capture==null||!capture.valid(world,cx,cz)){if(capture!=null)captureRestarts++;capture=new Capture(world,cx,cz);}
             if(!capture.pump(deadline))return result;
             if(!capture.valid(world,cx,cz)){capture=null;return result;}
+            // Complete local geometry does not prove replay sky/ceiling coverage.
+            // Keep worker publication disabled until that separate source is bound.
+            if(capture.replayChunks!=null)return result;
             var prepared=capture;capture=null;submittedCapture=prepared;submitted++;
             submittedSky=globalSky;submittedSkyKey=globalSkyKey;submittedWorld=world;
             submittedAmbient = skyStrength;
