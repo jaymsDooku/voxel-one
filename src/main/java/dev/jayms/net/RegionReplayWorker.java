@@ -201,6 +201,17 @@ final class RegionReplayWorker implements AutoCloseable {
                 throw new IllegalArgumentException("Replay chunk pump budget");
             chunkPump=new ChunkPump(capacity,maxCellLeaves);return chunkPump;
         }
+        /** Attach complete chunk data to a private read-only World. This only
+         * grants data sampling; it never installs live chunks or GPU meshes. */
+        ChunkPump openChunkReadPump(World current,int capacity,int maxCellLeaves)throws IOException {
+            var pump=openChunkPump(current,capacity,maxCellLeaves);
+            try {
+                current.attachReplayReadView(pump.readView());
+                baseline=current.beginReplayFence();return pump;
+            }catch(IllegalStateException|ConcurrentModificationException failure) {
+                pump.close();throw new IOException("Replay chunk read view unavailable",failure);
+            }
+        }
         /** Bounded owner ticks over detached CPU results only. Ready here never
          * means installed, mesh-ready, saveable or interactive world coverage. */
         final class ChunkPump implements AutoCloseable {
@@ -215,6 +226,24 @@ final class RegionReplayWorker implements AutoCloseable {
             private void check()throws IOException {
                 owner();if(closed)throw new IOException("Replay chunk pump closed");
                 try{validate(target);}catch(IOException failure){cancelPending();ready.clear();failures.clear();throw failure;}
+            }
+            private World.ReplayReadView readView() {
+                return new World.ReplayReadView() {
+                    private RegionReplayChunk.Snapshot find(int x,int y,int z) {
+                        try{check();}catch(IOException failure){throw new IllegalStateException("Replay chunk read view unavailable",failure);}
+                        if(!new Protocol.Edit(x,y,z,0).valid())return null;
+                        return ready.get(ChunkPos.fromBlock(x,y,z));
+                    }
+                    @Override public boolean ready(int x,int y,int z){return find(x,y,z)!=null;}
+                    @Override public dev.jayms.net.model.SparseVoxelOctree cell(int x,int y,int z) {
+                        var chunk=find(x,y,z);
+                        if(chunk==null)throw new World.UnloadedReplayCellException(x,y,z);
+                        return chunk.geometry().region(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16).freeze();
+                    }
+                    @Override public void close() {
+                        try{ChunkPump.this.close();}catch(IOException failure){throw new IllegalStateException("Replay chunk read view owner required",failure);}
+                    }
+                };
             }
             void desired(List<ChunkPos> regions)throws IOException {
                 check();Objects.requireNonNull(regions);
