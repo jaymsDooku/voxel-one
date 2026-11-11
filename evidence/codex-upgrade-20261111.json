@@ -1,0 +1,27 @@
+{
+  "at": "2026-11-11T13:59:49.035357+00:00",
+  "previousVersion": "0.159.3",
+  "installedVersion": "0.167.1",
+  "method": "Existing standalone installation built-in codex update; official installer resolved latest stable version",
+  "verification": {
+    "version": "passed",
+    "login": "Logged in using ChatGPT",
+    "doctor": {
+      "passed": 19,
+      "failures": 0,
+      "notes": [
+        "Non-interactive terminal",
+        "Existing rollout/history warnings; no history deleted or migrated"
+      ]
+    },
+    "nativeWorkerProtocol": "passed",
+    "plannerSchema": "passed",
+    "isolatedThreadStart": "passed",
+    "modelTurnsStarted": 0,
+    "quotaRead": "passed",
+    "controllerService": "active",
+    "healthTimer": "active"
+  },
+  "preservation": "No auth, model, permissions, scheduling or worker-count changes. Existing standalone release retained. Running sessions can finish on their original binary.",
+  "documentation": "https://learn.chatgpt.com/docs/codex/cli"
+}
