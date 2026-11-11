@@ -14,7 +14,10 @@ import java.util.function.IntConsumer;
 final class RegionReplayChunk {
     static final int MAX_CELL_LEAVES=dev.jayms.Chunk.MAX_REPLAY_LEAVES;
     record Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,
-                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws,Detached detached) {
+                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws,Detached detached,float waterHeight) {
+        Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws,Detached detached) {
+            this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,mesh,modelDraws,detached,Float.NaN);
+        }
         Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws) {
             this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,mesh,modelDraws,null);
         }
@@ -38,7 +41,7 @@ final class RegionReplayChunk {
         Objects.requireNonNull(source);var geometry=source.geometry().copy().freeze();
         var chunk=dev.jayms.Chunk.prepareReplayGeometry(geometry,maxLeaves,cancel);
         var detached=new Detached(chunk,chunk.geometryVersion(),chunk.meshRevision(),chunk.attachmentRevision());detached.validate();
-        return new Snapshot(source.region(),geometry,source.terrainRevision(),source.editedCells(),source.stagedCellLeaves(),source.mesh(),source.modelDraws(),detached);
+        return new Snapshot(source.region(),geometry,source.terrainRevision(),source.editedCells(),source.stagedCellLeaves(),source.mesh(),source.modelDraws(),detached,source.waterHeight());
     }
     private RegionReplayChunk() {}
 

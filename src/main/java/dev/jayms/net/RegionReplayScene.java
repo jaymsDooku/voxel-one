@@ -26,7 +26,9 @@ final class RegionReplayScene implements AutoCloseable {
             }
             @Override public boolean ready(int x,int y,int z){return data(x,y,z)!=null;}
             @Override public long renderRevision(){try{check();return RegionReplayScene.this.renderRevision;}catch(IOException failure){throw new IllegalStateException("Replay scene unavailable",failure);}}
-            @Override public int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){try{return draw(frustum,shader,models);}catch(IOException failure){throw new IllegalStateException("Replay scene draw unavailable",failure);}}
+            @Override public int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){try{return draw(frustum,shader,models,false);}catch(IOException failure){throw new IllegalStateException("Replay scene draw unavailable",failure);}}
+            @Override public World.ReplayWaterSurface nearestWater(float x,float y,float z){try{return water(x,y,z);}catch(IOException failure){throw new IllegalStateException("Replay water unavailable",failure);}}
+            @Override public int renderWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){try{return draw(frustum,shader,false,true);}catch(IOException failure){throw new IllegalStateException("Replay water draw unavailable",failure);}}
             @Override public boolean meshReady(int x,int y,int z) {
                 if(data(x,y,z)==null)return false;
                 try{return resources(ChunkPos.fromBlock(x,y,z))!=null;}
@@ -72,13 +74,14 @@ final class RegionReplayScene implements AutoCloseable {
     }
     /** Validate the entire bounded scene before issuing any draw. The caller
      * owns the bound program/pass state; this method always leaves instancing off. */
-    private int draw(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models)throws IOException {
+    private int draw(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models,boolean waterOnly)throws IOException {
         check();Objects.requireNonNull(frustum);Objects.requireNonNull(shader);
         for(var region:gpu.keySet())resources(region);
         int draws=0;
         shader.setInt("uVertexColor",1);shader.setInt("uInstanced",models?1:0);
         try {
             for(var entry:gpu.entrySet()) {
+                if(waterOnly&&!Float.isFinite(entry.getValue().snapshot().waterHeight()))continue;
                 var p=entry.getKey();float x=p.chunkX()*16f,y=p.chunkY()*16f,z=p.chunkZ()*16f;
                 if(!frustum.testAab(x,y,z,x+16,y+16,z+16))continue;
                 var value=entry.getValue();shader.setMatrix4("uModel",new org.joml.Matrix4f().translation(x,y,z));
@@ -87,6 +90,15 @@ final class RegionReplayScene implements AutoCloseable {
             }
             return draws;
         }finally{shader.setInt("uInstanced",0);}
+    }
+    private World.ReplayWaterSurface water(float x,float y,float z)throws IOException {
+        check();World.ReplayWaterSurface nearest=null;double distance=Double.POSITIVE_INFINITY;
+        for(var region:gpu.keySet()) {
+            var value=resources(region);var snapshot=value.snapshot();if(value.ordinary()==null||!Float.isFinite(snapshot.waterHeight()))continue;
+            double dx=region.chunkX()*16.0+8-x,dy=region.chunkY()*16.0+8-y,dz=region.chunkZ()*16.0+8-z,d=dx*dx+dy*dy+dz*dz;
+            if(d<distance){distance=d;nearest=new World.ReplayWaterSurface(region,region.chunkY()*16f+snapshot.waterHeight());}
+        }
+        return nearest;
     }
     void retryCleanup()throws IOException {
         owner();Throwable failure=null;

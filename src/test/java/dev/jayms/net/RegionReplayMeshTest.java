@@ -36,6 +36,7 @@ class RegionReplayMeshTest {
             same(MeshDataGenerator.generate(independent(rows)),result.mesh());
             assertEquals(1031,WorldVoxels.decode(result.geometry().uniform(64,0,0,16)));
         }
+        assertEquals(1f,result.waterHeight());assertEquals(1f,RegionReplayChunk.prepareDetached(result,8192,()->false).waterHeight());
         assertTrue(result.mesh().indices().length>0);try(var files=Files.list(folder)){assertEquals(0,files.count());}
     }
     @Test void cancellationAndPersistentCaptureDoNotMutateOrFreezeCaller()throws Exception {
@@ -46,6 +47,15 @@ class RegionReplayMeshTest {
         assertTrue(mutable.isEmpty());assertFalse(result.geometry().isEmpty());
         assertThrows(IllegalStateException.class,()->result.geometry().fill(0,0,0,1,1,1,0));
         same(MeshDataGenerator.generate(independent(List.of(new Protocol.Edit(0,160,0,Blocks.STONE)))),result.mesh());
+    }
+    @Test void workerWaterMetadataHandlesDryGeometryAndCancellation()throws Exception {
+        var root=new SparseVoxelOctree(256);root.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var dry=RegionReplayMesh.prepare(new RegionReplayChunk.Snapshot(REGION,root,0,1,1),()->false);
+        assertTrue(Float.isNaN(dry.waterHeight()));
+        root.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.WATER));
+        var wet=RegionReplayMesh.prepare(new RegionReplayChunk.Snapshot(REGION,root,0,1,1),()->false);
+        assertEquals(1f,RegionReplayModelDraws.prepare(wet,type->null,()->false).waterHeight());
+        var calls=new AtomicInteger();assertThrows(CancellationException.class,()->RegionReplayMesh.waterHeight(dry.mesh(),()->calls.incrementAndGet()>2));
     }
     @Test void existingMeshBudgetRejectsFragmentationThenAllowsCleanRetry()throws Exception {
         var checker=new SparseVoxelOctree(16);
