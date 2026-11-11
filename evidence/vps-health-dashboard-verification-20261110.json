@@ -1,0 +1,135 @@
+{
+  "at": "2026-11-11T14:01:37.537327+00:00",
+  "result": "passed",
+  "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health/",
+  "reviewedMerge": "86ba6bcfd40510182246cb6c714c0f8eef6e4c21",
+  "independentApprovals": [
+    {
+      "workId": "47eb9a65-6974-497e-937d-74652911c198",
+      "pr": 85,
+      "head": "274401d11b7a84ab13eb5fc180f9b9a8767a1c35",
+      "merge": "86ba6bcfd40510182246cb6c714c0f8eef6e4c21"
+    },
+    {
+      "workId": "17e573b0-ed98-4d3d-8c1a-e7b57e59f75b",
+      "pr": 84,
+      "head": "129605410703f70f67afc7cdc6ba45499b0e25f8",
+      "merge": "9fd4c562c681e91530b7555bfa25f0bd48dde509"
+    }
+  ],
+  "hostedCI": {
+    "url": "https://github.com/jaymsDooku/codex-development-dashboard/actions/runs/42907226158",
+    "head": "274401d11b7a84ab13eb5fc180f9b9a8767a1c35",
+    "result": "success",
+    "stages": {
+      "Run npm test --if-present": {
+        "tests": 1183,
+        "pass": 1181,
+        "fail": 0,
+        "skipped": 2
+      },
+      "Run node --test runner/test/*.test.mjs": {
+        "tests": 697,
+        "pass": 695,
+        "fail": 0,
+        "skipped": 2
+      }
+    }
+  },
+  "checks": {
+    "freshArchiveHistoryTests": {
+      "tests": 2,
+      "passed": 2
+    },
+    "freshArchiveBuild": "passed",
+    "statusSeverityRegression": true,
+    "realReadingsBrowserCheck": [
+      {
+        "browser": "chromium",
+        "realLocalReadings": true,
+        "transport": "Synthetic read-only browser interception, not live API qualification",
+        "boundedSampleCount": 96,
+        "widths": [
+          1440,
+          390,
+          320
+        ],
+        "posts": 0,
+        "scriptErrors": 0,
+        "overflow": false
+      },
+      {
+        "browser": "webkit",
+        "realLocalReadings": true,
+        "transport": "Synthetic read-only browser interception, not live API qualification",
+        "boundedSampleCount": 96,
+        "widths": [
+          1440,
+          390,
+          320
+        ],
+        "posts": 0,
+        "scriptErrors": 0,
+        "overflow": false
+      }
+    ]
+  },
+  "publication": {
+    "status": "succeeded",
+    "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site",
+    "version_id": "appgprj_6ac0222f10108191876f6ec5622d4ace~appgver_8769141c880881918adaca4c3b816641",
+    "env_set_revision": 9
+  },
+  "liveVerification": {
+    "sourceClean": true,
+    "controllerActive": true,
+    "timerEnabledAndActive": true,
+    "protectedConfigurationUnchanged": true,
+    "runtimeControlsUnchanged": true,
+    "policyWritesPerformed": 0,
+    "realTelemetry": {
+      "samples": 96,
+      "sampleKeysWhitelisted": true,
+      "chronologicalAndUnique": true,
+      "sampleSpanMs": 33249997,
+      "latestSampleMatchesObservation": true,
+      "observationAgeMs": 35207,
+      "cleanupReceipts": 24,
+      "monitorModelCalls": 0
+    },
+    "assetChecks": [
+      {
+        "path": "/health/health.js",
+        "sha256": "78e172d17e0e0561e135bc91a1f8adc1e79c18bd516e91ac832d69999c446ffc",
+        "reviewedAssetMatch": true
+      },
+      {
+        "path": "/health/health.css",
+        "sha256": "93330341ac5d5a2be0f0512151ff2a7aa953bffa517237c9224a7cd1e89f6f5b",
+        "reviewedAssetMatch": true
+      },
+      {
+        "path": "/health/model.js",
+        "sha256": "9f63cc77248a0ed2a0a708b3c14dfa0c513f1abee0c2ce5ea78b9bc589f59b97",
+        "reviewedAssetMatch": true
+      }
+    ],
+    "researchMockupPreserved": true,
+    "limitations": [
+      "Owner policy writes were exercised in isolated Worker/browser fixtures; live rollout performed no policy writes.",
+      "Linux Chromium/WebKit verified desktop and phone layouts; physical iPhone Safari not tested.",
+      "Cleanup safeguards and existing activity-verification holds remain in force."
+    ]
+  },
+  "hostInstallation": {
+    "previousHead": "091fdcf1bc59b4f737bee5326c9aa3753154c213",
+    "installedMerge": "86ba6bcfd40510182246cb6c714c0f8eef6e4c21",
+    "stateBackupSaved": true,
+    "stateNotEdited": true,
+    "protectedConfigurationUnchanged": true,
+    "controllerStarted": "active",
+    "timerEnabled": "enabled",
+    "at": "2026-11-11T14:00:55.577159+00:00"
+  },
+  "evidenceLabelling": "Screenshots are explicit synthetic fixtures. Read-only browser checks used actual host readings via intercepted transport. Live telemetry independently verified with authenticated backend reads. No live policy writes or manual cleanup triggered."
+}
