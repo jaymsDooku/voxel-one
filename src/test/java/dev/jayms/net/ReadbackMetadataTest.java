@@ -29,7 +29,10 @@ public class ReadbackMetadataTest {
     RegionReplayWorker worker(Path path)throws Exception {
         return new RegionReplayWorker(spool(),(cancel,progress)->LocalGame.openRegionalReadback(path,folder.resolve("spool"),REV,cancel,progress),2,1,56,2);
     }
-    static void ready(RegionReplayWorker worker)throws Exception{RegionReplayWorkerTest.await(()->worker.status().state()==RegionReplayWorker.State.RUNNING);}
+    static void ready(RegionReplayWorker worker)throws Exception {
+        RegionReplayWorkerTest.await(()->worker.status().state()!=RegionReplayWorker.State.OPENING);
+        assertEquals(RegionReplayWorker.State.RUNNING,worker.status().state(),"Readback admission failed");
+    }
     void noSpools()throws Exception{try(var files=Files.list(spool())){assertEquals(0,files.count());}}
     /** Full writer/opener/worker fixture shared by startup integration tests. */
     public static LocalGame partialForTests(Path directory)throws Exception {

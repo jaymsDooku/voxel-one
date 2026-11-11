@@ -10,6 +10,7 @@ import java.security.*;
 import java.util.*;
 import java.util.function.BooleanSupplier;
 import java.util.concurrent.locks.ReentrantLock;
+import java.util.concurrent.locks.LockSupport;
 import dev.jayms.net.structure.StructurePackage;
 
 /** Save publication policy. Structure transactions require atomic replacement.
@@ -19,6 +20,10 @@ import dev.jayms.net.structure.StructurePackage;
 final class WorldSavePublication {
     private WorldSavePublication() {}
     private static final int STRIPES=64;
+    static final class BusyException extends IOException {
+        BusyException(){super("Save publication busy");}
+        BusyException(Throwable cause){super("Save publication busy",cause);}
+    }
     static final long MAX_GENERATION_BYTES=512L*1024*1024;
     private static final class Stripe {final ReentrantLock held=new ReentrantLock();long revision;}
     private record StripeLease(Stripe stripe) implements AutoCloseable {
@@ -27,7 +32,7 @@ final class WorldSavePublication {
     /** Fail busy instead of waiting behind another save or a callback reentry.
      * Stripe collisions conservatively reject unrelated targets for retry. */
     private static StripeLease enter(Stripe stripe)throws IOException {
-        if(stripe.held.isHeldByCurrentThread()||!stripe.held.tryLock())throw new IOException("Save publication busy");
+        if(stripe.held.isHeldByCurrentThread()||!stripe.held.tryLock())throw new BusyException();
         return new StripeLease(stripe);
     }
     private static final Stripe[] LOCKS=new Stripe[STRIPES];
@@ -73,8 +78,8 @@ final class WorldSavePublication {
             if(!Files.readAttributes(file,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS).isRegularFile())throw new IOException("Save publication lock type");
             if(Files.exists(target,LinkOption.NOFOLLOW_LINKS)&&Files.isSameFile(file,target))throw new IOException("Save publication lock aliases destination");
             FileLock held;
-            try{held=channel.tryLock();}catch(OverlappingFileLockException busy){throw new IOException("Save publication busy",busy);}
-            if(held==null)throw new IOException("Save publication busy");return new Lease(channel,held,readEpoch(channel));
+            try{held=channel.tryLock();}catch(OverlappingFileLockException busy){throw new BusyException(busy);}
+            if(held==null)throw new BusyException();return new Lease(channel,held,readEpoch(channel));
         }catch(IOException|RuntimeException|Error failure){try{channel.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     /** A stripe collision can conservatively invalidate an unrelated target.
@@ -98,6 +103,21 @@ final class WorldSavePublication {
         var generation=capture(target,maxBytes,cancel);
         if(!generation.file.exists()||!expectedDigest.equals(generation.file.digest()))throw new IOException("Save source digest changed");
         return generation;
+    }
+    /** Worker-only readback admission. Retry contention for at most one second;
+     * every successful attempt still hashes and matches the decoded source.
+     * This is not a filesystem I/O deadline or a frame-thread API. */
+    static Generation captureMatchingReadback(Path target,String digest,long maxBytes,BooleanSupplier cancel)throws IOException {
+        long start=System.nanoTime(),backoff=1_000_000L;
+        for(;;) {
+            StructurePackage.cancelled(cancel);
+            try{return captureMatching(target,digest,maxBytes,cancel);}
+            catch(BusyException busy) {
+                long remaining=1_000_000_000L-(System.nanoTime()-start);
+                if(remaining<=0)throw busy;
+                LockSupport.parkNanos(Math.min(backoff,remaining));backoff=Math.min(32_000_000L,backoff*2);
+            }
+        }
     }
     private static FileState observe(Path path,long maxBytes,BooleanSupplier cancel)throws IOException {
         StructurePackage.cancelled(cancel);BasicFileAttributes before;
