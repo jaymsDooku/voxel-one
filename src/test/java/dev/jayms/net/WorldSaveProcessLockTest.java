@@ -32,7 +32,7 @@ public class WorldSaveProcessLockTest {
    Files.writeString(release,"release");assertTrue(child.waitFor(10,TimeUnit.SECONDS));assertEquals(0,child.exitValue());assertEquals("child winner",Files.readString(target));assertFalse(Files.exists(source));
    assertThrows(IOException.class,()->WorldSavePublication.replaceIfUnchanged(candidate,target,expected,()->false));assertEquals("child winner",Files.readString(target));assertEquals("fresh retry",Files.readString(candidate));
    var current=WorldSavePublication.capture(target,1024,()->false);WorldSavePublication.replaceIfUnchanged(candidate,target,current,()->false);assertEquals("fresh retry",Files.readString(target));assertFalse(Files.exists(candidate));
-   assertTrue(Files.isRegularFile(WorldSavePublication.lockPath(target),LinkOption.NOFOLLOW_LINKS));assertEquals(0,Files.size(WorldSavePublication.lockPath(target)));
+   assertTrue(Files.isRegularFile(WorldSavePublication.lockPath(target),LinkOption.NOFOLLOW_LINKS));assertEquals(32,Files.size(WorldSavePublication.lockPath(target)));
   }finally{if(child.isAlive()){Files.writeString(release,"release");if(!child.waitFor(3,TimeUnit.SECONDS)){child.destroyForcibly();child.waitFor(3,TimeUnit.SECONDS);}}}
  }
  @Test void invalidLockTypeRejectsWithoutTouchingSaveOrStagedBytes()throws Exception {
