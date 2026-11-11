@@ -122,7 +122,7 @@ final class RegionReplayWorker implements AutoCloseable {
             if(maxCellLeaves<0)throw new IOException("Replay request contains a cell page");
             if(fence==null)throw new IOException("Replay request has no world fence");
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay worker no longer active");
-            validateWorld(world);var chunk=extractOutcome(current).chunk();validateWorld(world);return chunk;
+            validateWorld(world);var chunk=extractOutcome(current).chunk();if(chunk.detached()!=null)chunk.detached().validate();validateWorld(world);return chunk;
         }
         private Outcome extractOutcome(Revision current)throws IOException {
             owner();Objects.requireNonNull(current);
@@ -587,6 +587,7 @@ final class RegionReplayWorker implements AutoCloseable {
                                     ()->stopping.get()||request.cancelled()));
                         }
                         chunk=RegionReplayMesh.prepare(chunk,neighbours,()->stopping.get()||request.cancelled());
+                        chunk=RegionReplayChunk.prepareDetached(chunk,request.maxCellLeaves,()->stopping.get()||request.cancelled());
                         if(source.terrain().geometryRevision()!=chunk.terrainRevision())throw new IOException("Replay source terrain changed");
                     }
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());

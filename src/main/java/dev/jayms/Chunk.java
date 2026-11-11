@@ -12,8 +12,34 @@ public class Chunk implements AutoCloseable {
         return java.util.Collections.unmodifiableMap(models);
     }
 
-    private final dev.jayms.net.model.SparseVoxelOctree blocks =
-            new dev.jayms.net.model.SparseVoxelOctree(256);
+    public static final int MAX_REPLAY_LEAVES=131_072;
+    private final dev.jayms.net.model.SparseVoxelOctree blocks;
+    public Chunk(){this(new dev.jayms.net.model.SparseVoxelOctree(256));}
+    private Chunk(dev.jayms.net.model.SparseVoxelOctree blocks){this.blocks=blocks;}
+    /** Worker-only detached construction from validated world geometry. No GL,
+     * attachment or readiness. Definitions/source authority remain separate. */
+    public static Chunk prepareReplayGeometry(dev.jayms.net.model.SparseVoxelOctree source,int maxLeaves,
+            java.util.function.BooleanSupplier cancel)throws java.io.IOException {
+        java.util.Objects.requireNonNull(source);java.util.Objects.requireNonNull(cancel);
+        if(source.size()!=256||maxLeaves<0||maxLeaves>MAX_REPLAY_LEAVES)throw new IllegalArgumentException("Replay chunk preparation budget");
+        dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+        var captured=source.copy();int[] leaves={0};
+        captured.forEachLeaf((x,y,z,side,value)->{
+            dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+            if(++leaves[0]>maxLeaves)throw new java.io.IOException("Replay chunk preparation leaf budget");
+            if(!dev.jayms.net.Blocks.valid(dev.jayms.net.WorldVoxels.decode(value)))throw new java.io.IOException("Invalid replay chunk material");
+        });
+        var chunk=new Chunk(captured);
+        for(int key=0;key<4096;key++) {
+            dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+            int x=key&15,z=(key>>>4)&15,y=key>>>8;
+            int value=captured.uniform(x*16,y*16,z*16,16);
+            if(value==-1)chunk.fractionalCells++;
+            int type=dev.jayms.net.WorldVoxels.decode(value);
+            if(dev.jayms.net.Blocks.isModel(type))chunk.models.put(key,type);
+        }
+        dev.jayms.net.structure.StructurePackage.cancelled(cancel);return chunk;
+    }
     private boolean dirty = true;
     private int fractionalCells;
     public boolean hasFractional(){return fractionalCells!=0;}

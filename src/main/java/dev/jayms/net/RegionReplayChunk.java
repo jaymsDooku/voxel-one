@@ -12,15 +12,33 @@ import java.util.function.IntConsumer;
  * installation, global replay order or save authority. Source/model generation
  * and owner publication fences remain the caller's responsibility. */
 final class RegionReplayChunk {
-    static final int MAX_CELL_LEAVES=131_072;
+    static final int MAX_CELL_LEAVES=dev.jayms.Chunk.MAX_REPLAY_LEAVES;
     record Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,
-                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws) {
+                    int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws,Detached detached) {
+        Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh,RegionReplayModelDraws.Draws modelDraws) {
+            this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,mesh,modelDraws,null);
+        }
         Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves,dev.jayms.MeshData mesh) {
             this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,mesh,null);
         }
         Snapshot(ChunkPos region,SparseVoxelOctree geometry,long terrainRevision,int editedCells,int stagedCellLeaves) {
             this(region,geometry,terrainRevision,editedCells,stagedCellLeaves,null);
         }
+    }
+    /** Mutable wrapper transfers only after worker publication. The receipt
+     * rejects owner mutation/reuse; it grants no installation or save authority. */
+    record Detached(dev.jayms.Chunk chunk,long geometry,long mesh,long attachment) {
+        void validate()throws IOException {
+            if(chunk.position()!=null||chunk.getMesh()!=null||!chunk.dirty()||chunk.geometryVersion()!=geometry
+                    ||chunk.meshRevision()!=mesh||chunk.attachmentRevision()!=attachment)
+                throw new IOException("Detached replay chunk changed");
+        }
+    }
+    static Snapshot prepareDetached(Snapshot source,int maxLeaves,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(source);var geometry=source.geometry().copy().freeze();
+        var chunk=dev.jayms.Chunk.prepareReplayGeometry(geometry,maxLeaves,cancel);
+        var detached=new Detached(chunk,chunk.geometryVersion(),chunk.meshRevision(),chunk.attachmentRevision());detached.validate();
+        return new Snapshot(source.region(),geometry,source.terrainRevision(),source.editedCells(),source.stagedCellLeaves(),source.mesh(),source.modelDraws(),detached);
     }
     private RegionReplayChunk() {}
 
