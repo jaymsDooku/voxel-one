@@ -41,12 +41,8 @@ final class RegionReplayChunk {
         Objects.requireNonNull(terrain);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
         if(maxCellLeaves<0||maxCellLeaves>MAX_CELL_LEAVES)
             throw new IllegalArgumentException("Replay chunk geometry budget");
+        checkRegion(region);
         long ox=16L*region.chunkX(),oy=16L*region.chunkY(),oz=16L*region.chunkZ();
-        if(ox<Integer.MIN_VALUE||oy<Integer.MIN_VALUE||oz<Integer.MIN_VALUE
-                ||ox+15>Integer.MAX_VALUE||oy+15>Integer.MAX_VALUE||oz+15>Integer.MAX_VALUE
-                ||!new Protocol.Edit((int)ox,(int)oy,(int)oz,0).valid()
-                ||!new Protocol.Edit((int)ox+15,(int)oy+15,(int)oz+15,0).valid())
-            throw new IOException("Replay chunk outside world");
         long revision=terrain.geometryRevision();
         if((revision&1)!=0)throw new IOException("Replay terrain changed");
         StructurePackage.cancelled(cancel);progress.accept(0);
@@ -71,6 +67,14 @@ final class RegionReplayChunk {
         }
         StructurePackage.cancelled(cancel);checkTerrain(terrain,revision);
         return new Snapshot(region,geometry.freeze(),revision,edited,leaves);
+    }
+    static void checkRegion(ChunkPos region)throws IOException {
+        long ox=16L*region.chunkX(),oy=16L*region.chunkY(),oz=16L*region.chunkZ();
+        if(ox<Integer.MIN_VALUE||oy<Integer.MIN_VALUE||oz<Integer.MIN_VALUE
+                ||ox+15>Integer.MAX_VALUE||oy+15>Integer.MAX_VALUE||oz+15>Integer.MAX_VALUE
+                ||!new Protocol.Edit((int)ox,(int)oy,(int)oz,0).valid()
+                ||!new Protocol.Edit((int)ox+15,(int)oy+15,(int)oz+15,0).valid())
+            throw new IOException("Replay chunk outside world");
     }
     private static void checkTerrain(Terrain terrain,long revision)throws IOException {
         if(terrain.geometryRevision()!=revision)throw new IOException("Replay terrain changed");
