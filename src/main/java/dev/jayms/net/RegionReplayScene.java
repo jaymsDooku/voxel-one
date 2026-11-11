@@ -40,6 +40,7 @@ final class RegionReplayScene implements AutoCloseable {
                 var chunk=data(x,y,z);if(chunk==null)throw new World.UnloadedReplayCellException(x,y,z);
                 return chunk.geometry().region(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16).freeze();
             }
+            @Override public void checkClose(){try{idle();}catch(IOException failure){throw new IllegalStateException("Replay scene close unavailable",failure);}}
             @Override public void close(){try{RegionReplayScene.this.close();}catch(IOException failure){throw new IllegalStateException("Replay scene cleanup failed",failure);}}
         };
     }

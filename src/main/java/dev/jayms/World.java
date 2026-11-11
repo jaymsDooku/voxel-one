@@ -122,6 +122,8 @@ public class World implements AutoCloseable {
         /** Scene-owned draw path. Never transfers mutable GPU handles. */
         default int render(org.joml.FrustumIntersection frustum,ShaderProgram shader,boolean models){return 0;}
         SparseVoxelOctree cell(int x,int y,int z);
+        /** Reject an invalid close before World changes any state. No cleanup here. */
+        default void checkClose() {}
         @Override void close();
     }
     public static final class UnloadedReplayCellException extends IllegalStateException {
@@ -729,6 +731,7 @@ public class World implements AutoCloseable {
 
     @Override
     public void close() throws Exception {
+        if(replayReadView!=null)replayReadView.checkClose();
         closed=true;skyStamp++;Arrays.fill(skyChanges,null);
         var cleanup=new CloseSequence();
         cleanup.run(()->{if(replayReadView!=null)replayReadView.close();});
