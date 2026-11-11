@@ -10,14 +10,16 @@ import java.util.function.BooleanSupplier;
  * entry-map publication gates World.isLoaded; no resident World/history/save
  * promotion, Main startup or general rendering integration. */
 final class RegionReplayScene implements AutoCloseable {
-    record Status(RegionReplayWorker.Binding.ChunkPumpStatus data,int gpuEntries,int cleanupPending) {}
+    record Status(RegionReplayWorker.Binding.ChunkPumpStatus data,int gpuEntries,int cleanupPending,ChunkPos uploading) {}
     private final Thread owner=Thread.currentThread();private final RegionReplayWorker.Binding binding;
     private final RegionReplayWorker.Binding.ChunkPump pump;private final World world;private final int capacity;
     private Set<ChunkPos> desired=Set.of();private Map<ChunkPos,RegionReplayChunkUpload.Resources> gpu=Map.of();
     private final List<RegionReplayChunkUpload.Resources> retired=new ArrayList<>();private boolean closed;private long renderRevision;
+    private RegionReplayChunkUpload upload;private ChunkPos uploading;private boolean pumping,uploadCleanupPending;
     RegionReplayScene(RegionReplayWorker.Binding binding,RegionReplayWorker.Binding.ChunkPump pump,World world,int capacity){this.binding=binding;this.pump=pump;this.world=world;this.capacity=capacity;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay scene owner required");}
-    private void check()throws IOException{owner();if(closed)throw new IOException("Replay scene closed");if(!retired.isEmpty())throw new IOException("Replay scene cleanup pending");pump.status();}
+    private void check()throws IOException{owner();if(closed)throw new IOException("Replay scene closed");if(uploadCleanupPending||!retired.isEmpty())throw new IOException("Replay scene cleanup pending");pump.status();}
+    private void idle()throws IOException{owner();if(pumping)throw new IOException("Replay scene pump reentry");}
     World.ReplayReadView readView() {
         return new World.ReplayReadView() {
             private RegionReplayChunk.Snapshot data(int x,int y,int z) {
@@ -42,19 +44,20 @@ final class RegionReplayScene implements AutoCloseable {
         };
     }
     void desired(List<ChunkPos> regions)throws IOException {
-        check();Objects.requireNonNull(regions);int count=regions.size();if(count<0||count>capacity)throw new IllegalArgumentException("Replay scene desired budget");
+        idle();check();Objects.requireNonNull(regions);int count=regions.size();if(count<0||count>capacity)throw new IllegalArgumentException("Replay scene desired budget");
         var next=new LinkedHashSet<ChunkPos>();for(int i=0;i<count;i++)next.add(Objects.requireNonNull(regions.get(i)));
         if(regions.size()!=count)throw new ConcurrentModificationException("Replay scene desired changed");if(next.size()!=count)throw new IllegalArgumentException("Replay scene duplicate desired chunk");
         var nextGpu=new LinkedHashMap<ChunkPos,RegionReplayChunkUpload.Resources>();var removed=new ArrayList<RegionReplayChunkUpload.Resources>();
         for(var entry:gpu.entrySet())if(next.contains(entry.getKey()))nextGpu.put(entry.getKey(),entry.getValue());else removed.add(entry.getValue());
-        var immutable=Set.copyOf(next);var immutableGpu=Collections.unmodifiableMap(nextGpu);
+        var immutable=Collections.unmodifiableSet(new LinkedHashSet<>(next));var immutableGpu=Collections.unmodifiableMap(nextGpu);
+        if(uploading!=null&&!next.contains(uploading))abortUpload();
         pump.desired(List.copyOf(next));desired=immutable;gpu=immutableGpu;if(!removed.isEmpty())renderRevision++;retired.addAll(removed);retryCleanup();
     }
-    void tick()throws IOException{check();pump.tick();}
+    void tick()throws IOException{idle();check();pump.tick();}
     IOException failure(ChunkPos region)throws IOException{check();return pump.failure(region);}
-    Status status()throws IOException{check();return new Status(pump.status(),gpu.size(),retired.size());}
+    Status status()throws IOException{check();return new Status(pump.status(),gpu.size(),retired.size()+(uploadCleanupPending?1:0),uploading);}
     RegionReplayChunkUpload beginUpload(ChunkPos region)throws IOException {
-        check();if(!desired.contains(region)||gpu.containsKey(region))throw new IOException("Replay scene chunk not awaiting GPU");
+        idle();check();if(upload!=null)throw new IOException("Replay scene automatic upload active");if(!desired.contains(region)||gpu.containsKey(region))throw new IOException("Replay scene chunk not awaiting GPU");
         var request=pump.request(region);if(request==null)throw new IOException("Replay scene CPU data pending");return new RegionReplayChunkUpload(binding,request,world);
     }
     private void admissible(RegionReplayChunkUpload.Resources resources,RegionReplayChunk.Snapshot snapshot)throws IOException {
@@ -63,9 +66,39 @@ final class RegionReplayScene implements AutoCloseable {
     /** Ownership transfers only at the final map swap. Rejection/cancellation
      * leaves the complete resource owner with the caller, for retry or close. */
     void publish(RegionReplayChunkUpload.Resources resources,BooleanSupplier cancel)throws IOException {
+        idle();publishResource(resources,cancel);
+    }
+    private void publishResource(RegionReplayChunkUpload.Resources resources,BooleanSupplier cancel)throws IOException {
         owner();Objects.requireNonNull(resources);Objects.requireNonNull(cancel);var snapshot=resources.snapshot();admissible(resources,snapshot);StructurePackage.cancelled(cancel);
         var prior=gpu;var next=new LinkedHashMap<>(prior);next.put(snapshot.region(),resources);var committed=Collections.unmodifiableMap(next);
         StructurePackage.cancelled(cancel);admissible(resources,snapshot);if(gpu!=prior)throw new IOException("Replay scene changed during publication");gpu=committed;renderRevision++;
+    }
+    /** One private chunk upload, one lane and one shared byte/deadline budget
+     * per call. Existing published entries are never rolled back on failure. */
+    int pumpGpu(int bytes,long deadline,BooleanSupplier cancel)throws IOException {
+        idle();Objects.requireNonNull(cancel);if(bytes<0||bytes>RegionReplayMeshUpload.MAX_PUMP_BYTES)throw new IllegalArgumentException("Replay scene upload byte budget");
+        pumping=true;RegionReplayChunkUpload.Resources completed=null;
+        try {
+            check();StructurePackage.cancelled(cancel);
+            if(bytes<4||System.nanoTime()>=deadline)return 0;
+            if(upload==null)for(var region:desired)if(!gpu.containsKey(region)) {
+                var request=pump.request(region);if(request!=null){upload=new RegionReplayChunkUpload(binding,request,world);uploading=region;break;}
+            }
+            if(upload==null)return 0;
+            int written=upload.pump(bytes,deadline,cancel);
+            if(upload.ready()) {
+                completed=upload.take(cancel);upload=null;uploading=null;
+                publishResource(completed,cancel);completed=null;
+            }
+            return written;
+        }catch(IOException|RuntimeException|Error failure) {
+            if(completed!=null)try{completed.close();}catch(IOException|RuntimeException|Error cleanup){retired.add(completed);failure.addSuppressed(cleanup);}
+            try{abortUpload();}catch(IOException|RuntimeException|Error cleanup){failure.addSuppressed(cleanup);}
+            throw failure;
+        }finally{pumping=false;}
+    }
+    private void abortUpload()throws IOException {
+        if(upload!=null){uploadCleanupPending=true;upload.close();upload=null;uploading=null;uploadCleanupPending=false;}
     }
     /** Borrowed owner. Never close/mutate its handles; Scene owns retirement. */
     RegionReplayChunkUpload.Resources resources(ChunkPos region)throws IOException {
@@ -101,11 +134,15 @@ final class RegionReplayScene implements AutoCloseable {
         return nearest;
     }
     void retryCleanup()throws IOException {
-        owner();Throwable failure=null;
+        idle();cleanup();
+    }
+    private void cleanup()throws IOException {
+        Throwable failure=null;
+        if(uploadCleanupPending)try{abortUpload();}catch(IOException|RuntimeException|Error problem){failure=problem;}
         for(var iterator=retired.iterator();iterator.hasNext();)try{iterator.next().close();iterator.remove();}catch(IOException|RuntimeException|Error cleanup){if(failure==null)failure=cleanup;else failure.addSuppressed(cleanup);}
         if(failure instanceof IOException io)throw io;if(failure instanceof RuntimeException runtime)throw runtime;if(failure instanceof Error error)throw error;
     }
     @Override public void close()throws IOException {
-        owner();closed=true;pump.close();desired=Set.of();retired.addAll(gpu.values());gpu=Map.of();retryCleanup();
+        idle();closed=true;pump.close();desired=Set.of();retired.addAll(gpu.values());gpu=Map.of();if(upload!=null)uploadCleanupPending=true;cleanup();
     }
 }
