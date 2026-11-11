@@ -113,6 +113,8 @@ public class World implements AutoCloseable {
     /** Read-only private paging mode. Data readiness is separate from mesh readiness. */
     public interface ReplayReadView extends AutoCloseable {
         boolean ready(int x,int y,int z);
+        /** Data-only views never grant collision/ray mesh readiness. */
+        default boolean meshReady(int x,int y,int z){return false;}
         SparseVoxelOctree cell(int x,int y,int z);
         @Override void close();
     }
@@ -220,6 +222,7 @@ public class World implements AutoCloseable {
     }
 
     public boolean isLoaded(int x, int y, int z) {
+        if(replayReadView!=null)return replayReadView.meshReady(x,y,z);
         return loadedChunks.containsKey(ChunkPos.fromBlock(x, y, z));
     }
 

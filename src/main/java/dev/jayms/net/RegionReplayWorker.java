@@ -225,12 +225,21 @@ final class RegionReplayWorker implements AutoCloseable {
                 pump.close();throw new IOException("Replay chunk read view unavailable",failure);
             }
         }
+        /** Private scene attachment; does not enable Main or partial save/start. */
+        RegionReplayScene openScene(World current,int capacity,int maxCellLeaves)throws IOException {
+            var pump=openChunkPump(current,capacity,maxCellLeaves);
+            try {
+                var scene=new RegionReplayScene(this,pump,current,capacity);
+                current.attachReplayReadView(scene.readView());baseline=current.beginReplayFence();return scene;
+            }catch(IllegalStateException|ConcurrentModificationException failure){pump.close();throw new IOException("Replay scene unavailable",failure);}
+        }
         /** Bounded owner ticks over detached CPU results only. Ready here never
          * means installed, mesh-ready, saveable or interactive world coverage. */
         final class ChunkPump implements AutoCloseable {
             private final int capacity,maxCellLeaves;
             private Set<ChunkPos> desired=new LinkedHashSet<>();
             private final Map<ChunkPos,Request> pending=new LinkedHashMap<>();
+            private final Map<ChunkPos,Request> readyRequests=new LinkedHashMap<>();
             private final Map<ChunkPos,RegionReplayChunk.Snapshot> ready=new LinkedHashMap<>();
             private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
             private boolean closed,backpressure;
@@ -238,7 +247,7 @@ final class RegionReplayWorker implements AutoCloseable {
             private void cancelPending(){for(var request:pending.values())request.cancel();pending.clear();}
             private void check()throws IOException {
                 owner();if(closed)throw new IOException("Replay chunk pump closed");
-                try{validate(target);}catch(IOException failure){cancelPending();ready.clear();failures.clear();throw failure;}
+                try{validate(target);}catch(IOException failure){cancelPending();ready.clear();readyRequests.clear();failures.clear();throw failure;}
             }
             private World.ReplayReadView readView() {
                 return new World.ReplayReadView() {
@@ -268,7 +277,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
                     var entry=iterator.next();if(!next.contains(entry.getKey())){entry.getValue().cancel();iterator.remove();}
                 }
-                ready.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
+                ready.keySet().retainAll(next);readyRequests.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
             }
             void retry(ChunkPos region)throws IOException {
                 check();if(!desired.contains(region))throw new IllegalArgumentException("Replay chunk not desired");failures.remove(region);
@@ -279,7 +288,7 @@ final class RegionReplayWorker implements AutoCloseable {
                     for(var iterator=pending.entrySet().iterator();iterator.hasNext();) {
                         var entry=iterator.next();var progress=entry.getValue().outcome();
                         switch(progress.phase()) {
-                            case READY->{ready.put(entry.getKey(),chunkResult(entry.getValue(),target));iterator.remove();}
+                            case READY->{ready.put(entry.getKey(),chunkResult(entry.getValue(),target));readyRequests.put(entry.getKey(),entry.getValue());iterator.remove();}
                             case FAILED->{failures.put(entry.getKey(),progress.failure());iterator.remove();}
                             case CANCELLED->{failures.put(entry.getKey(),new IOException("Replay chunk cancelled"));iterator.remove();}
                             default->{} // Observe once; never wait for worker completion.
@@ -291,9 +300,10 @@ final class RegionReplayWorker implements AutoCloseable {
                         if(request==null){backpressure=true;break;}
                         requestsIssued=true;pending.put(region,request);
                     }
-                }catch(IOException failure){cancelPending();ready.clear();throw failure;}
+                }catch(IOException failure){cancelPending();ready.clear();readyRequests.clear();throw failure;}
             }
             RegionReplayChunk.Snapshot result(ChunkPos region)throws IOException {check();return ready.get(region);}
+            Request request(ChunkPos region)throws IOException {check();return readyRequests.get(region);}
             IOException failure(ChunkPos region)throws IOException {check();return failures.get(region);}
             ChunkPumpStatus status()throws IOException {
                 owner();if(closed)return new ChunkPumpStatus(0,0,0,0,0,false,true);
@@ -301,7 +311,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 return new ChunkPumpStatus(desired.size(),pending.size(),ready.size(),failures.size(),staged,backpressure,false);
             }
             @Override public void close()throws IOException {
-                owner();if(closed)return;cancelPending();desired.clear();ready.clear();failures.clear();backpressure=false;closed=true;
+                owner();if(closed)return;cancelPending();desired.clear();ready.clear();readyRequests.clear();failures.clear();backpressure=false;closed=true;
             }
         }
         private Request trySubmit(Window window)throws IOException {
