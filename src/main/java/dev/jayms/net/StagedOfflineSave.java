@@ -119,6 +119,8 @@ final class StagedOfflineSave implements AutoCloseable {
         if(closed)throw new IOException("Staged offline save closed");
         try {
             StructurePackage.cancelled(cancel);
+            if(dropCount<0||dropCount>Crafting.MAX_DROPS)throw new IOException("Offline drop persistence limit");
+            Objects.requireNonNull(drops);
             var bytes=new ByteArrayOutputStream();var survival=new DataOutputStream(bytes);
             inventory.write(survival);survival.writeByte(health);survival.flush();
             // Version 8/9/10 inventory has exactly 36 two-byte slots followed by health.
@@ -128,7 +130,14 @@ final class StagedOfflineSave implements AutoCloseable {
                 while(patch.hasRemaining())channel.write(patch);
                 channel.position(channel.size());
                 var out=new DataOutputStream(new BufferedOutputStream(java.nio.channels.Channels.newOutputStream(channel),64*1024));
-                out.writeInt(dropCount);for(var drop:drops){StructurePackage.cancelled(cancel);drop.write(out);}out.flush();StructurePackage.cancelled(cancel);channel.force(true);
+                out.writeInt(dropCount);int written=0;
+                for(var drop:drops){
+                    StructurePackage.cancelled(cancel);
+                    if(written>=dropCount||drop==null)throw new IOException("Offline drop count changed");
+                    drop.write(out);written++;
+                }
+                if(written!=dropCount)throw new IOException("Offline drop count changed");
+                out.flush();StructurePackage.cancelled(cancel);channel.force(true);
             }
             StructurePackage.cancelled(cancel);
             if(expected==null)WorldSavePublication.replace(temp,target,true);
