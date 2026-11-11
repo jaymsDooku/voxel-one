@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-10T23:53:13+00:00",
+  "updatedAt": "2026-11-11T00:18:48+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "All four 6fbf67bd hosted builds passed. Added bounded detached replay chunk geometry assembly; correctness, cancellation and ownership checks running. Live meshes and city/max qualification remain pending.",
-      "updatedAt": "2026-11-10T23:53:13+00:00"
+      "note": "All four 15bdaab9 builds passed. Added asynchronous bounded chunk requests on the existing replay worker queue; source/World checks and mixed page/chunk cancellation tests running. Full qualification remains pending.",
+      "updatedAt": "2026-11-11T00:18:48+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
