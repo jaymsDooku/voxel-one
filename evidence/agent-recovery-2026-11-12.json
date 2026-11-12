@@ -1,0 +1,48 @@
+{
+  "at": "2026-11-12T20:34:42.144271+00:00",
+  "scope": "All nonhistorical blocked work in the General Codex Development Dashboard",
+  "operation": "Audited coordinator resume following explicit owner instruction",
+  "resumed": [
+    {
+      "id": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+      "title": "Voxel One Hub: redesigned launcher for all games and engine work",
+      "status": "in_progress",
+      "developerId": "developer-3"
+    },
+    {
+      "id": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+      "title": "Title: Support reusable voxel structures alongside voxel models",
+      "status": "in_progress",
+      "developerId": "developer-2"
+    }
+  ],
+  "blockedRemaining": 0,
+  "budgetState": "available",
+  "workers": [
+    {
+      "agentId": "developer-2",
+      "state": "running",
+      "workId": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+      "errorCode": null
+    },
+    {
+      "agentId": "developer-3",
+      "state": "running",
+      "workId": "b8858cd1-4a0d-4bbe-876c-95470b4375aa",
+      "errorCode": null
+    }
+  ],
+  "verified": [
+    "Assigned X display sockets/auth and software OpenGL respond for both developers and reviewer",
+    "Maven/JDK/Git/Codex available",
+    "Controller and health timer active",
+    "Actual PR72/76 checks inspected; no pending checks mistaken for unfinished CI",
+    "No open owner questions",
+    "Original checkpoints, PR metadata and review feedback preserved"
+  ],
+  "limits": [
+    "No self-hosted desktop runners registered. Native Mac, physical GPU, DPI and performance qualification remain pending until genuinely executed.",
+    "Resume does not approve or complete the implementation. Required testing and independent review remain in force.",
+    "No worker count, quota, permissions or cleanup policy changes."
+  ]
+}
