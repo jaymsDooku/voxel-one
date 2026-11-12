@@ -56,4 +56,53 @@ final class RegionReplayColumn {
         StructurePackage.cancelled(cancel);terrain(source,revision);
         return new Snapshot(chunkX,chunkZ,inputRows[0],revision,Collections.unmodifiableMap(images));
     }
+    /** Complete natural vertical range plus every canonical override. Worker-only
+     * input, not sky authority. Explicit air replaces terrain rather than layering
+     * on top of it. The caller must still fence source/model/publication identity. */
+    record SkyInput(dev.jayms.render.WorldSkyVisibility.Input input,long terrainRevision,long modelRevision,int stagedLeaves) {}
+    static SkyInput skyInput(Snapshot source,Terrain terrain,dev.jayms.net.model.ModelLibrary models,
+            int maxLeaves,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(terrain);Objects.requireNonNull(models);
+        Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        if(maxLeaves<0||maxLeaves>MAX_LEAVES)throw new IllegalArgumentException("Replay column sky geometry budget");
+        long revision=source.terrainRevision(),modelRevision=models.revision();terrain(terrain,revision);
+        var capturedModels=models.copy();
+        if(capturedModels.revision()!=modelRevision)throw new IOException("Replay column models changed");
+        RegionReplayChunk.checkRegion(new dev.jayms.ChunkPos(source.chunkX(),0,source.chunkZ()));
+        if(source.cells().size()>MAX_CELLS)throw new IOException("Replay column cell budget");
+        for(var entry:source.cells().entrySet()) {
+            var p=entry.getKey();var root=entry.getValue().tree();
+            if(Math.floorDiv(p.x(),16)!=source.chunkX()||Math.floorDiv(p.z(),16)!=source.chunkZ()
+                    ||!new Protocol.Edit(p.x(),p.y(),p.z(),0).valid()||root.size()!=16||!root.isFrozen())
+                throw new IOException("Invalid replay column cell");
+        }
+        var chunks=new ArrayList<dev.jayms.render.WorldSkyVisibility.Geometry>();
+        var edits=new ArrayList<dev.jayms.render.WorldSkyVisibility.EditedCell>();int leaves=0,done=0;
+        StructurePackage.cancelled(cancel);progress.accept(0);
+        for(int cy=Math.floorDiv(Terrain.MIN_Y,16);cy<=Math.floorDiv(Terrain.MAX_Y,16);cy++) {
+            var geometry=new SparseVoxelOctree(256);
+            for(int key=0;key<4096;key++) {
+                StructurePackage.cancelled(cancel);terrain(terrain,revision);
+                int x=key&15,z=(key>>>4)&15,y=key>>>8;
+                int wx=source.chunkX()*16+x,wy=cy*16+y,wz=source.chunkZ()*16+z;
+                var image=source.cells().get(new WorldVoxels.CellPosition(wx,wy,wz));
+                SparseVoxelOctree cell;
+                if(image!=null)cell=image.tree();
+                else {cell=new SparseVoxelOctree(16);cell.fill(0,0,0,16,16,16,WorldVoxels.encode(terrain.block(wx,wy,wz)));}
+                int count=cell.leafCount();if(count>maxLeaves-leaves)throw new IOException("Replay column sky geometry budget");leaves+=count;
+                geometry.replaceRegion(x*16,y*16,z*16,cell);progress.accept(++done);
+            }
+            chunks.add(new dev.jayms.render.WorldSkyVisibility.Geometry(new dev.jayms.ChunkPos(source.chunkX(),cy,source.chunkZ()),geometry.freeze()));
+        }
+        for(var entry:source.cells().entrySet()) {
+            StructurePackage.cancelled(cancel);terrain(terrain,revision);var p=entry.getKey();
+            if(p.y()>=Terrain.MIN_Y&&p.y()<=Terrain.MAX_Y)continue;
+            int count=entry.getValue().tree().leafCount();if(count>maxLeaves-leaves)throw new IOException("Replay column sky geometry budget");leaves+=count;
+            edits.add(new dev.jayms.render.WorldSkyVisibility.EditedCell(p.x(),p.y(),p.z(),entry.getValue().tree()));
+        }
+        StructurePackage.cancelled(cancel);terrain(terrain,revision);
+        if(models.revision()!=modelRevision)throw new IOException("Replay column models changed");
+        return new SkyInput(new dev.jayms.render.WorldSkyVisibility.Input(List.copyOf(chunks),List.copyOf(edits),capturedModels),revision,modelRevision,leaves);
+    }
+
 }
