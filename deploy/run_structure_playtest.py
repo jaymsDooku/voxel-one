@@ -8,6 +8,9 @@ import re
 from pathlib import Path
 import shutil
 import subprocess
+import datetime
+import signal
+import time
 
 parser=argparse.ArgumentParser();parser.add_argument('--display',required=True);parser.add_argument('--evidence-prefix');args=parser.parse_args()
 if args.evidence_prefix is not None and not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.evidence_prefix):
@@ -19,7 +22,11 @@ source_manifest=dict(schema=1,source_sha256=source_hashes,scope='Production Java
 publication=root/'dashboard/evidence'
 if args.evidence_prefix and any(publication.glob(args.evidence_prefix+'-*')):
     raise SystemExit('Preserve existing evidence; choose a fresh prefix')
-folder=root/'target/structure-native';shutil.rmtree(folder,ignore_errors=True);folder.mkdir(parents=True)
+folder=root/'target/structure-native'
+if folder.exists():
+    archive=root/'target/structure-native-archives'/datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
+    archive.parent.mkdir(exist_ok=True);folder.rename(archive)
+folder.mkdir(parents=True)
 output=folder/'evidence' if args.evidence_prefix else publication
 output.mkdir(exist_ok=True)
 (output/'structure-native-source.json').write_text(json.dumps(source_manifest,indent=2)+'\n')
@@ -36,13 +43,38 @@ classpath=str(root/'target/classes')+':'+':'.join(jars)
 subprocess.run(['javac','--release','17','-cp',classpath,'-d',str(classes),'deploy/StructurePlaytest.java'],cwd=root,check=True)
 env=os.environ.copy();env['DISPLAY']=args.display;env.pop('WAYLAND_DISPLAY',None);env['ALSOFT_DRIVERS']='null';env['MAGICK_TMPDIR']=str(temporary);env['LP_NUM_THREADS']='2';env['LIBGL_ALWAYS_SOFTWARE']='1'
 command=['java','-Xmx1g','-Dvoxel.gl33=true','-Djava.io.tmpdir='+str(temporary),'-Duser.home='+str(home),'-cp',str(classes)+':'+classpath,'StructurePlaytest',str(output)]
-with (folder/'runtime-private.txt').open('w') as log:
-    result=subprocess.run(command,cwd=root,env=env,stdout=log,stderr=log,timeout=600)
-print('Playtest: production Main structure workflow; exit',result.returncode)
-if result.returncode:
+execution=output/'structure-native-execution.json'
+started=time.monotonic();process=None
+
+def execution_receipt(state,code=None):
+    data=dict(schema=1,state=state,return_code=code,elapsed_ms=round((time.monotonic()-started)*1000),timeout_seconds=600)
+    temp=execution.with_suffix('.tmp');temp.write_text(json.dumps(data)+'\n');temp.replace(execution)
+
+def interrupted(number,frame):
+    execution_receipt('interrupted',128+number)
+    raise SystemExit(128+number)
+
+signal.signal(signal.SIGTERM,interrupted);signal.signal(signal.SIGINT,interrupted)
+execution_receipt('running')
+try:
+    with (folder/'runtime-private.txt').open('w') as log:
+        process=subprocess.Popen(command,cwd=root,env=env,stdout=log,stderr=log)
+        try:
+            code=process.wait(timeout=600)
+            execution_receipt('completed',code)
+        except subprocess.TimeoutExpired:
+            process.kill();process.wait(timeout=5);execution_receipt('timed-out',124)
+            raise SystemExit(124)
+finally:
+    if process is not None and process.poll() is None:
+        process.terminate()
+        try:process.wait(timeout=5)
+        except subprocess.TimeoutExpired:process.kill();process.wait(timeout=5)
+print('Playtest: production Main structure workflow; exit',code)
+if code:
     failure=output/'structure-native-failure.txt'
     if failure.exists():print(failure.read_text())
-    raise SystemExit(result.returncode)
+    raise SystemExit(code)
 recordings=list((profile/'recordings').glob('*.mp4'))
 if recordings:
     clip=max(recordings,key=lambda p:p.stat().st_mtime)

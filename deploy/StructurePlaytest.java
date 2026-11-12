@@ -13,6 +13,17 @@ import static dev.jayms.net.structure.StructurePackage.*;
 
 /** Real Main/GLFW/X11 structure workflow, isolated synthetic profile. */
 public class StructurePlaytest {
+    static Path stageDirectory;static final long started=System.nanoTime();static int stageStep;
+    static final ArrayDeque<String> stageEvents=new ArrayDeque<>();
+    static synchronized void stage(String name)throws Exception {
+        if(!name.matches("[a-z0-9-]{1,64}"))throw new IllegalArgumentException("Fixed diagnostic stage required");
+        long elapsed=TimeUnit.NANOSECONDS.toMillis(System.nanoTime()-started);stageStep++;
+        stageEvents.addLast("{\"stage\":\""+name+"\",\"elapsed_ms\":"+elapsed+",\"frames\":"+frames.get()+"}");
+        while(stageEvents.size()>256)stageEvents.removeFirst();
+        String body="{\"schema\":1,\"step\":"+stageStep+",\"current\":\""+name+"\",\"elapsed_ms\":"+elapsed+",\"frames\":"+frames.get()+",\"events\":["+String.join(",",stageEvents)+"]}\n";
+        Path temp=stageDirectory.resolve("structure-native-stage.tmp"),target=stageDirectory.resolve("structure-native-stage.json");
+        try{Files.writeString(temp,body);Files.move(temp,target,StandardCopyOption.REPLACE_EXISTING,StandardCopyOption.ATOMIC_MOVE);}finally{Files.deleteIfExists(temp);}
+    }
     static Main game=new Main();static volatile Throwable failure;static volatile String renderer;
     static final ConcurrentLinkedQueue<FutureTask<Void>> jobs=new ConcurrentLinkedQueue<>();
     static final java.util.concurrent.atomic.AtomicLong frames=new java.util.concurrent.atomic.AtomicLong();
@@ -32,12 +43,15 @@ public class StructurePlaytest {
         require(process.waitFor()==0,"X11 input "+args[0]);Thread.sleep(100);return result;
     }
     static void command(String text)throws Exception {
+        String action=text.split(" ",2)[0];
+        require(Set.of("first","second","anchor","capture","export","import","at","preview","place","undo","rotate","cancel").contains(action),"Fixed diagnostic command required");stage("command-"+action);
         require(text.length()<=4096,"Command exceeds bounded input limit");
         x("type","--clearmodifiers","--delay","2",text);waitFor(()->menu().input.equals(text),"Text entry: "+text);x("key","Return");
         waitFor(()->menu().input.isEmpty(),"Command dispatched");onFrame(()->null);
-        waitFor(()->!menu().busy,"Structure operation completed");onFrame(()->null);
+        waitFor(()->!menu().busy,"Structure operation completed");onFrame(()->null);stage("command-"+action+"-done");
     }
     static void capture(String window,Path path)throws Exception {
+        String name=path.getFileName().toString().replace(".png","");stage("capture-"+name);
         onFrame(()->{
             // Warm only the synthetic fixture's real chunk meshes; no fake render assets.
             for(int cx=0;cx<=1;cx++)for(int cz=0;cz<=2;cz++)for(int cy=7;cy<=8;cy++) {
@@ -48,7 +62,7 @@ public class StructurePlaytest {
             return null;
         });
         long next=frames.get()+3;waitFor(()->frames.get()>=next,"Capture frame");
-        var process=new ProcessBuilder("import","-window",window,path.toString()).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(process.waitFor()==0,"Native screenshot");
+        var process=new ProcessBuilder("import","-window",window,path.toString()).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(process.waitFor()==0,"Native screenshot");stage("capture-"+name+"-done");
     }
     static void edit(Protocol.Edit edit)throws Exception {world().apply(edit);WorldVoxels.remember(local().edits,edit);}
     static Position destination(int r,Position relative)throws Exception {
@@ -56,7 +70,7 @@ public class StructurePlaytest {
         return new Position(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z());
     }
     public static void main(String[] args)throws Exception {
-        Path output=Path.of(args[0]);Files.createDirectories(output);glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);
+        Path output=Path.of(args[0]);Files.createDirectories(output);stageDirectory=output;stage("initializing");glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);
         set("offlineSave",Path.of("target/structure-native/world.dat").toAbsolutePath());set("gameConfig",GameConfig.sandbox());set("seed",42L);
         var driver=new Thread(()->{
             long handle=0;
@@ -65,7 +79,7 @@ public class StructurePlaytest {
                 handle=((dev.jayms.window.Window)get("window")).getHandle();
                 String window=x("search","--onlyvisible","--pid",Long.toString(ProcessHandle.current().pid()),"--name","^Voxel One").lines().findFirst().orElseThrow();x("windowfocus",window);
                 if(((ControlsMenu)get("menu")).open)x("key","Escape");
-                onFrame(()->{
+                stage("fixture-setup");onFrame(()->{
                     for(int z=8;z<=34;z++)for(int xx=0;xx<=28;xx++)edit(new Protocol.Edit(xx,127,z,Blocks.STONE));
                     for(int y=128;y<=131;y++)for(int z=12;z<=16;z++)for(int xx=4;xx<=8;xx++)
                         if(y==128||y==131||xx==4||xx==8||z==12||z==16)edit(new Protocol.Edit(xx,y,z,Blocks.BRICKS));
@@ -108,7 +122,7 @@ public class StructurePlaytest {
                 onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(22,135,40),-90,-26,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
                 x("key","F10");
                 for(int rotation=0;rotation<4;rotation++) {
-                    final int r=rotation;Position preserved=destination(r,new Position(2,2,2));
+                    stage("rotation-"+rotation);final int r=rotation;Position preserved=destination(r,new Position(2,2,2));
                     onFrame(()->{edit(new Protocol.Edit(preserved.x(),preserved.y(),preserved.z(),Blocks.STONE));return null;});command("preview");
                     require(menu().message.contains("clear"),"Preview accepts occupied destination under empty source");
                     capture(window,output.resolve("structure-preview-"+r+".png"));command("place");require(menu().message.startsWith("Placed and saved"),"Placement rotation"+r+": "+menu().message);
@@ -135,7 +149,7 @@ public class StructurePlaytest {
                     onFrame(()->{edit(new Protocol.Edit(preserved.x(),preserved.y(),preserved.z(),0));return null;});
                     if(r<3)command("rotate");
                 }
-                var original=menu().selected;
+                stage("cancellation-fixture");var original=menu().selected;
                 onFrame(()->{
                     // A valid heavy dependency fixture provides an observable staging/cancel window.
                     var tree=new SparseVoxelOctree(32);for(int i=0;i<32768;i++)tree.set(i%32,(i/32)%32,i/1024,0xff000000|((i*1664525+1013904223)&0xffffff));tree.freeze();
@@ -162,13 +176,13 @@ public class StructurePlaytest {
                 capture(window,output.resolve("structure-import-cancelled.png"));
                 Files.writeString(Path.of("target/structure-native/bad.vstr"),"not a package");int edits=local().edits.size();command("import target/structure-native/bad.vstr");require(local().edits.size()==edits,"Malformed import leaves world unchanged");
                 command("place");require(menu().message.startsWith("Placed and saved"),"Repeated placement after cancel/import failure");command("preview");capture(window,output.resolve("structure-placed.png"));
-                onFrame(()->{local().save();return null;});var loaded=new LocalGame(Path.of("target/structure-native/world.dat"),0);require(loaded.models.hasStructureModels(),"Versioned dependency restart recovery");
+                stage("restart-recovery");onFrame(()->{local().save();return null;});var loaded=new LocalGame(Path.of("target/structure-native/world.dat"),0);require(loaded.models.hasStructureModels(),"Versioned dependency restart recovery");
                 x("key","F12");capture(window,output.resolve("structure-world-placed.png"));
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
-                capture(window,output.resolve("structure-component-closeup.png"));x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
+                capture(window,output.resolve("structure-component-closeup.png"));stage("inventory-editor-regression");x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
-            }catch(Throwable problem){failure=problem;try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
+                stage("workflow-passed");Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+            }catch(Throwable problem){failure=problem;try{stage("workflow-failed");}catch(Exception ignored){}try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();
         game.run(new Main.FrameObserver(){public void beforeFrame(Main app){for(var job=jobs.poll();job!=null;job=jobs.poll())job.run();}public void afterFrame(Main app){frames.incrementAndGet();}});
