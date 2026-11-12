@@ -64,6 +64,7 @@ public final class LocalGame {
         dev.jayms.net.model.ModelDefinition sourceDefinition(int type) {
             var entry=sourceModels.get(type);return entry==null?null:entry.definition();
         }
+        ModelLibrary sourceModelSnapshot(){return sourceModels.copy();}
         boolean matchesTerrain(Terrain terrain){return terrain.seed==seed&&terrain.version==generator&&terrain.stressGrid()==null&&terrain.geometryRevision()==0;}
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
