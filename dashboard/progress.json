@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-09T22:59:07+00:00",
+  "updatedAt": "2026-11-12T20:35:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4107,8 +4107,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Finished actual public-artifact CLI integration: empty-PATH packaged bd6118ac launcher resolved City/Sandbox/editor to one verified23,159,883-byte playtest-632 JAR with unchanged cache path/hash/mtime; web/unknownIDs refused. Launcher classes/resources byte-matched current MavenJAR.13regressions passed, including stale-evidence invalidation. Actual Macreport has no failed software assertion, only pending native context qualification. Added reusable read-only CLI test; physical/DPI/public-two-generation/review gates retained.",
-      "updatedAt": "2026-11-09T22:59:07+00:00"
+      "note": "Prepared bounded Mac desktop repair: include advertised low-resolution modes and choose a non-shrinking 1280x900 fallback when 2560x1600 is absent. 13 local regressions pass; actual CoreGraphics and native rendering remain pending. Master remains recorded review base; no unrelated deletions.",
+      "updatedAt": "2026-11-12T20:35:20+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
