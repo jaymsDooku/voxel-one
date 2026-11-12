@@ -116,6 +116,15 @@ final class RegionReplaySpool implements AutoCloseable {
         if(maxRows<0||maxRows>LocalGame.MAX_SAVED_EDITS)throw new IllegalArgumentException("Replay region row budget");
         visitSelected(region::equals,maxRows,allowed,cancel,sink);
     }
+    /** Worker-only vertical selection across every Y region in one X/Z chunk
+     * column. Budget counts all input rows, including overwritten/air records,
+     * before selected payload delivery. Publish only after complete success;
+     * this selection alone grants no sky coverage or world authority. */
+    void visitColumn(int chunkX,int chunkZ,int maxRows,Predicate<Protocol.Edit> allowed,
+            BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
+        if(maxRows<0||maxRows>LocalGame.MAX_SAVED_EDITS)throw new IllegalArgumentException("Replay column row budget");
+        visitSelected(region->region.chunkX()==chunkX&&region.chunkZ()==chunkZ,maxRows,allowed,cancel,sink);
+    }
     /** Private copied-index lookup. Full original index validates once before
      * bucket publication; later reads validate the selected bucket only. */
     void visitIndexedRegion(ChunkPos region,int maxRows,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel,RegionReplay.SectionSink sink)throws IOException {
