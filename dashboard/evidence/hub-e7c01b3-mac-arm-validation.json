@@ -1,0 +1,116 @@
+{
+  "sourceSha": "e7c01b3dd7a6cd3622b5b8aaadf76322e2f04649",
+  "workflow": "https://github.com/jaymsDooku/voxel-one/actions/runs/42716677319",
+  "platform": "mac-arm",
+  "sourceFingerprintCount": 297,
+  "sourceFingerprintsIndependentlyMatched": true,
+  "maven": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed",
+      "observed": "Playtest: own-child query eof matched=true elapsedMs=129"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed",
+      "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed",
+      "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed",
+      "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+    },
+    {
+      "name": "Provisional Hub responsiveness",
+      "status": "passed",
+      "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed",
+      "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed",
+      "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+    },
+    {
+      "name": "Friendly library status and detail provenance",
+      "status": "passed",
+      "observed": "Playtest: actual catalog refresh uses friendly Home/Games status; exact catalog version retained in detail; HTTP503 shows unavailable status and preserves verified cache."
+    },
+    {
+      "name": "Native client exit recovery",
+      "status": "passed",
+      "observed": "Playtest: actual Play; delayed exit 7 reported; verified client retained; clean exit 0 reported; older exit cannot overwrite latest launch; startup cancellation stops child; synthetic save preserved. Synthetic process fixture, not gameplay qualification."
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed",
+      "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed",
+      "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "name": "Native rendered city",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed",
+      "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/e7c01b3dd7a6cd3622b5b8aaadf76322e2f04649/1acf6434eca1daba881a510d496b32a47119f4247613aa11b4a4ada1bc0d9564/mac-arm.jar"
+    }
+  ],
+  "pendingQualification": [
+    "JVM scale 1: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+    "JVM scale 1.5: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+    "JVM scale 2: 1280x800 unavailable on 1024x684 desktop; qualification pending",
+    "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+  ],
+  "fullQualificationPassed": false,
+  "mediaInspection": "Inspected actual friendly-catalog-status.png: Games page, City card, search, navigation and friendly status visible at 900x600. No native gameplay image exists because context creation failed.",
+  "repairScope": "Provide supported Mac native graphics execution and desktop extent at least 1280x800; retain physical Windows GPU/DPI/performance and public two-generation promotion gates. Do not repeat unchanged context variants."
+}

@@ -383,3 +383,14 @@ This check may download the published native artifact; it is a manual read-only
 integration check, separate from deterministic CI fixtures. Cache path/hash/mtime
 observations do not measure network packet counts. It does not launch gameplay,
 exercise browser sign-in, publish a release or qualify physical hardware.
+
+
+Mac desktop repair: enumerate advertised modes including low-resolution variants.
+Prefer 2560×1600; otherwise select an advertised mode at least 1280×900 without
+shrinking either current dimension. The extra 100 logical pixels reserve room
+for desktop and window chrome. Record all advertised dimensions and actual
+post-change dimensions. Swing still verifies usable window bounds; this setup
+never marks missing scaled, physical DPI or native OpenGL checks passed.
+Linux cannot execute CoreGraphics. Validate this helper in the scoped Mac job
+before claiming the repair works. The e7c01b3 Mac GLFW 0x10009 result remains
+pending; the existing four accelerated context variants were exhausted.
