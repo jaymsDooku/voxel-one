@@ -179,6 +179,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private World.ReplayFence baseline;
         private ReadView view;
         private ChunkPump chunkPump;
+        private SkyPump skyPump;
         private boolean requestsIssued;
         private final Revision revision=sourceRevision;
         private final String identity=fingerprint;
@@ -218,10 +219,13 @@ final class RegionReplayWorker implements AutoCloseable {
         /** Shares the page/chunk queue and its single active worker. Detached
          * sky data only: no view installation, scheduling or readiness admission. */
         Request submitSky(int chunkX,int chunkZ,dev.jayms.render.WorldSkyVisibility.BuildLimits limits,World current)throws IOException {
+            return trySky(chunkX,chunkZ,limits,current,true);
+        }
+        private Request trySky(int chunkX,int chunkZ,dev.jayms.render.WorldSkyVisibility.BuildLimits limits,World current,boolean rejectFull)throws IOException {
             validate(current);Objects.requireNonNull(limits);var column=new ChunkPos(chunkX,0,chunkZ);RegionReplayChunk.checkRegion(column);
             synchronized(gate) {
                 if(stopping.get())throw new IOException("Replay worker not accepting requests");
-                if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+                if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
                 var request=new Request(column,null,RegionReplayColumn.MAX_ROWS,revision,current.beginReplayFence(),this,-1,List.of(),limits);
                 queue.addLast(request);requestsIssued=true;gate.notifyAll();return request;
             }
@@ -234,6 +238,65 @@ final class RegionReplayWorker implements AutoCloseable {
                     ||tile.modelRevision()!=transferredModelsRevision||tile.terrainRevision()!=0)
                 throw new IOException("Replay sky source changed");
             request.validateWorld(current);validate(current);return tile;
+        }
+        record SkyPumpStatus(int desired,int pending,int ready,int failed,int cachedInts,boolean backpressure,boolean closed) {}
+        SkyPump openSkyPump(World current,int capacity,int maxInts,dev.jayms.render.WorldSkyVisibility.BuildLimits limits)throws IOException {
+            validate(current);Objects.requireNonNull(limits);
+            if(skyPump!=null)throw new IOException("Replay sky pump already opened");
+            if(capacity<1||capacity>36||maxInts<0||maxInts>dev.jayms.render.WorldSkyVisibility.MAX_INTS)throw new IllegalArgumentException("Replay sky pump budget");
+            skyPump=new SkyPump(capacity,maxInts,limits);return skyPump;
+        }
+        /** Detached tiles only. One outstanding sky request shares the existing
+         * worker lane. No merging, view attachment, GPU upload or sky readiness. */
+        final class SkyPump implements AutoCloseable {
+            private final int capacity,maxInts;private final dev.jayms.render.WorldSkyVisibility.BuildLimits limits;
+            private Set<ChunkPos> desired=new LinkedHashSet<>();
+            private final Map<ChunkPos,SkyTile> ready=new LinkedHashMap<>();
+            private final Map<ChunkPos,Request> receipts=new LinkedHashMap<>();
+            private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
+            private Request pending;private int cachedInts;private boolean closed,backpressure;
+            private SkyPump(int capacity,int maxInts,dev.jayms.render.WorldSkyVisibility.BuildLimits limits){this.capacity=capacity;this.maxInts=maxInts;this.limits=limits;}
+            private void discard(){if(pending!=null)pending.cancel();pending=null;ready.clear();receipts.clear();failures.clear();cachedInts=0;backpressure=false;}
+            private void check()throws IOException {
+                owner();if(closed)throw new IOException("Replay sky pump closed");
+                try{validate(target);for(var r:receipts.values())skyResult(r,target);}
+                catch(IOException failure){discard();throw failure;}
+            }
+            void desired(List<ChunkPos> columns)throws IOException {
+                check();Objects.requireNonNull(columns);int count=columns.size();
+                if(count<0||count>capacity)throw new IllegalArgumentException("Replay desired-sky budget");
+                var next=new LinkedHashSet<ChunkPos>();
+                for(int i=0;i<count;i++){var p=Objects.requireNonNull(columns.get(i));if(p.chunkY()!=0)throw new IllegalArgumentException("Replay sky column Y");RegionReplayChunk.checkRegion(p);next.add(p);}
+                if(columns.size()!=count)throw new ConcurrentModificationException("Replay desired sky changed");
+                if(pending!=null&&!next.contains(pending.region)){pending.cancel();pending=null;}
+                for(var it=ready.entrySet().iterator();it.hasNext();){var e=it.next();if(!next.contains(e.getKey())){cachedInts-=e.getValue().data().data.length;it.remove();}}
+                receipts.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
+            }
+            void retry(ChunkPos column)throws IOException {check();if(!desired.contains(column))throw new IllegalArgumentException("Replay sky not desired");failures.remove(column);}
+            void tick()throws IOException {
+                check();backpressure=false;
+                try {
+                    if(pending!=null) {
+                        var state=pending.outcome();var p=pending.region;
+                        switch(state.phase()) {
+                            case READY->{var tile=skyResult(pending,target);int n=tile.data().data.length;
+                                if(n>maxInts-cachedInts)failures.put(p,new IOException("Replay sky cache budget"));
+                                else{ready.put(p,tile);receipts.put(p,pending);cachedInts+=n;}pending=null;}
+                            case FAILED->{failures.put(p,state.failure());pending=null;}
+                            case CANCELLED->{failures.put(p,new IOException("Replay sky cancelled"));pending=null;}
+                            default->{}
+                        }
+                    }
+                    if(pending==null)for(var p:desired) {
+                        if(ready.containsKey(p)||failures.containsKey(p))continue;
+                        pending=trySky(p.chunkX(),p.chunkZ(),limits,target,false);backpressure=pending==null;break;
+                    }
+                }catch(IOException failure){discard();throw failure;}
+            }
+            SkyTile result(ChunkPos column)throws IOException {check();return ready.get(column);}
+            IOException failure(ChunkPos column)throws IOException {check();return failures.get(column);}
+            SkyPumpStatus status()throws IOException {owner();if(closed)return new SkyPumpStatus(0,0,0,0,0,false,true);check();return new SkyPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedInts,backpressure,false);}
+            @Override public void close()throws IOException {owner();if(closed)return;discard();desired.clear();closed=true;}
         }
         record ChunkPumpStatus(int desired,int pending,int ready,int failed,int stagedCells,boolean backpressure,boolean closed) {}
         ChunkPump openChunkPump(World current,int capacity,int maxCellLeaves)throws IOException {
@@ -689,7 +752,8 @@ final class RegionReplayWorker implements AutoCloseable {
     /** Owner-side signal only: never joins the worker or waits for I/O. A later
      * close retries failed cleanup on that same worker. Poll status for receipt. */
     @Override public void close()throws IOException {
-        owner();if(targetBinding!=null&&targetBinding.view!=null)targetBinding.view.close();
+        owner();if(targetBinding!=null&&targetBinding.skyPump!=null)targetBinding.skyPump.close();
+        if(targetBinding!=null&&targetBinding.view!=null)targetBinding.view.close();
         if(targetBinding!=null&&targetBinding.chunkPump!=null)targetBinding.chunkPump.close();
         transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {
             if(status.state()==State.CLOSED||status.state()==State.FAILED)return;
