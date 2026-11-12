@@ -394,3 +394,10 @@ never marks missing scaled, physical DPI or native OpenGL checks passed.
 Linux cannot execute CoreGraphics. Validate this helper in the scoped Mac job
 before claiming the repair works. The e7c01b3 Mac GLFW 0x10009 result remains
 pending; the existing four accelerated context variants were exhausted.
+
+The facd02e3 Mac helper selected 1280×960, but subsequent Java checks still
+reported 1024×684 usable bounds. Use a CoreGraphics session configuration so the
+mode survives helper exit. This applies only to the fenced ephemeral Actions
+login session, never permanent preferences. Verify subsequent Java bounds and
+actual captures in the next scoped run. facd02e3 also failed its first shell
+capture as mostly black; this remains a failed check, not an update pass.
