@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-11T14:01:37+00:00",
+  "updatedAt": "2026-11-12T20:34:42+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4204,6 +4204,21 @@
       "status": "complete",
       "note": "Upgraded standalone Codex 0.159.3 to 0.167.1. Login, diagnostics, worker protocol, planner schema and quota checks passed without model turns or changing worker controls.",
       "updatedAt": "2026-11-11T13:59:49+00:00"
+    },
+    {
+      "id": "agent-recovery-20261112",
+      "title": "Resume all blocked work",
+      "description": "Resumed launcher and reusable structures with verified environment/check observations. Both assigned developers are running; zero blocked items remain. Original checkpoints, review requirements and pending hardware qualification preserved.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "agent recovery 2026 11 12.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/agent-recovery-2026-11-12.json"
+        }
+      ],
+      "status": "complete",
+      "note": "Resumed launcher and reusable structures with verified environment/check observations. Both assigned developers are running; zero blocked items remain. Original checkpoints, review requirements and pending hardware qualification preserved.",
+      "updatedAt": "2026-11-12T20:34:42+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
