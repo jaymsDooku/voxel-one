@@ -32,7 +32,20 @@ let choice = (preferred.isEmpty ? candidates : preferred).min {
 if initial.width >= 2560 && initial.height >= 1600 {
     report["status"] = "already sufficient"
 } else if let choice = choice {
-    let result = CGDisplaySetDisplayMode(display, choice, nil)
+    // Keep the advertised mode for subsequent Java processes in this login
+    // session. A process-scoped change can revert when this helper exits.
+    // Never persist a permanent display preference.
+    var configuration: CGDisplayConfigRef?
+    var result = CGBeginDisplayConfiguration(&configuration)
+    if result == .success, let configuration = configuration {
+        result = CGConfigureDisplayWithDisplayMode(configuration, display, choice, nil)
+        if result == .success {
+            result = CGCompleteDisplayConfiguration(configuration, .forSession)
+        } else {
+            CGCancelDisplayConfiguration(configuration)
+        }
+    }
+    report["configurationScope"] = "ephemeral login session"
     report["changeResult"] = result.rawValue
     report["status"] = result == .success ? "changed" : "unsupported"
 } else {
