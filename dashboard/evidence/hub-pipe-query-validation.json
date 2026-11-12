@@ -1,0 +1,41 @@
+{
+  "head": "f1cc0e5b542c1dc93f9f729ee26489b036d58130",
+  "sourceKind": "Feature working tree; bounded pipe probe fix pending controller publication",
+  "base": "3f877c21c8e6776adba9d2130e2fd92e55853763",
+  "problem": "Historical exact-head run 39493265003 showed Windows FileSystemException deleting hub-own-child result file because another process held it; bounded controls also failed. Mac controls and fixture shell updates passed, but all hosted native render modes failed GLFW creation.",
+  "change": "Removed output file entirely. Daemon drains stdout while retaining at most 17 bytes; exit0, reader completion, no read failure, <=16 bytes and MATCH required. Close stdin immediately; timeout kills query. Drain/kill cleanup bounded; never close a stream while its reader holds a blocking read.",
+  "commands": [
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-tmp tools/hub/HubPlaytest.java tools/hub/PackageUiProbe.java tools/hub/ProcessQueryProbeTest.java",
+    "\"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-tmp:target/voxel-one-1.0-SNAPSHOT-client.jar ProcessQueryProbeTest",
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "java -Djava.io.tmpdir=$PWD/target/hub-tmp -cp target/hub-3d01f740-classes UnavailableWebPlaytest target/hub-f1cc0e5b-publication/catalog.properties target/hub-f1cc0e5b-profile dashboard/evidence/hub-f1cc0e5b-web-unavailable.png",
+    "TMPDIR=$PWD/target/hub-tmp gh run download 39493265003 --dir target/hub-hosted-8d74ac68",
+    "git diff --check",
+    "git diff --name-only --diff-filter=D 3f877c21c8e6776adba9d2130e2fd92e55853763"
+  ],
+  "queryControls": [
+    "Playtest: own-child query eof matched=true elapsedMs=185",
+    "Playtest: own-child query hang matched=false elapsedMs=305",
+    "Playtest: own-child query wrong matched=false elapsedMs=95",
+    "Playtest: own-child query overflow matched=false elapsedMs=113",
+    "Playtest: own-child query failed matched=false elapsedMs=166",
+    "Playtest: own-child query stderr matched=true elapsedMs=128"
+  ],
+  "pythonTests": "5 passed",
+  "Playtest": "Actual bounded process integration on bundled Linux Java: EOF and 500k stderr pressure match; timeout, wrong output, 500k stdout and exit7 reject; all six completed within bounds. Browser playtesting does not apply to this process probe. Fresh actual Hub unavailable-web capture also passed and was inspected; unchanged application source matches compiled rebased launcher.",
+  "hostedCurrent": {
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39495816297",
+    "observedStatus": "pending",
+    "passed": null
+  },
+  "historicalMediaReport": "hub-8d74ac68-platform-inspection.json",
+  "audit": "No unrelated deletions against new base; only Hub probe, its controls, packaged test expectation and validation notes changed.",
+  "publicationBundle": "target/hub-f1cc0e5b-publication; exact source before new probe edits; regenerate after controller commit. No public promotion performed.",
+  "pending": [
+    "Exact-source Windows probe rerun after pipe fix",
+    "Hosted native GPU qualification",
+    "Authorized preview release/catalog delivery and two public shell generations",
+    "Deployed browser build/cache reload",
+    "Physical Windows DPI and reference performance; stable rollout gated"
+  ]
+}

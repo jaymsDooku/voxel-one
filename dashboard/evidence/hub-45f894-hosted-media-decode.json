@@ -1,0 +1,41 @@
+[
+  {
+    "platform": "windows",
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "target/hub-hosted-45f894/hub-windows-45f894964164905bf0c687ec1aec1f5c512aaaf1/scale-1/Voxel-One_2026-10-19_23-05-42_16065232463246420394.mp4",
+      "dashboard/evidence/hub-45f894-windows-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 20 frames, 2.917 seconds"
+  },
+  {
+    "platform": "mac-arm",
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "target/hub-hosted-45f894/hub-mac-arm-45f894964164905bf0c687ec1aec1f5c512aaaf1/scale-1/Voxel-One_2026-10-19_23-05-13_11488008257561084796.mp4",
+      "dashboard/evidence/hub-45f894-mac-arm-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 20 frames, 2.917 seconds"
+  },
+  {
+    "platform": "mac-intel",
+    "command": [
+      "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar:target/hub-tmp",
+      "InspectMovie",
+      "target/hub-hosted-45f894/hub-mac-intel-45f894964164905bf0c687ec1aec1f5c512aaaf1/scale-1/Voxel-One_2026-10-19_23-06-56_650992559718282388.mp4",
+      "dashboard/evidence/hub-45f894-mac-intel-video-frame.png"
+    ],
+    "exitCode": 0,
+    "observed": "Actual movie: 20 frames, 2.917 seconds"
+  }
+]

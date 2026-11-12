@@ -1,0 +1,89 @@
+{
+  "sourceSha": "a16b2b830d7f4c20132a654642563add58098f51",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/42012797347",
+  "checks": {
+    "windows": {
+      "head": "a16b2b830d7f4c20132a654642563add58098f51",
+      "passedChecks": 18,
+      "nonPassing": [],
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "mac-intel": {
+      "head": "a16b2b830d7f4c20132a654642563add58098f51",
+      "passedChecks": 14,
+      "nonPassing": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    }
+  },
+  "sourceVerification": "All artifact fingerprints independently matched exact Git source, allowing only UTF-8 text LF/CRLF checkout conversion. Windows290converted, Intel0; no mismatches.",
+  "candidate": {
+    "path": "target/hub-a16-preview2-publication",
+    "generation": "hub-preview-2",
+    "sourceKind": "exact-commit",
+    "expectedCatalogHead": "1ce62377566c13e6b71783092073412a3289c93f",
+    "filesSha256": {
+      "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+      "shell.properties": "44be6a8b1197449dc9061ae6f28410cae75a45481003b623c8b1222c5df0d71d",
+      "voxel-one-shell.jar": "b16bdfb4a69614221ce8995a8baa5e02faea569dbc836ad457af1689db313f01"
+    },
+    "build": "Local freshJDK21 javac --release17 plus launcherresources; Main-Class dev.jayms.launcher.Launcher. Candidate only; controller must regenerate trusted reviewed packages.",
+    "nativeBuild": "playtest-632",
+    "web": "Explicitly unpublished; no service credentials or private browser identity in catalog or packages.",
+    "stableRolloutQualified": false,
+    "permission": "This plan grants no publication, command execution or approval. Root must apply existing review/authority/source fences."
+  },
+  "tests": [
+    "Playtest: built fresh current-source launcherJAR; ran actual Swing HubPlaytest in inherited Linux display with isolated profile. Home/library/details/tools/downloads,900x600/lighttheme/keyboard, emptysearch/catalog, additional synthetic catalog entry, and livecatalog refresh completed. Images inspected.",
+    "Playtest: bounded extra capture scrolled after layout, then captured actual Synthetic Catalog Game card in fresh900x600 Hub. The first helper capture did not show that card despite component assertion; replaced with inspected visible card image.",
+    "Read-only publication preparation: existing CLI validated currenthead, immutable preview2 generation and expected destination; created shellmanifest/catalog and three file hashes. Web remains withheld; no upload or mutation performed.",
+    "Playtest: exacthead Windows package check includes actual MSI/shortcuts/uninstall, local2fixture-generation shellupdate/rollback, login/TLS, catalog and clientexit recovery; all18checks passed.24Java tests passed with0failures/errors/skips.",
+    "Intel14 nonrender checks passed;24Java tests passed. City/Sandbox/editor rendering remains pending.",
+    "Windows City/Sandbox/editor MP4s decoded:4frames each,7.647/7.640/7.131seconds; firstframes inspected actual scenes. Softwarellvmpipe only; no physicalGPU/performance pass.",
+    "12localPython regression tests passed; diffwhitespace and deletionaudit passed. No deletedpaths vsrecordedreviewbase."
+  ],
+  "commands": [
+    "javac --release 17 -d target/hub-a16-preview-classes src/main/java/dev/jayms/launcher/*.java",
+    "cp -r src/main/resources/dev/jayms/launcher target/hub-a16-preview-classes/dev/jayms/",
+    "jar --create --file target/hub-a16-preview-shell.jar --main-class dev.jayms.launcher.Launcher -C target/hub-a16-preview-classes .",
+    "javac --release 17 -cp target/hub-a16-preview-shell.jar -d target/hub-a16-preview-helpers tools/hub/HubPlaytest.java",
+    "java -cp target/hub-a16-preview-shell.jar:target/hub-a16-preview-helpers HubPlaytest target/hub-a16-preview-media target/hub-a16-preview-profile",
+    "java -cp target/hub-a16-preview-shell.jar:target/hub-a16-preview-helpers HubCandidateEntryCapture target/hub-a16-preview-entry-profile dashboard/evidence/hub-a16b2b83-candidate-new-entry.png",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "git diff --check",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D"
+  ],
+  "environment": "JDK commands used /usr/lib/jvm/jdk-21.0.5-oracle-x64/bin; inherited DISPLAY/XAUTHORITY, never printed; synthetic profiles all under assigned worktree. Artifact downloads used worktree-local TMPDIR.",
+  "pending": [
+    "Actual second public Hub release and bootstrap upgrade; prior public release listing had onlypreview1.",
+    "Mac native rendering and required physicalGPU/realWindowsDPI/performance. Unchanged native contextprobes not manuallyrerun.",
+    "Normalvisitor browser sign-in and freshness across2actual deployed webgenerations. Prior serviceview gameplay remains separatelyscoped evidence.",
+    "Latestmaster integration, independentreview and controllerpublication fences."
+  ],
+  "media": "All new media here came from exacta16 Windowsartifact or freshlybuilt currentcandidate; pending controllerpublication."
+}

@@ -1,0 +1,58 @@
+{
+  "playtest": "Playtest: native Linux package with empty PATH; live catalog; City, Sandbox and editor --update-only; web/unknown selection rejection.",
+  "outcomes": [
+    {
+      "experience": "city",
+      "exitCode": 0,
+      "verifiedNativeFileReused": false
+    },
+    {
+      "experience": "sandbox",
+      "exitCode": 0,
+      "verifiedNativeFileReused": true
+    },
+    {
+      "experience": "engine-editor",
+      "exitCode": 0,
+      "verifiedNativeFileReused": true
+    },
+    {
+      "experience": "space-invaders",
+      "exitCode": 1,
+      "verifiedNativeFileReused": false
+    },
+    {
+      "experience": "unknown-fixture-id",
+      "exitCode": 1,
+      "verifiedNativeFileReused": false
+    }
+  ],
+  "catalogVersion": "38b7fd39479fc15aa1ef",
+  "nativeBuild": "playtest-632",
+  "source": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+  "artifactSize": 23159883,
+  "artifactSha256": "899b888ba40be67e3d67196d9f21651e24f185bf2d08422f24909fbd37a74451",
+  "observed": "Three native identities resolved to one verified immutable JAR with unchanged path, bytes and mtime; web and unknown IDs refused; no shell staged.",
+  "passed": true,
+  "limitations": [
+    "CLI and updater integration only, no gameplay or browser authentication.",
+    "Cache reuse was observed through artifact identity/hash/mtime, not packet-level network instrumentation.",
+    "No second public shell generation or physical qualification claim."
+  ],
+  "launcherSourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+  "packageProvenance": "All launcher classes/resources in tested package independently byte-matched Maven-built bd6118ac JAR; only synthetic package-generation marker is separate. Published native game artifact is the catalog release, not this feature game source.",
+  "command": "TMPDIR=\"$PWD/target/hub-tmp\" python3 tools/hub/public-cli-playtest.py --executable 'target/hub-bd6-linux/package-1/Voxel One Hub/bin/Voxel One Hub' --profile target/hub-public-cli-profile-final --output dashboard/evidence/hub-public-cli-validation.json",
+  "additionalValidation": [
+    "Actual CLI rejected preexisting profile before network/process launch and invalidated a seeded stale passing report.",
+    "13 Python regressions passed; syntax and git diff --check passed.",
+    "Mac ARM exact bd6118ac report was reread: all software checks passed; only City/Sandbox/editor context qualification remains pending. No physical/graphics pass invented."
+  ],
+  "newToolSourceSha256": "5c186aee7ca9e4c51fd19f756f4ba2333949489c7d0e50ac5cf634bcdf5b672e",
+  "browserPlaytest": "Does not apply to this update-only CLI workflow; it launches no game or browser. Existing exact-head Linux package UI/media remain separate evidence.",
+  "pending": [
+    "Required Mac native rendering, physical GPU/DPI/performance and independent review.",
+    "Two actually published Hub packages and public-bootstrap upgrade; reviewed publication remains root-owned.",
+    "Normal browser sign-in and freshness across two deployed web generations."
+  ],
+  "publication": "New test tool and sanitized report pending controller feature publication; previous reports/media preserved."
+}

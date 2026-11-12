@@ -1,0 +1,38 @@
+{
+  "head": "8d74ac68b9ea5067a3fa09df92532190772dfe4a",
+  "sourceKind": "Publisher/workflow edits pending controller commit; no launcher Java source edits this turn",
+  "hostedRun": {
+    "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493265003",
+    "observedStatus": "in_progress",
+    "passed": null
+  },
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 mvn -o -q -Dmaven.repo.local=$PWD/target/maven-cache -Djava.io.tmpdir=$PWD/target/hub-tmp -DskipTests package",
+    "python3 -m unittest discover -s tools/hub -p test_*.py",
+    "python3 tools/hub/publication_bundle.py prepare --native-receipt target/hub-8d74ac68-receipts/native.json --web-receipt target/hub-8d74ac68-receipts/web-unavailable.json --jar target/voxel-one-1.0-SNAPSHOT-launcher.jar --source-sha 8d74ac68b9ea5067a3fa09df92532190772dfe4a --tag hub-preview-1 --expected-catalog-head absent --output target/hub-8d74ac68-publication",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-tmp tools/hub/HubPlaytest.java tools/hub/UnavailableWebPlaytest.java",
+    "\"target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java\" -Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -cp target/hub-tmp:target/voxel-one-1.0-SNAPSHOT-client.jar UnavailableWebPlaytest target/hub-8d74ac68-publication/catalog.properties target/hub-8d74ac68-unavailable-profile dashboard/evidence/hub-8d74ac68-web-unavailable.png",
+    "git diff --check"
+  ],
+  "results": {
+    "build": "exit 0; package only, tests explicitly skipped",
+    "pythonTests": "5 passed; independent native/web updates, explicit unavailable web, malformed flags and previous output preservation",
+    "publicationPreparation": "Real native playtest-632 receipt; explicit unpublished web receipt; catalog, shell.properties and actual shell JAR prepared locally. No publication.",
+    "Playtest": "On inherited Linux display with bundled Java and isolated profile, actual Hub retained three supported native entries. Space Invaders detail displayed Temporarily unavailable and disabled Open in browser. Screenshot viewed. Initial harness run failed on a null decoration label; fixed null handling and reran successfully.",
+    "browserApplicability": "Publisher/CLI contract and Hub state change; browser opening is deliberately disabled for unavailable entries. Prior local cached browser gameplay is recorded separately and does not qualify production publication."
+  },
+  "bundle": "target/hub-8d74ac68-publication",
+  "bundleRequiresRegenerationAfterCommit": true,
+  "bundleFilesSha256": {
+    "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+    "shell.properties": "7920e6250a22b46eef22d7239879a47fd4f751ba5386aeaa095391268fe050c8",
+    "voxel-one-shell.jar": "f82e08cefc617a399963bb015d96909754a6ea63ddca4a34a3027e8fdebc365b"
+  },
+  "pending": [
+    "Hosted exact-head Windows/macOS results and media inspection",
+    "Public preview shell/catalog promotion and second-generation self-update",
+    "Actual deployed browser game/cache reload and web promotion",
+    "Physical GPU, Windows DPI, reference performance and stable rollout"
+  ],
+  "audit": "No unrelated deletion against b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6; preserved historical receipts and media."
+}

@@ -28,9 +28,14 @@ public class Window {
 
     public Window(int width, int height, String title, boolean visible, boolean resizable) {
         glfwDefaultWindowHints();
+        boolean mac = org.lwjgl.system.Platform.get() == org.lwjgl.system.Platform.MACOSX;
         boolean modern = !Boolean.getBoolean("voxel.gl33");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, modern ? 4 : 3);
-        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+        // macOS exposes core OpenGL up to 4.1. Requesting 4.3 cannot succeed.
+        glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, modern && mac ? 1 : 3);
+        // GLFW's documented macOS path allows eligible offline GPUs without
+        // forcing a discrete GPU. This does not provide a CPU renderer.
+        if (mac) glfwWindowHint(GLFW_COCOA_GRAPHICS_SWITCHING, GLFW_TRUE);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
         glfwWindowHint(GLFW_OPENGL_FORWARD_COMPAT, GLFW_TRUE);
         glfwWindowHint(GLFW_VISIBLE, glfwBool(visible)); // the window will stay hidden after creation
@@ -42,8 +47,13 @@ public class Window {
             glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
             window = glfwCreateWindow(width, height, title, NULL, NULL);
         }
-        if ( window == NULL )
-            throw new RuntimeException("Failed to create the GLFW window");
+        if (window == NULL) {
+            // Capture the fixed numeric error before Main cleans up GLFW. Never include
+            // driver descriptions, environment data or a native stack in Hub evidence.
+            int error = glfwGetError((org.lwjgl.PointerBuffer) null);
+            throw new RuntimeException("Failed to create the GLFW window (GLFW error 0x"
+                    + Integer.toHexString(error) + ")");
+        }
     }
 
     public long getHandle() {

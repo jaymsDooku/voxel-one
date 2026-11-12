@@ -1,0 +1,20 @@
+{
+  "baseHead": "6307ffede5a191e917a3b6d248d7d44df2b361fc",
+  "packageRun": "interrupted on controller pause; not a full pass",
+  "completedChecks": [
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed"
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed"
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed"
+    }
+  ],
+  "previousPackageAttemptExitCode": 143,
+  "stableRolloutQualified": false
+}

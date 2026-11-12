@@ -63,3 +63,7 @@ website/**/.wrangler/
 
 # Browser validation scratch files; finished media lives in dashboard/evidence.
 /.tmp/
+
+# JVM crash dumps can include private runtime state.
+hs_err_pid*.log
+replay_pid*.log

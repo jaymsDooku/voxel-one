@@ -1,0 +1,18 @@
+{
+  "command": [
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-compatibility-final-package/Voxel One Hub/lib/runtime/bin/java",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "-Dhub.playtest.skipRecording=true",
+    "-cp",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-compatibility-final-package/Voxel One Hub/lib/app/voxel-one-launcher.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "HubWorkflowPlaytest",
+    "dashboard/evidence",
+    "target/hub-compatibility-final-profile"
+  ],
+  "exitCode": 0,
+  "environment": "Inherited authenticated DISPLAY/XAUTHORITY; software GL; null audio; isolated synthetic profile; bundled Java runtime. No authentication cookie read or recorded.",
+  "packagedLauncherSha256": "6680aad0935ea8b4b108f2b1b630fc76ad39f1eedff48903955e26c3ac8cd921",
+  "sourceKind": "Final unpublished working tree based on 7fde413",
+  "Playtest": "Actual packaged-runtime Hub install/City/Sandbox/editor launch, incompatible latest status and fallback, incompatible cache refusal with updates disabled, corrupt update, cancel and offline cache. Recording disabled.",
+  "retry": "Image-only label handling fixed in test helper; this is the retry result."
+}

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publication-final-package/Voxel One Hub/lib/runtime/bin/java",
+    "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "-Dhub.playtest.skipRecording=true",
+    "-Dhub.playtest.clientJar=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-native-published-565-cache/versions/403033b9f53ce66063982879c6e2daff684a427b/da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa/linux.jar",
+    "-cp",
+    "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-publication-final-package/Voxel One Hub/lib/app/voxel-one-launcher.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+    "HubWorkflowPlaytest",
+    "dashboard/evidence",
+    "target/hub-publication-published-client-profile"
+  ],
+  "exitCode": 0,
+  "sourceKind": "Final unpublished working tree based on 32d93e",
+  "packagedLauncherSha256": "6dc4599881a2586f126d67e1383298d79722ca4d2ca75038024f40fc79d9b9d8",
+  "nativeClientSha256": "da45fe181fbfe3d87fc5b7bbd6816fb321309e9c89fb311bdeeb3074c037b4aa",
+  "nativeClientRelease": "playtest-565, installed and verified first through real public HTTPS metadata",
+  "environment": "Bundled Java 21; inherited authenticated DISPLAY/XAUTHORITY; software GL; null audio; isolated synthetic profiles. Cookie not read or recorded.",
+  "Playtest": "Actual Hub City/Sandbox/editor offline launches using verified published native bytes. Loopback manifest revisions deliberately synthetic for compatibility, corrupt/cancel/offline cases; one shared transfer within that isolated fixture. Recording disabled. No physical GPU qualification."
+}

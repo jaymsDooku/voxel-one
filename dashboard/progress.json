@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T06:00:47+00:00",
+  "updatedAt": "2026-11-12T20:35:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4100,6 +4100,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "62383835386364312d346130642d346262652d383736632d393534373062343337356161",
+      "title": "Voxel One Hub",
+      "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Prepared bounded Mac desktop repair: include advertised low-resolution modes and choose a non-shrinking 1280x900 fallback when 2560x1600 is absent. 13 local regressions pass; actual CoreGraphics and native rendering remain pending. Master remains recorded review base; no unrelated deletions.",
+      "updatedAt": "2026-11-12T20:35:20+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

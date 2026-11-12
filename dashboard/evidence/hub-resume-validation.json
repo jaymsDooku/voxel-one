@@ -1,0 +1,99 @@
+{
+  "baseHead": "dd38d8c1e15311cd820c08cb05998869d5ae5249",
+  "sourceKind": "unpublished feature working tree",
+  "remoteRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/38303066989",
+  "remoteObserved": {
+    "windows": "Failed shell process, MSI and UI checks; regression/updater/login checks passed.",
+    "mac-arm": "UI checks failed; other assertions passed.",
+    "mac-intel": "Assertions passed; local-network system prompt obscured captures. Visual acceptance failed."
+  },
+  "localCommand": "python3 tools/hub/check_packages.py --display \"$DISPLAY\" --source-sha dd38d8c1e15311cd820c08cb05998869d5ae5249 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-render-candidate --output dashboard/evidence/hub-render-candidate-linux",
+  "environment": "Linux x86_64; inherited authenticated 3200x2000 display; bundled Java; isolated synthetic profiles; software rendering",
+  "checks": [
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed",
+      "expected": "Previous verified installation retained; no duplicate transfer",
+      "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes.",
+      "playtest": "Playtest: Updater failures, locks, concurrency and migration"
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed",
+      "expected": "Empty PATH works; active shell retained; new shell activates next start",
+      "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim.",
+      "playtest": "Playtest: Native executable and two-version bootstrap update"
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed",
+      "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+      "observed": "Production hub cards, requested extents and keyboard captured at JVM scale 1",
+      "playtest": "Playtest: UI at JVM scale 1"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed",
+      "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+      "observed": "Production hub cards, requested extents and keyboard captured at JVM scale 1.5",
+      "playtest": "Playtest: UI at JVM scale 1.5"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed",
+      "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+      "observed": "Production hub cards, requested extents and keyboard captured at JVM scale 2",
+      "playtest": "Playtest: UI at JVM scale 2"
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed",
+      "expected": "Both native game identities authenticate to their selected TLS server",
+      "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed.",
+      "playtest": "Playtest: Synthetic online login handoff"
+    },
+    {
+      "name": "Native rendered city",
+      "status": "passed",
+      "expected": "Verified platform client renders four real frames with bundled Java",
+      "observed": "Playtest: production native city renderer completed four frames in 30311 ms; LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks.",
+      "playtest": "Playtest: Native rendered city"
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "passed",
+      "expected": "Verified platform client renders four real frames with bundled Java",
+      "observed": "Playtest: production native sandbox renderer completed four frames in 23821 ms; LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks.",
+      "playtest": "Playtest: Native rendered sandbox"
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "passed",
+      "expected": "Verified platform client renders four real frames with bundled Java",
+      "observed": "Playtest: production native editor renderer completed four frames in 19772 ms; LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks.",
+      "playtest": "Playtest: Native rendered editor"
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed",
+      "expected": "Last verified client usable without service",
+      "observed": "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-render-candidate/native-cache/versions/dd38d8c1e15311cd820c08cb05998869d5ae5249/fc46ae0e32fcd9be062fad29e115b199d0a622cf619fa7f197fae72541eeaa8c/linux.jar",
+      "playtest": "Playtest: Offline native installation"
+    }
+  ],
+  "mediaInspection": {
+    "native-city": "Decoded and viewed: four frames, 22.726 seconds; controls overlay and scene.",
+    "native-sandbox": "Decoded and viewed: four frames, 18.643 seconds; controls overlay and scene.",
+    "native-editor": "Decoded and viewed: four frames, 14.57 seconds; editor workspace.",
+    "hub-final-space-detail": "Viewed: real published game screenshot and enabled Open in browser action."
+  },
+  "limitations": [
+    "Four native frames are not smooth gameplay proof.",
+    "Two fixture shell generations are not two published desktop releases.",
+    "JVM scaling is not physical Windows monitor DPI.",
+    "Probe diagnostic/Windows argument-query edits occurred after helper compilation; rerun exact-source workflow after controller publication.",
+    "Windows/macOS rerun and final master synchronization/review-base audit remain pending."
+  ],
+  "production": "Inspected controller report and image: HTTP200; software WebKit move/fire/pause/resume/cached reload passed. No physical performance claim.",
+  "publication": "New media and edits pending controller publication; no developer commit/push/deploy."
+}

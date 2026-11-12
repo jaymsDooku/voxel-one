@@ -1,0 +1,14 @@
+{
+  "source": "624361a3 plus working PublicCatalogProbe edit",
+  "tests": [
+    "Playtest: actual public HTTPS catalog refreshed with packaged runtime; full record matched fresh cached read;4entries",
+    "Playtest: same public catalog supplied as advancement baseline rejected with AssertionError Published catalog has not advanced from baseline, exit1 expected",
+    "javac --release17 compilation passed"
+  ],
+  "pending": [
+    "actual changed public catalog promotion",
+    "second public shell generation",
+    "native Windows/macOS rendering and physical qualification"
+  ],
+  "windowsResult": "624361a3 scoped report inspected: only native City/Sandbox/editor pending because no tested context was available; no new source failure"
+}

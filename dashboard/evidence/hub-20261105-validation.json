@@ -1,0 +1,258 @@
+{
+  "date": "2026-11-05",
+  "featureHead": "372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442",
+  "newSource": "Hosted web playtest tools and validation documentation are local edits after this head; pending controller publication. Production launcher source unchanged this turn.",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/41125730571",
+  "platforms": {
+    "windows": {
+      "sourceSha": "372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442",
+      "sourceFingerprints": "All paths normalized from Windows separators and compared against exact-head git show; raw or LF-normalized SHA-256 matched.",
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=141"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Provisional Hub responsiveness",
+          "status": "passed",
+          "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Native client exit recovery",
+          "status": "passed",
+          "observed": "Playtest: actual Play; delayed exit 7 reported; verified client retained; clean exit 0 reported; older exit cannot overwrite latest launch; startup cancellation stops child; synthetic save preserved. Synthetic process fixture, not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=true code=0x0\r\nContext diagnosis: variant=1 created=true code=0x0\r\nContext diagnosis: variant=2 created=true code=0x0\r\nContext diagnosis: variant=3 created=true code=0x0\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "passed",
+          "observed": "Playtest: production native city renderer completed four frames in 13381 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "passed",
+          "observed": "Playtest: production native sandbox renderer completed four frames in 11773 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "passed",
+          "observed": "Playtest: production native editor renderer completed four frames in 12842 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442\\4e0ca95dbdcbbe71269b5d6650db8611a7ae88ce921714a7f36b8b203f617d3a\\windows.jar"
+        }
+      ]
+    },
+    "mac-intel": {
+      "sourceSha": "372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442",
+      "sourceFingerprints": "All paths normalized from Windows separators and compared against exact-head git show; raw or LF-normalized SHA-256 matched.",
+      "checks": [
+        {
+          "name": "Bounded own-child query controls",
+          "status": "passed",
+          "observed": "Playtest: own-child query eof matched=true elapsedMs=201"
+        },
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "failed",
+          "observed": "AssertionError: HUB_CHECK_FAILURE: AssertionError: Native shell capture is mostly black; visible desktop qualification pending"
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "status": "passed",
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+        },
+        {
+          "name": "Provisional Hub responsiveness",
+          "status": "passed",
+          "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "status": "passed",
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Native client exit recovery",
+          "status": "passed",
+          "observed": "Playtest: actual Play; delayed exit 7 reported; verified client retained; clean exit 0 reported; older exit cannot overwrite latest launch; startup cancellation stops child; synthetic save preserved. Synthetic process fixture, not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "status": "passed",
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Bounded context diagnosis",
+          "status": "passed",
+          "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+        },
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442/f50f02996cca28b57a93c29981e227493847c95be70aa5edd828fd1e58928fa3/mac-intel.jar"
+        }
+      ]
+    }
+  },
+  "windowsMaven": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mediaInspection": [
+    "Decoded each exact-head Windows City/Sandbox/editor MP4: four frames each, durations 7.902/7.724/7.488 s. Inspected decoded frame from each: City zoning/HUD, Sandbox terrain/vehicle/HUD, editor inspector. These are software-rendered smoke sessions, not physical GPU/performance qualification.",
+    "Inspected Intel shell-one image: menu/dock visible but Hub window absent against black desktop. Capture failure retained, not converted to pass.",
+    "Inspected deployed service-view browser capture: actual Space Invaders game with positive score and paused overlay. Deployed assets differ from feature game files; this is external deployed-experience validation, not exact-feature game media."
+  ],
+  "publicCatalog": {
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+    "httpStatus": 200,
+    "version": "38b7fd39479fc15aa1ef",
+    "nativeBuild": "playtest-632",
+    "nativeSource": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+    "nativeManifestRevisionMatchesCatalog": true,
+    "webBuild": "unpublished",
+    "webSource": "unpublished",
+    "artifactIdentity": "City/Sandbox/editor share voxel-client; actual catalog parser/cached-store integration passed with four entries."
+  },
+  "publicShell": {
+    "tag": "hub-preview-1",
+    "sha256": "501f9c51f2907df5f91b2e8a6fc207f79db0c83a314cb1b25d438ffc239a2c34",
+    "size": 885236,
+    "verified": true,
+    "secondGeneration": "hub-preview-2 HTTP404; only one Hub release in actual release listing. Two published-generation upgrade remains pending. Local two-packaged-generation tests are separate."
+  },
+  "web": {
+    "registeredSiteAudience": "Preserved existing custom access. No audience, deployment or publication mutation performed.",
+    "routeDiagnosis": "Normal fresh browser lacks game Start at access boundary; registered server-side Sites service access returned HTTP200 with actual game Start. Explicit index.html returned307; directory URL is correct. No private page content captured.",
+    "servicePlaytest": "Started deployed game in desktop WebKit via game-only bounded proxy; sent movement/fire; score advanced; pause/resume and same-build reload/restart passed; no page errors. Browser received no service credentials.",
+    "provenance": "Deployed response asset hashes recorded in hub-hosted-web-assets.json. Do not treat deployed source as matching the feature game files.",
+    "publication": "Catalog correctly still withholds web build. No promotion or visitor-authentication pass claimed."
+  },
+  "commands": [
+    "gh run download 41125730571 -n hub-windows-372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442 -D target/hub-372-windows (TMPDIR set to assigned worktree/target/hub-tmp)",
+    "gh run download 41125730571 -n hub-mac-intel-372d1ad982e8a4bdfb008f7c1a6cc24d77bd2442 -D target/hub-372-mac-intel (same TMPDIR)",
+    "java -cp target/hub-software-classes:target/voxel-one-1.0-SNAPSHOT-client.jar InspectMovie <each copied exact-head Windows MP4> <decoded PNG>",
+    "java -cp target/hub-exit-classes PublicCatalogProbe target/hub-public-catalog-20261105",
+    "TMPDIR=\"$PWD/target/hub-tmp\" PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" python3 tools/hub/hosted-web-playtest.py (registered service access supplied through hidden stdin; no credentials retained)",
+    "python3 -m py_compile tools/hub/hosted-web-playtest.py",
+    "node --check tools/hub/hosted-web-playtest.cjs",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D",
+    "git diff --check"
+  ],
+  "edgeCheck": "Synthetic unexpected origin rejected before network/browser; supplied synthetic token was not echoed.",
+  "regressions": "11 Python tests passed. No deleted paths against recorded review base; whitespace check passed.",
+  "pending": [
+    "Mac ARM and Intel native rendering remain pending; exhausted context probes were not rerun.",
+    "Intel native shell visible-capture/two-generation activation failure remains unresolved on that runner.",
+    "Normal signed-in visitor browser flow and freshness across two actual deployed web versions.",
+    "Second reviewed immutable Hub package publication and real public-bootstrap upgrade.",
+    "Physical GPU, real Windows monitor DPI/performance, latest-master integration and independent review."
+  ],
+  "nextControllerWork": "Publish/sync these bounded validation tools and sanitized media on assigned feature branch. Existing root-owned publication work must fence any reviewed preview2/catalog promotion. Do not infer stable qualification from these results.",
+  "sourceSha256": {
+    "tools/hub/hosted-web-playtest.py": "9966b2ebd51c56924a30d080223ab44fea705e0b65e722680792499b4777328b",
+    "tools/hub/hosted-web-playtest.cjs": "69b6b5392020971613191de7a4c3f282c054038085f03db68fc86c047eba7043",
+    "tools/hub/VALIDATION.md": "7e7f66e518f962500cf8d188ac510b841268edb2f6cfb155356988a973a36f2f"
+  }
+}

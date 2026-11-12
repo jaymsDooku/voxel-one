@@ -1,0 +1,37 @@
+{
+  "playtest": "Playtest: GET game routes with and without supported Site service access; compare status/start-control/module presence. No identity, cookies, response bodies or credentials retained.",
+  "routes": [
+    {
+      "path": "/games/space-invaders/",
+      "serviceAccess": false,
+      "status": 403,
+      "authRedirect": false,
+      "gameStartControl": false,
+      "moduleScript": false
+    },
+    {
+      "path": "/games/space-invaders/",
+      "serviceAccess": true,
+      "status": 404,
+      "authRedirect": false,
+      "gameStartControl": false,
+      "moduleScript": false
+    },
+    {
+      "path": "/games/space-invaders/index.html",
+      "serviceAccess": false,
+      "status": 403,
+      "authRedirect": false,
+      "gameStartControl": false,
+      "moduleScript": false
+    },
+    {
+      "path": "/games/space-invaders/index.html",
+      "serviceAccess": true,
+      "status": 404,
+      "authRedirect": false,
+      "gameStartControl": false,
+      "moduleScript": false
+    }
+  ]
+}

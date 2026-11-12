@@ -1,0 +1,18 @@
+{
+  "baseHead": "32d93e09768167a188e7507cd4fe65d1880443b7",
+  "sourceKind": "unpublished working tree",
+  "note": "Paused for service control. All unpublished edits, publication bundles and media preserved. No commit, push, merge or deployment performed. No new tests started after pause.",
+  "mavenFinalRebuild": {
+    "exitCode": 0,
+    "counts": {
+      "tests": 19,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "note": "Already running operation finished during pause. No new tests started."
+  },
+  "fullOriginalAcceptanceComplete": false,
+  "stableRolloutQualified": false,
+  "publicationIntegration": "Failed: catalog/shell/preview artifact HTTP404; controller handoff remains required."
+}

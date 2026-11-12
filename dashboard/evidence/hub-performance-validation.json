@@ -1,0 +1,82 @@
+{
+  "baseSource": "65fbe50aa9e650d1839e9c678e1a58020f3ab837",
+  "sourceKind": "Working-tree performance harness and check integration; production UI unchanged",
+  "referenceSession": {
+    "platform": "Linux VPS x86_64, inherited managed display and authentication",
+    "runtime": "Existing jpackage bundled Java21; four Java-visible processors",
+    "hardwareScope": "Virtual software session only. No physical reference hardware/performance qualification.",
+    "profile": "Fresh isolated synthetic profile; updates=false, no game/account state."
+  },
+  "probeSha256": "7b1e25b4c4a4d8d4b58d3894b85b8d25fdc68951e479c5f751fb44abace6f6d1",
+  "commands": [
+    "javac --release 17 -cp target/hub-performance-classes -d target/hub-performance-classes tools/hub/HubPerformanceProbe.java",
+    "target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java -cp target/hub-performance-classes HubPerformanceProbe target/hub-performance-profile-3 target/hub-performance-output-3",
+    "python3 -m unittest discover -s tools/hub -p test_*.py -q"
+  ],
+  "observed": {
+    "scope": "software-session regression only; no physical performance qualification",
+    "javaVisibleProcessors": 4,
+    "jvmToVisibleUiIdleMillis": 1206,
+    "frameConstructionAndUiIdleMillis": 1067,
+    "heapUsedBytes": 8556736,
+    "heapCommittedBytes": 22020096,
+    "memoryScope": "Java heap after navigation; not RSS, native memory or peak memory",
+    "navigationSamples": 30,
+    "navigationMedianMillis": 12,
+    "navigationP95Millis": 42,
+    "navigationMaxMillis": 56,
+    "navigationScope": "EDT page rebuild and layout round trip; native queue drain is separate",
+    "nativeQueueDrainP95Millis": 109,
+    "nativeQueueDrainMaxMillis": 146,
+    "budget": {
+      "firstUiIdleMillis": 10000,
+      "heapUsedBytes": 268435456,
+      "navigationP95Millis": 1000
+    },
+    "provisionalBudgetPassed": true,
+    "physicalQualificationPassed": false
+  },
+  "initialMeasurement": {
+    "observed": {
+      "scope": "software-session regression only; no physical performance qualification",
+      "javaVisibleProcessors": 4,
+      "jvmToFirstPaintMillis": 1591,
+      "frameConstructionAndPaintMillis": 1386,
+      "heapUsedBytes": 8647632,
+      "heapCommittedBytes": 23068672,
+      "memoryScope": "Java heap after navigation; not RSS, native memory or peak memory",
+      "navigationSamples": 30,
+      "navigationMedianMillis": 73,
+      "navigationP95Millis": 2708,
+      "navigationMaxMillis": 2734,
+      "budget": {
+        "firstPaintMillis": 10000,
+        "heapUsedBytes": 268435456,
+        "navigationP95Millis": 1000
+      },
+      "provisionalBudgetPassed": false,
+      "physicalQualificationPassed": false
+    },
+    "exitCode": 1,
+    "interpretation": "Initial combined navigation/native queue-drain p95 exceeded1000ms. Retained as failed measurement; no causal claim. Final harness separately measures EDT roundtrip and native queue drain, not interchangeable metrics."
+  },
+  "Playtest": {
+    "steps": "Open actual Hub900x600;30real page navigation/layout roundtrips across Home,Games,Tools,Downloads,Settings; capture Games.",
+    "expected": "Visible UI and provisional bounded software-session startup/heap/EDT navigation, with native queue-drain reported separately.",
+    "observed": "Final probe exited0. Capture inspected; Games page and City card visible. No display server started or authentication cookie read.",
+    "screenshot": "hub-performance-library.png"
+  },
+  "tests": [
+    "11Python regressions passed.",
+    "All newly compiled launcher classes byte-match the measured classes.",
+    "Mac65f ARM/Intel reports both fingerprint-verified; format variants still unavailable, precise pending report retained."
+  ],
+  "pending": [
+    "Exact-source Windows/Mac performance-probe integration run.",
+    "Mac native rendering remains unavailable after supported format diagnosis.",
+    "PhysicalGPU, Windows monitor DPI and real reference-hardware performance.",
+    "Published-generation update and deployed browser freshness."
+  ],
+  "physicalQualificationPassed": false,
+  "stableRolloutQualified": false
+}

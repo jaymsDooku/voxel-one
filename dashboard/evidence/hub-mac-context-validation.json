@@ -1,0 +1,64 @@
+{
+  "baseSource": "fae788317918024d9a16b1567ce22a2e1ad48b7a",
+  "sourceKind": "Working tree Mac context fix plus compiled Window overlay",
+  "diagnosis": {
+    "observed": "Exact fae Mac ARM report: all four prior context variants fail0x10009. No native render pass.",
+    "reference": "https://raw.githubusercontent.com/glfw/glfw/3.4/src/nsgl_context.m",
+    "finding": "Examined upstream NSGL source requires accelerated pixel format; graphics-switching enables eligible offline GPU formats. It does not provide software rasterization.",
+    "versionCaveat": "Packaged Linux library reports GLFW3.5.0; inspected3.4source is a reference, not an assertion of identical bundled binary source. Actual Mac behavior requires new hosted results."
+  },
+  "changes": [
+    "Mac default requests supported OpenGL4.1 core instead of4.3.",
+    "Mac graphics switching enabled; existing3.3fallback retained. NonMac Window behavior unchanged.",
+    "Four Mac probes compare4.1/3.3, offline-GPU eligibility and relaxed framebuffer. No downgrade below engine requirement.",
+    "Four complete failures still leave native qualification pending."
+  ],
+  "commands": [
+    "javac --release 17 -cp target/voxel-one-1.0-SNAPSHOT-client.jar -d target/hub-mac-context-classes src/main/java/dev/jayms/window/Window.java tools/hub/NativeContextProbe.java tools/hub/NativeRenderProbe.java",
+    "python3 -m unittest discover -s tools/hub -p test_*.py -q",
+    "LIBGL_ALWAYS_SOFTWARE=1 GALLIUM_DRIVER=llvmpipe LP_NUM_THREADS=2 java -cp target/hub-mac-context-classes:target/voxel-one-1.0-SNAPSHOT-client.jar NativeContextProbe",
+    "WindowFailureProbe through same changed Window overlay.",
+    "InspectMovie decoded fresh Sandbox regression recording."
+  ],
+  "tests": [
+    "Java compilation passed.",
+    "11Python tests passed.",
+    "All four Linux context variants created successfully with code0.",
+    "Invalid native width returned fixed0x10004."
+  ],
+  "Playtest": {
+    "environment": "LinuxVPS, inherited assigned display and auth, no new display server. Separate synthetic profile, bundledJava, llvmpipe LLVM15.0.6, LP_NUM_THREADS2, LOWpreset.",
+    "expected": "Existing explicit3.3route still renders real production Sandbox with changed Window class.",
+    "observed": {
+      "command": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-repair-linux/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Dvoxel.gl33=true",
+        "-Dvoxel.hub.requireSoftwareRenderer=true",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-mac-context-classes:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "NativeRenderProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-mac-context-profile",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-mac-context-capture",
+        "sandbox"
+      ],
+      "exitCode": 0,
+      "observed": [
+        "Playtest: production native sandbox renderer completed four frames in 26563 ms; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW preset; no smooth-performance claim."
+      ]
+    },
+    "media": "hub-mac-context-linux-regression.mp4",
+    "decoded": "JCodec decoded4frames,18.75seconds; decoded frame inspected and shows vehicle/terrain/HUD.",
+    "limits": "Linux regression only. No Mac render or physical qualification claimed."
+  },
+  "sourceHashes": {
+    "src/main/java/dev/jayms/window/Window.java": "f4d86494a1ba569130f727f3c8fce57f3e7d3438f224845f57007e732db3bbc9",
+    "tools/hub/NativeContextProbe.java": "4ccd411f0865fe9c2fa92b4ff1cabe30280ec5c89c9759acd359785176ac9013"
+  },
+  "pending": [
+    "New exact-source Mac Intel and ARM actual rendered output.",
+    "PhysicalGPU, actualWindows monitorDPI and performance.",
+    "Published2generation upgrade and browser cachedfreshness."
+  ],
+  "stableRolloutQualified": false
+}

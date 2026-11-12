@@ -1,0 +1,11 @@
+{
+  "command": "node --test games/space-invaders/portal.test.mjs games/space-invaders/alternate-earth.test.mjs games/space-invaders/ground.test.mjs",
+  "exitCode": 0,
+  "counts": [
+    "# tests 31",
+    "# pass 31",
+    "# fail 0",
+    "# skipped 0"
+  ],
+  "playtest": "Playtest: restored source/portal/Earth runtime integration CLI; browser playtest recorded separately."
+}

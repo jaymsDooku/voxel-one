@@ -1,0 +1,42 @@
+{
+  "baseCommit": "1f3b321a46f2684d9c6530c84513bbb8da51c737",
+  "source": "Uncommitted feature working tree; remote exact-head checks pending",
+  "checks": [
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\" --workflow",
+      "result": "passed after fixing xdotool PID/title intersection",
+      "playtest": "Playtest: actual hub install and City/Sandbox/editor offline launches; invalid server/port; shared download; corrupt fallback; cancel; offline cache. Fresh F10 videos decoded and images inspected.",
+      "frames": {
+        "city": 4,
+        "sandbox": 3,
+        "editor": 5
+      },
+      "limitation": "Sparse software-rendered frames do not prove smooth gameplay."
+    },
+    {
+      "command": "python3 tools/hub/check_packages.py --source-sha 1f3b321a46f2684d9c6530c84513bbb8da51c737 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-artifact-local3 --output dashboard/evidence/hub-artifacts-linux --artifacts-only",
+      "result": "passed",
+      "playtest": "Playtest: actual updater transfers, verification failure fallback, partial/corrupt/malformed metadata, cancellation, concurrent busy/retry with one download, idempotent legacy migration."
+    },
+    {
+      "command": "python3 tools/hub/check_packages.py --source-sha 1f3b321a46f2684d9c6530c84513bbb8da51c737 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --work target/hub-scoped-local --output dashboard/evidence/hub-scoped-linux",
+      "result": "failed overall",
+      "observed": "Native bundled-runtime activation and two fixture shell generations passed. UI checks failed because requested 1280x800 exceeds 1280x720 desktop. Initial concurrency expectation failed; corrected retry test passed separately."
+    },
+    {
+      "command": "python3 -m py_compile tools/hub/check_packages.py tools/hub/package.py tools/hub/site_probe.py tools/hub/summarize_tests.py",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check; git ls-files -u",
+      "result": "passed; no unmerged index"
+    }
+  ],
+  "pending": [
+    "Exact-source Windows/macOS workflow dispatch and media inspection",
+    "Actual Windows monitor DPI and GPU gameplay",
+    "Production Space Invaders publication/gameplay; authenticated routes return 404",
+    "Further online UI validation"
+  ],
+  "publication": "Media and reports pending controller publication"
+}

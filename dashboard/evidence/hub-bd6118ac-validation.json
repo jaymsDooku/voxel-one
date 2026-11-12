@@ -1,0 +1,146 @@
+{
+  "sourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+  "hostedRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/42622193344",
+  "platforms": {
+    "windows": {
+      "sourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+      "passedChecks": 19,
+      "nonPassing": [],
+      "fullQualificationPassed": false,
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "mac-intel": {
+      "sourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+      "passedChecks": 15,
+      "nonPassing": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "fullQualificationPassed": false,
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "mac-arm": {
+      "sourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+      "passedChecks": 15,
+      "nonPassing": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "fullQualificationPassed": false,
+      "maven": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      }
+    },
+    "linux": {
+      "sourceSha": "bd6118ac32cc61fb5d8e48af1b41513f65200086",
+      "passedChecks": 18,
+      "nonPassing": [],
+      "fullQualificationPassed": false
+    }
+  },
+  "sourceVerification": "All four platform reports matched exact-head source fingerprints. Windows291UTF8textfiles matched CRLF checkout conversion; others matched directly. No mismatches.",
+  "tests": [
+    "Playtest: actual exact-head Windows package19checks passed, including nativeexecutable/MSI/shortcuts/uninstall, twofixture-generation shellupdate+rollback, updater/offline/locks/migration, pinnedTLS login, catalogpromotion, clientexit/cancel and friendlycatalogstatus/detail/offline fallback.",
+    "Playtest: MacIntel and ARM each15nonrender checks passed, including latestcatalogstatus test. Native City/Sandbox/editor remain pending after unavailable context. No manual retry of exhausted Macprobes performed.",
+    "Playtest: fresh Mavenpackage built exacthead with assignedcache/tmp; local Linux bundled-runtime check completed18checks with emptyPATHnative launch, fixtureupdate+rollback, realSwing workflows, updater/offline/TLS/catalog and all3native modes.",
+    "Windows/Mac hostedMaven summaries:24tests each,0failures/errors/skips. Linux package command used skipTests; it does not claim another local unit-test run.",
+    "12localPython regressions passed. Production-parserCLI accepted preparedcatalog with3sharednative entries and disabled unpublishedweb. No browser applies to this metadata CLI integration.",
+    "Media: inspected exacthead catalog status images on all4platforms. Decoded Windows3modeMP4s4frames each,7.485/7.422/7.161seconds, inspected firstframes; decoded Linux4frames each,16.659/17.261/15.862seconds, inspected firstframes. City/Sandbox/editor actualsoftware output observed. Some Linux observer framing crops HUD edges; this is rendered smoke, not full gameplay/UI qualification.",
+    "No deletions against recorded review base; whitespace check passed. All edits retained."
+  ],
+  "linuxPerformance": {
+    "scope": "software-session regression only; no physical performance qualification",
+    "javaVisibleProcessors": 4,
+    "jvmToVisibleUiIdleMillis": 1178,
+    "frameConstructionAndUiIdleMillis": 1024,
+    "heapUsedBytes": 7759360,
+    "heapCommittedBytes": 26214400,
+    "memoryScope": "Java heap after navigation; not RSS, native memory or peak memory",
+    "navigationSamples": 30,
+    "navigationMedianMillis": 7,
+    "navigationP95Millis": 20,
+    "navigationMaxMillis": 23,
+    "navigationScope": "EDT page rebuild and layout round trip; native queue drain is separate",
+    "nativeQueueDrainP95Millis": 90,
+    "nativeQueueDrainMaxMillis": 159,
+    "budget": {
+      "firstUiIdleMillis": 10000,
+      "heapUsedBytes": 268435456,
+      "navigationP95Millis": 1000
+    },
+    "provisionalBudgetPassed": true,
+    "physicalQualificationPassed": false
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=<assigned-worktree>/target/maven-cache -Djava.io.tmpdir=<assigned-worktree>/target/hub-tmp -DskipTests package",
+    "python3 tools/hub/check_packages.py --source-sha bd6118ac32cc61fb5d8e48af1b41513f65200086 --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64 --display \"$DISPLAY\" --software-rendering --work target/hub-bd6-linux --output target/hub-bd6-linux-evidence",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/voxel-one-1.0-SNAPSHOT-launcher.jar target/HubBundleProbe.java target/hub-bd6118ac-preview2-publication/catalog.properties",
+    "Actual hosted commands retained in copied per-platform reports. All downloads used assigned-worktree TMPDIR; disk checked9.4GiB beforedownloads.",
+    "git diff --check",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D"
+  ],
+  "bundle": {
+    "directory": "target/hub-bd6118ac-preview2-publication",
+    "sourceKind": "exact-commit",
+    "generation": "hub-preview-2",
+    "expectedCatalogHead": "1ce62377566c13e6b71783092073412a3289c93f",
+    "filesSha256": {
+      "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+      "shell.properties": "5fb821599c854e3ebb04e3160303a03e8ea07ba3135d0a51be189cd58edd3ecf",
+      "voxel-one-shell.jar": "b147e62dfae0eb2b827f2f9a07d950dc432488c995383259459d44f4bb2fc326"
+    },
+    "build": "Fresh exact-head Maven-built launcher JAR, not earlier manual candidate. All threefile hashes rechecked unchanged.",
+    "web": "Still explicitly unpublished/disabled; native632 mapping retained.",
+    "authority": "Read-only preparation only. Root must recheck independent review, authority, source/generation/catalog fences and regenerate trusted platform packages. This report is no execution/publication grant.",
+    "stableRolloutQualified": false
+  },
+  "publicObservation": "Read-only Nov9release listing showed only hub-preview-1; publicshell still c41afd216a4a5dfbff3fe20c39902bbd39d9557d, cataloghead1ce62377566c13e6b71783092073412a3289c93f. No two-public-generation upgrade claimed.",
+  "pending": [
+    "Mac native rendering, real physicalGPU and WindowsmonitorDPI/performance qualification.",
+    "Second independentlyreviewed publicHubpackage and actualbootstrap upgrade across2publishedversions.",
+    "Normal signed-inbrowser flow and freshness across2actualdeployedwebgenerations. Existing service-view test remains separatelyscoped.",
+    "Independentreview, latestmaster/sourceauthority recheck and stable rollout."
+  ],
+  "next": "Root is already inspecting publication. Reconcile this fresh Maven-built exact-head bundle and actualfour-platform reports within that existing work. Do not ask owner for session IDs, controller results or command execution.",
+  "mediaPublication": "New sanitized reports/images/videos saved directly dashboard/evidence pending controllerpublication."
+}
