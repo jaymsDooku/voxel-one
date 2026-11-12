@@ -190,6 +190,54 @@ public final class WorldSkyVisibility {
         }
         return new WorldSkyVisibility(data,count);
     }
+    /** Bounded worker-only merge. Copies at most MAX_INTS input payload integers
+     * before validation; optional directories are rebuilt, never trusted. Caller
+     * source/world/model fences and exclusive input publication remain separate. */
+    public static WorldSkyVisibility mergeBounded(List<WorldSkyVisibility> parts,int maxInts,java.util.function.BooleanSupplier cancel) {
+        Objects.requireNonNull(parts);Objects.requireNonNull(cancel);
+        if(maxInts<0||maxInts>MAX_INTS||parts.size()>36)throw new IllegalArgumentException("Sky merge budget");
+        Runnable check=()->{cancelled();if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();};check.run();
+        record Part(int[] data,int columns) {}
+        var copies=new ArrayList<Part>();int inputInts=0,count=0;
+        for(var p:parts) {
+            check.run();Objects.requireNonNull(p);if(copies.size()==36||p.columns<0||p.columns>256)throw new IllegalArgumentException("Sky merge tile budget");
+            int length=p.columns==0?0:p.payloadLength();
+            if(length<4*p.columns||length>p.data.length||length>maxInts-inputInts)throw new IllegalArgumentException("Sky merge input payload");
+            inputInts+=length;count+=p.columns;copies.add(new Part(Arrays.copyOf(p.data,length),p.columns));
+        }
+        var known=new TreeSet<Column>();int length=count*4;float[] v=new float[7];
+        for(var p:copies) {
+            check.run();Column previous=null;int cursor=p.columns*4;
+            for(int i=0;i<p.columns;i++) {
+                check.run();int h=i*4,x=p.data[h],z=p.data[h+1],n=p.data[h+3];var column=new Column(x,z);
+                if(Math.abs((long)x)>Terrain.LIMIT||Math.abs((long)z)>Terrain.LIMIT||previous!=null&&previous.compareTo(column)>=0||!known.add(column))throw new IllegalArgumentException("Sky merge overlapping or unordered coverage");previous=column;
+                if(n==-1) {
+                    float ceiling=Float.intBitsToFloat(p.data[h+2]);if(!Float.isFinite(ceiling)||ceiling < -Terrain.LIMIT||ceiling>Terrain.LIMIT+1)throw new IllegalArgumentException("Sky merge ceiling");continue;
+                }
+                if(n<0||n>MAX_COLUMN_SEGMENTS||p.data[h+2]!=cursor||(long)cursor+n*7>p.data.length)throw new IllegalArgumentException("Sky merge segment range");
+                float lastTop=Float.POSITIVE_INFINITY;
+                for(int j=0;j<n;j++) {
+                    check.run();int a=cursor+j*7;for(int k=0;k<7;k++){v[k]=Float.intBitsToFloat(p.data[a+k]);if(!Float.isFinite(v[k]))throw new IllegalArgumentException("Sky merge nonfinite segment");}
+                    if(v[0]<x||v[3]>x+1f||v[2]<z||v[5]>z+1f||v[3]<=v[0]||v[5]<=v[2]||v[4]<=v[1]||v[1]<-Terrain.LIMIT||v[4]>Terrain.LIMIT+1||v[6]<0||v[6]>1||v[4]>lastTop)throw new IllegalArgumentException("Sky merge malformed segment");lastTop=v[4];
+                }
+                cursor+=n*7;length=Math.addExact(length,n*7);
+            }
+            if(cursor!=p.data.length)throw new IllegalArgumentException("Sky merge trailing payload");
+        }
+        long span=known.isEmpty()?0:(long)known.last().x-known.first().x+1;
+        long directory=span>0&&span<=512&&(long)length+span*3<=MAX_INTS?span*3:0;
+        if(Math.max(1L,length)+directory>maxInts)throw new IllegalStateException("Sky merge output budget");
+        check.run();int[] data=new int[Math.max(1,length)];
+        final class Cursor {final Part part;int i;Cursor(Part part){this.part=part;}}
+        var queue=new PriorityQueue<Cursor>(Comparator.<Cursor>comparingInt(c->c.part.data[c.i]).thenComparingInt(c->c.part.data[c.i+1]));
+        for(var p:copies)if(p.columns>0)queue.add(new Cursor(p));int header=0,offset=count*4;
+        while(!queue.isEmpty()) {
+            check.run();var c=queue.remove();int n=c.part.data[c.i+3];data[header++]=c.part.data[c.i];data[header++]=c.part.data[c.i+1];data[header++]=n<0?c.part.data[c.i+2]:offset;data[header++]=n;
+            if(n>=0){System.arraycopy(c.part.data,c.part.data[c.i+2],data,offset,n*7);offset+=n*7;}
+            c.i+=4;if(c.i<c.part.columns*4)queue.add(c);
+        }
+        check.run();var result=new WorldSkyVisibility(data,count);check.run();return result;
+    }
     /** Same model footprint contract for streamed chunks and persisted edits. */
     private static void expand(Map<Column,List<Segment>> paths,ModelLibrary models,int type,float x,float y,float z,float size){expand(models,type,x,y,z,size,a->add(paths,a));}
     private static void expand(ModelLibrary models,int type,float x,float y,float z,float size,java.util.function.Consumer<Segment> emit){
