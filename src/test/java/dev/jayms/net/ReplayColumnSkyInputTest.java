@@ -32,7 +32,7 @@ public class ReplayColumnSkyInputTest {
    }
    for(var cell:result.input().edits())assertTrue(cell.root().sameValues(world.cell(cell.x(),cell.y(),cell.z())));
    assertEquals(0,result.input().chunks().get(0).root().get(15*16,0,15*16)); // Natural stone explicitly removed.
-   var sky=WorldSkyVisibility.build(result.input());assertEquals(256,sky.columns);
+   var sky=WorldSkyVisibility.buildBounded(result.input(),new WorldSkyVisibility.BuildLimits(256,131072,131072),()->false);assertEquals(256,sky.columns);
    assertEquals(1,sky.sampleKnown(-16.75f,100,-.75f,-1)); // Real fractional hole.
    assertEquals(0,sky.sampleKnown(-16.25f,100,-.75f,-1)); // Remaining roof quadrant.
    assertEquals(1,sky.sampleKnown(-17.25f,100,-.25f,-1)); // Cleared high glass leaves no stale roof.
