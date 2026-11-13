@@ -258,6 +258,9 @@ final class RegionReplayWorker implements AutoCloseable {
         /** Owner captures at most 36 receipts; payload copy/hash/merge stays on
          * the existing worker. This does not assert complete near-field coverage. */
         Request submitSkyMerge(List<Request> requests,int maxInts,World current)throws IOException {
+            return tryMerge(requests,maxInts,current,true);
+        }
+        private Request tryMerge(List<Request> requests,int maxInts,World current,boolean rejectFull)throws IOException {
             validate(current);Objects.requireNonNull(requests);int count=requests.size();
             if(count<0||count>36||maxInts<0||maxInts>dev.jayms.render.WorldSkyVisibility.MAX_INTS)throw new IllegalArgumentException("Replay sky merge budget");
             var tiles=new ArrayList<SkyTile>(count);var columns=new HashSet<ChunkPos>();
@@ -265,7 +268,7 @@ final class RegionReplayWorker implements AutoCloseable {
             if(requests.size()!=count)throw new ConcurrentModificationException("Replay sky merge inputs changed");
             synchronized(gate) {
                 if(stopping.get())throw new IOException("Replay worker not accepting requests");
-                if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+                if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
                 var request=new Request(null,null,0,revision,current.beginReplayFence(),this,-1,List.of(),null,List.copyOf(tiles),maxInts);
                 queue.addLast(request);requestsIssued=true;gate.notifyAll();return request;
             }
@@ -278,7 +281,8 @@ final class RegionReplayWorker implements AutoCloseable {
                 throw new IOException("Replay sky merge source changed");
             request.validateWorld(current);validate(current);return merged;
         }
-        record SkyPumpStatus(int desired,int pending,int ready,int failed,int cachedInts,boolean backpressure,boolean closed) {}
+        record SkyCoverage(long generation,SkyMerge merge) {}
+        record SkyPumpStatus(int desired,int pending,int ready,int failed,int cachedInts,boolean backpressure,boolean closed,int mergePending,int mergedInts,long generation) {}
         SkyPump openSkyPump(World current,int capacity,int maxInts,dev.jayms.render.WorldSkyVisibility.BuildLimits limits)throws IOException {
             validate(current);Objects.requireNonNull(limits);
             if(skyPump!=null)throw new IOException("Replay sky pump already opened");
@@ -293,9 +297,11 @@ final class RegionReplayWorker implements AutoCloseable {
             private final Map<ChunkPos,SkyTile> ready=new LinkedHashMap<>();
             private final Map<ChunkPos,Request> receipts=new LinkedHashMap<>();
             private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
-            private Request pending;private int cachedInts;private boolean closed,backpressure;
+            private Request pending,mergePending,completedMerge;private int cachedInts;private boolean closed,backpressure,mergeWanted;
+            private long generation,mergeGeneration;private SkyCoverage coverage;private IOException mergeFailure;
             private SkyPump(int capacity,int maxInts,dev.jayms.render.WorldSkyVisibility.BuildLimits limits){this.capacity=capacity;this.maxInts=maxInts;this.limits=limits;}
-            private void discard(){if(pending!=null)pending.cancel();pending=null;ready.clear();receipts.clear();failures.clear();cachedInts=0;backpressure=false;}
+            private void invalidateMerge(){if(mergePending!=null)mergePending.cancel();mergePending=null;completedMerge=null;coverage=null;mergeFailure=null;}
+            private void discard(){if(pending!=null)pending.cancel();pending=null;invalidateMerge();mergeWanted=false;ready.clear();receipts.clear();failures.clear();cachedInts=0;backpressure=false;}
             private void check()throws IOException {
                 owner();if(closed)throw new IOException("Replay sky pump closed");
                 try{validate(target);for(var r:receipts.values())skyResult(r,target);}
@@ -307,11 +313,22 @@ final class RegionReplayWorker implements AutoCloseable {
                 var next=new LinkedHashSet<ChunkPos>();
                 for(int i=0;i<count;i++){var p=Objects.requireNonNull(columns.get(i));if(p.chunkY()!=0)throw new IllegalArgumentException("Replay sky column Y");RegionReplayChunk.checkRegion(p);next.add(p);}
                 if(columns.size()!=count)throw new ConcurrentModificationException("Replay desired sky changed");
+                if(next.equals(desired))return;
+                if(generation==Long.MAX_VALUE)throw new IOException("Replay sky generation exhausted");
+                generation++;invalidateMerge();
                 if(pending!=null&&!next.contains(pending.region)){pending.cancel();pending=null;}
                 for(var it=ready.entrySet().iterator();it.hasNext();){var e=it.next();if(!next.contains(e.getKey())){cachedInts-=e.getValue().data().data.length;it.remove();}}
                 receipts.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
             }
             void retry(ChunkPos column)throws IOException {check();if(!desired.contains(column))throw new IllegalArgumentException("Replay sky not desired");failures.remove(column);}
+            /** Merge intent survives queue backpressure and desired changes. Empty
+             * or incomplete requested coverage never creates a merged result. */
+            void requestMerge()throws IOException {check();mergeWanted=true;mergeFailure=null;try{scheduleMerge();}catch(IOException failure){discard();throw failure;}}
+            private void scheduleMerge()throws IOException {
+                if(!mergeWanted||desired.isEmpty()||pending!=null||mergePending!=null||coverage!=null||mergeFailure!=null||ready.size()!=desired.size()||!failures.isEmpty())return;
+                var inputs=new ArrayList<Request>(desired.size());for(var p:desired)inputs.add(receipts.get(p));
+                mergePending=tryMerge(inputs,maxInts,target,false);mergeGeneration=generation;backpressure=mergePending==null;
+            }
             void tick()throws IOException {
                 check();backpressure=false;
                 try {
@@ -326,15 +343,34 @@ final class RegionReplayWorker implements AutoCloseable {
                             default->{}
                         }
                     }
-                    if(pending==null)for(var p:desired) {
+                    if(mergePending!=null) {
+                        var state=mergePending.outcome();
+                        switch(state.phase()) {
+                            case READY->{var merged=mergeResult(mergePending,target);
+                                if(mergeGeneration!=generation||!merged.columns().equals(List.copyOf(desired)))throw new IOException("Replay sky merge coverage changed");
+                                coverage=new SkyCoverage(generation,merged);completedMerge=mergePending;mergePending=null;}
+                            case FAILED->{mergeFailure=state.failure();mergePending=null;}
+                            case CANCELLED->{mergeFailure=new IOException("Replay sky merge cancelled");mergePending=null;}
+                            default->{}
+                        }
+                    }
+                    if(pending==null&&mergePending==null)for(var p:desired) {
                         if(ready.containsKey(p)||failures.containsKey(p))continue;
                         pending=trySky(p.chunkX(),p.chunkZ(),limits,target,false);backpressure=pending==null;break;
                     }
+                    if(!backpressure)scheduleMerge();
                 }catch(IOException failure){discard();throw failure;}
             }
+            SkyCoverage coverage()throws IOException {
+                check();if(coverage==null)return null;
+                if(coverage.generation()!=generation||!coverage.merge().columns().equals(List.copyOf(desired))||completedMerge==null){invalidateMerge();return null;}
+                try{mergeResult(completedMerge,target);}catch(IOException failure){discard();throw failure;}return coverage;
+            }
+            boolean current(SkyCoverage expected)throws IOException {check();return expected!=null&&coverage()==expected;}
+            IOException mergeFailure()throws IOException {check();return mergeFailure;}
             SkyTile result(ChunkPos column)throws IOException {check();return ready.get(column);}
             IOException failure(ChunkPos column)throws IOException {check();return failures.get(column);}
-            SkyPumpStatus status()throws IOException {owner();if(closed)return new SkyPumpStatus(0,0,0,0,0,false,true);check();return new SkyPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedInts,backpressure,false);}
+            SkyPumpStatus status()throws IOException {owner();if(closed)return new SkyPumpStatus(0,0,0,0,0,false,true,0,0,generation);check();return new SkyPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedInts,backpressure,false,mergePending==null?0:1,coverage==null?0:coverage.merge().data().data.length,generation);}
             @Override public void close()throws IOException {owner();if(closed)return;discard();desired.clear();closed=true;}
         }
         record ChunkPumpStatus(int desired,int pending,int ready,int failed,int stagedCells,boolean backpressure,boolean closed) {}
