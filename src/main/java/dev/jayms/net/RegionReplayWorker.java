@@ -34,8 +34,10 @@ final class RegionReplayWorker implements AutoCloseable {
     enum Phase {QUEUED,LOADING,READY,CANCELLED,FAILED}
     record Status(State state,int sourceRows,IOException failure) {}
     record Progress(Phase phase,IOException failure) {}
-    record SkyTile(ChunkPos column,dev.jayms.render.WorldSkyVisibility data,String fingerprint,Revision revision,long terrainRevision,long modelRevision) {}
-    private record Outcome(Phase phase,RegionReplayPage page,RegionReplayChunk.Snapshot chunk,SkyTile sky,IOException failure) {
+    record SkyTile(ChunkPos column,dev.jayms.render.WorldSkyVisibility data,String fingerprint,Revision revision,long terrainRevision,long modelRevision,String payloadDigest) {}
+    record SkyMerge(List<ChunkPos> columns,dev.jayms.render.WorldSkyVisibility data,String fingerprint,Revision revision,long terrainRevision,long modelRevision,String payloadDigest) {}
+    private record Outcome(Phase phase,RegionReplayPage page,RegionReplayChunk.Snapshot chunk,SkyTile sky,SkyMerge merge,IOException failure) {
+        Outcome(Phase phase,RegionReplayPage page,RegionReplayChunk.Snapshot chunk,SkyTile sky,IOException failure){this(phase,page,chunk,sky,null,failure);}
         Outcome(Phase phase,RegionReplayPage page,RegionReplayChunk.Snapshot chunk,IOException failure){this(phase,page,chunk,null,failure);}
         Outcome(Phase phase,RegionReplayPage page,IOException failure){this(phase,page,null,failure);}
     }
@@ -51,6 +53,8 @@ final class RegionReplayWorker implements AutoCloseable {
         // cancellation state and single active worker slot.
         private final int maxCellLeaves;
         private final dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits;
+        private final List<SkyTile> mergeTiles;
+        private final int mergeMaxInts;
         private final List<ChunkPos> neighbourRegions;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicInteger completedCells=new AtomicInteger();
@@ -65,6 +69,10 @@ final class RegionReplayWorker implements AutoCloseable {
             this(region,range,maxRows,revision,fence,binding,maxCellLeaves,neighbours,null);
         }
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves,List<ChunkPos> neighbours,dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits) {
+            this(region,range,maxRows,revision,fence,binding,maxCellLeaves,neighbours,skyLimits,null,-1);
+        }
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves,List<ChunkPos> neighbours,dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits,List<SkyTile> mergeTiles,int mergeMaxInts) {
+            this.mergeTiles=mergeTiles;this.mergeMaxInts=mergeMaxInts;
             this.skyLimits=skyLimits;
             this.neighbourRegions=neighbours;
             this.region=region;this.range=range;this.maxRows=maxRows;this.revision=revision;this.fence=fence;this.binding=binding;
@@ -114,7 +122,7 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
-            if(skyLimits!=null)throw new IOException("Replay request contains sky geometry");
+            if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves>=0)throw new IOException("Replay request contains chunk geometry");
             return extractOutcome(current).page();
         }
@@ -127,7 +135,7 @@ final class RegionReplayWorker implements AutoCloseable {
         }
         private RegionReplayChunk.Snapshot checkedWorldChunkResult(Revision current,World world)throws IOException {
             owner();
-            if(skyLimits!=null)throw new IOException("Replay request contains sky geometry");
+            if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves<0)throw new IOException("Replay request contains a cell page");
             if(fence==null)throw new IOException("Replay request has no world fence");
             if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay worker no longer active");
@@ -142,6 +150,14 @@ final class RegionReplayWorker implements AutoCloseable {
             if(value.phase()!=Phase.READY)throw new IllegalStateException("Replay request not complete");
             return value;
         }
+    }
+    private static String skyDigest(dev.jayms.render.WorldSkyVisibility sky,BooleanSupplier cancel) {
+        try {
+            var digest=java.security.MessageDigest.getInstance("SHA-256");var bytes=java.nio.ByteBuffer.allocate(4096);
+            bytes.putInt(sky.columns);
+            for(int n:sky.data){if(bytes.remaining()<4){StructurePackage.cancelled(cancel);digest.update(bytes.array(),0,bytes.position());bytes.clear();}bytes.putInt(n);}
+            StructurePackage.cancelled(cancel);digest.update(bytes.array(),0,bytes.position());return HexFormat.of().formatHex(digest.digest());
+        }catch(java.security.NoSuchAlgorithmException impossible){throw new IllegalStateException(impossible);}
     }
     private static boolean terminal(Phase phase){return phase==Phase.READY||phase==Phase.CANCELLED||phase==Phase.FAILED;}
     private final Thread owner=Thread.currentThread();
@@ -238,6 +254,29 @@ final class RegionReplayWorker implements AutoCloseable {
                     ||tile.modelRevision()!=transferredModelsRevision||tile.terrainRevision()!=0)
                 throw new IOException("Replay sky source changed");
             request.validateWorld(current);validate(current);return tile;
+        }
+        /** Owner captures at most 36 receipts; payload copy/hash/merge stays on
+         * the existing worker. This does not assert complete near-field coverage. */
+        Request submitSkyMerge(List<Request> requests,int maxInts,World current)throws IOException {
+            validate(current);Objects.requireNonNull(requests);int count=requests.size();
+            if(count<0||count>36||maxInts<0||maxInts>dev.jayms.render.WorldSkyVisibility.MAX_INTS)throw new IllegalArgumentException("Replay sky merge budget");
+            var tiles=new ArrayList<SkyTile>(count);var columns=new HashSet<ChunkPos>();
+            for(int i=0;i<count;i++){var tile=skyResult(requests.get(i),current);if(!columns.add(tile.column()))throw new IllegalArgumentException("Replay sky merge duplicate tile");tiles.add(tile);}
+            if(requests.size()!=count)throw new ConcurrentModificationException("Replay sky merge inputs changed");
+            synchronized(gate) {
+                if(stopping.get())throw new IOException("Replay worker not accepting requests");
+                if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+                var request=new Request(null,null,0,revision,current.beginReplayFence(),this,-1,List.of(),null,List.copyOf(tiles),maxInts);
+                queue.addLast(request);requestsIssued=true;gate.notifyAll();return request;
+            }
+        }
+        SkyMerge mergeResult(Request request,World current)throws IOException {
+            validate(current);Objects.requireNonNull(request);
+            if(request.binding!=this||request.mergeTiles==null)throw new IOException("Replay request is not this binding's sky merge");
+            request.validateWorld(current);var merged=request.extractOutcome(revision).merge();
+            if(merged==null||!identity.equals(merged.fingerprint())||!revision.equals(merged.revision())||merged.modelRevision()!=transferredModelsRevision||merged.terrainRevision()!=0)
+                throw new IOException("Replay sky merge source changed");
+            request.validateWorld(current);validate(current);return merged;
         }
         record SkyPumpStatus(int desired,int pending,int ready,int failed,int cachedInts,boolean backpressure,boolean closed) {}
         SkyPump openSkyPump(World current,int capacity,int maxInts,dev.jayms.render.WorldSkyVisibility.BuildLimits limits)throws IOException {
@@ -681,8 +720,27 @@ final class RegionReplayWorker implements AutoCloseable {
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
-                    RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;SkyTile sky=null;
-                    if(request.skyLimits!=null) {
+                    RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;SkyTile sky=null;SkyMerge merge=null;
+                    if(request.mergeTiles!=null) {
+                        if(source.metadata()==null)throw new IOException("Replay sky merge requires source metadata");
+                        BooleanSupplier cancel=()->stopping.get()||request.cancelled();var pieces=new ArrayList<dev.jayms.render.WorldSkyVisibility>();var columns=new ArrayList<ChunkPos>();int ints=0;
+                        long modelRevision=source.metadata().sourceModelsRevision(),terrainRevision=source.terrain().geometryRevision();
+                        for(var tile:request.mergeTiles) {
+                            StructurePackage.cancelled(cancel);
+                            if(!source.fingerprint().equals(tile.fingerprint())||!source.revision().equals(tile.revision())||tile.modelRevision()!=modelRevision||tile.terrainRevision()!=terrainRevision)
+                                throw new IOException("Replay sky merge tile source changed");
+                            int n=tile.data().data.length;if(n>request.mergeMaxInts-ints)throw new IOException("Replay sky merge input budget");ints+=n;
+                            // Validate and detach before hashing so concurrent caller changes
+                            // cannot substitute a different payload between hash and copy.
+                            var copy=dev.jayms.render.WorldSkyVisibility.mergeBounded(List.of(tile.data()),request.mergeMaxInts,cancel);
+                            if(!skyDigest(copy,cancel).equals(tile.payloadDigest()))throw new IOException("Replay sky tile payload changed");
+                            pieces.add(copy);columns.add(tile.column());
+                        }
+                        var data=dev.jayms.render.WorldSkyVisibility.mergeBounded(pieces,request.mergeMaxInts,cancel);
+                        if(source.terrain().geometryRevision()!=terrainRevision)throw new IOException("Replay sky merge terrain changed");
+                        merge=new SkyMerge(List.copyOf(columns),data,source.fingerprint(),source.revision(),terrainRevision,modelRevision,skyDigest(data,cancel));
+                    }
+                    else if(request.skyLimits!=null) {
                         if(source.metadata()==null)throw new IOException("Replay sky requires source metadata");
                         BooleanSupplier cancel=()->stopping.get()||request.cancelled();
                         var column=RegionReplayColumn.load(source.spool(),request.region.chunkX(),request.region.chunkZ(),source.terrain(),
@@ -690,7 +748,7 @@ final class RegionReplayWorker implements AutoCloseable {
                         var input=RegionReplayColumn.skyInput(column,source.terrain(),source.metadata().sourceModelSnapshot(),request.skyLimits.leaves(),cancel,request.completedCells::set);
                         var data=dev.jayms.render.WorldSkyVisibility.buildBounded(input.input(),request.skyLimits,cancel);
                         if(source.terrain().geometryRevision()!=input.terrainRevision())throw new IOException("Replay sky terrain changed");
-                        sky=new SkyTile(request.region,data,source.fingerprint(),source.revision(),input.terrainRevision(),input.modelRevision());
+                        sky=new SkyTile(request.region,data,source.fingerprint(),source.revision(),input.terrainRevision(),input.modelRevision(),skyDigest(data,cancel));
                     }
                     else if(request.maxCellLeaves>=0)chunk=RegionReplayChunk.load(cache,request.region,source.terrain(),request.maxCellLeaves,
                             ()->stopping.get()||request.cancelled(),request.completedCells::set);
@@ -714,7 +772,7 @@ final class RegionReplayWorker implements AutoCloseable {
                     }
                     StructurePackage.cancelled(()->stopping.get()||request.cancelled());
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
-                    request.finish(new Outcome(Phase.READY,page,chunk,sky,null));
+                    request.finish(new Outcome(Phase.READY,page,chunk,sky,merge,null));
                 }catch(CancellationException cancelled){request.cancel();}
                 catch(IOException|RuntimeException error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page request failed",error)));}
                 catch(Error error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page worker failed",error)));throw error;}
