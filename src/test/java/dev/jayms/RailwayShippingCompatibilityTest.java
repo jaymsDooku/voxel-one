@@ -32,7 +32,7 @@ class RailwayShippingCompatibilityTest {
         assertEquals(loaded.roads(),restored.roads());
         assertNotEquals(SpecialBuildings.PORT,SpecialBuildings.RAIL_STATION);
         assertEquals(25,SpecialBuildings.RAIL_STATION);assertEquals(26,SpecialBuildings.RAIL_DEPOT);
-        assertEquals(30,Protocol.VERSION);
+        assertEquals(31,Protocol.VERSION); // Structure envelopes; city command/frame IDs stay unchanged.
     }
 
     @Test void generatorThreeRemainsSupportedAndDeterministic() {

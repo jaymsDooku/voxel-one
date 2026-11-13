@@ -1,0 +1,99 @@
+{
+  "schema": 1,
+  "source_head": "2c67bc1f754c8644f98d7ce29ddd47db489094bf",
+  "observed_utc": "2026-10-20T19:41:55.596308+00:00",
+  "hosted_run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39485576505",
+  "hosted_status": "All four feature-head builds passed. PR merge-head Linux, Windows and Intel Mac passed; ARM Mac job 118846442471 was cancelled before a passing result. Internal CI recovery required; no ARM Mac merge-head pass claimed.",
+  "source_checks": {
+    "collision_files": 354,
+    "native_files": 207,
+    "mismatches": 0
+  },
+  "published_evidence": "Downloaded exact-head player rejection image, video, collision validation report and native manifest match local bytes",
+  "playtest": "Playtest: downloaded player rejection screenshot and decoded H264 frame inspected. Video 15 frames, 26.273 s, 362040 bytes. Tested source unchanged on publication.",
+  "diff_audit": "No deleted files or unmerged paths; git diff --check passed",
+  "qualification": "City/max, physical GPU, shaped-network, 20-run performance and stable rollout remain gated",
+  "resume_condition": "Resume when the hosted run completes or any job fails. Do not repeat unchanged push or generate idle status turns.",
+  "publication": "Supplemental receipt local pending controller publication",
+  "hosted_runs": [
+    "https://github.com/jaymsDooku/voxel-one/actions/runs/39485576505",
+    "https://github.com/jaymsDooku/voxel-one/actions/runs/39485579789"
+  ],
+  "linux_result": {
+    "sourceHead": "2c67bc1f754c8644f98d7ce29ddd47db489094bf",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-linux-summary.json",
+    "publication": "pending controller publication"
+  },
+  "windows_result": {
+    "sourceHead": "2c67bc1f754c8644f98d7ce29ddd47db489094bf",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-windows-summary.json",
+    "publication": "pending controller publication"
+  },
+  "additional_linux_result": {
+    "sourceHead": "c9c2ff3781a3ab1b76b1347d6d87905b8892fc9d",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-pr-linux-summary.json",
+    "publication": "pending controller publication"
+  },
+  "mac_arm_result": {
+    "sourceHead": "2c67bc1f754c8644f98d7ce29ddd47db489094bf",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-mac-arm-summary.json",
+    "publication": "pending controller publication"
+  },
+  "mac_intel_result": {
+    "sourceHead": "2c67bc1f754c8644f98d7ce29ddd47db489094bf",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-mac-intel-summary.json",
+    "publication": "pending controller publication"
+  },
+  "pr_mac_intel_result": {
+    "sourceHead": "c9c2ff3781a3ab1b76b1347d6d87905b8892fc9d",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-pr-mac-intel-summary.json",
+    "publication": "pending controller publication"
+  },
+  "pr_windows_result": {
+    "sourceHead": "c9c2ff3781a3ab1b76b1347d6d87905b8892fc9d",
+    "totals": {
+      "tests": 758,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "report": "structure-collision-hosted-pr-windows-summary.json",
+    "publication": "pending controller publication"
+  }
+}

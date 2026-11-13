@@ -1,0 +1,55 @@
+{
+  "parent_head": "ab1db177d01e9bb8971db5cf3fbf387e4af5376b",
+  "parent_hosted": "Controller scoped success on four platform builds;publish skipped. Not QA approval.",
+  "change": "Private region codec now has bounded InputStream/OutputStream APIs. Byte-array APIs delegate;version1 golden bytes retained. Decoder requires exclusive frame ending atEOF,checks bodyCRC/trailer,consumes at most bytecap+1probe,checks cancellation and rejects zero-progress bulk reads. Caller streams remain open. Failed output may contain prefix and must be staged before publication. Blocking IO belongs on worker.",
+  "source_sha256": {
+    "tools/structures/RegionHistoryPrototype.java": "27c73e9b4bec2f5cc8dafb102711ef697c41c5fc6c71df7ed027756ed0bd7e26",
+    "tools/structures/RegionHistoryStreamCheck.java": "7d06eecbfa3b98b2b93caeb449e43def037045e23fa47d0a48b24276699d1922",
+    "tools/structures/RegionHistoryStreamEvidence.java": "0a6611b57d7a4a855378a68bfd21804dc3ce5060b6e87929128832c486ada79f",
+    "tools/structures/test_region_history.py": "3bfa3f607119ca7c575cc053d20a93b24c33687b4ae0e1030ff6bb465b65ddf5"
+  },
+  "commands": [
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_region_streams tools.structures.test_region_history.RegionHistoryIntegrationTest.test_bounded_codec tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_generation_publication tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library",
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-stream-evidence <sources listed in tools/structures/test_region_history.py>",
+    "java -Xmx512m -cp target/structure-stream-evidence:target/classes RegionHistoryStreamCheck",
+    "java -Xmx512m -cp target/structure-stream-evidence:target/classes RegionHistoryStreamEvidence",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-region-stream-cli.png"
+  ],
+  "environment": "Linux6.1.0-50-cloud-amd64 x86_64,Java25.0.3+9-LTS-195,512MiB CLI heap,inherited managed role DISPLAY/XAUTHORITY for own synthetic window only.",
+  "results": {
+    "integration_summary": ".......\n----------------------------------------------------------------------\nRan 7 tests in 33.455s\n\nOK",
+    "cli": {
+      "status": "passed",
+      "rejection_cases": 16,
+      "bytes": 236,
+      "short_reads": true,
+      "byte_exact": true,
+      "caller_streams_open": true,
+      "cap_plus_one_probe": true,
+      "geometry_and_air": true,
+      "file_restart": true,
+      "retry": true,
+      "qualification": false
+    },
+    "initial_attempts": "Existing golden-codec check passed initially. Initial new wrapper expected16rejects but ran15;added zero-progress input case and corrected injected IO fixture. One subsequent run used nonexistent test_whole_world_library and failed selection;corrected to test_world_library. Only final corrected run counted.",
+    "production_tests": "Not rerun:only private tools changed.224 production Java/harness source hashes still match current native manifest."
+  },
+  "Playtest:": "Expected byte-exact region stream roundtrip,short reads,caller-owned streams,leftover-data bound,file restart preserving fractional glass/stone and explicit air,strict rejection and retry. Observed236-byte golden frame,1/3/65536-byte short-read limits,16rejectioncases,truncated/CRC/trailing/budget/cancel/IO/zero-progress rejection,cap+1probe,open caller streams,actual temporary file restart and source-byte retry unchanged. Fresh fixed-child exit0 image inspected. This is a noninteractive codec integration;browser/native game rendering does not apply.",
+  "published_native_media": {
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/ab1db177d01e9bb8971db5cf3fbf387e4af5376b/dashboard/evidence/structure-workflow.mp4",
+    "bytes": 423245,
+    "sha256": "611a2ec0e0e3c096ad262db8af3d38870cf28ef68f0fd4c2ee7b41e95ea0d432",
+    "verified": "Fetched exact-head HTTPS bytes with6MB bound and compared tested SHA256 this turn. Native224source manifest unchanged."
+  },
+  "limits": [
+    "Private8MiB codec,100000cells,1024regions,131072leaves retained. New stream API does not buffer whole encoded input;decoded geometry remains materialized and bounded by existing caps. No peak-memory or speedup claim.",
+    "No production backend/owner installation or supported-size increase. Failed stream writes are not atomic publication.",
+    "Full city/maximum20-run budgets,physicalGPU,shaped32clients,frame/tick/traffic/peak memory/stall and durability qualification remain pending. Stable rollout stays gated."
+  ],
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4;old byte-array parsing replaced by shared stream path intentionally;no unrelated deletions;diff check passed.",
+  "media": {
+    "file": "structure-region-stream-cli.png",
+    "sha256": "b53b333479568b083724a47f2b962a7d05c9af9234817bf443dc598cf8096ee9",
+    "publication": "pending controller publication"
+  }
+}

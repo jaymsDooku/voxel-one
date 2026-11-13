@@ -1,0 +1,142 @@
+{
+  "schema": 1,
+  "parent_head": "b4735e8acf279a1ad2d12920760b331dcf538964",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Production CityHistory bounded, read-only stream serialization; existing file format retained",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "maven_cache": "Assigned worktree target/structure-m2, offline",
+    "temp_directory": "Assigned worktree target/reviewer-tmp",
+    "display": "Inherited managed display; own Swing window only"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CityHistory.java": "498319047fbc523058e0492f75ff1450032dbada618dbfb1343a390031aac925",
+    "tools/structures/CityHistorySnapshotCheck.java": "fa3c3a48a22a3d6aec799e00fb29b409726b450db755df8e23061e9eadc0f284",
+    "tools/structures/RegionGenerationEvidence.java": "7a662dfc3681141ec2c11a1deef23202b81dd629466b409b7f8633bb08fb0a71",
+    "tools/structures/test_region_history.py": "5596069c2a2a2b7757c033a5855ee086df6485b8d189a4058f6601af00607dec"
+  },
+  "commands": [
+    {
+      "command": "mvn --batch-mode -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,CitySavesTest,CityFormat16RegressionTest test",
+      "exit": 1,
+      "result": "Default dependency cache unavailable; no test pass claimed."
+    },
+    {
+      "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,CitySavesTest,CityFormat16RegressionTest test",
+      "attempt": 1,
+      "exit": 1,
+      "result": "14 errors due to missing configured JUnit temp directory; no test pass claimed."
+    },
+    {
+      "command": "mkdir -p target/reviewer-tmp",
+      "exit": 0
+    },
+    {
+      "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,CitySavesTest,CityFormat16RegressionTest test",
+      "attempt": 2,
+      "exit": 0,
+      "suites": [
+        {
+          "suite": "CityHistoryTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityHistoryIntegrationTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityHistoryNetworkTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CitySavesTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityFormat16RegressionTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/CityHistorySnapshotCheck.java tools/structures/RegionGenerationEvidence.java",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes CityHistorySnapshotCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "existing_wire_version": 1,
+        "populated_bytes": 239147,
+        "rejection_cases": 11,
+        "production_loader": true,
+        "source_unchanged": true,
+        "active_city_adapter": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_city_history_snapshot tools.structures.test_region_history.RegionHistoryIntegrationTest.test_sidecars tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_bundle tools.structures.test_region_history.RegionHistoryIntegrationTest.test_server_bundle",
+      "exit": 0,
+      "summary": "....\n----------------------------------------------------------------------\nRan 4 tests in 19.837s\n\nOK"
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence CityHistorySnapshotCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual synthetic CitySimulation/CityHistory file save, direct stream snapshot and production loader. Expected exact populated stream/file bytes, legacy v1 wire order/CRC for independent empty contract, unchanged identity/revision/catalog/clock/simulation, open usable caller stream, bounded output, rejection of invalid binding/budget and throwing sink, deterministic retry and cleanup of failed file serialization without replacing prior history; observed passed. Populated239147 bytes,11 rejection cases. Fresh actual child exit0 own-window image inspected. Browser/native renderer playtesting does not apply to this persistence-only operation. Existing two-client synthetic history network regression passed; it is not32-client qualification.",
+  "image": {
+    "path": "dashboard/evidence/structure-history-snapshot-cli.png",
+    "bytes": 5986,
+    "sha256": "913eeeedfd042ab7066207eabe6f73a1addcb8200b12260d9d87c17456aeb57d",
+    "publication": "pending controller publication"
+  },
+  "native_source_audit": {
+    "baseline_manifest": "dashboard/evidence/structure-native-source.json",
+    "unchanged_files": 223,
+    "changed_files": [
+      "src/main/java/dev/jayms/net/city/CityHistory.java"
+    ],
+    "note": "Historical native workflow media is not claimed as exact-source validation for changed history writer. Fresh CLI media and targeted production regression tests validate this persistence change. Final source addition after testing was a Javadoc partial-frame warning only."
+  },
+  "compatibility": "Existing HIS1 v1 field order, lowercase SHA256 city binding and CRC32 stored as long retained. File save uses existing64MiB cap and rename/fallback policy; serialization/fingerprint failures now remove temp file. New stream API never opens paths, collects history or closes caller stream; partial output must be discarded on failure.",
+  "limits": {
+    "history_max_bytes": 67108864,
+    "caller_minimum_bytes": 0,
+    "caller_maximum_bytes": 67108864
+  },
+  "limitations": [
+    "A stream snapshot does not by itself establish semantic city validity; independent empty wire fixture is not a populated valid city-history example.",
+    "Active-city owner snapshot coordination and live region-backend selection remain unfinished; current owner adapter still rejects active city.",
+    "No claimed100ms latency, peak-memory, directory durability or power-loss qualification.",
+    "Full20-run city/maximum physical-GPU and shaped32-rendered-client performance qualification remain pending; production caps unchanged and rollout gated."
+  ],
+  "qualification": false,
+  "ready": false
+}

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T06:00:47+00:00",
+  "updatedAt": "2026-11-13T00:46:07+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4100,6 +4100,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+      "title": "Reusable voxel structures alongside voxel models",
+      "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Sky pump now schedules generation-fenced merges, rejects stale coverage and retries backpressure without granting lighting readiness. 63 tests and native OpenGL regression passed; fresh report/media await publication. Renderer coverage, Main lighting, saves and city/max qualification remain pending.",
+      "updatedAt": "2026-11-13T00:46:07+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

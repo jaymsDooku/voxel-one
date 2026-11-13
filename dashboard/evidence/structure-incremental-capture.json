@@ -1,0 +1,58 @@
+{
+  "parent": "5ecf5e32d3f11c802e67e4ad9e87542b21406158",
+  "hosted_parent": "Controller reports four platform builds success; publication skipped. Not feature qualification.",
+  "change": "Owner-only incremental cell snapshot builder copies at most128 chunk entries per advance; private indexed backup pumps it with cancellation and revision checks. Existing one-shot API retained.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "674a9db9d4d16f457a6b8dd70139a26c86630fa60290f9ab756589d9bfb67297",
+    "src/test/java/dev/jayms/WorldCellSnapshotTest.java": "9371a55b672c34b8f59a306c7523e0343006bf5ce21e562c4510f3786c2d853a",
+    "tools/structures/RegionOfflineOwnerPrototype.java": "6c7d2884453aca5c12945b65074413532412597de204d36aec6a1b04341d9047",
+    "tools/structures/RegionDenseHistoryCheck.java": "4dc7a7b5ec2389021cc00a6bb7f0959ae7c5d96512264582e64bfe63b895c063",
+    "tools/structures/test_region_history.py": "33b2b5d3eaeaefeef6c2f039844d1e097482fac8caa7a6d2ecfcca24282e2d26"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "heap": "512 MiB for CLI",
+    "display": "Inherited managed role display; own synthetic CLI window only"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureValidationStampTest test",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history",
+    "java -Xmx512m -cp target/structure-incremental-evidence:target/classes RegionGenerationEvidence RegionDenseHistoryCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-incremental-capture-cli.png"
+  ],
+  "results": {
+    "production_tests": 37,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "tools": "4 passed in22.171s; initial concurrent-compilation attempt skipped4, not counted. Extended CLI then passed independently and reran after wrapper assertions.",
+    "cli": {
+      "status": "passed",
+      "input_records": 200704,
+      "final_cells": 49,
+      "generation_bytes": 1205,
+      "chunk_batches": 3,
+      "partial_stale_rejected": true,
+      "preflight_budget_rejected": true,
+      "replay_path_rejected": true,
+      "indexed_path_restored": true,
+      "stale_rejected": true,
+      "source_unchanged": true,
+      "qualification": false
+    }
+  },
+  "Playtest:": "Expected bounded chunk batches, immutable detached geometry, stale rejection, backup/restart regression. Observed257 chunks yield twice and complete third call; live stone-to-glass mutation rejects partial copy and old snapshot remains stone. Actual LocalGame private backup/restart retains49 final cells from200704 flat edits; prior generation unchanged on stale commit, retry succeeds. Fresh child exit0 image inspected. Noninteractive persistence integration; browser/native rendering does not apply.",
+  "limitations": [
+    "No production region backend selected or live owner installation.",
+    "At most128 entries is a count bound, not a100ms wall-time bound: HashMap allocation/rehash, GC and metadata work remain unqualified.",
+    "Both supplied full fixtures,20-run operation budgets, physical GPU, shaped32 rendered clients, true peak memory, frame/tick/traffic and directory durability remain pending. Existing caps and rollout gates unchanged."
+  ],
+  "audit": "No deleted paths against review base71612f09bfec4549456b3317676e76cdced085a4; no intended deletions; diff check passed.",
+  "media": {
+    "file": "structure-incremental-capture-cli.png",
+    "sha256": "0f7c937504a6a16fb1ddc78fcbcd3d84ea16c807351f908be0d232b761c0b176",
+    "publication": "pending controller publication"
+  }
+}

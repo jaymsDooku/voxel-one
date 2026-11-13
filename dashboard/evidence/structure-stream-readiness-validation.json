@@ -1,0 +1,78 @@
+{
+  "status": "113 targeted tests, deterministic parent/fixed integration probe and fresh native workflow passed; exact-source hosted validation and full qualification pending",
+  "parent": "9fca0f9d50d9c6b21fed68dbfbbef64672d21446",
+  "hosted_observation": {
+    "feature_run": "https://github.com/jaymsDooku/voxel-one/actions/runs/41123809129",
+    "feature_result": "failure",
+    "failed_job": "build (macos-15-intel, mac-intel)",
+    "failed_step": "Run mvn --batch-mode verify",
+    "failed_test": "WorldStreamingTest.highStructureKeepsNaturalBaseCoverageAndItsEditedChunkResident",
+    "failure": "Natural base coverage at high camera: -2 ==> expected: <true> but was: <false>",
+    "test_elapsed_seconds": 0.085,
+    "pr_run": "https://github.com/jaymsDooku/voxel-one/actions/runs/41123817810",
+    "pr_result": "success",
+    "source": "Scoped GitHub run/job status, sanitized Maven summary artifact and filtered test assertion lines. Controller success summary did not match actual feature-run status."
+  },
+  "change": "All accepted streaming requests, including high/low camera chunks and edited structure chunks, mark their column as requiring natural base coverage. A newly marked column invalidates the cached rendered-column completeness. Queue size, worker count and frame work budgets remain unchanged.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=\"WorldStreamingTest,TerrainSchedulerTest,SkyVisibility*Test,Structure*Test\" test",
+    "suites": 17,
+    "tests": 113,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "integration": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/World.java > target/structure-stream-control/src/World.java",
+      "javac --release 17 -cp target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar -d target/structure-stream-control/classes target/structure-stream-control/src/World.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/HighColumnReadinessProbe.java",
+      "java -cp target/structure-stream-control/classes:target:target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar dev.jayms.HighColumnReadinessProbe parent",
+      "java -cp target:target/classes:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar dev.jayms.HighColumnReadinessProbe fixed"
+    ],
+    "environment": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "setup": "Actual World.streamAsync with an injected deterministic terrain generator held behind a latch; queue filled by high chunks at camera y383. One manually resident empty high chunk initially makes the column complete. No rendered client or timing qualification.",
+    "expected": "Before base requests can enter the queue, fixed code reports not ready and invalidates cached complete columns. After worker release, all ten natural base chunks become resident and ready.",
+    "observed": [
+      {
+        "implementation": "parent",
+        "pending": 16,
+        "resident_base_chunks": 0,
+        "sky_ready": true,
+        "rendered_column_complete": true
+      },
+      {
+        "implementation": "fixed",
+        "pending": 16,
+        "resident_base_chunks": 0,
+        "sky_ready": false,
+        "rendered_column_complete": false
+      },
+      {
+        "implementation": "fixed",
+        "after_worker_release": "all ten base chunks resident; sky ready"
+      }
+    ]
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited role DISPLAY/XAUTHORITY, isolated synthetic profile; LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF; renderer llvmpipe (LLVM 15.0.6, 256 bits)",
+    "expected": "Capture/export/import, four rotations, conflicts, empty-space preservation, cancellation, atomic failure, undo, restart, inventory and model-editor checks pass on changed source.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_hashes": 219,
+    "manifest_sha256": "c5cd1497adbb6df4bb9f3479726cae1e0c93812015609093ed87711a16ce138a",
+    "media_inspection": "Decoded and viewed fresh video frame and placed-world screenshot. Preview/staging UI and placed brick structures visible. llvmpipe at observed 1 FPS is functional evidence only. High-only readiness edge case exercised by deterministic integration probe; browser playtesting does not apply to this GLFW client."
+  },
+  "qualification": "Required populated city/maximum admission, 20-run end-to-end budgets and physical-GPU/shaped-network 32-rendered-client qualification remain pending. No admission cap or stable-rollout/readiness gate relaxed.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 358565,
+    "sha256": "6cec361faef81b97fb76fc3241ab7ee8561b8711905b24ad43ad4fa9c6499e51",
+    "codec": "H264",
+    "frames": 17,
+    "duration_seconds": 26.885,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended deletions. Restored MP3 and Hub workflows/tests retained."
+}

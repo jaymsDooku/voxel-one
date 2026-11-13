@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "production_head": "d2bafe0d8fa4a1fd02ce3ccd472406c709553d43",
+  "scope": "Decode admission prerequisite tooling only; production code, caps, formats and native harness unchanged.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "commands": [
+      "python3 -m unittest discover -s tools/structures -p 'test_*.py' -v > target/structure-admission-tests.log 2>&1",
+      "java -Xmx1g -cp target/classes tools/structures/CheckAdmission.java target/structure-fixtures/city-v2.vstr 6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6 > target/structure-city-admission.json",
+      "java -Xmx1g -cp target/classes tools/structures/CheckAdmission.java target/structure-fixtures/maximum-v2.vstr c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda > target/structure-maximum-admission.json"
+    ],
+    "tooling_tests": 30,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "expected": "Synthetic valid package admitted; malformed/checksum/geometry-cap/oversized packages rejected; wrong identity and missing input reported as input errors; no paths or exception messages printed.",
+    "observed": "All 30 tooling tests passed. Both actual full-fixture invocations exited 2 with identity_verified true and admitted false."
+  },
+  "fixtures": {
+    "city": {
+      "status": "rejected",
+      "admitted": false,
+      "identity_verified": true,
+      "package_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+      "compressed_bytes": 30258485,
+      "reason": "dependency_surface_cap",
+      "qualification": "NOT QUALIFIED"
+    },
+    "maximum": {
+      "status": "rejected",
+      "admitted": false,
+      "identity_verified": true,
+      "package_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+      "compressed_bytes": 53637310,
+      "reason": "geometry_cap",
+      "qualification": "NOT QUALIFIED"
+    }
+  },
+  "playtest": "Playtest: exercised CheckAdmission through actual Java CLI processes, including valid admission, malformed/truncated/checksum failures, wrong identity, missing file, geometry-cap and oversized-file boundaries. Browser playtesting does not apply to this noninteractive decoder tool. No world, network, authority or persistence instance is created.",
+  "native_regression": {
+    "scope": "Retained native workflow; no new graphical run on unchanged game source.",
+    "source_files_verified": 219,
+    "result": "passed",
+    "video_bytes": 404819,
+    "video_sha256": "c39d99e8fac9b0ce711f9090811c3d9e390211084365e690a158d56e3eb34f60",
+    "published_exact_head_verified": "d2bafe0d8fa4a1fd02ce3ccd472406c709553d43",
+    "report": "structure-native-result.json"
+  },
+  "hosted": {
+    "head": "d2bafe0d8fa4a1fd02ce3ccd472406c709553d43",
+    "platform_builds_succeeded": 8,
+    "publication": "skipped",
+    "scope": "Observed both feature and PR platform builds; these do not qualify full-fixture performance."
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "diff_check": "passed",
+    "deleted_paths": []
+  },
+  "limitations": [
+    "Decode rejection may precede CRC/trailing validation; it is not certification that a rejected package is valid.",
+    "Only first decoder rejection is reported; placement and persistence may have further limits.",
+    "No 20-run city/maximum performance, peak memory, frame, tick, traffic, upload or 32-rendered-client synchronization budget passed.",
+    "Physical GPU and shaped-network qualification remain pending; all rollout gates remain."
+  ]
+}

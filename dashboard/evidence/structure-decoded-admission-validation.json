@@ -1,0 +1,129 @@
+{
+  "schema": 1,
+  "production_head": "cf381381868047051f3241da73ad837c75864436",
+  "scope": "Admission diagnostics only. Production Java, native harness, package format and resource caps unchanged.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "measurement_scope": "Noninteractive local CLI; no GPU or network benchmark."
+  },
+  "tests": {
+    "command": "python3 -m unittest discover -s tools/structures -p 'test_*.py' -v > target/structure-decoded-admission-tests.log 2>&1",
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "expected": "Complete decoded bytes and dimensions for admitted packages; scanner EOF exact at limit, one-byte overflow rejected, CRC and incorrect size trailers rejected. Malformed, wrong-hash, oversized and development-cap input rejected without size claims or private paths.",
+    "observed": "All 32 tests passed. Synthetic scanner sizes 0, 1, 65535, 65536, 65537 and 196613 passed exact and spare-byte limits; one-byte-short limits rejected. Small limits test the scanner guard, not a full 512 MiB allocation."
+  },
+  "cli_runs": {
+    "small": {
+      "command": [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/classes",
+        "tools/structures/CheckAdmission.java",
+        "target/structure-decoded-cli/small.vstr",
+        "9e73d4d8c7be9e9c60dcfcb8b6d151887ed855a102606a894fa78ec96e49ced8"
+      ],
+      "result": {
+        "status": "admitted",
+        "admitted": true,
+        "identity_verified": true,
+        "package_sha256": "9e73d4d8c7be9e9c60dcfcb8b6d151887ed855a102606a894fa78ec96e49ced8",
+        "compressed_bytes": 18619,
+        "decoded_bytes": 122946,
+        "dimensions": [
+          32,
+          16,
+          16
+        ],
+        "cells": 8192,
+        "models": 0,
+        "geometry_leaves": 8192,
+        "instances": 0,
+        "qualification": "NOT QUALIFIED",
+        "exit_code": 0
+      }
+    },
+    "city": {
+      "command": [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/classes",
+        "tools/structures/CheckAdmission.java",
+        "target/structure-fixtures/city-v2.vstr",
+        "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6"
+      ],
+      "result": {
+        "status": "rejected",
+        "admitted": false,
+        "identity_verified": true,
+        "package_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+        "compressed_bytes": 30258485,
+        "reason": "dependency_surface_cap",
+        "qualification": "NOT QUALIFIED",
+        "exit_code": 2
+      }
+    },
+    "maximum": {
+      "command": [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/classes",
+        "tools/structures/CheckAdmission.java",
+        "target/structure-fixtures/maximum-v2.vstr",
+        "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+      ],
+      "result": {
+        "status": "rejected",
+        "admitted": false,
+        "identity_verified": true,
+        "package_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+        "compressed_bytes": 53637310,
+        "reason": "geometry_cap",
+        "qualification": "NOT QUALIFIED",
+        "exit_code": 2
+      }
+    }
+  },
+  "playtest": {
+    "entry": "Playtest: actual noninteractive admission CLI exercised on synthetic valid input and both retained full fixtures. Browser/native playtesting does not apply to this CLI change.",
+    "expected": "8192-cell package admitted with exact independent decompressed byte count; full fixtures remain rejected under current caps.",
+    "observed": "Synthetic package admitted: dimensions [32,16,16], compressed 18619 B, decoded 122946 B, matching Python gzip.decompress. City rejected dependency_surface_cap; maximum rejected geometry_cap. Rejections have no decoded_bytes.",
+    "native_regression": "No native rerun on unchanged game source. Verified all 220 production/harness source SHA-256 values against retained passed native manifest and published video bytes against cf381381.",
+    "video": {
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/cf381381868047051f3241da73ad837c75864436/dashboard/evidence/structure-workflow.mp4",
+      "bytes": 434292,
+      "sha256": "b273f8ac2e98ce98a09094b83bc5e674c0635c9030aa661daddfa523a59e1d42",
+      "status": "Published, byte-for-byte verified; captured from unchanged production implementation in prior native playtest."
+    }
+  },
+  "design": "A second bounded diagnostic gzip pass measures actual decoded bytes after production admission. It retains no expanded payload and checks CRC/completion; do not include it in game benchmark timing. Limit is the existing 512 MiB ceiling; two fixed 65536-byte stream buffers are used. Partial or rejected input has no full decoded-size claim.",
+  "source_sha256": {
+    "tools/structures/CheckAdmission.java": "71e4a972daa3296679090f25d37bad7a5701ff4a203a3589c88522976a625c06",
+    "tools/structures/test_admission.py": "37e7dadd1e9b32571c79f033f23fded0164e18ba9de542168de57a2c24d5a9f3"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "git_diff_check": "passed",
+    "deleted_paths": [],
+    "intended_deletions": "None. Existing MP3 and Hub restorations retained."
+  },
+  "hosted_checks": {
+    "head": "cf381381868047051f3241da73ad837c75864436",
+    "controller_observation": "Required Linux, Windows, macOS Intel and macOS ARM builds successful; publication skipped.",
+    "local_observation": "Seven completed successful PR/push builds; one extra macOS Intel build still running at observation. No repeat wait or poll requested. New tooling edits need controller publication and exact-head checks."
+  },
+  "remaining": [
+    "Full city and maximum admission remain rejected.",
+    "Placement/undo geometry retention needs an API-aware design; current maps preserve stable SVO identities.",
+    "Partitioned placement/publication/persistence and model/rendering resource constraints remain.",
+    "20-run full-fixture physical-GPU, shaped-network, 32 rendered clients, memory/frame/tick/traffic and latency qualification pending.",
+    "Independent exact-source review remains required. Supported limits and stable rollout remain gated."
+  ]
+}

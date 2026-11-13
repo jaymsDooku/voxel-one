@@ -1,0 +1,95 @@
+{
+  "status": "78 distinct structure tests, 20-run codec diagnostics and fresh native retry passed; exact-source hosted validation and full qualification pending",
+  "change": "Bounded 65536-byte input/output buffers around existing decoded-byte budget streams; compressed budget, CRC, gzip EOF validation and cancellation points retained. No format or admission cap change.",
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target/structure-buffer-control/classes target/structure-buffer-control/src/StructurePackage.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/PackageIoProbe.java",
+      "java -Xmx1g -cp target/structure-buffer-control/classes:target:target/classes PackageIoProbe unbuffered-control",
+      "java -Xmx1g -cp target:target/classes PackageIoProbe buffered"
+    ],
+    "control": "Exact StructurePackage.java from b6eda2246afcb5cf06e89010605a4dbf51092857 compiled separately; all shared dependencies identical.",
+    "fixture": "256 x 1 x 256 cells, 65536 occupied uniform geometry cells, seeded BRICKS/STONE materials, no models; 131686 compressed bytes. Not the required populated city or maximum fixture.",
+    "warmups": 3,
+    "results": [
+      {
+        "implementation": "unbuffered-control",
+        "operation": "encode",
+        "cells": 65536,
+        "models": 0,
+        "compressed_bytes": 131686,
+        "runs": 20,
+        "median_ms": 265.684,
+        "p95_ms": 359.727,
+        "worst_ms": 459.498
+      },
+      {
+        "implementation": "unbuffered-control",
+        "operation": "decode",
+        "cells": 65536,
+        "models": 0,
+        "compressed_bytes": 131686,
+        "runs": 20,
+        "median_ms": 184.856,
+        "p95_ms": 312.87,
+        "worst_ms": 405.008
+      },
+      {
+        "implementation": "buffered",
+        "operation": "encode",
+        "cells": 65536,
+        "models": 0,
+        "compressed_bytes": 131686,
+        "runs": 20,
+        "median_ms": 65.317,
+        "p95_ms": 117.925,
+        "worst_ms": 119.632
+      },
+      {
+        "implementation": "buffered",
+        "operation": "decode",
+        "cells": 65536,
+        "models": 0,
+        "compressed_bytes": 131686,
+        "runs": 20,
+        "median_ms": 43.567,
+        "p95_ms": 68.864,
+        "worst_ms": 91.284
+      }
+    ],
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "heap": "-Xmx1g"
+    },
+    "limits": "Shared VPS; control first, current second, structure tests ran concurrently. No frame/tick/network/peak-memory/durable-save/cold-load or full fixture qualification."
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=Structure*Test test",
+    "observed": "75 existing structure tests passed in the full run. All 3 new codec tests passed in a focused rerun after enlarging the boundary fixture. Total 78 distinct tests passed; not a single rerun of all 78.",
+    "focused_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureBufferedCodecTest test"
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited assigned DISPLAY/XAUTHORITY; isolated synthetic profile; renderer llvmpipe (LLVM 15.0.6, 256 bits); LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF.",
+    "expected": "Capture/export/import preserve construction; all four rotations, conflict rejection, empty-space preservation, cancellation, malformed import atomicity, one-operation undo, restart and inventory/model-editor regressions pass.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_paths": 219,
+    "manifest_sha256": "86b2f866ef760c8914de7aa6a7543445c71376f73e10b0f49c7e4346b50cc80f",
+    "media_inspection": "Decoded and viewed a video frame plus fresh placed-world screenshot. Two placed brick structures visible; preview/staging UI visible in clip. Software rendering at 1 FPS is functional evidence only. Browser playtesting does not apply to this native GLFW client."
+  },
+  "qualification": "Required city/maximum admission and 20-run full-system GPU/shaped-network 32-client qualification remain pending. No supported-limit or rollout gate relaxed.",
+  "native_first_attempt": "Process exited 1 with filtered IOException frames in CitySimulation.save and Jeep.save during cleanup. Filesystem had 12 MiB available at 100% use. This attempt is not counted as passed. Removed only reproducible assigned-worktree target/structure-browsers and target/structure-fixtures-repeat; 359 MiB available afterward. Native retry uses unchanged production source.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 366956,
+    "sha256": "0fa509fc53cf8444976461e4007062f06915bca122a0dc38a2e504aa205c0c94",
+    "codec": "H264",
+    "frames": 17,
+    "duration_seconds": 28.484,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No tracked deletions against review base 71612f09bfec4549456b3317676e76cdced085a4. No changes to restored MP3/build smoke or Hub workflows/registration tests. No intended deletions."
+}

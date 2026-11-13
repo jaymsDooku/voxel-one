@@ -1,0 +1,52 @@
+{
+  "parent": "02da3dbb13a54c3fee4ea4b95ea3e32341cd0884",
+  "status": "private detached restore validated; production integration and full qualification pending",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "heap": "512 MiB",
+    "display": "inherited assigned display; own synthetic window only"
+  },
+  "commands": [
+    "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionCityRestorePrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionCompleteRestoreCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionCompleteRestoreCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore tools.structures.test_region_history.RegionHistoryIntegrationTest.test_world_library tools.structures.test_region_history.RegionHistoryIntegrationTest.test_city_history_snapshot tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_sidecars",
+    "java -cp target:target/classes RegionGenerationEvidence RegionCompleteRestoreCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-complete-restore-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "observed": {
+    "status": "passed",
+    "legacy_city_formats": 17,
+    "offline_and_server_metadata": true,
+    "rejection_cases": 15,
+    "source_unchanged": true,
+    "live_region_backend": false,
+    "qualification": false
+  },
+  "tests": "5 tests passed in 25.765 s; no skips. Initial simulation full-record equality assertion failed; existing constructor normalizes state. Corrected check verifies config, clock, road values and citizen/building counts, then advances restored simulation and verifies source remains unchanged. Detached decoded frame itself retains exact record equality.",
+  "playtest": "Playtest: generated actual CitySimulation/history; strict decode; private generation restart with geometry/models/offline and server metadata; missing history explicit; 17 empty legacy city formats; malformed city/history and cancellation reject; retry passes. Expected detached state without source mutation; observed pass. Browser/native game rendering does not apply to this tools-only persistence path. Actual child exit 0 displayed and own-window image inspected.",
+  "limits": [
+    "Private combined sidecars remain 4 MiB; existing package and geometry caps unchanged.",
+    "17 legacy cases are empty-state wire fixtures, not populated historical qualification.",
+    "No live state installed, no automatic migration, no production region backend.",
+    "Full city/maximum 20-run performance, physical GPU, shaped 32-client synchronization, directory fsync and power-loss qualification pending."
+  ],
+  "hosted": "Eight builds successful on exact parent 02da3dbb; two publication jobs skipped. New edits not yet hosted.",
+  "source_sha256": {
+    "tools/structures/RegionCityRestorePrototype.java": "2ecf2b088ef2ddf38fc2086c413931d18d6ec68be33b51cfda3c64a16fa13009",
+    "tools/structures/RegionWorldLibraryPrototype.java": "6cd6273f4da2a580db62c2fdc6efd14912bf44aa63bec0b42e044fb9f368a992",
+    "tools/structures/RegionCompleteRestoreCheck.java": "2ba6877706d75e3c76b3d5ccf1b60d8852bbae9ec68b8a0c81886127e96544e3",
+    "tools/structures/RegionGenerationEvidence.java": "19ad2cd9f7545d6bb6ff28bf6e6c864297bab844611c5dd3ba76c729244faf32",
+    "tools/structures/test_region_history.py": "59fd0f34456ea454fb49ddce29f83d118ba4cae015fde48c2d94a2bfaaa30859",
+    "src/main/java/dev/jayms/net/city/CityHistory.java": "1d08ae9d70b975d4665232c446f8d970c42c0bba686dc291b76ab0c69794f3a9"
+  },
+  "media": {
+    "file": "structure-complete-restore-cli.png",
+    "sha256": "0c041995501197f8b9f7da07b11b41e5b84c30d9d7ae94ecc6b892246ba06d6b",
+    "bytes": 5833,
+    "publication": "pending controller"
+  },
+  "deletions": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4; no intended deletions in this milestone."
+}

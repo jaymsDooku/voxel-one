@@ -1,0 +1,133 @@
+{
+  "schema": 1,
+  "parent_head": "fe29ac088fc5bf1c25bb95abeee7bdc6379cffcf",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Production strict bounded CityHistory stream reader; existing file fallback and v1 format retained",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "maven_cache": "Assigned worktree target/structure-m2, offline",
+    "temp": "Assigned worktree target/reviewer-tmp",
+    "display": "Inherited managed display; own Swing window only"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/city/CityHistory.java": "1d08ae9d70b975d4665232c446f8d970c42c0bba686dc291b76ab0c69794f3a9",
+    "tools/structures/CityHistorySnapshotCheck.java": "7ecd0a084d40792bec6ad5c66f564e68adb2ac4b713ee9491b375699e0257bae",
+    "tools/structures/RegionGenerationEvidence.java": "2cfafd7ba03f1f6821ecf0a97c42f0672416220a79a2e56d9f6b4797256292f4",
+    "tools/structures/test_region_history.py": "f85123d18beb49dbe6041c306b93820ac4c75a20569f59e2d10dfc82db460c74"
+  },
+  "commands": [
+    {
+      "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+      "result": "Exact parent fe29ac08; eight successful platform builds, publication skipped"
+    },
+    {
+      "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=CityHistoryTest,CityHistoryIntegrationTest,CityHistoryNetworkTest,CitySavesTest,CityFormat16RegressionTest test",
+      "exit": 0,
+      "source_note": "Final production source including no-progress guard",
+      "suites": [
+        {
+          "suite": "CityHistoryTest",
+          "tests": 8,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityHistoryIntegrationTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityHistoryNetworkTest",
+          "tests": 1,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CitySavesTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        {
+          "suite": "CityFormat16RegressionTest",
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      ]
+    },
+    {
+      "command": "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/CityHistorySnapshotCheck.java tools/structures/RegionGenerationEvidence.java",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes CityHistorySnapshotCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "existing_wire_version": 1,
+        "populated_bytes": 239147,
+        "rejection_cases": 34,
+        "production_loader": true,
+        "strict_stream_reader": true,
+        "source_unchanged": true,
+        "live_region_backend": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_city_history_snapshot tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_sidecars tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_bundle tools.structures.test_region_history.RegionHistoryIntegrationTest.test_server_bundle",
+      "exit": 0,
+      "source_note": "Final source and diagnostic field names",
+      "summary": ".....\n----------------------------------------------------------------------\nRan 5 tests in 24.828s\n\nOK"
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence CityHistorySnapshotCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual synthetic city/history production save, bounded stream decode and file-loader fallback. Expected exact239147-byte populated frame retention, caller stream remains open, exact input budget accepted, short budgets consume no more than cap+1 probe, bad binding/checksum/truncation/trailing bytes/counts/clock/I/O and zero-progress source reject without returning partial state; observed34 rejection cases passed. Count/clock malformed fixtures repair CRC to exercise semantic validation. Source simulation/history remain unchanged and retry succeeds. Existing file loader still returns fresh history on corrupt input. Fresh actual child exit0 own-window image inspected. Browser/native renderer playtesting does not apply to this persistence-only integration.",
+  "image": {
+    "path": "dashboard/evidence/structure-history-reader-cli.png",
+    "bytes": 6176,
+    "sha256": "5cf9f11c0f24376ee75049d8d5d509cf626286fbf8ce23d6292f88cb21f2e396",
+    "publication": "pending controller publication"
+  },
+  "compatibility": "Existing HIS1 v1 field order, CRC-before-stored-long comparison, city binding, epoch/metric/bucket caps and file-loader fallback retained. New API throws instead of returning fresh history for malformed stream data; invalid API budgets/fingerprint/time throw IllegalArgumentException before consuming input. Caller owns stream closure and cancellation/timeouts.",
+  "limits": {
+    "maximum_history_bytes": 67108864,
+    "minimum_caller_budget": 0,
+    "maximum_extra_probe_bytes": 1,
+    "epochs": 64,
+    "series": 576,
+    "bucket_level_caps": [
+      289,
+      721,
+      366
+    ]
+  },
+  "native_source_audit": "Only CityHistory.java changed from retained native source baseline. Historical renderer media is not claimed exact-source validation of this reader; final production regressions and fresh CLI media cover affected persistence workflow.",
+  "limitations": [
+    "This reader alone does not install world state, select a live region backend or provide automatic restore.",
+    "No new latency/frame/peak-memory or power-loss/directory durability qualification. Byte budget bounds encoded consumption; inherited decoded record caps remain and full memory qualification is pending.",
+    "Two-client synthetic history regression is not shaped32-client city qualification.",
+    "Full20-run city/maximum admission, physical-GPU and shaped32-rendered-client budgets remain pending; production caps unchanged and rollout gated."
+  ],
+  "qualification": false,
+  "ready": false
+}

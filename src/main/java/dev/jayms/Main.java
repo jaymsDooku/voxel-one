@@ -32,6 +32,7 @@ public class Main {
         default void afterFrame(Main game) throws Exception {}
     }
     private FrameObserver frameObserver;
+    private boolean sceneReady;
     private Window window;
     private GraphicsController graphics;
     private final PerformanceRecorder performance=new PerformanceRecorder();
@@ -108,6 +109,7 @@ public class Main {
     private ModelEditor editor;
     private final EngineEditor engineEditor = new EngineEditor();
     private LightColorMenu lightColors;
+    private StructureMenu structures;
     private int modelResults;
     private World world;
     private InventoryHud inventoryHud = new InventoryHud();
@@ -344,11 +346,15 @@ public class Main {
         }
     }
 
-    private void loadingFrame(String stage)throws Exception{
+    private void loadingFrame(String stage)throws Exception{loadingFrame(stage,-1);}
+    private void loadingFrame(String stage,int editsRead)throws Exception{
         if(framebufferWidth>0&&framebufferHeight>0){
             org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
             glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);overlay.begin(framebufferWidth,framebufferHeight);
-            overlay.text(stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...",24,40,2);
+            String message=stage.equals("world")?"Loading saved world... "+editsRead+" edits read":
+                    stage.equals("replay")?"Loading world geometry... "+editsRead+" edits applied":
+                    stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...";
+            overlay.text(message,24,40,2);
             overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
             if(frameObserver!=null)frameObserver.loading(this,stage);
         }
@@ -366,6 +372,51 @@ public class Main {
             loadingFrame("lighting");
         }
         rendering.resetFocus();
+    }
+
+    /** Only the completed private load crosses to the render owner. Escape/close
+     * cancels before assignment, so cleanup cannot save a partial load. */
+    private LocalGame awaitOfflineWorld()throws Exception {
+        try(var load=new OfflineGameLoad(offlineSave,seed)) {
+            while(true) {
+                if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+                    throw new java.util.concurrent.CancellationException("Offline world loading cancelled");
+                if(load.done())return load.result();
+                loadingFrame("world",load.editsRead());
+            }
+        }
+    }
+
+    /** No live chunks or GL resources exist in the private worker result. */
+    private World awaitOfflineReplay(dev.jayms.net.city.StressGrid grid)throws Exception {
+        try(var replay=new OfflineWorldReplay(local,grid)) {
+            while(true) {
+                checkReplayCancellation();
+                if(replay.done())return replay.result();
+                loadingFrame("replay",replay.applied());
+            }
+        }
+    }
+
+    /** Preserve replay order while polling frequently before play/physics starts.
+     * Progress draws are coalesced, not forced after every 128 records. */
+    private void applyInitialEdits(Iterable<Protocol.Edit> edits)throws Exception {
+        int count=0;var budget=new StartupReplayBudget(System.nanoTime());
+        for(var edit:edits) {
+            world.apply(edit);count++;
+            if(budget.afterEdit(System.nanoTime())) {
+                window.pollEvents();checkReplayCancellation();
+                if(budget.drawDue(System.nanoTime())) {
+                    loadingFrame("replay",count);budget.frameFinished(System.nanoTime());checkReplayCancellation();
+                }
+                budget.resumed(System.nanoTime());
+            }
+        }
+        window.pollEvents();checkReplayCancellation();
+    }
+    private void checkReplayCancellation() {
+        if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+            throw new java.util.concurrent.CancellationException("World replay cancelled");
     }
 
     private void initScene() throws Exception {
@@ -389,21 +440,21 @@ public class Main {
         shipModel = new ShipModel();
         farmModels = new FarmModels();
         if (network == null) {
-            local = new LocalGame(offlineSave, seed);
+            local = awaitOfflineWorld();
             String assetNotice = dev.jayms.assets.AssetIntake.apply(Controls.directory(), GameIdentity.of(gameConfig.city()), offlineSave, local);
             if (!assetNotice.isEmpty()) notice = assetNotice;
             seed = local.seed;
         } else seed = network.seed;
         int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
-        world = new World(seed, network == null ? local.models : network.models, generatorVersion);
         if (network == null) {
             var saved = CitySimulation.load(CitySaves.sidecar(offlineSave,".city"));
-            if (saved != null) world.terrain().stressGrid(saved.stressGrid());
-        }
+            world=awaitOfflineReplay(saved==null?null:saved.stressGrid());
+        }else world = new World(seed, network.models, generatorVersion);
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
-        for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
+        structures=new StructureMenu(Controls.directory().resolve("structures"), () -> player==null?null:new Protocol.Pose(0,player.position().x,player.position().y,player.position().z,0,0));
+        if(network!=null)applyInitialEdits(network.initialEdits);
         Protocol.Pose spawn =
                 network == null
                         ? new Protocol.Pose(
@@ -497,6 +548,7 @@ public class Main {
         awaitInitialLighting();
         configureInput();
         setCaptured(true);
+        sceneReady=true;
     }
 
     private void saveCurrentSimulation() throws java.io.IOException {
@@ -522,6 +574,20 @@ public class Main {
         glfwSetKeyCallback(
                 window.getHandle(),
                 (handle, key, scancode, action, mods) -> {
+                    if(structures.open) {
+                        if(action==GLFW_PRESS&&recordInput(key))return;
+                        if(action==GLFW_PRESS&&controls.matches(STRUCTURES,key))structures.open=false;
+                        else structures.key(key,action,mods,world,local,network);
+                        if(!structures.open)setCaptured(true);
+                        return;
+                    }
+                    if(action==GLFW_PRESS&&controls.matches(STRUCTURES,key)&&!engineEditor.open&&!editor.open&&!menu.open&&!lightColors.open&&!mayorDashboard.open&&!buildingInfo.open) {
+                        var hit=BlockRaycaster.cast(world,player.eyePosition(),player.facingDirection(),6);
+                        var point=new dev.jayms.net.structure.StructurePackage.Position((int)Math.floor(player.position().x),(int)Math.floor(player.position().y),(int)Math.floor(player.position().z));
+                        var mark=hit==null?point:new dev.jayms.net.structure.StructurePackage.Position(hit.x(),hit.y(),hit.z());
+                        var target=hit==null?point:new dev.jayms.net.structure.StructurePackage.Position(hit.x()+hit.normalX(),hit.y()+hit.normalY(),hit.z()+hit.normalZ());
+                        structures.show(mark,target);setCaptured(false);return;
+                    }
                     if(action==GLFW_PRESS&&key==GLFW_KEY_F9&&(!city().config().city()||!controls.matches(MAYOR_DASHBOARD,key))&&!menu.editing()&&!editor.open&&!lightColors.open&&!mayorDashboard.open){togglePerformance();return;}
                     if (action == GLFW_PRESS && recordInput(key)) return;
                     if (engineEditor.open) {
@@ -621,6 +687,7 @@ public class Main {
         glfwSetMouseButtonCallback(
                 window.getHandle(),
                 (handle, button, action, mods) -> {
+                    if(structures.open)return;
                     if(!captured) {
                         double[] cx={0},cy={0}; glfwGetCursorPos(handle,cx,cy);
                         mouseX=cx[0]; mouseY=cy[0];
@@ -788,7 +855,8 @@ public class Main {
         glfwSetCharCallback(
                 window.getHandle(),
                 (handle, character) -> {
-                    if (menu.open && menu.saves != null && menu.saves.open) menu.saves.character(character);
+                    if(structures.open)structures.character(character);
+                    else if (menu.open && menu.saves != null && menu.saves.open) menu.saves.character(character);
                     else if (mayorDashboard.open) mayorDashboard.character(character);
                     else if (editor.open) editor.character(character);
                     else if (lightColors.open) lightColors.character(character);
@@ -1091,6 +1159,7 @@ public class Main {
             previous = now;
             // World changes are applied before physics, including collision recovery for late
             // edits.
+            structures.pump();
             if (network != null) {
                 for (var e : network.poll()) world.apply(e);
                 predicted.entrySet().removeIf(e -> !network.pending(e.getValue()));
@@ -1125,7 +1194,7 @@ public class Main {
                     && !editor.open
                     && !lightColors.open
                     && !mayorDashboard.open
-                    && !buildingInfo.open) {
+                    && !buildingInfo.open && !structures.open) {
                 float speed = Math.min(dt, .1f) * 50 / Math.max(.25f, overview.zoom() / 64);
                 float
                         f =
@@ -1324,6 +1393,7 @@ public class Main {
             Chunk c = entry.getValue();
             rendering.chunk(c, p);
         }
+        rendering.replay(world,frustum,shader);
         modelRenderer.render(world, frustum, shader);
         if (jeep != null) jeepModel.render(jeep, shader);
         for (var parked : cheatParked) jeepModel.render(parked, shader);
@@ -1623,6 +1693,7 @@ public class Main {
         }
         menu.render(overlay, framebufferWidth, framebufferHeight);
         lightColors.render(overlay, framebufferWidth, framebufferHeight);
+        structures.render(overlay,framebufferWidth,framebufferHeight,projection,view,network);
         renderFps();
         if(graphics.transaction.effective().on(GraphicsProfile.Key.DIAGNOSTICS)&&!menu.open){int y=52;for(String line:graphicsDiagnostics()){overlay.text(line,12,y,1.25f);y+=18;}}
         overlay.end();
@@ -1807,8 +1878,8 @@ public class Main {
         cleanup.run(() -> { if(graphics!=null)graphics.close(); });
         cleanup.run(() -> { recorder.close(); });
         cleanup.run(() -> { missiles.close(); });
-        cleanup.run(() -> { if (local != null) local.save(); });
-        cleanup.run(() -> { if (jeep != null) jeep.save(jeepSave()); });
+        cleanup.run(() -> { if (local != null && sceneReady) local.save(); });
+        cleanup.run(() -> { if (jeep != null && sceneReady) jeep.save(jeepSave()); });
         cleanup.run(() -> { if (network != null) network.close(); });
         cleanup.run(() -> { detailedMeshes.close(); });
         cleanup.run(() -> { if (distant != null) distant.close(); });
@@ -1823,6 +1894,7 @@ public class Main {
         cleanup.run(() -> { if (farmModels != null) farmModels.close(); });
         cleanup.run(() -> { if (modelRenderer != null) modelRenderer.close(); });
         cleanup.run(() -> { if (editor != null) editor.close(); });
+        cleanup.run(() -> { if (structures != null) structures.close(); });
         cleanup.run(() -> { if (overlay != null) overlay.close(); });
         cleanup.run(() -> { if (rendering != null) rendering.close(); });
         cleanup.run(() -> { if (shader != null) shader.close(); });

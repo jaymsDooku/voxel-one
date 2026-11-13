@@ -1,0 +1,174 @@
+{
+  "schema": 1,
+  "parent_head": "2b4f9d50ad99eddb3ce11c2e45300b08c6622ba7",
+  "scope": "Build indexed offline library placement history on the worker, with bounded owner-thread reads. Existing final owner commit/model/geometry/collision/save/undo guards remain. No format or cap changes.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "design": {
+    "owner_queue": "At most one pending request; pump executes at most one request per frame, only on its creating owner thread. Worker get waits at most 50 ms before checking cancellation/close again.",
+    "history_read_limit": "32 immutable batches of at most 1024 validated key/Edit pairs per owner request: at most 32768 pairs. Rebuilding indices and emitting placement replay happen on worker.",
+    "stale_guard": "Captured indexed history identity/revision, offline-world identity and exact immutable engine-prepared cell-map identity must match at final owner commit. Source mutations between groups reject before cursor resume; mutations after staging reject before publication. Outside-destination history edits require retry, not overwriting.",
+    "survival_state": "Inventory, health and drops are not captured in history staging. Final existing save uses current owner-thread state.",
+    "compatibility": "Legacy/custom nonindexed map histories keep their original synchronous commit path.",
+    "cleanup": "Cancellation/close releases queued reads. Worker errors close engine.Prepared; completion/cancel cleanup retains the existing resource lifecycle. History failure can be retried without a stuck placement reservation."
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-offline-history-tmp\" -Dtest='Structure*Test,WorldHistoryIndexTest,EditHistoryTest,WorldVoxelSnapshotTest,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test > target/structure-offline-history-tests.log 2>&1",
+    "exit_code": 0,
+    "results": {
+      "tests": 157,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      "dev.jayms.EditHistoryTest",
+      "dev.jayms.ProtocolCompatibilityTest",
+      "dev.jayms.ShippingProtocolCompatibilityTest",
+      "dev.jayms.StructureCaptureChunkTest",
+      "dev.jayms.StructureCaptureModelTest",
+      "dev.jayms.StructureCellReadTest",
+      "dev.jayms.StructureCellReplayTest",
+      "dev.jayms.StructureDecodeCancellationTest",
+      "dev.jayms.StructureEncodeCancellationTest",
+      "dev.jayms.StructureFileReadTest",
+      "dev.jayms.StructureLeafCountTest",
+      "dev.jayms.StructureLeafVisitorTest",
+      "dev.jayms.StructureMenuAnchorTest",
+      "dev.jayms.StructureModelAdmissionTest",
+      "dev.jayms.StructureMultiplayerTest",
+      "dev.jayms.StructureOccupancyTest",
+      "dev.jayms.StructureOfflineHistoryStagingTest",
+      "dev.jayms.StructureOfflineStampTest",
+      "dev.jayms.StructurePublicationStagingTest",
+      "dev.jayms.StructureRotationTreeTest",
+      "dev.jayms.StructureSaveStagingTest",
+      "dev.jayms.StructureTest",
+      "dev.jayms.StructureValidationStampTest",
+      "dev.jayms.VoxelModelTest",
+      "dev.jayms.WorldHistoryIndexTest",
+      "dev.jayms.WorldVoxelSnapshotTest",
+      "dev.jayms.net.structure.StructureBufferedCodecTest",
+      "dev.jayms.net.structure.StructureBufferedWireTest",
+      "dev.jayms.net.structure.StructureChunkMeshCountTest",
+      "dev.jayms.net.structure.StructureModelCodecTest",
+      "dev.jayms.net.structure.StructureOrderTest",
+      "dev.jayms.net.structure.StructurePackedGeometryTest",
+      "dev.jayms.net.structure.StructurePlacementCellsTest",
+      "dev.jayms.net.structure.StructureWirePositionsTest"
+    ],
+    "focused_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-offline-history-tmp\" -Dtest=StructureOfflineHistoryStagingTest test > target/structure-offline-history-focused.log 2>&1",
+    "fixture_corrections": "Initial focused run had two incorrect fixture assertions: slot count instead of type count, and assuming built-in model entries were absent. Those fixtures were corrected; focused tests and final full targeted run passed.",
+    "expected": "Owner/worker separation and bounded reads, ordered durable replay, current survival state, stale identity/revision rejection, cancellation/close, result binding, generic-map compatibility and retry cleanup.",
+    "observed": "All 157 tests passed. Seven new tests exercise real owner/worker queues: bounded history copy and durable commit/current health/inventory/restart/undo; outside edit/equal replacement/history-map swap after staging; mutation between owner groups; cancelled copy with reusable queue/source unchanged; foreign world/cell map and legacy fallback; close releases worker without running read; actual StructureMenu history error followed by successful retry. Existing TLS multiplayer, model/protocol, history/snapshot and structure regressions passed."
+  },
+  "integration_playtest": "Playtest: actual TLS server with default three synthetic protocol clients passed structure rotations, initially empty dependency caches, conflicts/cancellation, undo, late joining and restart. New StructureMenu integration test exercises running worker/owner completion and durable offline placement. Not a shaped network or 32 rendered clients.",
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target tools/structures/OfflineHistoryStagingProbe.java",
+      "java -Xmx1g -cp target:target/classes OfflineHistoryStagingProbe sync > target/structure-offline-history-sync.jsonl",
+      "java -Xmx1g -cp target:target/classes OfflineHistoryStagingProbe staged > target/structure-offline-history-staged.jsonl"
+    ],
+    "sync": {
+      "mode": "sync",
+      "source_edits": 100000,
+      "placement_cells": 1000,
+      "result_edits": 101000,
+      "replay_sha256": "bffe060eeda3c8a3c85b8955abf56c393f9591f408049e58ffa5f71a5f1d57aa",
+      "warmups": 3,
+      "runs": 20,
+      "synthetic_frame_sleep_ms": 0,
+      "wall_median_ms": 32.936,
+      "wall_p95_ms": 88.848,
+      "wall_worst_ms": 145.75,
+      "owner_max_per_run_median_ms": 32.934,
+      "owner_max_per_run_p95_ms": 88.845,
+      "owner_max_per_run_worst_ms": 145.748,
+      "median_owner_thread_allocated_bytes": 9617488,
+      "median_worker_thread_allocated_bytes": 0,
+      "worker_cpu_p95_ms": 0.0,
+      "owner_requests_median": 0
+    },
+    "staged": {
+      "mode": "staged",
+      "source_edits": 100000,
+      "placement_cells": 1000,
+      "result_edits": 101000,
+      "replay_sha256": "bffe060eeda3c8a3c85b8955abf56c393f9591f408049e58ffa5f71a5f1d57aa",
+      "warmups": 3,
+      "runs": 20,
+      "synthetic_frame_sleep_ms": 33,
+      "wall_median_ms": 204.159,
+      "wall_p95_ms": 266.902,
+      "wall_worst_ms": 270.702,
+      "owner_max_per_run_median_ms": 1.949,
+      "owner_max_per_run_p95_ms": 2.48,
+      "owner_max_per_run_worst_ms": 3.601,
+      "median_owner_thread_allocated_bytes": 806848,
+      "median_worker_thread_allocated_bytes": 14093016,
+      "worker_cpu_p95_ms": 54.86,
+      "owner_requests_median": 5
+    },
+    "method": "Separate JVMs, synchronous mode first, three warmups and 20 iterations. History-only baseline reproduces the prior copyOf plus rememberCell algorithm on unchanged WorldVoxels, not a separately compiled parent/full commit. Fixture has 100000 source edits and 1000 immutable uniform new cells; ordered serialized Edit hashes match at 101000 edits after every iteration. Fixture construction and serialized-hash validation are outside timing; target history/index construction is inside. The staged path uses actual LocalGame.stageStructureHistory and StructureOwnerQueue; each owner pump is timed and the maximum per run is recorded. Thirty-three-ms sleeps simulate cadence without a renderer; not actual FPS or frame-time qualification. Reflection reads only private synthetic staged history for validation, avoiding a mutable public getter. Owner allocation includes queue/thread/task bookkeeping and owner read arrays; worker allocation includes queue tasks, detached index construction and placement replay. No retained/peak memory measure. Sync worker fields are zero because it has no worker.",
+    "tradeoff": "History-phase owner max-per-run worst fell 145.748 to 3.601 ms; wall p95 increased 88.848 to 266.902 ms. Median total allocated bytes increased from 9617488 to 14899864 (806848 owner plus 14093016 worker) because the staged path rebuilds a detached cell index. Not a complete 100 ms main-thread guarantee or full placement/save timing."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/LocalGame.java": "0bb7d4528257cdd63ed3f295b9fa83042ce0b54b86181ebdbe7bdeb0902cc7ce",
+    "src/main/java/dev/jayms/net/structure/StructureOwnerQueue.java": "54e8c37e90ecd17a93d38615df1d8a082729039faf35ccfc70f22819dfb8c263",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "658806dd58b73bf2d40e8e86b32b1ba82516a481095a2a5fc7f2ce2337ce34ff",
+    "src/test/java/dev/jayms/StructureOfflineHistoryStagingTest.java": "f76b42f0de39898ab0772507ad819d7fd8c7b05de0fc3bc84397df3bf5908317",
+    "tools/structures/OfflineHistoryStagingProbe.java": "f3178c02e29e1a4ac7ea5105dab21ec7e38ea0fd612d1988a73e30fee69e0920"
+  },
+  "native_playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-offline-history-native-summary.json 2>&1",
+    "exit_code": 0,
+    "expected": "Production Main placement through worker history staging, plus capture/library/import/export, rotations, conflict/empty-source policy, cancellation/malformed failure, undo/repeat placement, restart, inventory/model editor.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_manifest": "structure-native-source.json",
+    "source_files": 222,
+    "source_manifest_sha256": "06598b7a38d5171bf8fa5acb156bfa3898fc8e6f50aa3a25ecf7d84d4c1d5733",
+    "source_check": "Every production Java and harness path/hash matches after playtest.",
+    "media_inspection": "Decoded and inspected recording frame: clear green footprint, anchor, Working 50% and Preparing save history; world unchanged. Inspected fresh conflict screenshot: red bounds, 90-degree orientation and blocked message. HUD 0-1 FPS on software renderer is functional evidence only.",
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-offline-history-frame.png",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 400053,
+      "sha256": "08854da5e9de10c71c66fe55920bc822a003be63738b5969296258ec7e39b5f3",
+      "codec": "H264",
+      "frames": 16,
+      "duration_seconds": 27.245
+    },
+    "image": {
+      "file": "structure-offline-history-progress.png",
+      "sha256": "9ba919c91818898d481b1e69626d40d512af8a4dced9803ad6542b7afea06591",
+      "origin": "Decoded from this implementation recording, not stock or historical media."
+    },
+    "publication": "Local evidence pending controller publication",
+    "qualification": "Not physical-GPU, actual FPS/frame-time, city or shaped-network qualification."
+  },
+  "parent_hosted_checks": {
+    "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+    "head": "2b4f9d50ad99eddb3ce11c2e45300b08c6622ba7",
+    "successful_builds": 8,
+    "publish": "skipped",
+    "urls": [
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41176939426",
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41176937836"
+    ],
+    "scope": "Observed completed parent platform builds. New local source has not run hosted checks."
+  },
+  "remaining": [
+    "Only the indexed offline placement-history phase moved off owner. Snapshot capture, validation, geometry publication, disk save and undo still include owner-thread work.",
+    "Full city/maximum fixture admission and partitioned storage/publication/transfer remain unfinished under provisional complexity/chunk/transfer/persistence caps.",
+    "Required 20-run reference physical-GPU, shaped-network and 32-rendered-client full-workflow qualification with peak memory, frame/tick/traffic, progress/cancellation and all latency budgets remains pending.",
+    "Supported-city and stable-rollout claims remain gated. Independent exact-source review is still required."
+  ],
+  "audit": "git diff --check against 71612f09bfec4549456b3317676e76cdced085a4 passed; no deleted paths. Existing owner-thread history preparation is replaced only for indexed offline library placement; no files intentionally deleted."
+}

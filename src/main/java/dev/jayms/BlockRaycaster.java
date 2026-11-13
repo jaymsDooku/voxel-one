@@ -6,7 +6,26 @@ public class BlockRaycaster {
 
     private BlockRaycaster() {}
 
+    /** An unavailable cell is a stopping boundary, never a hit or known air.
+     * Data readiness does not imply resident/renderable geometry. */
+    public record UnavailableCell(int x, int y, int z, boolean replayDataReady) {}
+
+    public record Trace(BlockHit hit, UnavailableCell unavailable) {}
+
+    /** Owner-side query only. Does no I/O or publication and requests no pages.
+     * The legacy cast path keeps its allocation and null-on-boundary behavior. */
+    public static Trace trace(World world, Vector3f origin, Vector3f direction, float reach) {
+        UnavailableCell[] stopped = {null};
+        BlockHit hit = cast(world, origin, direction, reach, cell -> stopped[0] = cell);
+        return new Trace(hit, stopped[0]);
+    }
+
     public static BlockHit cast(World world, Vector3f origin, Vector3f direction, float reach) {
+        return cast(world, origin, direction, reach, null);
+    }
+
+    private static BlockHit cast(World world, Vector3f origin, Vector3f direction, float reach,
+            java.util.function.Consumer<UnavailableCell> stopped) {
         if (!Float.isFinite(reach)
                 || reach < 0
                 || !Float.isFinite(origin.x)
@@ -58,6 +77,8 @@ public class BlockRaycaster {
 
         while (distance <= reach) {
             if (!world.isLoaded(x, y, z)) {
+                if (stopped != null)
+                    stopped.accept(new UnavailableCell(x, y, z, world.replayDataReady(x, y, z)));
                 return null;
             }
 

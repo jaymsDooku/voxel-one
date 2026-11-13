@@ -1,0 +1,141 @@
+{
+  "status": "local_tests_geometry_diagnostic_and_native_passed_hosted_pending",
+  "parent": "518c728afb98cd4a36e04f5e877ac3bb2dd75579",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Stage selected geometry buckets outside final server lock; merge current unaffected chunks on matching stamps, otherwise retain full restage fallback.",
+  "source": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "dabf59977845029146917b0eb5e0c3d439f1dc8b449b6cbbc18a77a047d418aa",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "8a8898984b35e69a4f8940fc4f1c122aa9d60b228c8e7fc1c7aa18e2089aa1d2",
+    "src/test/java/dev/jayms/WorldCellPatchTest.java": "2983bad0f52045242a98ba5ce06ffdd922495fa4ca87357b6d49bda1af495231",
+    "tools/structures/CellPatchProbe.java": "c7602d355509f184d86add7cbbf758631597a3e8d530ffe9eaacc3b9a6dc7651"
+  },
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldCellPatchTest,WorldVoxelSnapshotTest,StructureTest,StructureMultiplayerTest,StructureValidationStampTest,StructurePublicationStagingTest test",
+  "suites": [
+    {
+      "suite": "WorldCellPatchTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 24,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureValidationStampTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "cliCommands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/CellPatchProbe.java",
+    "java -Xmx1g -cp target:target/classes CellPatchProbe target/structure-cell-patch-probe.json"
+  ],
+  "diagnostic": {
+    "scope": "Geometry phase only, 131072 uniform cells in 32 chunks, 40000 unrelated overrides. Three warmups, 20 measured iterations; same live source, baseline first. Not city/max, whole placement, peak memory, GPU or network qualification.",
+    "legacy_guarded_ms": {
+      "median": 7.792619,
+      "p95": 21.703015,
+      "worst": 23.446623
+    },
+    "capture_guarded_ms": {
+      "median": 0.044856,
+      "p95": 0.109805,
+      "worst": 0.119756
+    },
+    "cell_staging_outside_lock_ms": {
+      "median": 8.834858,
+      "p95": 43.966731,
+      "worst": 53.549414
+    },
+    "merge_guarded_ms": {
+      "median": 0.231073,
+      "p95": 0.375509,
+      "worst": 0.443603
+    },
+    "combined_guarded_ms": {
+      "median": 0.274444,
+      "p95": 0.461286,
+      "worst": 0.540705
+    }
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "machine": "x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "25.0.3+9-LTS-195",
+    "concurrency": "Local regression process finished before this diagnostic; native playtest and hosted artifact collection started afterward. Shared VPS, not reference hardware."
+  },
+  "checks": [
+    "Capture/staging leave live cells and chunk stamps unchanged.",
+    "Latest unrelated chunks retained; changed captured neighbors reject merge and preserve retry geometry.",
+    "Live source, patch, earlier snapshots and merged candidates retain independent edits, including patch reuse and caller-tree mutations.",
+    "Terrain identity/generation ABA, cleared buckets, invalid chunks/resolutions, fractional trees and air replacement checked.",
+    "Actual TLS structure rotation/dependencies/cancellation/conflicts/undo/late join/restart passed."
+  ],
+  "measurementLimits": [
+    "Geometry phase only; legacy fallback and staged path use same implementation unchanged primitives.",
+    "Three warmups and 20 measured component iterations, legacy first; not 20 full city/max runs.",
+    "All 131072 placed cells, source isolation and 40000 unrelated overrides checked outside timing.",
+    "No whole-placement speedup claim; extra staging/chunk checks can increase total CPU/latency.",
+    "No history/save, wire/mesh, peak-memory, GPU or shaped-network qualification."
+  ],
+  "pending": [
+    "Full city/max admission and atomic/scalable world publication",
+    "Full-history copying, history updates, top-level map copies, save and changed-chunk fallback remain under final lock",
+    "Persistence beyond 2,000,000 edits",
+    "20-run reference hardware/GPU/frame/tick/memory/traffic and shaped 32-client qualification",
+    "Complete power-loss durability"
+  ],
+  "rollout": "Gated; not ready.",
+  "deletionAudit": "No file deletions against recorded review base. Existing server per-cell geometry copy moved to staging, retained as mismatch fallback. MP3/Hub/Asset Manager preserved.",
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "9ae27642e652da0bfca2a595e5686781ca2caf513005db67e685223dbfc8bb29",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "video": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 364787,
+    "sha256": "67e0ce813bde582ac2a10de641b98d132d17af63d021278402bf9b096916fc1b",
+    "codec": "H264",
+    "frames": 17,
+    "durationSeconds": 26.807,
+    "inspection": "Decoded staging/preview video frame, saved-placement and live-player rejection images.",
+    "publication": "Pending controller publication"
+  },
+  "sourceManifestFiles": 216
+}

@@ -12,18 +12,46 @@ public class Chunk implements AutoCloseable {
         return java.util.Collections.unmodifiableMap(models);
     }
 
-    private final dev.jayms.net.model.SparseVoxelOctree blocks =
-            new dev.jayms.net.model.SparseVoxelOctree(256);
+    public static final int MAX_REPLAY_LEAVES=131_072;
+    private final dev.jayms.net.model.SparseVoxelOctree blocks;
+    public Chunk(){this(new dev.jayms.net.model.SparseVoxelOctree(256));}
+    private Chunk(dev.jayms.net.model.SparseVoxelOctree blocks){this.blocks=blocks;}
+    /** Worker-only detached construction from validated world geometry. No GL,
+     * attachment or readiness. Definitions/source authority remain separate. */
+    public static Chunk prepareReplayGeometry(dev.jayms.net.model.SparseVoxelOctree source,int maxLeaves,
+            java.util.function.BooleanSupplier cancel)throws java.io.IOException {
+        java.util.Objects.requireNonNull(source);java.util.Objects.requireNonNull(cancel);
+        if(source.size()!=256||maxLeaves<0||maxLeaves>MAX_REPLAY_LEAVES)throw new IllegalArgumentException("Replay chunk preparation budget");
+        dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+        var captured=source.copy();int[] leaves={0};
+        captured.forEachLeaf((x,y,z,side,value)->{
+            dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+            if(++leaves[0]>maxLeaves)throw new java.io.IOException("Replay chunk preparation leaf budget");
+            if(!dev.jayms.net.Blocks.valid(dev.jayms.net.WorldVoxels.decode(value)))throw new java.io.IOException("Invalid replay chunk material");
+        });
+        var chunk=new Chunk(captured);
+        for(int key=0;key<4096;key++) {
+            dev.jayms.net.structure.StructurePackage.cancelled(cancel);
+            int x=key&15,z=(key>>>4)&15,y=key>>>8;
+            int value=captured.uniform(x*16,y*16,z*16,16);
+            if(value==-1)chunk.fractionalCells++;
+            int type=dev.jayms.net.WorldVoxels.decode(value);
+            if(dev.jayms.net.Blocks.isModel(type))chunk.models.put(key,type);
+        }
+        dev.jayms.net.structure.StructurePackage.cancelled(cancel);return chunk;
+    }
     private boolean dirty = true;
     private int fractionalCells;
     public boolean hasFractional(){return fractionalCells!=0;}
-    private long geometryVersion, meshRevision;
+    private long geometryVersion, meshRevision, attachmentRevision;
     // Only deterministic generation plus authoritative replay may retain this flag.
     boolean terrainEquivalent;long terrainSeed;int terrainVersion;Object terrainGrid;ChunkPos terrainPosition;
     boolean matchesTerrain(dev.jayms.net.Terrain terrain,ChunkPos position){return position.equals(terrainPosition)&&terrainSeed==terrain.seed&&terrainVersion==terrain.version&&terrainGrid==terrain.stressGrid();}
     private long notifiedGeometryVersion=Long.MIN_VALUE;
     boolean takeGeometryChange(){if(notifiedGeometryVersion==geometryVersion)return false;notifiedGeometryVersion=geometryVersion;return true;}
     public long meshRevision(){return meshRevision;}
+    /** Owner-side identity epoch; detects detach/re-attach of this same wrapper. */
+    public long attachmentRevision(){return attachmentRevision;}
     /** Geometry changes only; mesh/neighbor invalidation does not rebuild sky coverage. */
     public long geometryVersion(){return geometryVersion;}
 
@@ -38,6 +66,7 @@ public class Chunk implements AutoCloseable {
     private ChunkPos position;
 
     public void attach(World world, ChunkPos position) {
+        attachmentRevision++;
         this.world = world;
         this.position = position;
         notifiedGeometryVersion=Long.MIN_VALUE;
@@ -100,6 +129,20 @@ public class Chunk implements AutoCloseable {
 
     public dev.jayms.net.model.SparseVoxelOctree cell(int x, int y, int z) {
         return blocks.region(x * 16, y * 16, z * 16, 16);
+    }
+
+    /** Install one complete validated world cell without replaying individual leaves. */
+    public void replaceCell(int x,int y,int z,dev.jayms.net.model.SparseVoxelOctree source) {
+        if(!inside(x,y,z))throw new IndexOutOfBoundsException("Block outside chunk: "+x+", "+y+", "+z);
+        if(source.size()!=16)throw new IllegalArgumentException("World cell resolution must be 16");
+        boolean wasFractional=getBlock(x,y,z)==dev.jayms.net.Blocks.PARTIAL;
+        blocks.replaceRegion(x*16,y*16,z*16,source);
+        int value=blocks.uniform(x*16,y*16,z*16,16);
+        boolean nowFractional=value==-1;
+        if(wasFractional!=nowFractional)fractionalCells+=nowFractional?1:-1;
+        int type=dev.jayms.net.WorldVoxels.decode(value),key=index(x,y,z);
+        if(dev.jayms.net.Blocks.isModel(type))models.put(key,type);else models.remove(key);
+        terrainEquivalent=false;geometryVersion++;markDirty();
     }
 
     public dev.jayms.net.model.SparseVoxelOctree snapshot() {

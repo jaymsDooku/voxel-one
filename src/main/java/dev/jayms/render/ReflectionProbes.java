@@ -14,7 +14,7 @@ public final class ReflectionProbes implements AutoCloseable {
     private final boolean ownsVoxel;
     private final ShaderProgram sky=new ShaderProgram("shaders/fullscreen.vert","shaders/probe-sky.frag");
     private final Vector3f center=new Vector3f();
-    private int face=-1,frames;private long revision=-1;private boolean ready;
+    private int face=-1,frames;private long revision=-1,sceneRevision=-1;private boolean ready;
     public ReflectionProbes(){this(null);}
     /** A shared voxel program reuses driver variants; its owner keeps responsibility for closing it. */
     public ReflectionProbes(ShaderProgram sharedVoxel){
@@ -36,10 +36,10 @@ public final class ReflectionProbes implements AutoCloseable {
     }
     public void invalidate(){ready=false;face=-1;revision=-1;}
     public void capture(World world,VoxelModelRenderer models,Vector3f eye,int environment,java.util.function.Consumer<ShaderProgram> lighting){
-        if(revision!=world.editsVersion())invalidate();
+        if(revision!=world.editsVersion()||sceneRevision!=world.sceneRevision())invalidate();
         if(face<0&&(revision!=world.editsVersion()||center.distanceSquared(eye)>256||frames++%120==0)){
             if(center.distanceSquared(eye)>256)ready=false;
-            center.set(eye);revision=world.editsVersion();face=0;
+            center.set(eye);revision=world.editsVersion();sceneRevision=world.sceneRevision();face=0;
         }
         if(face<0)return;
         Vector3f[] direction={new Vector3f(1,0,0),new Vector3f(-1,0,0),new Vector3f(0,1,0),new Vector3f(0,-1,0),new Vector3f(0,0,1),new Vector3f(0,0,-1)};
@@ -55,6 +55,7 @@ public final class ReflectionProbes implements AutoCloseable {
             var p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             voxel.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();
         }
+        world.renderReplayGeometry(frustum,voxel);
         models.render(world,frustum,voxel);
         if(++face==6){glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,cube);glGenerateMipmap(GL_TEXTURE_CUBE_MAP);ready=true;face=-1;}
         glBindFramebuffer(GL_FRAMEBUFFER,0);

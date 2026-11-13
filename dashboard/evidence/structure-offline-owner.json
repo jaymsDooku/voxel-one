@@ -1,0 +1,132 @@
+{
+  "schema": 1,
+  "parent_head": "cb927db30b24e5877b4358dcab737912298b1c30",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Tools-only actual synthetic LocalGame owner-queue capture and owner-thread private generation publication",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "Inherited managed display; own Swing window only"
+  },
+  "source_sha256": {
+    "tools/structures/RegionOfflineOwnerPrototype.java": "f34716a76205c8e064579d9ec52ebc22879101d9ec1ac508f35924367a1938cd",
+    "tools/structures/RegionOfflineOwnerCheck.java": "25a2398742565294fd7589d15e24934e0ccfb4c4728756c1e6d64def7eea3597",
+    "tools/structures/RegionGenerationEvidence.java": "64bb2cf698b6cfc2a6a5657c2c2e457ae64c7c3332ace63876b97bc3a764783a",
+    "tools/structures/test_region_history.py": "080db5e91e5c2e6b31278e3a497935195b5a13a1c34f755244e569715167d61d",
+    "src/main/java/dev/jayms/net/LocalGame.java": "21f6b37a42b6c44816fa4016e4d2d0bd5ca4059471c2de6b4319399e28c39972",
+    "src/main/java/dev/jayms/net/structure/StructureOwnerQueue.java": "54e8c37e90ecd17a93d38615df1d8a082729039faf35ccfc70f22819dfb8c263"
+  },
+  "commands": [
+    {
+      "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+      "result": "Exact parent cb927db3, eight successful builds, publication skipped"
+    },
+    {
+      "command": "javac -encoding UTF-8 --release 17 -cp target:target/classes -d target tools/structures/RegionOfflineOwnerPrototype.java tools/structures/RegionOfflineOwnerCheck.java tools/structures/RegionGenerationEvidence.java",
+      "exit": 0
+    },
+    {
+      "command": "java -Xmx512m -cp target:target/classes RegionOfflineOwnerCheck",
+      "exit": 0,
+      "result": {
+        "status": "passed",
+        "actual_local_game": true,
+        "owner_queue_pumps": 62,
+        "rejection_cases": 20,
+        "legacy_file_untouched": true,
+        "production_backend_selected": false,
+        "qualification": false
+      }
+    },
+    {
+      "command": "python3 stdin: run sorted RegionHistoryIntegrationTest names[:8] in unittest.TestSuite; exit not wasSuccessful",
+      "tests": [
+        "test_actual_engine_authority",
+        "test_actual_replay_migration",
+        "test_bounded_codec",
+        "test_dependency_manifest",
+        "test_generation_publication",
+        "test_offline_bundle",
+        "test_offline_import",
+        "test_offline_legacy"
+      ],
+      "exit": 0,
+      "summary": "........\n----------------------------------------------------------------------\nRan 8 tests in 48.641s\n\nOK",
+      "source_note": "Unchanged regression workflows; before final adapter-only destination identity guard, which these tests do not use."
+    },
+    {
+      "command": "python3 stdin: run sorted RegionHistoryIntegrationTest names[8:] in unittest.TestSuite; exit not wasSuccessful",
+      "exit": 143,
+      "result": "Interrupted after four progress dots with no summary; not counted as passed."
+    },
+    {
+      "command": "python3 stdin: run sorted RegionHistoryIntegrationTest names[8:12] in unittest.TestSuite; exit not wasSuccessful",
+      "tests": [
+        "test_offline_metadata",
+        "test_offline_owner",
+        "test_server_bundle",
+        "test_server_import"
+      ],
+      "exit": 0,
+      "summary": "....\n----------------------------------------------------------------------\nRan 4 tests in 28.088s\n\nOK",
+      "source_note": "Final adapter including destination identity guard."
+    },
+    {
+      "command": "python3 stdin: run sorted RegionHistoryIntegrationTest names[12:] in unittest.TestSuite; exit not wasSuccessful",
+      "tests": [
+        "test_server_metadata",
+        "test_sidecars",
+        "test_world_library"
+      ],
+      "exit": 0,
+      "summary": "...\n----------------------------------------------------------------------\nRan 3 tests in 22.996s\n\nOK",
+      "source_note": "Final source."
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence RegionOfflineOwnerCheck",
+      "child_exit": 0,
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual LocalGame with isolated synthetic geometry/models/inventory/health/drops; worker requests live reads via existing owner queue, streams at most1024 history records per owner request, builds bounded candidate on worker, stages private generation, commits directly on original owner, restarts via private region authority. Expected exact geometry/fraction/color/model definitions, unused models and survival preservation; observed passed. Expected stale history identity/revision/ABA, model identity/value, inventory/health/drop changes, changes during capture, cancellation, wrong thread, unversioned history, active city, wrong destination world and competing generations reject; observed20 rejection cases passed with retry and no legacy file/stage leaks. Fresh actual child exit0 image inspected. Browser/native game playtesting does not apply to this tools-only adapter; no production backend selected.",
+  "image": {
+    "path": "dashboard/evidence/structure-offline-owner-cli.png",
+    "bytes": 5969,
+    "sha256": "ae9c441239248159c73929579dbb580d1d0367505a237e7bab91eec3f2df81f9",
+    "publication": "pending controller publication"
+  },
+  "native_regression": "All224 native Java/harness hashes match retained tested baseline; no unchanged native or Maven rerun.",
+  "decisions": [
+    "Read-only StructureOwnerQueue carries only snapshot reads. Private file mutation occurs directly on original owner thread after revalidation, avoiding cancellable read-queue publication ambiguity.",
+    "Reject custom history maps and active city simulation rather than omit untracked state.",
+    "Destination world identity is checked before staging; destination generation must still match that check, and existing commit fence remains."
+  ],
+  "limits": {
+    "source_edits": 200000,
+    "history_records_per_owner_request": 1024,
+    "final_touched_cells": 100000,
+    "regions": 1024,
+    "geometry_leaves": 131072,
+    "region_bytes": 8388608,
+    "library_bytes": 8388608,
+    "envelope_bytes": 16777216,
+    "drops": 100000,
+    "offline_metadata_bytes": 2097152
+  },
+  "limitations": [
+    "Requires exclusively owner-thread-managed LocalGame fields and the actual game owner queue; does not add synchronization to public fields.",
+    "Owner metadata copies/revalidation and final file publication are synchronous; owner pump count is functional diagnostic only, not a100ms/frame/peak-memory qualification.",
+    "No city state coordination, live region restore/backend selection, server owner adapter or ordinary-edit region persistence yet.",
+    "No directory fsync/power-loss qualification. Both full fixtures still exceed production admission; full20-run city/maximum physical-GPU/shaped32-rendered-client budgets remain pending. Rollout gated.",
+    "No server started, no authentication data read, no legacy save written."
+  ],
+  "qualification": false,
+  "ready": false
+}
