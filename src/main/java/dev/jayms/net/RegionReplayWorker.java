@@ -373,6 +373,15 @@ final class RegionReplayWorker implements AutoCloseable {
             SkyPumpStatus status()throws IOException {owner();if(closed)return new SkyPumpStatus(0,0,0,0,0,false,true,0,0,generation);check();return new SkyPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedInts,backpressure,false,mergePending==null?0:1,coverage==null?0:coverage.merge().data().data.length,generation);}
             @Override public void close()throws IOException {owner();if(closed)return;discard();desired.clear();closed=true;}
         }
+        World.ReplaySkySource skySource(World current)throws IOException {
+            validate(current);if(skyPump==null)return null;var captured=skyPump.coverage();if(captured==null)return null;
+            return new World.ReplaySkySource() {
+                public World owner(){return target;}
+                public dev.jayms.render.WorldSkyVisibility data(){return captured.merge().data();}
+                public Object key(){return captured;}
+                public boolean current(){try{validate(target);return skyPump.current(captured);}catch(IOException changed){return false;}}
+            };
+        }
         record ChunkPumpStatus(int desired,int pending,int ready,int failed,int stagedCells,boolean backpressure,boolean closed) {}
         ChunkPump openChunkPump(World current,int capacity,int maxCellLeaves)throws IOException {
             validate(current);

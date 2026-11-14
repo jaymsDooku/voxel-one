@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Sky pump now schedules generation-fenced merges, rejects stale coverage and retries backpressure without granting lighting readiness. 63 tests and native OpenGL regression passed; fresh report/media await publication. Renderer coverage, Main lighting, saves and city/max qualification remain pending.",
-      "updatedAt": "2026-11-13T00:46:07+00:00"
+      "note": "Private Scene/World sky snapshot bridge now rejects stale generation/source/view/lifecycle before data access. 47 tests and native OpenGL regression passed; fresh report/media await publication. Renderer upload, near-field lighting, saves and city/max qualification remain pending.",
+      "updatedAt": "2026-11-14T23:34:36+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -119,6 +119,8 @@ public class World implements AutoCloseable {
         default long renderRevision(){return 0;}
         /** Complete CPU chunk roots only. Empty means unknown, never empty terrain. */
         default Map<ChunkPos,SparseVoxelOctree> lightingChunks(){return Map.of();}
+        /** Optional source-fenced CPU sky data. Absence remains unknown. */
+        default ReplaySkySource skySource(){return null;}
         default ReplayWaterSurface nearestWater(float x,float y,float z){return null;}
         default int renderWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){return 0;}
         /** Scene-owned draw path. Never transfers mutable GPU handles. */
@@ -160,6 +162,30 @@ public class World implements AutoCloseable {
             snapshot.put(key,tree);
         }
         return Collections.unmodifiableMap(snapshot);
+    }
+    /** Trusted private-view provider. Does not grant complete lighting coverage. */
+    public interface ReplaySkySource {
+        World owner();dev.jayms.render.WorldSkyVisibility data();Object key();boolean current();
+    }
+    public static final class ReplaySkySnapshot {
+        private final World owner;private final ReplayReadView view;private final ReplaySkySource source;
+        private final dev.jayms.render.WorldSkyVisibility data;private final Object key;
+        private ReplaySkySnapshot(World owner,ReplayReadView view,ReplaySkySource source){this.owner=owner;this.view=view;this.source=source;data=source.data();key=source.key();}
+        public boolean current(World expected){return expected==owner&&!owner.closed&&owner.replayReadView==view&&source.owner()==owner&&source.data()==data&&source.key()==key&&source.current();}
+        public Object key(){return key;}
+        public dev.jayms.render.WorldSkyVisibility data(){if(!current(owner))throw new IllegalStateException("Replay sky snapshot changed");return data;}
+    }
+    /** Owner-side bounded receipt capture only; no payload copies, sky upload,
+     * scheduler admission or fallback to resident terrain. */
+    public ReplaySkySnapshot replaySkySnapshot() {
+        if(closed)throw new IllegalStateException("World closed");if(replayReadView==null)return null;
+        var source=replayReadView.skySource();if(source==null)return null;
+        if(source.owner()!=this||source.key()==null)throw new IllegalStateException("Replay sky source identity");
+        var data=Objects.requireNonNull(source.data());
+        if(data.columns<1||data.columns>36*256||data.data.length<data.columns*4||data.data.length>dev.jayms.render.WorldSkyVisibility.MAX_INTS)
+            throw new IllegalStateException("Replay sky snapshot budget");
+        if(!source.current())return null;
+        var result=new ReplaySkySnapshot(this,replayReadView,source);return result.current(this)?result:null;
     }
     /** Ordinary replay meshes use chunk-local vertices; model offsets are also chunk-local. */
     public int renderReplayGeometry(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,false);}
