@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Connected source-fenced CPU geometry coverage to private World lighting snapshots; 41 tests and native bridge/GLFW checks pass. Joint lighting admission, Main, saves, city/max and physical qualification remain pending.",
-      "updatedAt": "2026-11-15T03:42:46+00:00"
+      "note": "Added joint current geometry/sky CPU coverage check for exact lighting footprint; 40 tests and native integration/GLFW checks pass. Bake admission, appearance, Main, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-15T04:06:17+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

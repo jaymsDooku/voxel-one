@@ -223,6 +223,39 @@ public class World implements AutoCloseable {
         if(!source.current())return null;
         var result=new ReplaySkySnapshot(this,replayReadView,source);return result.current(this)?result:null;
     }
+    /** Joint private CPU coverage only. Does not authorize a bake, render,
+     * startup, mutation or save. Trusted providers retain payload validation. */
+    public static final class ReplayLightingSnapshot {
+        private final World owner;private final ReplayGeometrySnapshot geometry;private final ReplaySkySnapshot sky;
+        private final int x,z;
+        private ReplayLightingSnapshot(World owner,ReplayGeometrySnapshot geometry,ReplaySkySnapshot sky,int x,int z){this.owner=owner;this.geometry=geometry;this.sky=sky;this.x=x;this.z=z;}
+        public boolean current(World expected){return expected==owner&&geometry.current(owner)&&sky.current(owner);}
+        public int x(){return x;}public int z(){return z;}
+        public Object geometryKey(){return geometry.key();}public Object skyKey(){return sky.key();}
+        public Map<ChunkPos,SparseVoxelOctree> roots(){if(!current(owner))throw new IllegalStateException("Replay lighting coverage changed");return geometry.roots();}
+        public dev.jayms.render.WorldSkyVisibility sky(){if(!current(owner))throw new IllegalStateException("Replay lighting coverage changed");return sky.data();}
+    }
+    /** Exact existing 96 by 128 by 96 GI footprint. Missing columns remain
+     * unknown, irrespective of sky sampling fallback or nearby render roots. */
+    public ReplayLightingSnapshot replayLightingSnapshot(int x,int z) {
+        if(closed)throw new IllegalStateException("World closed");
+        if(Math.floorMod(x,16)!=0||Math.floorMod(z,16)!=0)throw new IllegalArgumentException("Replay lighting focus alignment");
+        long minX=(long)x-48,maxX=(long)x+47,minZ=(long)z-48,maxZ=(long)z+47;
+        if(minX<Integer.MIN_VALUE||maxX>Integer.MAX_VALUE||minZ<Integer.MIN_VALUE||maxZ>Integer.MAX_VALUE
+                ||!new dev.jayms.net.Protocol.Edit((int)minX,-32,(int)minZ,0).valid()
+                ||!new dev.jayms.net.Protocol.Edit((int)maxX,95,(int)maxZ,0).valid())throw new IllegalArgumentException("Replay lighting focus bounds");
+        if(replayReadView==null)return null;
+        var geometry=replayGeometrySnapshot();if(geometry==null)return null;
+        var roots=geometry.roots();
+        for(int dz=-3;dz<3;dz++)for(int y=-2;y<6;y++)for(int dx=-3;dx<3;dx++)
+            if(!roots.containsKey(new ChunkPos(Math.floorDiv(x,16)+dx,y,Math.floorDiv(z,16)+dz)))return null;
+        var sky=replaySkySnapshot();if(sky==null)return null;var data=sky.data();
+        for(int a=0;a<96;a++) {
+            int column=(int)minX+a;
+            if(data.knownColumnMask(column,(int)minZ,64)!=-1L||data.knownColumnMask(column,(int)minZ+64,32)!=0xffff_ffffL)return null;
+        }
+        var result=new ReplayLightingSnapshot(this,geometry,sky,x,z);return result.current(this)?result:null;
+    }
     /** Ordinary replay meshes use chunk-local vertices; model offsets are also chunk-local. */
     public int renderReplayGeometry(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,false);}
     public int renderReplayModels(org.joml.FrustumIntersection frustum,ShaderProgram shader){return renderReplay(frustum,shader,true);}
