@@ -1,0 +1,37 @@
+{
+  "at": "2026-11-15T00:56:24.774974+00:00",
+  "workId": "aab8dc8b-6c94-4768-92d7-60c04711ef48",
+  "planId": "1782a46d-fc11-4443-a367-60da74f58c03",
+  "priority": 3,
+  "assignedDeveloper": "developer-1",
+  "scope": "Native iOS engine port with Sandbox-first iPhone delivery",
+  "state": "Queued after resolving initial disk admission blocker",
+  "existingFoundations": [
+    "Native UIKit/SceneKit client",
+    "Java mobile gateway",
+    "Exact-source remote iPhone Simulator workflow"
+  ],
+  "acceptance": [
+    "Playable touch Sandbox",
+    "Accurate fractional voxels and voxel models",
+    "Bounded terrain streaming and persistent saves",
+    "Inventory, crafting and authenticated multiplayer",
+    "Device build, signing/install/update path and explicitly labelled physical iPhone qualification"
+  ],
+  "recovery": {
+    "freeBytesBefore": 7419744256,
+    "freeBytesAfter": 8687841280,
+    "reclaimedBytes": 1268097024,
+    "oldUpdaterVersionsRemoved": 17,
+    "currentUpdaterVersionsPreserved": 1,
+    "npmContentCachesRemoved": 2,
+    "retainedCommit": "d21b39575f6e99b41dcca9c3c49b13eec1050d60"
+  },
+  "preserved": [
+    "Dirty worktrees and unique reports",
+    "Committed code and assets on retained Git branch",
+    "Existing disk thresholds",
+    "Signing, physical-device qualification and independent review requirements"
+  ],
+  "verification": "Queue creation and recovery receipts only; no new iOS gameplay tests or device-install success claimed."
+}
