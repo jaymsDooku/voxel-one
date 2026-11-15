@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private Scene/World sky snapshot bridge now rejects stale generation/source/view/lifecycle before data access. 47 tests and native OpenGL regression passed; fresh report/media await publication. Renderer upload, near-field lighting, saves and city/max qualification remain pending.",
-      "updatedAt": "2026-11-14T23:34:36+00:00"
+      "note": "Replay snapshot sky upload now rejects stale/foreign/closed publication and supports one-time atlas transfer. 50 tests and native texture readback passed for standalone, direct pooled and PBO transfers. Fresh report/media await publication. RenderPipeline admission, lighting, saves and city/max qualification remain pending.",
+      "updatedAt": "2026-11-15T00:05:22+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
