@@ -37,6 +37,11 @@ final class NativeWorkflowTests:XCTestCase {
         let expectation=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in element.exists && element.isHittable},object:element)
         XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:10),.completed,"Unusable \(id); frame=\(element.frame); viewport=\(app.frame)")
     }
+    func waitTerrain(){
+        let scene=app.otherElements["worldView"]
+        let ready=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in scene.value as? String == "Terrain ready"},object:scene)
+        XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:30),.completed,"Native terrain did not finish: \(String(describing:scene.value))")
+    }
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
@@ -210,7 +215,7 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot")
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
         app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
-        capture("final-native-terrain-edited")
+        waitTerrain();capture("final-native-terrain-edited")
     }
     func testSandboxCameraModesAimReachAndPersistence()throws {
         newOffline();textContains("playerPosition","Ground")
@@ -280,6 +285,24 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu after retry")
         app.terminate();app.launchArguments=[];app.launch();wait(app.buttons["breakButton"],20,"cold restart after retry")
         XCTAssertTrue(app.buttons["craftButton"].isHittable);capture("native-offline-async-cold-load")
+    }
+    func testIncrementalMeshEditsBackgroundAndRestart()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected");waitTerrain()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt");waitTerrain()
+        capture("native-incremental-mesh-edited")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["breakButton"]);waitTerrain()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        capture("native-mesh-cold-restart")
+        app.terminate();app.launchArguments=["--mesh-memory-warning-test"];app.launch()
+        wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
+        let before=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.5);XCTAssertEqual(app.staticTexts["playerPosition"].label,before)
+        app.buttons["pauseButton"].tap();waitTerrain();capture("native-simulated-memory-warning-recovered")
+        app.launchArguments=[]
     }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {

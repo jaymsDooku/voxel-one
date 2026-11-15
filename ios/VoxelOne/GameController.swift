@@ -17,6 +17,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     #if targetEnvironment(simulator)
     private var loadTestGate:DispatchSemaphore?
     private var loadTestGateUsed=false
+    private var meshMemoryWarningUsed=false
     #endif
     private var loadingOffline=false
     private var pendingOfflineFresh:Bool?
@@ -76,6 +77,13 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard hudLandscape != landscape else{return};hudLandscape=landscape
         positionLabel.isHidden=landscape;status.numberOfLines=landscape ? 1:2;cityLabel.numberOfLines=landscape ? 1:2
         cityLabel.isHidden=world?.snapshot.city==nil && landscape
+    }
+    override func didReceiveMemoryWarning(){
+        super.didReceiveMemoryWarning();movement.removeAll()
+        if !inMenu,let world=world {
+            renderer.trimMeshes(around:world);paused=true;pauseButton?.setTitle("Resume",for:.normal)
+            notify("Memory low. Paused. Resume to rebuild terrain.");saveOffline()
+        } else {renderer.cancelMeshing()}
     }
     // HUD labels and empty stack space share world gestures. Controls keep their
     // own touches, including movement buttons and the scrolling hotbar.
@@ -179,7 +187,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         movement.removeAll();jumpOrigin=nil;jumpRose=false;world.setFlying(!world.flying)
         notify(world.flying ? "Flying. Hold Jump to rise; Down to descend.":"Walking. Gravity on.");refreshHUD()
     }
-    @objc private func togglePause(){guard !closingMenu else{return};paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
+    @objc private func togglePause(){guard !closingMenu else{return};paused.toggle();movement.removeAll();if !paused,let world=world {renderer.rebuild(world)};pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
     @objc private func openGraphics(){
         movement.removeAll();graphicsOpen=true
@@ -307,6 +315,13 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private func anchor(_ alert:UIAlertController){alert.popoverPresentationController?.sourceView=view;alert.popoverPresentationController?.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)}
     @objc private func frame(_ link:CADisplayLink){
         guard !inMenu,active,let world=world else{lastTime=0;return}
+        renderer.advanceMeshing()
+        #if targetEnvironment(simulator)
+        // Exercise the actual memory-warning handler; this is not a hardware pressure measurement.
+        if !meshMemoryWarningUsed && ProcessInfo.processInfo.arguments.contains("--mesh-memory-warning-test") && renderer.view.accessibilityValue=="Terrain ready" {
+            meshMemoryWarningUsed=true;didReceiveMemoryWarning()
+        }
+        #endif
         let dt=lastTime==0 ? Float(1.0/30):Float(link.timestamp-lastTime);lastTime=link.timestamp
         if !paused && !graphicsOpen && !renderer.planning {
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
@@ -367,8 +382,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard networkFailureText==nil else{return}
         message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}
     }
-    func suspend(){active=false;movement.removeAll();saveOffline()}
-    func becameActive(){active=true;lastTime=0}
+    func suspend(){active=false;movement.removeAll();renderer.cancelMeshing();saveOffline()}
+    func becameActive(){active=true;lastTime=0;if let world=world {renderer.rebuild(world)}}
     private func endBackgroundSave(){
         if backgroundSave != .invalid {UIApplication.shared.endBackgroundTask(backgroundSave);backgroundSave = .invalid}
     }
@@ -397,7 +412,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         } else {finishOpenMenu()}
     }
     private func finishOpenMenu(){
-        closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
+        renderer.cancelMeshing();closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
         Task{await previous?.logout()};showMenu()
     }
     private func showMenu(){

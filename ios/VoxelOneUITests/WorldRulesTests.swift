@@ -277,6 +277,40 @@ final class WorldRulesTests:XCTestCase {
         let handle=try FileHandle(forWritingTo:url);try handle.truncate(atOffset:UInt64(OfflineSave.maximumBytes+1));try handle.close()
         XCTAssertThrowsError(try OfflineSave.read(at:url),"Oversize saves must be rejected before decoding")
     }
+    func testBoundedMeshPagingCancellationAndGeometry()throws {
+        let worker=NativeMeshWorker(),world=try VoxelWorld(fixture())
+        worker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:false,center:[0,1,0]))
+        let full=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in worker.readyCount==NativeMeshWorker.maximumReady},object:nil)
+        XCTAssertEqual(XCTWaiter.wait(for:[full],timeout:10),.completed,"Producer reaches bounded backpressure")
+        XCTAssertLessThanOrEqual(worker.drain().count,2);worker.cancel();XCTAssertEqual(worker.readyCount,0)
+        func prepare(_ value:Snapshot)throws->[NativeMeshResult] {
+            let input=try VoxelWorld(value)
+            let token=worker.submit(NativeMeshRequest(payload:input.savePayload(),atmosphere:false,center:[0,1,0]))
+            var results:[NativeMeshResult]=[]
+            let done=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in
+                let pages=worker.drain();XCTAssertLessThanOrEqual(pages.count,2);results+=pages
+                return results.contains{if case .finished=$0.event {return true};return false}
+            },object:nil)
+            XCTAssertEqual(XCTWaiter.wait(for:[done],timeout:15),.completed)
+            XCTAssertTrue(results.allSatisfy{$0.generation==token},"Cancelled generations cannot leak pages")
+            return results
+        }
+        var value=fixture();value.cells=[[0,1,-2,3,0x8c949e],[1,1,-2,3,0x8c949e]]
+        let pages=try prepare(value).compactMap{event->NativeMeshBuffer? in if case .page(_,_,let buffer)=event.event {return buffer};return nil}
+        XCTAssertEqual(pages.reduce(0){$0+$1.positions.count/3},40,"Adjacent cubes hide their shared faces")
+        XCTAssertTrue(pages.allSatisfy{$0.positions.count/3<=4096 && $0.normals.count==$0.positions.count && $0.colors.count/4==$0.positions.count/3})
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        value.schema=2;value.contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url))
+        value.cells=[[0,1,-2,255,0]];value.details=[NativeDetail(cell:[0,1,-2],geometry:NativeGeometry(resolution:16,leaves:[[0,0,0,8,2,0x7a4d2b]]))]
+        let fine=try prepare(value).compactMap{event->NativeMeshBuffer? in if case .page(_,_,let buffer)=event.event {return buffer};return nil}
+        XCTAssertEqual(fine.reduce(0){$0+$1.positions.count/3},24)
+        let xs=fine.flatMap{$0.positions.enumerated().filter{$0.offset%3==0}.map{$0.element}}
+        XCTAssertEqual(xs.max(),0.5,"Prepared fractional mesh keeps its true dimensions")
+        let revision=world.geometryRevision;try world.replace(world.savedSnapshot())
+        XCTAssertEqual(world.geometryRevision,revision,"Unchanged network snapshots do not invalidate geometry")
+        try world.offlineEdit(at:GridKey(2,1,2),type:2);XCTAssertGreaterThan(world.geometryRevision,revision)
+        worker.cancel()
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

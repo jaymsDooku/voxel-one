@@ -77,7 +77,7 @@ struct NativeContract:Codable,Sendable {
         let value=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try value.validate();return value
     }
 }
-struct VoxelBox {
+struct VoxelBox:Equatable,Sendable {
     var x:Float;var y:Float;var z:Float;var size:Float;var type:Int;var color:Int
 }
 struct Snapshot: Codable, Sendable {
@@ -235,10 +235,10 @@ final class VoxelWorld {
     var position=SCNVector3Zero; var yaw: Float=0; var pitch: Float = -0.55
     private(set) var flying=false
     var verticalSpeed: Float=0; var grounded=false
-    var slot=0; var revision=0
+    var slot=0; var revision=0;private(set) var geometryRevision=0
     init(_ snapshot: Snapshot) throws { self.snapshot=snapshot; try replace(snapshot,resetPose:true) }
     func replace(_ value: Snapshot, resetPose: Bool=false) throws {
-        try value.validate(); snapshot=value
+        try value.validate();let oldTypes=types,oldColors=colors,oldShapes=shapes;snapshot=value
         types.removeAll(keepingCapacity:true); colors.removeAll(keepingCapacity:true)
         for cell in value.cells { let key=GridKey(cell[0],cell[1],cell[2]); types[key]=cell[3]; colors[key]=cell[4] }
         materials=Dictionary(uniqueKeysWithValues:(value.contract?.materials ?? []).map{($0.id,$0)})
@@ -247,6 +247,7 @@ final class VoxelWorld {
         for d in value.details ?? [] {shapes[GridKey(d.cell[0],d.cell[1],d.cell[2])]=Self.boxes(d.geometry)}
         for (key,type) in types where type != 255 {if let geometry=itemBoxes(type) {shapes[key]=geometry}}
         if resetPose || value.resetPose==true { position=SCNVector3(value.pose[0],value.pose[1],value.pose[2]); yaw=value.pose[3]; pitch=value.pose[4]==0 ? -0.55 : value.pose[4]; verticalSpeed=0 }
+        if oldTypes != types || oldColors != colors || oldShapes != shapes {geometryRevision+=1}
         revision += 1
     }
     func type(_ key: GridKey) -> Int { types[key] ?? 0 }
@@ -416,7 +417,7 @@ final class VoxelWorld {
             colors[key]=Self.color(type);snapshot.inventory[slot][1]-=1
             if snapshot.inventory[slot][1]==0 {snapshot.inventory[slot][0]=0}
         }
-        revision+=1
+        revision+=1;geometryRevision+=1
     }
     /// Commit only after both ingredient consumption and all output storage succeed.
     func offlineCraft(_ recipe:NativeRecipe)throws {

@@ -1,7 +1,7 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. Native milestone run passed at b22dadbb.
-New crafting edits still need their own exact-source Mac run.
+Status: implementation in progress. Source 1d7aa524 passed 24 native tests.
+New bounded mesh preparation needs its own exact-source Mac run.
 Baseline inspected: 71612f09. This is not full engine parity or iPhone delivery.
 
 Architecture decision
@@ -318,3 +318,44 @@ Local53 mocked harness checks, project generation, Python compilation, shell
 syntax and diff checks passed. Swift/native repair remains unqualified until the
 fresh exact-source Mac run. Full parity, live VPS, signing and physical iPhone gates
 remain open. Diff audit against recorded base shows no unrelated deletions.
+
+Bounded native mesh increment (native qualification pending)
+Source1d7aa5247254d1382e8ad908d79ce4cab0930db5 passed all24 required native tests.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43681472647
+Verified source, passed/clientChecked receipt, all test statuses and screenshot
+SHA-256. Inspected actual flower pot, edited terrain, inventory and native controls;
+saved sanitized image/receipt as ios-port-1d7aa524-model.png and
+ios-port-1d7aa524-receipt.json.
+This qualifies the prior loader/cancellation/rotation repair on Simulator only.
+
+Meshing.swift now prepares value-only pages on a serial utility worker. Captures
+retain Swift value dictionaries; the worker builds a private VoxelWorld from that
+capture so it reuses actual leaf geometry and sky rules without sharing the live
+mutable class. SceneKit nodes/materials/geometry are created on the main actor.
+Queue caps: one active request plus one latest pending request, four ready events,
+4,096 vertices per page, two installed events per display frame. Producer waits on
+NSCondition rather than spinning. Cancellation increments generation, drops queued
+pages and wakes backpressure; main drains only the current generation. Nearby
+chunks prepare first, obsolete chunks are removed and old valid chunks remain
+until their replacement's first page. This is progressive installation, not atomic
+whole-chunk swapping or full dirty-region caching. Geometry revisions skip rebuilds
+for unchanged network cells/colors/shapes; poses/inventory do not force meshing.
+Menu/background cancels work, foreground rebuilds. A memory warning pauses input,
+cancels ready/pending work and drops render nodes beyond16 blocks; Resume rebuilds.
+The native test injects the actual memory-warning handler in Simulator only and
+labels the capture simulated; it is not physical memory/thermal qualification.
+
+New native tests cover queue backpressure, drain/page caps, cancellation generations,
+shared-face removal, fractional dimensions, unchanged-snapshot revisions, actual
+edit rendering, background/resume, cold restart and simulated pressure recovery.
+Required count26; these new cases are UNEXECUTED pending exact-source remote_ios_test.
+Local53 mocked harness checks, project generation, Python compilation, shell syntax
+and diff checks passed. GPU uploads remain on main with bounded page size; physical
+frame-time/stall/RAM/thermal/battery budgets remain unmeasured. Other engine work
+including procedural streaming, fine edit tools, full crafting, network/live VPS,
+landscape-first polish and signed iPhone installation remains open.
+
+Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated file deletion.
+Intended renderer deletions replace synchronous face assembly and mesh installation
+with the new worker/paged path. City overlays, people, camera and atmosphere behavior
+remain in their existing native path and must pass the independent native regressions.

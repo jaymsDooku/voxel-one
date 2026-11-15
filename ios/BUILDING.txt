@@ -2,7 +2,7 @@ Voxel One native iPhone client
 
 This is a UIKit/SceneKit app, rendered natively through Apple's graphics stack.
 It does not open the desktop game in Safari or stream desktop screenshots.
-The first client supports offline whole-block sandbox building and online
+The native client supports offline sandbox building with fractional/model geometry and online
 Voxel One sandbox / Voxel City One through the Java mobile gateway.
 
 Phone controls
@@ -181,3 +181,16 @@ invalidates its result, and a newer intent waits rather than adding another work
 Local saves are limited to 16,000,000 bytes on both write and read. Invalid data
 fails without replacing the source file; migration does not write until the loaded
 world starts successfully. Scene/world construction and meshing still run on main.
+
+Bounded mesh preparation
+
+Terrain preparation uses one serial utility worker and one latest pending value
+capture. No mutable live world or SceneKit node crosses to that worker. It creates
+a private detached rule model and emits pages of at most 4,096 vertices into a
+four-page condition queue. The main actor installs at most two pages per frame.
+Nearby chunks prepare first; old chunks remain until replacement starts. Unchanged
+network geometry does not restart preparation. SceneKit objects stay on the main
+actor. Menu/background cancels stale generations; resume rebuilds current terrain.
+On a memory warning the app pauses, cancels prepared work and drops meshes more
+than 16 blocks from the player. Resume rebuilds. These caps are initial engineering
+limits, not measured physical iPhone memory/frame-time/thermal qualifications.

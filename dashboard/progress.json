@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac source15536201 reported landscape Camera hittability failure. Added rotation/bounds HUD updates and actual landscape/portrait camera interaction checks. 53 local harness checks pass; exact-source24-case native rerun pending. Full parity and signed delivery remain open.",
-      "updatedAt": "2026-11-15T04:42:13+00:00"
+      "note": "Source1d7aa524 passed24 native Mac tests; model media inspected. Added bounded off-main mesh preparation, paged main-actor installation and memory-warning recovery;26-case native validation pending. Full parity, streaming, live VPS and signed iPhone delivery remain open.",
+      "updatedAt": "2026-11-15T06:01:37+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

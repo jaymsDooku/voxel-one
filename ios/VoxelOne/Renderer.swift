@@ -3,7 +3,7 @@ import SceneKit
 import simd
 
 /// Native SceneKit/Metal rendering. Meshes contain exposed faces, grouped in 8-block chunks.
-final class VoxelRenderer {
+@MainActor final class VoxelRenderer {
     let view=SCNView(); let scene=SCNScene(); let camera=SCNNode(); let terrain=SCNNode();let people=SCNNode();let markers=SCNNode();let zones=SCNNode()
     private(set) var graphics=NativeGraphics.load()
     var sandboxCamera=NativeCameraMode(rawValue:UserDefaults.standard.string(forKey:"sandboxCameraMode") ?? "") ?? .first
@@ -17,15 +17,13 @@ final class VoxelRenderer {
     private var atmosphereKey:String?
     private let sunNode=SCNNode(),sunDisc=SCNNode(),ambientNode=SCNNode()
     private var skyDiffuse=SIMD3<Double>.zero
-    private var renderChunks:[(SCNNode,SIMD3<Float>)]=[]
+    private var renderChunks:[GridKey:[SCNNode]]=[:]
+    private let meshWorker=NativeMeshWorker()
+    private var meshGeneration:UInt64=0
+    private var meshWorld:ObjectIdentifier?
+    private var meshRevision = -1
+    private var meshOutdoor=false
     private var skyMaterials:[(SCNMaterial,Int,Double,Bool)]=[]
-    private let faces:[(GridKey,SCNVector3,[SCNVector3])]=[
-        (GridKey(1,0,0),SCNVector3(1,0,0),[SCNVector3(1,0,0),SCNVector3(1,1,0),SCNVector3(1,1,1),SCNVector3(1,0,1)]),
-        (GridKey(-1,0,0),SCNVector3(-1,0,0),[SCNVector3(0,0,1),SCNVector3(0,1,1),SCNVector3(0,1,0),SCNVector3(0,0,0)]),
-        (GridKey(0,1,0),SCNVector3(0,1,0),[SCNVector3(0,1,1),SCNVector3(1,1,1),SCNVector3(1,1,0),SCNVector3(0,1,0)]),
-        (GridKey(0,-1,0),SCNVector3(0,-1,0),[SCNVector3(0,0,0),SCNVector3(1,0,0),SCNVector3(1,0,1),SCNVector3(0,0,1)]),
-        (GridKey(0,0,1),SCNVector3(0,0,1),[SCNVector3(1,0,1),SCNVector3(1,1,1),SCNVector3(0,1,1),SCNVector3(0,0,1)]),
-        (GridKey(0,0,-1),SCNVector3(0,0,-1),[SCNVector3(0,0,0),SCNVector3(0,1,0),SCNVector3(1,1,0),SCNVector3(1,0,0)])]
     init() {
         let body=SCNCapsule(capRadius:0.28,height:1.8);body.firstMaterial?.diffuse.contents=UIColor.systemCyan
         localPlayer.geometry=body;scene.rootNode.addChildNode(localPlayer)
@@ -50,43 +48,54 @@ final class VoxelRenderer {
         if !p.atmosphere {scene.background.contents=nil;scene.lightingEnvironment.contents=nil;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor;sunNode.light?.color=UIColor.white;sunNode.light?.intensity=950;sunNode.eulerAngles=SCNVector3(-0.7,-0.6,0);sunDisc.isHidden=true;sunNode.light?.castsShadow=false;skyDiffuse = .zero}
         atmosphereKey=nil
     }
-    private struct MeshKey:Hashable {let chunk:GridKey;let colour:Int;let sky:Int;let emitter:Bool}
-    private final class Mesh {var vertices:[SCNVector3]=[];var normals:[SCNVector3]=[];var colors:[Float]=[];var indices:[UInt32]=[]}
-    func rebuild(_ world:VoxelWorld) {
-        var groups:[MeshKey:Mesh]=[:],visibility:[GridKey:Double]=[:];skyMaterials=[]
-        let outdoor=atmospherePreview
-        for (key,_) in world.types {
-            let chunk=GridKey(Int(floor(Double(key.x)/8)),Int(floor(Double(key.y)/8)),Int(floor(Double(key.z)/8)))
-            for box in world.boxes(key) {
-            let color=box.color
-            for (neighbor,normal,corners) in faces {
-                let boundary=(neighbor.x<0 && box.x==0) || (neighbor.x>0 && box.x+box.size==1) || (neighbor.y<0 && box.y==0) || (neighbor.y>0 && box.y+box.size==1) || (neighbor.z<0 && box.z==0) || (neighbor.z>0 && box.z+box.size==1)
-                if boundary && (world.fullOpaque(key+neighbor) || (box.type==185 && world.type(key+neighbor)==185)) {continue}
-                let air=key+neighbor
-                let visible:Double
-                if outdoor {if let cached=visibility[air] {visible=cached}else {visible=world.skyVisibility(air);visibility[air]=visible}}
-                else {visible=0}
-                let group=MeshKey(chunk:chunk,colour:(outdoor || box.type==180) ? color:0,sky:Int((visible*8).rounded()),emitter:box.type==180)
-                let mesh=groups[group] ?? Mesh()
-                let base=UInt32(mesh.vertices.count)
-                for p in corners {mesh.vertices.append(SCNVector3(Float(key.x)+box.x+p.x*box.size,Float(key.y)+box.y+p.y*box.size,Float(key.z)+box.z+p.z*box.size));mesh.normals.append(normal)
-                    mesh.colors += [Float((color>>16)&255)/255,Float((color>>8)&255)/255,Float(color&255)/255,1]
+    func cancelMeshing(){meshWorker.cancel();meshRevision = -1;view.accessibilityValue="Terrain paused"}
+    func trimMeshes(around world:VoxelWorld){
+        cancelMeshing()
+        for key in Array(renderChunks.keys) {
+            let x=Float(key.x*8+4)-world.position.x,y=Float(key.y*8+4)-world.position.y,z=Float(key.z*8+4)-world.position.z
+            if x*x+y*y+z*z>16*16 {dropChunk(key)}
+        }
+    }
+    private func dropChunk(_ key:GridKey){
+        let nodes=renderChunks.removeValue(forKey:key) ?? []
+        let ids=Set(nodes.compactMap{$0.geometry?.firstMaterial}.map{ObjectIdentifier($0)})
+        skyMaterials.removeAll{ids.contains(ObjectIdentifier($0.0))}
+        nodes.forEach{$0.removeFromParentNode()}
+    }
+    /// SceneKit objects are created only here on the main actor, at most two small pages per frame.
+    func advanceMeshing(){
+        for result in meshWorker.drain() where result.generation==meshGeneration {
+            switch result.event {
+            case .index(let keys):for key in Array(renderChunks.keys) where !keys.contains(key) {dropChunk(key)}
+            case .page(let chunk,let first,let page):
+                if first {dropChunk(chunk)}
+                guard let page=page else{continue}
+                func source(_ values:[Float],_ semantic:SCNGeometrySource.Semantic,_ count:Int)->SCNGeometrySource {
+                    let data=values.withUnsafeBytes{Data($0)}
+                    return SCNGeometrySource(data:data,semantic:semantic,vectorCount:values.count/count,usesFloatComponents:true,componentsPerVector:count,bytesPerComponent:4,dataOffset:0,dataStride:count*4)
                 }
-                mesh.indices += [base,base+1,base+2,base,base+2,base+3];groups[group]=mesh
-            }
+                let indexData=page.indices.withUnsafeBytes{Data($0)}
+                let element=SCNGeometryElement(data:indexData,primitiveType:.triangles,primitiveCount:page.indices.count/3,bytesPerIndex:4)
+                let geometry=SCNGeometry(sources:[source(page.positions,.vertex,3),source(page.normals,.normal,3),source(page.colors,.color,4)],elements:[element])
+                let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
+                if meshOutdoor || page.key.emitter {
+                    skyMaterials.append((material,page.key.color,Double(page.key.sky)/8,page.key.emitter))
+                    setSkyEmission(material,page.key.color,Double(page.key.sky)/8,page.key.emitter)
+                }
+                geometry.materials=[material];let node=SCNNode(geometry:geometry);terrain.addChildNode(node);renderChunks[chunk,default:[]].append(node)
+            case .finished:view.accessibilityValue="Terrain ready"
+            case .failed:view.accessibilityValue="Terrain failed"
             }
         }
-        terrain.childNodes.forEach{$0.removeFromParentNode()};renderChunks=[]
-        for (key,mesh) in groups where !mesh.indices.isEmpty {
-            let vertex=SCNGeometrySource(vertices:mesh.vertices),normal=SCNGeometrySource(normals:mesh.normals)
-            let colorData=mesh.colors.withUnsafeBytes{Data($0)}
-            let color=SCNGeometrySource(data:colorData,semantic:.color,vectorCount:mesh.vertices.count,usesFloatComponents:true,componentsPerVector:4,bytesPerComponent:4,dataOffset:0,dataStride:16)
-            let indices=mesh.indices.withUnsafeBytes{Data($0)}
-            let element=SCNGeometryElement(data:indices,primitiveType:.triangles,primitiveCount:mesh.indices.count/3,bytesPerIndex:4)
-            let geometry=SCNGeometry(sources:[vertex,normal,color],elements:[element])
-            let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
-            if outdoor || key.emitter {skyMaterials.append((material,key.colour,Double(key.sky)/8,key.emitter));setSkyEmission(material,key.colour,Double(key.sky)/8,key.emitter)}
-            geometry.materials=[material];let node=SCNNode(geometry:geometry);terrain.addChildNode(node);renderChunks.append((node,SIMD3<Float>(Float(key.chunk.x*8+4),Float(key.chunk.y*8+4),Float(key.chunk.z*8+4))))
+    }
+    func rebuild(_ world:VoxelWorld) {
+        let identity=ObjectIdentifier(world),outdoor=atmospherePreview
+        if meshWorld != identity || meshRevision != world.geometryRevision || meshOutdoor != outdoor {
+            if meshWorld != identity {for key in Array(renderChunks.keys) {dropChunk(key)}}
+            meshWorld=identity;meshRevision=world.geometryRevision;meshOutdoor=outdoor
+            let p=planning ? focus:world.position
+            meshGeneration=meshWorker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:outdoor,center:[p.x,p.y,p.z]))
+            view.accessibilityValue="Terrain loading"
         }
         zones.childNodes.forEach{$0.removeFromParentNode()}
         for zone in world.snapshot.city?.zonePolygons ?? [] {
@@ -134,7 +143,11 @@ final class VoxelRenderer {
         }
         let detail=Float(graphics.detail)
         let eye=SIMD3<Float>(camera.position.x,camera.position.y,camera.position.z)
-        for (node,center) in renderChunks {node.isHidden=simd_distance(center,eye)>detail+14}
+        for (chunk,nodes) in renderChunks {
+            let center=SIMD3<Float>(Float(chunk.x*8+4),Float(chunk.y*8+4),Float(chunk.z*8+4))
+            let hidden=simd_distance(center,eye)>detail+14
+            for node in nodes {node.isHidden=hidden}
+        }
         updateAtmosphere(world.snapshot)
     }
     private func setSkyEmission(_ material:SCNMaterial,_ colour:Int,_ visibility:Double,_ emitter:Bool){
