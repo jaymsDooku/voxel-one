@@ -203,6 +203,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private ReadView view;
         private ChunkPump chunkPump;
         private SkyPump skyPump;
+        private LightingPump lightingPump;
         private boolean requestsIssued;
         private final Revision revision=sourceRevision;
         private final String identity=fingerprint;
@@ -231,11 +232,14 @@ final class RegionReplayWorker implements AutoCloseable {
         /** CPU roots only for later bounded lighting coverage. No render arrays,
          * detached live Chunk, view installation or lighting readiness. */
         Request submitLightingChunk(ChunkPos region,int maxCellLeaves,World current)throws IOException {
+            return tryLightingChunk(region,maxCellLeaves,current,true);
+        }
+        private Request tryLightingChunk(ChunkPos region,int maxCellLeaves,World current,boolean rejectFull)throws IOException {
             validate(current);Objects.requireNonNull(region);RegionReplayChunk.checkRegion(region);
             if(maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)throw new IllegalArgumentException("Replay lighting chunk budget");
             synchronized(gate) {
                 if(stopping.get())throw new IOException("Replay worker not accepting requests");
-                if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+                if(queue.size()>=capacity){if(rejectFull)throw new IOException("Replay worker queue full");return null;}
                 var request=new Request(region,null,0,revision,current.beginReplayFence(),this,maxCellLeaves,List.of(),null,null,-1,true);
                 queue.addLast(request);requestsIssued=true;gate.notifyAll();return request;
             }
@@ -246,6 +250,75 @@ final class RegionReplayWorker implements AutoCloseable {
             request.validateWorld(current);var result=request.extractOutcome(revision).chunk();
             if(result==null||result.mesh()!=null||result.modelDraws()!=null||result.detached()!=null)throw new IOException("Replay lighting result contains render data");
             request.validateWorld(current);validate(current);return result;
+        }
+        record LightingPumpStatus(int desired,int pending,int ready,int failed,int cachedLeaves,boolean backpressure,boolean closed) {}
+        LightingPump openLightingPump(World current,int capacity,int maxCellLeaves,int maxCachedLeaves)throws IOException {
+            validate(current);
+            if(lightingPump!=null)throw new IOException("Replay lighting pump already opened");
+            if(capacity<1||capacity>288||maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES||maxCachedLeaves<0||maxCachedLeaves>4_194_304)
+                throw new IllegalArgumentException("Replay lighting pump budget");
+            lightingPump=new LightingPump(capacity,maxCellLeaves,maxCachedLeaves);return lightingPump;
+        }
+        /** Detached CPU roots only. Logical leaf caps are not measured heap or
+         * performance qualification. One outstanding request shares the worker. */
+        final class LightingPump implements AutoCloseable {
+            private final int capacity,maxCellLeaves,maxCachedLeaves;
+            private Set<ChunkPos> desired=new LinkedHashSet<>();
+            private final Map<ChunkPos,RegionReplayChunk.Snapshot> ready=new LinkedHashMap<>();
+            private final Map<ChunkPos,Request> receipts=new LinkedHashMap<>();
+            private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
+            private Request pending;private int cachedLeaves;private boolean closed,backpressure;
+            private LightingPump(int capacity,int maxCellLeaves,int maxCachedLeaves){this.capacity=capacity;this.maxCellLeaves=maxCellLeaves;this.maxCachedLeaves=maxCachedLeaves;}
+            private void discard(){if(pending!=null)pending.cancel();pending=null;ready.clear();receipts.clear();failures.clear();cachedLeaves=0;backpressure=false;}
+            private void check()throws IOException {
+                owner();if(closed)throw new IOException("Replay lighting pump closed");
+                try{validate(target);for(var r:receipts.values())lightingChunkResult(r,target);}
+                catch(IOException failure){discard();throw failure;}
+            }
+            void desired(List<ChunkPos> regions)throws IOException {
+                check();Objects.requireNonNull(regions);int count=regions.size();
+                if(count<0||count>capacity)throw new IllegalArgumentException("Replay desired-lighting budget");
+                var next=new LinkedHashSet<ChunkPos>();
+                for(int i=0;i<count;i++){var p=Objects.requireNonNull(regions.get(i));RegionReplayChunk.checkRegion(p);next.add(p);}
+                if(regions.size()!=count)throw new ConcurrentModificationException("Replay desired lighting changed");
+                if(pending!=null&&!next.contains(pending.region)){pending.cancel();pending=null;}
+                for(var it=ready.entrySet().iterator();it.hasNext();){var e=it.next();if(!next.contains(e.getKey())){cachedLeaves-=e.getValue().stagedCellLeaves();it.remove();}}
+                receipts.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
+            }
+            void retry(ChunkPos region)throws IOException {check();if(!desired.contains(region))throw new IllegalArgumentException("Replay lighting not desired");failures.remove(region);}
+            void tick()throws IOException {
+                check();backpressure=false;
+                try {
+                    if(pending!=null) {
+                        var state=pending.outcome();var p=pending.region;
+                        switch(state.phase()) {
+                            case READY->{var chunk=lightingChunkResult(pending,target);int n=chunk.stagedCellLeaves();
+                                if(n<0||n>maxCachedLeaves-cachedLeaves)throw new IOException("Replay lighting cache budget");
+                                ready.put(p,chunk);receipts.put(p,pending);cachedLeaves+=n;pending=null;}
+                            case FAILED->{failures.put(p,state.failure());pending=null;}
+                            case CANCELLED->{failures.put(p,new IOException("Replay lighting cancelled"));pending=null;}
+                            default->{}
+                        }
+                    }
+                    if(pending!=null)return;
+                    for(var p:desired) {
+                        if(ready.containsKey(p)||failures.containsKey(p))continue;
+                        pending=tryLightingChunk(p,Math.min(maxCellLeaves,maxCachedLeaves-cachedLeaves),target,false);
+                        backpressure=pending==null;break;
+                    }
+                }catch(IOException failure){discard();throw failure;}
+            }
+            Map<ChunkPos,dev.jayms.net.model.SparseVoxelOctree> roots()throws IOException {
+                check();var roots=new LinkedHashMap<ChunkPos,dev.jayms.net.model.SparseVoxelOctree>();
+                for(var e:ready.entrySet())roots.put(e.getKey(),e.getValue().geometry());
+                return Collections.unmodifiableMap(roots);
+            }
+            IOException failure(ChunkPos region)throws IOException {check();return failures.get(region);}
+            LightingPumpStatus status()throws IOException {
+                owner();if(closed)return new LightingPumpStatus(0,0,0,0,0,false,true);
+                check();return new LightingPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedLeaves,backpressure,false);
+            }
+            @Override public void close()throws IOException {owner();if(closed)return;discard();desired.clear();closed=true;}
         }
         /** Same-source detached neighbours only; mask bits are -X,+X,-Y,+Y,-Z,+Z. */
         Request submitChunkWithNeighbours(ChunkPos region,int maxCellLeaves,int neighbourMask,World current)throws IOException {
@@ -881,7 +954,8 @@ final class RegionReplayWorker implements AutoCloseable {
     /** Owner-side signal only: never joins the worker or waits for I/O. A later
      * close retries failed cleanup on that same worker. Poll status for receipt. */
     @Override public void close()throws IOException {
-        owner();if(targetBinding!=null&&targetBinding.skyPump!=null)targetBinding.skyPump.close();
+        owner();if(targetBinding!=null&&targetBinding.lightingPump!=null)targetBinding.lightingPump.close();
+        if(targetBinding!=null&&targetBinding.skyPump!=null)targetBinding.skyPump.close();
         if(targetBinding!=null&&targetBinding.view!=null)targetBinding.view.close();
         if(targetBinding!=null&&targetBinding.chunkPump!=null)targetBinding.chunkPump.close();
         transferredMetadata=null;transferredModels=null;targetBinding=null;synchronized(gate) {

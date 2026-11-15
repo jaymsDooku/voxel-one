@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added geometry-only replay lighting worker requests; 41 tests and native source/World/queue plus GLFW regressions pass. Lighting coverage cache/admission, Main, saves, city/max and physical qualification remain pending.",
-      "updatedAt": "2026-11-15T02:08:59+00:00"
+      "note": "Added bounded CPU replay lighting cache with one shared-worker request and aggregate leaf admission. 44 tests and native cache/GLFW regressions pass. Lighting admission, Main, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-15T02:40:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
