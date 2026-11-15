@@ -275,3 +275,25 @@ checks, project generation, Python compilation, shell syntax and diff checks pas
 Current diff remains scoped to this port and shared mobile adapters; no unrelated
 source/assets were deleted. Physical iPhone, signed installation, live VPS and full
 engine parity remain unfinished and gated separately.
+
+Loader cancellation test repair (native qualification pending)
+Mac source 09f4bdd25590c177d9d070d0dc6a5b0605ea2f33 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43674370733
+Verified source/request receipt and diagnostic SHA-256. xcodebuild exited65; the
+recorded failure is testOfflineLoadCancelRetryAndColdRestart, missing requested
+control with no game error alert,38.456 seconds. Sanitized output does not identify
+which wait. No new gameplay media exists from that failed run; preflight is not
+game evidence. No other native test pass is inferred from the failed suite.
+
+The two-second simulator fault delay could expire before XCTest reaches Cancel.
+Replaced it with a simulator-only one-shot semaphore gate released by the normal
+Cancel action, with an unchanged-purpose safety deadline of30 seconds. Retry is
+not gated; it still loads the actual synthetic saved world. Device builds do not
+include the test trigger. Named each menu/cancel/retry/cold-restart wait so another
+failure identifies its exact step. The previous timing race is a source-based
+hypothesis; only the fresh Mac run can qualify the repair. No tests removed or
+skipped:24 required native cases and the1200-second outer limit remain unchanged.
+Local53 mocked harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. Full engine parity, live VPS, physical iPhone and
+signed delivery remain open. Diff audit against recorded base remains scoped to
+the iOS port; no unrelated deletions or clean-source gate changes.

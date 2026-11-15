@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Save-worker source 14cad956 passed 22 native Mac tests; model media inspected. Added bounded asynchronous offline load/migration and cancel/retry flow; 24-case native validation pending. Streaming, full parity, live VPS and signed iPhone delivery remain open.",
-      "updatedAt": "2026-11-15T03:53:30+00:00"
+      "note": "Mac source 09f4bdd2 failed the cancel/retry UI test. Replaced short delay with a simulator-only Cancel-released gate and named waits. 53 local harness checks pass; exact-source 24-case native rerun pending. Engine parity and signed delivery remain open.",
+      "updatedAt": "2026-11-15T04:16:11+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

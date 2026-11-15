@@ -1,0 +1,11 @@
+{
+  "sourceHead": "09f4bdd25590c177d9d070d0dc6a5b0605ea2f33",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/43674370733",
+  "status": "failed",
+  "clientChecked": false,
+  "exitCode": 65,
+  "failure": "testOfflineLoadCancelRetryAndColdRestart: missing requested control; no error alert;38.456 seconds",
+  "limits": "Sanitized diagnostics did not identify the individual wait. No game screenshot was returned; preflight is not game evidence.",
+  "repair": "Replaced2-second timing delay with simulator-only one-shot Cancel-released gate bounded30 seconds. Named each wait; real loader read, cancellation, retry and cold restart remain required.",
+  "qualification": "Changed source needs exact-source Mac build/playtest; no native repair pass claimed."
+}

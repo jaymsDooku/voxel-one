@@ -14,6 +14,10 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
     private var busy=false,paused=false,inMenu=true,active=true
+    #if targetEnvironment(simulator)
+    private var loadTestGate:DispatchSemaphore?
+    private var loadTestGateUsed=false
+    #endif
     private var loadingOffline=false
     private var pendingOfflineFresh:Bool?
     private var loadingOverlay:UIView?
@@ -405,7 +409,11 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         loadingOffline=false;pendingOfflineFresh=nil;loadingOverlay?.removeFromSuperview();loadingOverlay=nil;menu?.isUserInteractionEnabled=true
     }
     @objc private func cancelOfflineLoad(){
-        guard loadingOffline else{return};sessionID=UUID();OfflineSave.loader.cancel();finishOfflineLoad()
+        guard loadingOffline else{return};sessionID=UUID();OfflineSave.loader.cancel()
+        #if targetEnvironment(simulator)
+        loadTestGate?.signal();loadTestGate=nil
+        #endif
+        finishOfflineLoad()
     }
     private func loadOffline(fresh:Bool){
         guard inMenu,!busy,!loadingOffline else{return}
@@ -422,17 +430,23 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard loadingOffline,let fresh=pendingOfflineFresh,OfflineSave.writer.isIdle,!OfflineSave.loader.isBusy else{return}
         pendingOfflineFresh=nil;let id=sessionID
         #if targetEnvironment(simulator)
-        // Bounded fault injection tests cancellation while the actual saved world is read.
-        let delay=ProcessInfo.processInfo.arguments.contains("--offline-load-delay")
+        // One-shot fault injection keeps the real loading UI stable until normal Cancel.
+        let gate:DispatchSemaphore?
+        if ProcessInfo.processInfo.arguments.contains("--offline-load-cancel-test") && !loadTestGateUsed {
+            gate=DispatchSemaphore(value:0);loadTestGate=gate;loadTestGateUsed=true
+        } else {gate=nil}
         #else
-        let delay=false
+        let gate:DispatchSemaphore?=nil
         #endif
         OfflineSave.loader.load(operation:{
-            if delay {Thread.sleep(forTimeInterval:2)}
+            if let gate=gate,gate.wait(timeout:.now()+30) != .success {throw GameError.invalidWorld}
             if fresh {return try OfflineSave.fresh()}
             return try OfflineSave.load()
         }){[weak self] result in
             guard let self=self,self.loadingOffline,id==self.sessionID else{return}
+            #if targetEnvironment(simulator)
+            self.loadTestGate=nil
+            #endif
             self.finishOfflineLoad()
             switch result {
             case .loaded(let value):

@@ -262,14 +262,17 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func testOfflineLoadCancelRetryAndColdRestart()throws {
         newOffline();textContains("playerPosition","Ground")
-        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
-        app.terminate();app.launchArguments=["--offline-load-delay"];app.launch()
-        wait(app.buttons["cancelOfflineLoad"]);app.buttons["cancelOfflineLoad"].tap()
-        wait(app.buttons["offlineResumeButton"]);XCTAssertTrue(app.buttons["offlineResumeButton"].isHittable)
-        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu before cancellation")
+        app.terminate();app.launchArguments=["--offline-load-cancel-test"];app.launch()
+        wait(app.buttons["cancelOfflineLoad"],20,"cancel control during gated load")
+        capture("native-offline-load-cancellable")
+        app.buttons["cancelOfflineLoad"].tap()
+        wait(app.buttons["offlineResumeButton"],20,"menu after cancellation")
+        XCTAssertTrue(app.buttons["offlineResumeButton"].isHittable)
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"],20,"world after cancelled-load retry")
         textContains("playerPosition","Ground");capture("native-offline-load-cancel-retried")
-        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
-        app.terminate();app.launchArguments=[];app.launch();wait(app.buttons["breakButton"])
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu after retry")
+        app.terminate();app.launchArguments=[];app.launch();wait(app.buttons["breakButton"],20,"cold restart after retry")
         XCTAssertTrue(app.buttons["craftButton"].isHittable);capture("native-offline-async-cold-load")
     }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
