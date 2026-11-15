@@ -121,6 +121,8 @@ public class World implements AutoCloseable {
         default Map<ChunkPos,SparseVoxelOctree> lightingChunks(){return Map.of();}
         /** Optional source-fenced CPU sky data. Absence remains unknown. */
         default ReplaySkySource skySource(){return null;}
+        /** Optional source-fenced complete desired CPU geometry; no readiness. */
+        default ReplayGeometrySource geometrySource(){return null;}
         default ReplayWaterSurface nearestWater(float x,float y,float z){return null;}
         default int renderWater(org.joml.FrustumIntersection frustum,ShaderProgram shader){return 0;}
         /** Scene-owned draw path. Never transfers mutable GPU handles. */
@@ -152,6 +154,7 @@ public class World implements AutoCloseable {
     public Map<ChunkPos,SparseVoxelOctree> replayLightingChunks() {
         if(closed)throw new IllegalStateException("World closed");
         if(replayReadView==null)return null;
+        var geometry=replayGeometrySnapshot();if(geometry!=null)return geometry.roots();
         var supplied=Objects.requireNonNull(replayReadView.lightingChunks());
         if(supplied.size()>288)throw new IllegalStateException("Replay lighting snapshot budget");
         var snapshot=new LinkedHashMap<ChunkPos,SparseVoxelOctree>();int visited=0;
@@ -162,6 +165,39 @@ public class World implements AutoCloseable {
             snapshot.put(key,tree);
         }
         return Collections.unmodifiableMap(snapshot);
+    }
+    /** Trusted immutable-root provider. Key/current must fence source, desired
+     * generation and lifecycle. Does not imply a complete GI neighbourhood. */
+    public interface ReplayGeometrySource {
+        World owner();Map<ChunkPos,SparseVoxelOctree> roots();Object key();boolean current();
+    }
+    public static final class ReplayGeometrySnapshot {
+        private final World owner;private final ReplayReadView view;private final ReplayGeometrySource source;
+        private final Map<ChunkPos,SparseVoxelOctree> supplied,roots;private final Object key;
+        private ReplayGeometrySnapshot(World owner,ReplayReadView view,ReplayGeometrySource source,Map<ChunkPos,SparseVoxelOctree> supplied,Map<ChunkPos,SparseVoxelOctree> roots) {
+            this.owner=owner;this.view=view;this.source=source;this.supplied=supplied;this.roots=roots;key=source.key();
+        }
+        public boolean current(World expected){return expected==owner&&!owner.closed&&owner.replayReadView==view&&source.owner()==owner&&source.roots()==supplied&&source.key()==key&&source.current()&&roots.equals(supplied);}
+        public Object key(){return key;}
+        public Map<ChunkPos,SparseVoxelOctree> roots(){if(!current(owner))throw new IllegalStateException("Replay geometry snapshot changed");return roots;}
+    }
+    /** Bounded shallow capture only. No procedural fallback or root traversal. */
+    public ReplayGeometrySnapshot replayGeometrySnapshot() {
+        if(closed)throw new IllegalStateException("World closed");if(replayReadView==null)return null;
+        var source=replayReadView.geometrySource();if(source==null)return null;
+        if(source.owner()!=this||source.key()==null)throw new IllegalStateException("Replay geometry source identity");
+        var supplied=Objects.requireNonNull(source.roots());
+        if(supplied.isEmpty()||supplied.size()>288)throw new IllegalStateException("Replay geometry snapshot budget");
+        var roots=new LinkedHashMap<ChunkPos,SparseVoxelOctree>();int visited=0;
+        for(var e:supplied.entrySet()) {
+            if(visited++>=288)throw new IllegalStateException("Replay geometry snapshot budget");
+            var p=Objects.requireNonNull(e.getKey());var root=Objects.requireNonNull(e.getValue());
+            if(root.size()!=256||!root.isFrozen())throw new IllegalStateException("Replay geometry requires frozen complete roots");
+            roots.put(p,root);
+        }
+        if(roots.isEmpty())throw new IllegalStateException("Replay geometry snapshot budget");
+        if(!source.current())return null;
+        var snapshot=new ReplayGeometrySnapshot(this,replayReadView,source,supplied,Collections.unmodifiableMap(roots));return snapshot.current(this)?snapshot:null;
     }
     /** Trusted private-view provider. Does not grant complete lighting coverage. */
     public interface ReplaySkySource {

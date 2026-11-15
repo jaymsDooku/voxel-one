@@ -30,6 +30,17 @@ final class RegionReplayScene implements AutoCloseable {
             @Override public Map<ChunkPos,SparseVoxelOctree> lightingChunks(){
                 try{check();return pump.lightingChunks();}catch(IOException failure){throw new IllegalStateException("Replay lighting unavailable",failure);}
             }
+            @Override public World.ReplayGeometrySource geometrySource(){
+                try {
+                    check();var captured=binding.geometrySource(world);if(captured==null)return null;
+                    return new World.ReplayGeometrySource() {
+                        public World owner(){return captured.owner();}
+                        public Map<ChunkPos,SparseVoxelOctree> roots(){return captured.roots();}
+                        public Object key(){return captured.key();}
+                        public boolean current(){try{check();return captured.current();}catch(IOException changed){return false;}}
+                    };
+                }catch(IOException failure){throw new IllegalStateException("Replay geometry unavailable",failure);}
+            }
             @Override public World.ReplaySkySource skySource(){
                 try {
                     check();var captured=binding.skySource(world);if(captured==null)return null;

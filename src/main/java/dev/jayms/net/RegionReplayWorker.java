@@ -501,6 +501,15 @@ final class RegionReplayWorker implements AutoCloseable {
             SkyPumpStatus status()throws IOException {owner();if(closed)return new SkyPumpStatus(0,0,0,0,0,false,true,0,0,generation);check();return new SkyPumpStatus(desired.size(),pending==null?0:1,ready.size(),failures.size(),cachedInts,backpressure,false,mergePending==null?0:1,coverage==null?0:coverage.merge().data().data.length,generation);}
             @Override public void close()throws IOException {owner();if(closed)return;discard();desired.clear();closed=true;}
         }
+        World.ReplayGeometrySource geometrySource(World current)throws IOException {
+            validate(current);if(lightingPump==null)return null;var captured=lightingPump.coverage();if(captured==null)return null;
+            return new World.ReplayGeometrySource() {
+                public World owner(){return target;}
+                public Map<ChunkPos,dev.jayms.net.model.SparseVoxelOctree> roots(){return captured.roots();}
+                public Object key(){return captured;}
+                public boolean current(){try{validate(target);return lightingPump.current(captured);}catch(IOException changed){return false;}}
+            };
+        }
         World.ReplaySkySource skySource(World current)throws IOException {
             validate(current);if(skyPump==null)return null;var captured=skyPump.coverage();if(captured==null)return null;
             return new World.ReplaySkySource() {
