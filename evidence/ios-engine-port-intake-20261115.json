@@ -5,7 +5,7 @@
   "priority": 3,
   "assignedDeveloper": "developer-1",
   "scope": "Native iOS engine port with Sandbox-first iPhone delivery",
-  "state": "Queued after resolving initial disk admission blocker",
+  "state": "In progress; developer-1 claimed and running after disk recovery",
   "existingFoundations": [
     "Native UIKit/SceneKit client",
     "Java mobile gateway",
@@ -33,5 +33,6 @@
     "Existing disk thresholds",
     "Signing, physical-device qualification and independent review requirements"
   ],
-  "verification": "Queue creation and recovery receipts only; no new iOS gameplay tests or device-install success claimed."
+  "verification": "Queue creation and recovery receipts only; no new iOS gameplay tests or device-install success claimed.",
+  "claimVerifiedAt": "2026-11-15T00:56:52.128462+00:00"
 }
