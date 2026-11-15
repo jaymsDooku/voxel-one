@@ -11,7 +11,9 @@ import argparse
 import os
 parser=argparse.ArgumentParser()
 parser.add_argument('--display',required=True)
+parser.add_argument('--evidence-prefix',default='structure-replay-sky-frame')
 args=parser.parse_args()
+assert all(c.isalnum() or c=='-' for c in args.evidence_prefix), 'Use a simple evidence filename prefix'
 assert args.display==os.environ.get('DISPLAY'), 'Use inherited assigned role display'
 root = Path(__file__).resolve().parents[2]
 folder = root / 'target/replay-sky-frame-check' / datetime.datetime.now(datetime.timezone.utc).strftime('%Y%m%dT%H%M%S%fZ')
@@ -26,8 +28,8 @@ assert classes, 'Compile production classes first'
 cp = 'target/test-classes:' + (root / 'target/structure-limit-audit/diagnostic-classpath.txt').read_text().strip()
 assert (root / cp.split(':')[0]).resolve() == root / 'target/test-classes'
 java_sources = [root / 'tools/structures' / name for name in ['ReplaySkyFrameCheck.java', 'ReplaySkyUploadAssertions.java', 'ReplaySkyPipelineAssertions.java', 'ReplaySkyFrameAssertions.java', 'ReplayWaterCheck.java', 'ReplayRenderCheck.java', 'ReplaySceneCheck.java', 'ReplayChunkGpuCheck.java', 'ReplayModelGpuCheck.java', 'ReplayGpuUploadCheck.java']]
-image = root / 'dashboard/evidence/structure-replay-sky-frame-optics.png'
-assert not image.with_name('structure-replay-sky-frame-regression.png').exists(), 'Preserve regression evidence'
+image = root / ('dashboard/evidence/'+args.evidence_prefix+'-optics.png')
+assert not image.with_name((args.evidence_prefix+'-regression.png')).exists(), 'Preserve regression evidence'
 assert not image.exists(), 'Preserve existing evidence; choose a fresh output name'
 commands = [
     ['javac', '--release', '17', '-cp', cp, '-d', str(folder)] + [str(p) for p in java_sources],
@@ -42,7 +44,7 @@ assert all(sha(root / p) == v for p, v in sources.items())
 assert all(sha(root / p) == v for p, v in classes.items())
 receipt = dict(
     qualification=False, commands=commands, source_sha256=sources, compiled_sha256=classes,
-    cli_sha256={str(p.relative_to(root)): sha(p) for p in java_sources}, driver_sha256=sha(Path(__file__)), image_sha256=sha(image), regression_image_sha256=sha(image.with_name("structure-replay-sky-frame-regression.png")),
+    cli_sha256={str(p.relative_to(root)): sha(p) for p in java_sources}, driver_sha256=sha(Path(__file__)), image_sha256=sha(image), regression_image_sha256=sha(image.with_name((args.evidence_prefix+'-regression.png'))),
     result=json.loads((folder / 'result.json').read_text()), os=platform.platform(),
     cpu=next(line.split(':', 1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),
     java=subprocess.run(['java', '-version'], capture_output=True, text=True, check=True).stderr.strip(),

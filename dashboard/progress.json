@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Frame updates now upload replay sky within256KiB, hide stale coverage and keep resident history/GI out of incomplete replay. 50 tests and multi-frame native shader checks passed; fresh report/media await publication. Near-field lighting, Main paging, saves and city/max qualification remain pending.",
-      "updatedAt": "2026-11-15T00:57:49+00:00"
+      "note": "Fixed direct private replay-world sky transition; 34 tests and native GLFW switch/regression checks pass. Near-field lighting, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-15T01:19:55+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

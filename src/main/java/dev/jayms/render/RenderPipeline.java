@@ -355,6 +355,10 @@ public final class RenderPipeline implements AutoCloseable {
         int byteBudget=(initialLightingFrame?8:4)*1024*1024;
         if(world.hasReplayReadView()) {
             replaySkyOwner();
+            if(replaySkyWorld!=null&&replaySkyWorld!=world) {
+                dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);glFlush();replaySkyAtlas=0;
+                activeReplaySky=null;replaySkyWorld=null;
+            }
             if(!replayFrameMode) {
                 if(lightingUpload!=null){lightingUpload.close();lightingUpload=null;}
                 if(skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
