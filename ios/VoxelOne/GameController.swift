@@ -102,7 +102,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         for b in slotButtons {b.widthAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true}
         let left=directionButton("◀","moveLeft"),forward=directionButton("▲","moveForward"),back=directionButton("▼","moveBack"),right=directionButton("▶","moveRight")
         let directions=row([left,forward,back,right])
-        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),button("Jump","jumpButton",#selector(jump))])
+        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton")])
         let planning=row([button("Tool","toolButton",#selector(chooseTool)),button("Point","pointCoordinateButton",#selector(addCoordinatePoint)),button("Undo","undoPoint",#selector(undoPoint)),button("Confirm","confirmPlan",#selector(confirmPlan))]);confirmButton=planning.arrangedSubviews.last as? UIButton
         planning.accessibilityIdentifier="planningControls";planning.isHidden=true
         let b=UIStackView(arrangedSubviews:[hotbarScroll,planning,actions,directions]);b.axis = .vertical;b.spacing=5;bottom=b;overlay(b,atTop:false)
@@ -114,7 +114,11 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         b.addTarget(self,action:#selector(stopMove(_:)),for:[.touchUpInside,.touchUpOutside,.touchCancel,.touchDragExit])
         b.isMultipleTouchEnabled=true;return b
     }
-    @objc private func startMove(_ sender:UIButton){if !paused {movement.insert(sender.accessibilityIdentifier ?? "")}}
+    @objc private func startMove(_ sender:UIButton){
+        guard !paused,active,!inMenu,!graphicsOpen,!renderer.planning else{return}
+        let id=sender.accessibilityIdentifier ?? "";movement.insert(id)
+        if id=="jumpButton" {jump()}
+    }
     @objc private func stopMove(_ sender:UIButton){movement.remove(sender.accessibilityIdentifier ?? "")}
     @objc private func selectSlot(_ sender:UIButton){world?.slot=sender.tag;refreshHUD()}
     @objc private func jump(){
@@ -220,6 +224,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         if !paused && !graphicsOpen && !renderer.planning {
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
+            if movement.contains("jumpButton") {jump()}
             world.step(forward:forward,strafe:side,dt:dt)
             if let origin=jumpOrigin {
                 if world.position.y>origin+0.2 {jumpRose=true}

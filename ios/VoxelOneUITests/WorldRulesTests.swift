@@ -73,6 +73,19 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertEqual(world.type(GridKey(0,1,0)),0)
         XCTAssertFalse(world.within(SCNVector3(8.9,1,0)))
     }
+    func testFullInventoryBreakIsAtomic()throws {
+        var value=fixture();value.inventory=Array(repeating:[2,64],count:36)
+        let world=try VoxelWorld(value),key=GridKey(0,1,-2),revision=world.revision
+        XCTAssertThrowsError(try world.offlineEdit(at:key,type:0))
+        XCTAssertEqual(world.type(key),3);XCTAssertEqual(world.revision,revision)
+        XCTAssertEqual(world.snapshot.inventory,value.inventory)
+        world.snapshot.inventory[35]=[3,63]
+        try world.offlineEdit(at:key,type:0)
+        XCTAssertEqual(world.snapshot.inventory[35],[3,64]);XCTAssertEqual(world.type(key),0)
+        world.snapshot.inventory[35]=[0,0]
+        try world.offlineEdit(at:GridKey(1,0,1),type:0)
+        XCTAssertEqual(world.snapshot.inventory[35],[1,1])
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

@@ -50,11 +50,15 @@ print(json.load(open(sys.argv[1]))['gateway'])
 PY
 )"
 python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" > ios/build/project-path.txt
+export IOS_CHECK_STAGE=device_archive
+bash ios/archive-device.sh > ios/build/native-build.log 2>&1
+# Restore the synthetic gateway environment in the generated test scheme.
+python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" > ios/build/project-path.txt
 export IOS_CHECK_STAGE=native_build
 xcodebuild build-for-testing -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -sdk iphonesimulator -destination "platform=iOS Simulator,id=$udid" \
   -derivedDataPath ios/build/DerivedData CODE_SIGNING_ALLOWED=NO \
-  > ios/build/native-build.log 2>&1
+  >> ios/build/native-build.log 2>&1
 app="$repo/ios/build/DerivedData/Build/Products/Debug-iphonesimulator/VoxelOne.app"
 export IOS_CHECK_STAGE=install
 xcrun simctl install "$udid" "$app"

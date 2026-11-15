@@ -225,6 +225,15 @@
       "updatedAt": "2026-11-19T23:55:19+00:00"
     },
     {
+      "id": "ios-engine-port",
+      "title": "Native iOS engine port",
+      "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
+      "updatedAt": "2026-11-15T00:57:11+00:00"
+    },
+    {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
       "title": "iOS trusted validator: bounded expanded native test receipts",
       "description": "Implementing a bounded 64-entry receipt limit with synthetic boundary and guard checks. Native and physical qualification gates remain required; runner owns publication.",

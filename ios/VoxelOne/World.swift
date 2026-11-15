@@ -233,11 +233,14 @@ final class VoxelWorld {
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
         if type==0 {
-            guard let old=types.removeValue(forKey:key) else {throw GameError.message("Aim at a block within five blocks.")}
-            colors.removeValue(forKey:key)
-            var amount=1
-            for i in 0..<36 where snapshot.inventory[i][0]==old && snapshot.inventory[i][1]<64 {snapshot.inventory[i][1]+=1;amount=0;break}
-            if amount>0, let i=snapshot.inventory.firstIndex(where:{$0[1]==0}) {snapshot.inventory[i]=[old,1]}
+            guard let old=types[key] else {throw GameError.message("Aim at a block within five blocks.")}
+            // Reserve storage before removing terrain. A full bag must never destroy a block.
+            guard let destination=snapshot.inventory.firstIndex(where:{$0[0]==old && $0[1]<64})
+                ?? snapshot.inventory.firstIndex(where:{$0[1]==0})
+            else {throw GameError.message("Inventory full. Free a slot before collecting this block.")}
+            if snapshot.inventory[destination][1]==0 {snapshot.inventory[destination]=[old,1]}
+            else {snapshot.inventory[destination][1]+=1}
+            types.removeValue(forKey:key);colors.removeValue(forKey:key)
         } else {
             guard types[key]==nil, snapshot.inventory[slot][0]==type, snapshot.inventory[slot][1]>0,
                   key.x>=snapshot.bounds[0], key.x<=snapshot.bounds[1], key.y>=snapshot.bounds[2], key.y<=snapshot.bounds[3], key.z>=snapshot.bounds[4], key.z<=snapshot.bounds[5]

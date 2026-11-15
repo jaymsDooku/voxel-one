@@ -1,0 +1,61 @@
+Native engine port: milestone 1 / early Sandbox slice
+
+Status: implementation in progress. No new native execution receipt yet.
+Baseline inspected: 71612f09. This is not full engine parity or iPhone delivery.
+
+Architecture decision
+Reuse UIKit, SceneKit and the Java mobile gateway. Keep authoritative online
+rules in Java; Swift supplies native input, rendering and offline rules. No JVM,
+LWJGL, webview or streaming dependency runs on iOS. Keep City planning unchanged.
+Use existing schema 1 until a versioned detail-preserving contract is added;
+never silently label schema 1 compatible with desktop fine geometry.
+
+Observed compatibility matrix
+Capability                 Desktop / source                 Current native status
+Terrain                    net/Terrain.java                 Bundled Java seed, version 3;
+                                                            offline 49x49 only
+Streaming / distance       TerrainScheduler, DistantTerrain Bounded online snapshots;
+                                                            no offline streaming
+Fractional / models        net/WorldVoxels.java             MobileSnapshot samples center;
+                                                            full cube approximation
+Collision / pick           player/Player.java, Camera.java  AABB, whole-cell ray only
+Inventory / crafting       net/Crafting.java                9 hotbar, 36 bag, no craft UI;
+                                                            gateway craft action exists
+City                       existing Java CityFrame          Planning, roads/zones, walk;
+                                                            specialized UI still missing
+Sky / graphics             atmosphere contract              Native opt-in sky, presets;
+                                                            device budgets unmeasured
+Persistence                desktop engine saves             Separate atomic JSON save;
+                                                            no desktop migration
+Network                    pinned Java server transport     Gateway + native HTTPS;
+                                                            live VPS path unqualified
+
+This slice
+Jump begins on touch-down and repeats while held. Release, drag exit, touch
+cancel, pause, planning, menu, graphics and suspend clear the shared input set.
+A full inventory now rejects breaking before changing terrain or inventory.
+Tests cover full-bag rejection, partial-stack collection and empty-slot collection.
+The native workflow suite adds held-jump release, pause and background regression.
+
+Build and device boundary
+Target: iPhone, iOS 16+, native arm64 device and available compatible simulator.
+Run bash ios/archive-device.sh on the Mac for an unsigned generic-device archive.
+The exact-source simulator script now builds that archive before native tests.
+Unsigned VoxelOne.xcarchive is not an installable iPhone artifact.
+Simulator validation needs the controller's Mac result and actual media inspection.
+30 FPS is the initial requested baseline, not a measured physical-device result.
+
+Next coherent slices (all still required)
+1. Versioned shared material/model/fractional schema and compatibility fixtures;
+   exact geometry picking/collision/rendering, model persistence.
+2. Incremental procedural chunks, bounded worker queues, cancellation and memory
+   pressure; move generation/meshing/save encoding off the main thread safely.
+3. Native crafting, fly, camera/settings, landscape-first layout and recovery.
+4. Sandbox authenticated multiplayer edit/resync tests, denied-network handling,
+   isolated HTTPS proxy health checks, then root-coordinated live service checks.
+5. Signed device delivery, install/update guide and versioned artifact checksums;
+   physical iPhone gameplay/performance/thermal/battery qualification.
+
+Signing remains separate. No Apple team, device registration or protected signing
+provisioning has been established by this slice. Do not publish, purchase, invite,
+or claim installation. Continue engineering while the delivery route is pending.

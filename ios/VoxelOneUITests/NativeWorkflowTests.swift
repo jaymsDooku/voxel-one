@@ -146,6 +146,21 @@ final class NativeWorkflowTests:XCTestCase {
         wait(app.buttons["placeButton"]);XCTAssertTrue(app.buttons["placeButton"].isHittable);capture("offline-landscape")
         XCUIDevice.shared.orientation = .portrait
     }
+    func testHeldJumpCancelsOnBackgroundAndPause()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["jumpButton"].press(forDuration:2.5)
+        textContains("playerPosition","Ground",timeout:5)
+        // A released hold must settle and stay grounded, rather than repeat forever.
+        let settled=app.staticTexts["playerPosition"].label
+        app.buttons["pauseButton"].tap();app.buttons["jumpButton"].press(forDuration:0.5)
+        XCTAssertEqual(settled,app.staticTexts["playerPosition"].label)
+        app.buttons["pauseButton"].tap()
+        XCUIDevice.shared.press(.home);app.activate()
+        textContains("playerPosition","Ground",timeout:5)
+        app.buttons["moveRight"].press(forDuration:0.5)
+        textContains("playerPosition","Ground",timeout:5)
+        capture("offline-hold-jump-resumed")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()
