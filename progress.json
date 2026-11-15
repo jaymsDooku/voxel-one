@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-15T00:52:36+00:00",
+  "updatedAt": "2026-11-15T00:56:24+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4229,11 +4229,16 @@
           "kind": "link",
           "label": "Track work",
           "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/?application=voxel-one"
+        },
+        {
+          "kind": "report",
+          "label": "ios engine port intake 20261115.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/ios-engine-port-intake-20261115.json"
         }
       ],
       "status": "queued",
-      "note": "Queued as high-priority general-engine work for developer-1. Extend existing native iOS client: playable Sandbox, touch controls, accurate fractional/model voxels, streaming, saves, crafting, multiplayer and a device installation/update path. Signing and physical-device verification remain explicit prerequisites, not simulator claims.",
-      "updatedAt": "2026-11-15T00:52:36+00:00"
+      "note": "High-priority iOS port assigned to developer-1; initial disk blocker resolved with 1.27GB of guarded transient cleanup. Reuse native client and remote simulator infrastructure; Sandbox-first playable device build, accurate voxel features and a practical installation/update path. Signing and physical testing remain explicit.",
+      "updatedAt": "2026-11-15T00:56:24+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
