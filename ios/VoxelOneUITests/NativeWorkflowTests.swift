@@ -59,7 +59,7 @@ final class NativeWorkflowTests:XCTestCase {
         }
         capture("offline-horizon")
     }
-    func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
+    func menu(){if app.buttons["cancelOfflineLoad"].exists {wait(app.buttons["menuButton"])};if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func aimAtSolarDiscForEvidence(){
         // The synthetic offline world's authoritative fixed hour is 10.
         let targetYaw = -atan2(0.5,0.35),targetPitch=atan2(sqrt(0.75),sqrt(0.25+0.35*0.35))
@@ -259,6 +259,18 @@ final class NativeWorkflowTests:XCTestCase {
         app.terminate();app.launch();wait(app.buttons["breakButton"])
         XCTAssertEqual(app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0],position)
         capture("native-save-barrier-cold-restart")
+    }
+    func testOfflineLoadCancelRetryAndColdRestart()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launchArguments=["--offline-load-delay"];app.launch()
+        wait(app.buttons["cancelOfflineLoad"]);app.buttons["cancelOfflineLoad"].tap()
+        wait(app.buttons["offlineResumeButton"]);XCTAssertTrue(app.buttons["offlineResumeButton"].isHittable)
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        textContains("playerPosition","Ground");capture("native-offline-load-cancel-retried")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launchArguments=[];app.launch();wait(app.buttons["breakButton"])
+        XCTAssertTrue(app.buttons["craftButton"].isHittable);capture("native-offline-async-cold-load")
     }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {

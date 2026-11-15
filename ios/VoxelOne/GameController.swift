@@ -14,6 +14,9 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
     private var busy=false,paused=false,inMenu=true,active=true
+    private var loadingOffline=false
+    private var pendingOfflineFresh:Bool?
+    private var loadingOverlay:UIView?
     private var closingMenu=false
     private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
     private var graphicsOpen=false
@@ -40,15 +43,16 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         addWorldGesture(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
         addWorldGesture(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
         displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=renderer.graphics.effective().frames;displayLink?.add(to:.main,forMode:.common)
-        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {
-            do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
-        } else {showMenu()}
+        OfflineSave.writer.onIdle={[weak self] in self?.beginPendingOfflineLoad()}
+        OfflineSave.loader.onIdle={[weak self] in self?.beginPendingOfflineLoad()}
+        showMenu()
+        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {loadOffline(fresh:false)}
     }
     override func viewDidAppear(_ animated:Bool) {
         super.viewDidAppear(animated)
         #if targetEnvironment(simulator)
         // Scoped simulator evidence uses the same actual Graphics route as the toolbar.
-        if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && !graphicsOpen {
+        if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && world != nil && !graphicsOpen {
             openGraphics()
         }
         #endif
@@ -392,19 +396,65 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         for field in [address,username,password] {field.delegate=self;field.returnKeyType = .done;field.borderStyle = .roundedRect;field.backgroundColor = .white;field.textColor = .black;field.heightAnchor.constraint(equalToConstant:44).isActive=true}
         game.selectedSegmentIndex=0;game.accessibilityIdentifier="gameChoice";game.backgroundColor = .systemGray5
         let title=label("VOXEL ONE",size:30,id:"mainTitle")
-        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline sandbox is a saved local patch of Voxel One terrain. The desktop editor and fractional blocks are not available in this first phone client.",size:13)])
+        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline builds save on this iPhone. Flower pots and fractional pieces are supported; the full desktop editor is still being ported.",size:13)])
         stack.axis = .vertical;stack.spacing=12;stack.translatesAutoresizingMaskIntoConstraints=false;scroll.addSubview(stack)
         NSLayoutConstraint.activate([stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:24),stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-24),stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:24),stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-24),stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-48)])
     }
-    @objc private func resumeOffline(){do {try startOffline(OfflineSave.load())}catch{showError(error.localizedDescription)}}
+    @objc private func resumeOffline(){loadOffline(fresh:false)}
+    private func finishOfflineLoad(){
+        loadingOffline=false;pendingOfflineFresh=nil;loadingOverlay?.removeFromSuperview();loadingOverlay=nil;menu?.isUserInteractionEnabled=true
+    }
+    @objc private func cancelOfflineLoad(){
+        guard loadingOffline else{return};sessionID=UUID();OfflineSave.loader.cancel();finishOfflineLoad()
+    }
+    private func loadOffline(fresh:Bool){
+        guard inMenu,!busy,!loadingOffline else{return}
+        movement.removeAll();view.endEditing(true);sessionID=UUID();loadingOffline=true;pendingOfflineFresh=fresh
+        menu?.isUserInteractionEnabled=false
+        let panel=UIStackView(arrangedSubviews:[label(fresh ? "Creating Sandbox…":"Loading Sandbox…",size:18,id:"offlineLoadStatus"),button("Cancel","cancelOfflineLoad",#selector(cancelOfflineLoad))])
+        panel.axis = .vertical;panel.spacing=12;panel.backgroundColor=UIColor(red:0.05,green:0.12,blue:0.16,alpha:1)
+        panel.layer.cornerRadius=16;panel.isLayoutMarginsRelativeArrangement=true;panel.layoutMargins=UIEdgeInsets(top:20,left:20,bottom:20,right:20)
+        panel.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(panel);loadingOverlay=panel
+        NSLayoutConstraint.activate([panel.centerXAnchor.constraint(equalTo:view.safeAreaLayoutGuide.centerXAnchor),panel.centerYAnchor.constraint(equalTo:view.safeAreaLayoutGuide.centerYAnchor),panel.widthAnchor.constraint(equalTo:view.safeAreaLayoutGuide.widthAnchor,multiplier:0.85)])
+        beginPendingOfflineLoad()
+    }
+    private func beginPendingOfflineLoad(){
+        guard loadingOffline,let fresh=pendingOfflineFresh,OfflineSave.writer.isIdle,!OfflineSave.loader.isBusy else{return}
+        pendingOfflineFresh=nil;let id=sessionID
+        #if targetEnvironment(simulator)
+        // Bounded fault injection tests cancellation while the actual saved world is read.
+        let delay=ProcessInfo.processInfo.arguments.contains("--offline-load-delay")
+        #else
+        let delay=false
+        #endif
+        OfflineSave.loader.load(operation:{
+            if delay {Thread.sleep(forTimeInterval:2)}
+            if fresh {return try OfflineSave.fresh()}
+            return try OfflineSave.load()
+        }){[weak self] result in
+            guard let self=self,self.loadingOffline,id==self.sessionID else{return}
+            self.finishOfflineLoad()
+            switch result {
+            case .loaded(let value):
+                do {try self.startOffline(value)
+                    #if targetEnvironment(simulator)
+                    if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && !self.graphicsOpen {self.openGraphics()}
+                    #endif
+                }catch{self.showError("This sandbox could not be opened safely.")}
+            case .failed:self.showError("Could not load this sandbox. Try again or create a new world.")
+            case .cancelled:break
+            }
+        }
+    }
     @objc private func newOffline(){
+        guard !busy,!loadingOffline else{return}
         if FileManager.default.fileExists(atPath:OfflineSave.url.path) {let alert=UIAlertController(title:"Replace offline sandbox?",message:"This deletes the local sandbox edits. Online worlds stay on their server.",preferredStyle:.alert);alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));alert.addAction(UIAlertAction(title:"New world",style:.destructive){[weak self] _ in self?.createOffline()});present(alert,animated:true)}else{createOffline()}
     }
-    private func createOffline(){do {try startOffline(OfflineSave.fresh())}catch{showError(error.localizedDescription)}}
+    private func createOffline(){loadOffline(fresh:true)}
     @objc private func signIn(){connect(register:false)}
     @objc private func register(){connect(register:true)}
     private func connect(register:Bool){
-        guard !busy else{return}
+        guard !busy,!loadingOffline else{return}
         do {
             let service=try Gateway(address:address.text ?? ""),name=username.text ?? "",secret=password.text ?? "",selected=game.selectedSegmentIndex==1 ? "city":"sandbox"
             guard name.range(of:"^[A-Za-z0-9_]{3,16}$",options:.regularExpression) != nil, secret.count>=10,secret.count<=128 else{throw GameError.message("Use a 3–16 character username and a 10–128 character password.")}

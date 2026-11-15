@@ -171,3 +171,13 @@ background task; expiration does not promise that the newest change reached disk
 The previous atomic file remains the recovery point if a write is interrupted.
 Swift dictionary copy-on-write can still copy storage on the next edit. Startup
 load/decode, generation and mesh rebuilding are separate remaining performance work.
+
+Offline loading
+
+Cold launch, Continue and New now read, decode, validate and migrate on a serial
+utility loader. The menu shows Loading/Creating Sandbox with Cancel. Continue
+waits for pending saves to drain. One loader may execute at a time; cancellation
+invalidates its result, and a newer intent waits rather than adding another worker.
+Local saves are limited to 16,000,000 bytes on both write and read. Invalid data
+fails without replacing the source file; migration does not write until the loaded
+world starts successfully. Scene/world construction and meshing still run on main.

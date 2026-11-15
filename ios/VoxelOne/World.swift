@@ -466,6 +466,7 @@ struct NativeSavePayload:Sendable {
     func persist(to url:URL)throws {
         let save=value();try save.validate()
         let data=try JSONEncoder().encode(save)
+        guard data.count<=OfflineSave.maximumBytes else {throw GameError.invalidWorld}
         try FileManager.default.createDirectory(at:url.deletingLastPathComponent(),withIntermediateDirectories:true)
         try data.write(to:url,options:.atomic)
     }
@@ -508,16 +509,56 @@ enum NativeSaveResult:Equatable,Sendable {case saved,superseded,failed}
         }
     }
 }
+enum NativeLoadResult:Sendable {case loaded(Snapshot),failed,cancelled}
+/// Single executing load; cancellation fences its result without queuing another worker.
+@MainActor final class NativeOfflineLoader {
+    private let queue=DispatchQueue(label:"dev.jayms.voxelone.offline-load",qos:.utility)
+    private var generation:UInt64=0
+    private(set) var isBusy=false
+    var onIdle:(()->Void)?
+    func cancel(){generation &+= 1}
+    @discardableResult func load(operation:@escaping @Sendable ()throws->Snapshot,completion:@escaping (NativeLoadResult)->Void)->Bool {
+        guard !isBusy else{return false};isBusy=true;let request=generation
+        queue.async {
+            let result:NativeLoadResult
+            do {result = .loaded(try operation())}catch{result = .failed}
+            DispatchQueue.main.async {
+                self.isBusy=false
+                completion(request==self.generation ? result:.cancelled)
+                if !self.isBusy {self.onIdle?()}
+            }
+        }
+        return true
+    }
+}
 final class OfflineSave {
+    static let maximumBytes=16_000_000
+    @MainActor static let loader=NativeOfflineLoader()
     @MainActor static let writer=NativeSaveWriter(destination:url)
     static var url: URL { FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("sandbox-v1.json") }
-    static func load() throws -> Snapshot {var value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));try value.validate()
-        if value.schema==1 {value.schema=2;value.contract=try NativeContract.bundled();value.details=[]}
-        try value.validate();return value
+    static func read(at url:URL)throws->Snapshot {
+        let handle=try FileHandle(forReadingFrom:url);defer{try? handle.close()}
+        var data=Data()
+        while data.count<=maximumBytes {
+            let part=try handle.read(upToCount:min(65536,maximumBytes+1-data.count)) ?? Data()
+            if part.isEmpty {break};data.append(part)
+        }
+        guard data.count<=maximumBytes else {throw GameError.invalidWorld}
+        let value=try JSONDecoder().decode(Snapshot.self,from:data);try value.validate();return value
+    }
+    static func migrate(_ value:Snapshot,contract:NativeContract)throws->Snapshot {
+        try value.validate();var result=value
+        if result.schema==1 {result.schema=2;result.contract=contract;result.details=[]}
+        try result.validate();return result
+    }
+    static func load() throws -> Snapshot {
+        let value=try read(at:url)
+        if value.schema==1 {return try migrate(value,contract:NativeContract.bundled())}
+        return value
     }
     static func fresh() throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}
-        var value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));value.schema=2;value.contract=try NativeContract.bundled();value.details=[]
+        var value=try read(at:url);value.schema=2;value.contract=try NativeContract.bundled();value.details=[]
         value.inventory[5]=[8,2];value.inventory[6]=[141,8]
         try value.validate();return value
     }

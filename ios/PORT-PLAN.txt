@@ -243,3 +243,35 @@ and diff checks passed. The changed Swift source still needs exact-source Mac
 compilation and actual native playtesting. No physical iPhone/live VPS/signing pass.
 Diff against recorded review base remains confined to the port; no unrelated file
 deletions were introduced. All edits and prior media retained for controller handoff.
+
+Asynchronous offline loader increment (native qualification pending)
+Save-worker source 14cad956bea09b10a72c0b124392ad5b9aa94ef5 passed 22 native tests.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43672710267
+Verified report source and actual screenshot SHA-256; inspected saved flower-pot
+geometry, edited terrain, inventory and controls. Copied image and sanitized receipt
+to dashboard/evidence/ios-port-14cad956-saved-model.png and ios-port-14cad956-receipt.json.
+That receipt qualifies prior save-worker work on Simulator, not this newer loader.
+
+NativeOfflineLoader executes one value-returning operation on a utility queue.
+Controller owns at most one pending intent and waits for both save/loader idle;
+no synchronous main-queue wait or unbounded load queue. Main callbacks are fenced
+by loader generation and controller session UUID. Cancel restores the menu and
+invalidates the result; a new request waits for the old operation to leave the worker.
+Cold start shows the real menu/loading panel before building the actual world.
+File reads stop at 16,000,001 bytes and reject more than 16,000,000; atomic writes
+have the same cap. Migration is a validated value transform and does not rewrite
+its source. Malformed and oversized saves remain untouched by load failure.
+World construction, collision cache building and meshing still run on main; chunk
+generation/streaming and incremental mesh work remain open. No device timing claim.
+
+Native tests add off-main loader execution, single-worker rejection, cancellation,
+retry, legacy migration with exact original-byte preservation, malformed-file
+preservation and oversized input rejection. A normal-control cancellation/retry/
+cold-load playtest uses a simulator-only, 2-second load delay for deterministic
+fault injection; it still reads the real synthetic saved world. Device builds
+exclude this delay. Required native test count is now 24; all new native cases
+remain unexecuted pending exact-source remote_ios_test. Local 53 mocked harness
+checks, project generation, Python compilation, shell syntax and diff checks pass.
+Current diff remains scoped to this port and shared mobile adapters; no unrelated
+source/assets were deleted. Physical iPhone, signed installation, live VPS and full
+engine parity remain unfinished and gated separately.

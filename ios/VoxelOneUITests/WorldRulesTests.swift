@@ -231,6 +231,52 @@ final class WorldRulesTests:XCTestCase {
         }
         wait(for:[finished],timeout:60)
     }
+    func testOfflineLoaderBoundsCancellationMigrationAndFailure()throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("voxel-load-test-"+UUID().uuidString)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        defer{try? FileManager.default.removeItem(at:root)}
+        let url=root.appendingPathComponent("world.json"),original=try JSONEncoder().encode(fixture())
+        try original.write(to:url)
+        let resource=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:resource))
+        let finished=expectation(description:"load cancellation, retry and malformed source checked")
+        DispatchQueue.main.async {
+            let loader=NativeOfflineLoader(),gate=DispatchSemaphore(value:0)
+            var cancelled=false
+            loader.onIdle={
+                loader.onIdle=nil;XCTAssertTrue(cancelled)
+                XCTAssertTrue(loader.load(operation:{
+                    XCTAssertFalse(Thread.isMainThread)
+                    return try OfflineSave.migrate(OfflineSave.read(at:url),contract:contract)
+                }){result in
+                    switch result {
+                    case .loaded(let value):
+                        XCTAssertEqual(value.schema,2);XCTAssertEqual(value.inventory[0],[2,4])
+                        do {
+                            XCTAssertEqual(try Data(contentsOf:url),original,"Migration must not rewrite the source")
+                            let corrupt=Data([0xff,0x00]);try corrupt.write(to:url)
+                            XCTAssertTrue(loader.load(operation:{try OfflineSave.read(at:url)}){failed in
+                                if case .failed=failed {}else{XCTFail("Malformed save must fail safely")}
+                                do {XCTAssertEqual(try Data(contentsOf:url),corrupt)}catch{XCTFail("Failure changed source")}
+                                finished.fulfill()
+                            })
+                        }catch{XCTFail("Load fixture IO failed");finished.fulfill()}
+                    default:XCTFail("Valid migration did not finish");finished.fulfill()
+                    }
+                })
+            }
+            XCTAssertTrue(loader.load(operation:{
+                XCTAssertFalse(Thread.isMainThread)
+                guard gate.wait(timeout:.now()+10) == .success else{throw GameError.invalidWorld}
+                return try OfflineSave.read(at:url)
+            }){result in if case .cancelled=result {cancelled=true}else{XCTFail("Stale load must be cancelled")}})
+            XCTAssertFalse(loader.load(operation:{try OfflineSave.read(at:url)}){_ in XCTFail("Second worker started")})
+            loader.cancel();gate.signal()
+        }
+        wait(for:[finished],timeout:60)
+        let handle=try FileHandle(forWritingTo:url);try handle.truncate(atOffset:UInt64(OfflineSave.maximumBytes+1));try handle.close()
+        XCTAssertThrowsError(try OfflineSave.read(at:url),"Oversize saves must be rejected before decoding")
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)
