@@ -144,6 +144,37 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertEqual(world.cameraPosition(toward:SCNVector3(0.5,world.eye.y,50)).z,world.eye.z,"Bound camera work")
         XCTAssertNil(NativeCameraMode(rawValue:"unknown"));XCTAssertEqual(NativeCameraMode.allCases.count,3)
     }
+    func testDetailContractGeometryCollisionPickingAndPersistence()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try contract.validate()
+        var value=fixture();value.schema=2;value.contract=contract
+        let geometry=NativeGeometry(resolution:16,leaves:[[0,0,0,8,3,0x8c949e]])
+        value.cells.removeAll{$0[0]==0 && $0[1]==1 && $0[2] == -2}
+        value.cells.append([0,1,-2,255,0]);value.details=[NativeDetail(cell:[0,1,-2],geometry:geometry)]
+        let world=try VoxelWorld(value)
+        XCTAssertEqual(world.material(at:SCNVector3(0.25,1.25,-1.75)),3)
+        XCTAssertEqual(world.material(at:SCNVector3(0.75,1.25,-1.75)),0,"Fractional empty corner remains air")
+        XCTAssertNil(world.raycast(origin:SCNVector3(0.75,1.25,0.5),direction:SCNVector3(0,0,-1),reach:5))
+        XCTAssertEqual(world.raycast(origin:SCNVector3(0.25,1.25,0.5),direction:SCNVector3(0,0,-1),reach:5)?.hit,GridKey(0,1,-2))
+        XCTAssertFalse(world.collides(SCNVector3(0.82,1,-1.7)),"Empty side is passable")
+        XCTAssertTrue(world.collides(SCNVector3(0.25,1,-1.7)))
+        var overlap=geometry;overlap.leaves.append(overlap.leaves[0]);XCTAssertThrowsError(try overlap.validate())
+        var broken=value;broken.details=[];XCTAssertThrowsError(try broken.validate())
+        broken=value;broken.contract=nil;XCTAssertThrowsError(try broken.validate())
+        broken=value
+        for i in 0..<27 {broken.cells.append([i%9-4,3,i/9+3,8,0])}
+        XCTAssertThrowsError(try broken.validate(),"Expanded model instances must fit the leaf cap")
+        var invalid=geometry;invalid.leaves=[[Int.max,0,0,8,3,0]]
+        XCTAssertThrowsError(try invalid.validate(),"Huge coordinates reject without integer overflow")
+        world.snapshot.inventory[0]=[8,2];try world.offlineEdit(at:GridKey(2,1,-2),type:8)
+        XCTAssertGreaterThan(world.boxes(GridKey(2,1,-2)).count,1,"Model is not a full cube")
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.boxes(GridKey(2,1,-2)).count,world.boxes(GridKey(2,1,-2)).count)
+        XCTAssertEqual(restored.type(GridKey(0,1,-2)),255)
+        try restored.offlineEdit(at:GridKey(0,1,-2),type:0)
+        XCTAssertEqual(restored.type(GridKey(0,1,-2)),0,"Single fractional leaf collects without losing detail")
+        try restored.savedSnapshot().validate()
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

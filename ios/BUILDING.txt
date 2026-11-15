@@ -25,9 +25,8 @@ authentication, multiplayer edits and crafting rules. The initial phone UI expos
 walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
 editor, fractional-block tools, mounts and specialized transport or
 finance tools are not exposed by this first phone UI. Craft offers six shared
-whole-block recipes; fractional, model and tool recipes remain unavailable. Subdivided/model cells use a
-whole-block approximation for display/collision; use the desktop client to edit
-those structures precisely.
+whole-block recipes; fractional, model and tool recipes remain unavailable. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
+collision and picking. Mixed-cell precision edits still need the desktop editor.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.
 Two fingers pan; pinch zooms. Tool selects Inspect, Dirt road, Residential,
@@ -142,3 +141,21 @@ recenters the overview on the player. Tap terrain to aim, then Break or Place.
 A camera overview does not extend the player's five-block reach or see through
 walls for edits. City keeps its existing Plan/Walk controls. Orientation changes
 cancel held movement and reset the aim point.
+
+Detail contract
+
+Snapshot schema 2 carries contract version 1, material IDs and subdivisions from
+Java Blocks, model fingerprints/colored octree leaves, and per-cell fractional
+leaves. Native drawing, collision and ray picking use those boxes. Models keep their
+8/16/32 resolution; fractional world cells use 16. Missing detail or budget overflow
+is rejected, never replaced by a whole cube. Limits: 512 partial cells and 32,768
+expanded model/fractional leaves per snapshot. New offline worlds include two
+flower pots and eight half-size dirt cubes for normal building. Old local schema 1
+saves migrate to the bundled contract while keeping their terrain and inventory.
+Single-piece fractional collection works; mixed-cell harvesting and arbitrary
+subcell alignment/merging remain unfinished. Placement currently anchors a piece
+at the cell's low corner. Full tool and crafting parity is still pending.
+
+Regenerate the checked-in contract from the authoritative Java definitions:
+
+  java -cp target/classes dev.jayms.net.mobile.MobileSnapshot --contract ios/Resources/contract.json

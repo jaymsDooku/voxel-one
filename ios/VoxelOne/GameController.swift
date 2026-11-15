@@ -231,7 +231,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard let target=target else{notify("Aim at a visible block within five blocks of your player.");return}
         let key=place ? target.previous:target.hit
         if gateway != nil { action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot],success:place ? "Placement checked by server.":"Break checked by server.") }
-        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);try OfflineSave.write(world);notify(place ? "Placed \(VoxelWorld.name(type)).":"Block collected.");refreshHUD()}catch{notify(error.localizedDescription)}}
+        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);try OfflineSave.write(world);notify(place ? "Placed \(world.itemName(type)).":"Block collected.");refreshHUD()}catch{notify(error.localizedDescription)}}
     }
     private func action(_ request:[String:Any],success:String){
         guard let gateway=gateway,let world=world else{return}
@@ -253,7 +253,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard let world=world else{return};movement.removeAll()
         let alert=UIAlertController(title:"Inventory",message:"Choose a stack to swap into hotbar slot \(world.slot+1).",preferredStyle:.actionSheet)
         for i in 0..<36 where world.snapshot.inventory[i][1]>0 {
-            let item=world.snapshot.inventory[i];alert.addAction(UIAlertAction(title:"\(i+1): \(VoxelWorld.name(item[0])) ×\(item[1])",style:.default){[weak self] _ in
+            let item=world.snapshot.inventory[i];alert.addAction(UIAlertAction(title:"\(i+1): \(world.itemName(item[0])) ×\(item[1])",style:.default){[weak self] _ in
                 guard let self=self else{return}
                 if self.gateway != nil {self.action(["kind":"swap","a":i,"b":world.slot],success:"Inventory updated.")}
                 else {world.snapshot.inventory.swapAt(i,world.slot);self.saveOffline();self.refreshHUD()}
@@ -268,11 +268,11 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             if let supplied=world.snapshot.recipes {recipes=supplied} else {recipes=try NativeRecipe.bundled()}
             let alert=UIAlertController(title:"Craft",message:"Choose a recipe. Ingredients come from your bag.",preferredStyle:.actionSheet)
             for recipe in recipes {
-                let costs=recipe.inputs.map{"\($0[1]) \(VoxelWorld.name($0[0]))"}.joined(separator:", ")
+                let costs=recipe.inputs.map{"\($0[1]) \(world.itemName($0[0]))"}.joined(separator:", ")
                 let choice=UIAlertAction(title:"\(recipe.name) → \(recipe.count) (\(costs))",style:.default){[weak self] _ in
                     guard let self=self else{return}
                     if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
-                    else {do {try world.offlineCraft(recipe);self.saveOffline();self.notify("Crafted \(recipe.count) \(VoxelWorld.name(recipe.output)).");self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
+                    else {do {try world.offlineCraft(recipe);self.saveOffline();self.notify("Crafted \(recipe.count) \(world.itemName(recipe.output)).");self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
                 }
                 alert.addAction(choice)
             }
@@ -328,7 +328,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
         cityLabel.text=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
         cityLabel.isHidden=world.snapshot.city==nil && view.bounds.width>view.bounds.height
-        for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(VoxelWorld.name(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(VoxelWorld.name(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
+        for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(world.itemName(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(world.itemName(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
         if let controls=bottom?.arrangedSubviews[1] as? UIStackView {
             for case let control as UIButton in controls.arrangedSubviews {control.isEnabled = !paused}

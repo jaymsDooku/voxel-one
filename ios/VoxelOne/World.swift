@@ -41,10 +41,50 @@ struct NativeRecipe: Codable {
         for value in values {try value.validate()};return values
     }
 }
+struct NativeGeometry:Codable {
+    var resolution:Int;var leaves:[[Int]]
+    func validate()throws {
+        guard [8,16,32].contains(resolution),!leaves.isEmpty,leaves.count<=32768 else {throw GameError.invalidWorld}
+        var occupied=Set<Int>()
+        for b in leaves {
+            guard b.count==6,[1,2,4,8,16,32].contains(b[3]),b[3]<=resolution,
+                  (0..<3).allSatisfy({b[$0]>=0 && b[$0]<=resolution-b[3] && b[$0]%b[3]==0}),
+                  (1...189).contains(b[4]),(0...0xffffff).contains(b[5]) else {throw GameError.invalidWorld}
+            for x in b[0]..<(b[0]+b[3]) {for y in b[1]..<(b[1]+b[3]) {for z in b[2]..<(b[2]+b[3]) {
+                guard occupied.insert(x+resolution*(y+resolution*z)).inserted else {throw GameError.invalidWorld}
+            }}}
+        }
+    }
+}
+struct NativeMaterial:Codable {var id:Int;var name:String;var material:Int;var depth:Int;var color:Int}
+struct NativeModel:Codable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
+struct NativeDetail:Codable {var cell:[Int];var geometry:NativeGeometry}
+struct NativeContract:Codable {
+    var version:Int;var materials:[NativeMaterial];var models:[NativeModel]
+    func validate()throws {
+        guard version==1,materials.count==189,Set(materials.map{$0.id})==Set(1...189),models.count<=129,
+              Set(models.map{$0.id}).count==models.count,
+              materials.allSatisfy({(1...189).contains($0.material) && (0...4).contains($0.depth) && (0...0xffffff).contains($0.color) && !$0.name.isEmpty && $0.name.count<=80}),
+              models.reduce(0,{$0+$1.geometry.leaves.count})<=32768 else {throw GameError.invalidWorld}
+        for model in models {
+            guard (8...136).contains(model.id),model.fingerprint.count==64,
+                  model.fingerprint.allSatisfy({"0123456789abcdef".contains($0)}) else {throw GameError.invalidWorld}
+            try model.geometry.validate()
+        }
+    }
+    static func bundled()throws->NativeContract {
+        guard let url=Bundle.main.url(forResource:"contract",withExtension:"json") else {throw GameError.invalidWorld}
+        let value=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try value.validate();return value
+    }
+}
+struct VoxelBox {
+    var x:Float;var y:Float;var z:Float;var size:Float;var type:Int;var color:Int
+}
 struct Snapshot: Codable {
     var schema: Int; var game: String; var seed: String; var bounds: [Int]; var pose: [Float]
     var cells: [[Int]]; var inventory: [[Int]]; var health: Int; var notice: String
     var resetPose: Bool?; var city: CityState?; var players: [OtherPlayer]?; var drops: [GroundDrop]?
+    var contract:NativeContract? = nil;var details:[NativeDetail]? = nil
     var recipes:[NativeRecipe]? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
     func validate() throws {
@@ -54,15 +94,32 @@ struct Snapshot: Codable {
         }
         try atmosphere?.validate()
         if let sun=sun {guard sun.count==3,sun.allSatisfy({$0.isFinite}),abs(sqrt(sun.reduce(0){$0+$1*$1})-1)<0.001 else {throw GameError.invalidWorld}}
-        guard schema==1, ["sandbox","city"].contains(game), bounds.count==6, pose.count==5,
-              pose.allSatisfy({$0.isFinite}), bounds.allSatisfy({abs(Double($0))<=1_000_100}), (game=="city")==((city != nil)), abs(pose[0])<=1_000_000, abs(pose[2])<=1_000_000,
+        guard [1,2].contains(schema), ["sandbox","city"].contains(game), bounds.count==6, pose.count==5,
+              pose.allSatisfy({$0.isFinite}), bounds.allSatisfy({abs(Double($0))<=1_000_100}), (game=="city")==((city != nil)), abs(pose[0])<=1_000_000, abs(pose[1])<=1_000_000, abs(pose[2])<=1_000_000,
               bounds[0]<=bounds[1], bounds[2]<=bounds[3], bounds[4]<=bounds[5],
               bounds[1]-bounds[0]<=64, bounds[5]-bounds[4]<=64, bounds[3]-bounds[2]<=128,
               bounds[2]>=(-32), bounds[3]<=95, inventory.count==36, cells.count<=120_000,
               (0...20).contains(health), inventory.allSatisfy({$0.count==2 && (0...189).contains($0[0]) && (0...64).contains($0[1]) && ($0[0]==0)==($0[1]==0)}),
-              cells.allSatisfy({$0.count==5 && (1...189).contains($0[3]) && (0...0xffffff).contains($0[4]) && $0[0]>=bounds[0] && $0[0]<=bounds[1] && $0[1]>=bounds[2] && $0[1]<=bounds[3] && $0[2]>=bounds[4] && $0[2]<=bounds[5]})
+              cells.allSatisfy({$0.count==5 && ((1...189).contains($0[3]) || (schema==2 && $0[3]==255)) && (0...0xffffff).contains($0[4]) && $0[0]>=bounds[0] && $0[0]<=bounds[1] && $0[1]>=bounds[2] && $0[1]<=bounds[3] && $0[2]>=bounds[4] && $0[2]<=bounds[5]})
         else { throw GameError.invalidWorld }
         guard Set(cells.map{GridKey($0[0],$0[1],$0[2])}).count==cells.count else { throw GameError.invalidWorld }
+        if schema==2 {
+            guard let contract=contract else {throw GameError.invalidWorld};try contract.validate()
+            let detail=details ?? [];guard detail.count<=512 else {throw GameError.invalidWorld}
+            var keys=Set<GridKey>(),expanded=0
+            for d in detail {
+                guard d.cell.count==3,d.geometry.resolution==16 else {throw GameError.invalidWorld}
+                let key=GridKey(d.cell[0],d.cell[1],d.cell[2]);guard keys.insert(key).inserted else {throw GameError.invalidWorld}
+                try d.geometry.validate();expanded+=d.geometry.leaves.count
+            }
+            let partial=Set(cells.filter{$0[3]==255}.map{GridKey($0[0],$0[1],$0[2])})
+            guard keys==partial else {throw GameError.invalidWorld}
+            for c in cells where (8...136).contains(c[3]) {
+                guard let model=contract.models.first(where:{$0.id==c[3]}) else {throw GameError.invalidWorld}
+                expanded+=model.geometry.leaves.count
+            }
+            guard expanded<=32768 else {throw GameError.invalidWorld}
+        } else if contract != nil || !(details ?? []).isEmpty {throw GameError.invalidWorld}
     }
 }
 
@@ -168,11 +225,13 @@ enum GameError: LocalizedError {
     }
 }
 
-/// Native whole-block sandbox rules. Online decisions always come from the Java server.
+/// Native leaf-geometry sandbox rules. Online decisions always come from the Java server.
 final class VoxelWorld {
     var snapshot: Snapshot
     var types: [GridKey:Int]=[:]
     var colors: [GridKey:Int]=[:]
+    private var shapes:[GridKey:[VoxelBox]]=[:]
+    private var materials:[Int:NativeMaterial]=[:];private var models:[Int:NativeGeometry]=[:]
     var position=SCNVector3Zero; var yaw: Float=0; var pitch: Float = -0.55
     private(set) var flying=false
     var verticalSpeed: Float=0; var grounded=false
@@ -182,10 +241,37 @@ final class VoxelWorld {
         try value.validate(); snapshot=value
         types.removeAll(keepingCapacity:true); colors.removeAll(keepingCapacity:true)
         for cell in value.cells { let key=GridKey(cell[0],cell[1],cell[2]); types[key]=cell[3]; colors[key]=cell[4] }
+        materials=Dictionary(uniqueKeysWithValues:(value.contract?.materials ?? []).map{($0.id,$0)})
+        models=Dictionary(uniqueKeysWithValues:(value.contract?.models ?? []).map{($0.id,$0.geometry)})
+        shapes.removeAll(keepingCapacity:true)
+        for d in value.details ?? [] {shapes[GridKey(d.cell[0],d.cell[1],d.cell[2])]=Self.boxes(d.geometry)}
+        for (key,type) in types where type != 255 {if let geometry=itemBoxes(type) {shapes[key]=geometry}}
         if resetPose || value.resetPose==true { position=SCNVector3(value.pose[0],value.pose[1],value.pose[2]); yaw=value.pose[3]; pitch=value.pose[4]==0 ? -0.55 : value.pose[4]; verticalSpeed=0 }
         revision += 1
     }
     func type(_ key: GridKey) -> Int { types[key] ?? 0 }
+    static func boxes(_ geometry:NativeGeometry)->[VoxelBox] {
+        let r=Float(geometry.resolution)
+        return geometry.leaves.map{VoxelBox(x:Float($0[0])/r,y:Float($0[1])/r,z:Float($0[2])/r,size:Float($0[3])/r,type:$0[4],color:$0[5])}
+    }
+    private func itemBoxes(_ type:Int)->[VoxelBox]? {
+        if let geometry=models[type] {return Self.boxes(geometry)}
+        if let m=materials[type],m.depth>0 {return [VoxelBox(x:0,y:0,z:0,size:1/Float(1<<m.depth),type:m.material,color:m.color)]}
+        return nil
+    }
+    func boxes(_ key:GridKey)->[VoxelBox] {
+        if let value=shapes[key] {return value}
+        let t=type(key);return t==0 ? []:[VoxelBox(x:0,y:0,z:0,size:1,type:t,color:colors[key] ?? Self.color(t))]
+    }
+    func material(at p:SCNVector3)->Int {
+        let key=GridKey(Int(floor(p.x)),Int(floor(p.y)),Int(floor(p.z)))
+        let x=p.x-Float(key.x),y=p.y-Float(key.y),z=p.z-Float(key.z)
+        return boxes(key).first(where:{x >= $0.x && x < $0.x+$0.size && y >= $0.y && y < $0.y+$0.size && z >= $0.z && z < $0.z+$0.size})?.type ?? 0
+    }
+    func fullOpaque(_ key:GridKey)->Bool {
+        if let b=shapes[key] {return b.count==1 && b[0].size==1 && b[0].type != 185}
+        let t=type(key);return t != 0 && t != 185
+    }
     /// Bounded low-quality outdoor visibility. Opaque whole cells block every ray;
     /// glass transmits. Fine/model geometry is not present in schema-1 cell snapshots.
     func skyVisibility(_ cell:GridKey)->Double {
@@ -198,8 +284,8 @@ final class VoxelWorld {
                 let p=SIMD3(Double(cell.x)+0.5,Double(cell.y)+0.5,Double(cell.z)+0.5)+direction*(Double(step)*0.5)
                 let key=GridKey(Int(floor(p.x)),Int(floor(p.y)),Int(floor(p.z)))
                 if key.x<b[0] || key.x>b[1] || key.y>b[3] || key.z<b[4] || key.z>b[5] {result+=transmission;break}
-                if key==previous {continue};previous=key
-                let value=type(key)
+                if key==previous && shapes[key]==nil {continue};previous=key
+                let value=material(at:SCNVector3(Float(p.x),Float(p.y),Float(p.z)))
                 if value==167 {transmission*=0.7}
                 else if value != 0 {break}
             }
@@ -214,7 +300,11 @@ final class VoxelWorld {
         if !within(p) { return true }
         for x in Int(floor(p.x-0.3))...Int(floor(p.x+0.299)) {
             for y in Int(floor(p.y+0.001))...Int(floor(p.y+1.799)) {
-                for z in Int(floor(p.z-0.3))...Int(floor(p.z+0.299)) { let t=type(GridKey(x,y,z)); if t != 0 && t != 185 { return true } }
+                for z in Int(floor(p.z-0.3))...Int(floor(p.z+0.299)) {
+                    for b in boxes(GridKey(x,y,z)) where b.type != 185 {
+                        if p.x+0.299>Float(x)+b.x && p.x-0.3<Float(x)+b.x+b.size && p.y+1.799>Float(y)+b.y && p.y+0.001<Float(y)+b.y+b.size && p.z+0.299>Float(z)+b.z && p.z-0.3<Float(z)+b.z+b.size {return true}
+                    }
+                }
             }
         }
         return false
@@ -262,7 +352,17 @@ final class VoxelWorld {
         let dz=abs(d.z)<0.000001 ? Float.infinity : abs(1/d.z)
         var distance:Float=0
         while distance<=reach {
-            let t=type(cell);if t != 0 && t != 185 {return VoxelHit(hit:cell,previous:previous,distance:distance)}
+            var nearest:Float?=nil
+            for b in boxes(cell) where b.type != 185 {
+                var near:Float=0,far=reach
+                let lo=[Float(cell.x)+b.x,Float(cell.y)+b.y,Float(cell.z)+b.z],a=[o.x,o.y,o.z],v=[d.x,d.y,d.z]
+                for axis in 0..<3 {
+                    if abs(v[axis])<0.000001 {if a[axis]<lo[axis] || a[axis]>lo[axis]+b.size {far = -1}}
+                    else {let t0=(lo[axis]-a[axis])/v[axis],t1=(lo[axis]+b.size-a[axis])/v[axis];near=max(near,min(t0,t1));far=min(far,max(t0,t1))}
+                }
+                if far>=near,near>=distance-0.0001,near<=reach {nearest=min(nearest ?? near,near)}
+            }
+            if let hit=nearest {return VoxelHit(hit:cell,previous:previous,distance:hit)}
             previous=cell
             if tx<ty && tx<tz {cell.x+=step.x;distance=tx;tx+=dx}
             else if ty<tz {cell.y+=step.y;distance=ty;ty+=dy}
@@ -281,7 +381,7 @@ final class VoxelWorld {
             var blocked=false
             for x in [-Float(0.15),Float(0.15)] {for y in [-Float(0.15),Float(0.15)] {for z in [-Float(0.15),Float(0.15)] {
                 let k=GridKey(Int(floor(p.x+x)),Int(floor(p.y+y)),Int(floor(p.z+z))),b=snapshot.bounds
-                let material=type(k)
+                let material=self.material(at:SCNVector3(p.x+x,p.y+y,p.z+z))
                 if k.x<b[0] || k.x>b[1] || k.y<b[2] || k.y>b[3] || k.z<b[4] || k.z>b[5] || (material != 0 && material != 185) {blocked=true}
             }}}
             if blocked {break};safe=p
@@ -290,20 +390,29 @@ final class VoxelWorld {
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
         if type==0 {
-            guard let old=types[key] else {throw GameError.message("Aim at a block within five blocks.")}
+            guard var old=types[key] else {throw GameError.message("Aim at a block within five blocks.")}
+            if old==255 {
+                let boxes=self.boxes(key)
+                guard boxes.count==1,let b=boxes.first,
+                      let item=materials.values.first(where:{$0.material==b.type && abs(1/Float(1<<$0.depth)-b.size)<0.0001})
+                else {throw GameError.message("This mixed cell needs the precision editor.")}
+                old=item.id
+            }
             // Reserve storage before removing terrain. A full bag must never destroy a block.
             guard let destination=snapshot.inventory.firstIndex(where:{$0[0]==old && $0[1]<64})
                 ?? snapshot.inventory.firstIndex(where:{$0[1]==0})
             else {throw GameError.message("Inventory full. Free a slot before collecting this block.")}
             if snapshot.inventory[destination][1]==0 {snapshot.inventory[destination]=[old,1]}
             else {snapshot.inventory[destination][1]+=1}
-            types.removeValue(forKey:key);colors.removeValue(forKey:key)
+            types.removeValue(forKey:key);colors.removeValue(forKey:key);shapes.removeValue(forKey:key)
         } else {
             guard types[key]==nil, snapshot.inventory[slot][0]==type, snapshot.inventory[slot][1]>0,
                   key.x>=snapshot.bounds[0], key.x<=snapshot.bounds[1], key.y>=snapshot.bounds[2], key.y<=snapshot.bounds[3], key.z>=snapshot.bounds[4], key.z<=snapshot.bounds[5]
             else {throw GameError.message("No space or no blocks in this slot.")}
-            types[key]=type
-            if collides(position) {types.removeValue(forKey:key);throw GameError.message("Cannot place a block inside your player.")}
+            let geometry=itemBoxes(type)
+            guard shapes.values.reduce(0,{$0+$1.count})+(geometry?.count ?? 0)<=32768 else {throw GameError.message("This area has reached its mobile detail limit.")}
+            types[key]=type;shapes[key]=geometry
+            if collides(position) {types.removeValue(forKey:key);shapes.removeValue(forKey:key);throw GameError.message("Cannot place a block inside your player.")}
             colors[key]=Self.color(type);snapshot.inventory[slot][1]-=1
             if snapshot.inventory[slot][1]==0 {snapshot.inventory[slot][0]=0}
         }
@@ -334,9 +443,11 @@ final class VoxelWorld {
     func savedSnapshot() -> Snapshot {
         var save=snapshot
         save.cells=types.map{[$0.key.x,$0.key.y,$0.key.z,$0.value,colors[$0.key] ?? Self.color($0.value)]}
+        save.details=snapshot.details?.filter{$0.cell.count==3 && types[GridKey($0.cell[0],$0.cell[1],$0.cell[2])]==255}
         save.pose=[position.x,position.y,position.z,yaw,pitch]
         return save
     }
+    func itemName(_ type:Int)->String {materials[type]?.name ?? Self.name(type)}
     static func color(_ type:Int)->Int {
         switch type {case 1:return 0x4da636;case 2:return 0x7a4d2b;case 3:return 0x8c949e;case 4:return 0xe0c47a;case 5:return 0xe8f5ff;case 6:return 0x73471f;case 7:return 0x29732e;case 165:return 0xb8824a;case 166:return 0x9c4536;case 167:return 0xa8dee8;case 185:return 0x266ead;case 187:return 0x55575a;default:return 0x9966b3}
     }
@@ -347,13 +458,18 @@ final class VoxelWorld {
 
 final class OfflineSave {
     static var url: URL { FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("sandbox-v1.json") }
-    static func load() throws -> Snapshot { let value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url)); try value.validate(); return value }
+    static func load() throws -> Snapshot {var value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));try value.validate()
+        if value.schema==1 {value.schema=2;value.contract=try NativeContract.bundled();value.details=[]}
+        try value.validate();return value
+    }
     static func write(_ world:VoxelWorld) throws {
         try FileManager.default.createDirectory(at:url.deletingLastPathComponent(),withIntermediateDirectories:true)
         try JSONEncoder().encode(world.savedSnapshot()).write(to:url,options:.atomic)
     }
     static func fresh() throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}
-        let value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));try value.validate();return value
+        var value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));value.schema=2;value.contract=try NativeContract.bundled();value.details=[]
+        value.inventory[5]=[8,2];value.inventory[6]=[141,8]
+        try value.validate();return value
     }
 }

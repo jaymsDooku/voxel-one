@@ -202,6 +202,8 @@ final class NativeWorkflowTests:XCTestCase {
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
         app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
         app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot5"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot")
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
         app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
         capture("final-native-terrain-edited")
@@ -228,6 +230,22 @@ final class NativeWorkflowTests:XCTestCase {
         choose("First person")
         app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+    }
+    func testNativeModelAndFractionalPlacementSaveRestart()throws {
+        newOffline();textContains("playerPosition","Ground")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot5"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot")
+        capture("native-flower-pot-placed")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["slot6"].tap();app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt 1/2 cube")
+        XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"));capture("native-fractional-half-placed")
+        app.terminate();app.launch();wait(app.buttons["placeButton"])
+        app.scrollViews["hotbarScroll"].swipeLeft();XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"))
+        capture("native-fractional-save-restarted")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        XCTAssertTrue(app.buttons["slot6"].label.contains("8 blocks"))
     }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {

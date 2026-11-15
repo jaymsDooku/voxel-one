@@ -173,7 +173,7 @@ public final class MobileGateway implements AutoCloseable {
                 if(Math.abs(x)>Terrain.LIMIT-24 || Math.abs(z)>Terrain.LIMIT-24)throw new IllegalArgumentException("Invalid focus");
                 view=new Protocol.Pose(client.id,(float)x,terrain.surfaceHeight((int)x,(int)z)+1,(float)z,0,0,0,0,false,0,0,false);
             }
-            var result=MobileSnapshot.capture(world,terrain,view,client.inventory,client.health,client.city,client.notice(),16);
+            var result=MobileSnapshot.capture(world,terrain,view,client.inventory,client.health,client.city,client.notice(),16,client.models);
             result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));
             result.put("resetPose",respawned);respawned=false;
             result.put("drops",client.drops.values().stream().map(d->Map.of("id",d.id(),"type",d.type(),"x",d.x(),"y",d.y(),"z",d.z())).toList());

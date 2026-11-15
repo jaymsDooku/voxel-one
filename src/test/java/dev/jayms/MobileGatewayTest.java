@@ -24,6 +24,26 @@ class MobileGatewayTest {
         var bundled=Json.object("{\"recipes\":"+Files.readString(Path.of("ios/Resources/recipes.json"))+"}");
         assertEquals(Json.object(Json.write(Map.of("recipes",catalog))),bundled);
     }
+    @Test void snapshotsRetainFractionalLeavesModelsAndVersionedContract()throws Exception {
+        var terrain=new Terrain(Terrain.DEFAULT_SEED);var world=new WorldVoxels(terrain);
+        int y=terrain.surfaceHeight(0,0)+3;
+        world.apply(new Protocol.Edit(0,y,-2,Blocks.STONE,1,0,0,0));
+        world.apply(new Protocol.Edit(2,y,-2,Blocks.FLOWER_POT));
+        var pose=new Protocol.Pose(1,.5f,y,.5f,0,0,0,0,false,0,0,false);
+        var snapshot=MobileSnapshot.capture(world,terrain,pose,new Inventory(),20,dev.jayms.net.city.CityFrame.empty(dev.jayms.net.city.GameConfig.sandbox()),"",8);
+        assertEquals(2,snapshot.get("schema"));
+        var details=(List<?>)snapshot.get("details");assertEquals(1,details.size());
+        var detail=(Map<?,?>)details.get(0);assertEquals(List.of(0,y,-2),detail.get("cell"));
+        var geometry=(Map<?,?>)detail.get("geometry");assertEquals(16,geometry.get("resolution"));
+        assertEquals(List.of(List.of(0,0,0,8,Blocks.STONE,WorldVoxels.color(Blocks.STONE)&0xffffff)),geometry.get("leaves"));
+        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));
+        var models=(List<?>)contract.get("models");assertEquals(1,models.size());
+        var model=(Map<?,?>)models.get(0);assertEquals(8,model.get("id"));
+        var expected=new dev.jayms.net.model.ModelLibrary().get(8).definition();assertEquals(expected.fingerprint(),model.get("fingerprint"));
+        assertEquals(expected.voxels().leaves().size(),((List<?>)((Map<?,?>)model.get("geometry")).get("leaves")).size());
+        // Canonically ordered exporter permits exact parity without weakening the 8 KiB request parser.
+        assertEquals(Json.write(contract),Files.readString(Path.of("ios/Resources/contract.json")));
+    }
     @TempDir Path temp;
     static final HttpClient HTTP=HttpClient.newHttpClient();
     HttpResponse<String> post(MobileFixtureHost host,String route,String token,Map<String,Object> body)throws Exception{

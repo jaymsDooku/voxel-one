@@ -55,23 +55,25 @@ final class VoxelRenderer {
     func rebuild(_ world:VoxelWorld) {
         var groups:[MeshKey:Mesh]=[:],visibility:[GridKey:Double]=[:];skyMaterials=[]
         let outdoor=atmospherePreview
-        for (key,type) in world.types {
+        for (key,_) in world.types {
             let chunk=GridKey(Int(floor(Double(key.x)/8)),Int(floor(Double(key.y)/8)),Int(floor(Double(key.z)/8)))
-            let color=world.colors[key] ?? VoxelWorld.color(type)
+            for box in world.boxes(key) {
+            let color=box.color
             for (neighbor,normal,corners) in faces {
-                let adjacent=world.type(key+neighbor)
-                if adjacent != 0 && (adjacent != 185 || type==185) {continue}
+                let boundary=(neighbor.x<0 && box.x==0) || (neighbor.x>0 && box.x+box.size==1) || (neighbor.y<0 && box.y==0) || (neighbor.y>0 && box.y+box.size==1) || (neighbor.z<0 && box.z==0) || (neighbor.z>0 && box.z+box.size==1)
+                if boundary && (world.fullOpaque(key+neighbor) || (box.type==185 && world.type(key+neighbor)==185)) {continue}
                 let air=key+neighbor
                 let visible:Double
                 if outdoor {if let cached=visibility[air] {visible=cached}else {visible=world.skyVisibility(air);visibility[air]=visible}}
                 else {visible=0}
-                let group=MeshKey(chunk:chunk,colour:(outdoor || type==180) ? color:0,sky:Int((visible*8).rounded()),emitter:type==180)
+                let group=MeshKey(chunk:chunk,colour:(outdoor || box.type==180) ? color:0,sky:Int((visible*8).rounded()),emitter:box.type==180)
                 let mesh=groups[group] ?? Mesh()
                 let base=UInt32(mesh.vertices.count)
-                for p in corners {mesh.vertices.append(SCNVector3(Float(key.x)+p.x,Float(key.y)+p.y,Float(key.z)+p.z));mesh.normals.append(normal)
+                for p in corners {mesh.vertices.append(SCNVector3(Float(key.x)+box.x+p.x*box.size,Float(key.y)+box.y+p.y*box.size,Float(key.z)+box.z+p.z*box.size));mesh.normals.append(normal)
                     mesh.colors += [Float((color>>16)&255)/255,Float((color>>8)&255)/255,Float(color&255)/255,1]
                 }
                 mesh.indices += [base,base+1,base+2,base,base+2,base+3];groups[group]=mesh
+            }
             }
         }
         terrain.childNodes.forEach{$0.removeFromParentNode()};renderChunks=[]

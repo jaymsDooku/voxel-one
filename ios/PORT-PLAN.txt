@@ -140,3 +140,38 @@ Diff audit against 71612f09bfec4549456b3317676e76cdced085a4 remains scoped to th
 iOS port and shared mobile recipe adapter. No unrelated files/assets were deleted.
 Camera replaces only the renderer's camera dispatch and controller aim/gesture
 routing; City planning continues through its original branch.
+
+Detail increment (new native qualification pending)
+Schema 2 replaces center sampling: fractional cells retain complete 16-grid leaves,
+and model cells reference world-specific definitions from MultiplayerClient.models.
+Contract version 1 exports the Java Blocks material/name/depth/color table and
+model geometry plus the authoritative ModelDefinition fingerprint. Swift uses one
+leaf-box cache for rendering, AABB collision, picking, sky samples and camera lens
+sweeps. The bundled flower pot is the existing engine model, not a new approximation.
+Schema 1 local saves migrate to the bundled contract; schema 2 rejects missing or
+unknown references, overlapping/alignment-invalid leaves, or budget overflow.
+Limit: 512 partial cells; 32,768 expanded leaves including model occurrences.
+Canonical JSON contract parity is checked against the Java exporter; request JSON
+limits remain unchanged. Current bundled contract is 41,423 bytes; flower pot has
+1,252 colored leaves at resolution 32. These are data counts, not performance claims.
+Offline starter inventory now includes model/piece items; placement, collection and
+save persistence use their actual dimensions. One-leaf fractional cells collect
+as the matching shared item. Mixed-cell harvesting, arbitrary fine-grid alignment,
+merging and all fine crafting/tool recipes remain open. Cell-low-corner placement
+is the bounded initial behavior; do not label this full precision-editor parity.
+The final normal-control playtest now places a pot after editing terrain before
+cold-launch evidence capture. New XCTest cases cover empty fractional corners,
+ray/collision agreement, model persistence, missing data, overlap, integer overflow,
+expanded caps, actual model/fraction placement, collection and restart.
+
+Camera source 1df5eeb76f037b0a2d5f42349922f56986eeaa31 passed 18 native tests on
+Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43666238773
+Receipt and screenshot checksum verified; actual edited terrain and controls
+inspected and preserved. New detail changes require a fresh exact-source Mac run.
+Local focused Java integration: 3 MobileGatewayTest cases plus 7 FractionalWorldTest
+cases passed. Initial contract comparison incorrectly used the bounded request
+parser for a response-sized asset; canonical export equality fixed that test without
+relaxing transport limits. Java compile and 53 Linux harness tests passed.
+Native compilation/playtest for this increment remains pending, as do physical
+hardware, signing/install delivery, live VPS and the remaining engine parity work.

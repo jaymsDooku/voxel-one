@@ -2,28 +2,41 @@ package dev.jayms.net.mobile;
 
 import dev.jayms.net.*;
 import dev.jayms.net.city.*;
+import dev.jayms.net.model.*;
 import java.util.*;
 
-/** Whole-block mobile view of the same authoritative terrain and edit stream. */
+/** Versioned mobile view retaining authoritative fractional and model leaf geometry. */
 public final class MobileSnapshot {
     private MobileSnapshot() {}
     public static Map<String,Object> capture(WorldVoxels world, Terrain terrain, Protocol.Pose pose,
             Inventory inventory, int health, CityFrame city, String notice, int radius) {
+        return capture(world,terrain,pose,inventory,health,city,notice,radius,new ModelLibrary());
+    }
+    public static Map<String,Object> capture(WorldVoxels world,Terrain terrain,Protocol.Pose pose,
+            Inventory inventory,int health,CityFrame city,String notice,int radius,ModelLibrary models) {
         if(radius<8 || radius>24)throw new IllegalArgumentException("Invalid view radius");
         int cx=(int)Math.floor(pose.x()),cz=(int)Math.floor(pose.z());
         int low=Math.max(Terrain.MIN_Y,Math.min(Terrain.MAX_Y-8,(int)Math.floor(pose.y())-8)), high=Math.min(Terrain.MAX_Y,(int)Math.floor(pose.y())+36);
-        var cells=new ArrayList<List<Integer>>();
+        var cells=new ArrayList<List<Integer>>();var details=new ArrayList<Map<String,Object>>();
+        Set<Integer> usedModels=new TreeSet<>();usedModels.add(Blocks.FLOWER_POT);int expanded=0;
         for(int x=cx-radius;x<=cx+radius;x++)for(int z=cz-radius;z<=cz+radius;z++)for(int y=low;y<=high;y++){
             int type=world.type(x,y,z);
-            // A subdivided cell uses its center material in the initial whole-block touch client.
-            if(type==Blocks.PARTIAL)type=WorldVoxels.decode(world.cell(x,y,z).get(8,8,8));
-            if(type!=0)cells.add(List.of(x,y,z,type,WorldVoxels.color(type)&0xffffff));
+            if(type==Blocks.PARTIAL) {
+                var geometry=geometry(world.cell(x,y,z),false);
+                details.add(Map.of("cell",List.of(x,y,z),"geometry",geometry));
+                expanded+=((List<?>)geometry.get("leaves")).size();
+            } else if(Blocks.isModel(type)) {
+                var model=models.get(type);if(model==null)throw new IllegalArgumentException("Mobile model definition unavailable");
+                usedModels.add(type);expanded+=model.definition().voxels().leaves().size();
+            }
+            if(expanded>32768 || details.size()>512)throw new IllegalArgumentException("Mobile detail budget exceeded");
+            if(type!=0)cells.add(List.of(x,y,z,type,type==Blocks.PARTIAL?0:WorldVoxels.color(type)&0xffffff));
         }
         var slots=new ArrayList<List<Integer>>();
         for(int i=0;i<Inventory.SIZE;i++)slots.add(List.of(inventory.type(i),inventory.count(i)));
         var result=new LinkedHashMap<String,Object>();
         result.put("recipes",recipeCatalog());
-        result.put("schema",1);result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));
+        result.put("schema",2);result.put("details",details);result.put("contract",contract(models,usedModels));result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));
         result.put("bounds",List.of(cx-radius,cx+radius,low,high,cz-radius,cz+radius));
         result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));result.put("cells",cells);
         result.put("inventory",slots);result.put("health",health);result.put("notice",notice);
@@ -49,6 +62,21 @@ public final class MobileSnapshot {
         }
         return result;
     }
+    public static Map<String,Object> geometry(SparseVoxelOctree tree,boolean model) {
+        var leaves=tree.leaves().stream().map(leaf->List.of(leaf.x(),leaf.y(),leaf.z(),leaf.side(),
+            model?Blocks.FLOWER_POT:WorldVoxels.decode(leaf.color()),
+            (model?leaf.color():WorldVoxels.surfaceColor(leaf.color()))&0xffffff)).toList();
+        if(leaves.size()>32768)throw new IllegalArgumentException("Mobile geometry budget exceeded");
+        return new TreeMap<>(Map.of("resolution",tree.size(),"leaves",leaves));
+    }
+    public static Map<String,Object> contract(ModelLibrary library,Set<Integer> ids) {
+        var materials=java.util.stream.IntStream.rangeClosed(1,189).mapToObj(id->new TreeMap<>(Map.of(
+            "id",id,"name",Blocks.name(id),"material",Blocks.material(id),"depth",Blocks.depth(id),"color",WorldVoxels.color(id)&0xffffff))).toList();
+        var models=ids.stream().sorted().map(id->{var e=library.get(id);
+            if(e==null)throw new IllegalArgumentException("Mobile model definition unavailable");
+            return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
+        return new TreeMap<>(Map.of("version",1,"materials",materials,"models",models));
+    }
     /** Whole-block recipes only until the mobile detail/tool schema is available. */
     public static List<Map<String,Object>> recipeCatalog() {
         return java.util.stream.IntStream.of(88,89,90,91,92,94).mapToObj(id -> {
@@ -58,6 +86,9 @@ public final class MobileSnapshot {
         }).toList();
     }
     public static void main(String[] args) throws Exception {
+        if(args.length==2 && args[0].equals("--contract")) {
+            java.nio.file.Files.writeString(java.nio.file.Path.of(args[1]),Json.write(contract(new ModelLibrary(),Set.of(8))));return;
+        }
         if(args.length==2 && args[0].equals("--recipes")) {
             java.nio.file.Files.writeString(java.nio.file.Path.of(args[1]),Json.write(recipeCatalog()));return;
         }
