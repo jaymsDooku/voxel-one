@@ -93,3 +93,22 @@ MobileGatewayTest cases passed using isolated worktree temp files (no live servi
 53 Linux harness tests passed. Native crafting and transaction XCTest cases remain
 pending. Initial default-cache/default-temp attempts failed before verification;
 worktree-local cache and temp paths resolved those environment failures.
+
+Flight increment (native qualification pending)
+Offline-only fly toggle; Jump rises, Down descends; release hovers. AABB collision
+is shared with walking, including roof/floor/walls and placement overlap rejection.
+Speed is 4.2 blocks/second, normalized across all three axes; dt stays capped at
+0.04 seconds with vertical steps no larger than 0.1 blocks. Flight cannot leave
+the snapshot volume or be enabled while the player is outside that volume.
+Flight state is transient; loading saves restores walking at the saved position.
+City and online movement retain gravity; no online flight protocol claim is made.
+Native tests add bounds, roof/floor/wall, hover, diagonal/capped-frame, pause,
+background/resume and walk/jump recovery checks. They need a fresh Mac run.
+
+Crafting source fb4dfc47cd57a40f136664117bb9e490b6d983aa passed 13 native tests
+on Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43663487628
+Receipt identity and image SHA-256 verified; actual image inspected. It shows
+native gameplay controls but aims at sky, so terrain media remains insufficient.
+A final native test now edits terrain and saves a downward view for cold-launch
+capture. Prior receipt does not qualify these newer flight or evidence changes.

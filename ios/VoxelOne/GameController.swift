@@ -19,6 +19,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
     private var status=UILabel(),positionLabel=UILabel(),cityLabel=UILabel(),crosshair=UILabel()
     private var slotButtons:[UIButton]=[]
+    private var flyButton:UIButton?,descendButton:UIButton?
     private var planButton:UIButton?,confirmButton:UIButton?,pauseButton:UIButton?
     private var points:[[Float]]=[];private var tool=0
     private var message="";private var messageTime:CFTimeInterval=0;private var messagePinned=false
@@ -91,7 +92,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let sky=button("Sky","atmosphereToggle",#selector(toggleAtmosphere(_:)))
         sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
-        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting))])
+        let fly=button("Fly","flyButton",#selector(toggleFly));flyButton=fly;fly.isHidden=gateway != nil
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly])
         let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -102,7 +104,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         for b in slotButtons {b.widthAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true}
         let left=directionButton("◀","moveLeft"),forward=directionButton("▲","moveForward"),back=directionButton("▼","moveBack"),right=directionButton("▶","moveRight")
         let directions=row([left,forward,back,right])
-        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton")])
+        let down=directionButton("Down","flyDown");descendButton=down;down.isHidden=true
+        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton"),down])
         let planning=row([button("Tool","toolButton",#selector(chooseTool)),button("Point","pointCoordinateButton",#selector(addCoordinatePoint)),button("Undo","undoPoint",#selector(undoPoint)),button("Confirm","confirmPlan",#selector(confirmPlan))]);confirmButton=planning.arrangedSubviews.last as? UIButton
         planning.accessibilityIdentifier="planningControls";planning.isHidden=true
         let b=UIStackView(arrangedSubviews:[hotbarScroll,planning,actions,directions]);b.axis = .vertical;b.spacing=5;bottom=b;overlay(b,atTop:false)
@@ -122,9 +125,14 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     @objc private func stopMove(_ sender:UIButton){movement.remove(sender.accessibilityIdentifier ?? "")}
     @objc private func selectSlot(_ sender:UIButton){world?.slot=sender.tag;refreshHUD()}
     @objc private func jump(){
-        if !paused && !renderer.planning,let world=world,world.grounded {
+        if !paused && !renderer.planning,let world=world,world.grounded,!world.flying {
             jumpOrigin=world.position.y;jumpRose=false;world.jump()
         }
+    }
+    @objc private func toggleFly(){
+        guard gateway==nil,!paused,let world=world else{return}
+        movement.removeAll();jumpOrigin=nil;jumpRose=false;world.setFlying(!world.flying)
+        notify(world.flying ? "Flying. Hold Jump to rise; Down to descend.":"Walking. Gravity on.");refreshHUD()
     }
     @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
@@ -243,7 +251,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
             if movement.contains("jumpButton") {jump()}
-            world.step(forward:forward,strafe:side,dt:dt)
+            let climb:Float=(movement.contains("jumpButton") ? 1:0)-(movement.contains("flyDown") ? 1:0)
+            world.step(forward:forward,strafe:side,dt:dt,climb:climb)
             if let origin=jumpOrigin {
                 if world.position.y>origin+0.2 {jumpRose=true}
                 if world.grounded {
@@ -275,7 +284,10 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         positionLabel.isHidden=view.bounds.width>view.bounds.height
         status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
         cityLabel.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
-        positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.grounded ? " · Ground":" · Air")
+        flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
+        flyButton?.accessibilityValue=world.flying ? "On":"Off"
+        descendButton?.isHidden = !world.flying
+        positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
         cityLabel.text=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
         cityLabel.isHidden=world.snapshot.city==nil && view.bounds.width>view.bounds.height
         for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(VoxelWorld.name(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(VoxelWorld.name(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}

@@ -104,6 +104,32 @@ final class WorldRulesTests:XCTestCase {
         invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
         value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
     }
+    func testFlightCollisionBoundsHoverAndWalkRecovery()throws {
+        var value=fixture();value.cells.append([0,4,0,3,0x8c949e])
+        let world=try VoxelWorld(value);world.setFlying(true)
+        for _ in 0..<60 {world.step(forward:0,strafe:0,dt:1.0/30,climb:1)}
+        XCTAssertLessThanOrEqual(world.position.y,2.21,"Head must stop at roof")
+        XCTAssertGreaterThan(world.position.y,1)
+        let hovering=world.position.y
+        for _ in 0..<60 {world.step(forward:0,strafe:0,dt:1.0/30)}
+        XCTAssertEqual(world.position.y,hovering,"Released flight input must hover")
+        world.position=SCNVector3(4.5,2,4.5)
+        let start=world.position
+        world.step(forward:1,strafe:1,dt:1,climb:1)
+        let delta=SCNVector3(world.position.x-start.x,world.position.y-start.y,world.position.z-start.z)
+        XCTAssertEqual(sqrt(delta.x*delta.x+delta.y*delta.y+delta.z*delta.z),4.2*0.04,accuracy:0.0001,"Normalize flight diagonals and cap stalled frames")
+        for _ in 0..<300 {world.step(forward:0,strafe:0,dt:1.0/30,climb:1)}
+        XCTAssertLessThanOrEqual(world.position.y+1.8,Float(value.bounds[3]+1))
+        for _ in 0..<300 {world.step(forward:0,strafe:0,dt:1.0/30,climb: -1)}
+        XCTAssertGreaterThanOrEqual(world.position.y,1,"Flight cannot cross floor")
+        world.position=SCNVector3(0.5,1,0.5)
+        for _ in 0..<60 {world.step(forward:1,strafe:0,dt:1.0/30)}
+        XCTAssertGreaterThan(world.position.z,Float(-0.7),"Flight still collides with walls")
+        world.position=SCNVector3(4.5,3,4.5);world.setFlying(false)
+        for _ in 0..<120 {world.step(forward:0,strafe:0,dt:1.0/30)}
+        XCTAssertTrue(world.grounded);world.jump();XCTAssertGreaterThan(world.verticalSpeed,0)
+        let restored=try VoxelWorld(world.savedSnapshot());XCTAssertFalse(restored.flying,"Flight is a transient local mode")
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

@@ -169,6 +169,7 @@ final class VoxelWorld {
     var types: [GridKey:Int]=[:]
     var colors: [GridKey:Int]=[:]
     var position=SCNVector3Zero; var yaw: Float=0; var pitch: Float = -0.55
+    private(set) var flying=false
     var verticalSpeed: Float=0; var grounded=false
     var slot=0; var revision=0
     init(_ snapshot: Snapshot) throws { self.snapshot=snapshot; try replace(snapshot,resetPose:true) }
@@ -202,7 +203,7 @@ final class VoxelWorld {
     }
 
     func within(_ p: SCNVector3) -> Bool { let b=snapshot.bounds
-        return p.x-0.3>=Float(b[0]) && p.x+0.3<Float(b[1]+1) && p.z-0.3>=Float(b[4]) && p.z+0.3<Float(b[5]+1) && p.y>=Float(b[2])+0.01
+        return p.x-0.3>=Float(b[0]) && p.x+0.3<Float(b[1]+1) && p.z-0.3>=Float(b[4]) && p.z+0.3<Float(b[5]+1) && p.y>=Float(b[2])+0.01 && (!flying || p.y+1.8<=Float(b[3]+1))
     }
     func collides(_ p: SCNVector3) -> Bool {
         if !within(p) { return true }
@@ -213,13 +214,19 @@ final class VoxelWorld {
         }
         return false
     }
-    func step(forward: Float, strafe: Float, dt: Float) {
-        let dt=min(max(dt,0),0.04), length=max(1,sqrt(forward*forward+strafe*strafe))
+    func setFlying(_ enabled:Bool) {
+        flying=enabled && snapshot.game=="sandbox"
+        if flying && !within(position) {flying=false}
+        verticalSpeed=0;grounded=false
+    }
+    func step(forward: Float, strafe: Float, dt: Float, climb:Float=0) {
+        let dt=min(max(dt,0),0.04),up=flying ? min(1,max(-1,climb)):0
+        let length=max(1,sqrt(forward*forward+strafe*strafe+up*up))
         let dx=(-sin(yaw)*forward+cos(yaw)*strafe)*4.2*dt/length
         let dz=(-cos(yaw)*forward-sin(yaw)*strafe)*4.2*dt/length
         var next=position; next.x+=dx; if !collides(next) {position.x=next.x}
         next=position; next.z+=dz; if !collides(next) {position.z=next.z}
-        verticalSpeed=max(-20,verticalSpeed-20*dt)
+        verticalSpeed=flying ? up*4.2/length:max(-20,verticalSpeed-20*dt)
         let dy=verticalSpeed*dt
         // Small substeps keep a falling player from crossing a one-block floor.
         let steps=max(1,Int(ceil(abs(dy)/0.1)))
@@ -228,7 +235,7 @@ final class VoxelWorld {
             if collides(next) { if verticalSpeed<0 {grounded=true};verticalSpeed=0;break } else {position.y=next.y}
         }
     }
-    func jump() { if grounded { verticalSpeed=7.2; grounded=false } }
+    func jump() { if grounded && !flying { verticalSpeed=7.2; grounded=false } }
     func look(dx: Float, dy: Float) { yaw-=dx*0.004; pitch=min(1.45,max(-1.45,pitch-dy*0.004)) }
     var direction: SCNVector3 { SCNVector3(-sin(yaw)*cos(pitch),sin(pitch),-cos(yaw)*cos(pitch)) }
     var eye: SCNVector3 { SCNVector3(position.x,position.y+1.62,position.z) }

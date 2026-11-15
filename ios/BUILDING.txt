@@ -124,3 +124,11 @@ This builds ios/build/VoxelOne.xcarchive for generic arm64 iOS 16+ without signi
 It is NOT installable on an iPhone. The Mac simulator check also builds this device
 archive before running the native test suite. Signed export and owner installation
 remain separate delivery work. See PORT-PLAN.txt for the current parity gaps.
+
+Offline flight
+
+Fly toggles collision-aware flight in the local Sandbox. Hold Jump to rise and
+Down to descend. Let go to hover. Walk restores gravity. Movement remains bounded
+to the loaded area and known snapshot ceiling. Flight mode resets to walking on
+world load; the saved position is retained. Pause, menu, graphics and backgrounding
+clear held input. Online flight is unavailable pending authoritative protocol work.

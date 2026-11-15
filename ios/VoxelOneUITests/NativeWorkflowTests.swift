@@ -174,6 +174,38 @@ final class NativeWorkflowTests:XCTestCase {
         XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
         capture("offline-crafting-restarted")
     }
+    func testOfflineFlightTouchPauseBackgroundAndWalking()throws {
+        newOffline();textContains("playerPosition","Ground")
+        func height()->Double {
+            let text=app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0]
+            return Double(text.components(separatedBy:", ")[1]) ?? -1000
+        }
+        let ground=height();app.buttons["flyButton"].tap();textContains("playerPosition","Flying")
+        app.buttons["jumpButton"].press(forDuration:0.7)
+        XCTAssertGreaterThan(height(),ground+1)
+        capture("offline-flying-terrain")
+        app.buttons["pauseButton"].tap();let before=height()
+        app.buttons["jumpButton"].press(forDuration:0.5);XCTAssertEqual(height(),before)
+        app.buttons["pauseButton"].tap();XCUIDevice.shared.press(.home);app.activate()
+        wait(app.buttons["flyButton"]);XCTAssertEqual(height(),before,"Released input must not rise after background")
+        app.buttons["flyDown"].press(forDuration:1.5)
+        XCTAssertLessThan(height(),before)
+        app.buttons["flyButton"].tap();textContains("playerPosition","Ground",timeout:5)
+        XCTAssertFalse(app.buttons["flyDown"].isHittable)
+        app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
+        capture("offline-flight-walk-recovered")
+    }
+    // Leave a useful real world view for the verifier's independent cold launch.
+    func testZZFinalTerrainGameplayEvidence()throws {
+        newOffline();textContains("playerPosition","Ground")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        capture("final-native-terrain-edited")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()
