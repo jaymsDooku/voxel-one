@@ -251,6 +251,19 @@ final class RegionReplayWorker implements AutoCloseable {
             if(result==null||result.mesh()!=null||result.modelDraws()!=null||result.detached()!=null)throw new IOException("Replay lighting result contains render data");
             request.validateWorld(current);validate(current);return result;
         }
+        record LightingCoverage(long generation,Map<ChunkPos,dev.jayms.net.model.SparseVoxelOctree> roots) {
+            LightingCoverage {roots=Collections.unmodifiableMap(new LinkedHashMap<>(roots));}
+        }
+        /** Exact existing GI footprint: 6 by 8 by 6 complete chunks. Caller
+         * focus is aligned in block coordinates; validates all demand first. */
+        static List<ChunkPos> lightingNeighbourhood(int x,int z)throws IOException {
+            if(Math.floorMod(x,16)!=0||Math.floorMod(z,16)!=0)throw new IllegalArgumentException("Replay lighting focus alignment");
+            var regions=new ArrayList<ChunkPos>(288);int cx=Math.floorDiv(x,16),cz=Math.floorDiv(z,16);
+            for(int dz=-3;dz<3;dz++)for(int y=-2;y<6;y++)for(int dx=-3;dx<3;dx++) {
+                var p=new ChunkPos(cx+dx,y,cz+dz);RegionReplayChunk.checkRegion(p);regions.add(p);
+            }
+            return List.copyOf(regions);
+        }
         record LightingPumpStatus(int desired,int pending,int ready,int failed,int cachedLeaves,boolean backpressure,boolean closed) {}
         LightingPump openLightingPump(World current,int capacity,int maxCellLeaves,int maxCachedLeaves)throws IOException {
             validate(current);
@@ -268,8 +281,9 @@ final class RegionReplayWorker implements AutoCloseable {
             private final Map<ChunkPos,Request> receipts=new LinkedHashMap<>();
             private final Map<ChunkPos,IOException> failures=new LinkedHashMap<>();
             private Request pending;private int cachedLeaves;private boolean closed,backpressure;
+            private long generation;private LightingCoverage coverage;
             private LightingPump(int capacity,int maxCellLeaves,int maxCachedLeaves){this.capacity=capacity;this.maxCellLeaves=maxCellLeaves;this.maxCachedLeaves=maxCachedLeaves;}
-            private void discard(){if(pending!=null)pending.cancel();pending=null;ready.clear();receipts.clear();failures.clear();cachedLeaves=0;backpressure=false;}
+            private void discard(){if(pending!=null)pending.cancel();pending=null;coverage=null;ready.clear();receipts.clear();failures.clear();cachedLeaves=0;backpressure=false;}
             private void check()throws IOException {
                 owner();if(closed)throw new IOException("Replay lighting pump closed");
                 try{validate(target);for(var r:receipts.values())lightingChunkResult(r,target);}
@@ -281,6 +295,9 @@ final class RegionReplayWorker implements AutoCloseable {
                 var next=new LinkedHashSet<ChunkPos>();
                 for(int i=0;i<count;i++){var p=Objects.requireNonNull(regions.get(i));RegionReplayChunk.checkRegion(p);next.add(p);}
                 if(regions.size()!=count)throw new ConcurrentModificationException("Replay desired lighting changed");
+                if(next.equals(desired))return;
+                if(generation==Long.MAX_VALUE)throw new IOException("Replay lighting generation exhausted");
+                generation++;coverage=null;
                 if(pending!=null&&!next.contains(pending.region)){pending.cancel();pending=null;}
                 for(var it=ready.entrySet().iterator();it.hasNext();){var e=it.next();if(!next.contains(e.getKey())){cachedLeaves-=e.getValue().stagedCellLeaves();it.remove();}}
                 receipts.keySet().retainAll(next);failures.keySet().retainAll(next);desired=next;backpressure=false;
@@ -313,6 +330,18 @@ final class RegionReplayWorker implements AutoCloseable {
                 for(var e:ready.entrySet())roots.put(e.getKey(),e.getValue().geometry());
                 return Collections.unmodifiableMap(roots);
             }
+            /** Receipt means exactly this nonempty desired generation is cached.
+             * It does not imply that the caller requested a GI neighbourhood. */
+            LightingCoverage coverage()throws IOException {
+                check();if(desired.isEmpty()||pending!=null||!failures.isEmpty()||ready.size()!=desired.size())return null;
+                if(coverage==null) {
+                    var roots=new LinkedHashMap<ChunkPos,dev.jayms.net.model.SparseVoxelOctree>();
+                    for(var p:desired){var chunk=ready.get(p);if(chunk==null)return null;roots.put(p,chunk.geometry());}
+                    coverage=new LightingCoverage(generation,roots);
+                }
+                return coverage;
+            }
+            boolean current(LightingCoverage expected)throws IOException {var actual=coverage();return expected!=null&&actual==expected;}
             IOException failure(ChunkPos region)throws IOException {check();return failures.get(region);}
             LightingPumpStatus status()throws IOException {
                 owner();if(closed)return new LightingPumpStatus(0,0,0,0,0,false,true);
