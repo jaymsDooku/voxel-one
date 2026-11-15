@@ -33,6 +33,10 @@ final class NativeWorkflowTests:XCTestCase {
             XCTFail("Missing \(id); \(category)");return
         }
     }
+    func waitHittable(_ element:XCUIElement,_ id:String){
+        let expectation=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in element.exists && element.isHittable},object:element)
+        XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:10),.completed,"Unusable \(id); frame=\(element.frame); viewport=\(app.frame)")
+    }
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
@@ -225,9 +229,11 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["moveRight"].press(forDuration:0.5)
         capture("sandbox-isometric-zoom-moved")
         XCUIDevice.shared.orientation = .landscapeLeft
-        XCTAssertTrue(app.buttons["cameraButton"].isHittable);capture("sandbox-camera-landscape")
+        waitHittable(app.buttons["cameraButton"],"landscape Camera")
+        choose("First person");capture("sandbox-camera-landscape")
         XCUIDevice.shared.orientation = .portrait
-        choose("First person")
+        waitHittable(app.buttons["cameraButton"],"portrait Camera")
+        choose("Third person");choose("First person")
         app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
     }

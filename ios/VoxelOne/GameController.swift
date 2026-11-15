@@ -25,6 +25,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
     private var graphicsOpen=false
     private var movement:Set<String>=[]
+    private var hudLandscape:Bool?
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
     private var status=UILabel(),positionLabel=UILabel(),cityLabel=UILabel(),crosshair=UILabel()
     private var slotButtons:[UIButton]=[]
@@ -62,7 +63,19 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         #endif
     }
     override func viewWillTransition(to size:CGSize,with coordinator:UIViewControllerTransitionCoordinator){
-        movement.removeAll();resetAim();super.viewWillTransition(to:size,with:coordinator)
+        movement.removeAll();resetAim();applyHUDLayout(size);super.viewWillTransition(to:size,with:coordinator)
+        coordinator.animate(alongsideTransition:nil){[weak self] _ in
+            guard let self=self else{return};self.applyHUDLayout(self.view.bounds.size);self.view.layoutIfNeeded()
+        }
+    }
+    override func viewDidLayoutSubviews(){
+        super.viewDidLayoutSubviews();applyHUDLayout(view.bounds.size)
+    }
+    private func applyHUDLayout(_ size:CGSize){
+        guard !inMenu else{return};let landscape=size.width>size.height
+        guard hudLandscape != landscape else{return};hudLandscape=landscape
+        positionLabel.isHidden=landscape;status.numberOfLines=landscape ? 1:2;cityLabel.numberOfLines=landscape ? 1:2
+        cityLabel.isHidden=world?.snapshot.city==nil && landscape
     }
     // HUD labels and empty stack space share world gestures. Controls keep their
     // own touches, including movement buttons and the scrolling hotbar.
@@ -100,7 +113,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
-        aimPoint=nil
+        aimPoint=nil;hudLandscape=nil
         inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
@@ -330,16 +343,13 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
         if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
         else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
-        positionLabel.isHidden=view.bounds.width>view.bounds.height
-        status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
-        cityLabel.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
+        applyHUDLayout(view.bounds.size)
         cameraButton?.accessibilityValue=renderer.sandboxCamera.title
         flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
         flyButton?.accessibilityValue=world.flying ? "On":"Off"
         descendButton?.isHidden = !world.flying
         positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
         cityLabel.text=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
-        cityLabel.isHidden=world.snapshot.city==nil && view.bounds.width>view.bounds.height
         for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(world.itemName(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(world.itemName(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
         if let controls=bottom?.arrangedSubviews[1] as? UIStackView {

@@ -297,3 +297,24 @@ Local53 mocked harness checks, project generation, Python compilation, shell
 syntax and diff checks passed. Full engine parity, live VPS, physical iPhone and
 signed delivery remain open. Diff audit against recorded base remains scoped to
 the iOS port; no unrelated deletions or clean-source gate changes.
+
+Landscape camera transition repair (native qualification pending)
+Mac source155362017a913380b2399b8bcf0261a21ac829e7 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43676042699
+Verified report source and diagnostic SHA-256. Reported failure moved to the
+Camera isHittable assertion immediately after landscape rotation, line228 in
+testSandboxCameraModesAimReachAndPersistence,31.167 seconds. Returned diagnostics
+do not report cancellation failure; no other native passes are inferred from this
+failed suite. Preflight is not promoted as gameplay evidence.
+
+Repair: apply compact HUD visibility/line counts when bounds change and at rotation
+completion, rather than relying on the next display tick. Cache the orientation
+state to avoid repeated hidden-state layout changes. Rotation still clears held
+input and tap aim. Test waits up to10 seconds for actual Camera hittability, opens
+Camera and selects First person in landscape, then verifies camera interaction
+again in portrait. The interaction assertion is retained and exercised by taps;
+no tests skipped, required count24 and outer1200-second budget unchanged.
+Local53 mocked harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. Swift/native repair remains unqualified until the
+fresh exact-source Mac run. Full parity, live VPS, signing and physical iPhone gates
+remain open. Diff audit against recorded base shows no unrelated deletions.
