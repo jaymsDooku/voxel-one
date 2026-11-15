@@ -222,3 +222,24 @@ Request remote_ios_test for this exact assigned feature source. Preserve physica
 hardware, live VPS, full engine parity and signing/install gates.
 Diff audit against 71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
 intentional replacement moves synchronous save encoding/IO to the bounded worker.
+
+Save-worker timeout follow-up
+Mac source fdab3d60bd12bdcca1a34b1b4b854dea00ee4fa3 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43670540599
+Source/request receipt and diagnostic artifact SHA-256 verified. Client script
+exceeded the unchanged 1,200-second limit; clientChecked=false. Sanitized compiler
+and assertion diagnostic line count is zero. Cause remains unproven. Preflight
+image is environment evidence only and was not promoted as native game media.
+
+Repair: save payload and its nested value types explicitly conform to Sendable;
+worker write closure is @Sendable. The test worker probe locks every access to
+its captured state. Replaced actor-isolated async XCTest orchestration with explicit
+main-queue phases and one 60-second XCTest completion wait, retaining 10-second
+worker gates. Coalescing, immutable capture, off-main execution, user acknowledgement,
+atomic failure and reentrant latest-save assertions remain required. No timeout or
+clean-source acceptance gate was increased or disabled. Required count stays 22.
+Local 53 mocked harness tests, project generation, Python compilation, shell syntax
+and diff checks passed. The changed Swift source still needs exact-source Mac
+compilation and actual native playtesting. No physical iPhone/live VPS/signing pass.
+Diff against recorded review base remains confined to the port; no unrelated file
+deletions were introduced. All edits and prior media retained for controller handoff.

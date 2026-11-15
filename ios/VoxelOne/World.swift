@@ -8,24 +8,24 @@ enum NativeCameraMode:String,CaseIterable {
     var title:String {switch self {case .first:return "First person";case .third:return "Third person";case .isometric:return "Isometric"}}
 }
 struct VoxelHit {let hit:GridKey;let previous:GridKey;let distance:Float}
-struct GridKey: Hashable, Codable {
+struct GridKey: Hashable, Codable, Sendable {
     var x: Int; var y: Int; var z: Int
     init(_ x: Int, _ y: Int, _ z: Int) { self.x=x; self.y=y; self.z=z }
     static func + (a: GridKey, b: GridKey) -> GridKey { GridKey(a.x+b.x,a.y+b.y,a.z+b.z) }
 }
-struct Citizen: Codable {
+struct Citizen: Codable, Sendable {
     var id: Int; var name: String; var x: Float; var y: Float; var z: Float
     var activity: String; var money: Float; var hunger: Float
 }
-struct CityState: Codable {
+struct CityState: Codable, Sendable {
     var time: String; var treasury: Double; var roads: [[Int]]; var zones: Int
     var citizens: [Citizen]; var buildings: [Building]; var zonePolygons: [ZonePolygon]?
-    struct ZonePolygon: Codable { var type:Int; var points:[[Float]] }
-    struct Building: Codable { var id: Int; var type: Int; var x: Int; var y: Int; var z: Int; var stock: Int }
+    struct ZonePolygon: Codable, Sendable { var type:Int; var points:[[Float]] }
+    struct Building: Codable, Sendable { var id: Int; var type: Int; var x: Int; var y: Int; var z: Int; var stock: Int }
 }
-struct OtherPlayer: Codable { var id: Int; var name: String; var x: Float; var y: Float; var z: Float }
-struct GroundDrop: Codable { var id: Int; var type: Int; var x: Float; var y: Float; var z: Float }
-struct NativeRecipe: Codable {
+struct OtherPlayer: Codable, Sendable { var id: Int; var name: String; var x: Float; var y: Float; var z: Float }
+struct GroundDrop: Codable, Sendable { var id: Int; var type: Int; var x: Float; var y: Float; var z: Float }
+struct NativeRecipe: Codable, Sendable {
     var id:Int;var name:String;var inputs:[[Int]];var output:Int;var count:Int
     func validate()throws {
         guard (0...103).contains(id),!name.isEmpty,name.count<=80,
@@ -41,7 +41,7 @@ struct NativeRecipe: Codable {
         for value in values {try value.validate()};return values
     }
 }
-struct NativeGeometry:Codable {
+struct NativeGeometry:Codable,Sendable {
     var resolution:Int;var leaves:[[Int]]
     func validate()throws {
         guard [8,16,32].contains(resolution),!leaves.isEmpty,leaves.count<=32768 else {throw GameError.invalidWorld}
@@ -56,10 +56,10 @@ struct NativeGeometry:Codable {
         }
     }
 }
-struct NativeMaterial:Codable {var id:Int;var name:String;var material:Int;var depth:Int;var color:Int}
-struct NativeModel:Codable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
-struct NativeDetail:Codable {var cell:[Int];var geometry:NativeGeometry}
-struct NativeContract:Codable {
+struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:Int;var depth:Int;var color:Int}
+struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
+struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
+struct NativeContract:Codable,Sendable {
     var version:Int;var materials:[NativeMaterial];var models:[NativeModel]
     func validate()throws {
         guard version==1,materials.count==189,Set(materials.map{$0.id})==Set(1...189),models.count<=129,
@@ -80,7 +80,7 @@ struct NativeContract:Codable {
 struct VoxelBox {
     var x:Float;var y:Float;var z:Float;var size:Float;var type:Int;var color:Int
 }
-struct Snapshot: Codable {
+struct Snapshot: Codable, Sendable {
     var schema: Int; var game: String; var seed: String; var bounds: [Int]; var pose: [Float]
     var cells: [[Int]]; var inventory: [[Int]]; var health: Int; var notice: String
     var resetPose: Bool?; var city: CityState?; var players: [OtherPlayer]?; var drops: [GroundDrop]?
@@ -124,7 +124,7 @@ struct Snapshot: Codable {
 }
 
 /// Version 1 mirrors the desktop's fixed 34-double profile payload. Missing legacy fields use Earth.
-struct AtmosphereProfile:Codable,Equatable {
+struct AtmosphereProfile:Codable,Equatable,Sendable {
     var version:Int;var enabled:Bool;var values:[Double]
     static let earth=AtmosphereProfile(version:1,enabled:true,values:[6_360_000,100_000,1,24,0,0,0,0,1,0,5.8e-6,13.5e-6,33.1e-6,3.996e-6,3.996e-6,3.996e-6,4.44e-6,4.44e-6,4.44e-6,0.65e-6,1.881e-6,0.085e-6,8000,1200,25000,15000,0.76,0.1,0.1,0.1,18,18,18,0.004675])
     func validate()throws {
@@ -455,7 +455,7 @@ final class VoxelWorld {
 }
 
 /// Value-only capture. Dictionary storage is retained with Swift copy-on-write.
-struct NativeSavePayload {
+struct NativeSavePayload:Sendable {
     var snapshot:Snapshot;var types:[GridKey:Int];var colors:[GridKey:Int]
     func value()->Snapshot {
         var save=snapshot
@@ -470,16 +470,16 @@ struct NativeSavePayload {
         try data.write(to:url,options:.atomic)
     }
 }
-enum NativeSaveResult:Equatable {case saved,superseded,failed}
+enum NativeSaveResult:Equatable,Sendable {case saved,superseded,failed}
 /// At most one executing payload and one latest pending payload. No mutable world crosses queues.
 @MainActor final class NativeSaveWriter {
     private let queue=DispatchQueue(label:"dev.jayms.voxelone.offline-save",qos:.utility)
     private let destination:URL
-    private let write:(NativeSavePayload,URL)throws->Void
+    private let write:@Sendable (NativeSavePayload,URL)throws->Void
     private var pending:(NativeSavePayload,((NativeSaveResult)->Void)?,Bool)?
     private(set) var isIdle=true
     var onIdle:(()->Void)?
-    init(destination:URL,write:@escaping (NativeSavePayload,URL)throws->Void={try $0.persist(to:$1)}) {
+    init(destination:URL,write:@escaping @Sendable (NativeSavePayload,URL)throws->Void={try $0.persist(to:$1)}) {
         self.destination=destination;self.write=write
     }
     func submit(_ payload:NativeSavePayload,important:Bool=false,completion:((NativeSaveResult)->Void)?=nil) {

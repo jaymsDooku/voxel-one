@@ -1,0 +1,12 @@
+{
+  "sourceHead": "fdab3d60bd12bdcca1a34b1b4b854dea00ee4fa3",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/43670540599",
+  "status": "failed",
+  "clientChecked": false,
+  "errorStage": "client_script",
+  "timedOut": true,
+  "diagnosticLineCount": 0,
+  "inspection": "Client script exceeded its 1200-second budget. Sanitized build/test diagnostics contain no compiler or assertion lines. Cause is not proven. Preflight image is not game evidence.",
+  "repair": "Value-only save data and worker closure explicitly Sendable; worker test state protected by NSLock. New save test uses bounded synchronous XCTest completion instead of actor-isolated async orchestration; all save assertions retained.",
+  "qualification": "Repair awaits exact-source Mac build/playtest; no native pass claimed."
+}

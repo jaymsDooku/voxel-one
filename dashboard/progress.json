@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Resumed authorized work. Reviewed saved background-save increment and fixed callback reentrancy; 22-case exact-source native validation pending. Prior model source bcb158fb passed 20 native tests. Engine parity and signed delivery remain open.",
-      "updatedAt": "2026-11-15T03:01:34+00:00"
+      "note": "Mac source fdab3d60 timed out; no native pass. Inspected sanitized report with no compiler/assertion lines. Made worker handoff Sendable and bounded save-test completion; 53 local harness tests pass. Exact-source Mac rerun pending; full parity and signed delivery remain open.",
+      "updatedAt": "2026-11-15T03:30:43+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

@@ -1,6 +1,13 @@
 import XCTest
 import SceneKit
 
+/// The worker probe synchronizes every access; no actor-isolated test state enters the worker.
+private final class SaveWorkerProbe:@unchecked Sendable {
+    private let lock=NSLock();private var values:[Int]=[]
+    func record(_ value:Int){lock.lock();defer{lock.unlock()};values.append(value)}
+    var counts:[Int] {lock.lock();defer{lock.unlock()};return values}
+}
+
 final class WorldRulesTests:XCTestCase {
     func testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows()throws {
         var enclosed=fixture()
@@ -175,49 +182,54 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertEqual(restored.type(GridKey(0,1,-2)),0,"Single fractional leaf collects without losing detail")
         try restored.savedSnapshot().validate()
     }
-    @MainActor func testBoundedSaveQueueIsolationAndAtomicFailure()async throws {
+    func testBoundedSaveQueueIsolationAndAtomicFailure()throws {
         let root=FileManager.default.temporaryDirectory.appendingPathComponent("voxel-save-test-"+UUID().uuidString)
         defer {try? FileManager.default.removeItem(at:root)}
-        let url=root.appendingPathComponent("world.json"),world=try VoxelWorld(fixture())
-        let first=world.savePayload(),started=expectation(description:"background write started")
-        let idle=expectation(description:"latest save finished"),ack=expectation(description:"user acknowledgement retained")
-        let gate=DispatchSemaphore(value:0);var counts:[Int]=[]
-        let writer=NativeSaveWriter(destination:url){payload,destination in
-            XCTAssertFalse(Thread.isMainThread,"Validation, encoding and IO must run off main")
-            if counts.isEmpty {started.fulfill();guard gate.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
-            counts.append(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
+        let url=root.appendingPathComponent("world.json"),finished=expectation(description:"all save phases finished")
+        DispatchQueue.main.async {
+            do {
+                let world=try VoxelWorld(self.fixture()),first=world.savePayload()
+                let gate=DispatchSemaphore(value:0),probe=SaveWorkerProbe()
+                let writer=NativeSaveWriter(destination:url){payload,destination in
+                    XCTAssertFalse(Thread.isMainThread,"Validation, encoding and IO must run off main")
+                    if probe.counts.isEmpty {guard gate.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
+                    probe.record(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
+                }
+                var acknowledged=false
+                writer.onIdle={
+                    do {
+                        XCTAssertTrue(acknowledged);XCTAssertEqual(probe.counts,[4,2],"Only active and latest payloads may be written")
+                        let saved=try Data(contentsOf:url),decoded=try JSONDecoder().decode(Snapshot.self,from:saved)
+                        XCTAssertTrue(decoded.cells.contains{$0[0]==3 && $0[1]==1 && $0[2]==3})
+                        writer.onIdle=nil;var invalid=world.savePayload();invalid.snapshot.health=21
+                        writer.submit(invalid){result in
+                            XCTAssertEqual(result,.failed)
+                            do {XCTAssertEqual(try Data(contentsOf:url),saved,"Invalid save preserves the atomic file")}catch{XCTFail("Saved fixture unavailable")}
+                            let secondGate=DispatchSemaphore(value:0),secondProbe=SaveWorkerProbe()
+                            let reentrant=NativeSaveWriter(destination:url){payload,destination in
+                                if secondProbe.counts.isEmpty {guard secondGate.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
+                                secondProbe.record(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
+                            }
+                            reentrant.onIdle={XCTAssertEqual(secondProbe.counts,[4,1],"Reentrant newer save wins");finished.fulfill()}
+                            reentrant.submit(first)
+                            var newest=world.savePayload();newest.snapshot.inventory[0]=[2,1]
+                            reentrant.submit(world.savePayload(),important:true){result in
+                                if result == .superseded {reentrant.submit(newest,important:true)}
+                            }
+                            reentrant.submit(world.savePayload(),important:true);secondGate.signal()
+                        }
+                    }catch{XCTFail("Save fixture round trip failed");finished.fulfill()}
+                }
+                writer.submit(first)
+                try world.offlineEdit(at:GridKey(2,1,2),type:2)
+                writer.submit(world.savePayload(),important:true){result in XCTAssertEqual(result,.saved);acknowledged=true}
+                try world.offlineEdit(at:GridKey(3,1,3),type:2)
+                writer.submit(world.savePayload())
+                XCTAssertNil(first.types[GridKey(2,1,2)],"Capture is isolated from later edits")
+                gate.signal()
+            }catch{XCTFail("Save fixture setup failed");finished.fulfill()}
         }
-        writer.onIdle={idle.fulfill()};writer.submit(first)
-        await fulfillment(of:[started],timeout:10)
-        try world.offlineEdit(at:GridKey(2,1,2),type:2)
-        writer.submit(world.savePayload(),important:true){result in XCTAssertEqual(result,.saved);ack.fulfill()}
-        try world.offlineEdit(at:GridKey(3,1,3),type:2)
-        writer.submit(world.savePayload()) // Latest autosave must retain user acknowledgement.
-        XCTAssertNil(first.types[GridKey(2,1,2)],"Capture is isolated from later world edits")
-        gate.signal();await fulfillment(of:[idle,ack],timeout:15)
-        XCTAssertEqual(counts,[4,2],"Only active and latest payloads may be written")
-        let saved=try Data(contentsOf:url),decoded=try JSONDecoder().decode(Snapshot.self,from:saved)
-        XCTAssertTrue(decoded.cells.contains{$0[0]==3 && $0[1]==1 && $0[2]==3})
-        let failure=expectation(description:"invalid replacement rejected")
-        writer.onIdle=nil;var invalid=world.savePayload();invalid.snapshot.health=21
-        writer.submit(invalid){result in XCTAssertEqual(result,.failed);failure.fulfill()}
-        await fulfillment(of:[failure],timeout:15)
-        XCTAssertEqual(try Data(contentsOf:url),saved,"Failed validation must preserve the last atomic save")
-        let startedAgain=expectation(description:"reentrant writer started"),drained=expectation(description:"reentrant latest saved")
-        let gateAgain=DispatchSemaphore(value:0);var written:[Int]=[]
-        let reentrant=NativeSaveWriter(destination:url){payload,destination in
-            if written.isEmpty {startedAgain.fulfill();guard gateAgain.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
-            written.append(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
-        }
-        reentrant.onIdle={drained.fulfill()};reentrant.submit(first)
-        await fulfillment(of:[startedAgain],timeout:10)
-        var newest=world.savePayload();newest.snapshot.inventory[0]=[2,1]
-        reentrant.submit(world.savePayload(),important:true){result in
-            if result == .superseded {reentrant.submit(newest,important:true)}
-        }
-        reentrant.submit(world.savePayload(),important:true)
-        gateAgain.signal();await fulfillment(of:[drained],timeout:15)
-        XCTAssertEqual(written,[4,1],"A superseded callback's newer submission must not be overwritten")
+        wait(for:[finished],timeout:60)
     }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
