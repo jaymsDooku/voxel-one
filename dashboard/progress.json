@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Replay snapshot sky upload now rejects stale/foreign/closed publication and supports one-time atlas transfer. 50 tests and native texture readback passed for standalone, direct pooled and PBO transfers. Fresh report/media await publication. RenderPipeline admission, lighting, saves and city/max qualification remain pending.",
-      "updatedAt": "2026-11-15T00:05:22+00:00"
+      "note": "Opt-in RenderPipeline replay atlas publication/binding now hides stale coverage and preserves old atlas until valid replacement. 50 tests and native shader/texture readback passed; fresh report/media await publication. Frame scheduling, near-field lighting, saves and city/max qualification remain pending.",
+      "updatedAt": "2026-11-15T00:31:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

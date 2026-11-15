@@ -36,6 +36,12 @@ public final class RenderPipeline implements AutoCloseable {
     private ShadowRevision shadowRevision;
     private WorldSkyVisibility worldSky;
     private int skyBufferOffset;
+    private final Thread replaySkyOwner=Thread.currentThread();
+    private World replaySkyWorld;
+    private World.ReplaySkySnapshot activeReplaySky,pendingReplaySky;
+    private SceneLightingUpload replaySkyUpload;
+    private int replaySkyAtlas;
+    private boolean replaySkyClosed;
     private World sceneWorld;
     private long sceneRevision=Long.MIN_VALUE;
     public int visibleChunks, occludedChunks;
@@ -308,6 +314,40 @@ public final class RenderPipeline implements AutoCloseable {
         }
         return sent;
     }
+    private void replaySkyOwner(){if(Thread.currentThread()!=replaySkyOwner)throw new IllegalStateException("Replay sky pipeline owner required");}
+    private void dropReplaySkyUpload(){if(replaySkyUpload!=null){replaySkyUpload.close();replaySkyUpload=null;pendingReplaySky=null;glFlush();}}
+    /** Opt-in private replay atlas lane. Does not admit local lighting, start
+     * Main, or promote a readback world. Shares existing stores and row budgets. */
+    public int pumpReplaySky(World world,long deadline,int bytes) {
+        replaySkyOwner();java.util.Objects.requireNonNull(world);
+        if(replaySkyClosed||world.isClosed())throw new IllegalStateException("Replay sky pipeline closed");
+        if(bytes<0||bytes>256*1024)throw new IllegalArgumentException("Replay sky pipeline byte budget");
+        if(!world.hasReplayReadView())throw new IllegalArgumentException("Replay sky pipeline requires private view");
+        if(replaySkyWorld!=null&&replaySkyWorld!=world||sceneWorld!=null&&sceneWorld!=world)throw new IllegalStateException("Replay sky pipeline world changed");
+        replaySkyWorld=world;
+        try {
+            if(replaySkyUpload!=null&&!replaySkyUpload.valid(world))dropReplaySkyUpload();
+            var latest=world.replaySkySnapshot();
+            if(latest==null){dropReplaySkyUpload();return 0;}
+            // A combined resident root/sky atlas cannot be replaced by sky-only data.
+            if(hasIrradiance&&!activeRootBuffer){dropReplaySkyUpload();return 0;}
+            if(replaySkyUpload!=null&&pendingReplaySky.key()!=latest.key())dropReplaySkyUpload();
+            if(activeReplaySky!=null&&activeReplaySky.current(world)&&activeReplaySky.key()==latest.key())return 0;
+            if(bytes==0||System.nanoTime()>=deadline)return 0;
+            if(replaySkyUpload==null){if(!lightingStores.available(false))return 0;pendingReplaySky=latest;replaySkyUpload=SceneLightingUpload.replaySky(world,latest,lightingStores);}
+            int sent=replaySkyUpload.pump(deadline,bytes,64*1024);
+            if(replaySkyUpload.ready()&&pendingReplaySky.current(world)) {
+                var candidate=pendingReplaySky;var data=replaySkyUpload.take();
+                if(!candidate.current(world)){lightingStores.releaseTexture(data.atlas());glFlush();throw new IllegalStateException("Replay sky publication changed");}
+                int prior=replaySkyAtlas;replaySkyAtlas=data.atlas();activeReplaySky=candidate;
+                replaySkyUpload.close();replaySkyUpload=null;pendingReplaySky=null;
+                lightingStores.releaseTexture(prior);glFlush();probes.invalidate();
+            }
+            return sent;
+        }catch(RuntimeException|Error failure){dropReplaySkyUpload();throw failure;}
+    }
+    /** Atlas validity only, not near-field or irradiance readiness. */
+    public boolean replaySkyAtlasReady(World world){replaySkyOwner();return !replaySkyClosed&&world==replaySkyWorld&&replaySkyAtlas!=0&&activeReplaySky!=null&&activeReplaySky.current(world)&&(!hasIrradiance||activeRootBuffer);}
     private void pumpLighting(World world,float x,float z,long deadline) {
         int trace=dev.jayms.OwnerTrace.begin("lighting.update");try{
         lightingUploadBytes=skyGpuBytes=skyGpuNanos=0;
@@ -504,8 +544,13 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uContactTransport",settings.contactShadows?1:0);shader.setInt("uLocalReflection",settings.reflections?1:0);
         shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
         shader.setInt("uRootBuffer",activeRootBuffer?(volume!=null&&volume.uniformRoots()?2:1):0);shader.setInt("uFineOffset",activeRootBuffer&&volume!=null&&!volume.uniformRoots()?volume.roots.length:0);
-        shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
-        shader.setInt("uSkyIndexOrigin",worldSky==null?0:worldSky.indexOrigin);shader.setInt("uSkyIndexSpan",worldSky==null?0:worldSky.indexSpan);shader.setInt("uSkyIndexOffset",worldSky==null?0:worldSky.indexOffset);
+        WorldSkyVisibility boundSky=worldSky;int boundOffset=skyBufferOffset,boundAtlas=fineRoots;
+        if(replaySkyWorld!=null&&(sceneWorld==null||sceneWorld==replaySkyWorld)) {
+            boundSky=null;boundOffset=0;
+            if(replaySkyAtlasReady(replaySkyWorld)){boundSky=activeReplaySky.data();boundAtlas=replaySkyAtlas;}
+        }
+        shader.setInt("uSkyColumns",boundSky==null?0:boundSky.columns);shader.setInt("uSkyOffset",boundOffset);
+        shader.setInt("uSkyIndexOrigin",boundSky==null?0:boundSky.indexOrigin);shader.setInt("uSkyIndexSpan",boundSky==null?0:boundSky.indexSpan);shader.setInt("uSkyIndexOffset",boundSky==null?0:boundSky.indexOffset);
         shader.setInt("uShadowEnabled",settings.shadows?1:0);
         shader.setInt("uShadowCascades",settings.shadowCascades);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
@@ -524,7 +569,7 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uShadow", 1);
         shader.setInt("uMaterials", 2);
         shader.setInt("uIrradiance", 3);
-        bind(4, GL_TEXTURE_3D, fineRoots);
+        bind(4, GL_TEXTURE_3D, boundAtlas);
         bind(5, GL_TEXTURE_BUFFER, fineLight);
         shader.setInt("uFineRoots", 4);
         shader.setInt("uFineLight", 5);
@@ -691,6 +736,8 @@ public final class RenderPipeline implements AutoCloseable {
 
     @Override
     public void close() {
+        if(replaySkyWorld!=null)replaySkyOwner();
+        replaySkyClosed=true;dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);replaySkyAtlas=0;activeReplaySky=null;
         if(lightingUpload!=null){lightingUpload.close();lightingUpload=null;}
         if(skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}activeSky=null;skyVisibility.close();desiredSky=null;desiredVolume=null;volume=null;worldSky=null;desiredVolumeFence=activeVolumeFence=null;lightingBootstrapped=false;initialLightingUpdates=0;initialLightingFrame=false;hasIrradiance=false;activeRootBuffer=false;focusPrepared=false;focusWorld=null;previousFocusTime=lastVolumeLatency=0;
         lighting.close();
