@@ -55,6 +55,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private final dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits;
         private final List<SkyTile> mergeTiles;
         private final int mergeMaxInts;
+        private final boolean lightingOnly;
         private final List<ChunkPos> neighbourRegions;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicInteger completedCells=new AtomicInteger();
@@ -72,6 +73,10 @@ final class RegionReplayWorker implements AutoCloseable {
             this(region,range,maxRows,revision,fence,binding,maxCellLeaves,neighbours,skyLimits,null,-1);
         }
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves,List<ChunkPos> neighbours,dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits,List<SkyTile> mergeTiles,int mergeMaxInts) {
+            this(region,range,maxRows,revision,fence,binding,maxCellLeaves,neighbours,skyLimits,mergeTiles,mergeMaxInts,false);
+        }
+        private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding,int maxCellLeaves,List<ChunkPos> neighbours,dev.jayms.render.WorldSkyVisibility.BuildLimits skyLimits,List<SkyTile> mergeTiles,int mergeMaxInts,boolean lightingOnly) {
+            this.lightingOnly=lightingOnly;
             this.mergeTiles=mergeTiles;this.mergeMaxInts=mergeMaxInts;
             this.skyLimits=skyLimits;
             this.neighbourRegions=neighbours;
@@ -122,6 +127,7 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
+            if(lightingOnly)throw new IOException("Replay request contains lighting-only geometry");
             if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves>=0)throw new IOException("Replay request contains chunk geometry");
             return extractOutcome(current).page();
@@ -135,6 +141,7 @@ final class RegionReplayWorker implements AutoCloseable {
         }
         private RegionReplayChunk.Snapshot checkedWorldChunkResult(Revision current,World world)throws IOException {
             owner();
+            if(lightingOnly)throw new IOException("Replay request contains lighting-only geometry");
             if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves<0)throw new IOException("Replay request contains a cell page");
             if(fence==null)throw new IOException("Replay request has no world fence");
@@ -220,6 +227,25 @@ final class RegionReplayWorker implements AutoCloseable {
             validate(current);
             var request=enqueueChunk(region,maxCellLeaves,revision,current.beginReplayFence(),this);
             requestsIssued=true;return request;
+        }
+        /** CPU roots only for later bounded lighting coverage. No render arrays,
+         * detached live Chunk, view installation or lighting readiness. */
+        Request submitLightingChunk(ChunkPos region,int maxCellLeaves,World current)throws IOException {
+            validate(current);Objects.requireNonNull(region);RegionReplayChunk.checkRegion(region);
+            if(maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)throw new IllegalArgumentException("Replay lighting chunk budget");
+            synchronized(gate) {
+                if(stopping.get())throw new IOException("Replay worker not accepting requests");
+                if(queue.size()>=capacity)throw new IOException("Replay worker queue full");
+                var request=new Request(region,null,0,revision,current.beginReplayFence(),this,maxCellLeaves,List.of(),null,null,-1,true);
+                queue.addLast(request);requestsIssued=true;gate.notifyAll();return request;
+            }
+        }
+        RegionReplayChunk.Snapshot lightingChunkResult(Request request,World current)throws IOException {
+            validate(current);Objects.requireNonNull(request);
+            if(request.binding!=this||!request.lightingOnly)throw new IOException("Replay request is not bound lighting geometry");
+            request.validateWorld(current);var result=request.extractOutcome(revision).chunk();
+            if(result==null||result.mesh()!=null||result.modelDraws()!=null||result.detached()!=null)throw new IOException("Replay lighting result contains render data");
+            request.validateWorld(current);validate(current);return result;
         }
         /** Same-source detached neighbours only; mask bits are -X,+X,-Y,+Y,-Z,+Z. */
         Request submitChunkWithNeighbours(ChunkPos region,int maxCellLeaves,int neighbourMask,World current)throws IOException {
@@ -799,7 +825,7 @@ final class RegionReplayWorker implements AutoCloseable {
                             ()->stopping.get()||request.cancelled(),request.completedCells::set);
                     else page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
                             ()->stopping.get()||request.cancelled());
-                    if(chunk!=null) {
+                    if(chunk!=null&&!request.lightingOnly) {
                         var sourceMetadata=source.metadata();
                         chunk=RegionReplayModelDraws.prepare(chunk,sourceMetadata==null?type->null:sourceMetadata::sourceDefinition,
                                 ()->stopping.get()||request.cancelled());

@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixed direct private replay-world sky transition; 34 tests and native GLFW switch/regression checks pass. Near-field lighting, saves, city/max and physical qualification remain pending.",
-      "updatedAt": "2026-11-15T01:19:55+00:00"
+      "note": "Added geometry-only replay lighting worker requests; 41 tests and native source/World/queue plus GLFW regressions pass. Lighting coverage cache/admission, Main, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-15T02:08:59+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
