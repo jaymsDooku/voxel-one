@@ -91,7 +91,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let sky=button("Sky","atmosphereToggle",#selector(toggleAtmosphere(_:)))
         sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
-        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics))])
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting))])
         let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -216,6 +216,24 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             })
         }
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+    }
+    @objc private func crafting(){
+        guard !paused,let world=world else{return};movement.removeAll()
+        do {
+            let recipes: [NativeRecipe]
+            if let supplied=world.snapshot.recipes {recipes=supplied} else {recipes=try NativeRecipe.bundled()}
+            let alert=UIAlertController(title:"Craft",message:"Choose a recipe. Ingredients come from your bag.",preferredStyle:.actionSheet)
+            for recipe in recipes {
+                let costs=recipe.inputs.map{"\($0[1]) \(VoxelWorld.name($0[0]))"}.joined(separator:", ")
+                let choice=UIAlertAction(title:"\(recipe.name) → \(recipe.count) (\(costs))",style:.default){[weak self] _ in
+                    guard let self=self else{return}
+                    if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
+                    else {do {try world.offlineCraft(recipe);self.saveOffline();self.notify("Crafted \(recipe.count) \(VoxelWorld.name(recipe.output)).");self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
+                }
+                alert.addAction(choice)
+            }
+            alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+        }catch{notify("Crafting catalog could not be read safely.")}
     }
     private func anchor(_ alert:UIAlertController){alert.popoverPresentationController?.sourceView=view;alert.popoverPresentationController?.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)}
     @objc private func frame(_ link:CADisplayLink){

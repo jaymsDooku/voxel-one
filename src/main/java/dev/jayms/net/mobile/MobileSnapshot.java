@@ -22,6 +22,7 @@ public final class MobileSnapshot {
         var slots=new ArrayList<List<Integer>>();
         for(int i=0;i<Inventory.SIZE;i++)slots.add(List.of(inventory.type(i),inventory.count(i)));
         var result=new LinkedHashMap<String,Object>();
+        result.put("recipes",recipeCatalog());
         result.put("schema",1);result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));
         result.put("bounds",List.of(cx-radius,cx+radius,low,high,cz-radius,cz+radius));
         result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));result.put("cells",cells);
@@ -48,7 +49,18 @@ public final class MobileSnapshot {
         }
         return result;
     }
+    /** Whole-block recipes only until the mobile detail/tool schema is available. */
+    public static List<Map<String,Object>> recipeCatalog() {
+        return java.util.stream.IntStream.of(88,89,90,91,92,94).mapToObj(id -> {
+            var r=Crafting.recipe(id);
+            return Map.<String,Object>of("id",r.id(),"name",r.name(),"inputs",r.inputs().entrySet().stream()
+                .map(e->List.of(e.getKey(),e.getValue())).toList(),"output",r.output(),"count",r.count());
+        }).toList();
+    }
     public static void main(String[] args) throws Exception {
+        if(args.length==2 && args[0].equals("--recipes")) {
+            java.nio.file.Files.writeString(java.nio.file.Path.of(args[1]),Json.write(recipeCatalog()));return;
+        }
         if(args.length!=1)throw new IllegalArgumentException("Usage: OUTPUT_JSON");
         var terrain=new Terrain(Terrain.DEFAULT_SEED);var world=new WorldVoxels(terrain);
         int y=terrain.surfaceHeight(0,0)+1;var inventory=new Inventory();

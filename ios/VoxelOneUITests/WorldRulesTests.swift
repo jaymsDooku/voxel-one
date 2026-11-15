@@ -86,6 +86,24 @@ final class WorldRulesTests:XCTestCase {
         try world.offlineEdit(at:GridKey(1,0,1),type:0)
         XCTAssertEqual(world.snapshot.inventory[35],[1,1])
     }
+    func testCraftingTransactionBoundsAndPersistence()throws {
+        let recipe=NativeRecipe(id:89,name:"Make bricks",inputs:[[3,4]],output:166,count:4)
+        var value=fixture();value.inventory[0]=[3,2];value.inventory[1]=[3,3];value.inventory[2]=[166,63]
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe)
+        XCTAssertEqual(world.snapshot.inventory[0],[166,3]);XCTAssertEqual(world.snapshot.inventory[1],[3,1])
+        XCTAssertEqual(world.snapshot.inventory[2],[166,64])
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.snapshot.inventory,world.snapshot.inventory)
+        let before=world.snapshot.inventory,revision=world.revision
+        XCTAssertThrowsError(try world.offlineCraft(recipe));XCTAssertEqual(world.snapshot.inventory,before)
+        XCTAssertEqual(world.revision,revision)
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[3,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe))
+        XCTAssertEqual(full.snapshot.inventory,value.inventory)
+        var invalid=recipe;invalid.inputs=[[3,2],[3,2]];XCTAssertThrowsError(try invalid.validate())
+        invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
+        value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

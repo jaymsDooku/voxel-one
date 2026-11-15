@@ -94,8 +94,8 @@ if video.is_file():
  else:video.unlink()
 p.write_text(json.dumps(data,indent=2)+'\n')
 PY
-# Leave the actual installed client on its Graphics sheet for the independent capture.
+# Leave the actual saved native world visible for the independent capture.
 xcrun simctl terminate "$udid" dev.jayms.voxelone.ios || true
-xcrun simctl launch "$udid" dev.jayms.voxelone.ios --graphics-evidence
+xcrun simctl launch "$udid" dev.jayms.voxelone.ios
 sleep 2
 export IOS_CHECK_STAGE=completed

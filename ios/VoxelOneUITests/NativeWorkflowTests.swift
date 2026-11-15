@@ -161,6 +161,19 @@ final class NativeWorkflowTests:XCTestCase {
         textContains("playerPosition","Ground",timeout:5)
         capture("offline-hold-jump-resumed")
     }
+    func testNativeCraftingMissingIngredientsAndRestart()throws {
+        newOffline();app.buttons["craftButton"].tap()
+        let planks=app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Saw planks →")).firstMatch
+        wait(planks);planks.tap();textContains("gameStatus","Crafted 4 Planks")
+        capture("offline-crafted-planks")
+        app.buttons["craftButton"].tap()
+        let grass=app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Grow grass →")).firstMatch
+        wait(grass);grass.tap();textContains("gameStatus","Missing ingredients")
+        app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot2"].label.contains("31 blocks"),"Craft consumed one Wood")
+        XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
+        capture("offline-crafting-restarted")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()

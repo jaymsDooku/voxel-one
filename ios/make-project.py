@@ -29,13 +29,14 @@ def phase(kind,files):
 swift=[reference(root/'VoxelOne'/name,'sourcecode.swift') for name in ['App.swift','World.swift','Renderer.swift','Gateway.swift','GameController.swift','Graphics.swift']]
 tests=[reference(root/'VoxelOneUITests'/name,'sourcecode.swift') for name in ['NativeWorkflowTests.swift','WorldRulesTests.swift','GraphicsRulesTests.swift']]
 resource=reference(root/'Resources'/'sandbox.json','text.json')
+recipes=reference(root/'Resources'/'recipes.json','text.json')
 app_product=add('PBXFileReference',explicitFileType='wrapper.application',path='VoxelOne.app',sourceTree='BUILT_PRODUCTS_DIR')
 test_product=add('PBXFileReference',explicitFileType='wrapper.cfbundle',path='VoxelOneUITests.xctest',sourceTree='BUILT_PRODUCTS_DIR')
 products=add('PBXGroup',children=[app_product,test_product],name='Products',sourceTree='<group>')
-main_group=add('PBXGroup',children=swift+tests+[resource,products],sourceTree='<group>')
+main_group=add('PBXGroup',children=swift+tests+[resource,recipes,products],sourceTree='<group>')
 base={'SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'16.0','SDKROOT':'iphoneos','TARGETED_DEVICE_FAMILY':'1','CODE_SIGNING_ALLOWED':'NO','CODE_SIGN_STYLE':'Automatic','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','CLANG_ENABLE_MODULES':'YES','SWIFT_OPTIMIZATION_LEVEL':'-Onone','ENABLE_TESTABILITY':'YES','PRODUCT_NAME':'$(TARGET_NAME)'}
 app_settings=base|{'PRODUCT_BUNDLE_IDENTIFIER':'dev.jayms.voxelone.ios','INFOPLIST_FILE':str(root/'Info.plist'),'GENERATE_INFOPLIST_FILE':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks'}
-app=add('PBXNativeTarget',name='VoxelOne',productName='VoxelOne',productReference=app_product,productType='com.apple.product-type.application',buildConfigurationList=config_list(app_settings),buildPhases=[phase('PBXSourcesBuildPhase',swift),phase('PBXResourcesBuildPhase',[resource]),phase('PBXFrameworksBuildPhase',[])],dependencies=[],buildRules=[])
+app=add('PBXNativeTarget',name='VoxelOne',productName='VoxelOne',productReference=app_product,productType='com.apple.product-type.application',buildConfigurationList=config_list(app_settings),buildPhases=[phase('PBXSourcesBuildPhase',swift),phase('PBXResourcesBuildPhase',[resource,recipes]),phase('PBXFrameworksBuildPhase',[])],dependencies=[],buildRules=[])
 test_settings=base|{'PRODUCT_BUNDLE_IDENTIFIER':'dev.jayms.voxelone.UITests','GENERATE_INFOPLIST_FILE':'YES','TEST_TARGET_NAME':'VoxelOne','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}
 # World.swift is compiled directly into the test runner for the same native model tests.
 test=add('PBXNativeTarget',name='VoxelOneUITests',productName='VoxelOneUITests',productReference=test_product,productType='com.apple.product-type.bundle.ui-testing',buildConfigurationList=config_list(test_settings),buildPhases=[phase('PBXSourcesBuildPhase',tests+[swift[1],swift[5]]),phase('PBXFrameworksBuildPhase',[]),phase('PBXResourcesBuildPhase',[])],dependencies=[],buildRules=[])

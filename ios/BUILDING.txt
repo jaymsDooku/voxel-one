@@ -7,9 +7,9 @@ Voxel One sandbox / Voxel City One through the Java mobile gateway.
 
 Phone controls
 
-Hold the four direction buttons to walk. Drag the world to look. Jump, Break
-and Place use the selected hotbar stack. Scroll the hotbar to reach all nine
-slots. Bag swaps a stack into the selected hotbar slot. Pause stops local input;
+Hold the four direction buttons to walk. Drag the world to look. Break and Place
+use the selected hotbar stack. Hold Jump to jump again after landing. Scroll the
+hotbar to reach all nine slots. Bag swaps a stack into the selected hotbar slot. Pause stops local input;
 online simulation keeps running. Menu signs out of online play.
 
 Offline sandbox starts from Terrain.DEFAULT_SEED, generator version 3, exported
@@ -23,8 +23,9 @@ this release does not import desktop saves or simulate an offline city.
 Online sandbox keeps the existing game server's inventory, health, item drops,
 authentication, multiplayer edits and crafting rules. The initial phone UI exposes
 walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
-editor, fractional-block tools, mounts, crafting UI and specialized transport or
-finance tools are not exposed by this first phone UI. Subdivided/model cells use a
+editor, fractional-block tools, mounts and specialized transport or
+finance tools are not exposed by this first phone UI. Craft offers six shared
+whole-block recipes; fractional, model and tool recipes remain unavailable. Subdivided/model cells use a
 whole-block approximation for display/collision; use the desktop client to edit
 those structures precisely.
 
@@ -114,3 +115,12 @@ To regenerate the bundled starter terrain intentionally before committing source
 
   mvn -q -DskipTests compile
   java -cp target/classes dev.jayms.net.mobile.MobileSnapshot ios/Resources/sandbox.json
+
+Device archive foundation
+
+  bash ios/archive-device.sh
+
+This builds ios/build/VoxelOne.xcarchive for generic arm64 iOS 16+ without signing.
+It is NOT installable on an iPhone. The Mac simulator check also builds this device
+archive before running the native test suite. Signed export and owner installation
+remain separate delivery work. See PORT-PLAN.txt for the current parity gaps.

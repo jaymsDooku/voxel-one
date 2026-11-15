@@ -1,6 +1,7 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. No new native execution receipt yet.
+Status: implementation in progress. Native milestone run passed at b22dadbb.
+New crafting edits still need their own exact-source Mac run.
 Baseline inspected: 71612f09. This is not full engine parity or iPhone delivery.
 
 Architecture decision
@@ -19,7 +20,7 @@ Streaming / distance       TerrainScheduler, DistantTerrain Bounded online snaps
 Fractional / models        net/WorldVoxels.java             MobileSnapshot samples center;
                                                             full cube approximation
 Collision / pick           player/Player.java, Camera.java  AABB, whole-cell ray only
-Inventory / crafting       net/Crafting.java                9 hotbar, 36 bag, no craft UI;
+Inventory / crafting       net/Crafting.java                9 hotbar, 36 bag, 6 recipes;
                                                             gateway craft action exists
 City                       existing Java CityFrame          Planning, roads/zones, walk;
                                                             specialized UI still missing
@@ -50,7 +51,8 @@ Next coherent slices (all still required)
    exact geometry picking/collision/rendering, model persistence.
 2. Incremental procedural chunks, bounded worker queues, cancellation and memory
    pressure; move generation/meshing/save encoding off the main thread safely.
-3. Native crafting, fly, camera/settings, landscape-first layout and recovery.
+3. Remaining crafting recipes, fly, camera/settings, landscape-first layout
+   and recovery.
 4. Sandbox authenticated multiplayer edit/resync tests, denied-network handling,
    isolated HTTPS proxy health checks, then root-coordinated live service checks.
 5. Signed device delivery, install/update guide and versioned artifact checksums;
@@ -59,3 +61,35 @@ Next coherent slices (all still required)
 Signing remains separate. No Apple team, device registration or protected signing
 provisioning has been established by this slice. Do not publish, purchase, invite,
 or claim installation. Continue engineering while the delivery route is pending.
+
+Crafting increment
+The native Craft sheet uses IDs 88,89,90,91,92,94 exported from Java Crafting.
+The bundled JSON and gateway snapshots share the same exporter; a Java test checks
+catalog/asset equality. Old saves without recipes use the bundled catalog. Missing
+inputs or full output storage reject atomically. This bounded offline mode has no
+craft overflow drops; online overflow remains governed by the real Java server.
+Model, fractional and tool recipes remain gated on the detail/item schema port.
+Regenerate the catalog after deliberate recipe changes:
+  mvn -q -DskipTests compile
+  java -cp target/classes dev.jayms.net.mobile.MobileSnapshot --recipes ios/Resources/recipes.json
+
+Observed validation
+Source b22dadbbcf0401a865a5a5d565ea79f04ccafefe passed 11 native tests on
+Xcode 16.4, macOS 15.8.2, iPhone SE (3rd generation), iOS 18.5 Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43660827057
+Inspected receipt sourceHead, status, clientChecked and screenshot SHA-256.
+Actual screenshot shows Graphics sheet; it does not prove visible gameplay.
+The next capture launches the saved world rather than forcing Graphics open.
+No physical-device, signing, battery, thermal or live VPS claim follows this run.
+
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4
+Changes are limited to iOS source/tests/build/evidence/progress and the mobile
+snapshot recipe adapter/test. Intended replacements remove pre-capacity terrain
+mutation, replace tap-only jump binding, and replace forced Graphics launch for
+final evidence. No unrelated source or asset deletions are intended.
+
+Crafting local checks: Java compile passed with worktree Maven cache; all 13
+MobileGatewayTest cases passed using isolated worktree temp files (no live service).
+53 Linux harness tests passed. Native crafting and transaction XCTest cases remain
+pending. Initial default-cache/default-temp attempts failed before verification;
+worktree-local cache and temp paths resolved those environment failures.

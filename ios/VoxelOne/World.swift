@@ -20,12 +20,33 @@ struct CityState: Codable {
 }
 struct OtherPlayer: Codable { var id: Int; var name: String; var x: Float; var y: Float; var z: Float }
 struct GroundDrop: Codable { var id: Int; var type: Int; var x: Float; var y: Float; var z: Float }
+struct NativeRecipe: Codable {
+    var id:Int;var name:String;var inputs:[[Int]];var output:Int;var count:Int
+    func validate()throws {
+        guard (0...103).contains(id),!name.isEmpty,name.count<=80,
+              (1...189).contains(output),(1...64).contains(count),
+              !inputs.isEmpty,inputs.count<=8,
+              inputs.allSatisfy({$0.count==2 && (1...189).contains($0[0]) && (1...64).contains($0[1])}),
+              Set(inputs.map{$0[0]}).count==inputs.count else {throw GameError.invalidWorld}
+    }
+    static func bundled()throws->[NativeRecipe] {
+        guard let url=Bundle.main.url(forResource:"recipes",withExtension:"json") else {throw GameError.invalidWorld}
+        let values=try JSONDecoder().decode([NativeRecipe].self,from:Data(contentsOf:url))
+        guard values.count<=104,Set(values.map{$0.id}).count==values.count else {throw GameError.invalidWorld}
+        for value in values {try value.validate()};return values
+    }
+}
 struct Snapshot: Codable {
     var schema: Int; var game: String; var seed: String; var bounds: [Int]; var pose: [Float]
     var cells: [[Int]]; var inventory: [[Int]]; var health: Int; var notice: String
     var resetPose: Bool?; var city: CityState?; var players: [OtherPlayer]?; var drops: [GroundDrop]?
+    var recipes:[NativeRecipe]? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
     func validate() throws {
+        if let recipes=recipes {
+            guard recipes.count<=104,Set(recipes.map{$0.id}).count==recipes.count else {throw GameError.invalidWorld}
+            for recipe in recipes {try recipe.validate()}
+        }
         try atmosphere?.validate()
         if let sun=sun {guard sun.count==3,sun.allSatisfy({$0.isFinite}),abs(sqrt(sun.reduce(0){$0+$1*$1})-1)<0.001 else {throw GameError.invalidWorld}}
         guard schema==1, ["sandbox","city"].contains(game), bounds.count==6, pose.count==5,
@@ -251,6 +272,28 @@ final class VoxelWorld {
             if snapshot.inventory[slot][1]==0 {snapshot.inventory[slot][0]=0}
         }
         revision+=1
+    }
+    /// Commit only after both ingredient consumption and all output storage succeed.
+    func offlineCraft(_ recipe:NativeRecipe)throws {
+        try recipe.validate()
+        var next=snapshot.inventory
+        for ingredient in recipe.inputs {
+            var needed=ingredient[1]
+            for i in next.indices where next[i][0]==ingredient[0] {
+                let used=min(needed,next[i][1]);next[i][1]-=used;needed-=used
+                if next[i][1]==0 {next[i][0]=0}
+            }
+            guard needed==0 else {throw GameError.message("Missing ingredients for \(recipe.name).")}
+        }
+        var remaining=recipe.count
+        for i in next.indices where next[i][0]==recipe.output && next[i][1]<64 {
+            let added=min(remaining,64-next[i][1]);next[i][1]+=added;remaining-=added
+        }
+        for i in next.indices where next[i][1]==0 && remaining>0 {
+            let added=min(remaining,64);next[i]=[recipe.output,added];remaining-=added
+        }
+        guard remaining==0 else {throw GameError.message("Inventory full. Free space before crafting.")}
+        snapshot.inventory=next;revision+=1
     }
     func savedSnapshot() -> Snapshot {
         var save=snapshot

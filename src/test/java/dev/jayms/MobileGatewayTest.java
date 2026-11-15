@@ -11,6 +11,19 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MobileGatewayTest {
+    @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
+        var catalog=MobileSnapshot.recipeCatalog();assertEquals(6,catalog.size());
+        Set<Integer> ids=new HashSet<>();
+        for(var item:catalog) {
+            int id=(Integer)item.get("id");assertTrue(ids.add(id));var recipe=Crafting.recipe(id);
+            assertEquals(recipe.name(),item.get("name"));assertEquals(recipe.output(),item.get("output"));
+            assertEquals(recipe.count(),item.get("count"));
+            assertEquals(recipe.inputs().entrySet().stream().map(e->List.of(e.getKey(),e.getValue())).toList(),item.get("inputs"));
+        }
+        // Parse both to normalize JSON number representation and object key ordering.
+        var bundled=Json.object("{\"recipes\":"+Files.readString(Path.of("ios/Resources/recipes.json"))+"}");
+        assertEquals(Json.object(Json.write(Map.of("recipes",catalog))),bundled);
+    }
     @TempDir Path temp;
     static final HttpClient HTTP=HttpClient.newHttpClient();
     HttpResponse<String> post(MobileFixtureHost host,String route,String token,Map<String,Object> body)throws Exception{
