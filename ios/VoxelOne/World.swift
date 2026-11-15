@@ -440,13 +440,11 @@ final class VoxelWorld {
         guard remaining==0 else {throw GameError.message("Inventory full. Free space before crafting.")}
         snapshot.inventory=next;revision+=1
     }
-    func savedSnapshot() -> Snapshot {
-        var save=snapshot
-        save.cells=types.map{[$0.key.x,$0.key.y,$0.key.z,$0.value,colors[$0.key] ?? Self.color($0.value)]}
-        save.details=snapshot.details?.filter{$0.cell.count==3 && types[GridKey($0.cell[0],$0.cell[1],$0.cell[2])]==255}
-        save.pose=[position.x,position.y,position.z,yaw,pitch]
-        return save
+    func savePayload()->NativeSavePayload {
+        var save=snapshot;save.pose=[position.x,position.y,position.z,yaw,pitch]
+        return NativeSavePayload(snapshot:save,types:types,colors:colors)
     }
+    func savedSnapshot() -> Snapshot {savePayload().value()}
     func itemName(_ type:Int)->String {materials[type]?.name ?? Self.name(type)}
     static func color(_ type:Int)->Int {
         switch type {case 1:return 0x4da636;case 2:return 0x7a4d2b;case 3:return 0x8c949e;case 4:return 0xe0c47a;case 5:return 0xe8f5ff;case 6:return 0x73471f;case 7:return 0x29732e;case 165:return 0xb8824a;case 166:return 0x9c4536;case 167:return 0xa8dee8;case 185:return 0x266ead;case 187:return 0x55575a;default:return 0x9966b3}
@@ -456,15 +454,66 @@ final class VoxelWorld {
     }
 }
 
+/// Value-only capture. Dictionary storage is retained with Swift copy-on-write.
+struct NativeSavePayload {
+    var snapshot:Snapshot;var types:[GridKey:Int];var colors:[GridKey:Int]
+    func value()->Snapshot {
+        var save=snapshot
+        save.cells=types.map{[$0.key.x,$0.key.y,$0.key.z,$0.value,colors[$0.key] ?? VoxelWorld.color($0.value)]}
+        save.details=snapshot.details?.filter{$0.cell.count==3 && types[GridKey($0.cell[0],$0.cell[1],$0.cell[2])]==255}
+        return save
+    }
+    func persist(to url:URL)throws {
+        let save=value();try save.validate()
+        let data=try JSONEncoder().encode(save)
+        try FileManager.default.createDirectory(at:url.deletingLastPathComponent(),withIntermediateDirectories:true)
+        try data.write(to:url,options:.atomic)
+    }
+}
+enum NativeSaveResult:Equatable {case saved,superseded,failed}
+/// At most one executing payload and one latest pending payload. No mutable world crosses queues.
+@MainActor final class NativeSaveWriter {
+    private let queue=DispatchQueue(label:"dev.jayms.voxelone.offline-save",qos:.utility)
+    private let destination:URL
+    private let write:(NativeSavePayload,URL)throws->Void
+    private var pending:(NativeSavePayload,((NativeSaveResult)->Void)?,Bool)?
+    private(set) var isIdle=true
+    var onIdle:(()->Void)?
+    init(destination:URL,write:@escaping (NativeSavePayload,URL)throws->Void={try $0.persist(to:$1)}) {
+        self.destination=destination;self.write=write
+    }
+    func submit(_ payload:NativeSavePayload,important:Bool=false,completion:((NativeSaveResult)->Void)?=nil) {
+        if !isIdle {
+            // An autosave must retain a pending user action's acknowledgement.
+            let keep=pending?.2==true && !important
+            let callback=keep ? pending?.1:completion
+            let displaced=keep ? nil:pending?.1
+            pending=(payload,callback,keep || important)
+            // Publish the replacement first: a callback may submit an even newer save.
+            displaced?(.superseded);return
+        }
+        begin(payload,completion)
+    }
+    private func begin(_ payload:NativeSavePayload,_ completion:((NativeSaveResult)->Void)?) {
+        isIdle=false;let write=self.write,url=destination
+        queue.async {
+            let outcome:NativeSaveResult
+            do {try write(payload,url);outcome = .saved}catch{outcome = .failed}
+            DispatchQueue.main.async {
+                self.isIdle=true
+                if let next=self.pending {self.pending=nil;self.begin(next.0,next.1)}
+                completion?(outcome)
+                if self.isIdle {self.onIdle?()}
+            }
+        }
+    }
+}
 final class OfflineSave {
+    @MainActor static let writer=NativeSaveWriter(destination:url)
     static var url: URL { FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("sandbox-v1.json") }
     static func load() throws -> Snapshot {var value=try JSONDecoder().decode(Snapshot.self,from:Data(contentsOf:url));try value.validate()
         if value.schema==1 {value.schema=2;value.contract=try NativeContract.bundled();value.details=[]}
         try value.validate();return value
-    }
-    static func write(_ world:VoxelWorld) throws {
-        try FileManager.default.createDirectory(at:url.deletingLastPathComponent(),withIntermediateDirectories:true)
-        try JSONEncoder().encode(world.savedSnapshot()).write(to:url,options:.atomic)
     }
     static func fresh() throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}

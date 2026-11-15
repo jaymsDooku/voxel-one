@@ -175,3 +175,50 @@ parser for a response-sized asset; canonical export equality fixed that test wit
 relaxing transport limits. Java compile and 53 Linux harness tests passed.
 Native compilation/playtest for this increment remains pending, as do physical
 hardware, signing/install delivery, live VPS and the remaining engine parity work.
+
+Durable pause checkpoint: bounded background saves
+Paused on explicit quota/service-control instruction. Preserve all unpublished edits.
+Last controller-tested source: bcb158fb06d6fbdad9a47a8e2c062323c4de4ba7.
+Mac run https://github.com/jaymsDooku/voxel-one/actions/runs/43668407608 passed
+20 native tests. Receipt/source/checksum checked; actual flower-pot colored leaf
+geometry, terrain and controls inspected. Sanitized image and receipt copied to
+dashboard/evidence/ios-port-bcb158fb-model.png and ios-port-bcb158fb-receipt.json.
+
+Unpublished increment: NativeSavePayload captures value-only snapshot/dictionaries;
+NativeSaveWriter serial utility queue validates/encodes/atomically writes off main,
+with one active and one latest pending payload. Important action acknowledgements
+survive autosave coalescing. Controller waits for save before Menu and reports
+edit/craft success only after writing; session IDs fence stale callbacks. Finite
+background task ends on idle or expiration. Startup load/decode and generation
+still run synchronously; no claim of full asynchronous world handling is made.
+Added native queue/immutability/atomic-failure test and menu/background/cold-restart
+playtest; required native test count is now 22. These new tests are UNEXECUTED.
+Local checks already finished: 53 mocked Linux harness tests passed, project
+regeneration, Python compilation, shell syntax and diff checks passed. No native
+compilation or save-worker execution occurred on Linux. No new tests after pause.
+
+Resume: inspect queue/callback/background races and Swift concurrency compilation;
+request remote_ios_test for the saved edits once controller quota permits. Inspect
+actual result/media before claiming save behavior. Keep engine parity, streaming,
+precision tools, live VPS, signing/install and physical hardware gates open.
+No commit/push/deploy performed. Delegate review failed; attempted local takeover
+was denied when delegation paused. Do not retry inference while paused; resolve
+that helper record after authorized resume. No delegate result counts as evidence.
+
+Authorized resume: background-save validation handoff
+Resumed under a fresh controller lease/quota authorization. Retained all checkpoint
+edits. Resolved failed helper task locally; no delegate result is test evidence.
+Reviewed queue, session and lifecycle paths. Fixed callback reentrancy by publishing
+the replacement pending payload before invoking the superseded callback. A native
+regression test submits another save from that callback and checks newest data wins.
+Menu save failure now restores the prior pause state and keeps the world available.
+The existing tests also gate the first write, verify active+latest coalescing,
+copy-on-write snapshot isolation, off-main work, important acknowledgement retention,
+and old-file preservation after validation failure. UI test covers menu save barrier,
+background/resume and cold restart. Required native test count remains 22.
+Local 53 harness tests, project generation, Python compilation, shell syntax and
+diff checks passed after resume; new Swift save-worker execution remains pending.
+Request remote_ios_test for this exact assigned feature source. Preserve physical
+hardware, live VPS, full engine parity and signing/install gates.
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
+intentional replacement moves synchronous save encoding/IO to the bounded worker.

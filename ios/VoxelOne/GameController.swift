@@ -14,6 +14,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
     private var busy=false,paused=false,inMenu=true,active=true
+    private var closingMenu=false
+    private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
     private var graphicsOpen=false
     private var movement:Set<String>=[]
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
@@ -86,7 +88,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     private func startOffline(_ snapshot:Snapshot)throws {
         sessionID=UUID();busy=false;moveBusy=false;queuedAction=nil;world=try VoxelWorld(snapshot);gateway=nil;renderer.planning=false;renderer.focus=world!.position;points.removeAll();renderer.rebuild(world!);renderer.mark(points,world:world!)
-        try OfflineSave.write(world!);showGame()
+        showGame();saveOffline()
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
@@ -126,7 +128,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         b.isMultipleTouchEnabled=true;return b
     }
     @objc private func startMove(_ sender:UIButton){
-        guard !paused,active,!inMenu,!graphicsOpen,!renderer.planning else{return}
+        guard !paused,active,!inMenu,!graphicsOpen,!closingMenu,!renderer.planning else{return}
         let id=sender.accessibilityIdentifier ?? "";movement.insert(id)
         if id=="jumpButton" {jump()}
     }
@@ -156,7 +158,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         movement.removeAll();jumpOrigin=nil;jumpRose=false;world.setFlying(!world.flying)
         notify(world.flying ? "Flying. Hold Jump to rise; Down to descend.":"Walking. Gravity on.");refreshHUD()
     }
-    @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
+    @objc private func togglePause(){guard !closingMenu else{return};paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
     @objc private func openGraphics(){
         movement.removeAll();graphicsOpen=true
@@ -231,7 +233,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard let target=target else{notify("Aim at a visible block within five blocks of your player.");return}
         let key=place ? target.previous:target.hit
         if gateway != nil { action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot],success:place ? "Placement checked by server.":"Break checked by server.") }
-        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);try OfflineSave.write(world);notify(place ? "Placed \(world.itemName(type)).":"Block collected.");refreshHUD()}catch{notify(error.localizedDescription)}}
+        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);let text=place ? "Placed \(world.itemName(type)).":"Block collected."
+            saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};refreshHUD()}catch{notify(error.localizedDescription)}}
     }
     private func action(_ request:[String:Any],success:String){
         guard let gateway=gateway,let world=world else{return}
@@ -272,7 +275,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
                 let choice=UIAlertAction(title:"\(recipe.name) → \(recipe.count) (\(costs))",style:.default){[weak self] _ in
                     guard let self=self else{return}
                     if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
-                    else {do {try world.offlineCraft(recipe);self.saveOffline();self.notify("Crafted \(recipe.count) \(world.itemName(recipe.output)).");self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
+                    else {do {try world.offlineCraft(recipe);let text="Crafted \(recipe.count) \(world.itemName(recipe.output))."
+                        self.saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
                 }
                 alert.addAction(choice)
             }
@@ -347,8 +351,37 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     func suspend(){active=false;movement.removeAll();saveOffline()}
     func becameActive(){active=true;lastTime=0}
-    func saveOffline(){guard gateway==nil,let world=world else{return};do {try OfflineSave.write(world)}catch{notify("Save failed. Keep this session open and try again.")}}
-    @objc private func openMenu(){saveOffline();movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil;Task{await previous?.logout()};showMenu()}
+    private func endBackgroundSave(){
+        if backgroundSave != .invalid {UIApplication.shared.endBackgroundTask(backgroundSave);backgroundSave = .invalid}
+    }
+    func saveOffline(completion:((NativeSaveResult)->Void)?=nil){
+        guard gateway==nil,let world=world else{return}
+        if !active && backgroundSave == .invalid {
+            backgroundSave=UIApplication.shared.beginBackgroundTask(withName:"Save Sandbox"){[weak self] in self?.endBackgroundSave()}
+        }
+        let payload=world.savePayload(),id=sessionID
+        OfflineSave.writer.submit(payload,important:completion != nil){[weak self] result in
+            guard let self=self else{return}
+            if result == .failed && id==self.sessionID {self.notify("Save failed. Keep this session open and try again.")}
+            if OfflineSave.writer.isIdle {self.endBackgroundSave()}
+            if id==self.sessionID {completion?(result)}
+        }
+    }
+    @objc private func openMenu(){
+        guard !closingMenu else{return};movement.removeAll()
+        if gateway==nil,world != nil {
+            let wasPaused=paused;closingMenu=true;paused=true
+            saveOffline{[weak self] result in
+                guard let self=self,result != .superseded else{return}
+                if result == .saved {self.finishOpenMenu()}
+                else {self.closingMenu=false;self.paused=wasPaused}
+            }
+        } else {finishOpenMenu()}
+    }
+    private func finishOpenMenu(){
+        closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
+        Task{await previous?.logout()};showMenu()
+    }
     private func showMenu(){
         inMenu=true;paused=false;networkFailureText=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview();menu?.removeFromSuperview();movement.removeAll()
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;scroll.backgroundColor=UIColor(red:0.035,green:0.075,blue:0.1,alpha:0.98);view.addSubview(scroll);menu=scroll

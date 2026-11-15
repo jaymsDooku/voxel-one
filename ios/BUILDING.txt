@@ -159,3 +159,15 @@ at the cell's low corner. Full tool and crafting parity is still pending.
 Regenerate the checked-in contract from the authoritative Java definitions:
 
   java -cp target/classes dev.jayms.net.mobile.MobileSnapshot --contract ios/Resources/contract.json
+
+Save worker
+
+Offline changes capture value-only world data on the main thread. A serial utility
+worker builds the save snapshot, validates it, encodes JSON and atomically replaces
+the file. The queue holds at most one active and one latest pending capture.
+Edit/craft success messages wait for saving; Menu waits before discarding the world.
+A failed save keeps the session open for retry. Background saves use a finite iOS
+background task; expiration does not promise that the newest change reached disk.
+The previous atomic file remains the recovery point if a write is interrupted.
+Swift dictionary copy-on-write can still copy storage on the next edit. Startup
+load/decode, generation and mesh rebuilding are separate remaining performance work.

@@ -1,0 +1,105 @@
+{
+  "sourceHead": "bcb158fb06d6fbdad9a47a8e2c062323c4de4ba7",
+  "status": "passed",
+  "clientChecked": true,
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "client": {
+    "bundleId": "dev.jayms.voxelone.ios",
+    "tests": [
+      {
+        "name": "testDetailContractGeometryCollisionPickingAndPersistence",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeModelAndFractionalPlacementSaveRestart",
+        "status": "passed"
+      },
+      {
+        "name": "testSharedCameraRayBoundsAndSweptLensCollision",
+        "status": "passed"
+      },
+      {
+        "name": "testSandboxCameraModesAimReachAndPersistence",
+        "status": "passed"
+      },
+      {
+        "name": "testFlightCollisionBoundsHoverAndWalkRecovery",
+        "status": "passed"
+      },
+      {
+        "name": "testOfflineFlightTouchPauseBackgroundAndWalking",
+        "status": "passed"
+      },
+      {
+        "name": "testZZFinalTerrainGameplayEvidence",
+        "status": "passed"
+      },
+      {
+        "name": "testCraftingTransactionBoundsAndPersistence",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeCraftingMissingIngredientsAndRestart",
+        "status": "passed"
+      },
+      {
+        "name": "testFullInventoryBreakIsAtomic",
+        "status": "passed"
+      },
+      {
+        "name": "testHeldJumpCancelsOnBackgroundAndPause",
+        "status": "passed"
+      },
+      {
+        "name": "testOfflineTouchBuildSavePauseAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testOnlineLoginCityPlanningAndReconnect",
+        "status": "passed"
+      },
+      {
+        "name": "testCollisionJumpRayAndEditRules",
+        "status": "passed"
+      },
+      {
+        "name": "testSnapshotValidationAndSaveRoundTrip",
+        "status": "passed"
+      },
+      {
+        "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+        "status": "passed"
+      },
+      {
+        "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+        "status": "passed"
+      },
+      {
+        "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeGraphicsValidationMigrationAndPresets",
+        "status": "passed"
+      }
+    ]
+  },
+  "inspection": "Actual native flower pot with colored voxel leaves, terrain/edit, inventory and controls inspected. Simulator only; no physical-device or live VPS qualification."
+}

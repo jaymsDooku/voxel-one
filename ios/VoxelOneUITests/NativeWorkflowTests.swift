@@ -247,6 +247,19 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
         XCTAssertTrue(app.buttons["slot6"].label.contains("8 blocks"))
     }
+    func testSaveMenuBarrierBackgroundAndColdRestart()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["moveRight"].press(forDuration:0.5)
+        let position=app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0]
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        XCTAssertEqual(app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0],position)
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["breakButton"])
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"])
+        XCTAssertEqual(app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0],position)
+        capture("native-save-barrier-cold-restart")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()
