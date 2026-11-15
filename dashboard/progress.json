@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Opt-in RenderPipeline replay atlas publication/binding now hides stale coverage and preserves old atlas until valid replacement. 50 tests and native shader/texture readback passed; fresh report/media await publication. Frame scheduling, near-field lighting, saves and city/max qualification remain pending.",
-      "updatedAt": "2026-11-15T00:31:08+00:00"
+      "note": "Frame updates now upload replay sky within256KiB, hide stale coverage and keep resident history/GI out of incomplete replay. 50 tests and multi-frame native shader checks passed; fresh report/media await publication. Near-field lighting, Main paging, saves and city/max qualification remain pending.",
+      "updatedAt": "2026-11-15T00:57:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

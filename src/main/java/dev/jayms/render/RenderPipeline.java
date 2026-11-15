@@ -41,7 +41,7 @@ public final class RenderPipeline implements AutoCloseable {
     private World.ReplaySkySnapshot activeReplaySky,pendingReplaySky;
     private SceneLightingUpload replaySkyUpload;
     private int replaySkyAtlas;
-    private boolean replaySkyClosed;
+    private boolean replaySkyClosed,replayFrameMode;
     private World sceneWorld;
     private long sceneRevision=Long.MIN_VALUE;
     public int visibleChunks, occludedChunks;
@@ -256,7 +256,7 @@ public final class RenderPipeline implements AutoCloseable {
                 desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
             }
         }
-        if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
+        if (!world.hasReplayReadView()&&clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
         boolean changed=sceneChanged(world) || worldRevision != world.editsVersion();
         sceneNanos=System.nanoTime()-stage;
         SkyVisibilityScheduler.Prepared rebuilt=null;
@@ -353,6 +353,21 @@ public final class RenderPipeline implements AutoCloseable {
         lightingUploadBytes=skyGpuBytes=skyGpuNanos=0;
         if(System.nanoTime()>=deadline)return;
         int byteBudget=(initialLightingFrame?8:4)*1024*1024;
+        if(world.hasReplayReadView()) {
+            replaySkyOwner();
+            if(!replayFrameMode) {
+                if(lightingUpload!=null){lightingUpload.close();lightingUpload=null;}
+                if(skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
+                lightingStores.releaseTexture(fineRoots);fineRoots=glGenTextures();glFlush();
+                worldSky=null;activeSky=desiredSky=null;volume=desiredVolume=null;activeVolumeFence=desiredVolumeFence=null;
+                hasIrradiance=activeRootBuffer=lightingBootstrapped=false;particles.emitters(java.util.List.of());replayFrameMode=true;
+            }
+            long skyStart=System.nanoTime();skyGpuBytes=pumpReplaySky(world,deadline,Math.min(byteBudget,256*1024));skyGpuNanos=System.nanoTime()-skyStart;return;
+        }
+        if(replaySkyWorld!=null) {
+            replaySkyOwner();dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);glFlush();replaySkyAtlas=0;
+            activeReplaySky=null;replaySkyWorld=null;replayFrameMode=false;
+        }
         boolean independentSky=activeRootBuffer&&(desiredVolume==volume||pendingRootBuffer());
         boolean missingNearSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
         if(!independentSky&&skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
@@ -573,7 +588,7 @@ public final class RenderPipeline implements AutoCloseable {
         bind(5, GL_TEXTURE_BUFFER, fineLight);
         shader.setInt("uFineRoots", 4);
         shader.setInt("uFineLight", 5);
-        transport.bind(shader); clusters.bind(shader);
+        transport.bind(shader); clusters.bind(shader);if(replaySkyWorld!=null&&sceneWorld==replaySkyWorld)shader.setInt("uClusterReady",0);
     }
 
     public void distant(
