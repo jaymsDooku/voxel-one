@@ -43,18 +43,23 @@ public final class WorldLighting implements AutoCloseable {
         final ModelLibrary models;final Object terrainGrid;
         final long[] geometry=new long[36];final boolean[] ceilings=new boolean[36];
         final Map<ChunkPos,SparseVoxelOctree> replayChunks;
+        final World.ReplayLightingSnapshot replayCoverage;
         SparseVoxelOctree[] chunks=new SparseVoxelOctree[288];
         SparseVoxelOctree[][] overrides=new SparseVoxelOctree[288][];
         int capturedCells,editing;
         int index;Iterator<World.EditedCell> cells=Collections.emptyIterator();
-        Capture(World world,int x,int z) {
-            this.world=world;this.x=x;this.z=z;terrainGrid=world.terrain().stressGrid();replayChunks=world.replayLightingChunks();
+        Capture(World world,int x,int z) {this(world,x,z,null);}
+        Capture(World world,int x,int z,World.ReplayLightingSnapshot replayCoverage) {
+            this.replayCoverage=replayCoverage;
+            this.world=world;this.x=x;this.z=z;terrainGrid=world.terrain().stressGrid();replayChunks=replayCoverage==null?world.replayLightingChunks():replayCoverage.roots();
             stamp=stamp(world,x,z);modelsRevision=world.models().revision();models=world.models().copy();
-            for(int i=0;i<36;i++){int a=Math.floorDiv(x-48,16)+i%6,b=Math.floorDiv(z-48,16)+i/6;geometry[i]=world.geometryRevision(a,b);ceilings[i]=world.requiresSkyCeiling(a,b);}
+            for(int i=0;i<36;i++){int a=Math.floorDiv(x-48,16)+i%6,b=Math.floorDiv(z-48,16)+i/6;geometry[i]=world.geometryRevision(a,b);ceilings[i]=replayCoverage!=null||world.requiresSkyCeiling(a,b);}
         }
+        boolean matchesReplay(World.ReplayLightingSnapshot expected){return replayCoverage==null?expected==null:expected!=null&&expected.geometryKey()==replayCoverage.geometryKey()&&expected.skyKey()==replayCoverage.skyKey();}
         static long stamp(World w,int x,int z){return w.localRevision(x-48,x+47,z-48,z+47);}
         boolean valid(World w,int x,int z){
             if(world!=w||w.isClosed()||terrainGrid!=w.terrain().stressGrid()||this.x!=x||this.z!=z||modelsRevision!=w.models().revision()||stamp!=stamp(w,x,z))return false;
+            if(replayCoverage!=null&&!replayCoverage.current(w))return false;
             if(!Objects.equals(replayChunks,w.replayLightingChunks()))return false;
             for(int i=0;i<36;i++)if(geometry[i]!=w.geometryRevision(Math.floorDiv(x-48,16)+i%6,Math.floorDiv(z-48,16)+i/6))return false;
             return true;
@@ -122,7 +127,21 @@ public final class WorldLighting implements AutoCloseable {
         Object completionKey=pending==null?key:SkyVisibilityScheduler.ceilingKey(prepared,world,submittedX,submittedZ);
         return updateInternal(world,px,pz,actualX,actualZ,skyStrength,dynamicSky,prepared==null?null:prepared.data,key,completionKey,deadline,allowPrepare,true,collect);
     }
+    /** Explicit private CPU bake lane. Complete source-fenced geometry and sky
+     * are required; ordinary update and renderer admission remain unchanged. */
+    public LightVolume updateReplay(World world,int x,int z,float skyStrength,boolean dynamicSky,long deadline) {return updateReplay(world,x,z,skyStrength,dynamicSky,deadline,true);}
+    public LightVolume updateReplay(World world,int x,int z,float skyStrength,boolean dynamicSky,long deadline,boolean allowPrepare) {
+        Objects.requireNonNull(world);
+        if(world.isClosed()||System.nanoTime()>=deadline)return null;
+        if(!world.hasReplayReadView())throw new IllegalArgumentException("Replay lighting requires private view");
+        var replay=world.replayLightingSnapshot(x,z);
+        var sky=replay==null?null:replay.sky();var key=replay==null?null:replay.skyKey();
+        return updateInternal(world,x,z,x,z,skyStrength,dynamicSky,sky,key,key,deadline,allowPrepare&&replay!=null,false,true,replay);
+    }
     private LightVolume updateInternal(World world,float px,float pz,float actualX,float actualZ,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey,Object completionKey,long deadline,boolean allowPrepare,boolean relevant,boolean collect){
+        return updateInternal(world,px,pz,actualX,actualZ,skyStrength,dynamicSky,globalSky,globalSkyKey,completionKey,deadline,allowPrepare,relevant,collect,null);
+    }
+    private LightVolume updateInternal(World world,float px,float pz,float actualX,float actualZ,float skyStrength,boolean dynamicSky,WorldSkyVisibility globalSky,Object globalSkyKey,Object completionKey,long deadline,boolean allowPrepare,boolean relevant,boolean collect,World.ReplayLightingSnapshot replay){
         int trace=dev.jayms.OwnerTrace.begin("gi.update");try{
         if(world.isClosed()||System.nanoTime()>=deadline)return null;
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
@@ -154,12 +173,12 @@ public final class WorldLighting implements AutoCloseable {
                         || cz != centerZ
                         || revision != Capture.stamp(world,cx,cz)
                         || ambient != skyStrength || separateSky!=dynamicSky || !Objects.equals(skyKey,globalSkyKey))) {
-            if(capture==null||!capture.valid(world,cx,cz)){if(capture!=null)captureRestarts++;capture=new Capture(world,cx,cz);}
+            if(capture==null||!capture.valid(world,cx,cz)||!capture.matchesReplay(replay)){if(capture!=null)captureRestarts++;capture=new Capture(world,cx,cz,replay);}
             if(!capture.pump(deadline))return result;
             if(!capture.valid(world,cx,cz)){capture=null;return result;}
-            // Complete local geometry does not prove replay sky/ceiling coverage.
-            // Keep worker publication disabled until that separate source is bound.
-            if(capture.replayChunks!=null)return result;
+            // Ordinary replay updates remain closed. Only the explicit lane has
+            // a current joint geometry/sky receipt, retained through collection.
+            if(capture.replayChunks!=null&&capture.replayCoverage==null)return result;
             var prepared=capture;capture=null;submittedCapture=prepared;submitted++;
             submittedSky=globalSky;submittedSkyKey=globalSkyKey;submittedWorld=world;
             submittedAmbient = skyStrength;

@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added joint current geometry/sky CPU coverage check for exact lighting footprint; 40 tests and native integration/GLFW checks pass. Bake admission, appearance, Main, saves, city/max and physical qualification remain pending.",
-      "updatedAt": "2026-11-15T04:06:17+00:00"
+      "note": "Added explicit source-fenced replay CPU bake; 52 tests and native real-bake/GLFW regressions pass. Renderer integration, appearance, Main, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-15T04:37:27+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
