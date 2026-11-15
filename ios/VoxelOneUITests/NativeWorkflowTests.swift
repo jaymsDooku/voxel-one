@@ -206,6 +206,29 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
         capture("final-native-terrain-edited")
     }
+    func testSandboxCameraModesAimReachAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground")
+        func choose(_ name:String){app.buttons["cameraButton"].tap();wait(app.buttons[name]);app.buttons[name].tap();textContains("gameStatus",name+" camera")}
+        choose("Third person");capture("sandbox-third-person")
+        app.terminate();app.launch();wait(app.buttons["cameraButton"])
+        XCTAssertEqual(app.buttons["cameraButton"].value as? String,"Third person")
+        choose("Isometric");capture("sandbox-isometric")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
+        textContains("gameStatus","Target set")
+        // A far corner in the overview must not grant remote edit reach.
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.1,dy:0.35)).tap()
+        app.buttons["breakButton"].tap();textContains("gameStatus","within five blocks")
+        scene.pinch(withScale:1.5,velocity:1)
+        app.buttons["moveRight"].press(forDuration:0.5)
+        capture("sandbox-isometric-zoom-moved")
+        XCUIDevice.shared.orientation = .landscapeLeft
+        XCTAssertTrue(app.buttons["cameraButton"].isHittable);capture("sandbox-camera-landscape")
+        XCUIDevice.shared.orientation = .portrait
+        choose("First person")
+        app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()

@@ -19,6 +19,9 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
     private var status=UILabel(),positionLabel=UILabel(),cityLabel=UILabel(),crosshair=UILabel()
     private var slotButtons:[UIButton]=[]
+    private var aimPoint:CGPoint?
+    private var cameraButton:UIButton?
+    private var isometric:Bool {world?.snapshot.city==nil && renderer.sandboxCamera == .isometric}
     private var flyButton:UIButton?,descendButton:UIButton?
     private var planButton:UIButton?,confirmButton:UIButton?,pauseButton:UIButton?
     private var points:[[Float]]=[];private var tool=0
@@ -47,6 +50,9 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             openGraphics()
         }
         #endif
+    }
+    override func viewWillTransition(to size:CGSize,with coordinator:UIViewControllerTransitionCoordinator){
+        movement.removeAll();resetAim();super.viewWillTransition(to:size,with:coordinator)
     }
     // HUD labels and empty stack space share world gestures. Controls keep their
     // own touches, including movement buttons and the scrolling hotbar.
@@ -84,6 +90,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
+        aimPoint=nil
         inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
@@ -93,7 +100,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
         let fly=button("Fly","flyButton",#selector(toggleFly));flyButton=fly;fly.isHidden=gateway != nil
-        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly])
+        let camera=button("Camera","cameraButton",#selector(chooseCamera));cameraButton=camera;camera.isHidden=world?.snapshot.city != nil
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly,camera])
         let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -128,6 +136,20 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         if !paused && !renderer.planning,let world=world,world.grounded,!world.flying {
             jumpOrigin=world.position.y;jumpRose=false;world.jump()
         }
+    }
+    private func resetAim(){aimPoint=nil;crosshair.transform = .identity}
+    @objc private func chooseCamera(){
+        guard !paused,let world=world,world.snapshot.city==nil else{return};movement.removeAll()
+        let alert=UIAlertController(title:"Camera",message:"Drag to look. In Isometric, use two fingers to pan and pinch to zoom. Tap terrain to aim; edits still need player reach.",preferredStyle:.actionSheet)
+        for mode in NativeCameraMode.allCases {
+            alert.addAction(UIAlertAction(title:mode.title,style:.default){[weak self] _ in
+                guard let self=self else{return}
+                self.renderer.sandboxCamera=mode;UserDefaults.standard.set(mode.rawValue,forKey:"sandboxCameraMode")
+                self.renderer.focus=world.position;self.resetAim();self.renderer.updateCamera(world)
+                self.notify("\(mode.title) camera.");self.refreshHUD()
+            })
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
     }
     @objc private func toggleFly(){
         guard gateway==nil,!paused,let world=world else{return}
@@ -173,26 +195,40 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         points.removeAll();if let world=world{renderer.mark(points,world:world)}
     }
     @objc private func tapWorld(_ gesture:UITapGestureRecognizer){
-        guard !inMenu,!paused,renderer.planning,let world=world,let point=renderer.point(at:gesture.location(in:renderer.view)) else{return}
+        guard !inMenu,!paused,let world=world else{return}
+        if !renderer.planning && world.snapshot.city==nil && renderer.sandboxCamera != .first {
+            movement.removeAll();let point=gesture.location(in:renderer.view);aimPoint=point
+            crosshair.transform=CGAffineTransform(translationX:point.x-view.bounds.midX,y:point.y-view.bounds.midY)
+            notify("Target set. Break or Place within five blocks.");return
+        }
+        guard renderer.planning,let point=renderer.point(at:gesture.location(in:renderer.view)) else{return}
         if tool==0 {
             let c=world.snapshot.city?.citizens.min{hypot($0.x-point.x,$0.z-point.z)<hypot($1.x-point.x,$1.z-point.z)}
             if let c=c,hypot(c.x-point.x,c.z-point.z)<4 {notify("\(c.name): \(c.activity), $\(Int(c.money)), hunger \(Int(c.hunger))")}
             else {notify("Ground \(Int(floor(point.x))), \(Int(floor(point.z))).")}
         } else if points.count<32 {points.append([Float(floor(point.x)),Float(floor(point.z))]);renderer.mark(points,world:world);notify("\(points.count) plan points.")}
     }
-    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,!renderer.planning else{return};let d=gesture.translation(in:renderer.view);world?.look(dx:Float(d.x),dy:Float(d.y));gesture.setTranslation(.zero,in:renderer.view)}
-    @objc private func panPlanning(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,renderer.planning else{return};let d=gesture.translation(in:renderer.view)
+    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,!renderer.planning,!isometric else{return};resetAim();let d=gesture.translation(in:renderer.view);world?.look(dx:Float(d.x),dy:Float(d.y));gesture.setTranslation(.zero,in:renderer.view)}
+    @objc private func panPlanning(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,(renderer.planning || isometric) else{return};resetAim();let d=gesture.translation(in:renderer.view)
         renderer.focus.x-=Float(d.x+d.y)*renderer.distance/500;renderer.focus.z+=Float(d.x-d.y)*renderer.distance/500
-        renderer.focus.x=min(999_970,max(-999_970,renderer.focus.x));renderer.focus.z=min(999_970,max(-999_970,renderer.focus.z));gesture.setTranslation(.zero,in:renderer.view)
+        if isometric,let world=world {
+            let b=world.snapshot.bounds;renderer.focus.x=min(Float(b[1]),max(Float(b[0]),renderer.focus.x));renderer.focus.z=min(Float(b[5]),max(Float(b[4]),renderer.focus.z))
+        } else {renderer.focus.x=min(999_970,max(-999_970,renderer.focus.x));renderer.focus.z=min(999_970,max(-999_970,renderer.focus.z))}
+        gesture.setTranslation(.zero,in:renderer.view)
     }
-    @objc private func pinch(_ gesture:UIPinchGestureRecognizer){if renderer.planning {renderer.distance=min(80,max(12,renderer.distance/Float(gesture.scale)));gesture.scale=1}}
+    @objc private func pinch(_ gesture:UIPinchGestureRecognizer){if !inMenu,!paused,(renderer.planning || isometric) {resetAim();renderer.distance=min(80,max(12,renderer.distance/Float(gesture.scale)));gesture.scale=1}}
     @objc private func breakBlock(){edit(place:false)}
     @objc private func placeBlock(){edit(place:true)}
     private func edit(place:Bool){
         guard !paused,!renderer.planning,let world=world else{return}
         let type=place ? world.snapshot.inventory[world.slot][0]:0
         if place && type==0 {notify("This hotbar slot is empty.");return}
-        guard let target=world.target() else{notify("Aim at a block within five blocks.");return}
+        let target:(hit:GridKey,previous:GridKey)?
+        if world.snapshot.city==nil && renderer.sandboxCamera != .first {
+            renderer.updateCamera(world)
+            target=renderer.target(at:aimPoint ?? CGPoint(x:renderer.view.bounds.midX,y:renderer.view.bounds.midY),world:world)
+        } else {target=world.target()}
+        guard let target=target else{notify("Aim at a visible block within five blocks of your player.");return}
         let key=place ? target.previous:target.hit
         if gateway != nil { action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot],success:place ? "Placement checked by server.":"Break checked by server.") }
         else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);try OfflineSave.write(world);notify(place ? "Placed \(VoxelWorld.name(type)).":"Block collected.");refreshHUD()}catch{notify(error.localizedDescription)}}
@@ -253,6 +289,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             if movement.contains("jumpButton") {jump()}
             let climb:Float=(movement.contains("jumpButton") ? 1:0)-(movement.contains("flyDown") ? 1:0)
             world.step(forward:forward,strafe:side,dt:dt,climb:climb)
+            if isometric && (forward != 0 || side != 0 || climb != 0) {renderer.focus=world.position;resetAim()}
             if let origin=jumpOrigin {
                 if world.position.y>origin+0.2 {jumpRose=true}
                 if world.grounded {
@@ -284,6 +321,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         positionLabel.isHidden=view.bounds.width>view.bounds.height
         status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
         cityLabel.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
+        cameraButton?.accessibilityValue=renderer.sandboxCamera.title
         flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
         flyButton?.accessibilityValue=world.flying ? "On":"Off"
         descendButton?.isHidden = !world.flying

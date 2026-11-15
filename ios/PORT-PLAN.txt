@@ -112,3 +112,31 @@ Receipt identity and image SHA-256 verified; actual image inspected. It shows
 native gameplay controls but aims at sky, so terrain media remains insufficient.
 A final native test now edits terrain and saves a downward view for cold-launch
 capture. Prior receipt does not qualify these newer flight or evidence changes.
+
+Camera increment (new native qualification pending)
+Sandbox camera choice is local, persisted in UserDefaults: first, third, isometric.
+The SceneKit renderer reuses its orthographic path for Sandbox without enabling
+City planning commands. City still selects its original Plan/Walk behavior.
+Third-person lens sweep: <=12 blocks, steps <=0.1 blocks, 0.15-block corner samples;
+solid terrain and snapshot boundaries retract the lens. The simple local capsule
+hides when the lens is within one block of the eye. This is not a desktop skin port.
+Isometric pan stays within loaded X/Z bounds; zoom remains 12..80. Movement recenters
+on the player, while panning never moves their authoritative pose. Tap aiming uses
+the displayed camera ray, then checks five-block player-eye reach and occlusion.
+First-person picking reuses the same bounded DDA traversal with the old semantics.
+Pan, zoom, movement and orientation changes clear a prior tap aim. Held movement
+also clears on orientation changes. New native tests cover mode persistence,
+overview reach rejection, zoom, movement, landscape and walking/jump recovery.
+
+Flight source f87f9fe060b5ba36499069fa7ba2a04de876137d passed 16 native tests on
+Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43664750206
+Report source and screenshot SHA-256 checked. Inspected image shows terrain,
+placed dirt, updated inventory and native controls. Screenshot saved for controller
+publication. This qualifies prior flight/terrain work on Simulator, not these newer
+camera edits, physical iPhone performance, live VPS or signed installation.
+
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4 remains scoped to the
+iOS port and shared mobile recipe adapter. No unrelated files/assets were deleted.
+Camera replaces only the renderer's camera dispatch and controller aim/gesture
+routing; City planning continues through its original branch.

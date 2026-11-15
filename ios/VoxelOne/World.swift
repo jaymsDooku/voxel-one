@@ -3,6 +3,11 @@ import SceneKit
 import UIKit
 import simd
 
+enum NativeCameraMode:String,CaseIterable {
+    case first,third,isometric
+    var title:String {switch self {case .first:return "First person";case .third:return "Third person";case .isometric:return "Isometric"}}
+}
+struct VoxelHit {let hit:GridKey;let previous:GridKey;let distance:Float}
 struct GridKey: Hashable, Codable {
     var x: Int; var y: Int; var z: Int
     init(_ x: Int, _ y: Int, _ z: Int) { self.x=x; self.y=y; self.z=z }
@@ -240,8 +245,14 @@ final class VoxelWorld {
     var direction: SCNVector3 { SCNVector3(-sin(yaw)*cos(pitch),sin(pitch),-cos(yaw)*cos(pitch)) }
     var eye: SCNVector3 { SCNVector3(position.x,position.y+1.62,position.z) }
     func target() -> (hit: GridKey, previous: GridKey)? {
+        guard let result=raycast(origin:eye,direction:direction,reach:5) else{return nil}
+        return (result.hit,result.previous)
+    }
+    /// Shared camera and player traversal. Direction must be normalized by the caller.
+    func raycast(origin o:SCNVector3,direction d:SCNVector3,reach:Float)->VoxelHit? {
+        guard [o.x,o.y,o.z,d.x,d.y,d.z,reach].allSatisfy({$0.isFinite}),[o.x,o.y,o.z].allSatisfy({abs($0)<=1_000_300}),reach>0,reach<=256,
+              abs(d.x*d.x+d.y*d.y+d.z*d.z-1)<0.001 else{return nil}
         // Amanatides/Woo grid ray traversal: no missed thin faces at diagonal angles.
-        let o=eye,d=direction
         var cell=GridKey(Int(floor(o.x)),Int(floor(o.y)),Int(floor(o.z))), previous=cell
         let step=GridKey(d.x>=0 ? 1 : -1,d.y>=0 ? 1 : -1,d.z>=0 ? 1 : -1)
         func start(_ o:Float,_ d:Float,_ c:Int,_ s:Int)->Float { if abs(d)<0.000001{return .infinity};return (Float(c+(s>0 ? 1:0))-o)/d }
@@ -250,14 +261,32 @@ final class VoxelWorld {
         let dy=abs(d.y)<0.000001 ? Float.infinity : abs(1/d.y)
         let dz=abs(d.z)<0.000001 ? Float.infinity : abs(1/d.z)
         var distance:Float=0
-        while distance<=5 {
-            let t=type(cell);if t != 0 && t != 185 {return (cell,previous)}
+        while distance<=reach {
+            let t=type(cell);if t != 0 && t != 185 {return VoxelHit(hit:cell,previous:previous,distance:distance)}
             previous=cell
             if tx<ty && tx<tz {cell.x+=step.x;distance=tx;tx+=dx}
             else if ty<tz {cell.y+=step.y;distance=ty;ty+=dy}
             else {cell.z+=step.z;distance=tz;tz+=dz}
         }
         return nil
+    }
+    /// Short swept camera volume; never put the third-person lens through terrain.
+    func cameraPosition(toward desired:SCNVector3)->SCNVector3 {
+        let start=eye,dx=desired.x-start.x,dy=desired.y-start.y,dz=desired.z-start.z
+        let length=sqrt(dx*dx+dy*dy+dz*dz)
+        guard length.isFinite,length>0,length<=12 else{return start}
+        let count=max(1,Int(ceil(length/0.1)));var safe=start
+        for step in 1...count {
+            let t=Float(step)/Float(count),p=SCNVector3(start.x+dx*t,start.y+dy*t,start.z+dz*t)
+            var blocked=false
+            for x in [-Float(0.15),Float(0.15)] {for y in [-Float(0.15),Float(0.15)] {for z in [-Float(0.15),Float(0.15)] {
+                let k=GridKey(Int(floor(p.x+x)),Int(floor(p.y+y)),Int(floor(p.z+z))),b=snapshot.bounds
+                let material=type(k)
+                if k.x<b[0] || k.x>b[1] || k.y<b[2] || k.y>b[3] || k.z<b[4] || k.z>b[5] || (material != 0 && material != 185) {blocked=true}
+            }}}
+            if blocked {break};safe=p
+        }
+        return safe
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
         if type==0 {

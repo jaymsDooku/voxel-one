@@ -6,6 +6,8 @@ import simd
 final class VoxelRenderer {
     let view=SCNView(); let scene=SCNScene(); let camera=SCNNode(); let terrain=SCNNode();let people=SCNNode();let markers=SCNNode();let zones=SCNNode()
     private(set) var graphics=NativeGraphics.load()
+    var sandboxCamera=NativeCameraMode(rawValue:UserDefaults.standard.string(forKey:"sandboxCameraMode") ?? "") ?? .first
+    private let localPlayer=SCNNode()
     var planning=false;var focus=SCNVector3Zero;var distance:Float=38
     /// Local opt-in. Missing preference remains disabled until a device budget exists.
     var atmospherePreview:Bool {
@@ -25,6 +27,8 @@ final class VoxelRenderer {
         (GridKey(0,0,1),SCNVector3(0,0,1),[SCNVector3(1,0,1),SCNVector3(1,1,1),SCNVector3(0,1,1),SCNVector3(0,0,1)]),
         (GridKey(0,0,-1),SCNVector3(0,0,-1),[SCNVector3(0,0,0),SCNVector3(0,1,0),SCNVector3(1,1,0),SCNVector3(1,0,0)])]
     init() {
+        let body=SCNCapsule(capRadius:0.28,height:1.8);body.firstMaterial?.diffuse.contents=UIColor.systemCyan
+        localPlayer.geometry=body;scene.rootNode.addChildNode(localPlayer)
         view.scene=scene;view.pointOfView=camera;view.isPlaying=true;view.preferredFramesPerSecond=30
         view.backgroundColor=UIColor(red:0.48,green:0.73,blue:0.9,alpha:1);view.antialiasingMode = .multisampling2X
         view.accessibilityIdentifier="worldView";view.isAccessibilityElement=true;view.accessibilityLabel="Voxel world. Drag to look; two fingers pan the planning view."
@@ -108,11 +112,23 @@ final class VoxelRenderer {
     }
     func updateCamera(_ world:VoxelWorld) {
         zones.isHidden = !planning
-        if planning {
+        let mode=world.snapshot.city==nil ? sandboxCamera:NativeCameraMode.first
+        localPlayer.isHidden=planning || mode == .first
+        localPlayer.position=SCNVector3(world.position.x,world.position.y+0.9,world.position.z)
+        if planning || mode == .isometric {
             camera.camera?.usesOrthographicProjection=true;camera.camera?.orthographicScale=Double(distance)
             camera.position=SCNVector3(focus.x+distance,focus.y+distance,focus.z+distance);camera.look(at:focus)
+        } else if mode == .third {
+            camera.camera?.usesOrthographicProjection=false
+            let eye=world.eye,d=world.direction
+            camera.position=world.cameraPosition(toward:SCNVector3(eye.x-d.x*4,eye.y-d.y*4+0.8,eye.z-d.z*4))
+            camera.look(at:SCNVector3(eye.x+d.x*3,eye.y+d.y*3,eye.z+d.z*3))
         } else {
             camera.camera?.usesOrthographicProjection=false;camera.position=world.eye;camera.eulerAngles=SCNVector3(world.pitch,world.yaw,0)
+        }
+        if mode == .third && !planning {
+            let dx=camera.position.x-world.eye.x,dy=camera.position.y-world.eye.y,dz=camera.position.z-world.eye.z
+            localPlayer.isHidden=dx*dx+dy*dy+dz*dz<1
         }
         let detail=Float(graphics.detail)
         let eye=SIMD3<Float>(camera.position.x,camera.position.y,camera.position.z)
@@ -163,6 +179,19 @@ final class VoxelRenderer {
         let sigma=(density.x+density.y+density.z)/3*profile.values[2]
         if profile.enabled && sigma>0 {scene.fogStartDistance=0;scene.fogEndDistance=1/sigma;let l=NativeAtmosphere.radiance(p,simd_normalize(profile.ray(SIMD3(1,0,0))),planetSun,profile,includeSolarDisc:false);scene.fogColor=UIColor(red:CGFloat(l.x/(1+l.x)),green:CGFloat(l.y/(1+l.y)),blue:CGFloat(l.z/(1+l.z)),alpha:1)}
         else {scene.fogStartDistance=1e8;scene.fogEndDistance=1e9}
+    }
+    /// Pick from the displayed camera, then enforce player reach and line of sight.
+    func target(at location:CGPoint,world:VoxelWorld)->(hit:GridKey,previous:GridKey)? {
+        let near=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),0))
+        let far=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),1))
+        let delta=SIMD3<Float>(far.x-near.x,far.y-near.y,far.z-near.z)
+        guard simd_length(delta)>0 else{return nil};let d=simd_normalize(delta)
+        guard let pick=world.raycast(origin:near,direction:SCNVector3(d.x,d.y,d.z),reach:180) else{return nil}
+        let point=SCNVector3(near.x+d.x*(pick.distance+0.005),near.y+d.y*(pick.distance+0.005),near.z+d.z*(pick.distance+0.005))
+        let eye=world.eye,aim=SIMD3<Float>(point.x-eye.x,point.y-eye.y,point.z-eye.z),length=simd_length(aim)
+        guard length>0,length<=5 else{return nil};let direction=aim/length
+        guard world.raycast(origin:eye,direction:SCNVector3(direction.x,direction.y,direction.z),reach:min(5,length+0.01))?.hit==pick.hit else{return nil}
+        return (pick.hit,pick.previous)
     }
     func point(at location:CGPoint) -> SCNVector3? {
         let hits=view.hitTest(location,options:[.rootNode:terrain,.firstFoundOnly:true])

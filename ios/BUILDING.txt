@@ -132,3 +132,13 @@ Down to descend. Let go to hover. Walk restores gravity. Movement remains bounde
 to the loaded area and known snapshot ceiling. Flight mode resets to walking on
 world load; the saved position is retained. Pause, menu, graphics and backgrounding
 clear held input. Online flight is unavailable pending authoritative protocol work.
+
+Sandbox cameras
+
+Camera selects First person, Third person or Isometric. The choice survives app
+restart. Third person shows a simple local player capsule; its lens retracts near
+solid terrain. Isometric uses two fingers to pan and pinch to zoom. Walk input
+recenters the overview on the player. Tap terrain to aim, then Break or Place.
+A camera overview does not extend the player's five-block reach or see through
+walls for edits. City keeps its existing Plan/Walk controls. Orientation changes
+cancel held movement and reset the aim point.

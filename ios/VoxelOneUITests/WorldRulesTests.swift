@@ -130,6 +130,20 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertTrue(world.grounded);world.jump();XCTAssertGreaterThan(world.verticalSpeed,0)
         let restored=try VoxelWorld(world.savedSnapshot());XCTAssertFalse(restored.flying,"Flight is a transient local mode")
     }
+    func testSharedCameraRayBoundsAndSweptLensCollision()throws {
+        var value=fixture();value.cells.append([0,2,2,3,0x8c949e]);value.cells.append([0,3,2,3,0x8c949e])
+        let world=try VoxelWorld(value)
+        let hit=try XCTUnwrap(world.raycast(origin:SCNVector3(0.5,1.5,0.5),direction:SCNVector3(0,0,-1),reach:5))
+        XCTAssertEqual(hit.hit,GridKey(0,1,-2));XCTAssertEqual(hit.previous,GridKey(0,1,-1))
+        XCTAssertEqual(hit.distance,1.5,accuracy:0.001)
+        XCTAssertNil(world.raycast(origin:SCNVector3(0.5,1.5,0.5),direction:SCNVector3(0,0,-1),reach:1))
+        XCTAssertNil(world.raycast(origin:world.eye,direction:SCNVector3Zero,reach:5))
+        XCTAssertNil(world.raycast(origin:SCNVector3(Float.infinity,1,0),direction:SCNVector3(0,0,-1),reach:5))
+        let lens=world.cameraPosition(toward:SCNVector3(0.5,world.eye.y,4.5))
+        XCTAssertGreaterThan(lens.z,world.eye.z);XCTAssertLessThan(lens.z,1.86,"Swept lens stays in front of wall")
+        XCTAssertEqual(world.cameraPosition(toward:SCNVector3(0.5,world.eye.y,50)).z,world.eye.z,"Bound camera work")
+        XCTAssertNil(NativeCameraMode(rawValue:"unknown"));XCTAssertEqual(NativeCameraMode.allCases.count,3)
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)
