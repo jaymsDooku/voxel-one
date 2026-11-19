@@ -42,7 +42,7 @@ final class Gateway {
     }
     func login(game:String,username:String,password:String,register:Bool) async throws -> Snapshot {
         struct Login:Decodable {var token:String;var state:Snapshot}
-        let response=try JSONDecoder().decode(Login.self,from:await post("login",["game":game,"username":username,"password":password,"register":register]))
+        let response=try JSONDecoder().decode(Login.self,from:await post("login",["game":game,"username":username,"password":password,"register":register,"itemsVersion":1]))
         try response.state.validate();token=response.token;return response.state
     }
     private func pose(_ world:VoxelWorld)->[String:Any] {

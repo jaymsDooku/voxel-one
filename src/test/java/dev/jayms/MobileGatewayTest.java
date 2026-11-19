@@ -12,7 +12,7 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MobileGatewayTest {
     @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
-        var catalog=MobileSnapshot.recipeCatalog();assertEquals(95,catalog.size());
+        var catalog=MobileSnapshot.recipeCatalog();assertEquals(104,catalog.size());
         Set<Integer> ids=new HashSet<>();
         for(var item:catalog) {
             int id=(Integer)item.get("id");assertTrue(ids.add(id));var recipe=Crafting.recipe(id);
@@ -36,6 +36,8 @@ class MobileGatewayTest {
         var geometry=(Map<?,?>)detail.get("geometry");assertEquals(16,geometry.get("resolution"));
         assertEquals(List.of(List.of(0,0,0,8,Blocks.STONE,WorldVoxels.color(Blocks.STONE)&0xffffff)),geometry.get("leaves"));
         var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));assertEquals(Boolean.TRUE,contract.get("fineEdits"));assertEquals(Boolean.TRUE,contract.get("batchCrafting"));
+        assertEquals(1,contract.get("itemsVersion"));var definitions=(List<?>)contract.get("items");assertEquals(199,definitions.size());
+        for(var raw:definitions){var item=(Map<?,?>)raw;int id=(Integer)item.get("id");assertEquals(Items.name(id),item.get("name"));assertEquals(Items.stackLimit(id),item.get("stackLimit"));assertEquals(Items.get(id).placeableBlock(),item.get("placeableBlock"));}
         var models=(List<?>)contract.get("models");assertEquals(1,models.size());
         var model=(Map<?,?>)models.get(0);assertEquals(8,model.get("id"));
         var expected=new dev.jayms.net.model.ModelLibrary().get(8).definition();assertEquals(expected.fingerprint(),model.get("fingerprint"));
@@ -53,6 +55,17 @@ class MobileGatewayTest {
             Thread.sleep(150);
             assertEquals(200,post(host,"action",bearer,Map.of("kind","craft","recipe",88)).statusCode());
             assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+        }
+    }
+    @Test void itemCatalogNegotiationPreservesLegacyRecipeViews()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("items-profile"))){
+            var old=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,old.statusCode());
+            assertFalse(old.body().contains("\"id\":96,\"inputs\":"));
+            assertEquals(426,post(host,"action",token(old),Map.of("kind","craft","recipe",95)).statusCode());
+            assertEquals(200,post(host,"logout",token(old),Map.of()).statusCode());
+            var current=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123","itemsVersion",1));assertEquals(200,current.statusCode());
+            assertTrue(current.body().contains("\"id\":96,\"inputs\":"));
+            assertEquals(200,post(host,"logout",token(current),Map.of()).statusCode());
         }
     }
     @Test void authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory()throws Exception {

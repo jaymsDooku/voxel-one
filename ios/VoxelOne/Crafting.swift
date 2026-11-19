@@ -9,7 +9,7 @@ import UIKit
     private let status=UILabel()
     private let emptyState=UILabel()
     private let emptySpace=UIView()
-    private let category=UISegmentedControl(items:["All","Materials","Build","Decor","Light"])
+    private let category=UISegmentedControl(items:["All","Tools","Mat","Build","Decor","Light"])
     private var shown:[NativeRecipe]=[]
     private var inventory:[[Int]]=[]
     private var pending=false
@@ -66,7 +66,7 @@ import UIKit
     @objc private func queryChanged(){queryText=search.searchTextField.text ?? "";filter()}
     @objc private func filter(){
         let query=queryText.trimmingCharacters(in:.whitespacesAndNewlines)
-        let chosen=["All","Materials","Building","Decorations","Lighting"][category.selectedSegmentIndex]
+        let chosen=["All","Tools","Materials","Building","Decorations","Lighting"][category.selectedSegmentIndex]
         shown=recipes.filter { recipe in
             let text=([recipe.name,name(recipe.output)]+recipe.inputs.map{name($0[0])}).joined(separator:" ")
             return (chosen=="All" || recipe.category==chosen) && (query.isEmpty || text.localizedCaseInsensitiveContains(query))

@@ -76,6 +76,8 @@ public final class MobileGateway implements AutoCloseable {
                     synchronized(sessions){if(sessions.size()>=32)throw new Failure(503,"Server full");}
                     String game=Json.text(request,"game");Target target=game.equals("sandbox")?sandbox:game.equals("city")?city:null;
                     if(target==null)throw new Failure(400,"Choose a game");
+                    int itemsVersion=request.containsKey("itemsVersion")?Json.integer(request,"itemsVersion"):0;
+                    if(itemsVersion<0 || itemsVersion>1)throw new Failure(400,"Unsupported mobile item version");
                     String name=Json.text(request,"username");char[] password=Json.text(request,"password").toCharArray();
                     MultiplayerClient client;
                     try{client=new MultiplayerClient(target.host(),target.port(),name,password,Boolean.TRUE.equals(request.get("register")),target.fingerprint(),45000);}
@@ -83,9 +85,11 @@ public final class MobileGateway implements AutoCloseable {
                     catch(SocketTimeoutException e){throw new Failure(504,"Game sign-in timed out. Try again.");}
                     catch(IOException e){throw new Failure(503,"Game server connection failed. Try again.");}
                     finally{Arrays.fill(password,'\0');request.remove("password");}
-                    var session=new Session(client,target);byte[] token=new byte[32];random.nextBytes(token);String key=Base64.getUrlEncoder().withoutPadding().encodeToString(token);
+                    var session=new Session(client,target,itemsVersion==1);
+                    Map<String,Object> initialState;try{initialState=session.state(Map.of());}catch(RuntimeException e){session.close();throw e;}
+                    byte[] token=new byte[32];random.nextBytes(token);String key=Base64.getUrlEncoder().withoutPadding().encodeToString(token);
                     synchronized(sessions){if(sessions.size()>=32){session.close();throw new Failure(503,"Server full");}sessions.put(key,session);}
-                    result=Map.of("token",key,"state",session.state(Map.of()));
+                    result=Map.of("token",key,"state",initialState);
                 }finally{connecting.decrementAndGet();}
             }else{
                 String auth=exchange.getRequestHeaders().getFirst("Authorization");
@@ -140,10 +144,10 @@ public final class MobileGateway implements AutoCloseable {
         return "Game server transport closed";
     }
     private static final class Session implements AutoCloseable{
-        final Target target;final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
+        final boolean itemCatalog;final Target target;final MultiplayerClient client;final Terrain terrain;final WorldVoxels world;volatile Protocol.Pose pose;final Object poseLock=new Object();
         volatile long lastUsed=System.nanoTime();boolean respawned;long lastSequence=-1,lastCityReceipt;
         Protocol.Pose lastSentPose;long lastPoseSend;
-        Session(MultiplayerClient client,Target target){this.target=target;this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
+        Session(MultiplayerClient client,Target target,boolean itemCatalog){this.itemCatalog=itemCatalog;this.target=target;this.client=client;terrain=new Terrain(client.seed,client.generatorVersion);world=new WorldVoxels(terrain);client.initialEdits.forEach(world::apply);pose=client.spawn;}
         // Short transport lock never waits for world snapshots and does not extend HTTP idle expiry.
         void heartbeat(){synchronized(poseLock){
             long now=System.nanoTime();
@@ -173,7 +177,9 @@ public final class MobileGateway implements AutoCloseable {
                 if(Math.abs(x)>Terrain.LIMIT-24 || Math.abs(z)>Terrain.LIMIT-24)throw new IllegalArgumentException("Invalid focus");
                 view=new Protocol.Pose(client.id,(float)x,terrain.surfaceHeight((int)x,(int)z)+1,(float)z,0,0,0,0,false,0,0,false);
             }
+            if(!itemCatalog)for(int slot=0;slot<Inventory.SIZE;slot++)if(client.inventory.type(slot)>=190)throw new Failure(426,"Update the iPhone app to use this item inventory.");
             var result=MobileSnapshot.capture(world,terrain,view,client.inventory,client.health,client.city,client.notice(),16,client.models);
+            if(!itemCatalog)result.put("recipes",MobileSnapshot.recipeCatalog().stream().filter(r->(Integer)r.get("output")<=189).toList());
             result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));
             result.put("resetPose",respawned);respawned=false;
             result.put("drops",client.drops.values().stream().map(d->Map.of("id",d.id(),"type",d.type(),"x",d.x(),"y",d.y(),"z",d.z())).toList());
@@ -220,6 +226,7 @@ public final class MobileGateway implements AutoCloseable {
                 case "swap" -> {int a=Json.integer(request,"a"),b=Json.integer(request,"b");if(a<0 || b<0 || a>=36 || b>=36)throw new IllegalArgumentException();client.swap(a,b);sent=true;Thread.sleep(100);}
                 case "craft" -> {int recipe=Json.integer(request,"recipe"),quantity=request.containsKey("quantity")?Json.integer(request,"quantity"):1;
                     if(quantity<1 || quantity>Crafting.MAX_BATCH)throw new IllegalArgumentException("Invalid batch quantity");
+                    if(!itemCatalog && recipe>=95)throw new Failure(426,"Update the iPhone app for item recipes.");
                     sent=client.craft(recipe,quantity,pose);Thread.sleep(100);}
                 default -> throw new IllegalArgumentException("Unsupported action");
             }

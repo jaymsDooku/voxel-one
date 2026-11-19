@@ -77,11 +77,13 @@ public final class MobileSnapshot {
         var models=ids.stream().sorted().map(id->{var e=library.get(id);
             if(e==null)throw new IllegalArgumentException("Mobile model definition unavailable");
             return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
-        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"batchCrafting",true,"materials",materials,"models",models));
+        var items=java.util.stream.IntStream.rangeClosed(0,198).mapToObj(id->{var item=Items.get(id,library);
+            return new TreeMap<>(Map.of("id",id,"name",item.name(),"category",item.category(),"stackLimit",item.stackLimit(),"placeableBlock",item.placeableBlock()));}).toList();
+        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"batchCrafting",true,"itemsVersion",1,"items",items,"materials",materials,"models",models));
     }
-    /** All block/fractional/model recipes; tool items need the separate item schema. */
+    /** Full authoritative catalog, including item-only tools. */
     public static List<Map<String,Object>> recipeCatalog() {
-        return Crafting.recipes().stream().filter(r -> r.output()<=189 && r.inputs().keySet().stream().allMatch(id->id<=189)).map(r -> {
+        return Crafting.recipes().stream().map(r -> {
             return (Map<String,Object>)new TreeMap<String,Object>(Map.of("id",r.id(),"name",r.name(),"category",r.category(),"inputs",r.inputs().entrySet().stream()
                 .map(e->List.of(e.getKey(),e.getValue())).toList(),"output",r.output(),"count",r.count()));
         }).toList();

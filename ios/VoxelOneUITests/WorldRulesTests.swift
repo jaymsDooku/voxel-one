@@ -111,6 +111,28 @@ final class WorldRulesTests:XCTestCase {
         invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
         value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
     }
+    func testSharedItemLimitsToolCraftingAndLegacyMigration()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try contract.validate()
+        var value=fixture();value.schema=2;value.contract=contract;value.details=[]
+        value.inventory[0]=[165,64];value.inventory[1]=[190,64]
+        let recipe=NativeRecipe(id:96,name:"Wooden pickaxe",inputs:[[165,3],[190,2]],output:191,count:1,category:"Tools")
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe,quantity:2)
+        XCTAssertEqual(world.snapshot.inventory[2],[191,1]);XCTAssertEqual(world.snapshot.inventory[3],[191,1])
+        XCTAssertEqual(world.snapshot.inventory[0],[165,58]);XCTAssertEqual(world.snapshot.inventory[1],[190,60])
+        world.slot=2;XCTAssertThrowsError(try world.offlineEdit(at:GridKey(2,1,2),type:191));XCTAssertEqual(world.type(GridKey(2,1,2)),0)
+        XCTAssertFalse(world.itemPlaceable(191));XCTAssertFalse(world.itemPlaceable(190));XCTAssertTrue(world.itemPlaceable(165))
+        var invalid=world.savedSnapshot();invalid.inventory[2]=[191,2];XCTAssertThrowsError(try invalid.validate())
+        invalid=world.savedSnapshot();invalid.contract?.items=nil;invalid.contract?.itemsVersion=nil;XCTAssertThrowsError(try invalid.validate())
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[165,64];value.inventory[1]=[190,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe,quantity:2));XCTAssertEqual(full.snapshot.inventory,value.inventory)
+        var legacy=fixture();legacy.schema=2;legacy.contract=contract;legacy.details=[]
+        legacy.contract?.items=nil;legacy.contract?.itemsVersion=nil;legacy.contract?.materials[1].name="Saved earth"
+        let upgraded=try OfflineSave.migrate(legacy,contract:contract)
+        XCTAssertEqual(upgraded.contract?.items?.count,199);XCTAssertEqual(upgraded.contract?.itemsVersion,1)
+        XCTAssertEqual(upgraded.contract?.items?.first{$0.id==2}?.name,"Saved earth")
+        XCTAssertEqual(upgraded.contract?.models.map{$0.fingerprint},legacy.contract?.models.map{$0.fingerprint})
+    }
     func testBatchCraftingBoundsStorageAndRollback()throws {
         var value=fixture();value.inventory[0]=[6,64];value.inventory[1]=[165,63]
         let recipe=NativeRecipe(id:88,name:"Saw planks",inputs:[[6,1]],output:165,count:4)

@@ -191,6 +191,28 @@ final class NativeWorkflowTests:XCTestCase {
         XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
         capture("offline-crafting-restarted")
     }
+    func testNativeToolCraftingPlacementGuardAndRestart()throws {
+        workflowCheckpoint="tools_sticks"
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Make sticks")
+        let sticks=app.cells["recipe95"];wait(sticks);sticks.tap();textContains("craftStatus","Crafted 4 Sticks")
+        workflowCheckpoint="tools_craft"
+        search.tap();search.buttons["Clear text"].tap();search.typeText("Wooden pickaxe")
+        app.segmentedControls["craftCategory"].buttons["Tools"].tap()
+        let pick=app.cells["recipe96"];wait(pick);pick.tap();textContains("craftStatus","Crafted 1 Wooden pickaxe")
+        capture("native-tool-recipe-crafted")
+        app.buttons["craftDone"].tap();workflowCheckpoint="tools_place"
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot8"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","cannot be placed")
+        XCTAssertTrue(app.buttons["slot8"].label.contains("1 blocks"))
+        workflowCheckpoint="tools_restart"
+        app.terminate();app.launch();wait(app.buttons["placeButton"])
+        app.scrollViews["hotbarScroll"].swipeLeft()
+        XCTAssertTrue(app.buttons["slot8"].label.contains("Wooden pickaxe"))
+        XCTAssertTrue(app.buttons["slot8"].label.contains("1 blocks"))
+        XCTAssertTrue(app.buttons["slot7"].label.contains("2 blocks"))
+        capture("native-tool-inventory-restarted")
+    }
     func testNativeBatchCraftingSaveAndRestart()throws {
         newOffline();app.buttons["craftButton"].tap()
         let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks")
@@ -221,7 +243,7 @@ final class NativeWorkflowTests:XCTestCase {
         XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"],"landscape Craft Done")
         capture("native-recipe-search-empty-landscape")
         XCUIDevice.shared.orientation = .portrait
-        search.tap();search.buttons["Clear text"].tap();wait(app.cells["recipe88"],20,"recipes restored after clearing query")
+        search.tap();search.buttons["Clear text"].tap();wait(app.cells["recipe96"],20,"recipes restored after clearing query")
         app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
         app.terminate();app.launch();wait(app.buttons["craftButton"])
         XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"craft_join_saved_count")

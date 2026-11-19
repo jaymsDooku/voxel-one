@@ -24,16 +24,21 @@ Online sandbox keeps the existing game server's inventory, health, item drops,
 authentication, multiplayer edits and crafting rules. The initial phone UI exposes
 walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
 editor, mounts and specialized transport or finance tools are not exposed by
-this phone UI. Craft now has a searchable, category-filtered book of 95 shared
-block recipes, including cut/join and flower pots. Offline uses the app catalog;
+this phone UI. Craft now has a searchable, category-filtered book of all104 shared recipes,
+including cut/join, flower pots, sticks and eight tools. Offline uses the app catalog;
 online shows the gateway catalog, so an older gateway may offer fewer recipes.
-Stick/tool items and offline overflow drops remain unavailable.
+Shared itemsVersion1 defines199 inventory IDs. Tools stack at1, sticks at64;
+item-only tools cannot be placed as terrain. Held-tool models/equipment pose and
+offline overflow drops remain follow-up work. No mining/combat bonus is added.
+New clients request itemsVersion1 at login. Older clients receive block recipes;
+if item-only inventory requires an update, the gateway returns a fixed upgrade error.
 Batch selects1–64 recipes per transaction; costs/output update together. Online
 batches require gateway batchCrafting capability; older gateways stay at1.
 Offline insufficient ingredients or output space reject the entire batch.
 Owned/required ingredients appear on each row; missing ingredients or a full bag
 leave inventory unchanged. Crafting stops local movement while the book is open.
-Book search/empty state passed30 native Simulator tests at3d0fec111be962ca569870f66d4cae60dc1bdc10. Batch UI is pending a fresh exact-source Mac run. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
+The32-case Simulator suite passed at6b60c5d6388bc3fc8f91b57087896f6a3a67ff34.
+Current item/tool and legacy-migration edits await a fresh34-case native run. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
 collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.

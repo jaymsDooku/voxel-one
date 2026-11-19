@@ -53,9 +53,9 @@ struct NativeRecipe: Codable, Sendable {
     func validate()throws {
         guard (0...103).contains(id),!name.isEmpty,name.count<=80,
               category == nil || ["All","Tools","Materials","Building","Decorations","Lighting"].contains(category!),
-              (1...189).contains(output),(1...64).contains(count),
+              (1...198).contains(output),(1...64).contains(count),
               !inputs.isEmpty,inputs.count<=8,
-              inputs.allSatisfy({$0.count==2 && (1...189).contains($0[0]) && (1...64).contains($0[1])}),
+              inputs.allSatisfy({$0.count==2 && (1...198).contains($0[0]) && (1...64).contains($0[1])}),
               Set(inputs.map{$0[0]}).count==inputs.count else {throw GameError.invalidWorld}
     }
     static func bundled()throws->[NativeRecipe] {
@@ -83,9 +83,22 @@ struct NativeGeometry:Codable,Sendable {
 struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:Int;var depth:Int;var color:Int}
 struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
 struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
-struct NativeContract:Codable,Sendable {
-    var version:Int;var materials:[NativeMaterial];var models:[NativeModel];var fineEdits:Bool? = nil;var batchCrafting:Bool? = nil
+struct NativeItem:Codable,Sendable {
+    var id:Int;var name:String;var category:String;var stackLimit:Int;var placeableBlock:Int
     func validate()throws {
+        guard (0...198).contains(id),!name.isEmpty,name.count<=80,
+              ["All","Tools","Materials","Building","Decorations","Lighting"].contains(category),
+              (1...64).contains(stackLimit),(id<191 || stackLimit==1),
+              placeableBlock == ((1...189).contains(id) ? id:0) else {throw GameError.invalidWorld}
+    }
+}
+struct NativeContract:Codable,Sendable {
+    var version:Int;var materials:[NativeMaterial];var models:[NativeModel];var fineEdits:Bool? = nil;var batchCrafting:Bool? = nil;var itemsVersion:Int? = nil;var items:[NativeItem]? = nil
+    func validate()throws {
+        if let items=items {
+            guard itemsVersion==1,items.count==199,Set(items.map{$0.id})==Set(0...198) else {throw GameError.invalidWorld}
+            for item in items {try item.validate()}
+        } else if itemsVersion != nil {throw GameError.invalidWorld}
         guard version==1,materials.count==189,Set(materials.map{$0.id})==Set(1...189),models.count<=129,
               Set(models.map{$0.id}).count==models.count,
               materials.allSatisfy({(1...189).contains($0.material) && (0...4).contains($0.depth) && (0...0xffffff).contains($0.color) && !$0.name.isEmpty && $0.name.count<=80}),
@@ -111,10 +124,17 @@ struct Snapshot: Codable, Sendable {
     var contract:NativeContract? = nil;var details:[NativeDetail]? = nil
     var recipes:[NativeRecipe]? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
+    private func validInventoryEntry(_ entry:[Int])->Bool {
+        guard entry.count==2,(0...198).contains(entry[0]),entry[1]>=0,(entry[0]==0)==(entry[1]==0) else{return false}
+        let definition=contract?.items?.first{$0.id==entry[0]}
+        if entry[0]>=190 && (schema != 2 || definition==nil) {return false}
+        return entry[1]<=(definition?.stackLimit ?? 64)
+    }
     func validate() throws {
+        try contract?.validate()
         if let recipes=recipes {
             guard recipes.count<=104,Set(recipes.map{$0.id}).count==recipes.count else {throw GameError.invalidWorld}
-            for recipe in recipes {try recipe.validate()}
+            for recipe in recipes {try recipe.validate();if recipe.output>=190 || recipe.inputs.contains(where:{$0[0]>=190}) {guard schema==2,contract?.items != nil else {throw GameError.invalidWorld}}}
         }
         try atmosphere?.validate()
         if let sun=sun {guard sun.count==3,sun.allSatisfy({$0.isFinite}),abs(sqrt(sun.reduce(0){$0+$1*$1})-1)<0.001 else {throw GameError.invalidWorld}}
@@ -123,12 +143,12 @@ struct Snapshot: Codable, Sendable {
               bounds[0]<=bounds[1], bounds[2]<=bounds[3], bounds[4]<=bounds[5],
               bounds[1]-bounds[0]<=64, bounds[5]-bounds[4]<=64, bounds[3]-bounds[2]<=128,
               bounds[2]>=(-32), bounds[3]<=95, inventory.count==36, cells.count<=120_000,
-              (0...20).contains(health), inventory.allSatisfy({$0.count==2 && (0...189).contains($0[0]) && (0...64).contains($0[1]) && ($0[0]==0)==($0[1]==0)}),
+              (0...20).contains(health), inventory.allSatisfy(validInventoryEntry),
               cells.allSatisfy({$0.count==5 && ((1...189).contains($0[3]) || (schema==2 && $0[3]==255)) && (0...0xffffff).contains($0[4]) && $0[0]>=bounds[0] && $0[0]<=bounds[1] && $0[1]>=bounds[2] && $0[1]<=bounds[3] && $0[2]>=bounds[4] && $0[2]<=bounds[5]})
         else { throw GameError.invalidWorld }
         guard Set(cells.map{GridKey($0[0],$0[1],$0[2])}).count==cells.count else { throw GameError.invalidWorld }
         if schema==2 {
-            guard let contract=contract else {throw GameError.invalidWorld};try contract.validate()
+            guard let contract=contract else {throw GameError.invalidWorld}
             let detail=details ?? [];guard detail.count<=512 else {throw GameError.invalidWorld}
             var keys=Set<GridKey>(),expanded=0
             for d in detail {
@@ -255,7 +275,8 @@ final class VoxelWorld {
     var types: [GridKey:Int]=[:]
     var colors: [GridKey:Int]=[:]
     private var shapes:[GridKey:[VoxelBox]]=[:]
-    private var materials:[Int:NativeMaterial]=[:];private var models:[Int:NativeGeometry]=[:]
+    private var materials:[Int:NativeMaterial]=[:]
+    private var items:[Int:NativeItem]=[:];private var models:[Int:NativeGeometry]=[:]
     var position=SCNVector3Zero; var yaw: Float=0; var pitch: Float = -0.55
     private(set) var flying=false
     var verticalSpeed: Float=0; var grounded=false
@@ -266,6 +287,7 @@ final class VoxelWorld {
         types.removeAll(keepingCapacity:true); colors.removeAll(keepingCapacity:true)
         for cell in value.cells { let key=GridKey(cell[0],cell[1],cell[2]); types[key]=cell[3]; colors[key]=cell[4] }
         materials=Dictionary(uniqueKeysWithValues:(value.contract?.materials ?? []).map{($0.id,$0)})
+        items=Dictionary(uniqueKeysWithValues:(value.contract?.items ?? []).map{($0.id,$0)})
         models=Dictionary(uniqueKeysWithValues:(value.contract?.models ?? []).map{($0.id,$0.geometry)})
         shapes.removeAll(keepingCapacity:true)
         for d in value.details ?? [] {shapes[GridKey(d.cell[0],d.cell[1],d.cell[2])]=Self.boxes(d.geometry)}
@@ -443,6 +465,7 @@ final class VoxelWorld {
     }
     /// A bounded16^3 scratch transaction. Commit terrain, detail and inventory together.
     func offlineRegionEdit(_ address:NativeVoxelAddress,type:Int)throws {
+        guard type==0 || itemPlaceable(type) else {throw GameError.message("This item cannot be placed.")}
         try address.validate();let key=address.cell,b=snapshot.bounds
         guard (0..<9).contains(slot),key.x>=b[0],key.x<=b[1],key.y>=b[2],key.y<=b[3],key.z>=b[4],key.z<=b[5],snapshot.schema==2 else {throw GameError.message("Outside the loaded world.")}
         if (8...136).contains(self.type(key)) || (8...136).contains(type) {
@@ -492,6 +515,7 @@ final class VoxelWorld {
         snapshot.details=detail;snapshot.inventory=inventory;revision+=1;geometryRevision+=1
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
+        guard type==0 || itemPlaceable(type) else {throw GameError.message("This item cannot be placed.")}
         if type==0 {
             guard var old=types[key] else {throw GameError.message("Aim at a block within five blocks.")}
             if old==255 {
@@ -525,6 +549,8 @@ final class VoxelWorld {
     func offlineCraft(_ recipe:NativeRecipe,quantity:Int=1)throws {
         try recipe.validate()
         guard (1...64).contains(quantity) else {throw GameError.message("Batch quantity must be 1–64.")}
+        let limit=itemStackLimit(recipe.output)
+        guard limit>0,recipe.inputs.allSatisfy({itemStackLimit($0[0])>0}) else {throw GameError.invalidWorld}
         var next=snapshot.inventory
         for ingredient in recipe.inputs {
             var needed=ingredient[1]*quantity
@@ -535,11 +561,11 @@ final class VoxelWorld {
             guard needed==0 else {throw GameError.message("Missing ingredients for \(recipe.name).")}
         }
         var remaining=recipe.count*quantity
-        for i in next.indices where next[i][0]==recipe.output && next[i][1]<64 {
-            let added=min(remaining,64-next[i][1]);next[i][1]+=added;remaining-=added
+        for i in next.indices where next[i][0]==recipe.output && next[i][1]<limit {
+            let added=min(remaining,limit-next[i][1]);next[i][1]+=added;remaining-=added
         }
         for i in next.indices where next[i][1]==0 && remaining>0 {
-            let added=min(remaining,64);next[i]=[recipe.output,added];remaining-=added
+            let added=min(remaining,limit);next[i]=[recipe.output,added];remaining-=added
         }
         guard remaining==0 else {throw GameError.message("Inventory full. Free space before crafting.")}
         snapshot.inventory=next;revision+=1
@@ -549,7 +575,9 @@ final class VoxelWorld {
         return NativeSavePayload(snapshot:save,types:types,colors:colors)
     }
     func savedSnapshot() -> Snapshot {savePayload().value()}
-    func itemName(_ type:Int)->String {materials[type]?.name ?? Self.name(type)}
+    func itemName(_ type:Int)->String {items[type]?.name ?? materials[type]?.name ?? Self.name(type)}
+    func itemStackLimit(_ type:Int)->Int {items[type]?.stackLimit ?? ((1...189).contains(type) ? 64:0)}
+    func itemPlaceable(_ type:Int)->Bool {(items[type]?.placeableBlock ?? ((1...189).contains(type) ? type:0))>0}
     static func color(_ type:Int)->Int {
         switch type {case 1:return 0x4da636;case 2:return 0x7a4d2b;case 3:return 0x8c949e;case 4:return 0xe0c47a;case 5:return 0xe8f5ff;case 6:return 0x73471f;case 7:return 0x29732e;case 165:return 0xb8824a;case 166:return 0x9c4536;case 167:return 0xa8dee8;case 185:return 0x266ead;case 187:return 0x55575a;default:return 0x9966b3}
     }
@@ -653,12 +681,21 @@ final class OfflineSave {
     static func migrate(_ value:Snapshot,contract:NativeContract)throws->Snapshot {
         try value.validate();var result=value
         if result.schema==1 {result.schema=2;result.contract=contract;result.details=[]}
+        if var current=result.contract,current.items==nil,let items=contract.items {
+            current.itemsVersion=contract.itemsVersion
+            let savedMaterials=current.materials
+            current.items=items.map { item in
+                var copy=item
+                if let material=savedMaterials.first(where:{$0.id==item.id}) {copy.name=material.name}
+                return copy
+            }
+            result.contract=current
+        }
         try result.validate();return result
     }
     static func load() throws -> Snapshot {
         let value=try read(at:url)
-        if value.schema==1 {return try migrate(value,contract:NativeContract.bundled())}
-        return value
+        return try migrate(value,contract:NativeContract.bundled())
     }
     static func fresh() throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}

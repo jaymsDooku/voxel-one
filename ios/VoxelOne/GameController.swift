@@ -276,6 +276,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard !paused,!renderer.planning,let world=world else{return}
         let type=place ? world.snapshot.inventory[world.slot][0]:0
         if place && type==0 {notify("This hotbar slot is empty.");return}
+        if place && !world.itemPlaceable(type) {notify("This item cannot be placed.");return}
         let target:VoxelHit?
         if world.snapshot.city==nil && renderer.sandboxCamera != .first {
             renderer.updateCamera(world)

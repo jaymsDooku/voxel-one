@@ -822,3 +822,42 @@ syntax and diff checks. No deleted files against8a53afce99e735a7574bffab70558252
 Playtest: City picking repair and unresolved graphics regression need exact-source
 Mac32-case execution and real media. Existing32-case count and900s limit retained.
 Full engine parity, live VPS, signed install and physical iPhone gates remain open.
+
+Batch/City/graphics milestone qualified on Simulator
+Exact source6b60c5d6388bc3fc8f91b57087896f6a3a67ff34 passed all32 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44628077255
+Verified expected/source head, statuses and client image SHA-256; inspected actual
+saved flower-pot rendering on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2.
+Sanitized receipt/image saved under dashboard/evidence/ios-port-6b60c5d6-*; pending
+controller publication. This is Simulator milestone evidence, not physical readiness.
+
+Next bounded parity milestone: shared item inventory and full recipe catalog
+Java contract adds optional itemsVersion1 and all199 Items definitions: id/name/
+category/stackLimit/placeableBlock. Existing geometry/material IDs remain1..189;
+partial terrain remains255. Inventory190..198 requires versioned definitions.
+Tools191..198 stack at1; sticks190 at64; neither can become terrain. Native catalog
+now exposes all104 Java recipes, including Tools filter. Offline crafting splits
+nonstacking outputs and rejects overflow before committing any ingredient changes.
+Both controller and world edit entry points reject nonplaceable items.
+
+Old schema2 saves missing item metadata merge bundled definitions while retaining
+existing material names and model geometry/fingerprints. Loader performs no write
+until successful normal world start/save. Schema1 migration still works. Unsupported
+item schemas, absent tool definitions and overfull tool stacks fail validation.
+Online login explicitly negotiates itemsVersion1. Legacy clients receive block-only
+recipes and fixed update-required errors for item-only inventory/recipe requests.
+Failed initial-state generation closes the new transport before storing a session.
+TLS, bearer privacy, server inventory/action validation and batch bounds retained.
+Held/equipped tool geometry/pose, offline overflow drops and tool bonuses are not
+claimed; current engine tool definitions also state no mining/combat bonus.
+
+Executed Maven compile and6 focused MobileGatewayTest +7 FractionalWorldTest cases
+with zero failures/errors/skips. Catalog parity covers104 recipes and199 canonical
+item definitions; authenticated fixtures check legacy City and negotiated Sandbox
+views.74 Linux harness tests, project generation, Python compilation, shell syntax
+and diff checks passed. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: new tool stacks/rollback/migration rules and normal-control sticks->wooden
+pickaxe->placement rejection->cold restart require fresh Mac execution. Required
+count now34 with all prior32 cases retained. No native pass for current edits.
+Full procedural streaming/distant terrain, remaining reusable engine parity, live
+VPS, signed installation and physical-device performance qualification remain open.
