@@ -12,17 +12,16 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class MobileGatewayTest {
     @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
-        var catalog=MobileSnapshot.recipeCatalog();assertEquals(6,catalog.size());
+        var catalog=MobileSnapshot.recipeCatalog();assertEquals(95,catalog.size());
         Set<Integer> ids=new HashSet<>();
         for(var item:catalog) {
             int id=(Integer)item.get("id");assertTrue(ids.add(id));var recipe=Crafting.recipe(id);
             assertEquals(recipe.name(),item.get("name"));assertEquals(recipe.output(),item.get("output"));
-            assertEquals(recipe.count(),item.get("count"));
+            assertEquals(recipe.count(),item.get("count"));assertEquals(recipe.category(),item.get("category"));
             assertEquals(recipe.inputs().entrySet().stream().map(e->List.of(e.getKey(),e.getValue())).toList(),item.get("inputs"));
         }
-        // Parse both to normalize JSON number representation and object key ordering.
-        var bundled=Json.object("{\"recipes\":"+Files.readString(Path.of("ios/Resources/recipes.json"))+"}");
-        assertEquals(Json.object(Json.write(Map.of("recipes",catalog))),bundled);
+        // Canonical response assets exceed the bounded request parser; do not weaken its limit.
+        assertEquals(Json.write(catalog),Files.readString(Path.of("ios/Resources/recipes.json")));
     }
     @Test void snapshotsRetainFractionalLeavesModelsAndVersionedContract()throws Exception {
         var terrain=new Terrain(Terrain.DEFAULT_SEED);var world=new WorldVoxels(terrain);

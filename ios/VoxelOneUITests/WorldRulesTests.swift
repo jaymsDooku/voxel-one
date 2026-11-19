@@ -111,6 +111,18 @@ final class WorldRulesTests:XCTestCase {
         invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
         value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
     }
+    func testFractionalRecipeConservationAndMetadata()throws {
+        var value=fixture();value.inventory[0]=[2,1]
+        let world=try VoxelWorld(value)
+        let cut=NativeRecipe(id:8,name:"Cut Dirt",inputs:[[2,1]],output:141,count:8,category:"Building")
+        let join=NativeRecipe(id:9,name:"Join Dirt",inputs:[[141,8]],output:2,count:1,category:"Building")
+        try world.offlineCraft(cut);XCTAssertEqual(world.snapshot.inventory[0],[141,8])
+        try world.offlineCraft(join);XCTAssertEqual(world.snapshot.inventory,value.inventory)
+        let before=world.snapshot.inventory;XCTAssertThrowsError(try world.offlineCraft(join));XCTAssertEqual(world.snapshot.inventory,before)
+        var invalid=cut;invalid.category="unknown";XCTAssertThrowsError(try invalid.validate())
+        let old=try JSONDecoder().decode(NativeRecipe.self,from:Data("{\"id\":8,\"name\":\"Cut Dirt\",\"inputs\":[[2,1]],\"output\":141,\"count\":8}".utf8))
+        try old.validate();XCTAssertNil(old.category)
+    }
     func testFlightCollisionBoundsHoverAndWalkRecovery()throws {
         var value=fixture();value.cells.append([0,4,0,3,0x8c949e])
         let world=try VoxelWorld(value);world.setFlying(true)

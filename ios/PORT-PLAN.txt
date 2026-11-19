@@ -443,3 +443,38 @@ fresh controller exact-source Mac run for all28 required cases and inspect actua
 receipt/media when returned. Previous local Java/Linux checks remain historical;
 no tests were rerun solely for cancellation. Full parity, live VPS, streaming,
 signing/install and physical-device gates remain open.
+
+Fine-edit milestone qualified on Simulator
+Exact source ed9d59ad933e79b754afdaefdb49341a04a617df passed all28 required
+native cases on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44530081797
+Verified source/expected head, test statuses and client.png SHA-256; inspected
+actual cold-restarted model rendering. Saved sanitized receipt and gameplay image
+under dashboard/evidence/ios-port-ed9d59ad-*. Pending controller publication.
+This is Simulator qualification, not physical iPhone or live VPS proof.
+
+Next coherent milestone: searchable block recipe book
+Replaced six-recipe alert with full-screen search/category table, owned/required
+ingredients and explicit Done. No local movement while open. Save acknowledgements
+and authoritative gateway actions retain their existing paths; pending transactions
+disable recipe selection. Offline ignores old saved catalogs and uses current app
+recipes; online respects the gateway catalog. Optional category preserves old JSON.
+Export all95 supported Java block/fraction/model recipes, IDs0..94, with canonical
+category metadata. Nine stick/tool recipes95..103 remain pending item schema190..198;
+no claim of full crafting parity. Batch UI and offline overflow drops stay open.
+The expanded response asset exceeds the request parser limit; asset parity compares
+canonical JSON directly, preserving the8192-character request limit unchanged.
+
+Local execution: Maven compile passed;4 MobileGatewayTest +7 FractionalWorldTest
+cases passed, including catalog equality, authenticated fine edits and normal edit/
+logout regression.56 Python Linux harness checks passed. Project generation, Python
+compilation, shell syntax and git diff --check passed. No browser playtest applies:
+this is a native UIKit/SceneKit client; Linux covers Java integration and harnesses.
+Playtest: prior28-case native run inspected above. New search/category/fractional
+crafting UI, empty search, landscape, background and restart cases are unexecuted.
+Request exact-source Mac run of all30 required cases, including existing City and
+movement regressions. No native or physical pass claimed for current edits.
+Audit against71612f09bfec4549456b3317676e76cdced085a4 found no deleted files.
+Intended replacement removes the six-action alert and six-entry catalog; no unrelated
+feature or evidence deletion. Full procedural streaming, distant terrain, full item/
+tool parity, actual VPS access, signed iPhone install and device measurements stay open.

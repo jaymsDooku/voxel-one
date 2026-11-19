@@ -172,16 +172,30 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func testNativeCraftingMissingIngredientsAndRestart()throws {
         newOffline();app.buttons["craftButton"].tap()
-        let planks=app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Saw planks →")).firstMatch
-        wait(planks);planks.tap();textContains("gameStatus","Crafted 4 Planks")
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks")
+        let planks=app.cells["recipe88"];wait(planks);planks.tap();textContains("craftStatus","Crafted 4 Planks")
         capture("offline-crafted-planks")
-        app.buttons["craftButton"].tap()
-        let grass=app.buttons.matching(NSPredicate(format:"label BEGINSWITH %@","Grow grass →")).firstMatch
-        wait(grass);grass.tap();textContains("gameStatus","Missing ingredients")
+        search.tap();search.buttons["Clear text"].tap();search.typeText("Grow grass")
+        let grass=app.cells["recipe91"];wait(grass);grass.tap();textContains("craftStatus","Missing ingredients")
+        app.buttons["craftDone"].tap()
         app.terminate();app.launch();wait(app.buttons["craftButton"])
         XCTAssertTrue(app.buttons["slot2"].label.contains("31 blocks"),"Craft consumed one Wood")
         XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
         capture("offline-crafting-restarted")
+    }
+    func testNativeRecipeSearchFractionalJoinAndBackground()throws {
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Join Dirt")
+        let join=app.cells["recipe9"];wait(join);join.tap();textContains("craftStatus","Crafted 1 Dirt")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["craftDone"])
+        search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
+        XCTAssertEqual(app.tables["recipeTable"].cells.count,0)
+        XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"])
+        capture("native-recipe-search-empty-landscape")
+        app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
+        app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"Joined piece is saved")
+        XCTAssertFalse(app.buttons["slot6"].label.contains("8 blocks"),"Eight halves were consumed")
     }
     func testOfflineFlightTouchPauseBackgroundAndWalking()throws {
         newOffline();textContains("playerPosition","Ground")

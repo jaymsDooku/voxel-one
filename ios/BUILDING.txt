@@ -23,9 +23,14 @@ this release does not import desktop saves or simulate an offline city.
 Online sandbox keeps the existing game server's inventory, health, item drops,
 authentication, multiplayer edits and crafting rules. The initial phone UI exposes
 walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
-editor, fractional-block tools, mounts and specialized transport or
-finance tools are not exposed by this first phone UI. Craft offers six shared
-whole-block recipes; fractional, model and tool recipes remain unavailable. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
+editor, mounts and specialized transport or finance tools are not exposed by
+this phone UI. Craft now has a searchable, category-filtered book of 95 shared
+block recipes, including cut/join and flower pots. Offline uses the app catalog;
+online shows the gateway catalog, so an older gateway may offer fewer recipes.
+Stick/tool items, batch crafting and offline overflow drops remain unavailable.
+Owned/required ingredients appear on each row; missing ingredients or a full bag
+leave inventory unchanged. Crafting stops local movement while the book is open.
+New book UI is pending exact-source Mac validation. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
 collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.

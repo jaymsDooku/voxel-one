@@ -79,12 +79,11 @@ public final class MobileSnapshot {
             return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
         return new TreeMap<>(Map.of("version",1,"fineEdits",true,"materials",materials,"models",models));
     }
-    /** Whole-block recipes only until the mobile detail/tool schema is available. */
+    /** All block/fractional/model recipes; tool items need the separate item schema. */
     public static List<Map<String,Object>> recipeCatalog() {
-        return java.util.stream.IntStream.of(88,89,90,91,92,94).mapToObj(id -> {
-            var r=Crafting.recipe(id);
-            return Map.<String,Object>of("id",r.id(),"name",r.name(),"inputs",r.inputs().entrySet().stream()
-                .map(e->List.of(e.getKey(),e.getValue())).toList(),"output",r.output(),"count",r.count());
+        return Crafting.recipes().stream().filter(r -> r.output()<=189 && r.inputs().keySet().stream().allMatch(id->id<=189)).map(r -> {
+            return (Map<String,Object>)new TreeMap<String,Object>(Map.of("id",r.id(),"name",r.name(),"category",r.category(),"inputs",r.inputs().entrySet().stream()
+                .map(e->List.of(e.getKey(),e.getValue())).toList(),"output",r.output(),"count",r.count()));
         }).toList();
     }
     public static void main(String[] args) throws Exception {

@@ -25,6 +25,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var closingMenu=false
     private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
     private var graphicsOpen=false
+    private weak var craftingScreen:NativeCraftingScreen?
+    private var craftSaving=false
     private var movement:Set<String>=[]
     private var hudLandscape:Bool?
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
@@ -314,22 +316,33 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
     }
     @objc private func crafting(){
-        guard !paused,let world=world else{return};movement.removeAll()
+        guard !paused,!graphicsOpen,let world=world else{return};movement.removeAll()
         do {
-            let recipes: [NativeRecipe]
-            if let supplied=world.snapshot.recipes {recipes=supplied} else {recipes=try NativeRecipe.bundled()}
-            let alert=UIAlertController(title:"Craft",message:"Choose a recipe. Ingredients come from your bag.",preferredStyle:.actionSheet)
-            for recipe in recipes {
-                let costs=recipe.inputs.map{"\($0[1]) \(world.itemName($0[0]))"}.joined(separator:", ")
-                let choice=UIAlertAction(title:"\(recipe.name) → \(recipe.count) (\(costs))",style:.default){[weak self] _ in
-                    guard let self=self else{return}
-                    if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
-                    else {do {try world.offlineCraft(recipe);let text="Crafted \(recipe.count) \(world.itemName(recipe.output))."
-                        self.saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};self.refreshHUD()}catch{self.notify(error.localizedDescription)}}
-                }
-                alert.addAction(choice)
+            // Offline saves may contain an older catalog. Current app data is authoritative offline.
+            let recipes:[NativeRecipe]
+            if gateway==nil {recipes=try NativeRecipe.bundled()}
+            else if let supplied=world.snapshot.recipes {recipes=supplied}
+            else {recipes=try NativeRecipe.bundled()}
+            let screen=NativeCraftingScreen(recipes:recipes,name:{world.itemName($0)})
+            let session=sessionID;graphicsOpen=true;craftingScreen=screen
+            screen.modalPresentationStyle = .fullScreen
+            screen.onClose={[weak self] in self?.graphicsOpen=false;self?.lastTime=0;self?.movement.removeAll();self?.craftingScreen=nil}
+            screen.onCraft={[weak self] recipe in
+                guard let self=self,self.sessionID==session,!self.craftSaving,!self.busy,self.active,!self.paused else{return}
+                if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
+                else {do {
+                    try world.offlineCraft(recipe);self.craftSaving=true;self.notify("Saving crafted items…",persistent:true)
+                    let text="Crafted \(recipe.count) \(world.itemName(recipe.output))."
+                    self.saveOffline{[weak self] result in
+                        guard let self=self,self.sessionID==session else{return};self.craftSaving=false
+                        if result == .saved {self.notify(text)}
+                        self.refreshHUD()
+                    }
+                }catch{self.notify(error.localizedDescription)}}
+                self.refreshHUD()
             }
-            alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+            screen.update(inventory:world.snapshot.inventory,message:"Choose a recipe. Ingredients come from your bag.",pending:busy || craftSaving)
+            present(screen,animated:true)
         }catch{notify("Crafting catalog could not be read safely.")}
     }
     private func anchor(_ alert:UIAlertController){alert.popoverPresentationController?.sourceView=view;alert.popoverPresentationController?.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)}
@@ -378,6 +391,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
         if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
         else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
+        craftingScreen?.update(inventory:world.snapshot.inventory,message:status.text ?? "",pending:busy || craftSaving || paused || !active)
         applyHUDLayout(view.bounds.size)
         gridButton?.setTitle(breakDepth==0 ? "Grid":"1/\(1<<breakDepth)",for:.normal)
         cameraButton?.accessibilityValue=renderer.sandboxCamera.title

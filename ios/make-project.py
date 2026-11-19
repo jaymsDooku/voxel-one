@@ -26,7 +26,7 @@ def reference(path,kind):
 def phase(kind,files):
     return add(kind,buildActionMask='2147483647',files=[add('PBXBuildFile',fileRef=f) for f in files],runOnlyForDeploymentPostprocessing='0')
 
-swift=[reference(root/'VoxelOne'/name,'sourcecode.swift') for name in ['App.swift','World.swift','Renderer.swift','Gateway.swift','GameController.swift','Graphics.swift','Meshing.swift']]
+swift=[reference(root/'VoxelOne'/name,'sourcecode.swift') for name in ['App.swift','World.swift','Renderer.swift','Gateway.swift','GameController.swift','Graphics.swift','Meshing.swift','Crafting.swift']]
 tests=[reference(root/'VoxelOneUITests'/name,'sourcecode.swift') for name in ['NativeWorkflowTests.swift','WorldRulesTests.swift','GraphicsRulesTests.swift']]
 resource=reference(root/'Resources'/'sandbox.json','text.json')
 recipes=reference(root/'Resources'/'recipes.json','text.json')

@@ -49,9 +49,10 @@ struct CityState: Codable, Sendable {
 struct OtherPlayer: Codable, Sendable { var id: Int; var name: String; var x: Float; var y: Float; var z: Float }
 struct GroundDrop: Codable, Sendable { var id: Int; var type: Int; var x: Float; var y: Float; var z: Float }
 struct NativeRecipe: Codable, Sendable {
-    var id:Int;var name:String;var inputs:[[Int]];var output:Int;var count:Int
+    var id:Int;var name:String;var inputs:[[Int]];var output:Int;var count:Int;var category:String?=nil
     func validate()throws {
         guard (0...103).contains(id),!name.isEmpty,name.count<=80,
+              category == nil || ["All","Tools","Materials","Building","Decorations","Lighting"].contains(category!),
               (1...189).contains(output),(1...64).contains(count),
               !inputs.isEmpty,inputs.count<=8,
               inputs.allSatisfy({$0.count==2 && (1...189).contains($0[0]) && (1...64).contains($0[1])}),
