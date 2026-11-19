@@ -457,11 +457,17 @@ public class World implements AutoCloseable {
             validate(World.this);return new ReplayMeshFence(this,Objects.requireNonNull(center));
         }
         public void validate(World current) {
+            validateSource(current);
+            if(editsVersion!=edits)throw new ConcurrentModificationException("World changed during replay readback");
+        }
+        /** Stable source fields only. Does not prove edit coverage, readiness or
+         * installation authority; later edits require a bound journal receipt. */
+        public void validateSource(World current) {
             if(Thread.currentThread()!=owner)throw new IllegalStateException("Replay fence requires owner thread");
-            if(current!=World.this||closed||replayReadView!=view||editsVersion!=edits||geometryEpoch!=geometry
+            if(current!=World.this||closed||replayReadView!=view||geometryEpoch!=geometry
                     ||terrain()!=land||land.geometryRevision()!=generation||(generation&1)!=0
                     ||models()!=library||library.revision()!=definitions)
-                throw new ConcurrentModificationException("World changed during replay readback");
+                throw new ConcurrentModificationException("World source changed during replay readback");
         }
     }
     /** Constant-size owner receipt for a center and its six face neighbors.

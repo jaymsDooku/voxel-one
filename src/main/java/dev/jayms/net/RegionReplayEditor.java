@@ -19,7 +19,7 @@ final class RegionReplayEditor {
     RegionReplayEditor(World world,RegionReplayJournal journal)throws IOException {
         this.world=Objects.requireNonNull(world);this.journal=Objects.requireNonNull(journal);
         if(world.hasReplayReadView())throw new IOException("Replay editor requires resident World");
-        journal.capture(()->false);fence=world.beginReplayFence();journal.bind(this::check);
+        journal.capture(()->false);fence=world.beginReplayFence();journal.bind(world,this::check);
     }
     private void check()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay editor owner required");

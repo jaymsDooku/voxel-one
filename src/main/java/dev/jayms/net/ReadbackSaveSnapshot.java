@@ -35,7 +35,7 @@ final class ReadbackSaveSnapshot {
         return capture(local,world,overlay,cancel,null);
     }
     static ReadbackSaveSnapshot captureJournal(LocalGame local,World world,RegionReplayJournal.Snapshot journal,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(journal);journal.validate(cancel);return capture(local,world,journal.overlay(),cancel,journal);
+        Objects.requireNonNull(journal);journal.validateWorld(world,cancel,false);return capture(local,world,journal.overlay(),cancel,journal);
     }
     private static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel,RegionReplayJournal.Snapshot journal)throws IOException {
         Objects.requireNonNull(local);Objects.requireNonNull(world);Objects.requireNonNull(overlay);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
@@ -62,9 +62,10 @@ final class ReadbackSaveSnapshot {
         snapshot.validate();if(journal!=null)journal.validate(cancel);StructurePackage.cancelled(cancel);return snapshot;
     }
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Readback save owner required");}
-    private void validateGeometry()throws IOException {
+    private void validateGeometry()throws IOException {validateGeometry(false);}
+    private void validateGeometry(boolean journalEdits)throws IOException {
         owner();
-        try{fence.validate(world);}catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Readback save World changed",changed);}
+        try{if(journalEdits)fence.validateSource(world);else fence.validate(world);}catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Readback save World changed",changed);}
         if(local.city!=null||local.replayComplete()||local.readbackGeneration()!=generation||!fingerprint.equals(local.readbackFingerprint())
                 ||local.models!=liveModels||world.models()!=liveModels||liveModels.revision()!=modelRevision)
             throw new IOException("Readback save owner geometry/models changed");
@@ -178,12 +179,24 @@ final class ReadbackSaveSnapshot {
          * state. Geometry/model edits still need rebasing and reject here.
          * Does not install a World read view, clear edits or promote Main. */
         LocalGame adoptCurrentTail(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            return adoptTail(source,cancel,false);
+        }
+        /** Allows later edits only when this save's journal is bound to this
+         * World and its guard proves current coverage. Does not acknowledge the
+         * journal or install a source; remaining edits stay live and unsaved. */
+        LocalGame adoptJournalTail(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            return adoptTail(source,cancel,true);
+        }
+        private LocalGame adoptTail(RegionReplayWorker.Source source,BooleanSupplier cancel,boolean journalEdits)throws IOException {
             owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
             if(phase.get()!=Phase.PUBLISHED||tailAdopted||source==null||source!=reopenedSource)throw new IOException("Readback baseline candidate mismatch");
-            validateGeometry();
+            if(journalEdits){if(journal==null)throw new IOException("Readback baseline requires bound journal");journal.validateWorld(world,cancel,true);}
+            validateGeometry(journalEdits);
             var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
             var currentDrops=new LinkedHashMap<>(current.drops);
-            validateGeometry();current.validate();StructurePackage.cancelled(cancel);
+            StructurePackage.cancelled(cancel);
+            if(journalEdits)journal.validateWorld(world,cancel,true);
+            validateGeometry(journalEdits);current.validate();
             var result=source.metadata().transferCurrentTail(local,current.inventory,currentDrops,current.health);
             tailAdopted=true;return result;
         }

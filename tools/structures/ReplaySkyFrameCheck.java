@@ -97,6 +97,7 @@ public final class ReplaySkyFrameCheck {
  }
  public static void main(String[] args)throws Exception {
   Path root=Path.of(args[0]),report=Path.of(args[1]),image=Path.of(args[2]);if(Files.exists(root)||Files.exists(report)||Files.exists(image))throw new IllegalArgumentException("Fresh outputs required");Files.createDirectory(root);
+  var journalTailCheck=new JournalTailAdoptionTest();journalTailCheck.folder=Files.createDirectory(root.resolve("journal-tail-fixture"));journalTailCheck.trackedEditsDuringSaveRemainLiveAndSurviveNextSave();journalTailCheck.untrackedChangesModelsAndUnboundJournalCannotAdoptMetadata();
   var editorCheck=new RegionReplayEditorTest();editorCheck.editsAndCellReplacementKeepExactOrderedJournal();editorCheck.budgetCancellationInvalidInputAndForeignThreadRejectBeforeWorldMutation();editorCheck.bypassAndPartialWorldFailurePoisonJournalInsteadOfClaimingRollback();
   var journalCheck=new RegionReplayJournalTest();journalCheck.folder=Files.createDirectory(root.resolve("journal-fixture"));journalCheck.prefixAcknowledgementPreservesOrderedLaterEditsAndRejectsStaleSnapshots();journalCheck.boundsCancellationReentryAndForeignOwnerNeverPartiallyAppend();journalCheck.publicationAcknowledgesOnlyItsJournalPrefixAfterExactReadback();
   var tailAdoptionCheck=new ReadbackTailAdoptionTest();tailAdoptionCheck.folder=Files.createDirectory(root.resolve("tail-adoption-fixture"));tailAdoptionCheck.ownerAdoptsCurrentTailWithFreshGenerationAndIndependentCopies();tailAdoptionCheck.geometryModelsAndInvalidTailRejectWithoutConsumingMetadata();

@@ -1,6 +1,7 @@
 package dev.jayms.net;
 
 import dev.jayms.net.structure.StructurePackage;
+import dev.jayms.World;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.BooleanSupplier;
@@ -14,8 +15,10 @@ final class RegionReplayJournal {
     private boolean busy,failed;
     @FunctionalInterface interface Guard {void validate()throws IOException;}
     private Guard guard;
-    void bind(Guard guard)throws IOException {
-        Objects.requireNonNull(guard);enter();try{if(this.guard!=null)throw new IOException("Replay journal already bound");this.guard=guard;}finally{busy=false;}
+    private World boundWorld;
+    void bind(World world,Guard guard)throws IOException {
+        Objects.requireNonNull(world);Objects.requireNonNull(guard);enter();
+        try{if(this.guard!=null)throw new IOException("Replay journal already bound");this.guard=guard;boundWorld=world;}finally{busy=false;}
     }
     static final class Snapshot {
         private final RegionReplayJournal journal;
@@ -24,6 +27,7 @@ final class RegionReplayJournal {
         private Snapshot(RegionReplayJournal journal,long epoch,RegionReplayOverlay overlay){this.journal=journal;this.epoch=epoch;this.overlay=overlay;}
         RegionReplayOverlay overlay(){return overlay;}
         void validate(BooleanSupplier cancel)throws IOException {journal.validate(this,cancel);}
+        void validateWorld(World world,BooleanSupplier cancel,boolean requireBound)throws IOException {journal.validateWorld(this,world,cancel,requireBound);}
         RegionReplayOverlay acknowledge(BooleanSupplier cancel)throws IOException {return journal.acknowledge(this,cancel);}
     }
     private void enter()throws IOException {
@@ -80,6 +84,13 @@ final class RegionReplayJournal {
     }
     private void validate(Snapshot snapshot,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);enter();try{prefix(snapshot,cancel);}finally{busy=false;}
+    }
+    private void validateWorld(Snapshot snapshot,World world,BooleanSupplier cancel,boolean requireBound)throws IOException {
+        Objects.requireNonNull(world);Objects.requireNonNull(cancel);enter();
+        try {
+            if((requireBound&&boundWorld==null)||(boundWorld!=null&&boundWorld!=world))throw new IOException("Replay journal World mismatch");
+            prefix(snapshot,cancel);
+        }finally{busy=false;}
     }
     private RegionReplayOverlay acknowledge(Snapshot snapshot,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);enter();
