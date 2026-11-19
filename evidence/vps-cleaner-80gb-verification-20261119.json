@@ -1,0 +1,146 @@
+{
+  "at": "2026-11-19T15:25:19.031983+00:00",
+  "status": "80GiB target reached; verified maintenance complete and services restarted",
+  "finalFreeBytes": 86875729920,
+  "finalFreeGB": 86.88,
+  "finalFreeGiB": 80.91,
+  "freeBytesBefore": 17515245568,
+  "netHeadroomGainBytes": 69360484352,
+  "policy": {
+    "triggerBelowGiB": 72,
+    "targetGiB": 80,
+    "emergencyGiB": 8,
+    "maxRemovalsPerSweep": 2,
+    "maxBytesPerSweep": 2147483648,
+    "intervalMs": 300000,
+    "bothHealthAndRecoveryValidatorsPassed": true,
+    "otherPolicyUnchanged": true
+  },
+  "oneTimeMaintenance": {
+    "duplicateBrowserInstallationsRemoved": 41,
+    "browserRecoveryBytes": 10185756672,
+    "completedWorkingCopiesRetired": 141,
+    "supersededReviewCopiesRetired": 15,
+    "ordinaryNonForceGitRemoval": true,
+    "branchDeletionCommands": 0,
+    "sourceAndAssetObjectsRetained": true,
+    "privateVerifiedArchivesBytes": 10787297103,
+    "archivedLocalFileEntries": 190114,
+    "archiveReferenceChecks": 157,
+    "frozenCheckpointStateUnchangedBeforeRestart": true,
+    "activeAndCurrentBlockedInputsPreserved": true
+  },
+  "tests": {
+    "realReconstruction": {
+      "status": "passed",
+      "head": "d0503f625a0bcca389ced32c1bdeb763177c5c10",
+      "sourceRecreatedFromRetainedRef": true,
+      "archivedExtraFilesRestoredAndSha256Verified": 1915,
+      "archiveUnchanged": true,
+      "trackedSourceAndAssetsMatch": true,
+      "branchesDeleted": 0,
+      "sessionsModified": 0,
+      "testCopyRemovedWithoutForce": true
+    },
+    "failClosedHeldCopyRecovery": {
+      "status": "passed",
+      "restoredFiles": 1506,
+      "verifiedFiles": 1506,
+      "sourceRetained": true,
+      "trackedSourceUnchanged": true,
+      "originalArchiveAndReservationHistoryRetained": true,
+      "deletionReplayed": false
+    },
+    "privateThreadObservation": {
+      "status": "passed",
+      "unprivilegedCaller": true,
+      "controlledChildNondumpable": true,
+      "threadHasPrivateCwdAndFdTable": true,
+      "observedPrivateCwd": true,
+      "observedPrivateDescriptor": true,
+      "pathCount": 185,
+      "inferenceCalls": 0,
+      "productionFilesDeleted": 0
+    },
+    "browserFunctionalChecks": [
+      {
+        "playwright": "1.63.0",
+        "browser": "chromium",
+        "version": "153.0.8010.12",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.63.0",
+        "browser": "webkit",
+        "version": "26.6",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.64.1",
+        "browser": "chromium",
+        "version": "156.0.8078.4",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.64.1",
+        "browser": "webkit",
+        "version": "27.2",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      }
+    ],
+    "archiveChecksumsAndGitRefs": "passed",
+    "configuredServicesReferencedRetiredCopies": 0
+  },
+  "live": {
+    "controllerActive": true,
+    "timerActive": true,
+    "readOnlyCollectorActive": true,
+    "postRestartObservationAt": 1795101758001,
+    "healthStatus": "healthy",
+    "pressure": false,
+    "activityUncertain": false,
+    "freshDashboardTelemetry": true,
+    "ownerHealthMode": "cleanup",
+    "ownerHealthRevision": 1,
+    "actualQuotaState": "available",
+    "quotaObservedAt": "2026-11-19T15:25:07.553Z",
+    "preservedWork": [
+      {
+        "id": "aab8dc8b-6c94-4768-92d7-60c04711ef48",
+        "status": "in_progress",
+        "assignee": "developer-3",
+        "updatedAt": "2026-11-19T15:22:54.436Z"
+      },
+      {
+        "id": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+        "status": "in_progress",
+        "assignee": "developer-2",
+        "updatedAt": "2026-11-19T15:22:44.619Z"
+      }
+    ],
+    "workerCheckpointPhases": [
+      {
+        "workId": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+        "phase": "running",
+        "leasePresent": true
+      },
+      {
+        "workId": "aab8dc8b-6c94-4768-92d7-60c04711ef48",
+        "phase": "ios_check",
+        "leasePresent": true
+      }
+    ],
+    "coreConfigUnchanged": true
+  },
+  "healthUrl": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health/",
+  "scope": [
+    "Bulk archival was a one-time verified maintenance operation; the existing automatic cleaner now uses a persistent 72/80GiB policy.",
+    "Unique local files remain in private archives, exact source commits are retained in Git, and current active/blocked checkpoints remain in place. No code, asset object, saved session or branch was purged.",
+    "One incomplete process scan held a review copy; its original 1,506 local files were restored and verified, with audit history and archive retained. No deletion was replayed.",
+    "80GiB is the cleanup target; protected data remains protected and cannot be discarded merely to hit a number."
+  ]
+}
