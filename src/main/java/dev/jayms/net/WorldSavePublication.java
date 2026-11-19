@@ -151,13 +151,19 @@ final class WorldSavePublication {
     /** Atomic replace only if no cooperating publication or observed destination
      * change followed capture. Performs file I/O; use on a worker, not a frame. */
     static void replaceIfUnchanged(Path source,Path target,Generation expected,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(expected);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+        replaceIfUnchanged(source,target,expected,cancel,()->true);
+    }
+    /** beginCommit claims the irreversible publication boundary under the lease.
+     * A false result leaves both destination and publication epoch unchanged. */
+    static void replaceIfUnchanged(Path source,Path target,Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(cancel);Objects.requireNonNull(beginCommit);StructurePackage.cancelled(cancel);
         var path=normalized(target);if(!path.equals(expected.target))throw new IOException("Save generation target mismatch");var lock=stripe(path);
         try(var guard=enter(lock);var ignored=lease(path)) {
             if(lock.revision!=expected.revision)throw new IOException("Save publication generation changed");
             if(!ignored.epoch().equals(expected.epoch))throw new IOException("Save publication epoch changed");
             if(!observe(path,expected.maxBytes,cancel).equals(expected.file))throw new IOException("Save destination changed");
-            StructurePackage.cancelled(cancel);ignored.advance();move(source,target,true,Files::move);lock.revision++;
+            StructurePackage.cancelled(cancel);if(!beginCommit.getAsBoolean())throw new java.util.concurrent.CancellationException("Save publication cancelled before commit");
+            ignored.advance();move(source,target,true,Files::move);lock.revision++;
         }
     }
     private static void move(Path source,Path target,boolean requireAtomic,Move move)throws IOException {

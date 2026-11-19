@@ -6,9 +6,12 @@ import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
 import java.util.*;
 import java.util.function.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicReference;
 
-/** Private owner capture -> worker staging -> owner commit. Blocking publication
- * is not connected to Main. Does not grant partial LocalGame save authority or
+/** Private owner capture -> worker staging -> owner authorization -> worker
+ * publication, plus a strict blocking reference commit. Neither is connected to
+ * Main. Does not grant partial LocalGame save authority or
  * exclude foreign writers/path aliases/independent city-sidecar changes. */
 final class ReadbackSaveSnapshot {
     private final Thread owner=Thread.currentThread();
@@ -77,14 +80,70 @@ final class ReadbackSaveSnapshot {
     }
     final class Prepared implements AutoCloseable {
         private final StagedOfflineSave prefix;
+        private boolean consumed,transferred;
         private Prepared(StagedOfflineSave prefix){this.prefix=prefix;}
         /** Owner-blocking reference integration only. No frame-time guarantee;
-         * live integration needs an owner lease and worker commit protocol. */
+         * live integration still needs dirty-state and sidecar coordination. */
         void commit(BooleanSupplier cancel)throws IOException {
-            owner();Objects.requireNonNull(cancel);
+            owner();Objects.requireNonNull(cancel);claim();
             try{StructurePackage.cancelled(cancel);validate();prefix.publishSealed(generation,cancel);}
             catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
         }
-        @Override public void close()throws IOException{prefix.close();}
+        private void claim()throws IOException{if(consumed)throw new IOException("Readback save already consumed");consumed=true;}
+        /** Authorizes this captured snapshot, not later owner edits. No I/O here.
+         * Caller must retain dirty state until worker completion and revalidation. */
+        Publication authorize(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);
+            if(consumed)throw new IOException("Readback save already consumed");
+            StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
+            var publication=new Publication(prefix);claim();transferred=true;return publication;
+        }
+        @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
+    }
+    enum Phase {AUTHORIZED,WORKING,COMMITTING,PUBLISHED,CANCELLED,FAILED}
+    /** Private one-worker transfer. No executor, dirty-state clearing, generation
+     * refresh, Main integration or sidecar transaction is supplied by this API. */
+    final class Publication implements AutoCloseable {
+        private final StagedOfflineSave prefix;
+        private final AtomicReference<Phase> phase=new AtomicReference<>(Phase.AUTHORIZED);
+        private Thread worker;
+        private Publication(StagedOfflineSave prefix){this.prefix=prefix;}
+        Phase phase(){return phase.get();}
+        private synchronized void worker()throws IOException {
+            if(Thread.currentThread()==owner)throw new IOException("Readback publication worker required");
+            if(worker==null)worker=Thread.currentThread();
+            else if(worker!=Thread.currentThread())throw new IOException("Readback publication worker changed");
+        }
+        /** True means cancellation won before the durable commit boundary. */
+        boolean cancel()throws IOException {
+            owner();
+            for(;;){var prior=phase.get();if(prior==Phase.CANCELLED)return true;
+                if(prior!=Phase.AUTHORIZED&&prior!=Phase.WORKING)return false;
+                if(phase.compareAndSet(prior,Phase.CANCELLED))return true;}
+        }
+        void publish()throws IOException {
+            worker();
+            if(!phase.compareAndSet(Phase.AUTHORIZED,Phase.WORKING)) {
+                if(phase.get()==Phase.CANCELLED){prefix.close();throw new CancellationException("Readback publication cancelled");}
+                throw new IOException("Readback publication already consumed");
+            }
+            try {
+                prefix.publishSealed(generation,()->phase.get()==Phase.CANCELLED,
+                        ()->phase.compareAndSet(Phase.WORKING,Phase.COMMITTING));
+                phase.set(Phase.PUBLISHED);
+            }catch(IOException|RuntimeException|Error failure){
+                phase.compareAndSet(Phase.WORKING,Phase.FAILED);phase.compareAndSet(Phase.COMMITTING,Phase.FAILED);
+                try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
+            }
+        }
+        /** Owner completion check only. False never rolls back a published file. */
+        boolean snapshotCurrent()throws IOException {
+            owner();if(phase.get()!=Phase.PUBLISHED)return false;
+            try{validate();return true;}catch(IOException changed){return false;}
+        }
+        /** Worker cleanup only, including cancellation before work starts. */
+        @Override public void close()throws IOException {
+            worker();phase.compareAndSet(Phase.AUTHORIZED,Phase.CANCELLED);prefix.close();
+        }
     }
 }

@@ -152,12 +152,18 @@ final class StagedOfflineSave implements AutoCloseable {
     void publishSealed(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(expected);publishSealedInternal(expected,cancel);
     }
+    void publishSealed(WorldSavePublication.Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(beginCommit);publishSealedInternal(expected,cancel,beginCommit);
+    }
     private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
+        publishSealedInternal(expected,cancel,()->true);
+    }
+    private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit)throws IOException {
         Objects.requireNonNull(cancel);if(closed||!sealed)throw new IOException("Staged offline save not sealed or closed");
         try {
             StructurePackage.cancelled(cancel);
             if(expected==null)WorldSavePublication.replace(temp,target,true);
-            else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel);
+            else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel,beginCommit);
             closed=true;
         }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }

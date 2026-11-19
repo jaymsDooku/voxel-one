@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Moved readback save tail writing/force into worker staging, retaining owner and destination publication guards. 54 tests and native save/lighting regressions pass. Owner publication I/O, sidecars, Main and full qualification remain pending.",
-      "updatedAt": "2026-11-19T13:12:18+00:00"
+      "note": "Private worker save publication implemented. 59 tests and native saved-source regression passed; fresh media saved. Main integration and city/maximum physical-GPU/32-client qualification remain pending. New source needs hosted validation.",
+      "updatedAt": "2026-11-19T13:46:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
