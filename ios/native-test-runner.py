@@ -8,6 +8,7 @@ from pathlib import Path
 import re
 import signal
 import subprocess
+import threading
 
 TAIL_BYTES = 65536
 _TEST = re.compile(
@@ -30,15 +31,84 @@ def last_test(log):
     return match[1] + '.' + match[2], match[3]
 
 
-def run(command, log, timeout):
+class TestProgress:
+    """Observe exact source identifiers with bounded reads and line storage."""
+    def __init__(self, log, allowed):
+        self.log = log
+        self.allowed = set(allowed)
+        self.started, self.passed, self.failed = set(), set(), set()
+        self.states = {}
+        self.stop = threading.Event()
+        self.lock = threading.Lock()
+        self.thread = threading.Thread(target=self.observe, daemon=True)
+
+    def observe(self):
+        pending = b''
+        discard = False
+        with self.log.open('rb') as stream:
+            while True:
+                chunk = stream.read(4096)
+                if not chunk:
+                    if self.stop.is_set():
+                        return
+                    self.stop.wait(.1)
+                    continue
+                for fragment in chunk.splitlines(keepends=True):
+                    if not discard and len(pending) + len(fragment) <= 1024:
+                        pending += fragment
+                    else:
+                        pending = b''
+                        discard = True
+                    if fragment.endswith(b'\n'):
+                        if not discard:
+                            match = _TEST.match(pending.decode('utf-8', errors='replace'))
+                            if match and match[2] in self.allowed:
+                                name, state = match[2], match[3]
+                                with self.lock:
+                                    self.states[name] = state
+                                    {'started': self.started, 'passed': self.passed, 'failed': self.failed}[state].add(name)
+                        pending, discard = b'', False
+
+    def finish(self):
+        self.stop.set()
+        self.thread.join(timeout=5)
+        with self.lock:
+            unfinished = sorted(name for name, state in self.states.items() if state == 'started')
+            phase = 'test_open' if unfinished else 'no_test_open'
+            if not self.started:
+                phase = 'no_test_events'
+            if self.thread.is_alive():
+                phase = 'observer_incomplete'
+            lines = ['error: native_test_progress started=' + str(len(self.started)) +
+                     ' passed=' + str(len(self.passed)) + ' failed=' + str(len(self.failed)) +
+                     ' unfinished=' + str(len(unfinished)) + ' expected=' + str(len(self.allowed)) +
+                     ' phase=' + phase]
+            for kind, names in [('unfinished', unfinished), ('failed', sorted(self.failed))]:
+                for name in names[:3]:
+                    lines.append('error: native_test_' + kind + '_event test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12])
+            return lines
+
+
+def run(command, log, timeout, allowed=None):
     log.parent.mkdir(parents=True, exist_ok=True)
+    if allowed is None:
+        root = Path(__file__).resolve().parents[1]
+        allowed = set()
+        for source in (root / 'ios/VoxelOneUITests').glob('*.swift'):
+            allowed.update(re.findall(r'func (test[A-Za-z0-9_]{1,96})\(', source.read_text()))
     # The child owns its new process group. Never signal the caller or another role.
+    timed_out = False
     with log.open('wb') as output:
         process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT,
                                    start_new_session=True)
+        progress = TestProgress(log, allowed)
+        progress.thread.start()
         try:
-            return process.wait(timeout=timeout)
+            result = process.wait(timeout=timeout)
         except subprocess.TimeoutExpired:
+            timed_out = True
+            # Preserve event counts before terminating the owned process group.
+            markers = progress.finish()
             try:
                 os.killpg(process.pid, signal.SIGTERM)
             except ProcessLookupError:
@@ -51,12 +121,20 @@ def run(command, log, timeout):
                 except ProcessLookupError:
                     pass
                 process.wait(timeout=5)
-    name, state = last_test(log)
-    with log.open('a') as output:
-        output.write('\nerror: native_test_deadline last_test=' + name +
-                     ' last_test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
-                     ' last_state=' + state + ' timeout_seconds=' + str(timeout) + '\n')
-    return 124
+            result = 124
+        finally:
+            if not timed_out:
+                markers = progress.finish()
+    if result != 0:
+        with log.open('a') as output:
+            if timed_out:
+                name, state = last_test(log)
+                output.write('\nerror: native_test_deadline last_test=' + name +
+                             ' last_test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
+                             ' last_state=' + state + ' timeout_seconds=' + str(timeout) + '\n')
+            for marker in markers:
+                output.write('\n' + marker + '\n')
+    return result
 
 
 SUMMARY_BYTES = 1024 * 1024

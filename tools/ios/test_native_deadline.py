@@ -29,7 +29,7 @@ class NativeDeadlineTests(unittest.TestCase):
         line = "Test Case '-[VoxelOneUITests.WorldRulesTests testBoundedMeshPagingCancellationAndGeometry]' started."
         code = 'import time;print(' + repr(line) + ',flush=True);print("private-fixture-marker",flush=True);time.sleep(10)'
         self.assertEqual(runner.run([sys.executable, '-c', code], self.log, 1), 124)
-        diagnostic = self.log.read_text().splitlines()[-1]
+        diagnostic = next(line for line in self.log.read_text().splitlines() if line.startswith('error: native_test_deadline'))
         self.assertIn('last_test=WorldRulesTests.testBoundedMeshPagingCancellationAndGeometry', diagnostic)
         self.assertIn('last_state=started', diagnostic)
         self.assertNotIn('private-fixture-marker', diagnostic)
@@ -90,3 +90,30 @@ class NativeFailureSummaryTests(unittest.TestCase):
     def test_fixed_craft_assertion_checkpoint_is_retained(self):
         result=runner.failure_locators({'testFailures':[{'failureText':'XCTAssertEqual failed: private-fixture-marker craft_book_empty_results'}]})
         self.assertEqual(result,['error: native_test_failure_category category=assertion checkpoint=craft_book_empty_results'])
+
+
+class NativeProgressCaptureTests(unittest.TestCase):
+    def test_failed_middle_and_open_tests_survive_large_log_and_deadline(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / 'target') as scratch:
+            log=Path(scratch)/'test.log'
+            lines=["Test Case '-[VoxelOneUITests.WorldRulesTests testFirst]' started.",
+                   "Test Case '-[VoxelOneUITests.WorldRulesTests testFirst]' failed.",
+                   "Test Case '-[VoxelOneUITests.WorldRulesTests testOpen]' started.",
+                   'private-fixture-marker' * 5000,
+                   "Test Case '-[PrivateAccount testSecret]' started."]
+            code='import time;print('+repr('\n'.join(lines))+',flush=True);time.sleep(10)'
+            self.assertEqual(runner.run([sys.executable,'-c',code],log,1,{'testFirst','testOpen'}),124)
+            markers=[line for line in log.read_text().splitlines() if line.startswith('error: native_test_')]
+            text='\n'.join(markers)
+            self.assertIn('started=2 passed=0 failed=1 unfinished=1 expected=2 phase=test_open',text)
+            self.assertIn('native_test_unfinished_event test_id='+runner.hashlib.sha256(b'testOpen').hexdigest()[:12],text)
+            self.assertNotIn('private-fixture-marker',text)
+            self.assertNotIn('testSecret',text)
+
+    def test_closed_events_do_not_claim_result_finalization_pass(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / 'target') as scratch:
+            log=Path(scratch)/'test.log'
+            text="Test Case '-[VoxelOneUITests.WorldRulesTests testDone]' started.\nTest Case '-[VoxelOneUITests.WorldRulesTests testDone]' passed."
+            code='print('+repr(text)+');raise SystemExit(65)'
+            self.assertEqual(runner.run([sys.executable,'-c',code],log,5,{'testDone'}),65)
+            self.assertIn('started=1 passed=1 failed=0 unfinished=0 expected=1 phase=no_test_open',log.read_text())

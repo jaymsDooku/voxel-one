@@ -1,0 +1,11 @@
+{
+  "sourceHead": "d5f4d809f8e424dd4ade12c1d4f240cdcbef1cd2",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44564432885",
+  "status": "native_deadline",
+  "timeoutSeconds": 900,
+  "lastTest": "WorldRulesTests.testSnapshotValidationAndSaveRoundTrip",
+  "lastState": "passed",
+  "summaryStatus": "summary_failed_or_oversized",
+  "Playtest": "No complete native qualification or gameplay media. Prior empty-search repair remains unverified.",
+  "next": "Internal bounded execution audit, preserving native test and timeout gates. No unchanged retry requested."
+}
