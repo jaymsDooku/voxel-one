@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T18:44:44+00:00",
+  "updatedAt": "2026-11-19T18:59:23+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4312,8 +4312,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Independent review found a legacy recovery admission gap. Developer corrected lease-token, active-slot and stale-control guards; 503 API tests and 58 focused tests pass on revised source. Revised hosted CI is running before re-review and activation.",
-      "updatedAt": "2026-11-19T18:44:44+00:00"
+      "note": "Re-review found a temporary admission failure could become a permanent hold. Developer is correcting re-evaluation of changed conditions and adding a restart regression. Activation remains held until independent acceptance.",
+      "updatedAt": "2026-11-19T18:59:23+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
