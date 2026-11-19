@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T15:13:44+00:00",
+  "updatedAt": "2026-11-19T15:26:19+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4279,10 +4279,21 @@
       "id": "vps-cleaner-80gb-20261119",
       "title": "Raise VPS free disk target to 80GB",
       "description": "Owner requests substantially more headroom. Measuring cache and completed-task storage before guarded reclamation; retain source, assets, saved sessions and unique evidence.",
-      "evidence": [],
-      "status": "in_progress",
-      "note": "Completed-copy pass finished: 141 source copies retained by exact Git refs and verified private archives, with a real 1,915-file restore test passed. 63.79GiB free. Current blocked checkpoints and active source preserved; archiving only superseded unreferenced review attempts for final 80GiB headroom. Automatic policy is72GiB trigger/80GiB target/8GiB emergency.",
-      "updatedAt": "2026-11-19T15:13:44+00:00"
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Live VPS health",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health/"
+        },
+        {
+          "kind": "report",
+          "label": "vps cleaner 80gb verification 20261119.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-cleaner-80gb-verification-20261119.json"
+        }
+      ],
+      "status": "complete",
+      "note": "86.88GB (80.91GiB) free after 69.36GB net headroom gain. Cleaner configured and validated at72GiB trigger/80GiB target/8GiB emergency. Retired141 completed working copies and15 superseded review copies, retaining exact Git source, branches, saved sessions and verified private local-file archives. Rehashed157 archives/refs; restoration, four browser checks and live thread protection passed. One held copy was restored without retrying deletion. Workers and timer restarted; both preserved in-flight items resumed and fresh host telemetry is healthy.",
+      "updatedAt": "2026-11-19T15:26:19+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
