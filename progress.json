@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T18:31:08+00:00",
+  "updatedAt": "2026-11-19T18:44:44+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4304,11 +4304,16 @@
           "kind": "link",
           "label": "Feature and CI",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        },
+        {
+          "kind": "link",
+          "label": "Feature and review cycle",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
         }
       ],
       "status": "in_progress",
-      "note": "Feature PR #87 passed required hosted CI. Root independently verified 56 focused tests and synthetic Chromium/phone WebKit workflows on the submitted head. Independent review and live activation are next.",
-      "updatedAt": "2026-11-19T18:31:08+00:00"
+      "note": "Independent review found a legacy recovery admission gap. Developer corrected lease-token, active-slot and stale-control guards; 503 API tests and 58 focused tests pass on revised source. Revised hosted CI is running before re-review and activation.",
+      "updatedAt": "2026-11-19T18:44:44+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
