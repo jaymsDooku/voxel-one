@@ -97,6 +97,13 @@ def fetch(url, maximum):
 
 
 def verify(bundle, report, reader=fetch):
+    # A failed new attempt must never leave a previous publication pass behind.
+    report_path = Path(report)
+    report_path.parent.mkdir(parents=True, exist_ok=True)
+    report_path.write_text(json.dumps({
+        'passed': False, 'stableRolloutQualified': False,
+        'checks': [], 'status': 'Verification incomplete; no publication pass claimed'
+    }, indent=2) + '\n')
     root = Path(bundle)
     plan = json.loads((root / 'publication-plan.json').read_text())
     if plan.get('repository') != 'jaymsDooku/voxel-one' or plan.get('destinationBranch') != 'experience-catalog':

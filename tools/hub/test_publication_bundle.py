@@ -89,6 +89,22 @@ class PublicationTest(unittest.TestCase):
         finally:
             server.shutdown(); server.server_close(); thread.join(timeout=2)
 
+    def test_cli_malformed_bundle_clears_previous_pass(self):
+        bundle = self.root / 'malformed'
+        bundle.mkdir()
+        (bundle / 'publication-plan.json').write_text('{')
+        report = self.root / 'verification.json'
+        report.write_text(json.dumps({'passed': True, 'sourceSha': 'old'}))
+        script = Path(__file__).resolve().with_name('publication_bundle.py')
+        result = subprocess.run([sys.executable, str(script), 'verify',
+            '--bundle', str(bundle), '--report', str(report)], capture_output=True)
+        self.assertNotEqual(0, result.returncode)
+        actual = json.loads(report.read_text())
+        self.assertFalse(actual['passed'])
+        self.assertFalse(actual['stableRolloutQualified'])
+        self.assertNotIn('sourceSha', actual)
+        self.assertEqual([], actual['checks'])
+
     def test_web_only_change_preserves_native_compatibility_and_changes_catalog_version(self):
         self.prepare(); first = (self.root/'bundle/catalog.properties').read_text()
         receipt = json.loads(self.web.read_text()); receipt['build'] = 'web-2'; self.web.write_text(json.dumps(receipt))

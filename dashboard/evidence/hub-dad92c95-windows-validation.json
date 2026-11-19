@@ -1,0 +1,117 @@
+{
+  "sourceSha": "dad92c95a9def47d30b64a248fdad85512acb44b",
+  "sourceFingerprintsIndependentlyMatched": 297,
+  "maven": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed",
+      "observed": "Playtest: own-child query eof matched=true elapsedMs=136"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed",
+      "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed",
+      "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed",
+      "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+    },
+    {
+      "name": "Windows MSI, shortcuts and uninstall",
+      "status": "passed",
+      "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+    },
+    {
+      "name": "Provisional Hub responsiveness",
+      "status": "passed",
+      "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed",
+      "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed",
+      "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+    },
+    {
+      "name": "Friendly library status and detail provenance",
+      "status": "passed",
+      "observed": "Playtest: actual catalog refresh uses friendly Home/Games status; exact catalog version retained in detail; HTTP503 shows unavailable status and preserves verified cache."
+    },
+    {
+      "name": "Native client exit recovery",
+      "status": "passed",
+      "observed": "Playtest: actual Play; delayed exit 7 reported; verified client retained; clean exit 0 reported; older exit cannot overwrite latest launch; startup cancellation stops child; synthetic save preserved. Synthetic process fixture, not gameplay qualification."
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed",
+      "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed",
+      "observed": "Context diagnosis: variant=0 created=true code=0x0\r\nContext diagnosis: variant=1 created=true code=0x0\r\nContext diagnosis: variant=2 created=true code=0x0\r\nContext diagnosis: variant=3 created=true code=0x0\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "name": "Native rendered city",
+      "status": "passed",
+      "observed": "Playtest: production native city renderer completed four frames in 12808 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "passed",
+      "observed": "Playtest: production native sandbox renderer completed four frames in 11129 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "passed",
+      "observed": "Playtest: production native editor renderer completed four frames in 12108 ms; renderer llvmpipe (LLVM 23.1.4, 256 bits); LOW preset; no smooth-performance claim. Renderer observer smoke; launcher CLI and interactive GPU performance remain separate checks."
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed",
+      "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\dad92c95a9def47d30b64a248fdad85512acb44b\\922286244f026d340deb9a187375591a503f3a92290c4bb2565fdca4518c712d\\windows.jar"
+    }
+  ],
+  "limitations": [
+    "JVM UI scale 1/1.5/2 is not proof of changing Windows monitor DPI.",
+    "No production release/site promotion occurs in this workflow.",
+    "Screenshots/video require human inspection.",
+    "Native GPU sessions and MSI shortcuts must be validated separately if runner desktop access fails.",
+    "Software llvmpipe output does not qualify physical GPU, monitor DPI or performance."
+  ],
+  "fullQualificationPassed": false,
+  "intelEvidenceRecovery": "ArtifactService/CreateArtifact request timed out after five attempts. Intel test outcome unverified; one bounded hosted job retry requested.",
+  "publicPreview2": "GitHub release tag hub-preview-2 returned HTTP404 on 2026-11-14."
+}

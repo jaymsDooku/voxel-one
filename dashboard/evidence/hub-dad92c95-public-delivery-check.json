@@ -1,0 +1,33 @@
+{
+  "sourceSha": "dad92c95a9def47d30b64a248fdad85512acb44b",
+  "sourceKind": "exact-commit",
+  "generation": "hub-preview-2",
+  "checks": [
+    {
+      "file": "catalog.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+      "expectedSha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+      "observedSha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+      "status": "passed",
+      "bytes": 2858
+    },
+    {
+      "file": "shell.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+      "expectedSha256": "4a2c10342c02db35db5e4e08c77ba01a537e148144f476cd754097794db5f292",
+      "observedSha256": "062665804dfd04276a08a77b8508ccbeb6896942019dc4f5807f0604cf3a6b00",
+      "status": "failed",
+      "bytes": 875
+    },
+    {
+      "file": "voxel-one-shell.jar",
+      "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-2/voxel-one-shell.jar",
+      "expectedSha256": "b147e62dfae0eb2b827f2f9a07d950dc432488c995383259459d44f4bb2fc326",
+      "status": "failed",
+      "httpStatus": 404
+    }
+  ],
+  "passed": false,
+  "stableRolloutQualified": false,
+  "Playtest": "Read-only HTTPS metadata and shell-artifact integration; no browser UI is involved. Physical GPU/DPI and published generation upgrade playtests are separate release gates."
+}
