@@ -35,13 +35,25 @@ class MobileGatewayTest {
         var detail=(Map<?,?>)details.get(0);assertEquals(List.of(0,y,-2),detail.get("cell"));
         var geometry=(Map<?,?>)detail.get("geometry");assertEquals(16,geometry.get("resolution"));
         assertEquals(List.of(List.of(0,0,0,8,Blocks.STONE,WorldVoxels.color(Blocks.STONE)&0xffffff)),geometry.get("leaves"));
-        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));assertEquals(Boolean.TRUE,contract.get("fineEdits"));
+        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));assertEquals(Boolean.TRUE,contract.get("fineEdits"));assertEquals(Boolean.TRUE,contract.get("batchCrafting"));
         var models=(List<?>)contract.get("models");assertEquals(1,models.size());
         var model=(Map<?,?>)models.get(0);assertEquals(8,model.get("id"));
         var expected=new dev.jayms.net.model.ModelLibrary().get(8).definition();assertEquals(expected.fingerprint(),model.get("fingerprint"));
         assertEquals(expected.voxels().leaves().size(),((List<?>)((Map<?,?>)model.get("geometry")).get("leaves")).size());
         // Canonically ordered exporter permits exact parity without weakening the 8 KiB request parser.
         assertEquals(Json.write(contract),Files.readString(Path.of("ios/Resources/contract.json")));
+    }
+    @Test void authenticatedBatchBoundsAndDefaultQuantity()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("batch-profile"))){
+            var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
+            String bearer=token(login);
+            for(int invalid:new int[]{0,65,Integer.MAX_VALUE})assertEquals(400,post(host,"action",bearer,Map.of("kind","craft","recipe",88,"quantity",invalid)).statusCode());
+            // Both paths reach existing authoritative crafting; a fresh player has no Wood.
+            assertEquals(200,post(host,"action",bearer,Map.of("kind","craft","recipe",88,"quantity",2)).statusCode());
+            Thread.sleep(150);
+            assertEquals(200,post(host,"action",bearer,Map.of("kind","craft","recipe",88)).statusCode());
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+        }
     }
     @Test void authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory()throws Exception {
         try(var host=new MobileFixtureHost(temp.resolve("fine-profile"))){

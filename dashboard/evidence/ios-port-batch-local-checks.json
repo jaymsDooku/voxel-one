@@ -1,0 +1,25 @@
+{
+  "baseHead": "3d0fec111be962ca569870f66d4cae60dc1bdc10",
+  "scope": "Working edits: capability-gated batch crafting1..64",
+  "localTests": {
+    "javaMobileGateway": 5,
+    "javaFractionalWorld": 7,
+    "javaFailures": 0,
+    "linuxHarness": 63,
+    "linuxFailures": 0
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DskipTests compile",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/make-project.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "Playtest": "New32-case native batch suite pending. Prior30-case source separately receipted.",
+  "limits": [
+    "Simulator is not physical iPhone performance or installation proof.",
+    "Full port, live VPS and signed delivery remain open."
+  ]
+}

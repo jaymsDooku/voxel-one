@@ -323,16 +323,16 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             if gateway==nil {recipes=try NativeRecipe.bundled()}
             else if let supplied=world.snapshot.recipes {recipes=supplied}
             else {recipes=try NativeRecipe.bundled()}
-            let screen=NativeCraftingScreen(recipes:recipes,name:{world.itemName($0)})
+            let screen=NativeCraftingScreen(recipes:recipes,maximumBatch:gateway==nil || world.snapshot.contract?.batchCrafting==true ? 64:1,name:{world.itemName($0)})
             let session=sessionID;graphicsOpen=true;craftingScreen=screen
             screen.modalPresentationStyle = .fullScreen
             screen.onClose={[weak self] in self?.graphicsOpen=false;self?.lastTime=0;self?.movement.removeAll();self?.craftingScreen=nil}
-            screen.onCraft={[weak self] recipe in
+            screen.onCraft={[weak self] recipe,quantity in
                 guard let self=self,self.sessionID==session,!self.craftSaving,!self.busy,self.active,!self.paused else{return}
-                if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id],success:"Craft checked by server.")}
+                if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id,"quantity":quantity],success:"Craft checked by server.")}
                 else {do {
-                    try world.offlineCraft(recipe);self.craftSaving=true;self.notify("Saving crafted items…",persistent:true)
-                    let text="Crafted \(recipe.count) \(world.itemName(recipe.output))."
+                    try world.offlineCraft(recipe,quantity:quantity);self.craftSaving=true;self.notify("Saving crafted items…",persistent:true)
+                    let text="Crafted \(recipe.count*quantity) \(world.itemName(recipe.output))."
                     self.saveOffline{[weak self] result in
                         guard let self=self,self.sessionID==session else{return};self.craftSaving=false
                         if result == .saved {self.notify(text)}

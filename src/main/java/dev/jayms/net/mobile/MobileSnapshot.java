@@ -77,7 +77,7 @@ public final class MobileSnapshot {
         var models=ids.stream().sorted().map(id->{var e=library.get(id);
             if(e==null)throw new IllegalArgumentException("Mobile model definition unavailable");
             return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
-        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"materials",materials,"models",models));
+        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"batchCrafting",true,"materials",materials,"models",models));
     }
     /** All block/fractional/model recipes; tool items need the separate item schema. */
     public static List<Map<String,Object>> recipeCatalog() {

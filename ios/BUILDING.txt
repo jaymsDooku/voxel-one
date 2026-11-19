@@ -27,10 +27,13 @@ editor, mounts and specialized transport or finance tools are not exposed by
 this phone UI. Craft now has a searchable, category-filtered book of 95 shared
 block recipes, including cut/join and flower pots. Offline uses the app catalog;
 online shows the gateway catalog, so an older gateway may offer fewer recipes.
-Stick/tool items, batch crafting and offline overflow drops remain unavailable.
+Stick/tool items and offline overflow drops remain unavailable.
+Batch selects1–64 recipes per transaction; costs/output update together. Online
+batches require gateway batchCrafting capability; older gateways stay at1.
+Offline insufficient ingredients or output space reject the entire batch.
 Owned/required ingredients appear on each row; missing ingredients or a full bag
 leave inventory unchanged. Crafting stops local movement while the book is open.
-New book UI is pending exact-source Mac validation. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
+Book search/empty state passed30 native Simulator tests at3d0fec111be962ca569870f66d4cae60dc1bdc10. Batch UI is pending a fresh exact-source Mac run. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
 collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.

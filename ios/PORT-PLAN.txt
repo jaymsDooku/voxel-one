@@ -681,3 +681,35 @@ Executed project generation, Python compilation, shell syntax and diff checks.
 Prior63 Linux harness checks are historical; no rerun needed for native-only edits.
 Playtest: all30 native cases and actual media remain pending for this source.
 Full parity, live VPS, signed install and physical iPhone gates remain open.
+
+Searchable recipe-book Simulator milestone accepted by execution
+Exact source3d0fec111be962ca569870f66d4cae60dc1bdc10 passed all30 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44594607480
+Verified source/expected head, test statuses and screenshot SHA-256. Inspected
+saved flower-pot rendering in actual native app on iPhone SE3 / iOS18.5 /
+Xcode16.4 / macOS15.8.2. Saved sanitized receipt and screenshot under
+dashboard/evidence/ios-port-3d0fec11-*; pending controller publication. This
+qualifies the tested Simulator milestone, not full port or physical installation.
+
+Next bounded parity milestone: batch crafting
+Added1–64 batch selector; displayed output and ingredient costs scale together.
+Offline validates quantity before bounded multiplication, consumes on inventory
+copy and stores the entire output before commit. Missing ingredients or insufficient
+space leave inventory/revision unchanged. No offline overflow drops. Pending save
+or server action disables quantity control. Persisted success reports multiplied
+output. Java gateway defaults missing quantity to1, validates1..Crafting.MAX_BATCH,
+then uses the existing authoritative craft(recipe,quantity,pose) command. No new
+client-supplied counts, dedup changes or TLS relaxation. Optional contract capability
+batchCrafting gates online quantity>1; old gateway remains1. Generated contract
+asset matches Java canonical output. Stick/tool item schema and9 recipes still open.
+
+Executed Maven compile;5 focused MobileGatewayTest +7 FractionalWorldTest cases
+passed. Authenticated batch integration exercised invalid0/65/Int.MAX_VALUE rejection,
+valid quantity2 and legacy quantity1 server dispatch; no claim of positive live-VPS
+batch output.63 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. No deleted files against recorded review base.
+Playtest: prior30-case native pass inspected above. New batch bounds/64x storage/
+rollback rules and actual3x plank crafting/save/restart UI require fresh Mac run;
+required count now32, retaining all prior cases. No native pass for current edits.
+Full procedural streaming/distant terrain, complete item/tool parity, live VPS,
+signed iPhone install and physical-device measurements remain open.

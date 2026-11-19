@@ -183,6 +183,18 @@ final class NativeWorkflowTests:XCTestCase {
         XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
         capture("offline-crafting-restarted")
     }
+    func testNativeBatchCraftingSaveAndRestart()throws {
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks")
+        let stepper=app.steppers["craftQuantity"];wait(stepper)
+        stepper.buttons["Increment"].tap();stepper.buttons["Increment"].tap()
+        textContains("craftQuantityLabel","Batch: 3")
+        app.cells["recipe88"].tap();textContains("craftStatus","Crafted 12 Planks")
+        capture("native-batch-crafted-planks")
+        app.buttons["craftDone"].tap();app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot2"].label.contains("29 blocks"))
+        XCTAssertTrue(app.buttons["slot3"].label.contains("44 blocks"))
+    }
     func testNativeRecipeSearchFractionalJoinAndBackground()throws {
         newOffline();app.buttons["craftButton"].tap()
         let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Join Dirt")

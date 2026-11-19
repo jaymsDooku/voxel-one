@@ -111,6 +111,21 @@ final class WorldRulesTests:XCTestCase {
         invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
         value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
     }
+    func testBatchCraftingBoundsStorageAndRollback()throws {
+        var value=fixture();value.inventory[0]=[6,64];value.inventory[1]=[165,63]
+        let recipe=NativeRecipe(id:88,name:"Saw planks",inputs:[[6,1]],output:165,count:4)
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe,quantity:64)
+        XCTAssertEqual(world.snapshot.inventory.filter{$0[0]==165}.reduce(0){$0+$1[1]},319)
+        XCTAssertFalse(world.snapshot.inventory.contains{$0[0]==6})
+        XCTAssertTrue(world.snapshot.inventory.allSatisfy{$0[1]<=64})
+        let before=world.snapshot.inventory,revision=world.revision
+        for invalid in [0,65,Int.max] {XCTAssertThrowsError(try world.offlineCraft(recipe,quantity:invalid))}
+        XCTAssertThrowsError(try world.offlineCraft(recipe,quantity:2))
+        XCTAssertEqual(world.snapshot.inventory,before);XCTAssertEqual(world.revision,revision)
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[6,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe,quantity:2))
+        XCTAssertEqual(full.snapshot.inventory,value.inventory)
+    }
     func testFractionalRecipeConservationAndMetadata()throws {
         var value=fixture();value.inventory[0]=[2,1]
         let world=try VoxelWorld(value)

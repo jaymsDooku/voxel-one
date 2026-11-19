@@ -84,7 +84,7 @@ struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:
 struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
 struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
 struct NativeContract:Codable,Sendable {
-    var version:Int;var materials:[NativeMaterial];var models:[NativeModel];var fineEdits:Bool? = nil
+    var version:Int;var materials:[NativeMaterial];var models:[NativeModel];var fineEdits:Bool? = nil;var batchCrafting:Bool? = nil
     func validate()throws {
         guard version==1,materials.count==189,Set(materials.map{$0.id})==Set(1...189),models.count<=129,
               Set(models.map{$0.id}).count==models.count,
@@ -522,18 +522,19 @@ final class VoxelWorld {
         revision+=1;geometryRevision+=1
     }
     /// Commit only after both ingredient consumption and all output storage succeed.
-    func offlineCraft(_ recipe:NativeRecipe)throws {
+    func offlineCraft(_ recipe:NativeRecipe,quantity:Int=1)throws {
         try recipe.validate()
+        guard (1...64).contains(quantity) else {throw GameError.message("Batch quantity must be 1–64.")}
         var next=snapshot.inventory
         for ingredient in recipe.inputs {
-            var needed=ingredient[1]
+            var needed=ingredient[1]*quantity
             for i in next.indices where next[i][0]==ingredient[0] {
                 let used=min(needed,next[i][1]);next[i][1]-=used;needed-=used
                 if next[i][1]==0 {next[i][0]=0}
             }
             guard needed==0 else {throw GameError.message("Missing ingredients for \(recipe.name).")}
         }
-        var remaining=recipe.count
+        var remaining=recipe.count*quantity
         for i in next.indices where next[i][0]==recipe.output && next[i][1]<64 {
             let added=min(remaining,64-next[i][1]);next[i][1]+=added;remaining-=added
         }

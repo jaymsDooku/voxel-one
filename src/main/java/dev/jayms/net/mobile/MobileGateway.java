@@ -218,7 +218,9 @@ public final class MobileGateway implements AutoCloseable {
                     while(sent && client.cityReceived<=received && client.connected() && System.nanoTime()<end){Thread.sleep(10);poll();}
                 }
                 case "swap" -> {int a=Json.integer(request,"a"),b=Json.integer(request,"b");if(a<0 || b<0 || a>=36 || b>=36)throw new IllegalArgumentException();client.swap(a,b);sent=true;Thread.sleep(100);}
-                case "craft" -> {int recipe=Json.integer(request,"recipe");sent=client.craft(recipe,pose);Thread.sleep(100);}
+                case "craft" -> {int recipe=Json.integer(request,"recipe"),quantity=request.containsKey("quantity")?Json.integer(request,"quantity"):1;
+                    if(quantity<1 || quantity>Crafting.MAX_BATCH)throw new IllegalArgumentException("Invalid batch quantity");
+                    sent=client.craft(recipe,quantity,pose);Thread.sleep(100);}
                 default -> throw new IllegalArgumentException("Unsupported action");
             }
             if(!sent)throw new Failure(409,"Action unavailable; refresh the game");
