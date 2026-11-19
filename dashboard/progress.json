@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Private resident World/journal adapter implemented with bounded preflight and fail-closed capture. 79 tests and native regression passed; fresh images saved. Rebasing, partial replay/Main/sidecar integration and full qualification remain pending. New source needs hosted checks.",
-      "updatedAt": "2026-11-19T16:24:32+00:00"
+      "note": "CI retry flag added for missing pinned dependency cache. Fresh resolution, 79 affected tests, 65 tooling tests, package/MP3 smoke and native regression passed. Full local verify ended with signal 143; hosted full/platform validation pending. Structure qualification remains pending.",
+      "updatedAt": "2026-11-19T16:37:29+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
