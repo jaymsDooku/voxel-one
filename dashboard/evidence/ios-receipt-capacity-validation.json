@@ -1,0 +1,147 @@
+{
+  "schemaVersion": 1,
+  "validationType": "synthetic-validator-capacity",
+  "baselineHead": "71612f09bfec4549456b3317676e76cdced085a4",
+  "featureBranch": "feature/queue-36336431616666372d633131392d346162652d626663382d353363376365366236386433",
+  "environment": {
+    "os": "Linux",
+    "architecture": "x86_64",
+    "python": "3.11.2",
+    "appleCommands": "mocked",
+    "nativeApp": "synthetic Mach-O fixture; not runnable"
+  },
+  "change": "Only the client_receipt test-count ceiling changes from 30 to 64. Required native cases and all other validation guards remain required.",
+  "plan": [
+    {
+      "step": "Inspect assigned branch, receipt validator, workflow and focused tests",
+      "status": "complete"
+    },
+    {
+      "step": "Raise only the count ceiling; cover expanded capacity and unchanged guards; document trusted checkout requirement",
+      "status": "complete"
+    },
+    {
+      "step": "Run synthetic integration/CLI playtest, focused tests, Python compilation and diff checks; capture sanitized result image",
+      "status": "complete"
+    },
+    {
+      "step": "Runner synchronizes current master and publishes assigned branch/evidence; rerun meaningful checks if source changes; normal PR CI and independent review",
+      "status": "pending controller workflow"
+    }
+  ],
+  "checks": [
+    {
+      "command": "TMPDIR=\"$PWD/.tmp/validator-receipts\" python3 -m unittest discover -s tools/ios -p 'test_*.py' -v",
+      "observed": "61 tests passed in 1.472s. All Apple commands, app binaries and screenshots are mock fixtures."
+    },
+    {
+      "command": "python3 -m py_compile tools/ios/simulator_checks.py tools/ios/test_simulator_checks.py tools/ios/client_diagnostics.py tools/ios/test_client_diagnostics.py",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "git diff --check",
+      "observed": "Exit 0"
+    },
+    {
+      "command": "python3 deploy/build_site.py",
+      "observed": "Exit 0; 22 documentation sections built. Unrelated generated website/dist/progress.json restored to baseline; no website deployment."
+    },
+    {
+      "command": "TMPDIR=\"$PWD/.tmp/validator-receipts\" PYTHONPATH=tools/ios python3 .tmp/validator-receipts/playtest.py",
+      "observed": "10 asserted parser scenarios passed; details below."
+    },
+    {
+      "command": "TMPDIR=\"$PWD/.tmp/validator-receipts\" PYTHONPATH=tools/ios python3 - (in-memory old-limit mutation check)",
+      "observed": "Replacing only 64 with 30 in an isolated module made both 32/64 acceptance subtests fail with native_client_receipt_invalid as expected; tracked source unchanged."
+    },
+    {
+      "command": "java .tmp/validator-receipts/ReceiptCapture.java .tmp/validator-receipts/cli-capture.txt dashboard/evidence/ios-receipt-capacity-synthetic-cli.png",
+      "observed": "Exit 0; captured only the synthetic CLI result window on inherited assigned DISPLAY. Image inspected; no private data. Not a gameplay or native iOS capture."
+    }
+  ],
+  "playtest": {
+    "scope": "Noninteractive trusted-validator integration and receipt parser. Browser/game playtesting does not apply because no game client, rendering or input code changed.",
+    "steps": "Create isolated synthetic app/receipt fixtures, invoke actual client_receipt, compare exact acceptance or error codes, then exercise mocked 32-case run_checks install/launch/capture and verify finalized media receipts through the focused suite.",
+    "cases": [
+      {
+        "scenario": "Capacity 1",
+        "expected": "accepted 1 entries",
+        "observed": "accepted 1 entries",
+        "result": "passed"
+      },
+      {
+        "scenario": "Capacity 30",
+        "expected": "accepted 30 entries",
+        "observed": "accepted 30 entries",
+        "result": "passed"
+      },
+      {
+        "scenario": "Capacity 32",
+        "expected": "accepted 32 entries",
+        "observed": "accepted 32 entries",
+        "result": "passed"
+      },
+      {
+        "scenario": "Capacity 64",
+        "expected": "accepted 64 entries",
+        "observed": "accepted 64 entries",
+        "result": "passed"
+      },
+      {
+        "scenario": "Capacity 65",
+        "expected": "native_client_receipt_invalid",
+        "observed": "native_client_receipt_invalid",
+        "result": "passed"
+      },
+      {
+        "scenario": "Wrong source at 64",
+        "expected": "native_client_receipt_invalid",
+        "observed": "native_client_receipt_invalid",
+        "result": "passed"
+      },
+      {
+        "scenario": "Synthetic flag at 64",
+        "expected": "native_client_receipt_invalid",
+        "observed": "native_client_receipt_invalid",
+        "result": "passed"
+      },
+      {
+        "scenario": "Failed final entry at 64",
+        "expected": "native_client_receipt_invalid",
+        "observed": "native_client_receipt_invalid",
+        "result": "passed"
+      },
+      {
+        "scenario": "Missing native app at 64",
+        "expected": "native_app_missing",
+        "observed": "native_app_missing",
+        "result": "passed"
+      },
+      {
+        "scenario": "Missing declared video at 64",
+        "expected": "missing_or_oversized_media",
+        "observed": "missing_or_oversized_media",
+        "result": "passed"
+      }
+    ],
+    "regressionCoverage": "Legacy 1/30 capacity; exact source/device/application/evidence identity; synthetic boolean; receipt passed status; bundle shape; nonempty list; final-entry passed status and name type/5\u2013200 bounds; native app path/plist/Mach-O; video list/count/path/presence/format/6 MiB size. Existing install, launch, screenshot, artifact staging, source-cleanliness and diagnostics tests also passed."
+  },
+  "diffAudit": {
+    "base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "unrelatedDeletions": false,
+    "intentionalDeletion": "The literal count ceiling 30 is replaced with 64; no files or existing assets/evidence are deleted.",
+    "finalSynchronization": "Runner owns current-master integration and supplies the review base; rerun checks and capture if source changes."
+  },
+  "sourceSha256": {
+    "tools/ios/simulator_checks.py": "d952ed85eb020c21e2b0dbe5b8530858f6b11aa4cb267dc53949f4a551639e9c",
+    "tools/ios/test_simulator_checks.py": "758bc6edf3bf6bb9a0ffe1c21390f121d6f90a28afcc7584e08c61c9707c833c",
+    "tools/ios/README.md": "14395e665ee8e4b2e9a89182ed0d8bf256c5b20473b8b84a7e23ca6acc61f0f7"
+  },
+  "media": {
+    "path": "dashboard/evidence/ios-receipt-capacity-synthetic-cli.png",
+    "sha256": "dc05c3dce286697cefdc6fb0b4a64f12941e9bbdd3a26b94dd6fcb8386153a91",
+    "publication": "pending controller publication",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36336431616666372d633131392d346162652d626663382d353363376365366236386433/dashboard/evidence/ios-receipt-capacity-synthetic-cli.png"
+  },
+  "qualification": "Synthetic validation only. No Mac, simulator, native client or physical iPhone pass claimed. Trusted workflow checkout must contain the independently reviewed fix before the parent exact-source Mac rerun. All native and physical qualification gates remain intact."
+}

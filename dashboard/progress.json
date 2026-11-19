@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-10-23T06:00:47+00:00",
+  "updatedAt": "2026-11-19T20:55:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,26 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
+      "title": "iOS trusted validator: bounded expanded native test receipts",
+      "description": "Implementing a bounded 64-entry receipt limit with synthetic boundary and guard checks. Native and physical qualification gates remain required; runner owns publication.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Synthetic CLI results image; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36336431616666372d633131392d346162652d626663382d353363376365366236386433/dashboard/evidence/ios-receipt-capacity-synthetic-cli.png"
+        },
+        {
+          "kind": "link",
+          "label": "Synthetic validation report; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-36336431616666372d633131392d346162652d626663382d353363376365366236386433/dashboard/evidence/ios-receipt-capacity-validation.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implemented 64-entry capacity only; 61 synthetic Python tests, parser playtest, compilation and diff checks passed. Local sanitized CLI image/report await runner publication and independent review. Native and physical qualification remain gated.",
+      "updatedAt": "2026-11-19T20:55:33+00:00"
+    },
     {
       "id": "living-landscape",
       "title": "Living music landscape",

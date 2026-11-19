@@ -149,7 +149,7 @@ def client_receipt(repo, output, head, udid):
             or receipt.get('synthetic') is not False or receipt.get('status') != 'passed'
             or not isinstance(bundle_id, str) or not re.fullmatch(r'[A-Za-z0-9-]+(?:\.[A-Za-z0-9-]+)+', bundle_id)
             or 'voxel' not in bundle_id.lower()
-            or not isinstance(tests, list) or not tests or len(tests) > 30
+            or not isinstance(tests, list) or not tests or len(tests) > 64
             or any(not isinstance(t, dict) or t.get('status') != 'passed'
                    or not isinstance(t.get('name'), str) or not 5 <= len(t['name']) <= 200 for t in tests)):
         raise CheckError('native_client_receipt_invalid')
