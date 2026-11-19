@@ -97,7 +97,7 @@ public final class ReplaySkyFrameCheck {
  }
  static void pendingChunk(Path root,Path path,ShaderProgram shader,Path image)throws Exception {
   Path spool=Files.createDirectory(root.resolve("pending-chunk-spool"));
-  var overlay=RegionReplayOverlay.capture(List.of(PendingReplayOverlayTest.fraction()),()->false);
+  var overlay=RegionReplayOverlay.capture(List.of(PendingReplayOverlayTest.fraction(),new Protocol.Edit(3,0,0,Blocks.LED).withColor(0x336699)),()->false);
   var worker=new RegionReplayWorker(spool,(cancel,progress)->{
    var source=LocalGame.openRegionalReadback(path,spool,RegionReplayWorkerTest.REV,cancel,progress);
    return new RegionReplayWorker.Source(source.spool(),source.terrain(),source.allowed(),source.revision(),source.fingerprint(),source.metadata(),overlay);
@@ -105,17 +105,26 @@ public final class ReplaySkyFrameCheck {
   try {
    ReadbackMetadataTest.ready(worker);var local=worker.metadataResult(RegionReplayWorkerTest.REV);
    try(var world=new World(local.seed,local.models,local.generatorVersion)) {
-    var scene=worker.bindTarget(local,world).openScene(world,1,8192);
+    var binding=worker.bindTarget(local,world);var scene=binding.openScene(world,1,8192);
     scene.desired(List.of(new ChunkPos(0,10,0)));cpu(scene,1);gpu(scene,1);
     check(world.isLoaded(3,160,0),"Pending chunk publishes through ordinary GPU scene");
     ReplayRenderCheck.capture(world,shader,image);
+    long baseSourceNanos=sourceLightingNanos,basePlanarNanos=planarLightingNanos;int baseLeaves=sourceLightingLeaves,basePixels=planarLitGeometryPixels;
+    sourceLighting(binding,world);
+    check(sourceLightingPump.coverage().roots().get(new ChunkPos(0,0,0)).get(48,0,0)==WorldVoxels.encode(overlay.rows().get(1)),"Pending LED reaches actual lighting roots");
+    check(sourceSkyPump.coverage().merge().overlay()==overlay,"Merged sky retains pending source identity");
+    check(sourceSkyPump.coverage().merge().data().sampleKnown(3.75f,150,.75f,-1)==0,"Actual pending fractional roof blocks sky");
+    planar(world,shader,image.resolveSibling(image.getFileName().toString().replace("-pending.png","-pending-optics.png")));
+    Files.writeString(root.resolve("pending-result.json"),"{\"status\":\"passed\",\"source_lighting_chunks\":288,\"source_lighting_leaves\":"+sourceLightingLeaves+",\"source_lighting_nanos\":"+sourceLightingNanos+",\"planar_lighting_nanos\":"+planarLightingNanos+",\"planar_lit_geometry_pixels\":"+planarLitGeometryPixels+",\"sky_columns\":9216,\"qualification\":false}\n");
+    sourceLightingPump.desired(List.of());sourceSkyPump.desired(List.of());
+    sourceLightingNanos=baseSourceNanos;planarLightingNanos=basePlanarNanos;sourceLightingLeaves=baseLeaves;planarLitGeometryPixels=basePixels;
     check(world.editsVersion()==0&&world.getLoadedChunks().isEmpty(),"Pending render remains detached");
    }
   }finally{RegionReplayWorkerTest.closed(worker);}
  }
  public static void main(String[] args)throws Exception {
   Path root=Path.of(args[0]),report=Path.of(args[1]),image=Path.of(args[2]);if(Files.exists(root)||Files.exists(report)||Files.exists(image))throw new IllegalArgumentException("Fresh outputs required");Files.createDirectory(root);
-  var pendingOverlayCheck=new PendingReplayOverlayTest();pendingOverlayCheck.folder=Files.createDirectory(root.resolve("pending-overlay-fixture"));pendingOverlayCheck.pendingColumnsMatchPagesAndRespectSharedBudgets();pendingOverlayCheck.indexedSelectionPreservesOrderAndBounds();pendingOverlayCheck.detachedCompositionPreservesColourFractionEmptySpaceAndBounds();pendingOverlayCheck.workerPagesPendingChunksAndRejectsMixedSkyPaths();pendingOverlayCheck.savingPendingSourceRequiresPrefixAndWritesItOnce();
+  var pendingOverlayCheck=new PendingReplayOverlayTest();pendingOverlayCheck.folder=Files.createDirectory(root.resolve("pending-overlay-fixture"));pendingOverlayCheck.samePhysicalSourceDifferentOverlaysCannotMixSkyReceipts();pendingOverlayCheck.pendingColumnsMatchPagesAndRespectSharedBudgets();pendingOverlayCheck.indexedSelectionPreservesOrderAndBounds();pendingOverlayCheck.detachedCompositionPreservesColourFractionEmptySpaceAndBounds();pendingOverlayCheck.workerPagesPendingChunksSkyAndLighting();pendingOverlayCheck.savingPendingSourceRequiresPrefixAndWritesItOnce();
   var savedPagingCheck=new SavedPagingFactoryTest();savedPagingCheck.folder=Files.createDirectory(root.resolve("saved-paging-fixture"));savedPagingCheck.retiredSourceCreatesFreshOwnedWorkerAndRejectsOldReceipts();savedPagingCheck.differentValidDestinationFailsFactoryAndCleansItsOwnedSpool();
   var journalTailCheck=new JournalTailAdoptionTest();journalTailCheck.folder=Files.createDirectory(root.resolve("journal-tail-fixture"));journalTailCheck.trackedEditsDuringSaveRemainLiveAndSurviveNextSave();journalTailCheck.untrackedChangesModelsAndUnboundJournalCannotAdoptMetadata();
   var editorCheck=new RegionReplayEditorTest();editorCheck.editsAndCellReplacementKeepExactOrderedJournal();editorCheck.budgetCancellationInvalidInputAndForeignThreadRejectBeforeWorldMutation();editorCheck.bypassAndPartialWorldFailurePoisonJournalInsteadOfClaimingRollback();

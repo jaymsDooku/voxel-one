@@ -16,6 +16,35 @@ public class PendingReplayOverlayTest {
     static Protocol.Edit fraction(){return new Protocol.Edit(3,160,0,Blocks.piece(Blocks.LED,1),1,1,0,1).withColor(0x336699);}
     static RegionReplayOverlay pending(){return RegionReplayOverlay.capture(List.of(new Protocol.Edit(0,160,0,0),fraction()),()->false);}
     ReadbackSaveSnapshotTest contexts()throws IOException {var t=new ReadbackSaveSnapshotTest();t.folder=Files.createDirectories(folder.resolve("contexts"));return t;}
+    RegionReplayWorker pendingWorker(ReadbackMetadataTest f,Path path,String name,RegionReplayOverlay overlay)throws Exception {
+        var spool=Files.createDirectories(f.folder.resolve(name));
+        return new RegionReplayWorker(spool,(cancel,progress)->{
+            var source=LocalGame.openRegionalReadback(path,spool,ReadbackMetadataTest.REV,cancel,progress);
+            return new RegionReplayWorker.Source(source.spool(),source.terrain(),source.allowed(),source.revision(),source.fingerprint(),source.metadata(),overlay);
+        },1,1,56,2);
+    }
+    @Test public void samePhysicalSourceDifferentOverlaysCannotMixSkyReceipts()throws Exception {
+        var f=new ReadbackMetadataTest();f.folder=Files.createDirectories(folder.resolve("overlay-fences"));var path=f.fixture();var before=Files.readAllBytes(path);
+        var clear=RegionReplayOverlay.capture(List.of(new Protocol.Edit(0,160,0,0)),()->false);
+        var roof=RegionReplayOverlay.capture(List.of(new Protocol.Edit(0,160,0,Blocks.LED).withColor(0x336699)),()->false);
+        var a=pendingWorker(f,path,"clear-spool",clear);var b=pendingWorker(f,path,"roof-spool",roof);
+        try {
+            ReadbackMetadataTest.ready(a);ReadbackMetadataTest.ready(b);assertEquals(a.fingerprint(),b.fingerprint());
+            var al=a.metadataResult(ReadbackMetadataTest.REV);var bl=b.metadataResult(ReadbackMetadataTest.REV);
+            try(var aw=new World(al.seed,al.models,al.generatorVersion);var bw=new World(bl.seed,bl.models,bl.generatorVersion)) {
+                var ab=a.bindTarget(al,aw);var bb=b.bindTarget(bl,bw);
+                var ar=ab.submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,aw);var br=bb.submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,bw);
+                RegionReplayWorkerTest.done(ar);RegionReplayWorkerTest.done(br);var at=ab.skyResult(ar,aw);var bt=bb.skyResult(br,bw);
+                assertSame(clear,at.overlay());assertSame(roof,bt.overlay());assertNotSame(at.overlay(),bt.overlay());
+                assertEquals(1,at.data().sampleKnown(.5f,150,.5f,-1));assertEquals(0,bt.data().sampleKnown(.5f,150,.5f,-1));
+                assertThrows(IOException.class,()->ab.submitSkyMerge(List.of(br),8000000,aw));assertThrows(IOException.class,()->bb.skyResult(ar,bw));
+                var merge=ab.submitSkyMerge(List.of(ar),8000000,aw);RegionReplayWorkerTest.done(merge);assertSame(clear,ab.mergeResult(merge,aw).overlay());
+                var lit=bb.submitLightingChunk(REGION,131072,bw);RegionReplayWorkerTest.done(lit);assertEquals(WorldVoxels.encode(roof.rows().get(0)),bb.lightingChunkResult(lit,bw).geometry().get(0,0,0));
+                assertEquals(0,aw.editsVersion());assertEquals(0,bw.editsVersion());assertFalse(aw.hasReplayReadView());assertFalse(bw.hasReplayReadView());
+            }
+        }finally{RegionReplayWorkerTest.closed(a);RegionReplayWorkerTest.closed(b);}
+        assertArrayEquals(before,Files.readAllBytes(path));
+    }
     @Test public void pendingColumnsMatchPagesAndRespectSharedBudgets()throws Exception {
         try(var c=contexts().new Context("column")) {
             c.worker.submit(()->{
@@ -72,7 +101,7 @@ public class PendingReplayOverlayTest {
             }).get(10,TimeUnit.SECONDS);
         }
     }
-    @Test public void workerPagesPendingChunksAndRejectsMixedSkyPaths()throws Exception {
+    @Test public void workerPagesPendingChunksSkyAndLighting()throws Exception {
         try(var c=contexts().new Context("worker");var prepared=c.stage(c.snapshot())) {
             var old=c.fixture.worker(c.path);ReadbackMetadataTest.ready(old);RegionReplayWorkerTest.closed(old);
             var publication=prepared.authorize(()->false);c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
@@ -83,7 +112,9 @@ public class PendingReplayOverlayTest {
                 var request=worker.submit(REGION,RANGE,8,SavedPagingFactoryTest.NEXT);RegionReplayWorkerTest.await(()->request.outcome().phase()==RegionReplayWorker.Phase.READY);assertEquals(WorldVoxels.encode(fraction()),request.result(SavedPagingFactoryTest.NEXT).cells().get(new WorldVoxels.CellPosition(3,160,0)).tree().get(8,0,8));
                 try(var world=new World(local.seed,local.models,local.generatorVersion)) {
                     var chunk=worker.submitChunkFenced(REGION,131072,SavedPagingFactoryTest.NEXT,world);RegionReplayWorkerTest.await(()->chunk.outcome().phase()==RegionReplayWorker.Phase.READY);assertEquals(WorldVoxels.encode(fraction()),chunk.chunkResult(SavedPagingFactoryTest.NEXT,world).geometry().get(56,0,8));
-                    var binding=worker.bindTarget(local,world);var sky=binding.submitSky(0,0,new dev.jayms.render.WorldSkyVisibility.BuildLimits(256,131072,131072),world);RegionReplayWorkerTest.await(()->sky.outcome().phase()==RegionReplayWorker.Phase.FAILED);assertThrows(IOException.class,()->binding.skyResult(sky,world));assertFalse(world.hasReplayReadView());assertThrows(IOException.class,local::save);
+                    var binding=worker.bindTarget(local,world);var sky=binding.submitSky(0,0,new dev.jayms.render.WorldSkyVisibility.BuildLimits(256,131072,131072),world);RegionReplayWorkerTest.done(sky);assertEquals(RegionReplayWorker.Phase.READY,sky.outcome().phase());var tile=binding.skyResult(sky,world);assertSame(overlay,tile.overlay());assertEquals(0,tile.data().sampleKnown(3.75f,150,.75f,-1));assertEquals(1,tile.data().sampleKnown(3.25f,150,.25f,-1));
+                    var merged=binding.submitSkyMerge(List.of(sky),8000000,world);RegionReplayWorkerTest.done(merged);assertSame(overlay,binding.mergeResult(merged,world).overlay());
+                    var lighting=binding.submitLightingChunk(REGION,131072,world);RegionReplayWorkerTest.done(lighting);var lit=binding.lightingChunkResult(lighting,world);assertEquals(WorldVoxels.encode(fraction()),lit.geometry().get(56,0,8));assertNull(lit.mesh());assertNull(lit.modelDraws());assertFalse(world.hasReplayReadView());assertThrows(IOException.class,local::save);
                 }
             }finally{RegionReplayWorkerTest.closed(worker);}
             try(var files=Files.list(spool)){assertEquals(0,files.count());}
