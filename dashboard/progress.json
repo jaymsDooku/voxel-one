@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added source-fenced replay volume staging with separate roots and one-time transfer. 52 tests and native full irradiance readback/GLFW checks pass. Prior CI receipt stale; renderer, appearance, Main, saves and full qualification remain pending.",
-      "updatedAt": "2026-11-19T11:29:15+00:00"
+      "note": "Added explicit renderer replay volume publication and immediate stale-GI hiding; 52 tests and native shader/publication regressions pass. Frame scheduling, appearance, Main, saves, city/max and full qualification remain pending.",
+      "updatedAt": "2026-11-19T11:57:27+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

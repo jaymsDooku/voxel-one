@@ -27,7 +27,7 @@ classes = {str(p.relative_to(root)): sha(p) for p in sorted((root / 'target/clas
 assert classes, 'Compile production classes first'
 cp = 'target/test-classes:' + (root / 'target/structure-limit-audit/diagnostic-classpath.txt').read_text().strip()
 assert (root / cp.split(':')[0]).resolve() == root / 'target/test-classes'
-java_sources = [root / 'tools/structures' / name for name in ['ReplaySkyFrameCheck.java', 'ReplaySkyUploadAssertions.java', 'ReplayVolumeUploadAssertions.java', 'ReplaySkyPipelineAssertions.java', 'ReplaySkyFrameAssertions.java', 'ReplayWaterCheck.java', 'ReplayRenderCheck.java', 'ReplaySceneCheck.java', 'ReplayChunkGpuCheck.java', 'ReplayModelGpuCheck.java', 'ReplayGpuUploadCheck.java']]
+java_sources = [root / 'tools/structures' / name for name in ['ReplaySkyFrameCheck.java', 'ReplaySkyUploadAssertions.java', 'ReplayVolumeUploadAssertions.java', 'ReplayVolumePipelineAssertions.java', 'ReplaySkyPipelineAssertions.java', 'ReplaySkyFrameAssertions.java', 'ReplayWaterCheck.java', 'ReplayRenderCheck.java', 'ReplaySceneCheck.java', 'ReplayChunkGpuCheck.java', 'ReplayModelGpuCheck.java', 'ReplayGpuUploadCheck.java']]
 image = root / ('dashboard/evidence/'+args.evidence_prefix+'-optics.png')
 assert not image.with_name((args.evidence_prefix+'-regression.png')).exists(), 'Preserve regression evidence'
 assert not image.exists(), 'Preserve existing evidence; choose a fresh output name'
