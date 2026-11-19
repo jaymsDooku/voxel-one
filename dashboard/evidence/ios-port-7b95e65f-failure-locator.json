@@ -1,0 +1,12 @@
+{
+  "sourceHead": "7b95e65f5c10eb7c32b6ff17251eaa62288ce0c0",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44543500735",
+  "observed": "One structured failed method was identified then redacted by existing48-character token privacy rule.",
+  "repair": "Emit short SHA-256 method ID plus fixed failure categories/allowlisted source line; unchanged privacy filter.",
+  "localTests": {
+    "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "count": 60,
+    "failures": 0
+  },
+  "Playtest": "Original failure remains unresolved. Native30-case run pending; no gameplay media supplied."
+}

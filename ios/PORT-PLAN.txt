@@ -528,3 +528,20 @@ remain pending; Linux mock summary tests are not native application validation.
 Request one scoped exact-source Mac run of existing30 cases using repaired capture,
 then inspect real failure identifiers or passing receipt/media before further edits.
 Full parity, live VPS, signed install and physical iPhone gates remain unchanged.
+
+Failure locator survives privacy redaction
+Source7b95e65f5c10eb7c32b6ff17251eaa62288ce0c0, run44543500735 failed exit65.
+Structured summary capture identified one failed source-declared test, but trusted
+sanitizer redacted its name as an opaque token of48+ characters. This does not
+identify which long method failed; do not guess or change gameplay from that result.
+Changed emitted locator to SHA-256(method) first12 hex, mapped from checked-out
+native test source. Existing privacy redaction remains unchanged. Also emit fixed
+failure category and allowlisted Swift source filename/line when present in bounded
+structured failureText; never emit actual failureText or assertion values.
+Executed60 Linux harness checks, including long-name identifier through the existing
+sanitizer and exclusion of private fixture payloads from fixed locators. Python
+compilation and diff checks passed. Playtest: original gameplay failure remains
+unresolved; all30 required native cases need exact-source Mac execution. No passing
+client receipt or gameplay media returned. Preflight not copied as game evidence.
+Request scoped Mac run with actionable identifiers; no native gate or gameplay
+assertion weakened. Full parity, live VPS, signing/install and physical gates stay open.

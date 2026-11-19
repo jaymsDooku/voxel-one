@@ -66,8 +66,23 @@ class NativeFailureSummaryTests(unittest.TestCase):
             with patch.object(runner.subprocess, 'run', side_effect=capture):
                 runner.record_failure(log, root)
             lines = log.read_text().splitlines()[1:]
-            self.assertIn('error: native_test_failed test=testKnown', lines)
+            self.assertIn('error: native_test_failed test_id=' + runner.hashlib.sha256(b'testKnown').hexdigest()[:12], lines)
             self.assertNotIn('private-fixture-marker', '\n'.join(lines))
             with patch.object(runner.subprocess, 'run', side_effect=subprocess.TimeoutExpired('synthetic', 30)):
                 runner.record_failure(log, root)
             self.assertTrue(log.read_text().endswith('error: native_test_failure_summary status=summary_unavailable\n'))
+
+    def test_failure_locators_never_emit_assertion_values(self):
+        text = 'NativeWorkflowTests.swift:193: XCTAssertTrue failed: private-fixture-marker'
+        self.assertEqual(runner.failure_locators({'testFailures':[{'failureText':text}]}),
+                         ['error: native_test_failure_category category=assertion source=NativeWorkflowTests.swift line=193'])
+        self.assertEqual(runner.failure_locators({'testFailures':[{'failureText':'private-fixture-marker'}]}),
+                         ['error: native_test_failure_category category=unknown'])
+        self.assertEqual(runner.failure_locators({'testFailures':[{'failureText':'x'*8193}]}), [])
+
+    def test_long_method_hash_survives_existing_sanitizer(self):
+        spec = importlib.util.spec_from_file_location('failure_diagnostics', ROOT / 'tools/ios/client_diagnostics.py')
+        diagnostics = importlib.util.module_from_spec(spec);spec.loader.exec_module(diagnostics)
+        method = 'testNativeRecipeSearchFractionalJoinAndBackground'
+        marker = 'error: native_test_failed test_id=' + runner.hashlib.sha256(method.encode()).hexdigest()[:12]
+        self.assertEqual(diagnostics.diagnostic_line(marker, ROOT)['text'], marker)

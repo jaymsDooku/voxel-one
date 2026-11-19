@@ -80,10 +80,39 @@ def failed_methods(summary, allowed):
     return sorted(found)[:8]
 
 
+def failure_locators(summary):
+    """Fixed categories and source locations only; assertion values never leave JSON."""
+    failures = summary.get('testFailures', []) if isinstance(summary, dict) else []
+    if not isinstance(failures, list):
+        return []
+    result = []
+    for failure in failures[:8]:
+        if not isinstance(failure, dict):
+            continue
+        text = failure.get('failureText', '')
+        if not isinstance(text, str) or len(text) > 8192:
+            continue
+        lower = text.lower()
+        category = 'unknown'
+        for needle, label in [('failed to tap', 'tap'), ('no matches', 'no_match'),
+                              ('xctassert', 'assertion'), ('crash', 'app_exit'),
+                              ('failed to get matching', 'snapshot')]:
+            if needle in lower:
+                category = label
+                break
+        location = re.search(r'(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift:(\d{1,5})(?!\d)', text)
+        suffix = ''
+        if location:
+            suffix = ' source=' + location[1] + '.swift line=' + location[2]
+        result.append('error: native_test_failure_category category=' + category + suffix)
+    return result
+
+
 def record_failure(log, root):
     """Recover bounded structured failure names before the hosted worker is deleted."""
     state = 'unavailable'
     names = []
+    locators = []
     result = root / 'ios/build/NativeTests.xcresult'
     destination = root / 'ios/build/failure-summary.json'
     try:
@@ -99,6 +128,7 @@ def record_failure(log, root):
                 with destination.open('rb') as stream:
                     summary = json.loads(stream.read(SUMMARY_BYTES))
                 names = failed_methods(summary, allowed)
+                locators = failure_locators(summary)
                 state = 'identified' if names else 'no_allowlisted_failure'
             else:
                 state = 'summary_failed_or_oversized'
@@ -107,7 +137,9 @@ def record_failure(log, root):
     with log.open('a') as output:
         output.write('\nerror: native_test_failure_summary status=' + state + '\n')
         for name in names:
-            output.write('error: native_test_failed test=' + name + '\n')
+            output.write('error: native_test_failed test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] + '\n')
+        for locator in locators:
+            output.write(locator + '\n')
 
 
 def main():
