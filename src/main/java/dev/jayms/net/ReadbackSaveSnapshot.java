@@ -70,6 +70,7 @@ final class ReadbackSaveSnapshot {
         var prefix=StagedOfflineSave.stageRegions(generation.target(),seed,generator,models,source.spool(),overlay,
                 edit->models.has(edit.type()),cancel,progress);
         try {
+            prefix.sealTail(inventory,health,drops.values(),drops.size(),cancel);
             if(!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Readback save source terrain changed");
             StructurePackage.cancelled(cancel);return new Prepared(prefix);
         }catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
@@ -81,7 +82,7 @@ final class ReadbackSaveSnapshot {
          * live integration needs an owner lease and worker commit protocol. */
         void commit(BooleanSupplier cancel)throws IOException {
             owner();Objects.requireNonNull(cancel);
-            try{StructurePackage.cancelled(cancel);validate();prefix.publish(inventory,health,drops.values(),drops.size(),generation,cancel);}
+            try{StructurePackage.cancelled(cancel);validate();prefix.publishSealed(generation,cancel);}
             catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
         }
         @Override public void close()throws IOException{prefix.close();}

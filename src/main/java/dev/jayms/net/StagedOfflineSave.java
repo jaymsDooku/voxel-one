@@ -11,11 +11,11 @@ import java.util.function.IntConsumer;
 import java.util.function.Predicate;
 import java.util.Objects;
 
-/** Worker-written immutable prefix; patch only the fixed survival slot at publication. */
+/** Worker-written prefix and one-time tail sealing before publication. */
 final class StagedOfflineSave implements AutoCloseable {
     private final Path target,temp;
     private long survivalOffset;
-    private boolean closed;
+    private boolean closed,sealed;
     private boolean regional;
     boolean regional(){return regional;}
     private StagedOfflineSave(Path target,Path temp){this.target=target;this.temp=temp;}
@@ -116,7 +116,13 @@ final class StagedOfflineSave implements AutoCloseable {
     }
     private void publishTail(Inventory inventory,int health,Iterable<ItemDrop> drops,int dropCount,
             WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
-        if(closed)throw new IOException("Staged offline save closed");
+        sealTail(inventory,health,drops,dropCount,cancel);publishSealedInternal(expected,cancel);
+    }
+    /** Complete and force the private file without changing the destination.
+     * Single-worker staging only; transfer after this returns, never concurrently. */
+    void sealTail(Inventory inventory,int health,Iterable<ItemDrop> drops,int dropCount,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);
+        if(closed||sealed)throw new IOException("Staged offline save closed or sealed");
         try {
             StructurePackage.cancelled(cancel);
             if(dropCount<0||dropCount>Crafting.MAX_DROPS)throw new IOException("Offline drop persistence limit");
@@ -139,6 +145,16 @@ final class StagedOfflineSave implements AutoCloseable {
                 if(written!=dropCount)throw new IOException("Offline drop count changed");
                 out.flush();StructurePackage.cancelled(cancel);channel.force(true);
             }
+            StructurePackage.cancelled(cancel);sealed=true;
+        }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+    }
+    /** Guarded publication still performs destination I/O; not a frame API. */
+    void publishSealed(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(expected);publishSealedInternal(expected,cancel);
+    }
+    private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);if(closed||!sealed)throw new IOException("Staged offline save not sealed or closed");
+        try {
             StructurePackage.cancelled(cancel);
             if(expected==null)WorldSavePublication.replace(temp,target,true);
             else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel);
