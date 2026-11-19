@@ -133,6 +133,12 @@ public final class WorldVoxels {
         public String cellKey(){return rows.cell;}
         /** Includes clear and a same-key full-cell leaf, even though the Map has one row. */
         public int editCount(){return rows.rawCount;}
+        /** Exact ordered clear-plus-leaf records, including duplicate full-cell
+         * keys. Immutable view; callers bound editCount before materializing. */
+        public List<Protocol.Edit> orderedEdits(){return new AbstractList<>() {
+            @Override public int size(){return rows.rawCount;}
+            @Override public Protocol.Edit get(int index){Objects.checkIndex(index,rows.rawCount);return rows.rawEdit(index);}
+        };}
     }
     public static CellReplay prepareCellReplay(Protocol.CellState state) {
         return new CellReplay(CellReplayRows.prepare(Objects.requireNonNull(state,"state")));
