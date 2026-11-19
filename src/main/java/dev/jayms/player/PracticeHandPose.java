@@ -23,10 +23,13 @@ public final class PracticeHandPose {
         float follow = guard ? 0 : pulse(t);
         float sway = (float) Math.sin(walkPhase) * clamp(walkAmount);
         float bob = (float) Math.cos(walkPhase) * clamp(walkAmount);
+        boolean raisedSword = sword && !guard;
+        float equipTravel = raisedSword ? 1.32f : 1.04f;
+        float wristX = guard ? .43f : raisedSword ? .715f : .735f;
         var hand = new Matrix4f()
-                .translate((guard ? .43f : .735f) - .37f * swipe + .07f * follow + .014f * sway,
+                .translate(wristX - .37f * swipe + .07f * follow + .014f * sway,
                         (guard ? -.53f : -.655f) + .14f * swipe - .115f * follow + .017f * bob
-                                - 1.04f * clamp(equipDrop),
+                                - equipTravel * clamp(equipDrop),
                         (guard ? -1.02f : -1.08f) - .11f * swipe)
                 .rotateZ((guard ? .48f : .20f) + .40f * swipe - .21f * follow)
                 .rotateX(-.25f + .20f * swipe - .29f * follow)
@@ -34,12 +37,14 @@ public final class PracticeHandPose {
 
         var held = new Matrix4f(hand);
         if (sword) {
-            // Grip the existing voxel handle below the crossguard. Apply all rotations
-            // about that contact point, including the turn that presents the blade face.
-            held.rotateZ(guard ? .67f : .37f)
-                    .rotateY(.23f)
-                    .scale(.89f)
-                    .translate(-HeldToolPose.ANCHOR_X, -HeldToolPose.ANCHOR_Y, -HeldToolPose.ANCHOR_Z);
+            if (guard) {
+                held.rotateZ(.67f).rotateY(.23f).scale(.89f);
+            } else {
+                // Turn the edge toward the camera and extend the blade's screen-space
+                // reach without enlarging the guard or handle across the viewport.
+                held.rotateZ(.075f).rotateX(.05f).rotateY(1.175f).scale(.98f, 1.49f, .83f);
+            }
+            held.translate(-HeldToolPose.ANCHOR_X, -HeldToolPose.ANCHOR_Y, -HeldToolPose.ANCHOR_Z);
         } else {
             held.translate(-.075f, .052f, -.045f)
                     .rotateY(.43f)

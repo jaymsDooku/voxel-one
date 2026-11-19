@@ -21,12 +21,12 @@ class PracticeHandPoseTest {
             assertTrue(grip.x > .405f && grip.x < .83f);
             assertTrue(grip.y > -.94f && grip.y < -.84f);
             assertTrue(tip.x > 0 && tip.x < grip.x);
-            assertTrue(tip.y > -.28f && tip.y < 0);
-            float tilt = (grip.x - tip.x) * aspect / (tip.y - grip.y);
-            assertTrue(tilt > .42f && tilt < .9f, "Blade should lean inward in screen space");
+            assertTrue(tip.y > .37f && tip.y < .49f);
+            double tilt = Math.toDegrees(Math.atan2((grip.x - tip.x) * aspect, tip.y - grip.y));
+            assertEquals(21, tilt, 2, "Blade should follow the reference angle from vertical");
             assertTrue(screen(pose.hand(), new Vector3f(0, PracticeHandPose.SLEEVE_BOTTOM, 0), aspect).y < -1);
         }
-        assertTrue(faceTowardCamera(pose) > .65f);
+        assertTrue(faceTowardCamera(pose) > .35f && faceTowardCamera(pose) < .58f);
     }
 
     @Test void theBladeMeshClearsTheScreenEdgeAtFourByThree() {
@@ -43,7 +43,7 @@ class PracticeHandPoseTest {
                                     (x + (corner & 1)) / 16f,
                                     (y + (corner >> 1 & 1)) / 16f,
                                     (z + (corner >> 2 & 1)) / 16f));
-                            assertTrue(p.x > .10f && p.x < .98f && p.y > -1 && p.y < .02f,
+                            assertTrue(p.x > .10f && p.x < .98f && p.y > -1 && p.y < .58f,
                                     "The drawn blade and guard should clear the view edges: " + p);
                         }
                     }
@@ -62,7 +62,7 @@ class PracticeHandPoseTest {
                             .transformPosition(new Vector3f(GRIP)));
                     assertEquals(0, handGrip.length(), 1e-5, "Handle stays inside the palm");
                     assertTrue(pose.item().determinant() > 0, "Sword must not reflect");
-                    assertWithinDepth(pose.item(), 0, 0, 0, 1, 1, 1);
+                    assertWithinDepth(pose.item(), 4f / 16, 1f / 16, 6f / 16, 12f / 16, 1, 10f / 16);
                     assertWithinDepth(pose.hand(), -PracticeHandPose.PALM_WIDTH / 2, PracticeHandPose.SLEEVE_BOTTOM,
                             -PracticeHandPose.PALM_DEPTH / 2, PracticeHandPose.PALM_WIDTH / 2, PracticeHandPose.PALM_TOP,
                             PracticeHandPose.PALM_DEPTH / 2);
