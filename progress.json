@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T11:24:45+00:00",
+  "updatedAt": "2026-11-19T12:05:42+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4249,11 +4249,16 @@
           "kind": "report",
           "label": "vps cleaner recovery 20261119.json",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-cleaner-recovery-20261119.json"
+        },
+        {
+          "kind": "link",
+          "label": "Cleaner implementation review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/86"
         }
       ],
       "status": "in_progress",
-      "note": "Restored 16.7GiB free by reclaiming 9.18GB of verified duplicate browser installations. Resumed capacity-blocked iOS/structures work with checkpoints retained. Permanent activity-scope and cache lifecycle fix is underway; thresholds and deletion guards preserved.",
-      "updatedAt": "2026-11-19T11:24:45+00:00"
+      "note": "16+GiB free remains verified after 9.18GB reclamation. Shared browsers tested without downloads. PR86 is in the normal review cycle: reviewer requires per-thread input protection before approval. No unreviewed cleaner installed; source, sessions and unique evidence remain preserved.",
+      "updatedAt": "2026-11-19T12:05:42+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
