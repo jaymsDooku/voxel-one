@@ -220,6 +220,21 @@ class RunContractTests(unittest.TestCase):
         self.assertEqual(result['errorCode'], 'native_client_receipt_invalid')
         self.assertFalse(result['clientChecked'])
 
+    def test_expanded_mock_client_suite_keeps_all_cases_and_stages_receipted_media(self):
+        self.script()
+        tests = [{'name': f'MOCK native workflow {index:02d}', 'status': 'passed'} for index in range(32)]
+        self.fake.receipt_mutator = lambda r: r.update(tests=tests)
+        result = self.run_check('client')
+        self.assertEqual(result['status'], 'passed')
+        self.assertTrue(result['clientChecked'])
+        self.assertEqual(result['client']['tests'], tests)
+        stage = Path(result['_artifactDirectory'])
+        staged = json.loads((stage / 'report.json').read_text())
+        self.assertEqual(staged['client']['tests'], tests)
+        for media in result['evidence']:
+            self.assertEqual(checks.media_metadata(stage, media['path']),
+                             {key: media[key] for key in ('path', 'bytes', 'sha256')})
+
     def test_uninstalled_client_and_wrong_launch_receipt_cannot_pass(self):
         self.script()
         self.fake.install_missing = True
@@ -413,6 +428,105 @@ class RunContractTests(unittest.TestCase):
         self.assertFalse(any(a[:3] == ['xcrun', 'simctl', 'create'] for a, _ in self.fake.calls))
         self.assertFalse(report['environmentReady'])
         self.assertFalse(report['clientChecked'])
+
+
+class ClientReceiptCapacityTests(unittest.TestCase):
+    """Synthetic receipts and mock Mach-O bytes; no native/device qualification."""
+
+    def setUp(self):
+        self.temp = tempfile.TemporaryDirectory(prefix='ios-receipt-capacity-')
+        self.addCleanup(self.temp.cleanup)
+        self.repo = Path(self.temp.name)
+        self.output = self.repo / 'evidence'
+        self.output.mkdir()
+        self.app = self.repo / 'MockVoxel.app'
+        self.app.mkdir()
+        self.info = {'CFBundleIdentifier': 'example.voxelone.client', 'CFBundleExecutable': 'MockVoxel'}
+        (self.app / 'Info.plist').write_bytes(plistlib.dumps(self.info))
+        (self.app / 'MockVoxel').write_bytes(b'\xcf\xfa\xed\xfeMOCK; not a runnable binary')
+        self.receipt = {
+            'sourceHead': HEAD, 'simulatorUdid': UDID, 'application': 'voxel-one',
+            'evidenceType': 'native-client', 'synthetic': False, 'status': 'passed',
+            'bundleId': self.info['CFBundleIdentifier'], 'appPath': 'MockVoxel.app',
+            'tests': self.entries(64), 'videos': [],
+        }
+
+    @staticmethod
+    def entries(count):
+        return [{'name': f'MOCK native workflow {index:02d}', 'status': 'passed'} for index in range(count)]
+
+    def check_receipt(self, receipt):
+        (self.output / 'client-result.json').write_text(json.dumps(receipt))
+        return checks.client_receipt(self.repo, self.output, HEAD, UDID)
+
+    def test_32_and_64_passed_entries_and_old_boundaries_are_accepted_without_dropping_cases(self):
+        for count in (1, 30, 32, 64):
+            with self.subTest(count=count):
+                receipt = {**self.receipt, 'tests': self.entries(count)}
+                accepted, videos = self.check_receipt(receipt)
+                self.assertEqual(accepted, receipt)
+                self.assertEqual(len(accepted['tests']), count)
+                self.assertEqual(videos, [])
+
+    def test_65_entries_are_rejected(self):
+        with self.assertRaisesRegex(checks.CheckError, '^native_client_receipt_invalid$'):
+            self.check_receipt({**self.receipt, 'tests': self.entries(65)})
+
+    def test_64_entry_receipt_keeps_identity_status_and_test_list_guards(self):
+        changes = [dict(sourceHead='b' * 40), dict(simulatorUdid='other'),
+                   dict(application='other'), dict(evidenceType='diagnostic-harness'),
+                   dict(synthetic=True), dict(synthetic=0), dict(synthetic=None),
+                   dict(status='failed'), dict(bundleId='example.harness'),
+                   dict(bundleId='voxel'), dict(bundleId=123),
+                   dict(tests=[]), dict(tests=None), dict(tests={})]
+        for change in changes:
+            with self.subTest(change=change), self.assertRaisesRegex(checks.CheckError, '^native_client_receipt_invalid$'):
+                self.check_receipt({**self.receipt, **change})
+
+    def test_last_entry_of_64_still_requires_a_passed_status_and_bounded_name(self):
+        invalid = [None, 'passed', {}, {'name': 'valid name', 'status': 'failed'},
+                   {'name': 'valid name'}, {'name': 123, 'status': 'passed'},
+                   {'name': 'four', 'status': 'passed'}, {'name': 'x' * 201, 'status': 'passed'}]
+        for entry in invalid:
+            with self.subTest(entry=entry), self.assertRaisesRegex(checks.CheckError, '^native_client_receipt_invalid$'):
+                self.check_receipt({**self.receipt, 'tests': self.entries(63) + [entry]})
+        for name in ('x' * 5, 'x' * 200):
+            with self.subTest(name_length=len(name)):
+                receipt = {**self.receipt, 'tests': self.entries(63) + [{'name': name, 'status': 'passed'}]}
+                self.assertEqual(self.check_receipt(receipt)[0], receipt)
+
+    def test_64_entry_receipt_still_requires_safe_native_app_path(self):
+        for path, code in [('../outside.app', 'invalid_evidence_path'), ('missing.app', 'native_app_missing')]:
+            with self.subTest(path=path), self.assertRaisesRegex(checks.CheckError, '^' + code + '$'):
+                self.check_receipt({**self.receipt, 'appPath': path})
+
+    def test_64_entry_receipt_still_requires_matching_bundle_and_native_binary(self):
+        (self.app / 'Info.plist').write_bytes(plistlib.dumps({**self.info, 'CFBundleIdentifier': 'example.other.client'}))
+        with self.assertRaisesRegex(checks.CheckError, '^native_app_invalid$'):
+            self.check_receipt(self.receipt)
+        (self.app / 'Info.plist').write_bytes(plistlib.dumps(self.info))
+        (self.app / 'MockVoxel').write_bytes(b'not a native executable')
+        with self.assertRaisesRegex(checks.CheckError, '^native_app_invalid$'):
+            self.check_receipt(self.receipt)
+
+    def test_64_entry_receipt_keeps_video_count_path_presence_and_format_guards(self):
+        for videos in (None, {}, ['one.mp4'] * 4, ['../outside.mp4'], ['client.png'], [123]):
+            with self.subTest(videos=videos), self.assertRaisesRegex(checks.CheckError, '^native_client_receipt_invalid$'):
+                self.check_receipt({**self.receipt, 'videos': videos})
+        receipt = {**self.receipt, 'videos': ['client.mp4']}
+        with self.assertRaisesRegex(checks.CheckError, '^missing_or_oversized_media$'):
+            self.check_receipt(receipt)
+        (self.output / 'client.mp4').write_bytes(b'corrupt video bytes')
+        with self.assertRaisesRegex(checks.CheckError, '^invalid_video$'):
+            self.check_receipt(receipt)
+        (self.output / 'client.mp4').write_bytes(b'\0\0\0\x18ftypMOCK video bytes')
+        accepted, media = self.check_receipt(receipt)
+        self.assertEqual(accepted, receipt)
+        self.assertEqual(media, [checks.media_metadata(self.output, 'client.mp4')])
+        with (self.output / 'client.mp4').open('wb') as file:
+            file.truncate(6 * 1024 * 1024 + 1)
+        with self.assertRaisesRegex(checks.CheckError, '^missing_or_oversized_media$'):
+            self.check_receipt(receipt)
 
 
 class WorkflowContractTests(unittest.TestCase):
