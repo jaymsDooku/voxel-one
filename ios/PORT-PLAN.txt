@@ -861,3 +861,41 @@ pickaxe->placement rejection->cold restart require fresh Mac execution. Required
 count now34 with all prior32 cases retained. No native pass for current edits.
 Full procedural streaming/distant terrain, remaining reusable engine parity, live
 VPS, signed installation and physical-device performance qualification remain open.
+
+Shared items milestone qualified on Simulator
+Exact sourcea37f44eb612a8473d6d2d1855c19e40aa00dab2b passed all34 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44632685028
+Verified source, statuses and client image hash; inspected actual saved model
+rendering on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2. Sanitized receipt
+and image under dashboard/evidence/ios-port-a37f44eb-* await controller publication.
+
+Next bounded milestone: native seeded generation foundation
+Direct Swift Terrain/Geography implementation supports shared versions1/2/3.
+Preserve Java unsigned hash shifts/wrapping, negative floor division, distinct
+terrain weighted interpolation versus geography mix interpolation, drainage order,
+caves, trees, water/ocean and mineral rules. Independent Java fixture factory
+exports10,080 cases across3 seeds (including -42 and Int64.min),3 versions,
+negative/seam/world-edge coordinates, all terrain materials and68 interior-air
+samples. Full default49×49 window has17,380 cells and SHA256a01c47fcee1ac04580bb3123ce547220371bfbdbafa850b1e001d51c40f9c272.
+Mac script regenerates and compares this source artifact against current Java
+before building; native rules compare actual Swift samples/window hash. Never
+claim Swift compatibility from Java-only fixture checks.
+
+New offline worlds generate cells in Swift, on existing single utility loader,
+rather than using bundled terrain cells. Existing bundled profile supplies
+inventory/sky defaults only. Seed accepts signed64-bit values; invalid input
+disables creation and Cancel preserves current save. Persist explicit generator
+version; online snapshots now include it too. Old unversioned saves keep their
+finite patch. Worker generation windows remain bounded49×49 / at most45 vertical
+layers, with8192-entry field and column caches. Cancellation fences results via
+existing loader; no unbounded job queue or main-thread generation introduced.
+Current scope is procedural bounded-window generation, not moving chunks/distant
+terrain. Those gaps remain explicit and block full engine completion.
+
+Executed14 Java tests (new golden-asset parity +6 mobile +7 fractional),74 Linux
+harness checks, project generation, Python compilation, shell syntax and diff
+checks. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: Swift parity/cached eviction and new-world seed validation->edit->save->
+restart are unexecuted and require exact-source Mac run; required count now36
+with all prior34 retained. Physical-device performance, live VPS, complete parity
+and signed iPhone delivery remain open.

@@ -226,3 +226,16 @@ asks for a smaller grid; full bags and player-overlap placement reject atomicall
 Models stay whole-cell items with their accurate tiny geometry. Online fine edits
 require the gateway's fineEdits capability and retain authoritative inventory,
 reach, depth and subcell validation. An older gateway needs updating first.
+
+Native seeded terrain milestone (validation pending)
+New worlds now generate their bounded49×49 view in Swift on the existing offline
+load worker. New world accepts signed64-bit seeds, rejects invalid values before
+replacement and saves seed plus generatorVersion. Terrain/Geography versions1–3
+follow Java noise, caves, rivers/oceans, biomes, mineral and tree rules.10,080 Java
+golden samples plus a full window hash are checked by native tests and refreshed
+against current Java during Mac validation. This is not yet a native parity pass.
+Legacy saves without generatorVersion retain their saved finite patch. Horizontal
+streaming and distant terrain remain unfinished; do not call this an infinite world.
+App generation has no Java/LWJGL dependency. Column/field caches cap at8192 entries
+each; generation work and cancellation use the existing bounded loader. Physical
+frame-time, memory, thermal and battery qualification remain pending.

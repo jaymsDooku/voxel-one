@@ -123,6 +123,7 @@ struct Snapshot: Codable, Sendable {
     var resetPose: Bool?; var city: CityState?; var players: [OtherPlayer]?; var drops: [GroundDrop]?
     var contract:NativeContract? = nil;var details:[NativeDetail]? = nil
     var recipes:[NativeRecipe]? = nil
+    var generatorVersion:Int? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
     private func validInventoryEntry(_ entry:[Int])->Bool {
         guard entry.count==2,(0...198).contains(entry[0]),entry[1]>=0,(entry[0]==0)==(entry[1]==0) else{return false}
@@ -131,6 +132,7 @@ struct Snapshot: Codable, Sendable {
         return entry[1]<=(definition?.stackLimit ?? 64)
     }
     func validate() throws {
+        if let version=generatorVersion {guard (1...NativeTerrain.currentVersion).contains(version),Int64(seed) != nil else {throw GameError.invalidWorld}}
         try contract?.validate()
         if let recipes=recipes {
             guard recipes.count<=104,Set(recipes.map{$0.id}).count==recipes.count else {throw GameError.invalidWorld}
@@ -697,9 +699,15 @@ final class OfflineSave {
         let value=try read(at:url)
         return try migrate(value,contract:NativeContract.bundled())
     }
-    static func fresh() throws -> Snapshot {
+    static func fresh(seed:Int64=748291) throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}
         var value=try read(at:url);value.schema=2;value.contract=try NativeContract.bundled();value.details=[]
+        let generator=try NativeTerrain(seed:seed,version:NativeTerrain.currentVersion)
+        let eyeY=generator.surfaceHeight(0,0)+1
+        let colors=Dictionary(uniqueKeysWithValues:(value.contract?.materials ?? []).map{($0.id,$0.color)})
+        let generated=try generator.window(cx:0,cz:0,eyeY:eyeY,radius:24,colors:colors)
+        value.seed=String(seed);value.generatorVersion=NativeTerrain.currentVersion;value.bounds=generated.bounds;value.cells=generated.cells
+        value.pose=[0.5,Float(eyeY),0.5,0,0]
         value.inventory[5]=[8,2];value.inventory[6]=[141,8]
         try value.validate();return value
     }

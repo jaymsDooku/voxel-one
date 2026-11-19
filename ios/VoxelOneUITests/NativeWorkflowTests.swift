@@ -191,6 +191,28 @@ final class NativeWorkflowTests:XCTestCase {
         XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
         capture("offline-crafting-restarted")
     }
+    func testNativeSeededWorldValidationEditAndRestart()throws {
+        workflowCheckpoint="terrain_seed"
+        newOffline();menu();app.buttons["offlineNewButton"].tap()
+        let seed=app.alerts.textFields["worldSeed"];wait(seed);seed.tap()
+        seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"9223372036854775808")
+        let disabled=XCTNSPredicateExpectation(predicate:NSPredicate(format:"isEnabled == NO"),object:app.alerts.buttons["New world"])
+        XCTAssertEqual(XCTWaiter.wait(for:[disabled],timeout:5),.completed)
+        app.alerts.buttons["Cancel"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineNewButton"].tap();wait(seed);seed.tap()
+        seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"-42")
+        app.alerts.buttons["New world"].tap();wait(app.buttons["breakButton"]);waitTerrain()
+        textContains("cityStatus","Seed -42")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.60)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        waitTerrain();capture("native-seeded-procedural-world-edited")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        textContains("cityStatus","Seed -42");XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
+        capture("native-seeded-world-restarted")
+    }
     func testNativeToolCraftingPlacementGuardAndRestart()throws {
         workflowCheckpoint="tools_sticks"
         newOffline();app.buttons["craftButton"].tap()

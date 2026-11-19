@@ -21,6 +21,10 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     #endif
     private var loadingOffline=false
     private var pendingOfflineFresh:Bool?
+    private var requestedSeed:Int64=748291
+    private weak var seedPrompt:UIAlertController?
+    private weak var seedCreateAction:UIAlertAction?
+    private var seedPromptMessage=""
     private var loadingOverlay:UIView?
     private var closingMenu=false
     private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
@@ -400,7 +404,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let defaultStatus=renderer.planning && !points.isEmpty ? "\(points.count) plan points.":"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
         let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:defaultStatus
         let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
-        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
+        let localDescription=gateway != nil ? "Sandbox · Seed \(world.snapshot.seed)":world.snapshot.generatorVersion == nil ? "49×49 local terrain · edits save on this phone":"Seed \(world.snapshot.seed) · 49×49 local terrain"
+        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? localDescription
         craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
         applyHUDLayout(view.bounds.size)
         let next=HUDState(status:statusText,position:positionText,city:cityText,inventory:world.snapshot.inventory,slot:world.slot,revision:world.revision,planning:renderer.planning,paused:paused,flying:world.flying,camera:renderer.sandboxCamera.title,depth:breakDepth,size:view.bounds.size)
@@ -499,7 +504,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     private func beginPendingOfflineLoad(){
         guard loadingOffline,let fresh=pendingOfflineFresh,OfflineSave.writer.isIdle,!OfflineSave.loader.isBusy else{return}
-        pendingOfflineFresh=nil;let id=sessionID
+        pendingOfflineFresh=nil;let id=sessionID,seed=requestedSeed
         #if targetEnvironment(simulator)
         // One-shot fault injection keeps the real loading UI stable until normal Cancel.
         let gate:DispatchSemaphore?
@@ -511,7 +516,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         #endif
         OfflineSave.loader.load(operation:{
             if let gate=gate,gate.wait(timeout:.now()+30) != .success {throw GameError.invalidWorld}
-            if fresh {return try OfflineSave.fresh()}
+            if fresh {return try OfflineSave.fresh(seed:seed)}
             return try OfflineSave.load()
         }){[weak self] result in
             guard let self=self,self.loadingOffline,id==self.sessionID else{return}
@@ -533,9 +538,27 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     @objc private func newOffline(){
         guard !busy,!loadingOffline else{return}
-        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {let alert=UIAlertController(title:"Replace offline sandbox?",message:"This deletes the local sandbox edits. Online worlds stay on their server.",preferredStyle:.alert);alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));alert.addAction(UIAlertAction(title:"New world",style:.destructive){[weak self] _ in self?.createOffline()});present(alert,animated:true)}else{createOffline()}
+        let replacing=FileManager.default.fileExists(atPath:OfflineSave.url.path)
+        seedPromptMessage=replacing ? "Replace the saved Sandbox after the new world loads. Choose a seed.":"Create a new Sandbox with this seed."
+        let alert=UIAlertController(title:replacing ? "Replace offline sandbox?":"New Sandbox",message:seedPromptMessage,preferredStyle:.alert)
+        alert.addTextField {field in
+            field.text="748291";field.placeholder="World seed";field.accessibilityIdentifier="worldSeed"
+            field.keyboardType = .numbersAndPunctuation;field.autocorrectionType = .no
+            field.addTarget(self,action:#selector(self.seedChanged(_:)),for:.editingChanged)
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel))
+        let create=UIAlertAction(title:"New world",style:replacing ? .destructive:.default){[weak self,weak alert] _ in
+            guard let seed=Int64(alert?.textFields?.first?.text ?? "") else{return}
+            self?.requestedSeed=seed;self?.loadOffline(fresh:true)
+        }
+        alert.addAction(create);seedCreateAction=create;seedPrompt=alert;present(alert,animated:true)
     }
-    private func createOffline(){loadOffline(fresh:true)}
+    @objc private func seedChanged(_ field:UITextField){
+        let valid=Int64(field.text ?? "") != nil
+        seedCreateAction?.isEnabled=valid;field.textColor=valid ? .label:.systemRed
+        let message=valid ? seedPromptMessage:"Enter a whole number from -9223372036854775808 to 9223372036854775807."
+        if seedPrompt?.message != message {seedPrompt?.message=message}
+    }
     @objc private func signIn(){connect(register:false)}
     @objc private func register(){connect(register:true)}
     private func connect(register:Bool){

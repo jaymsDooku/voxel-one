@@ -38,7 +38,7 @@ public final class MobileSnapshot {
         for(int i=0;i<Inventory.SIZE;i++)slots.add(List.of(inventory.type(i),inventory.count(i)));
         var result=new LinkedHashMap<String,Object>();
         result.put("recipes",recipeCatalog());
-        result.put("schema",2);result.put("details",details);result.put("contract",contract(models,usedModels));result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));
+        result.put("schema",2);result.put("details",details);result.put("contract",contract(models,usedModels));result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));result.put("generatorVersion",terrain.version);
         result.put("bounds",List.of(cx-radius,cx+radius,low,high,cz-radius,cz+radius));
         result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));result.put("cells",cells);
         result.put("inventory",slots);result.put("health",health);result.put("notice",notice);

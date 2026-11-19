@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Source6b60c5d6 passed32 native tests; model media inspected. Added199 shared item definitions and all104 recipes, tool stack/non-placement rules, legacy-save merge and login negotiation.13 Java and74 Linux checks passed. New34-case Mac validation and signed delivery pending.",
-      "updatedAt": "2026-11-19T22:52:33+00:00"
+      "note": "Items sourcea37f44eb passed34 native tests; media inspected. Added Swift seeded Terrain/Geography1\u20133 and bounded native world generation, with10,080 Java golden samples/window hash and seed UI.14 Java and74 Linux checks passed. New36-case Mac parity/playtest pending; streaming and signed delivery open.",
+      "updatedAt": "2026-11-19T23:30:05+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

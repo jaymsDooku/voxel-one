@@ -1,5 +1,6 @@
 import XCTest
 import SceneKit
+import CryptoKit
 
 /// The worker probe synchronizes every access; no actor-isolated test state enters the worker.
 private final class SaveWorkerProbe:@unchecked Sendable {
@@ -9,6 +10,41 @@ private final class SaveWorkerProbe:@unchecked Sendable {
 }
 
 final class WorldRulesTests:XCTestCase {
+    func testNativeTerrainMatchesSharedJavaFixture()throws {
+        struct Sample:Decodable {var seed:String;var version:Int;var x:Int;var y:Int;var z:Int;var block:Int;var surface:Int;var ocean:Bool}
+        struct Window:Decodable {var seed:String;var generatorVersion:Int;var eyeY:Int;var bounds:[Int];var cellCount:Int;var sha256:String}
+        struct Fixture:Decodable {var version:Int;var cases:[Sample];var window:Window}
+        let bundle=Bundle(for:WorldRulesTests.self)
+        let data=try Data(contentsOf:XCTUnwrap(bundle.url(forResource:"terrain-fixtures",withExtension:"json")))
+        XCTAssertLessThan(data.count,2_000_000)
+        let fixture=try JSONDecoder().decode(Fixture.self,from:data);XCTAssertEqual(fixture.version,1)
+        XCTAssertTrue(fixture.cases.count>1000 && fixture.cases.count<=12000)
+        var generators:[String:NativeTerrain]=[:]
+        for sample in fixture.cases {
+            let key="\(sample.seed):\(sample.version)"
+            if generators[key]==nil {generators[key]=try NativeTerrain(seed:XCTUnwrap(Int64(sample.seed)),version:sample.version)}
+            let terrain=try XCTUnwrap(generators[key])
+            XCTAssertEqual(terrain.block(sample.x,sample.y,sample.z),sample.block,"Shared generator \(key) at \(sample.x),\(sample.y),\(sample.z)")
+            XCTAssertEqual(terrain.surfaceHeight(sample.x,sample.z),sample.surface)
+            XCTAssertEqual(terrain.ocean(sample.x,sample.z),sample.ocean)
+        }
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:XCTUnwrap(bundle.url(forResource:"contract",withExtension:"json"))))
+        let terrain=try NativeTerrain(seed:XCTUnwrap(Int64(fixture.window.seed)),version:fixture.window.generatorVersion)
+        let colors=Dictionary(uniqueKeysWithValues:contract.materials.map{($0.id,$0.color)})
+        let window=try terrain.window(cx:0,cz:0,eyeY:fixture.window.eyeY,radius:24,colors:colors)
+        XCTAssertEqual(window.bounds,fixture.window.bounds);XCTAssertEqual(window.cells.count,fixture.window.cellCount)
+        var bytes=Data();bytes.reserveCapacity(window.cells.count*20)
+        for row in window.cells {for number in row {var encoded=Int32(truncatingIfNeeded:number).bigEndian;withUnsafeBytes(of:&encoded){bytes.append(contentsOf:$0)}}}
+        XCTAssertEqual(SHA256.hash(data:bytes).map{String(format:"%02x",$0)}.joined(),fixture.window.sha256)
+        let legacy=try NativeTerrain(seed:748291,version:1),height=try NativeTerrain(seed:748291,version:1).surfaceHeight(0,0)
+        for x in 0..<8300 {_=legacy.surfaceHeight(x,99)}
+        XCTAssertLessThanOrEqual(legacy.cachedColumnCount,8192);XCTAssertEqual(legacy.cachedFieldCount,0)
+        XCTAssertEqual(legacy.surfaceHeight(0,0),height,"Cache eviction cannot change seeded terrain")
+        XCTAssertEqual(terrain.block(Int.min,0,Int.max),0)
+        XCTAssertThrowsError(try NativeTerrain(seed:0,version:4))
+        XCTAssertThrowsError(try terrain.window(cx:Int.min,cz:0,eyeY:27,radius:24,colors:colors))
+        XCTAssertThrowsError(try terrain.window(cx:0,cz:0,eyeY:27,radius:25,colors:colors))
+    }
     func testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows()throws {
         var enclosed=fixture()
         for x in 1...7 {for y in 1...7 {for z in 1...7 {

@@ -33,6 +33,9 @@ PY
 mkdir -p ios/build
 export IOS_CHECK_STAGE=java_build
 mvn -q -DskipTests compile > ios/build/java-build.log 2>&1
+export IOS_CHECK_STAGE=terrain_contract
+java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/build/terrain-fixtures.json
+cmp ios/Resources/terrain-fixtures.json ios/build/terrain-fixtures.json
 export IOS_CHECK_STAGE=synthetic_game_servers
 # The test profile must be new. Secrets generated in this ignored directory never enter evidence.
 profile="$(mktemp -d "$repo/ios/build/fixture-parent.XXXXXX")"
