@@ -11,6 +11,7 @@ import UIKit
     private var shown:[NativeRecipe]=[]
     private var inventory:[[Int]]=[]
     private var pending=false
+    private var queryText=""
     var onCraft:((NativeRecipe)->Void)?
     var onClose:(()->Void)?
     init(recipes:[NativeRecipe],name:@escaping (Int)->String){self.recipes=recipes;self.name=name;super.init(nibName:nil,bundle:nil)}
@@ -49,7 +50,7 @@ import UIKit
     }
     @objc private func close(){view.endEditing(true);let finish=onClose;dismiss(animated:true){finish?()}}
     @objc private func filter(){
-        let query=(search.text ?? "").trimmingCharacters(in:.whitespacesAndNewlines)
+        let query=queryText.trimmingCharacters(in:.whitespacesAndNewlines)
         let chosen=["All","Materials","Building","Decorations","Lighting"][category.selectedSegmentIndex]
         shown=recipes.filter { recipe in
             let text=([recipe.name,name(recipe.output)]+recipe.inputs.map{name($0[0])}).joined(separator:" ")
@@ -58,7 +59,7 @@ import UIKit
         let empty=UILabel();empty.text="No matching recipes.";empty.textAlignment = .center;empty.textColor = .secondaryLabel
         table.backgroundView=shown.isEmpty ? empty:nil;table.reloadData()
     }
-    func searchBar(_ searchBar:UISearchBar,textDidChange searchText:String){filter()}
+    func searchBar(_ searchBar:UISearchBar,textDidChange searchText:String){queryText=searchText;filter()}
     func tableView(_ tableView:UITableView,numberOfRowsInSection section:Int)->Int {shown.count}
     func tableView(_ tableView:UITableView,cellForRowAt indexPath:IndexPath)->UITableViewCell {
         let cell=tableView.dequeueReusableCell(withIdentifier:"recipe") ?? UITableViewCell(style:.subtitle,reuseIdentifier:"recipe")

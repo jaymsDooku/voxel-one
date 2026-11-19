@@ -1,0 +1,14 @@
+{
+  "sourceHead": "c95a24bc3ea484ce72c33c81a7054747dc3d43ed",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44559481026",
+  "failedTestId": "5cab040e4538",
+  "checkpoint": "craft_book_empty_results",
+  "change": "Use supplied search delegate query. Preserve exact zero-row gate with10-second bounded wait and assert visible empty-state message.",
+  "localChecks": [
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/make-project.py ios/check-results.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "Playtest": "All30 native cases pending after repair. No client media or native pass claimed."
+}

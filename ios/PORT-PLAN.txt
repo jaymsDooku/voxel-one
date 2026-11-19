@@ -565,3 +565,20 @@ diff checks. Playtest: actual landscape keyboard/background/join/save behavior
 and all30 native cases still need exact-source Mac execution. This local layout
 repair is not proof of the original failure cause or a native pass. Full engine
 parity, live VPS, signing/install and physical-device gates remain open.
+
+Exact empty-search assertion repair
+Sourcec95a24bc3ea484ce72c33c81a7054747dc3d43ed, run44559481026 failed exit65.
+Sanitized locator5cab040e4538 plus checkpointcraft_book_empty_results identifies
+the new recipe-book test's immediate zero-cell assertion after typing an unmatched
+query following background/resume. Other tests are not claimed passed from this
+failed receipt. No client media supplied; preflight is not gameplay evidence.
+Filter now uses delegate textDidChange's supplied new query instead of rereading
+UISearchBar.text. Test retains exact zero-cell requirement but waits at most10s
+for the asynchronous native accessibility tree; also asserts actual visible
+"No matching recipes." empty state. Search/category limits and inventory rules
+unchanged. This addresses callback/snapshot timing risk; native rerun must prove it.
+Executed project generation, Python compilation, shell syntax and diff checks.
+No Java/Linux suite repeated for native-only query handling/test synchronization.
+Previous61 Linux checks remain historical. Playtest: all30 native cases, including
+empty search, landscape, background, join/save/restart and City regression, pending
+exact-source Mac run. Full parity, live VPS, signing/install and device gates open.
