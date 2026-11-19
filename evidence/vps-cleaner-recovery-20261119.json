@@ -1,0 +1,30 @@
+{
+  "at": "2026-11-19T11:24:44.989821+00:00",
+  "phase": "Immediate recovery; permanent source change still in progress",
+  "freeBytesBefore": 8765743104,
+  "freeBytesAfter": 17946894336,
+  "reclaimedBytes": 9181151232,
+  "generatedDuplicateBrowserInstallationsRemoved": 9,
+  "verification": [
+    "Source, assets, sessions, unique evidence and tracked edits retained",
+    "Every removed install matched a retained browser copy by SHA-256 manifest",
+    "Authoritatively completed tasks only; live process references checked",
+    "Existing 12GiB trigger,16GiB target and8GiB worker admission unchanged"
+  ],
+  "resumedWork": [
+    {
+      "id": "aab8dc8b-6c94-4768-92d7-60c04711ef48",
+      "status": "queued",
+      "checkpointPreserved": true
+    },
+    {
+      "id": "88c9e01a-5b2b-4646-abb3-858b984c94d7",
+      "status": "queued",
+      "checkpointPreserved": true
+    }
+  ],
+  "implementationWorkId": "c64f7d44-dc6b-4752-bfb2-f5e4311e5293",
+  "limitations": [
+    "Automatic cleaner fixes require exact-source independent review and safe host installation; not deployed yet."
+  ]
+}
