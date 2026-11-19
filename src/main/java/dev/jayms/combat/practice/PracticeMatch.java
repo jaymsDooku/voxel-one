@@ -1,0 +1,256 @@
+package dev.jayms.combat.practice;
+
+import dev.jayms.combat.CombatEngine;
+import dev.jayms.combat.CombatEngine.*;
+import dev.jayms.combat.CombatRules;
+import dev.jayms.combat.arena.BasaltCourtyard;
+
+import java.util.ArrayList;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
+
+/** Owns one isolated, first-to-one practice match and its spectators. */
+public final class PracticeMatch implements ArenaMatch {
+    public static final int TICKS_PER_SECOND = 20;
+    public enum Phase { WAITING, COUNTDOWN, FIGHT, RESULT }
+    public enum Kit { NO_DEBUFF, DEBUFF }
+    public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
+
+    public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
+                          float health, boolean moving, boolean swinging, boolean ready, Item held,
+                          int hits, int combo, int used, int remaining) { }
+    public record Missile(long id, Item item, float x, float y, float z) { }
+    public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
+                       long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
+                       Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
+                       long lastHit, long lastSplash, List<String> status) { }
+
+    private static final int BOT = 2;
+    private static final int COUNTDOWN = 3 * TICKS_PER_SECOND;
+    private static final int ROUND = 8 * 60 * TICKS_PER_SECOND;
+    private static final int RESULT_DELAY = 2 * TICKS_PER_SECOND;
+    private static final int MAX_PEERS = 8;
+    private final Map<Integer, Member> members = new LinkedHashMap<>();
+    private final Kit kit;
+    private final CombatEngine engine;
+    private final boolean offline;
+    private int nextId = 1;
+    private long tick, lastSplash = -1;
+    private int ticksLeft, winner;
+    private Phase phase = Phase.WAITING;
+    private Result result = Result.NONE;
+
+    private static final class Member {
+        final String name;
+        int side;
+        boolean ready;
+        long lastHit = -1, lastSwing = -1;
+        Member(String name, int side) { this.name = name; this.side = side; }
+    }
+
+    public PracticeMatch(Kit kit, boolean offline) {
+        this.kit = kit;
+        this.offline = offline;
+        CombatRules rules = kit == Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
+        engine = new CombatEngine(rules, new CombatEngine.Arena() {
+            @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
+            @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
+        });
+        if (offline) {
+            join("You");
+            join("Sparring partner");
+            members.get(BOT).ready = true;
+        }
+    }
+
+    public synchronized int join(String name) {
+        if (members.size() >= MAX_PEERS || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
+                || name.isBlank() || members.values().stream().anyMatch(m -> m.name.equalsIgnoreCase(name)))
+            return 0;
+        int id = nextId++;
+        int side = phase == Phase.WAITING ? freeSide() : -1;
+        members.put(id, new Member(name, side));
+        if (side >= 0) spawn(id, side, false);
+        return id;
+    }
+
+    public synchronized void leave(int id) {
+        Member member = members.remove(id);
+        if (member == null || member.side < 0) return;
+        engine.leave(id);
+        if (phase == Phase.FIGHT) finish(otherId(id), Result.FORFEIT);
+        else if (phase == Phase.COUNTDOWN) waitForReady();
+        if (phase == Phase.WAITING) promoteSpectators();
+    }
+
+    public synchronized void ready(int id) {
+        Member member = members.get(id);
+        if (member == null || member.side < 0) return;
+        if (phase == Phase.RESULT && ticksLeft == 0) waitForReady();
+        if (phase == Phase.WAITING) member.ready = !member.ready;
+        if (phase == Phase.WAITING && members.values().stream().filter(m -> m.side >= 0 && m.ready).count() == 2) {
+            for (var entry : members.entrySet())
+                if (entry.getValue().side >= 0) spawn(entry.getKey(), entry.getValue().side, true);
+            phase = Phase.COUNTDOWN;
+            ticksLeft = COUNTDOWN;
+        }
+    }
+
+    public synchronized boolean swap(int id, int first, int second) {
+        Member member = members.get(id);
+        if (member == null || member.side < 0 || first < 0 || second < 0 || first >= 36 || second >= 36)
+            return false;
+        if (phase == Phase.FIGHT) return engine.swapInventory(id, first, second);
+        if (phase == Phase.WAITING && !member.ready) {
+            engine.swapKit(id, first, second);
+            engine.reset(id, feet(member.side), BasaltCourtyard.spawn(member.side).yaw());
+            return true;
+        }
+        return false;
+    }
+
+    public synchronized void input(int id, Intent intent) {
+        Member member = members.get(id);
+        if (member == null || member.side < 0 || phase != Phase.FIGHT) return;
+        engine.submit(id, intent);
+    }
+
+    public synchronized void tick() {
+        tick++;
+        switch (phase) {
+            case WAITING -> { }
+            case COUNTDOWN -> {
+                if (--ticksLeft == 0) {
+                    phase = Phase.FIGHT;
+                    ticksLeft = ROUND;
+                }
+            }
+            case FIGHT -> {
+                if (offline) driveBot();
+                engine.tick();
+                for (Event event : engine.drainEvents()) {
+                    Member actor = members.get(event.actorId()), target = members.get(event.targetId());
+                    if (event.type() == EventType.HIT && target != null) target.lastHit = tick;
+                    if (event.type() == EventType.SWING && actor != null) actor.lastSwing = tick;
+                    if (event.type() == EventType.SPLASH) lastSplash = tick;
+                }
+                var fighters = engine.snapshots();
+                var survivors = fighters.stream().filter(f -> f.health() > 0).toList();
+                if (survivors.size() < fighters.size()) {
+                    finish(survivors.size() == 1 ? survivors.get(0).id() : 0, Result.KNOCKOUT);
+                } else if (--ticksLeft == 0) {
+                    finish(0, Result.TIMEOUT);
+                }
+            }
+            case RESULT -> {
+                if (ticksLeft > 0) ticksLeft--;
+                if (ticksLeft == 0 && members.values().stream().noneMatch(m -> m.side >= 0)) waitForReady();
+            }
+        }
+    }
+
+    public synchronized View view(int id) {
+        var fighters = new ArrayList<Fighter>(2);
+        for (var entry : members.entrySet()) {
+            int fighterId = entry.getKey();
+            Member member = entry.getValue();
+            if (member.side < 0) continue;
+            PlayerState f = engine.snapshot(fighterId);
+            Vec3 p = f.feet();
+            Stats stats = f.stats();
+            boolean moving = Math.hypot(f.velocity().x(), f.velocity().z()) > .12;
+            fighters.add(new Fighter(fighterId, member.name, (float) p.x(), (float) p.y(), (float) p.z(), f.yaw(),
+                    f.pitch(), (float) f.health(), moving, member.lastSwing >= 0 && tick - member.lastSwing < 5,
+                    member.ready, f.inventory().get(f.slot()).item(), stats.hits(), stats.longestCombo(),
+                    stats.potsUsed(), stats.potsRemaining()));
+        }
+        Member member = members.get(id);
+        PlayerState self = member == null || member.side < 0 ? null : engine.snapshot(id);
+        List<Missile> missiles = phase == Phase.FIGHT ? engine.projectiles().stream().limit(64).map(p ->
+                new Missile(p.id(), p.item(), (float) p.position().x(), (float) p.position().y(),
+                        (float) p.position().z())).toList() : List.of();
+        return new View(phase, kit, result, winner, ticksLeft, self == null ? id : 0, tick, List.copyOf(fighters),
+                self == null ? List.of() : self.inventory(), self == null ? 0 : self.food(),
+                self == null ? 0 : self.pearlCooldownTicks(), self == null ? Map.of() : self.effects(),
+                self == null ? List.of() : self.durability(), missiles, member == null ? -1 : member.lastHit,
+                lastSplash, List.of());
+    }
+
+    private int freeSide() {
+        for (int side = 0; side < 2; side++) {
+            boolean used = false;
+            for (Member m : members.values()) if (m.side == side) used = true;
+            if (!used) return side;
+        }
+        return -1;
+    }
+
+    private void promoteSpectators() {
+        for (var entry : members.entrySet()) {
+            if (entry.getValue().side >= 0) continue;
+            int side = freeSide();
+            if (side < 0) return;
+            entry.getValue().side = side;
+            spawn(entry.getKey(), side, false);
+        }
+    }
+
+    private void waitForReady() {
+        phase = Phase.WAITING;
+        result = Result.NONE;
+        winner = 0;
+        ticksLeft = 0;
+        lastSplash = -1;
+        promoteSpectators();
+        for (var entry : members.entrySet()) {
+            Member m = entry.getValue();
+            if (m.side >= 0) spawn(entry.getKey(), m.side, true);
+            m.ready = offline && entry.getKey() == BOT;
+        }
+    }
+
+    private void finish(int winner, Result result) {
+        this.winner = winner;
+        this.result = result;
+        phase = Phase.RESULT;
+        ticksLeft = RESULT_DELAY;
+    }
+
+    private int otherId(int id) {
+        for (var entry : members.entrySet()) if (entry.getKey() != id && entry.getValue().side >= 0) return entry.getKey();
+        return 0;
+    }
+
+    private void spawn(int id, int side, boolean reset) {
+        Member member = members.get(id);
+        member.lastHit = member.lastSwing = -1;
+        float yaw = BasaltCourtyard.spawn(side).yaw();
+        if (reset) engine.reset(id, feet(side), yaw);
+        else engine.join(id, feet(side), yaw);
+    }
+
+    private static Vec3 feet(int side) {
+        var spawn = BasaltCourtyard.spawn(side);
+        return new Vec3(spawn.x(), spawn.y(), spawn.z());
+    }
+
+    private void driveBot() {
+        var bot = engine.snapshot(BOT);
+        var player = engine.snapshot(1);
+        double dx = player.feet().x() - bot.feet().x(), dz = player.feet().z() - bot.feet().z();
+        double range = Math.hypot(dx, dz);
+        float yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
+        float pitch = (float) Math.toDegrees(Math.atan2(player.feet().y() - bot.feet().y() - .65, range));
+        int heal = -1;
+        for (int i = 0; i < 9; i++)
+            if (bot.inventory().get(i).item() == Item.HEALING && bot.inventory().get(i).count() > 0) {
+                heal = i;
+                break;
+            }
+        boolean recover = bot.health() < 11 && heal >= 0 && tick % 9 < 2;
+        input(BOT, new Intent(tick, yaw, recover ? -80 : pitch, recover ? -.65f : range > 2.15 ? 1 : .15f,
+                range < 3 && !recover ? (tick % 40 < 20 ? .38f : -.38f) : 0, false, !recover && tick % 12 > 1,
+                !recover && range < 3.1 && tick % 4 == 0, recover, recover ? heal : 0));
+    }
+}

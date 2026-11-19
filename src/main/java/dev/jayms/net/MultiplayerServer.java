@@ -1069,6 +1069,10 @@ public final class MultiplayerServer implements AutoCloseable {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length > 0 && args[0].equals("--practice-server")) {
+            dev.jayms.combat.practice.PracticeServer.main(Arrays.copyOfRange(args, 1, args.length));
+            return;
+        }
         String bind = "0.0.0.0", create = null;
         Integer explicitPort = null;
         long seed = Terrain.DEFAULT_SEED;

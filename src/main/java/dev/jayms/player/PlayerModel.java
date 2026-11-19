@@ -137,15 +137,18 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void renderFirstPerson(Player player, ShaderProgram shader, VoxelModelRenderer models) {
+        renderFirstPerson(player.walkPhase(), player.walkAmount(), player.swingProgress(), player.placingSwing(),
+                player.heldItem(), player.heldColor(), shader, models);
+    }
+
+    public void renderFirstPerson(float walkPhase, float walkAmount, float swing, boolean placing,
+                                  int item, int color, ShaderProgram shader, VoxelModelRenderer models) {
         Matrix4f hand =
-                firstPersonHand(
-                        player.walkPhase(),
-                        player.walkAmount(),
-                        player.swingProgress(),
-                        player.placingSwing());
+                firstPersonHand(walkPhase, walkAmount, swing, placing);
         // Keep tool and fist together, farther from the lens and inside narrow viewports.
         // Ordinary items retain their existing first-person presentation.
-        if (Items.tool(player.heldItem())) hand = HeldToolPose.firstPersonHand(hand);
+        boolean tool = Items.tool(item);
+        if (tool) hand = HeldToolPose.firstPersonHand(hand);
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         skin(shader);
@@ -153,14 +156,13 @@ public class PlayerModel implements AutoCloseable {
         shirt(shader);
         // The farther tool camera pose can expose the sleeve base at wide FOV.
         // Extend only its lower end off screen; the fist and grip stay unchanged.
-        boolean tool = Items.tool(player.heldItem());
         box(shader, tool ? new Matrix4f(hand).translate(0, -1.5f, 0) : hand,
                 LIMB_WIDTH, tool ? 1.75f : .25f, DEPTH);
         held(
-                player.heldItem(),
-                player.heldColor(),
-                Items.tool(player.heldItem())
-                        ? HeldToolPose.firstPerson(player.heldItem(), hand)
+                item,
+                color,
+                tool
+                        ? HeldToolPose.firstPerson(item, hand)
                         : new Matrix4f(hand)
                         .translate(-.14f, .78f, .18f)
                         .rotateY(.55f)
