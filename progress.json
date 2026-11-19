@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T18:59:23+00:00",
+  "updatedAt": "2026-11-19T19:27:33+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4309,11 +4309,16 @@
           "kind": "link",
           "label": "Feature and review cycle",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        },
+        {
+          "kind": "link",
+          "label": "Required transaction correction",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/?work=b0e53d29-0a04-44cf-9640-e7b2ad3c86d0"
         }
       ],
       "status": "in_progress",
-      "note": "Re-review found a temporary admission failure could become a permanent hold. Developer is correcting re-evaluation of changed conditions and adding a restart regression. Activation remains held until independent acceptance.",
-      "updatedAt": "2026-11-19T18:59:23+00:00"
+      "note": "Coordinator implementation is in independent review. Lease/control and temporary-admission deadlocks were corrected and tested. A separate required pre-activation fix now tracks a reproduced overlapping-request race; deployment remains held until both are independently accepted.",
+      "updatedAt": "2026-11-19T19:27:33+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
