@@ -1,0 +1,20 @@
+{
+  "sourceHead": "7a0ef0d32b4f35a7a5286b90b078233e7686a9a8",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44585446550",
+  "events": {
+    "started": 30,
+    "passed": 29,
+    "failed": 1,
+    "unfinished": 0
+  },
+  "checkpoint": "craft_book_empty_rows",
+  "change": "Explicit search field editingChanged; expose filtered count; assert entered fixed query and zero filtered count before existing zero-cell and visible empty-message gates.",
+  "localTests": {
+    "linuxHarnessCount": 63,
+    "failures": 0,
+    "projectGeneration": "passed",
+    "pythonCompilation": "passed",
+    "diffCheck": "passed"
+  },
+  "Playtest": "Native repair not yet executed; all30-case acceptance pending. No gameplay media supplied."
+}

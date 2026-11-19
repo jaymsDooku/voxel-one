@@ -644,3 +644,21 @@ syntax and diff checks. Playtest: this native UI repair still needs exact-source
 Mac30-case validation and actual media. Prior29 event passes are observations
 from a failed source run, not a passing suite or qualification for edited source.
 Full parity, live VPS, signed install and physical iPhone qualification stay open.
+
+Explicit search editing event and state gates
+Source7a0ef0d32b4f35a7a5286b90b078233e7686a9a8, run44585446550 reports
+30 started,29 passed,1 failed,0 unfinished. Failure id5cab040e4538 has exact
+checkpointcraft_book_empty_rows, separating it from the visible-message check.
+No native30-case pass or current gameplay media available.
+Added direct UISearchTextField editingChanged binding alongside UISearchBar
+delegate so field edits explicitly drive the filter after background/resume.
+Expose actual filtered count as table accessibilityValue for VoiceOver and tests.
+Before existing zero-row and visible-message assertions, require the field value
+to equal the full fixed query and table count to equal0 recipes, each bounded10s.
+Distinct fixed diagnostic markers separate entered query, filtering and native
+accessibility row snapshot. No assertion removed, timeout raised or gate weakened.
+Executed63 Linux harness checks, project generation, Python compilation and diff
+checks. Playtest: Mac must execute actual query entry/background/empty rows/join/
+restart plus all30 native cases. This source event-path repair remains unverified;
+Linux checks do not prove UIKit behavior. Full parity, live VPS, signed install and
+physical iPhone qualification remain open.

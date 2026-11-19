@@ -23,6 +23,7 @@ import UIKit
         let done=UIButton(type:.system);done.setTitle("Done",for:.normal);done.accessibilityIdentifier="craftDone";done.addTarget(self,action:#selector(close),for:.touchUpInside)
         let header=UIStackView(arrangedSubviews:[title,done]);header.distribution = .equalSpacing
         search.placeholder="Find recipe or ingredient";search.accessibilityIdentifier="craftSearchBar";search.searchTextField.accessibilityIdentifier="craftSearch";search.delegate=self
+        search.searchTextField.addTarget(self,action:#selector(queryChanged),for:.editingChanged)
         category.selectedSegmentIndex=0;category.addTarget(self,action:#selector(filter),for:.valueChanged);category.accessibilityIdentifier="craftCategory"
         status.numberOfLines=0;status.font = .preferredFont(forTextStyle:.footnote);status.accessibilityIdentifier="craftStatus"
         emptyState.text="No matching recipes.";emptyState.textColor = .secondaryLabel
@@ -52,6 +53,7 @@ import UIKit
         self.inventory=inventory;self.pending=pending;table.reloadData()
     }
     @objc private func close(){view.endEditing(true);let finish=onClose;dismiss(animated:true){finish?()}}
+    @objc private func queryChanged(){queryText=search.searchTextField.text ?? "";filter()}
     @objc private func filter(){
         let query=queryText.trimmingCharacters(in:.whitespacesAndNewlines)
         let chosen=["All","Materials","Building","Decorations","Lighting"][category.selectedSegmentIndex]
@@ -59,7 +61,7 @@ import UIKit
             let text=([recipe.name,name(recipe.output)]+recipe.inputs.map{name($0[0])}).joined(separator:" ")
             return (chosen=="All" || recipe.category==chosen) && (query.isEmpty || text.localizedCaseInsensitiveContains(query))
         }
-        emptyState.isHidden = !shown.isEmpty;table.reloadData()
+        emptyState.isHidden = !shown.isEmpty;table.accessibilityValue="\(shown.count) recipes";table.reloadData()
     }
     func searchBar(_ searchBar:UISearchBar,textDidChange searchText:String){queryText=searchText;filter()}
     func tableView(_ tableView:UITableView,numberOfRowsInSection section:Int)->Int {shown.count}

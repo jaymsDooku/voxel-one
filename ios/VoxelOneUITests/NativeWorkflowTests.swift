@@ -189,6 +189,10 @@ final class NativeWorkflowTests:XCTestCase {
         let join=app.cells["recipe9"];wait(join);join.tap();textContains("craftStatus","Crafted 1 Dirt")
         XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["craftDone"])
         search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
+        let entered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","no matching recipe xyz"),object:search)
+        XCTAssertEqual(XCTWaiter.wait(for:[entered],timeout:10),.completed,"craft_book_query_entered")
+        let filtered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","0 recipes"),object:app.tables["recipeTable"])
+        XCTAssertEqual(XCTWaiter.wait(for:[filtered],timeout:10),.completed,"craft_book_filtered_count")
         let emptyResults=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in
             self.app.tables["recipeTable"].cells.count==0
         },object:nil)
