@@ -71,6 +71,7 @@ final class RegionReplayWorker implements AutoCloseable {
         private ReadbackSaveSnapshot saveSnapshot;
         private ReadbackSaveSnapshot.Publication savePublication;
         private ReadbackSaveSnapshot.Prepared savePrepared;
+        private boolean cleanupPrepared;
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding) {
             this(region,range,maxRows,revision,fence,binding,-1);
@@ -102,6 +103,13 @@ final class RegionReplayWorker implements AutoCloseable {
         private Request(ReadbackSaveSnapshot.Publication publication,Revision revision) {
             this(null,null,0,revision,null,null);savePublication=publication;
         }
+        private Request(ReadbackSaveSnapshot.Prepared prepared,Revision revision) {
+            this(null,null,0,revision,null,null);savePrepared=prepared;cleanupPrepared=true;
+        }
+        /** Confirms producer-side temporary cleanup, never publication. */
+        void cleanupResult(Revision current)throws IOException {
+            owner();if(!cleanupPrepared)throw new IOException("Replay request is not cleanup");extractOutcome(current);
+        }
         /** Durable receipt remains inspectable after worker retirement. */
         ReadbackSaveSnapshot.PublicationProgress publicationResult(Revision current)throws IOException {
             owner();if(savePublication==null)throw new IOException("Replay request is not a publication");
@@ -129,6 +137,7 @@ final class RegionReplayWorker implements AutoCloseable {
         boolean cancelled(){return outcome.get().phase()==Phase.CANCELLED;}
         /** Nonblocking; cancellation wins if it precedes terminal publication. */
         boolean cancel() {
+            if(cleanupPrepared)return false; // Ownership of explicit disposal has already transferred.
             if(savePublication!=null) {
                 if(Thread.currentThread()!=owner)return false;
                 try{if(!savePublication.cancel())return false;}catch(IOException wrongOwner){throw new IllegalStateException(wrongOwner);}
@@ -168,7 +177,7 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
-            if(saveSnapshot!=null||savePublication!=null)throw new IOException("Replay request contains save output");
+            if(saveSnapshot!=null||savePublication!=null||cleanupPrepared)throw new IOException("Replay request contains save output");
             if(lightingOnly)throw new IOException("Replay request contains lighting-only geometry");
             if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves>=0)throw new IOException("Replay request contains chunk geometry");
@@ -867,6 +876,7 @@ final class RegionReplayWorker implements AutoCloseable {
         catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target unavailable",changed);}
     }
     private final Thread workerThread;
+    private Request pendingCleanup; // one owned cleanup transfer, guarded by gate
     private Request pendingPublication; // one scheduled publication, guarded by gate
     private Request pendingSave; // one queued/active/unclaimed sealed prefix, guarded by gate
     private Request active; // worker-owned except under gate during close
@@ -884,6 +894,17 @@ final class RegionReplayWorker implements AutoCloseable {
     }
     Status status(){return status;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay worker owner required");}
+    /** Nonblocking owner transfer of a rejected/abandoned staged prefix back
+     * to its exact producer. Queue rejection leaves ownership with the caller. */
+    Request submitCleanup(ReadbackSaveSnapshot.Prepared prepared,Revision revision)throws IOException {
+        owner();Objects.requireNonNull(prepared);Objects.requireNonNull(revision);var request=new Request(prepared,revision);
+        synchronized(gate) {
+            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)||pendingCleanup!=null||queue.size()>=capacity)
+                throw new IOException("Paging cleanup queue unavailable");
+            prepared.claimCleanup(transferredMetadata,revision,fingerprint,sourceTarget,sourceOverlay,workerThread);
+            pendingCleanup=request;queue.addLast(request);gate.notifyAll();return request;
+        }
+    }
     /** Transfer an authorized snapshot to this worker's bounded queue. */
     Request submitPublication(ReadbackSaveSnapshot.Publication publication,Revision revision)throws IOException {
         owner();Objects.requireNonNull(publication);Objects.requireNonNull(revision);var request=new Request(publication,revision);
@@ -988,6 +1009,11 @@ final class RegionReplayWorker implements AutoCloseable {
                     if(stopping.get())break;request=queue.removeFirst();active=request;
                 }
                 try {
+                    if(request.cleanupPrepared) {
+                        request.finish(new Outcome(Phase.LOADING,null,null));request.savePrepared.discardOnProducer();
+                        synchronized(gate){if(pendingCleanup==request)pendingCleanup=null;request.finish(new Outcome(Phase.READY,null,null));}
+                        continue;
+                    }
                     if(request.savePublication!=null) {
                         if(!request.cancelled())request.finish(new Outcome(Phase.LOADING,null,null));
                         try{request.savePublication.publish();request.finish(new Outcome(Phase.READY,null,null));}
@@ -1085,9 +1111,13 @@ final class RegionReplayWorker implements AutoCloseable {
             boolean cacheClosed=cache==null,sourceClosed=source==null;
             for(;;) {
                 IOException cleanup=null;
+                if(pendingCleanup!=null) {
+                    try{pendingCleanup.savePrepared.discardOnProducer();synchronized(gate){pendingCleanup=null;}}
+                    catch(IOException error){cleanup=error;}
+                }
                 if(pendingPublication!=null) {
                     try{pendingPublication.savePublication.close();synchronized(gate){pendingPublication=null;}}
-                    catch(IOException error){cleanup=error;}
+                    catch(IOException error){if(cleanup==null)cleanup=error;else cleanup.addSuppressed(error);}
                 }
                 if(pendingSave!=null) {
                     try{if(pendingSave.savePrepared!=null)pendingSave.savePrepared.discardOnProducer();synchronized(gate){pendingSave=null;}}

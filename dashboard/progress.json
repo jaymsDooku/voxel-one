@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Authorized publication now shares the source worker queue, with commit-boundary cancellation and durable receipts. 153 tests and native regressions pass; fresh media captured. Main/source installation and full qualification remain pending.",
-      "updatedAt": "2026-11-19T21:07:45+00:00"
+      "note": "Rejected staged saves can now transfer temporary cleanup back to the exact producer queue. 156 tests and native regressions pass; fresh media captured. Main/source installation and full qualification remain pending.",
+      "updatedAt": "2026-11-19T21:36:00+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

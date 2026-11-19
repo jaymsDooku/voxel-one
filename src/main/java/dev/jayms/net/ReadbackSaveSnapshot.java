@@ -103,7 +103,7 @@ final class ReadbackSaveSnapshot {
     final class Prepared implements AutoCloseable {
         private final StagedOfflineSave prefix;
         private final Thread producer=Thread.currentThread();
-        private boolean consumed,transferred;
+        private boolean consumed,transferred,cleanupTransferred;
         private final String sealedFingerprint;
         private final RegionReplayWorker.Revision sourceRevision;
         private final RegionReplayOverlay sourceOverlay;
@@ -124,11 +124,22 @@ final class ReadbackSaveSnapshot {
             StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
             var publication=new Publication(prefix,sealedFingerprint,sourceRevision,sourceOverlay);claim();transferred=true;return publication;
         }
+        /** Transfer only owned temporary output; stale live state does not
+         * prevent cleanup. This cannot authorize publication. */
+        void claimCleanup(LocalGame expected,RegionReplayWorker.Revision revision,String expectedFingerprint,
+                Path expectedTarget,RegionReplayOverlay pending,Thread expectedProducer)throws IOException {
+            owner();Objects.requireNonNull(expectedTarget);
+            if(consumed||transferred||cleanupTransferred||local!=expected||producer!=expectedProducer
+                    ||!sourceRevision.equals(revision)||!fingerprint.equals(expectedFingerprint)||sourceOverlay!=pending
+                    ||!generation.target().equals(expectedTarget.toAbsolutePath().normalize()))
+                throw new IOException("Paging cleanup source mismatch or already consumed");
+            consumed=true;cleanupTransferred=true;
+        }
         void discardOnProducer()throws IOException {
             if(Thread.currentThread()!=producer||transferred)throw new IOException("Staged save producer cleanup required");
             prefix.close();consumed=true;
         }
-        @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
+        @Override public void close()throws IOException{owner();if(!transferred&&!cleanupTransferred){consumed=true;prefix.close();}}
     }
     enum Phase {AUTHORIZED,WORKING,COMMITTING,PUBLISHED,CANCELLED,FAILED}
     /** Verification progress only; bytes reaching total does not imply commit. */
