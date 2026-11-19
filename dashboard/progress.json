@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Save staging now shares the source-owning paging worker queue, with one-shot output and producer cleanup. 150 tests and native regressions pass; fresh media captured. Publication/Main integration and full qualification remain pending.",
-      "updatedAt": "2026-11-19T20:39:58+00:00"
+      "note": "Authorized publication now shares the source worker queue, with commit-boundary cancellation and durable receipts. 153 tests and native regressions pass; fresh media captured. Main/source installation and full qualification remain pending.",
+      "updatedAt": "2026-11-19T21:07:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

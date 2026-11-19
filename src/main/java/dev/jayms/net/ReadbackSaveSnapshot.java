@@ -154,6 +154,17 @@ final class ReadbackSaveSnapshot {
             if(worker==null)worker=Thread.currentThread();
             else if(worker!=Thread.currentThread())throw new IOException("Readback publication worker changed");
         }
+        /** Owner transfers publication to one exact source worker before enqueue.
+         * Authorization already captured the permitted snapshot; later edits stay dirty. */
+        synchronized void claimPagingWorker(LocalGame expected,RegionReplayWorker.Revision revision,
+                String expectedFingerprint,Path expectedTarget,RegionReplayOverlay pending,Thread producer)throws IOException {
+            owner();Objects.requireNonNull(producer);Objects.requireNonNull(expectedTarget);
+            if(local!=expected||phase.get()!=Phase.AUTHORIZED||worker!=null||producer==owner
+                    ||!sourceRevision.equals(revision)||!fingerprint.equals(expectedFingerprint)||sourceOverlay!=pending
+                    ||!generation.target().equals(expectedTarget.toAbsolutePath().normalize()))
+                throw new IOException("Paging publication source mismatch or already claimed");
+            worker=producer;
+        }
         /** True means cancellation won before the durable commit boundary. */
         boolean cancel()throws IOException {
             owner();
