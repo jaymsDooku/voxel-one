@@ -30,6 +30,7 @@ assert (root / cp.split(':')[0]).resolve() == root / 'target/test-classes'
 java_sources = [root / 'tools/structures' / name for name in ['ReplaySkyFrameCheck.java', 'ReplaySkyUploadAssertions.java', 'ReplayVolumeUploadAssertions.java', 'ReplayVolumePipelineAssertions.java', 'ReplayVolumeFrameAssertions.java', 'ReplaySkyPipelineAssertions.java', 'ReplaySkyFrameAssertions.java', 'ReplayWaterCheck.java', 'ReplayRenderCheck.java', 'ReplaySceneCheck.java', 'ReplayChunkGpuCheck.java', 'ReplayModelGpuCheck.java', 'ReplayGpuUploadCheck.java']]
 image = root / ('dashboard/evidence/'+args.evidence_prefix+'-optics.png')
 assert not image.with_name((args.evidence_prefix+'-regression.png')).exists(), 'Preserve regression evidence'
+assert not image.with_name(args.evidence_prefix+'-pending.png').exists(), 'Preserve pending evidence'
 assert not image.exists(), 'Preserve existing evidence; choose a fresh output name'
 commands = [
     ['javac', '--release', '17', '-cp', cp, '-d', str(folder)] + [str(p) for p in java_sources],
@@ -43,6 +44,7 @@ assert image.is_file()
 assert all(sha(root / p) == v for p, v in sources.items())
 assert all(sha(root / p) == v for p, v in classes.items())
 receipt = dict(
+    pending_image_sha256=sha(image.with_name(args.evidence_prefix+'-pending.png')),
     qualification=False, commands=commands, source_sha256=sources, compiled_sha256=classes,
     cli_sha256={str(p.relative_to(root)): sha(p) for p in java_sources}, driver_sha256=sha(Path(__file__)), image_sha256=sha(image), regression_image_sha256=sha(image.with_name((args.evidence_prefix+'-regression.png'))),
     result=json.loads((folder / 'result.json').read_text()), os=platform.platform(),

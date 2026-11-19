@@ -902,7 +902,7 @@ final class RegionReplayWorker implements AutoCloseable {
             var opened=source;
             cache=new RegionReplayCache(directory,source.spool(),maxRegions,maxBytes,maxRegionRows,edit->{
                 var request=active;if(request!=null)request.checkedRows.incrementAndGet();return opened.allowed().test(edit);
-            });
+            },source.overlay(),stopping::get);
             synchronized(gate){if(!stopping.get())status=new Status(State.RUNNING,status.sourceRows(),null);}
             for(;;) {
                 Request request;
@@ -915,8 +915,8 @@ final class RegionReplayWorker implements AutoCloseable {
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
-                    if(!source.overlay().rows().isEmpty()&&(request.maxCellLeaves>=0||request.skyLimits!=null||request.mergeTiles!=null))
-                        throw new IOException("Pending replay overlay currently supports cell pages only");
+                    if(!source.overlay().rows().isEmpty()&&(request.lightingOnly||request.skyLimits!=null||request.mergeTiles!=null))
+                        throw new IOException("Pending replay overlay does not yet support lighting or sky");
                     RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;SkyTile sky=null;SkyMerge merge=null;
                     if(request.mergeTiles!=null) {
                         if(source.metadata()==null)throw new IOException("Replay sky merge requires source metadata");
@@ -952,8 +952,6 @@ final class RegionReplayWorker implements AutoCloseable {
                     else {
                         BooleanSupplier cancel=()->stopping.get()||request.cancelled();
                         page=cache.load(request.region,request.range,source.terrain(),request.maxRows,cancel);
-                        if(!source.overlay().rows().isEmpty())page=RegionReplayPage.withOverlay(page,source.overlay(),source.terrain(),request.maxRows,
-                                edit->{request.checkedRows.incrementAndGet();return opened.allowed().test(edit);},cancel);
                     }
                     if(chunk!=null&&!request.lightingOnly) {
                         var sourceMetadata=source.metadata();

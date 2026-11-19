@@ -16,6 +16,23 @@ public class PendingReplayOverlayTest {
     static Protocol.Edit fraction(){return new Protocol.Edit(3,160,0,Blocks.piece(Blocks.LED,1),1,1,0,1).withColor(0x336699);}
     static RegionReplayOverlay pending(){return RegionReplayOverlay.capture(List.of(new Protocol.Edit(0,160,0,0),fraction()),()->false);}
     ReadbackSaveSnapshotTest contexts()throws IOException {var t=new ReadbackSaveSnapshotTest();t.folder=Files.createDirectories(folder.resolve("contexts"));return t;}
+    @Test public void indexedSelectionPreservesOrderAndBounds()throws Exception {
+        var a=new Protocol.Edit(1,160,0,Blocks.STONE);var b=new Protocol.Edit(0,160,0,0);var c=fraction();
+        var overlay=RegionReplayOverlay.capture(List.of(a,b,c,a),()->false);
+        var checked=new java.util.concurrent.atomic.AtomicInteger();
+        var index=new RegionReplayOverlay.Index(overlay,e->{checked.incrementAndGet();return true;},()->false);
+        assertEquals(4,checked.get());
+        assertEquals(overlay.rows(),index.select(REGION,RANGE,4,()->false).rows());
+        assertEquals(List.of(a,a),index.select(REGION,new RegionReplayPage.CellRange(1,2),2,()->false).rows());
+        assertThrows(IOException.class,()->index.select(REGION,RANGE,3,()->false));
+        assertThrows(CancellationException.class,()->index.select(REGION,RANGE,4,()->true));
+        assertTrue(index.select(new ChunkPos(Integer.MAX_VALUE,10,0),RANGE,0,()->false).rows().isEmpty());
+        var negative=new Protocol.Edit(-1,160,-1,Blocks.STONE);
+        var negativeIndex=new RegionReplayOverlay.Index(RegionReplayOverlay.capture(List.of(negative),()->false),e->true,()->false);
+        assertEquals(List.of(negative),negativeIndex.select(new ChunkPos(-1,10,-1),new RegionReplayPage.CellRange(192,256),1,()->false).rows());
+        assertEquals(4,checked.get());
+        assertThrows(IOException.class,()->new RegionReplayOverlay.Index(overlay,e->false,()->false));
+    }
     @Test public void detachedCompositionPreservesColourFractionEmptySpaceAndBounds()throws Exception {
         try(var c=contexts().new Context("compose")) {
             c.worker.submit(()->{
@@ -30,7 +47,7 @@ public class PendingReplayOverlayTest {
             }).get(10,TimeUnit.SECONDS);
         }
     }
-    @Test public void workerPagesPendingGeometryAndRejectsMixedChunkAndSkyPaths()throws Exception {
+    @Test public void workerPagesPendingChunksAndRejectsMixedSkyPaths()throws Exception {
         try(var c=contexts().new Context("worker");var prepared=c.stage(c.snapshot())) {
             var old=c.fixture.worker(c.path);ReadbackMetadataTest.ready(old);RegionReplayWorkerTest.closed(old);
             var publication=prepared.authorize(()->false);c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
@@ -40,7 +57,7 @@ public class PendingReplayOverlayTest {
                 ReadbackMetadataTest.ready(worker);var local=worker.metadataResult(SavedPagingFactoryTest.NEXT);assertEquals(worker.fingerprint(),local.readbackFingerprint());
                 var request=worker.submit(REGION,RANGE,8,SavedPagingFactoryTest.NEXT);RegionReplayWorkerTest.await(()->request.outcome().phase()==RegionReplayWorker.Phase.READY);assertEquals(WorldVoxels.encode(fraction()),request.result(SavedPagingFactoryTest.NEXT).cells().get(new WorldVoxels.CellPosition(3,160,0)).tree().get(8,0,8));
                 try(var world=new World(local.seed,local.models,local.generatorVersion)) {
-                    var chunk=worker.submitChunkFenced(REGION,131072,SavedPagingFactoryTest.NEXT,world);RegionReplayWorkerTest.await(()->chunk.outcome().phase()==RegionReplayWorker.Phase.FAILED);assertThrows(IOException.class,()->chunk.chunkResult(SavedPagingFactoryTest.NEXT,world));
+                    var chunk=worker.submitChunkFenced(REGION,131072,SavedPagingFactoryTest.NEXT,world);RegionReplayWorkerTest.await(()->chunk.outcome().phase()==RegionReplayWorker.Phase.READY);assertEquals(WorldVoxels.encode(fraction()),chunk.chunkResult(SavedPagingFactoryTest.NEXT,world).geometry().get(56,0,8));
                     var binding=worker.bindTarget(local,world);var sky=binding.submitSky(0,0,new dev.jayms.render.WorldSkyVisibility.BuildLimits(256,131072,131072),world);RegionReplayWorkerTest.await(()->sky.outcome().phase()==RegionReplayWorker.Phase.FAILED);assertThrows(IOException.class,()->binding.skyResult(sky,world));assertFalse(world.hasReplayReadView());assertThrows(IOException.class,local::save);
                 }
             }finally{RegionReplayWorkerTest.closed(worker);}

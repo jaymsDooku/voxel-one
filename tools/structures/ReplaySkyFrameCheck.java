@@ -95,9 +95,27 @@ public final class ReplaySkyFrameCheck {
  static void gpu(RegionReplayScene scene,int count)throws Exception {
   int steps=0;while(scene.status().gpuEntries()!=count&&steps++<10000){int n=scene.pumpGpu(64,deadline(),()->false);check(n>=0&&n<=64,"Shared per-call byte cap");glfwPollEvents();}check(scene.status().gpuEntries()==count,"Automatic GPU publication");
  }
+ static void pendingChunk(Path root,Path path,ShaderProgram shader,Path image)throws Exception {
+  Path spool=Files.createDirectory(root.resolve("pending-chunk-spool"));
+  var overlay=RegionReplayOverlay.capture(List.of(PendingReplayOverlayTest.fraction()),()->false);
+  var worker=new RegionReplayWorker(spool,(cancel,progress)->{
+   var source=LocalGame.openRegionalReadback(path,spool,RegionReplayWorkerTest.REV,cancel,progress);
+   return new RegionReplayWorker.Source(source.spool(),source.terrain(),source.allowed(),source.revision(),source.fingerprint(),source.metadata(),overlay);
+  },1,1,56*1024,2000);
+  try {
+   ReadbackMetadataTest.ready(worker);var local=worker.metadataResult(RegionReplayWorkerTest.REV);
+   try(var world=new World(local.seed,local.models,local.generatorVersion)) {
+    var scene=worker.bindTarget(local,world).openScene(world,1,8192);
+    scene.desired(List.of(new ChunkPos(0,10,0)));cpu(scene,1);gpu(scene,1);
+    check(world.isLoaded(3,160,0),"Pending chunk publishes through ordinary GPU scene");
+    ReplayRenderCheck.capture(world,shader,image);
+    check(world.editsVersion()==0&&world.getLoadedChunks().isEmpty(),"Pending render remains detached");
+   }
+  }finally{RegionReplayWorkerTest.closed(worker);}
+ }
  public static void main(String[] args)throws Exception {
   Path root=Path.of(args[0]),report=Path.of(args[1]),image=Path.of(args[2]);if(Files.exists(root)||Files.exists(report)||Files.exists(image))throw new IllegalArgumentException("Fresh outputs required");Files.createDirectory(root);
-  var pendingOverlayCheck=new PendingReplayOverlayTest();pendingOverlayCheck.folder=Files.createDirectory(root.resolve("pending-overlay-fixture"));pendingOverlayCheck.detachedCompositionPreservesColourFractionEmptySpaceAndBounds();pendingOverlayCheck.workerPagesPendingGeometryAndRejectsMixedChunkAndSkyPaths();pendingOverlayCheck.savingPendingSourceRequiresPrefixAndWritesItOnce();
+  var pendingOverlayCheck=new PendingReplayOverlayTest();pendingOverlayCheck.folder=Files.createDirectory(root.resolve("pending-overlay-fixture"));pendingOverlayCheck.indexedSelectionPreservesOrderAndBounds();pendingOverlayCheck.detachedCompositionPreservesColourFractionEmptySpaceAndBounds();pendingOverlayCheck.workerPagesPendingChunksAndRejectsMixedSkyPaths();pendingOverlayCheck.savingPendingSourceRequiresPrefixAndWritesItOnce();
   var savedPagingCheck=new SavedPagingFactoryTest();savedPagingCheck.folder=Files.createDirectory(root.resolve("saved-paging-fixture"));savedPagingCheck.retiredSourceCreatesFreshOwnedWorkerAndRejectsOldReceipts();savedPagingCheck.differentValidDestinationFailsFactoryAndCleansItsOwnedSpool();
   var journalTailCheck=new JournalTailAdoptionTest();journalTailCheck.folder=Files.createDirectory(root.resolve("journal-tail-fixture"));journalTailCheck.trackedEditsDuringSaveRemainLiveAndSurviveNextSave();journalTailCheck.untrackedChangesModelsAndUnboundJournalCannotAdoptMetadata();
   var editorCheck=new RegionReplayEditorTest();editorCheck.editsAndCellReplacementKeepExactOrderedJournal();editorCheck.budgetCancellationInvalidInputAndForeignThreadRejectBeforeWorldMutation();editorCheck.bypassAndPartialWorldFailurePoisonJournalInsteadOfClaimingRollback();
@@ -166,6 +184,7 @@ public final class ReplaySkyFrameCheck {
      check(closeScene.status().uploading()!=null&&Mesh.estimatedResidentBytes()>baseline,"Close fixture has active upload");closeScene.close();closeScene.close();check(Mesh.estimatedResidentBytes()==baseline,"Scene close releases active upload");
     }
    }finally{RegionReplayWorkerTest.closed(closeWorker);}
+   pendingChunk(root,path,shader,image.resolveSibling(image.getFileName().toString().replace("-optics.png","-pending.png")));check(Arrays.equals(original,Files.readAllBytes(path)),"Pending render preserves physical source");
    check(glGetError()==GL_NO_ERROR&&Mesh.estimatedResidentBytes()==baseline,"GL cleanup");Files.writeString(report,"{\"status\":\"passed\",\"published_chunks\":2,\"max_owned_uploads\":1,\"renderer\":\""+renderer+"\",\"gl_version\":\""+version+"\",\"source_lighting_chunks\":288,\"source_lighting_leaves\":"+sourceLightingLeaves+",\"source_lighting_nanos\":"+sourceLightingNanos+",\"planar_lighting_nanos\":"+planarLightingNanos+",\"planar_lit_geometry_pixels\":"+planarLitGeometryPixels+",\"qualification\":false}\n");
   }finally{RegionReplayWorkerTest.closed(worker);shader.close();glfwDestroyWindow(window);glfwTerminate();}
  }

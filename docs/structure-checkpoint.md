@@ -5932,3 +5932,10 @@ Receipt matches 564 source files, 1,140 compiled classes, helper sources, wrappe
 Fresh evidence pending controller publication: dashboard/evidence/structure-pending-overlay.json, structure-pending-overlay-optics.png and structure-pending-overlay-regression.png. No raw runtime logs or delegation content included.
 
 Next: overlay-aware chunk/sky/lighting/rendering, live tail reconciliation/source-view installation, model rebasing, same-worker save coordination, partial editing, Main startup/paging and coordinated World/sidecar saves. City/max admission and required 20-run physical-GPU/shaped-network 32-client qualification remain pending, including memory/frame/tick/traffic budgets. No supported-limit/stable-rollout claims. Runner latest-master integration, exact-source hosted checks and independent review remain required. Not ready.
+
+
+### 2026-11-19 — pending overlay ordinary chunks
+
+Added a worker-owned cell index for pending edits. Each chunk's 4,096 cell requests now select only matching buckets, preserve original row order and enforce the combined raw source-row cap before composition. Ordinary chunks and neighbour loads use the shared cache. Pending-overlay sky, merge and lighting-only paths remain blocked. No live-world or Main startup authority was added.
+
+Validation: 126 tests in 29 suites passed with no failures, errors or skips. Native GLFW playtest on inherited DISPLAY passed with llvmpipe LLVM 15.0.6 / Mesa 22.3.6. A fresh pending-chunk GPU image, lit planar regression and ordinary/model/water regression were captured and inspected. All source/class/helper/wrapper/image hashes match the run receipt. See `dashboard/evidence/structure-pending-chunk.json` for commands, scope and remaining qualification gates. Ten restored MP3/Hub paths match the review base; no deletions were introduced. Parent head 556faa15 passed all four hosted builds; changed source needs fresh hosted checks. City/maximum, physical-GPU and 32-client network qualification remain pending.

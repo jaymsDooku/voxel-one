@@ -20,6 +20,7 @@ final class RegionReplayCache implements AutoCloseable {
     private final int maxRegions,maxRegionRows;
     private final long maxBytes,reservation;
     private final LinkedHashMap<ChunkPos,RegionReplayCells> entries=new LinkedHashMap<>(4,.75f,true);
+    private RegionReplayOverlay.Index overlay;
     private long bytes;
     private boolean busy,closed;
 
@@ -33,6 +34,11 @@ final class RegionReplayCache implements AutoCloseable {
         reservation=(long)maxRegionRows*RegionReplayCells.RECORD_BYTES;
         if(reservation>maxBytes)throw new IllegalArgumentException("Replay cache build reservation");
         this.maxRegions=maxRegions;this.maxBytes=maxBytes;this.maxRegionRows=maxRegionRows;
+    }
+    RegionReplayCache(Path directory,RegionReplaySpool source,int maxRegions,long maxBytes,
+            int maxRegionRows,Predicate<Protocol.Edit> allowed,RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
+        this(directory,source,maxRegions,maxBytes,maxRegionRows,allowed);
+        overlay=new RegionReplayOverlay.Index(pending,allowed,cancel);
     }
     private void check()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay cache worker ownership required");
@@ -66,7 +72,10 @@ final class RegionReplayCache implements AutoCloseable {
                 }
                 entries.put(region,index);bytes+=size;
             }
-            return RegionReplayPage.loadIndexed(index,range,terrain,maxRows,allowed,cancel);
+            var page=RegionReplayPage.loadIndexed(index,range,terrain,maxRows,allowed,cancel);
+            if(overlay==null)return page;
+            var pending=overlay.select(region,range,maxRows-page.sourceRows(),cancel);
+            return pending.rows().isEmpty()?page:RegionReplayPage.withOverlay(page,pending,terrain,maxRows,allowed,cancel);
         }finally{busy=false;}
     }
     private void evictFirst()throws IOException {
