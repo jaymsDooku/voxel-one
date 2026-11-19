@@ -4,6 +4,7 @@ import dev.jayms.World;
 import dev.jayms.net.model.ModelLibrary;
 import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
+import java.nio.file.Path;
 import java.util.*;
 import java.util.function.*;
 import java.util.concurrent.CancellationException;
@@ -76,13 +77,15 @@ final class ReadbackSaveSnapshot {
         try {
             prefix.sealTail(inventory,health,drops.values(),drops.size(),cancel);
             if(!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Readback save source terrain changed");
-            StructurePackage.cancelled(cancel);return new Prepared(prefix);
+            String sealedFingerprint=prefix.sealedFingerprint(cancel);
+            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint);
         }catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     final class Prepared implements AutoCloseable {
         private final StagedOfflineSave prefix;
         private boolean consumed,transferred;
-        private Prepared(StagedOfflineSave prefix){this.prefix=prefix;}
+        private final String sealedFingerprint;
+        private Prepared(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
         /** Owner-blocking reference integration only. No frame-time guarantee;
          * live integration still needs dirty-state and sidecar coordination. */
         void commit(BooleanSupplier cancel)throws IOException {
@@ -97,7 +100,7 @@ final class ReadbackSaveSnapshot {
             owner();Objects.requireNonNull(cancel);
             if(consumed)throw new IOException("Readback save already consumed");
             StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
-            var publication=new Publication(prefix);claim();transferred=true;return publication;
+            var publication=new Publication(prefix,sealedFingerprint);claim();transferred=true;return publication;
         }
         @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
     }
@@ -111,7 +114,9 @@ final class ReadbackSaveSnapshot {
         private final AtomicReference<Phase> phase=new AtomicReference<>(Phase.AUTHORIZED);
         private final AtomicLong verifiedBytes=new AtomicLong();
         private Thread worker;
-        private Publication(StagedOfflineSave prefix){this.prefix=prefix;}
+        private final String sealedFingerprint;
+        private boolean sourceTransferred;
+        private Publication(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
         Phase phase(){return phase.get();}
         PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
         private synchronized void worker()throws IOException {
@@ -141,6 +146,20 @@ final class ReadbackSaveSnapshot {
                 phase.compareAndSet(Phase.WORKING,Phase.FAILED);phase.compareAndSet(Phase.COMMITTING,Phase.FAILED);
                 try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
             }
+        }
+        /** Worker-only complete readback of this publication, with a fresh
+         * destination generation. Caller owns the returned spool. This does not
+         * replace live state, clear later edits or grant Main save authority.
+         * Failed/cancelled opens may retry; successful transfer is one-shot. */
+        RegionReplayWorker.Source reopenPublished(Path directory,RegionReplayWorker.Revision revision,
+                BooleanSupplier cancel,IntConsumer progress)throws IOException {
+            worker();Objects.requireNonNull(directory);Objects.requireNonNull(revision);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+            if(phase.get()!=Phase.PUBLISHED||sourceTransferred)throw new IOException("Readback publication source unavailable");
+            var source=LocalGame.openRegionalReadback(generation.target(),directory,revision,cancel,progress);
+            try {
+                if(!sealedFingerprint.equals(source.fingerprint()))throw new IOException("Published snapshot replaced before readback");
+                StructurePackage.cancelled(cancel);sourceTransferred=true;return source;
+            }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
         }
         /** Owner completion check only. False never rolls back a published file. */
         boolean snapshotCurrent()throws IOException {

@@ -149,6 +149,25 @@ final class StagedOfflineSave implements AutoCloseable {
             StructurePackage.cancelled(cancel);sealed=true;
         }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
+    /** Worker-only digest of the complete sealed snapshot. Never hashes more
+     * than the existing decoded-world byte budget; no publication authority. */
+    String sealedFingerprint(BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);if(closed||!sealed)throw new IOException("Staged offline save not sealed or closed");
+        StructurePackage.cancelled(cancel);
+        var before=Files.readAttributes(temp,java.nio.file.attribute.BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+        if(!before.isRegularFile()||before.size()>WorldSavePublication.MAX_GENERATION_BYTES)throw new IOException("Sealed save byte budget/type");
+        java.security.MessageDigest digest;
+        try{digest=java.security.MessageDigest.getInstance("SHA-256");}catch(java.security.NoSuchAlgorithmException failure){throw new IOException("SHA-256 unavailable",failure);}
+        long read=0;byte[] buffer=new byte[64*1024];
+        try(var input=Files.newInputStream(temp)) {
+            for(;;){StructurePackage.cancelled(cancel);int n=input.read(buffer);if(n<0)break;
+                if(n>WorldSavePublication.MAX_GENERATION_BYTES-read)throw new IOException("Sealed save byte budget");read+=n;digest.update(buffer,0,n);}
+        }
+        StructurePackage.cancelled(cancel);var after=Files.readAttributes(temp,java.nio.file.attribute.BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
+        if(!after.isRegularFile()||read!=before.size()||before.size()!=after.size()||!Objects.equals(before.fileKey(),after.fileKey())
+                ||!before.lastModifiedTime().equals(after.lastModifiedTime())||!before.creationTime().equals(after.creationTime()))throw new IOException("Sealed save changed during digest");
+        return java.util.HexFormat.of().formatHex(digest.digest());
+    }
     /** Guarded publication still performs destination I/O; not a frame API. */
     void publishSealed(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(expected);publishSealedInternal(expected,cancel);
