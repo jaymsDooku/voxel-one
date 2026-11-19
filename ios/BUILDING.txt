@@ -194,3 +194,12 @@ actor. Menu/background cancels stale generations; resume rebuilds current terrai
 On a memory warning the app pauses, cancels prepared work and drops meshes more
 than 16 blocks from the player. Resume rebuilds. These caps are initial engineering
 limits, not measured physical iPhone memory/frame-time/thermal qualifications.
+
+Native test deadline diagnostics
+
+The simulator script runs xcodebuild tests through ios/native-test-runner.py with
+a900-second child deadline, within the controller's1200-second client budget.
+A timeout remains a failed check. Only a bounded, validated last-test identifier
+is added to sanitized failure diagnostics; raw test/fixture logs remain private.
+All26 required native cases still must pass. Linux child-process tests do not
+qualify the running iPhone client.

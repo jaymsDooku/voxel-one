@@ -279,6 +279,7 @@ final class WorldRulesTests:XCTestCase {
     }
     func testBoundedMeshPagingCancellationAndGeometry()throws {
         let worker=NativeMeshWorker(),world=try VoxelWorld(fixture())
+        defer{worker.cancel()}
         worker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:false,center:[0,1,0]))
         let full=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in worker.readyCount==NativeMeshWorker.maximumReady},object:nil)
         XCTAssertEqual(XCTWaiter.wait(for:[full],timeout:10),.completed,"Producer reaches bounded backpressure")

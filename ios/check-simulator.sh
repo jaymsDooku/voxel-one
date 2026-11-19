@@ -68,11 +68,10 @@ if command -v ffmpeg >/dev/null 2>&1; then
   video_pid=$!
 fi
 export IOS_CHECK_STAGE=native_playtests
-xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
+python3 ios/native-test-runner.py --timeout 900 -- xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -destination "platform=iOS Simulator,id=$udid" -derivedDataPath ios/build/DerivedData \
   -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \
-  -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO \
-  > ios/build/native-tests.log 2>&1
+  -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO
 if [ -n "$video_pid" ]; then
   kill -INT "$video_pid" 2>/dev/null || true; wait "$video_pid" || true;video_pid=""
 fi

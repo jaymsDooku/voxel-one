@@ -359,3 +359,32 @@ Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated file de
 Intended renderer deletions replace synchronous face assembly and mesh installation
 with the new worker/paged path. City overlays, people, camera and atmosphere behavior
 remain in their existing native path and must pass the independent native regressions.
+
+Bounded mesh timeout investigation (native qualification pending)
+Mac source2a9cccf926f05d82bdf9378ed7799e7411cfa7b3 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44516014231
+Verified source receipt and diagnostic SHA-256. Client exceeded1200 seconds;
+clientChecked=false. Returned bounded diagnostic windows contain zero compiler/
+assertion lines and are truncated. This does not prove no test failed elsewhere;
+active test and root cause remain unknown. Preflight is not gameplay evidence.
+
+Added ios/native-test-runner.py to bound the owned xcodebuild child at900 seconds,
+inside the unchanged1200-second outer budget. Successful/nonzero child statuses
+are preserved. Timeout terminates only its isolated child process group, then
+reads at most64KiB from the private test log tail. It appends a fixed error with
+only regex-allowlisted XCTest suite/method/state and a short identifier. No arbitrary
+runtime, command arguments, credentials, profile data or full log is exported.
+This ensures the trusted existing diagnostic collector can identify a future stall
+before the outer timeout removes the client. Native cases remain26, none skipped.
+Mesh test now cancels its worker in defer even if fixture setup/assertion exits.
+No mesh deadlock is claimed fixed without actual remote evidence.
+
+Actual local CLI/core checks run synthetic Python child processes: success0,
+nonzero7 and deadline124; timeout summary excludes a private fixture marker, and
+progress reading is bounded/rejects arbitrary class names. Total56 Linux tests
+passed, plus shell syntax, Python compilation, CLI --help and diff checks.
+Browser playtesting does not apply to this diagnostic CLI; actual native gameplay
+and mesh qualification still require exact-source remote_ios_test. No new game
+image exists from this failed run. Full parity, streaming, live VPS, signing and
+physical iPhone requirements remain open. Diff audit: intended test command
+redirection moves to the bounded child runner; no unrelated file deletions.
