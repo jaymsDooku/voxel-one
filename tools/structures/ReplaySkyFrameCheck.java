@@ -35,9 +35,28 @@ public final class ReplaySkyFrameCheck {
   }
  }
  static int[] state(){int[] viewport=new int[4];glGetIntegerv(GL_VIEWPORT,viewport);return new int[]{glGetInteger(GL_DRAW_FRAMEBUFFER_BINDING),glGetInteger(GL_READ_FRAMEBUFFER_BINDING),viewport[0],viewport[1],viewport[2],viewport[3],glGetInteger(GL_FRONT_FACE),glGetInteger(GL_CURRENT_PROGRAM),glGetInteger(GL_VERTEX_ARRAY_BINDING),glGetInteger(GL_ACTIVE_TEXTURE),glIsEnabled(GL_DEPTH_TEST)?1:0,glIsEnabled(GL_CULL_FACE)?1:0,glIsEnabled(GL_CLIP_DISTANCE0)?1:0};}
+ static long sourceLightingNanos,planarLightingNanos;static int sourceLightingLeaves,planarLitGeometryPixels;
+ static RegionReplayWorker.Binding.LightingPump sourceLightingPump;static RegionReplayWorker.Binding.SkyPump sourceSkyPump;
+ static void sourceLighting(RegionReplayWorker.Binding binding,World world)throws Exception {
+  long started=System.nanoTime(),end=started+120_000_000_000L;
+  var lighting=binding.openLightingPump(world,288,131072,4_194_304);var sky=binding.openSkyPump(world,36,8_000_000,new dev.jayms.render.WorldSkyVisibility.BuildLimits(256,131072,131072));
+  sourceLightingPump=lighting;sourceSkyPump=sky;
+  lighting.desired(RegionReplayWorker.Binding.lightingNeighbourhood(0,0));var columns=new ArrayList<ChunkPos>();for(int x=-3;x<3;x++)for(int z=-3;z<3;z++)columns.add(new ChunkPos(x,0,z));sky.desired(columns);sky.requestMerge();
+  while(System.nanoTime()<end) {
+   lighting.tick();sky.tick();var status=lighting.status();check(status.pending()<=1&&status.cachedLeaves()<=4_194_304,"Bounded source lighting cache");
+   check(status.failed()==0&&sky.status().failed()==0,"Actual source coverage has no failed requests");
+   if(lighting.coverage()!=null&&sky.coverage()!=null)break;
+   Thread.sleep(1);
+  }
+  check(lighting.coverage()!=null&&lighting.coverage().roots().size()==288&&sky.coverage()!=null,"Actual source full geometry and sky coverage");
+  var joint=world.replayLightingSnapshot(0,0);check(joint!=null&&joint.current(world)&&joint.sky().columns==9216,"World joint actual-source lighting receipt");sourceLightingNanos=System.nanoTime()-started;sourceLightingLeaves=lighting.status().cachedLeaves();
+ }
  static void planar(World world,ShaderProgram shader,Path image)throws Exception {
   int ownVao=glGenVertexArrays();
   try(var pipeline=new dev.jayms.render.RenderPipeline(dev.jayms.render.GraphicsProfile.preset(dev.jayms.render.GraphicsProfile.Preset.LOW).with(dev.jayms.render.GraphicsProfile.Key.WATER,"ON"));var water=new dev.jayms.render.WaterRenderer();var models=new VoxelModelRenderer(world.models())) {
+   long lightingStart=System.nanoTime(),lightingEnd=lightingStart+30_000_000_000L;
+   while(!pipeline.replayVolumeReady(world)&&System.nanoTime()<lightingEnd){pipeline.update(world,0,0,20_000_000L);check(pipeline.lightingUploadBytes<=262144&&pipeline.skyGpuBytes<=131072,"Actual-source frame shared byte cap");glFlush();Thread.sleep(1);}
+   check(pipeline.replayVolumeReady(world),"Actual-source frame GI ready before planar capture");planarLightingNanos=System.nanoTime()-lightingStart;
    var binder=dev.jayms.render.RenderPipeline.class.getDeclaredMethod("bindSceneLighting",ShaderProgram.class);binder.setAccessible(true);
    java.util.function.Consumer<ShaderProgram> lighting=p->{try{binder.invoke(pipeline,p);}catch(ReflectiveOperationException failure){throw new RuntimeException(failure);}};
    var envField=dev.jayms.render.RenderPipeline.class.getDeclaredField("environment");envField.setAccessible(true);int environment=envField.getInt(pipeline);
@@ -53,9 +72,10 @@ public final class ReplaySkyFrameCheck {
     for(int y=0;y<240;y++)for(int x=0;x<320;x++){int p=(y*320+x)*4,r=data.get(p)&255,g=data.get(p+1)&255,b=data.get(p+2)&255;max=Math.max(max,Math.max(r,Math.max(g,b)));if(r>30&&g>30&&b>30)lit++;output.setRGB(x,239-y,(r<<16)|(g<<8)|b);}
     byte[] actual=new byte[data.remaining()];data.get(actual);glBindFramebuffer(GL_READ_FRAMEBUFFER,prior);
     water.capture(world,models,projection(),view,eye,640,480,environment,sun,1f,1f,p->{lighting.accept(p);p.setFloat("uClipPlaneY",1000);});
-    check(water.planarReady(),"Sky-only reference capture completes");glBindFramebuffer(GL_READ_FRAMEBUFFER,field.getInt(water));data.clear();glReadPixels(0,0,320,240,GL_RGBA,GL_UNSIGNED_BYTE,data);int changed=0;
-    for(int p=0;p<actual.length;p+=4)if(Math.abs((actual[p]&255)-(data.get(p)&255))+Math.abs((actual[p+1]&255)-(data.get(p+1)&255))+Math.abs((actual[p+2]&255)-(data.get(p+2)&255))>5)changed++;
-    check(changed>20,"Lit replay geometry differs from same-view sky-only reference; changed="+changed);check(glGetError()==GL_NO_ERROR,"Lit reflection pixels");check(javax.imageio.ImageIO.write(output,"png",image.toFile()),"Lit planar PNG capture");
+    check(water.planarReady(),"Sky-only reference capture completes");glBindFramebuffer(GL_READ_FRAMEBUFFER,field.getInt(water));data.clear();glReadPixels(0,0,320,240,GL_RGBA,GL_UNSIGNED_BYTE,data);int changed=0,litGeometry=0;
+    for(int p=0;p<actual.length;p+=4)if(Math.abs((actual[p]&255)-(data.get(p)&255))+Math.abs((actual[p+1]&255)-(data.get(p+1)&255))+Math.abs((actual[p+2]&255)-(data.get(p+2)&255))>5){changed++;if((actual[p]&255)>30&&(actual[p+1]&255)>30&&(actual[p+2]&255)>30)litGeometry++;}
+    planarLitGeometryPixels=litGeometry;
+    check(changed>20,"Lit replay geometry differs from same-view sky-only reference; changed="+changed);check(glGetError()==GL_NO_ERROR,"Lit reflection pixels");check(javax.imageio.ImageIO.write(output,"png",image.toFile()),"Lit planar PNG capture");check(litGeometry>20,"Actual source geometry differs from sky-only reference and is lit; pixels="+litGeometry);
    } finally {MemoryUtil.memFree(data);glBindFramebuffer(GL_READ_FRAMEBUFFER,prior);}
    water.optics(false);check(!water.planarReady(),"Disabling optics invalidates readiness");water.optics(true);check(!water.planarReady(),"Reenable requires fresh capture");
    water.capture(world,models,projection(),view,new org.joml.Vector3f(4,160,1),640,480,environment,sun,1f,1f,lighting);check(water.found()&&!water.planarReady(),"Underwater selection does not advertise planar capture");check(glGetError()==GL_NO_ERROR,"Planar checks GL state");
@@ -105,7 +125,7 @@ public final class ReplaySkyFrameCheck {
   try {
    ReadbackMetadataTest.ready(worker);var local=worker.metadataResult(RegionReplayWorkerTest.REV);
    try(var world=new World(local.seed,local.models,local.generatorVersion)) {
-    var scene=worker.bindTarget(local,world).openScene(world,2,8192);var a=new ChunkPos(0,10,0);var b=new ChunkPos(3,10,0);
+    var binding=worker.bindTarget(local,world);var scene=binding.openScene(world,2,8192);var a=new ChunkPos(0,10,0);var b=new ChunkPos(3,10,0);
     scene.desired(List.of(a,b));cpu(scene,2);
     check(world.hasReplayReadView()&&!dev.jayms.render.SkyVisibilityScheduler.ceilingReady(null,world,0,0),"Unknown replay ceilings never look ready");
     check(!List.of().equals(dev.jayms.render.SkyVisibilityScheduler.ceilingKey(null,world,0,0)),"Unknown replay sky key differs from resident clear sky");
@@ -122,7 +142,7 @@ public final class ReplaySkyFrameCheck {
     scene.desired(List.of(a,b));cpu(scene,2);gpu(scene,1);check(world.isLoaded(0,160,0)&&!world.isLoaded(48,160,0),"First ready chunk publishes independently");long first=Mesh.estimatedResidentBytes();
     fails(RuntimeException.class,()->scene.pumpGpu(64,deadline(),()->{try{scene.desired(List.of());}catch(IOException e){throw new RuntimeException(e);}return false;}));check(world.isLoaded(0,160,0)&&Mesh.estimatedResidentBytes()==first,"Reentrant eviction rejected, published entry retained");
     scene.pumpGpu(4,deadline(),()->false);check(b.equals(scene.status().uploading()),"Only second chunk staged");fails(CancellationException.class,()->scene.pumpGpu(64,deadline(),()->true));check(world.isLoaded(0,160,0)&&!world.isLoaded(48,160,0)&&Mesh.estimatedResidentBytes()==first,"Second cancellation preserves first GPU entry");
-    gpu(scene,2);check(world.isLoaded(48,160,0)&&world.nearestReplayWater(4,170,1).height()==161,"Two published chunks with water");long complete=Mesh.estimatedResidentBytes();check(scene.pumpGpu(64,deadline(),()->false)==0&&Mesh.estimatedResidentBytes()==complete,"Complete scene allocates nothing");planar(world,shader,image);capture(world,shader,image.resolveSibling(image.getFileName().toString().replace("-optics.png","-regression.png")));glfwSwapBuffers(window);
+    gpu(scene,2);check(world.isLoaded(48,160,0)&&world.nearestReplayWater(4,170,1).height()==161,"Two published chunks with water");long complete=Mesh.estimatedResidentBytes();check(scene.pumpGpu(64,deadline(),()->false)==0&&Mesh.estimatedResidentBytes()==complete,"Complete scene allocates nothing");sourceLighting(binding,world);planar(world,shader,image);sourceLightingPump.desired(List.of());sourceSkyPump.desired(List.of());capture(world,shader,image.resolveSibling(image.getFileName().toString().replace("-optics.png","-regression.png")));glfwSwapBuffers(window);
     scene.desired(List.of(b));check(world.replayLightingChunks().size()==1&&!world.replayLightingChunks().containsKey(a)&&cpuRoots.containsKey(a)&&cpuRoots.get(a).isFrozen(),"Eviction changes current coverage, prior immutable roots survive");check(!world.isLoaded(0,160,0)&&world.isLoaded(48,160,0)&&world.nearestReplayWater(4,170,1)==null,"Eviction keeps other published chunk");long retained=Mesh.estimatedResidentBytes();
     scene.desired(List.of(a,b));cpu(scene,2);scene.pumpGpu(4,deadline(),()->false);local.models=local.models.copy();fails(IOException.class,()->scene.pumpGpu(64,deadline(),()->false));check(Mesh.estimatedResidentBytes()==retained,"Stale source closes active stage");fails(IllegalStateException.class,()->world.isLoaded(48,160,0));fails(IllegalStateException.class,world::replayLightingChunks);
     check(world.getLoadedChunks().isEmpty()&&world.editsVersion()==0,"No resident/history promotion");fails(IOException.class,local::save);world.close();check(Mesh.estimatedResidentBytes()==baseline,"World closes remaining GPU entry");scene.close();check(Arrays.equals(original,Files.readAllBytes(path)),"Source unchanged");
@@ -136,7 +156,7 @@ public final class ReplaySkyFrameCheck {
      check(closeScene.status().uploading()!=null&&Mesh.estimatedResidentBytes()>baseline,"Close fixture has active upload");closeScene.close();closeScene.close();check(Mesh.estimatedResidentBytes()==baseline,"Scene close releases active upload");
     }
    }finally{RegionReplayWorkerTest.closed(closeWorker);}
-   check(glGetError()==GL_NO_ERROR&&Mesh.estimatedResidentBytes()==baseline,"GL cleanup");Files.writeString(report,"{\"status\":\"passed\",\"published_chunks\":2,\"max_owned_uploads\":1,\"renderer\":\""+renderer+"\",\"gl_version\":\""+version+"\",\"qualification\":false}\n");
+   check(glGetError()==GL_NO_ERROR&&Mesh.estimatedResidentBytes()==baseline,"GL cleanup");Files.writeString(report,"{\"status\":\"passed\",\"published_chunks\":2,\"max_owned_uploads\":1,\"renderer\":\""+renderer+"\",\"gl_version\":\""+version+"\",\"source_lighting_chunks\":288,\"source_lighting_leaves\":"+sourceLightingLeaves+",\"source_lighting_nanos\":"+sourceLightingNanos+",\"planar_lighting_nanos\":"+planarLightingNanos+",\"planar_lit_geometry_pixels\":"+planarLitGeometryPixels+",\"qualification\":false}\n");
   }finally{RegionReplayWorkerTest.closed(worker);shader.close();glfwDestroyWindow(window);glfwTerminate();}
  }
 }

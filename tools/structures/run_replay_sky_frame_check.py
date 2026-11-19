@@ -38,7 +38,7 @@ commands = [
      str(folder / 'spool'), str(folder / 'result.json'), str(image)],
 ]
 for command in commands:
-    subprocess.run(command, cwd=root, check=True, timeout=240)
+    subprocess.run(command, cwd=root, check=True, timeout=600)
 assert image.is_file()
 assert all(sha(root / p) == v for p, v in sources.items())
 assert all(sha(root / p) == v for p, v in classes.items())

@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Connected replay sky and volume to public frame updates with shared 256 KiB budget. 52 tests and native frame/stale-source/GLFW regressions pass. Appearance, actual-source coverage, Main, saves and full qualification remain pending.",
-      "updatedAt": "2026-11-19T12:19:43+00:00"
+      "note": "Verified actual saved-source lighting: 288 roots and 36 sky tiles, normal-frame GI and 1,329 lit reflection pixels versus sky-only reference. 42 tests and native regressions pass. Main, saves, city/max and physical qualification remain pending.",
+      "updatedAt": "2026-11-19T12:49:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
