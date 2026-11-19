@@ -187,7 +187,9 @@ public final class MobileGateway implements AutoCloseable {
                 case "edit" -> {
                     int x=Json.integer(request,"blockX"),y=Json.integer(request,"blockY"),z=Json.integer(request,"blockZ"),type=Json.integer(request,"type"),slot=Json.integer(request,"slot");
                     if(slot<0 || slot>=9 || type!=0 && type!=client.inventory.type(slot))throw new IllegalArgumentException("Invalid hotbar selection");
-                    var edit=new Protocol.Edit(x,y,z,type);if(!edit.valid())throw new IllegalArgumentException("Invalid edit");
+                    int depth=request.containsKey("depth")?Json.integer(request,"depth"):0;
+                    int ix=request.containsKey("ix")?Json.integer(request,"ix"):0,iy=request.containsKey("iy")?Json.integer(request,"iy"):0,iz=request.containsKey("iz")?Json.integer(request,"iz"):0;
+                    var edit=new Protocol.Edit(x,y,z,type,depth,ix,iy,iz);if(!edit.valid())throw new IllegalArgumentException("Invalid edit");
                     sent=client.edit(edit,pose,slot);
                     long end=System.nanoTime()+Duration.ofSeconds(2).toNanos();
                     while(client.pending(edit) && client.connected() && System.nanoTime()<end){Thread.sleep(10);poll();}

@@ -7,7 +7,30 @@ enum NativeCameraMode:String,CaseIterable {
     case first,third,isometric
     var title:String {switch self {case .first:return "First person";case .third:return "Third person";case .isometric:return "Isometric"}}
 }
-struct VoxelHit {let hit:GridKey;let previous:GridKey;let distance:Float}
+struct VoxelHit {let hit:GridKey;let previous:GridKey;let distance:Float;let normal:GridKey;let point:SCNVector3;let box:VoxelBox}
+struct NativeVoxelAddress:Equatable,Sendable {
+    var cell:GridKey;var depth:Int;var ix:Int;var iy:Int;var iz:Int
+    func validate()throws {
+        guard (0...4).contains(depth),[cell.x,cell.y,cell.z].allSatisfy({abs(Double($0))<=1_000_000}),
+              [ix,iy,iz].allSatisfy({$0>=0 && $0<(1<<depth)}) else{throw GameError.invalidWorld}
+    }
+}
+private struct NativeVoxelSample:Equatable {var material:Int;var color:Int}
+private enum NativeVoxelCodec {
+    static func compress(_ grid:[NativeVoxelSample])->NativeGeometry {
+        var leaves:[[Int]]=[]
+        func visit(_ x:Int,_ y:Int,_ z:Int,_ size:Int){
+            let first=grid[x+16*(y+16*z)];var uniform=true
+            outer: for a in x..<(x+size) {for b in y..<(y+size) {for c in z..<(z+size) {
+                if grid[a+16*(b+16*c)] != first {uniform=false;break outer}
+            }}}
+            if uniform {if first.material != 0 {leaves.append([x,y,z,size,first.material,first.color])};return}
+            let h=size/2
+            for i in 0..<8 {visit(x+((i&1)==0 ? 0:h),y+((i&2)==0 ? 0:h),z+((i&4)==0 ? 0:h),h)}
+        }
+        visit(0,0,0,16);return NativeGeometry(resolution:16,leaves:leaves)
+    }
+}
 struct GridKey: Hashable, Codable, Sendable {
     var x: Int; var y: Int; var z: Int
     init(_ x: Int, _ y: Int, _ z: Int) { self.x=x; self.y=y; self.z=z }
@@ -60,7 +83,7 @@ struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:
 struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
 struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
 struct NativeContract:Codable,Sendable {
-    var version:Int;var materials:[NativeMaterial];var models:[NativeModel]
+    var version:Int;var materials:[NativeMaterial];var models:[NativeModel];var fineEdits:Bool? = nil
     func validate()throws {
         guard version==1,materials.count==189,Set(materials.map{$0.id})==Set(1...189),models.count<=129,
               Set(models.map{$0.id}).count==models.count,
@@ -335,8 +358,9 @@ final class VoxelWorld {
     func look(dx: Float, dy: Float) { yaw-=dx*0.004; pitch=min(1.45,max(-1.45,pitch-dy*0.004)) }
     var direction: SCNVector3 { SCNVector3(-sin(yaw)*cos(pitch),sin(pitch),-cos(yaw)*cos(pitch)) }
     var eye: SCNVector3 { SCNVector3(position.x,position.y+1.62,position.z) }
+    func detailedTarget()->VoxelHit? {raycast(origin:eye,direction:direction,reach:5)}
     func target() -> (hit: GridKey, previous: GridKey)? {
-        guard let result=raycast(origin:eye,direction:direction,reach:5) else{return nil}
+        guard let result=detailedTarget() else{return nil}
         return (result.hit,result.previous)
     }
     /// Shared camera and player traversal. Direction must be normalized by the caller.
@@ -353,17 +377,19 @@ final class VoxelWorld {
         let dz=abs(d.z)<0.000001 ? Float.infinity : abs(1/d.z)
         var distance:Float=0
         while distance<=reach {
-            var nearest:Float?=nil
+            var nearest:Float?=nil,selected:VoxelBox?=nil;var selectedNormal=GridKey(0,0,0)
             for b in boxes(cell) where b.type != 185 {
-                var near:Float=0,far=reach
+                var near:Float=0,far=reach;var normal=GridKey(0,0,0)
                 let lo=[Float(cell.x)+b.x,Float(cell.y)+b.y,Float(cell.z)+b.z],a=[o.x,o.y,o.z],v=[d.x,d.y,d.z]
                 for axis in 0..<3 {
-                    if abs(v[axis])<0.000001 {if a[axis]<lo[axis] || a[axis]>lo[axis]+b.size {far = -1}}
-                    else {let t0=(lo[axis]-a[axis])/v[axis],t1=(lo[axis]+b.size-a[axis])/v[axis];near=max(near,min(t0,t1));far=min(far,max(t0,t1))}
+                    if abs(v[axis])<0.000001 {if a[axis]<lo[axis] || a[axis]>=lo[axis]+b.size {far = -1}}
+                    else {let t0=(lo[axis]-a[axis])/v[axis],t1=(lo[axis]+b.size-a[axis])/v[axis],entry=min(t0,t1)
+                        if entry>near {near=entry;let sign=v[axis]>0 ? -1:1;normal=GridKey(axis==0 ? sign:0,axis==1 ? sign:0,axis==2 ? sign:0)}
+                        far=min(far,max(t0,t1))}
                 }
-                if far>=near,near>=distance-0.0001,near<=reach {nearest=min(nearest ?? near,near)}
+                if far>=near,near>=distance-0.0001,near<=reach,nearest==nil || near<nearest! {nearest=near;selected=b;selectedNormal=normal}
             }
-            if let hit=nearest {return VoxelHit(hit:cell,previous:previous,distance:hit)}
+            if let hit=nearest,let box=selected {return VoxelHit(hit:cell,previous:previous,distance:hit,normal:selectedNormal,point:SCNVector3(o.x+d.x*hit,o.y+d.y*hit,o.z+d.z*hit),box:box)}
             previous=cell
             if tx<ty && tx<tz {cell.x+=step.x;distance=tx;tx+=dx}
             else if ty<tz {cell.y+=step.y;distance=ty;ty+=dy}
@@ -388,6 +414,81 @@ final class VoxelWorld {
             if blocked {break};safe=p
         }
         return safe
+    }
+    func editAddress(_ hit:VoxelHit,place:Bool,breakDepth:Int)throws->NativeVoxelAddress {
+        guard (0..<9).contains(slot),hit.box.size.isFinite,hit.box.size>0,hit.box.size<=1,
+              [hit.hit.x,hit.hit.y,hit.hit.z].allSatisfy({abs(Double($0))<=1_000_000}),
+              [hit.box.x,hit.box.y,hit.box.z].allSatisfy({$0.isFinite && $0>=0 && $0<=1-hit.box.size}),
+              [hit.normal.x,hit.normal.y,hit.normal.z].allSatisfy({(-1...1).contains($0)}),
+              [hit.point.x,hit.point.y,hit.point.z].allSatisfy({$0.isFinite}) else{throw GameError.invalidWorld}
+        let item=place ? snapshot.inventory[slot][0]:0
+        let model=(8...136).contains(type(hit.hit))
+        var depth=place ? (materials[item]?.depth ?? 0):breakDepth
+        if !place && depth==0 && !model {depth=min(4,max(0,Int(round(-log2(hit.box.size)))))}
+        guard (0...4).contains(depth),abs(hit.normal.x)+abs(hit.normal.y)+abs(hit.normal.z)==1 else {throw GameError.message("Aim at a visible voxel face.")}
+        if model && !place && depth != 0 {throw GameError.message("Use the whole-block grid for models.")}
+        if place && depth==0 {let address=NativeVoxelAddress(cell:hit.hit+hit.normal,depth:0,ix:0,iy:0,iz:0);try address.validate();return address}
+        let point=[Double(hit.point.x)-Double(hit.hit.x),Double(hit.point.y)-Double(hit.hit.y),Double(hit.point.z)-Double(hit.hit.z)]
+        let low=[Double(hit.box.x),Double(hit.box.y),Double(hit.box.z)],n=[hit.normal.x,hit.normal.y,hit.normal.z],base=[hit.hit.x,hit.hit.y,hit.hit.z]
+        var cell:[Int]=[],index:[Int]=[]
+        for axis in 0..<3 {
+            let epsilon=0.0001,upper=low[axis]+Double(hit.box.size)
+            var q=min(upper-epsilon,max(low[axis]+epsilon,point[axis]))
+            if place && n[axis] != 0 {q=(n[axis]>0 ? upper:low[axis])+Double(n[axis])*epsilon}
+            let carry=Int(floor(q)),local=q-Double(carry)
+            cell.append(base[axis]+carry);index.append(min((1<<depth)-1,max(0,Int(floor(local*Double(1<<depth))))))
+        }
+        let address=NativeVoxelAddress(cell:GridKey(cell[0],cell[1],cell[2]),depth:depth,ix:index[0],iy:index[1],iz:index[2]);try address.validate();return address
+    }
+    /// A bounded16^3 scratch transaction. Commit terrain, detail and inventory together.
+    func offlineRegionEdit(_ address:NativeVoxelAddress,type:Int)throws {
+        try address.validate();let key=address.cell,b=snapshot.bounds
+        guard (0..<9).contains(slot),key.x>=b[0],key.x<=b[1],key.y>=b[2],key.y<=b[3],key.z>=b[4],key.z<=b[5],snapshot.schema==2 else {throw GameError.message("Outside the loaded world.")}
+        if (8...136).contains(self.type(key)) || (8...136).contains(type) {
+            guard address.depth==0 else {throw GameError.message("Models use whole-block placement.")}
+            guard type==0 || models[type] != nil else {throw GameError.message("Model definition unavailable.")}
+            try offlineEdit(at:key,type:type);return
+        }
+        let side=16>>address.depth,x=address.ix*side,y=address.iy*side,z=address.iz*side
+        var grid=Array(repeating:NativeVoxelSample(material:0,color:0),count:4096)
+        for box in boxes(key) {
+            let a=Int((box.x*16).rounded()),b=Int((box.y*16).rounded()),c=Int((box.z*16).rounded()),s=Int((box.size*16).rounded())
+            for i in a..<(a+s) {for j in b..<(b+s) {for k in c..<(c+s) {grid[i+16*(j+16*k)]=NativeVoxelSample(material:box.type,color:box.color)}}}
+        }
+        let old=grid[x+16*(y+16*z)]
+        for i in x..<(x+side) {for j in y..<(y+side) {for k in z..<(z+side) {
+            guard grid[i+16*(j+16*k)]==old else {throw GameError.message("Choose a smaller grid region.")}
+        }}}
+        var inventory=snapshot.inventory;let replacement:NativeVoxelSample
+        if type==0 {
+            guard old.material != 0,let item=materials.values.first(where:{$0.material==old.material && $0.depth==address.depth}),
+                  address.depth==0 || [1,2,3,4,5,6,7,165,166,167,180].contains(old.material) else {throw GameError.message("No collectable voxel in this region.")}
+            guard let slot=inventory.firstIndex(where:{$0[0]==item.id && $0[1]<64}) ?? inventory.firstIndex(where:{$0[1]==0}) else {throw GameError.message("Inventory full. Free a slot before collecting.")}
+            inventory[slot]=[item.id,inventory[slot][1]+1];replacement=NativeVoxelSample(material:0,color:0)
+        } else {
+            guard old.material==0,let item=materials[type],item.depth==address.depth,inventory[slot][0]==type,inventory[slot][1]>0 else {throw GameError.message("No space or no matching pieces in this slot.")}
+            inventory[slot][1]-=1;if inventory[slot][1]==0 {inventory[slot][0]=0}
+            replacement=NativeVoxelSample(material:item.material,color:item.color)
+        }
+        for i in x..<(x+side) {for j in y..<(y+side) {for k in z..<(z+side) {grid[i+16*(j+16*k)]=replacement}}}
+        let geometry=NativeVoxelCodec.compress(grid),proposed=Self.boxes(geometry)
+        let uniformFull=geometry.leaves.count==1 && geometry.leaves[0][3]==16
+        let total=shapes.values.reduce(0,{$0+$1.count})-(shapes[key]?.count ?? 0)+(uniformFull ? 0:proposed.count)
+        guard total<=32768 else {throw GameError.message("This area has reached its mobile detail limit.")}
+        if type != 0 {
+            for box in proposed where box.type != 185 {
+                let p=position
+                if p.x+0.299>Float(key.x)+box.x && p.x-0.3<Float(key.x)+box.x+box.size && p.y+1.799>Float(key.y)+box.y && p.y+0.001<Float(key.y)+box.y+box.size && p.z+0.299>Float(key.z)+box.z && p.z-0.3<Float(key.z)+box.z+box.size {throw GameError.message("Cannot place a voxel inside your player.")}
+            }
+        }
+        var detail=(snapshot.details ?? []).filter{$0.cell != [key.x,key.y,key.z]}
+        if proposed.isEmpty {types.removeValue(forKey:key);colors.removeValue(forKey:key);shapes.removeValue(forKey:key)}
+        else if uniformFull {types[key]=geometry.leaves[0][4];colors[key]=geometry.leaves[0][5];shapes.removeValue(forKey:key)}
+        else {
+            guard detail.count<512 else {throw GameError.message("This area has reached its partial-cell limit.")}
+            types[key]=255;colors[key]=0;shapes[key]=proposed;detail.append(NativeDetail(cell:[key.x,key.y,key.z],geometry:geometry))
+        }
+        snapshot.details=detail;snapshot.inventory=inventory;revision+=1;geometryRevision+=1
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
         if type==0 {

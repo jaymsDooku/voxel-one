@@ -32,6 +32,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var slotButtons:[UIButton]=[]
     private var aimPoint:CGPoint?
     private var cameraButton:UIButton?
+    private var gridButton:UIButton?;private var breakDepth=0
     private var isometric:Bool {world?.snapshot.city==nil && renderer.sandboxCamera == .isometric}
     private var flyButton:UIButton?,descendButton:UIButton?
     private var planButton:UIButton?,confirmButton:UIButton?,pauseButton:UIButton?
@@ -121,7 +122,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     }
     private func showGame() {
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
-        aimPoint=nil;hudLandscape=nil
+        aimPoint=nil;hudLandscape=nil;breakDepth=0
         inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
@@ -144,7 +145,9 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let left=directionButton("◀","moveLeft"),forward=directionButton("▲","moveForward"),back=directionButton("▼","moveBack"),right=directionButton("▶","moveRight")
         let directions=row([left,forward,back,right])
         let down=directionButton("Down","flyDown");descendButton=down;down.isHidden=true
-        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton"),down])
+        let grid=button("Grid","gridButton",#selector(chooseGrid));gridButton=grid
+        grid.isHidden=world?.snapshot.contract==nil || (gateway != nil && world?.snapshot.contract?.fineEdits != true)
+        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton"),down,grid])
         let planning=row([button("Tool","toolButton",#selector(chooseTool)),button("Point","pointCoordinateButton",#selector(addCoordinatePoint)),button("Undo","undoPoint",#selector(undoPoint)),button("Confirm","confirmPlan",#selector(confirmPlan))]);confirmButton=planning.arrangedSubviews.last as? UIButton
         planning.accessibilityIdentifier="planningControls";planning.isHidden=true
         let b=UIStackView(arrangedSubviews:[hotbarScroll,planning,actions,directions]);b.axis = .vertical;b.spacing=5;bottom=b;overlay(b,atTop:false)
@@ -248,22 +251,39 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         gesture.setTranslation(.zero,in:renderer.view)
     }
     @objc private func pinch(_ gesture:UIPinchGestureRecognizer){if !inMenu,!paused,(renderer.planning || isometric) {resetAim();renderer.distance=min(80,max(12,renderer.distance/Float(gesture.scale)));gesture.scale=1}}
+    @objc private func chooseGrid(){
+        guard !paused,!renderer.planning else{return};movement.removeAll()
+        let alert=UIAlertController(title:"Break grid",message:"Choose the cube size to collect. Placement uses the selected item's size. Models use Whole.",preferredStyle:.actionSheet)
+        for depth in 0...4 {
+            alert.addAction(UIAlertAction(title:depth==0 ? "Whole / hit piece":"1/\(1<<depth)",style:.default){[weak self] _ in
+                self?.breakDepth=depth;self?.notify(depth==0 ? "Whole-block or hit-piece grid.":"Break grid 1/\(1<<depth).");self?.refreshHUD()
+            })
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+    }
     @objc private func breakBlock(){edit(place:false)}
     @objc private func placeBlock(){edit(place:true)}
     private func edit(place:Bool){
         guard !paused,!renderer.planning,let world=world else{return}
         let type=place ? world.snapshot.inventory[world.slot][0]:0
         if place && type==0 {notify("This hotbar slot is empty.");return}
-        let target:(hit:GridKey,previous:GridKey)?
+        let target:VoxelHit?
         if world.snapshot.city==nil && renderer.sandboxCamera != .first {
             renderer.updateCamera(world)
             target=renderer.target(at:aimPoint ?? CGPoint(x:renderer.view.bounds.midX,y:renderer.view.bounds.midY),world:world)
-        } else {target=world.target()}
+        } else {target=world.detailedTarget()}
         guard let target=target else{notify("Aim at a visible block within five blocks of your player.");return}
-        let key=place ? target.previous:target.hit
-        if gateway != nil { action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot],success:place ? "Placement checked by server.":"Break checked by server.") }
-        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);let text=place ? "Placed \(world.itemName(type)).":"Block collected."
-            saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};refreshHUD()}catch{notify(error.localizedDescription)}}
+        do {
+            let address=try world.editAddress(target,place:place,breakDepth:breakDepth),key=address.cell
+            if gateway != nil {
+                guard address.depth==0 || world.snapshot.contract?.fineEdits==true else{notify("This gateway needs an update before fine edits.");return}
+                action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot,"depth":address.depth,"ix":address.ix,"iy":address.iy,"iz":address.iz],success:place ? "Placement checked by server.":"Break checked by server.")
+            } else {
+                try world.offlineRegionEdit(address,type:type);renderer.rebuild(world);renderer.mark(points,world:world)
+                let text=place ? "Placed \(world.itemName(type)).":"Block collected."
+                saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};refreshHUD()
+            }
+        }catch{notify(error.localizedDescription)}
     }
     private func action(_ request:[String:Any],success:String){
         guard let gateway=gateway,let world=world else{return}
@@ -359,6 +379,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
         else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
         applyHUDLayout(view.bounds.size)
+        gridButton?.setTitle(breakDepth==0 ? "Grid":"1/\(1<<breakDepth)",for:.normal)
         cameraButton?.accessibilityValue=renderer.sandboxCamera.title
         flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
         flyButton?.accessibilityValue=world.flying ? "On":"Off"

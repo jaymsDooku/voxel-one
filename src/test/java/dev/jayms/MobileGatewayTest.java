@@ -36,13 +36,40 @@ class MobileGatewayTest {
         var detail=(Map<?,?>)details.get(0);assertEquals(List.of(0,y,-2),detail.get("cell"));
         var geometry=(Map<?,?>)detail.get("geometry");assertEquals(16,geometry.get("resolution"));
         assertEquals(List.of(List.of(0,0,0,8,Blocks.STONE,WorldVoxels.color(Blocks.STONE)&0xffffff)),geometry.get("leaves"));
-        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));
+        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));assertEquals(Boolean.TRUE,contract.get("fineEdits"));
         var models=(List<?>)contract.get("models");assertEquals(1,models.size());
         var model=(Map<?,?>)models.get(0);assertEquals(8,model.get("id"));
         var expected=new dev.jayms.net.model.ModelLibrary().get(8).definition();assertEquals(expected.fingerprint(),model.get("fingerprint"));
         assertEquals(expected.voxels().leaves().size(),((List<?>)((Map<?,?>)model.get("geometry")).get("leaves")).size());
         // Canonically ordered exporter permits exact parity without weakening the 8 KiB request parser.
         assertEquals(Json.write(contract),Files.readString(Path.of("ios/Resources/contract.json")));
+    }
+    @Test void authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("fine-profile"))){
+            var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
+            String bearer=token(login);
+            var match=java.util.regex.Pattern.compile("\\\"pose\\\":\\[(.*?)\\]").matcher(login.body());assertTrue(match.find());
+            var pose=match.group(1).split(",");int x=(int)Math.floor(Double.parseDouble(pose[0])),y=(int)Math.floor(Double.parseDouble(pose[1]))-1,z=(int)Math.floor(Double.parseDouble(pose[2]));
+            var terrain=new Terrain(Terrain.DEFAULT_SEED);int material=terrain.block(x,y,z),piece=Blocks.piece(material,1);
+            var mirror=new WorldVoxels(terrain);
+            try(var observer=new MultiplayerClient("127.0.0.1",host.sandbox.port(),"fine_observer","observer-pass-123".toCharArray(),true,host.fingerprint)){
+                var cut=post(host,"action",bearer,Map.ofEntries(Map.entry("kind","edit"),Map.entry("blockX",x),Map.entry("blockY",y),Map.entry("blockZ",z),Map.entry("type",0),Map.entry("slot",0),Map.entry("depth",1),Map.entry("ix",0),Map.entry("iy",1),Map.entry("iz",0)));assertEquals(200,cut.statusCode());
+                long end=System.nanoTime()+5_000_000_000L;boolean seen=false;
+                while(System.nanoTime()<end && !seen){
+                    for(var edit:observer.poll()){mirror.apply(edit);if(edit.x()==x && edit.y()==y && edit.z()==z && edit.depth()==1 && edit.ix()==0 && edit.iy()==1 && edit.iz()==0 && edit.type()==0)seen=true;}
+                    if(!seen)Thread.sleep(20);
+                }
+                assertTrue(seen,"Desktop protocol must see the exact fractional cut");assertEquals(Blocks.PARTIAL,mirror.type(x,y,z));
+                String stack="["+piece+",1]";end=System.nanoTime()+5_000_000_000L;String state=cut.body();
+                while(!state.contains(stack) && System.nanoTime()<end){Thread.sleep(50);state=post(host,"state",bearer,Map.of()).body();}
+                assertTrue(state.contains(stack),"Server owns the collected fractional stack");
+                assertEquals(400,post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",0,"slot",0,"depth",5,"ix",0,"iy",0,"iz",0)).statusCode());
+                var fill=post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",piece,"slot",0,"depth",1,"ix",0,"iy",1,"iz",0));assertEquals(200,fill.statusCode());
+                end=System.nanoTime()+5_000_000_000L;seen=false;
+                while(System.nanoTime()<end && !seen){for(var edit:observer.poll()){mirror.apply(edit);if(edit.x()==x && edit.y()==y && edit.z()==z && edit.depth()==1 && edit.type()==piece)seen=true;}if(!seen)Thread.sleep(20);}
+                assertTrue(seen,"Desktop protocol must see the fractional fill");assertEquals(material,mirror.type(x,y,z),"Filling rejoins the authoritative full cell");
+            }
+        }
     }
     @TempDir Path temp;
     static final HttpClient HTTP=HttpClient.newHttpClient();

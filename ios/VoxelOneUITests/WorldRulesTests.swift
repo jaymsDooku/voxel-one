@@ -312,6 +312,35 @@ final class WorldRulesTests:XCTestCase {
         try world.offlineEdit(at:GridKey(2,1,2),type:2);XCTAssertGreaterThan(world.geometryRevision,revision)
         worker.cancel()
     }
+    func testFineRegionTransactionsMergeBoundsAndInventory()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        var value=fixture();value.schema=2;value.contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));value.details=[]
+        value.inventory[0]=[141,8];let world=try VoxelWorld(value),key=GridKey(2,1,2)
+        for x in 0...1 {for y in 0...1 {for z in 0...1 {
+            try world.offlineRegionEdit(NativeVoxelAddress(cell:key,depth:1,ix:x,iy:y,iz:z),type:141)
+        }}}
+        XCTAssertEqual(world.type(key),2);XCTAssertEqual(world.boxes(key).count,1);XCTAssertEqual(world.snapshot.inventory[0],[0,0])
+        let quarter=NativeVoxelAddress(cell:key,depth:2,ix:1,iy:1,iz:1)
+        try world.offlineRegionEdit(quarter,type:0);XCTAssertEqual(world.snapshot.inventory[0],[142,1])
+        XCTAssertEqual(world.material(at:SCNVector3(2.375,1.375,2.375)),0)
+        let boxes=world.boxes(key),inventory=world.snapshot.inventory,revision=world.revision
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:key,depth:1,ix:0,iy:0,iz:0),type:0),"Mixed region must not be destroyed")
+        XCTAssertEqual(world.boxes(key),boxes);XCTAssertEqual(world.snapshot.inventory,inventory);XCTAssertEqual(world.revision,revision)
+        try world.offlineRegionEdit(quarter,type:142);XCTAssertEqual(world.type(key),2)
+        world.snapshot.inventory[0]=[141,1]
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:GridKey(0,1,0),depth:1,ix:0,iy:0,iz:0),type:141))
+        XCTAssertEqual(world.snapshot.inventory[0],[141,1]);XCTAssertEqual(world.type(GridKey(0,1,0)),0)
+        world.snapshot.inventory=Array(repeating:[2,64],count:36)
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:GridKey(0,1,-2),depth:1,ix:0,iy:0,iz:0),type:0))
+        XCTAssertEqual(world.type(GridKey(0,1,-2)),3)
+        world.snapshot.inventory[0]=[141,8]
+        let hit=VoxelHit(hit:GridKey(-1,1,-2),previous:GridKey(-2,1,-2),distance:3,normal:GridKey(1,0,0),point:SCNVector3(-0.5,1.25,-1.75),box:VoxelBox(x:0,y:0,z:0,size:0.5,type:2,color:0x7a4d2b))
+        XCTAssertEqual(try world.editAddress(hit,place:true,breakDepth:0),NativeVoxelAddress(cell:GridKey(-1,1,-2),depth:1,ix:1,iy:0,iz:0))
+        XCTAssertEqual(try world.editAddress(hit,place:false,breakDepth:0).ix,0)
+        var invalid=quarter;invalid.depth=Int.max;XCTAssertThrowsError(try invalid.validate())
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.type(key),2);XCTAssertEqual(restored.boxes(key),world.boxes(key))
+    }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)
         let data=try JSONEncoder().encode(world.savedSnapshot()),decoded=try JSONDecoder().decode(Snapshot.self,from:data)

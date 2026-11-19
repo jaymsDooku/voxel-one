@@ -388,3 +388,45 @@ and mesh qualification still require exact-source remote_ios_test. No new game
 image exists from this failed run. Full parity, streaming, live VPS, signing and
 physical iPhone requirements remain open. Diff audit: intended test command
 redirection moves to the bounded child runner; no unrelated file deletions.
+
+Fine-grid editing increment (native qualification pending)
+Mac source9b571995cf3fdbad6a9945be4f8502022f30926a passed26 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44520681928
+Verified source/status/clientChecked, every test status and screenshot SHA-256;
+inspected actual meshed flower pot, terrain, inventory and controls. Copied image
+and receipt as ios-port-9b571995-meshed-model.png and ios-port-9b571995-receipt.json.
+This qualifies prior bounded mesh/lifecycle work on Simulator, not new fine edits.
+The earlier timeout cause was not proven; no broader device performance claim.
+
+Rich picking now retains hit face normal, point and actual leaf box. Grid addressing
+uses local double coordinates, interior clamps and half-open parallel slabs to avoid
+wrong neighboring regions at voxel edges/negative coordinates. Third/isometric
+picking also rejects a nearer occluder inside the same cell. Whole placement uses
+adjacent cells; fractional placement uses the exact face and matching item depth.
+Offline region transactions use a bounded4096-sample16-grid scratch. They require a
+uniform region to collect or air to fill, reserve inventory, check detail caps and
+player AABB overlap, then commit terrain/inventory/details together. Dyadic colored
+leaf compression preserves untouched samples and compacts full regions to normal
+material cells. Models remain immutable whole-cell items; unknown definitions fail
+instead of becoming cubes. Existing whole-cell API remains for compatibility/tests.
+The Grid control exposes depths0..4; placement derives depth from shared Java material
+metadata. Default Whole/hit piece automatically collects the actual fractional leaf.
+Inventory/full-bag/mixed-region/collision/cap failures leave state unchanged.
+
+Gateway now constructs Protocol.Edit with validated depth/ix/iy/iz fields. Existing
+slot, reach, authenticated transport and server inventory rules remain authoritative.
+Contract version1 adds optional fineEdits capability; old readers can ignore it,
+new clients never send fine edits to a gateway that does not advertise support.
+Snapshots include definitions for model inventory items as well as placed models.
+No TLS/ATS/pinning or server validation was relaxed. Full crafting catalog, tool UI,
+procedural streaming, live VPS and signed/physical iPhone delivery remain open.
+
+Local execution: Java compile plus4 focused MobileGatewayTest cases and7
+FractionalWorldTest cases passed. New authenticated fixture cut/fill was observed
+through the real desktop protocol, with server-granted piece inventory and invalid
+depth rejection.56 Linux harness/CLI checks, project generation, Python compilation,
+shell syntax and diff checks passed. New native rule/negative-coordinate/merge/
+full-bag/trapping checks plus actual Grid collect/fill/restart touch flow require
+fresh exact-source Mac execution; required count now28. No native pass is claimed.
+Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
+intended edits replace coarse controller targeting with exact shared region addresses.

@@ -196,7 +196,7 @@ import simd
         else {scene.fogStartDistance=1e8;scene.fogEndDistance=1e9}
     }
     /// Pick from the displayed camera, then enforce player reach and line of sight.
-    func target(at location:CGPoint,world:VoxelWorld)->(hit:GridKey,previous:GridKey)? {
+    func target(at location:CGPoint,world:VoxelWorld)->VoxelHit? {
         let near=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),0))
         let far=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),1))
         let delta=SIMD3<Float>(far.x-near.x,far.y-near.y,far.z-near.z)
@@ -205,8 +205,8 @@ import simd
         let point=SCNVector3(near.x+d.x*(pick.distance+0.005),near.y+d.y*(pick.distance+0.005),near.z+d.z*(pick.distance+0.005))
         let eye=world.eye,aim=SIMD3<Float>(point.x-eye.x,point.y-eye.y,point.z-eye.z),length=simd_length(aim)
         guard length>0,length<=5 else{return nil};let direction=aim/length
-        guard world.raycast(origin:eye,direction:SCNVector3(direction.x,direction.y,direction.z),reach:min(5,length+0.01))?.hit==pick.hit else{return nil}
-        return (pick.hit,pick.previous)
+        guard let seen=world.raycast(origin:eye,direction:SCNVector3(direction.x,direction.y,direction.z),reach:min(5,length+0.01)),seen.hit==pick.hit,abs(seen.distance-length)<0.03 else{return nil}
+        return pick
     }
     func point(at location:CGPoint) -> SCNVector3? {
         let hits=view.hitTest(location,options:[.rootNode:terrain,.firstFoundOnly:true])

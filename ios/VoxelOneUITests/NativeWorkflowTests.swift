@@ -304,6 +304,20 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["pauseButton"].tap();waitTerrain();capture("native-simulated-memory-warning-recovered")
         app.launchArguments=[]
     }
+    func testNativeFineGridCollectFillAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["gridButton"].tap();wait(app.buttons["1/2"]);app.buttons["1/2"].tap()
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected");waitTerrain()
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot7"].tap()
+        XCTAssertTrue(app.buttons["slot7"].label.contains("Grass 1/2 cube"));capture("native-fine-grid-collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Grass 1/2 cube");waitTerrain()
+        XCTAssertTrue(app.buttons["slot7"].label.contains("0 blocks"))
+        app.buttons["gridButton"].tap();wait(app.buttons["Whole / hit piece"]);app.buttons["Whole / hit piece"].tap()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain();capture("native-fine-grid-filled-restarted")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()

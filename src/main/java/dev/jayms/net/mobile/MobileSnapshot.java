@@ -18,7 +18,9 @@ public final class MobileSnapshot {
         int cx=(int)Math.floor(pose.x()),cz=(int)Math.floor(pose.z());
         int low=Math.max(Terrain.MIN_Y,Math.min(Terrain.MAX_Y-8,(int)Math.floor(pose.y())-8)), high=Math.min(Terrain.MAX_Y,(int)Math.floor(pose.y())+36);
         var cells=new ArrayList<List<Integer>>();var details=new ArrayList<Map<String,Object>>();
-        Set<Integer> usedModels=new TreeSet<>();usedModels.add(Blocks.FLOWER_POT);int expanded=0;
+        Set<Integer> usedModels=new TreeSet<>();usedModels.add(Blocks.FLOWER_POT);
+        for(int slot=0;slot<Inventory.SIZE;slot++)if(inventory.count(slot)>0 && Blocks.isModel(inventory.type(slot)))usedModels.add(inventory.type(slot));
+        int expanded=0;
         for(int x=cx-radius;x<=cx+radius;x++)for(int z=cz-radius;z<=cz+radius;z++)for(int y=low;y<=high;y++){
             int type=world.type(x,y,z);
             if(type==Blocks.PARTIAL) {
@@ -75,7 +77,7 @@ public final class MobileSnapshot {
         var models=ids.stream().sorted().map(id->{var e=library.get(id);
             if(e==null)throw new IllegalArgumentException("Mobile model definition unavailable");
             return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
-        return new TreeMap<>(Map.of("version",1,"materials",materials,"models",models));
+        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"materials",materials,"models",models));
     }
     /** Whole-block recipes only until the mobile detail/tool schema is available. */
     public static List<Map<String,Object>> recipeCatalog() {

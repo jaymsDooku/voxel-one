@@ -26,7 +26,7 @@ walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop mod
 editor, fractional-block tools, mounts and specialized transport or
 finance tools are not exposed by this first phone UI. Craft offers six shared
 whole-block recipes; fractional, model and tool recipes remain unavailable. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
-collision and picking. Mixed-cell precision edits still need the desktop editor.
+collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.
 Two fingers pan; pinch zooms. Tool selects Inspect, Dirt road, Residential,
@@ -152,9 +152,9 @@ is rejected, never replaced by a whole cube. Limits: 512 partial cells and 32,76
 expanded model/fractional leaves per snapshot. New offline worlds include two
 flower pots and eight half-size dirt cubes for normal building. Old local schema 1
 saves migrate to the bundled contract while keeping their terrain and inventory.
-Single-piece fractional collection works; mixed-cell harvesting and arbitrary
-subcell alignment/merging remain unfinished. Placement currently anchors a piece
-at the cell's low corner. Full tool and crafting parity is still pending.
+Uniform fractional regions can be collected at any supported grid depth. Pieces
+place against the exact aimed face, including another empty region in the same cell;
+filled regions merge back into full cells. Full tool and crafting parity is pending.
 
 Regenerate the checked-in contract from the authoritative Java definitions:
 
@@ -203,3 +203,13 @@ A timeout remains a failed check. Only a bounded, validated last-test identifier
 is added to sanitized failure diagnostics; raw test/fixture logs remain private.
 All26 required native cases still must pass. Linux child-process tests do not
 qualify the running iPhone client.
+
+Fine-grid editing
+
+Grid selects Whole/hit piece,1/2,1/4,1/8 or1/16 collection cubes. Placement always
+uses the selected inventory item's actual size. Smaller pieces attach to the aimed
+voxel face and snap to the matching subcell grid. Collecting a nonuniform region
+asks for a smaller grid; full bags and player-overlap placement reject atomically.
+Models stay whole-cell items with their accurate tiny geometry. Online fine edits
+require the gateway's fineEdits capability and retain authoritative inventory,
+reach, depth and subcell validation. An older gateway needs updating first.
