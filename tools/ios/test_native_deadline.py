@@ -86,3 +86,7 @@ class NativeFailureSummaryTests(unittest.TestCase):
         method = 'testNativeRecipeSearchFractionalJoinAndBackground'
         marker = 'error: native_test_failed test_id=' + runner.hashlib.sha256(method.encode()).hexdigest()[:12]
         self.assertEqual(diagnostics.diagnostic_line(marker, ROOT)['text'], marker)
+
+    def test_fixed_craft_assertion_checkpoint_is_retained(self):
+        result=runner.failure_locators({'testFailures':[{'failureText':'XCTAssertEqual failed: private-fixture-marker craft_book_empty_results'}]})
+        self.assertEqual(result,['error: native_test_failure_category category=assertion checkpoint=craft_book_empty_results'])

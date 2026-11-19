@@ -102,8 +102,12 @@ def failure_locators(summary):
                 break
         location = re.search(r'(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift:(\d{1,5})(?!\d)', text)
         suffix = ''
+        for marker in ('craft_book_empty_results', 'craft_join_saved_count', 'craft_join_half_consumed', 'Unusable landscape Craft Done'):
+            if marker in text:
+                suffix = ' checkpoint=' + marker.lower().replace(' ', '_')
+                break
         if location:
-            suffix = ' source=' + location[1] + '.swift line=' + location[2]
+            suffix += ' source=' + location[1] + '.swift line=' + location[2]
         result.append('error: native_test_failure_category category=' + category + suffix)
     return result
 

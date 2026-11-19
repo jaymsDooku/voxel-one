@@ -27,8 +27,20 @@ import UIKit
         table.rowHeight=UITableView.automaticDimension;table.estimatedRowHeight=76
         let stack=UIStackView(arrangedSubviews:[header,search,category,status,table]);stack.axis = .vertical;stack.spacing=8;stack.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(stack);let safe=view.safeAreaLayoutGuide
-        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:safe.leadingAnchor,constant:12),stack.trailingAnchor.constraint(equalTo:safe.trailingAnchor,constant:-12),stack.topAnchor.constraint(equalTo:safe.topAnchor,constant:8),stack.bottomAnchor.constraint(equalTo:view.keyboardLayoutGuide.topAnchor,constant:-8),done.heightAnchor.constraint(greaterThanOrEqualToConstant:44),category.heightAnchor.constraint(greaterThanOrEqualToConstant:36)])
+        NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:safe.leadingAnchor,constant:12),stack.trailingAnchor.constraint(equalTo:safe.trailingAnchor,constant:-12),stack.topAnchor.constraint(equalTo:safe.topAnchor,constant:8),stack.bottomAnchor.constraint(equalTo:safe.bottomAnchor,constant:-8),done.heightAnchor.constraint(greaterThanOrEqualToConstant:44),category.heightAnchor.constraint(greaterThanOrEqualToConstant:36)])
+        NotificationCenter.default.addObserver(self,selector:#selector(keyboardChanged),name:UIResponder.keyboardDidChangeFrameNotification,object:nil)
         filter()
+    }
+    @objc private func keyboardChanged(){view.setNeedsLayout()}
+    override func viewDidLayoutSubviews(){
+        super.viewDidLayoutSubviews()
+        // Keep Done/search/category in the safe area even with a landscape keyboard.
+        // Only the scrolling recipe list needs clearance from the keyboard.
+        let bottom=table.convert(table.bounds,to:view).maxY
+        let overlap=max(0,bottom-view.keyboardLayoutGuide.layoutFrame.minY)
+        if table.contentInset.bottom != overlap {
+            table.contentInset.bottom=overlap;table.verticalScrollIndicatorInsets.bottom=overlap
+        }
     }
     func update(inventory:[[Int]],message:String,pending:Bool){
         loadViewIfNeeded();status.text=message;table.isUserInteractionEnabled = !pending

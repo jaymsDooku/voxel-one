@@ -189,13 +189,13 @@ final class NativeWorkflowTests:XCTestCase {
         let join=app.cells["recipe9"];wait(join);join.tap();textContains("craftStatus","Crafted 1 Dirt")
         XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["craftDone"])
         search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
-        XCTAssertEqual(app.tables["recipeTable"].cells.count,0)
+        XCTAssertEqual(app.tables["recipeTable"].cells.count,0,"craft_book_empty_results")
         XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"],"landscape Craft Done")
         capture("native-recipe-search-empty-landscape")
         app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
         app.terminate();app.launch();wait(app.buttons["craftButton"])
-        XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"Joined piece is saved")
-        XCTAssertFalse(app.buttons["slot6"].label.contains("8 blocks"),"Eight halves were consumed")
+        XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"craft_join_saved_count")
+        XCTAssertFalse(app.buttons["slot6"].label.contains("8 blocks"),"craft_join_half_consumed")
     }
     func testOfflineFlightTouchPauseBackgroundAndWalking()throws {
         newOffline();textContains("playerPosition","Ground")

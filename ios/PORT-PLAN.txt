@@ -545,3 +545,23 @@ unresolved; all30 required native cases need exact-source Mac execution. No pass
 client receipt or gameplay media returned. Preflight not copied as game evidence.
 Request scoped Mac run with actionable identifiers; no native gate or gameplay
 assertion weakened. Full parity, live VPS, signing/install and physical gates stay open.
+
+Recipe-book landscape keyboard repair
+Source234777d7f42cc765e3cb9212610b5393f6027590, run44554486541 failed exit65.
+Sanitized identifier5cab040e4538 maps exactly to
+testNativeRecipeSearchFractionalJoinAndBackground; fixed category is assertion.
+This identifies the test, not the exact assertion or root cause. No gameplay
+pass or media supplied. No raw logs read and preflight not used as game evidence.
+Source inspection found the entire header/search/category/status/table stack was
+constrained above the keyboard. On short landscape screens its required controls
+can exceed the remaining height. Root now fills safe area; only the recipe list
+gets keyboard overlap content/indicator insets, recalculated after keyboard frame
+changes and layout. Done remains in safe area. Add fixed assertion checkpoints
+for empty search and saved ingredient/output checks so remaining failures can be
+distinguished without exposing assertion payloads. No assertions removed or loosened.
+Executed61 Linux harness checks (including private-payload exclusion of fixed
+checkpoint capture), project generation, Python compilation, shell syntax and
+diff checks. Playtest: actual landscape keyboard/background/join/save behavior
+and all30 native cases still need exact-source Mac execution. This local layout
+repair is not proof of the original failure cause or a native pass. Full engine
+parity, live VPS, signing/install and physical-device gates remain open.
