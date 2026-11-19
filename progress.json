@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T18:09:59+00:00",
+  "updatedAt": "2026-11-19T18:31:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4299,10 +4299,16 @@
       "id": "task-coordinator-20261119",
       "title": "Autonomous task coordinator",
       "description": "Extending the existing recovery specialist to own blocked-task triage, bounded repair follow-through and visible next actions; preserving owner-only decisions and independent review.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Feature and CI",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        }
+      ],
       "status": "in_progress",
-      "note": "Assigned implementation is running in its feature worktree. Focused coordinator checks and synthetic desktop Chromium/phone WebKit tests passed; broad regressions and independent review are pending. New service owns triage and linked bounded repairs rather than leaving exhausted incidents unattended.",
-      "updatedAt": "2026-11-19T18:09:59+00:00"
+      "note": "Feature PR #87 passed required hosted CI. Root independently verified 56 focused tests and synthetic Chromium/phone WebKit workflows on the submitted head. Independent review and live activation are next.",
+      "updatedAt": "2026-11-19T18:31:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
