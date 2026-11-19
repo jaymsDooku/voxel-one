@@ -26,5 +26,6 @@
   "implementationWorkId": "c64f7d44-dc6b-4752-bfb2-f5e4311e5293",
   "limitations": [
     "Automatic cleaner fixes require exact-source independent review and safe host installation; not deployed yet."
-  ]
+  ],
+  "processReferenceCheckScope": "Manual recovery checked process-level references; the new automatic cleaner requires the separately reviewed per-thread protection before installation."
 }
