@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T22:47:00+00:00",
+  "updatedAt": "2026-11-19T22:47:24+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4324,11 +4324,16 @@
           "kind": "link",
           "label": "Coordinator feature review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        },
+        {
+          "kind": "link",
+          "label": "Reliability qualification",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/89"
         }
       ],
       "status": "in_progress",
-      "note": "Coordinator implementation passed focused tests and hosted checks. Independent review identified an internal helper handoff issue; a controller repair is undergoing checks, and further reliability qualification is queued before deployment.",
-      "updatedAt": "2026-11-19T21:36:20+00:00"
+      "note": "Coordinator feature merged after independent review. Follow-up review reproduced a saved-answer recovery race; the developer is correcting it before deployment. Focused synthetic recovery and controller tests passed; live activation remains pending.",
+      "updatedAt": "2026-11-19T22:47:24+00:00"
     },
     {
       "id": "hcf-potpvp",
