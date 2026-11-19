@@ -1,0 +1,160 @@
+{
+  "at": "2026-11-19T13:08:46.931303+00:00",
+  "status": "Reviewed, published, installed and live-qualified",
+  "pr": "https://github.com/jaymsDooku/codex-development-dashboard/pull/86",
+  "approvedHead": "b51dffd3cd87cae05105298ca55cb8de5a4a6065",
+  "installedMerge": "6c8072a78df3cc54d9b705e8a9f6a9409efa89ba",
+  "independentReview": {
+    "decision": "approved",
+    "focusedAndIntegrationTestsPassed": 392,
+    "failed": 0,
+    "skipped": 0,
+    "githubTestJobsPassed": 2
+  },
+  "supplementaryVerification": {
+    "finalHeadFocusedTestsPassed": 74,
+    "failed": 0,
+    "skipped": 0,
+    "build": "passed",
+    "healthBrowserFixtures": {
+      "browsers": [
+        "Chromium",
+        "WebKit"
+      ],
+      "widths": [
+        1440,
+        390,
+        320
+      ],
+      "result": "passed on earlier head; relevant UI and API source identical to approved head",
+      "downloads": 0,
+      "liveApiWrites": 0
+    }
+  },
+  "recovery": {
+    "reclaimedBytes": 9181151232,
+    "duplicateBrowserInstallationsRemoved": 9,
+    "matchingRetainedManifests": true,
+    "manualProcessScope": "Process-level reference checks; automatic cleaner separately qualified with per-thread protection",
+    "finalFreeBytes": 17557688320,
+    "finalFreeGiB": 16.35,
+    "codeAssetsSavedSessionsAndUniqueEvidencePreserved": true
+  },
+  "policy": {
+    "startBelowGiB": 12,
+    "targetGiB": 16,
+    "workerSafetyThresholdGiB": 8,
+    "maxRemovalBytesPerSweep": 2147483648,
+    "maxRemovalsPerSweep": 2,
+    "observationIntervalMs": 300000,
+    "ownerControlsUnchanged": true
+  },
+  "liveQualification": {
+    "rootOwnedReadOnlyCollector": true,
+    "noPrivilegedDeletion": true,
+    "realHostProbe": {
+      "sourceSha256": "3f4555789c11bf9a853783da736f7744700b65894a0d13fc2b7fe00a33d3f7cd",
+      "entryCap": 20000,
+      "readOnly": true,
+      "productionActivation": false,
+      "status": "passed",
+      "observedUniquePaths": 204,
+      "elapsedSeconds": 0.903
+    },
+    "privateThread": {
+      "status": "passed",
+      "unprivilegedCaller": true,
+      "controlledChildNondumpable": true,
+      "threadHasPrivateCwdAndFdTable": true,
+      "observedPrivateCwd": true,
+      "observedPrivateDescriptor": true,
+      "pathCount": 201,
+      "inferenceCalls": 0,
+      "productionFilesDeleted": 0
+    },
+    "activityUncertain": false,
+    "legacyDiagnosticPreserved": true,
+    "trustedScopePersisted": true,
+    "configUnchanged": true,
+    "sourceClean": true,
+    "controllerAndTimerActive": true,
+    "scheduledObservationAt": 1795093643420,
+    "scheduledObservationStatus": "healthy",
+    "pressure": false,
+    "freshDashboardTelemetry": true,
+    "registeredReviewCopies": 71,
+    "retirementReceipts": 46
+  },
+  "sharedBrowsers": {
+    "defaultEnabled": true,
+    "dataCopiedBytes": 0,
+    "downloads": 0,
+    "checks": [
+      {
+        "playwright": "1.63.0",
+        "browser": "chromium",
+        "version": "153.0.8010.12",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.63.0",
+        "browser": "webkit",
+        "version": "26.6",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.64.1",
+        "browser": "chromium",
+        "version": "156.0.8078.4",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      },
+      {
+        "playwright": "1.64.1",
+        "browser": "webkit",
+        "version": "27.2",
+        "launchAndInteraction": "passed",
+        "downloaded": false
+      }
+    ]
+  },
+  "deployment": {
+    "status": "succeeded",
+    "deploymentId": "appgdep_6afef397da3c81919dcab5239504e433",
+    "projectId": "appgprj_6ac0222f10108191876f6ec5622d4ace",
+    "versionId": "appgprj_6ac0222f10108191876f6ec5622d4ace~appgver_362344b454a481918d12aed0495f1287",
+    "sourceCommit": "d913457a034861d46967b86ab7b2da3bcb04f67f",
+    "reviewedMerge": "6c8072a78df3cc54d9b705e8a9f6a9409efa89ba",
+    "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site",
+    "audiencePreserved": true
+  },
+  "workersAtVerification": [
+    {
+      "agentId": "developer-1",
+      "state": "idle",
+      "workId": null
+    },
+    {
+      "agentId": "developer-2",
+      "state": "running",
+      "workId": "88c9e01a-5b2b-4646-abb3-858b984c94d7"
+    },
+    {
+      "agentId": "developer-3",
+      "state": "running",
+      "workId": "aab8dc8b-6c94-4768-92d7-60c04711ef48"
+    },
+    {
+      "agentId": "reviewer",
+      "state": "idle",
+      "workId": null
+    }
+  ],
+  "limitations": [
+    "Automatic reclamation is limited to proven generated scratch and obsolete clean retired detached review copies. Dirty, ignored unique, active, paused, unknown and latest inputs remain protected.",
+    "16 GiB is a target, not a guarantee if insufficient safe disposable data remains. No disk was deliberately filled to force a production deletion. Actual immediate recovery is separately recorded.",
+    "One initial post-start process observation failed closed; the subsequent controlled protected-thread verification passed. The final reviewer could not launch its local browser; separate root browser fixture results are recorded with exact-source qualification."
+  ]
+}
