@@ -10,6 +10,7 @@ import java.util.function.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /** Private owner capture -> worker staging -> owner authorization -> worker
  * publication, plus a strict blocking reference commit. Neither is connected to
@@ -90,14 +91,15 @@ final class ReadbackSaveSnapshot {
             prefix.sealTail(inventory,health,drops.values(),drops.size(),cancel);
             if(!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Readback save source terrain changed");
             String sealedFingerprint=prefix.sealedFingerprint(cancel);
-            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint);
+            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint,source.revision());
         }catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     final class Prepared implements AutoCloseable {
         private final StagedOfflineSave prefix;
         private boolean consumed,transferred;
         private final String sealedFingerprint;
-        private Prepared(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
+        private final RegionReplayWorker.Revision sourceRevision;
+        private Prepared(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;}
         /** Owner-blocking reference integration only. No frame-time guarantee;
          * live integration still needs dirty-state and sidecar coordination. */
         void commit(BooleanSupplier cancel)throws IOException {
@@ -112,7 +114,7 @@ final class ReadbackSaveSnapshot {
             owner();Objects.requireNonNull(cancel);
             if(consumed)throw new IOException("Readback save already consumed");
             StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
-            var publication=new Publication(prefix,sealedFingerprint);claim();transferred=true;return publication;
+            var publication=new Publication(prefix,sealedFingerprint,sourceRevision);claim();transferred=true;return publication;
         }
         @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
     }
@@ -127,10 +129,11 @@ final class ReadbackSaveSnapshot {
         private final AtomicLong verifiedBytes=new AtomicLong();
         private Thread worker;
         private final String sealedFingerprint;
+        private final RegionReplayWorker.Revision sourceRevision;
         private boolean sourceTransferred;
         private volatile RegionReplayWorker.Source reopenedSource;
         private boolean tailAdopted,overlayAcknowledged;
-        private Publication(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
+        private Publication(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;}
         Phase phase(){return phase.get();}
         PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
         private synchronized void worker()throws IOException {
@@ -207,6 +210,29 @@ final class ReadbackSaveSnapshot {
             if(phase.get()!=Phase.PUBLISHED||source==null||source!=reopenedSource||journal==null||overlayAcknowledged)
                 throw new IOException("Replay overlay acknowledgement unavailable");
             var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
+        }
+        /** Owner-created one-shot factory for a replacement paging worker.
+         * Old cleanup must finish first. Opens a new worker-owned spool instead
+         * of transferring one across threads. Saved metadata is not live-state
+         * adoption: callers still reconcile later edits and install a new view. */
+        RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision)throws IOException {
+            owner();Objects.requireNonNull(previous);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
+            if(phase.get()!=Phase.PUBLISHED||revision.equals(sourceRevision)
+                    ||!previous.retiredSourceMatches(generation.target(),fingerprint,sourceRevision))
+                throw new IOException("Saved paging source requires matching retired worker and fresh revision");
+            Path target=generation.target();String expected=sealedFingerprint;var opened=new AtomicBoolean();Thread requestOwner=owner;
+            // Capture only immutable source fields and the owner thread, not this
+            // publication/snapshot and its retired live World.
+            return (cancel,progress)->{
+                if(Thread.currentThread()==requestOwner)throw new IOException("Saved paging factory requires worker thread");
+                Objects.requireNonNull(cancel);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
+                if(!opened.compareAndSet(false,true))throw new IOException("Saved paging factory already consumed");
+                var source=LocalGame.openRegionalReadback(target,directory,revision,cancel,progress);
+                try {
+                    if(!expected.equals(source.fingerprint()))throw new IOException("Saved paging snapshot replaced before open");
+                    StructurePackage.cancelled(cancel);return source;
+                }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+            };
         }
         /** Owner completion check only. False never rolls back a published file. */
         boolean snapshotCurrent()throws IOException {

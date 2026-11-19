@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Journal-proven baseline after tracked save-time edits implemented. 93 targeted tests and native regression passed; fresh images saved. Source installation, Main/partial replay/coordinated saves and full qualification remain pending. New source needs hosted checks.",
-      "updatedAt": "2026-11-19T17:02:14+00:00"
+      "note": "Replacement saved-source paging factory implemented with retired-worker/digest/revision checks and no cross-thread spool transfer. 102 tests and final native regression passed; verified media saved. Reconciliation, Main/coordinated saves and full qualification remain pending. New source needs hosted checks.",
+      "updatedAt": "2026-11-19T17:34:23+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

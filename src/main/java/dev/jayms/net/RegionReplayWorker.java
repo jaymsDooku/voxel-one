@@ -176,6 +176,13 @@ final class RegionReplayWorker implements AutoCloseable {
     private volatile String fingerprint="";
     private LocalGame.ReadbackMetadata metadata;
     private Revision sourceRevision;
+    private Path sourceTarget;
+    /** Nonblocking retirement receipt; no spool/index or filesystem crosses to owner. */
+    boolean retiredSourceMatches(Path target,String expectedFingerprint,Revision expectedRevision)throws IOException {
+        owner();Objects.requireNonNull(target);Objects.requireNonNull(expectedFingerprint);Objects.requireNonNull(expectedRevision);
+        synchronized(gate){return status.state()==State.CLOSED&&sourceTarget!=null&&sourceTarget.equals(target)
+                &&fingerprint.equals(expectedFingerprint)&&expectedRevision.equals(sourceRevision);}
+    }
     // Owner-only transfer/binding receipts, never read by the worker.
     private LocalGame transferredMetadata;
     private ModelLibrary transferredModels;
@@ -886,6 +893,7 @@ final class RegionReplayWorker implements AutoCloseable {
             }));
             StructurePackage.cancelled(stopping::get);
             fingerprint=source.fingerprint();metadata=source.metadata();sourceRevision=source.revision();
+            sourceTarget=metadata==null?null:metadata.generation().target();
             var opened=source;
             cache=new RegionReplayCache(directory,source.spool(),maxRegions,maxBytes,maxRegionRows,edit->{
                 var request=active;if(request!=null)request.checkedRows.incrementAndGet();return opened.allowed().test(edit);

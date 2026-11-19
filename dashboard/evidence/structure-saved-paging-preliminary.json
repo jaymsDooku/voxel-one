@@ -1,0 +1,24 @@
+{
+  "status": "preliminary_not_final_source",
+  "qualification": false,
+  "scope": "Diagnostic native run before factory closure lifetime correction. Preserve media; final review uses structure-saved-paging-verified artifacts.",
+  "result": {
+    "status": "passed",
+    "published_chunks": 2,
+    "max_owned_uploads": 1,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "source_lighting_chunks": 288,
+    "source_lighting_leaves": 515884,
+    "source_lighting_nanos": 11315638073,
+    "planar_lighting_nanos": 1066724894,
+    "planar_lit_geometry_pixels": 1329,
+    "qualification": false
+  },
+  "image_sha256": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+  "regression_image_sha256": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+  "images": [
+    "structure-saved-paging-optics.png",
+    "structure-saved-paging-regression.png"
+  ]
+}
