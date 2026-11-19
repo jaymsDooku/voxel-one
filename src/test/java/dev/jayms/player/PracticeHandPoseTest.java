@@ -26,7 +26,20 @@ class PracticeHandPoseTest {
             assertEquals(21, tilt, 2, "Blade should follow the reference angle from vertical");
             assertTrue(screen(pose.hand(), new Vector3f(0, PracticeHandPose.SLEEVE_BOTTOM, 0), aspect).y < -1);
         }
-        assertTrue(faceTowardCamera(pose) > .35f && faceTowardCamera(pose) < .58f);
+    }
+
+    @Test void idleSwordShowsTheBroadFaceOnTheLeft() {
+        var sword = sample(1, 0, false).item();
+        var broadFace = new Vector3f(.5f, .72f, 9f / 16);
+        var edge = new Vector3f(10f / 16, .72f, .5f);
+        assertTrue(sword.transformDirection(new Vector3f(0, 0, 1))
+                .dot(sword.transformPosition(new Vector3f(broadFace)).negate()) > 0);
+        assertTrue(sword.transformDirection(new Vector3f(1, 0, 0))
+                .dot(sword.transformPosition(new Vector3f(edge)).negate()) > 0);
+        for (float aspect : ASPECTS) {
+            assertTrue(screen(sword, broadFace, aspect).x < screen(sword, edge, aspect).x,
+                    "The visible broad blade face belongs to the left of its edge");
+        }
     }
 
     @Test void theBladeMeshClearsTheScreenEdgeAtFourByThree() {

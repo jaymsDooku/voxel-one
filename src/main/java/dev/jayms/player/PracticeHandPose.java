@@ -40,9 +40,9 @@ public final class PracticeHandPose {
             if (guard) {
                 held.rotateZ(.67f).rotateY(.23f).scale(.89f);
             } else {
-                // Turn the edge toward the camera and extend the blade's screen-space
-                // reach without enlarging the guard or handle across the viewport.
-                held.rotateZ(.075f).rotateX(.05f).rotateY(1.175f).scale(.98f, 1.49f, .83f);
+                // Twist about the shaft so the broad face appears on the left while
+                // the grip and projected blade axis stay in place.
+                held.rotateZ(.075f).rotateX(.05f).rotateY(-1.55f).scale(.98f, 1.49f, .83f);
             }
             held.translate(-HeldToolPose.ANCHOR_X, -HeldToolPose.ANCHOR_Y, -HeldToolPose.ANCHOR_Z);
         } else {
