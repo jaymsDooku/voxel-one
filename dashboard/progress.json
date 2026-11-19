@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fine-grid source ed9d59ad: 28 native tests passed; model screenshot inspected. Added searchable 95 block-recipe book; 11 Java and 56 Linux checks passed. New 30-case native run pending. Full parity, live VPS and signed iPhone delivery remain open.",
-      "updatedAt": "2026-11-19T13:36:49+00:00"
+      "note": "Recipe-book Mac build exposed missing waitHittable label in new test; fixed without changing assertions. Local project/syntax/diff checks passed. Fresh 30-case native run pending; full parity and signed iPhone delivery remain open.",
+      "updatedAt": "2026-11-19T13:47:37+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

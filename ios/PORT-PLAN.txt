@@ -478,3 +478,18 @@ Audit against71612f09bfec4549456b3317676e76cdced085a4 found no deleted files.
 Intended replacement removes the six-action alert and six-entry catalog; no unrelated
 feature or evidence deletion. Full procedural streaming, distant terrain, full item/
 tool parity, actual VPS access, signed iPhone install and device measurements stay open.
+
+Recipe-book Mac compile repair
+Source4a3bf55b3ae80830ed78ffdda501470418d3a50f failed client build, exit65.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44535250965
+Inspected sanitized report and compiler diagnostics only. NativeWorkflowTests.swift
+line193 omitted required argument2 of waitHittable(element,id). Added the explicit
+"landscape Craft Done" label; helper timeout and assertions are unchanged.
+No XCTest execution or client gameplay media was produced by this failed run.
+Preflight home-screen image is not game evidence and was not copied as such.
+Local project generation, Python compilation, shell syntax and diff checks passed.
+Playtest: all30 required native cases remain pending after this compile repair.
+Request fresh exact-source Mac build and installed-client workflow/media validation.
+Previous11 Java/56 Linux checks are historical and were not rerun for a test label.
+No deleted files against the review base; no unrelated source changes. Full engine
+parity, live VPS, signing/install and physical-device qualification remain open.

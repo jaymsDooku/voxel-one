@@ -190,7 +190,7 @@ final class NativeWorkflowTests:XCTestCase {
         XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["craftDone"])
         search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
         XCTAssertEqual(app.tables["recipeTable"].cells.count,0)
-        XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"])
+        XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"],"landscape Craft Done")
         capture("native-recipe-search-empty-landscape")
         app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
         app.terminate();app.launch();wait(app.buttons["craftButton"])
