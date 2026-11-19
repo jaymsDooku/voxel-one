@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T13:08:58+00:00",
+  "updatedAt": "2026-11-19T14:24:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4274,6 +4274,15 @@
       "status": "complete",
       "note": "Reclaimed 9.18GB from nine verified duplicate browser installs; 16.35GiB free at final check. PR86 independently reviewed, merged, published and installed. Live private-thread input protection, trusted activity scopes, scheduled healthy telemetry and shared browser default verified. Existing 12GiB trigger/16GiB target/8GiB admission preserved; active, unique and unproven data retained.",
       "updatedAt": "2026-11-19T13:08:58+00:00"
+    },
+    {
+      "id": "vps-cleaner-80gb-20261119",
+      "title": "Raise VPS free disk target to 80GB",
+      "description": "Owner requests substantially more headroom. Measuring cache and completed-task storage before guarded reclamation; retain source, assets, saved sessions and unique evidence.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Owner requests substantially more headroom. Measuring cache and completed-task storage before guarded reclamation; retain source, assets, saved sessions and unique evidence.",
+      "updatedAt": "2026-11-19T14:24:49+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
