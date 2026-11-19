@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-15T00:56:52+00:00",
+  "updatedAt": "2026-11-19T11:24:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4239,6 +4239,21 @@
       "status": "in_progress",
       "note": "Developer-1 has claimed the iOS port and is running after initial disk recovery. First milestone: playable native Sandbox; final delivery includes an actual iPhone installation/update path. Existing simulator foundations reused and physical/signing prerequisites tracked honestly.",
       "updatedAt": "2026-11-15T00:56:52+00:00"
+    },
+    {
+      "id": "vps-cleaner-headroom-20261119",
+      "title": "Fix automatic VPS cleanup and maintain build headroom",
+      "description": "Diagnosed activity_unknown from a pathless native diagnostic and sparse cleanup coverage. Existing trigger is 12GiB and target16GiB. Preparing guarded reclamation of obsolete generated caches; isolated implementation and independent review queued.",
+      "evidence": [
+        {
+          "kind": "report",
+          "label": "vps cleaner recovery 20261119.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-cleaner-recovery-20261119.json"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Restored 16.7GiB free by reclaiming 9.18GB of verified duplicate browser installations. Resumed capacity-blocked iOS/structures work with checkpoints retained. Permanent activity-scope and cache lifecycle fix is underway; thresholds and deletion guards preserved.",
+      "updatedAt": "2026-11-19T11:24:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
