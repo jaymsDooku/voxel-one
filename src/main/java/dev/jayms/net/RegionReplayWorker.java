@@ -68,6 +68,8 @@ final class RegionReplayWorker implements AutoCloseable {
         private final List<ChunkPos> neighbourRegions;
         private final AtomicInteger checkedRows=new AtomicInteger();
         private final AtomicInteger completedCells=new AtomicInteger();
+        private ReadbackSaveSnapshot saveSnapshot;
+        private ReadbackSaveSnapshot.Prepared savePrepared;
         private final AtomicReference<Outcome> outcome=new AtomicReference<>(new Outcome(Phase.QUEUED,null,null));
         private Request(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision,World.ReplayFence fence,Binding binding) {
             this(region,range,maxRows,revision,fence,binding,-1);
@@ -93,9 +95,25 @@ final class RegionReplayWorker implements AutoCloseable {
             this.maxCellLeaves=maxCellLeaves;
             this.meshFence=maxCellLeaves>=0&&fence!=null?fence.captureMeshDependencies(region):null;
         }
+        private Request(ReadbackSaveSnapshot snapshot,Revision revision) {
+            this(null,null,0,revision,null,null);saveSnapshot=snapshot;
+        }
+        /** Transfer the sealed prefix once. Owner authorization still validates
+         * live capture state; this request never publishes or clears dirty edits. */
+        ReadbackSaveSnapshot.Prepared takePrepared(Revision current)throws IOException {
+            owner();Objects.requireNonNull(current);
+            synchronized(gate) {
+                if(stopping.get()||status.state()!=State.RUNNING||!current.equals(revision)||saveSnapshot==null)
+                    throw new IOException("Paging save result unavailable");
+                extractOutcome(current);
+                if(savePrepared==null||pendingSave!=this)throw new IOException("Paging save result already transferred");
+                var result=savePrepared;savePrepared=null;pendingSave=null;return result;
+            }
+        }
         Progress outcome(){var value=outcome.get();return new Progress(value.phase(),value.failure());}
         int checkedRows(){return checkedRows.get();}
-        /** Completed implicit/edited cells: chunk 0..4096; sky input 0..32768.
+        /** Completed implicit/edited cells: chunk 0..4096; sky input 0..32768;
+         * save staging reports copied source/overlay rows, bounded by saved-edit limits.
          * This diagnostic count never grants result, data, mesh or sky readiness. */
         int completedCells(){return completedCells.get();}
         boolean cancelled(){return outcome.get().phase()==Phase.CANCELLED;}
@@ -104,7 +122,7 @@ final class RegionReplayWorker implements AutoCloseable {
             for(;;) {
                 var old=outcome.get();if(terminal(old.phase()))return false;
                 if(outcome.compareAndSet(old,new Outcome(Phase.CANCELLED,null,null))) {
-                    synchronized(gate){queue.remove(this);gate.notifyAll();}return true;
+                    synchronized(gate){if(queue.remove(this)&&pendingSave==this)pendingSave=null;gate.notifyAll();}return true;
                 }
             }
         }
@@ -136,6 +154,7 @@ final class RegionReplayWorker implements AutoCloseable {
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target world changed",changed);}
         }
         private RegionReplayPage extract(Revision current)throws IOException {
+            if(saveSnapshot!=null)throw new IOException("Replay request contains staged save output");
             if(lightingOnly)throw new IOException("Replay request contains lighting-only geometry");
             if(skyLimits!=null||mergeTiles!=null)throw new IOException("Replay request contains sky geometry");
             if(maxCellLeaves>=0)throw new IOException("Replay request contains chunk geometry");
@@ -833,6 +852,7 @@ final class RegionReplayWorker implements AutoCloseable {
         try{var binding=new Binding(local,target);targetBinding=binding;return binding;}
         catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay target unavailable",changed);}
     }
+    private Request pendingSave; // one queued/active/unclaimed sealed prefix, guarded by gate
     private Request active; // worker-owned except under gate during close
     private boolean retryCleanup;
 
@@ -848,6 +868,17 @@ final class RegionReplayWorker implements AutoCloseable {
     }
     Status status(){return status;}
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Replay worker owner required");}
+    /** Stage on the existing source-owning worker. No publication or Main authority.
+     * A ready unclaimed prefix remains bounded until extraction or worker close. */
+    Request submitSave(ReadbackSaveSnapshot snapshot,Revision revision)throws IOException {
+        owner();Objects.requireNonNull(snapshot);Objects.requireNonNull(revision);
+        snapshot.validatePagingCapture(transferredMetadata);
+        synchronized(gate) {
+            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision))throw new IOException("Paging save source unavailable");
+            if(pendingSave!=null||queue.size()>=capacity)throw new IOException("Paging save queue full");
+            var request=new Request(snapshot,revision);pendingSave=request;queue.addLast(request);gate.notifyAll();return request;
+        }
+    }
     Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,Revision revision)throws IOException {
         return enqueue(region,range,maxRows,revision,null,null);
     }
@@ -935,6 +966,15 @@ final class RegionReplayWorker implements AutoCloseable {
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
+                    if(request.saveSnapshot!=null) {
+                        var prepared=request.saveSnapshot.stage(source,()->stopping.get()||request.cancelled(),request.completedCells::set);
+                        synchronized(gate){request.savePrepared=prepared;request.finish(new Outcome(Phase.READY,null,null));}
+                        boolean discard;synchronized(gate){discard=(stopping.get()||request.cancelled())&&request.savePrepared==prepared;}
+                        if(discard) {
+                            prepared.discardOnProducer();synchronized(gate){request.savePrepared=null;if(pendingSave==request)pendingSave=null;}
+                        }
+                        continue;
+                    }
                     RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;SkyTile sky=null;SkyMerge merge=null;
                     if(request.mergeTiles!=null) {
                         if(source.metadata()==null)throw new IOException("Replay sky merge requires source metadata");
@@ -993,7 +1033,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 }catch(CancellationException cancelled){request.cancel();}
                 catch(IOException|RuntimeException error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page request failed",error)));}
                 catch(Error error){request.finish(new Outcome(Phase.FAILED,null,new IOException("Replay page worker failed",error)));throw error;}
-                finally{synchronized(gate){active=null;}}
+                finally{synchronized(gate){if(pendingSave==request&&request.savePrepared==null)pendingSave=null;active=null;}}
             }
         }catch(CancellationException cancelled) {
             if(!stopping.get())failure=new IOException("Replay source cancelled",cancelled);
@@ -1013,7 +1053,11 @@ final class RegionReplayWorker implements AutoCloseable {
             boolean cacheClosed=cache==null,sourceClosed=source==null;
             for(;;) {
                 IOException cleanup=null;
-                if(!cacheClosed)try{cache.close();cacheClosed=true;}catch(IOException error){cleanup=error;}
+                if(pendingSave!=null) {
+                    try{if(pendingSave.savePrepared!=null)pendingSave.savePrepared.discardOnProducer();synchronized(gate){pendingSave=null;}}
+                    catch(IOException error){cleanup=error;}
+                }
+                if(!cacheClosed)try{cache.close();cacheClosed=true;}catch(IOException error){if(cleanup==null)cleanup=error;else cleanup.addSuppressed(error);}
                 if(!sourceClosed)try{source.spool().close();sourceClosed=true;}catch(IOException error){if(cleanup==null)cleanup=error;else cleanup.addSuppressed(error);}
                 synchronized(gate) {
                     if(cleanup==null){status=new Status(failure==null?State.CLOSED:State.FAILED,status.sourceRows(),failure);return;}

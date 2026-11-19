@@ -77,6 +77,9 @@ final class ReadbackSaveSnapshot {
         var current=local.inventory;if(current==null)throw new IOException("Readback save inventory changed");
         for(int i=0;i<Inventory.SIZE;i++)if(current.type(i)!=inventory.type(i)||current.count(i)!=inventory.count(i))throw new IOException("Readback save inventory changed");
     }
+    void validatePagingCapture(LocalGame expected)throws IOException {
+        owner();if(local!=expected)throw new IOException("Paging save owner metadata mismatch");validate();
+    }
     /** Uses only immutable captured values; spool enforces its owning thread.
      * Source identity is the metadata generation object, not a caller-supplied tag. */
     Prepared stage(RegionReplayWorker.Source source,BooleanSupplier cancel,IntConsumer progress)throws IOException {
@@ -99,6 +102,7 @@ final class ReadbackSaveSnapshot {
     }
     final class Prepared implements AutoCloseable {
         private final StagedOfflineSave prefix;
+        private final Thread producer=Thread.currentThread();
         private boolean consumed,transferred;
         private final String sealedFingerprint;
         private final RegionReplayWorker.Revision sourceRevision;
@@ -119,6 +123,10 @@ final class ReadbackSaveSnapshot {
             if(consumed)throw new IOException("Readback save already consumed");
             StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
             var publication=new Publication(prefix,sealedFingerprint,sourceRevision,sourceOverlay);claim();transferred=true;return publication;
+        }
+        void discardOnProducer()throws IOException {
+            if(Thread.currentThread()!=producer||transferred)throw new IOException("Staged save producer cleanup required");
+            prefix.close();consumed=true;
         }
         @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
     }
