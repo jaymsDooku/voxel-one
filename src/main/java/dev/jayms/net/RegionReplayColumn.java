@@ -20,6 +20,13 @@ final class RegionReplayColumn {
     }
     static Snapshot load(RegionReplaySpool spool,int chunkX,int chunkZ,Terrain source,
             int maxRows,int maxCells,int maxLeaves,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
+        return load(spool,RegionReplayOverlay.empty(),chunkX,chunkZ,source,maxRows,maxCells,maxLeaves,allowed,cancel);
+    }
+    /** Compose pending edits after the physical source, without changing its
+     * fingerprint or granting sky publication authority. Raw rows share one cap. */
+    static Snapshot load(RegionReplaySpool spool,RegionReplayOverlay pending,int chunkX,int chunkZ,Terrain source,
+            int maxRows,int maxCells,int maxLeaves,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(pending);
         Objects.requireNonNull(spool);Objects.requireNonNull(source);Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);
         if(maxRows<0||maxRows>MAX_ROWS||maxCells<0||maxCells>MAX_CELLS||maxLeaves<0||maxLeaves>MAX_LEAVES)
             throw new IllegalArgumentException("Replay column geometry budget");
@@ -36,7 +43,19 @@ final class RegionReplayColumn {
                 }
                 loader.accept(edit);
             }
-        });loader.finish();terrain(source,revision);StructurePackage.cancelled(cancel);
+        });
+        for(var edit:pending.rows()) {
+            StructurePackage.cancelled(cancel);terrain(source,revision);
+            if((edit.x()>>4)!=chunkX||(edit.z()>>4)!=chunkZ)continue;
+            if(!allowed.test(edit))throw new IOException("Replay pending column policy rejected");
+            if(++inputRows[0]>maxRows)throw new IOException("Replay column row budget");
+            var position=new WorldVoxels.CellPosition(edit.x(),edit.y(),edit.z());
+            if(!positions.contains(position)) {
+                if(positions.size()==maxCells)throw new IOException("Replay column cell budget");positions.add(position);
+            }
+            loader.accept(edit);
+        }
+        loader.finish();terrain(source,revision);StructurePackage.cancelled(cancel);
         var grouped=new LinkedHashMap<WorldVoxels.CellPosition,List<Protocol.Edit>>();
         for(var edit:history.values()) {
             StructurePackage.cancelled(cancel);

@@ -41,6 +41,29 @@ public class ReplayColumnSkyInputTest {
    assertThrows(UnsupportedOperationException.class,()->result.input().edits().clear());
   }
  }
+ @Test void pendingColumnSkyMatchesIndependentGeometry()throws Exception {
+  var terrain=new Terrain(42);var models=new ModelLibrary();
+  var pendingRows=List.of(new Protocol.Edit(-17,160,-1,0),new Protocol.Edit(-19,160,-1,Blocks.LED).withColor(0x336699));
+  var pending=RegionReplayOverlay.capture(pendingRows,()->false);
+  try(var spool=spool()) {
+   var column=RegionReplayColumn.load(spool,pending,-2,-1,terrain,9,5,131072,e->true,()->false);
+   assertEquals(9,column.inputRows());
+   var input=RegionReplayColumn.skyInput(column,terrain,models,131072,()->false,n->{});
+   var world=new WorldVoxels(new Terrain(42));rows().forEach(world::apply);pendingRows.forEach(world::apply);
+   for(var chunk:input.input().chunks()) {
+    var expected=new SparseVoxelOctree(256);
+    for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)expected.replaceRegion(x*16,y*16,z*16,world.cell(chunk.position().chunkX()*16+x,chunk.position().chunkY()*16+y,chunk.position().chunkZ()*16+z));
+    assertTrue(expected.sameValues(chunk.root()));
+   }
+   for(var cell:input.input().edits())assertTrue(cell.root().sameValues(world.cell(cell.x(),cell.y(),cell.z())));
+   var sky=WorldSkyVisibility.buildBounded(input.input(),new WorldSkyVisibility.BuildLimits(256,131072,131072),()->false);
+   assertEquals(1,sky.sampleKnown(-16.25f,100,-.75f,-1)); // Pending clear removes physical roof.
+   assertEquals(0,sky.sampleKnown(-18.5f,100,-.5f,-1)); // Pending roof blocks its column.
+   assertEquals(-1,sky.sampleKnown(0,100,0,-1));
+   assertThrows(IOException.class,()->RegionReplayColumn.load(spool,pending,-2,-1,terrain,8,5,131072,e->true,()->false));
+   assertEquals(7,snapshot(spool,terrain).inputRows()); // Physical source remains independent.
+  }
+ }
  @Test void budgetsCancellationAndTerrainChangesRejectAndRetry()throws Exception {
   var terrain=new Terrain(42);var models=new ModelLibrary();
   try(var spool=spool()) {

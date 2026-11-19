@@ -16,6 +16,31 @@ public class PendingReplayOverlayTest {
     static Protocol.Edit fraction(){return new Protocol.Edit(3,160,0,Blocks.piece(Blocks.LED,1),1,1,0,1).withColor(0x336699);}
     static RegionReplayOverlay pending(){return RegionReplayOverlay.capture(List.of(new Protocol.Edit(0,160,0,0),fraction()),()->false);}
     ReadbackSaveSnapshotTest contexts()throws IOException {var t=new ReadbackSaveSnapshotTest();t.folder=Files.createDirectories(folder.resolve("contexts"));return t;}
+    @Test public void pendingColumnsMatchPagesAndRespectSharedBudgets()throws Exception {
+        try(var c=contexts().new Context("column")) {
+            c.worker.submit(()->{
+                var pending=pending();
+                var column=RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),8,8,131072,c.source.allowed(),()->false);
+                assertEquals(4,column.inputRows());
+                assertEquals(0,column.cells().get(new WorldVoxels.CellPosition(0,160,0)).tree().get(0,0,0));
+                var image=column.cells().get(new WorldVoxels.CellPosition(3,160,0)).tree();
+                assertEquals(WorldVoxels.encode(fraction()),image.get(8,0,8));assertEquals(0,image.get(0,0,0));
+                var base=RegionReplayPage.loadWindow(c.source.spool(),REGION,RANGE,c.source.terrain(),100,8,c.source.allowed(),()->false);
+                var page=RegionReplayPage.withOverlay(base,pending,c.source.terrain(),8,c.source.allowed(),()->false);
+                for(var entry:page.cells().entrySet())for(int y=0;y<16;y++)for(int z=0;z<16;z++)for(int x=0;x<16;x++)
+                    assertEquals(entry.getValue().tree().get(x,y,z),column.cells().get(entry.getKey()).tree().get(x,y,z));
+                assertThrows(IOException.class,()->RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),3,8,131072,c.source.allowed(),()->false));
+                assertThrows(IOException.class,()->RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),8,2,131072,c.source.allowed(),()->false));
+                assertThrows(IOException.class,()->RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),8,8,0,c.source.allowed(),()->false));
+                assertThrows(IOException.class,()->RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),8,8,131072,e->!e.equals(fraction()),()->false));
+                assertThrows(CancellationException.class,()->RegionReplayColumn.load(c.source.spool(),pending,0,0,c.source.terrain(),8,8,131072,c.source.allowed(),()->true));
+                var negative=new Protocol.Edit(-1,160,-1,Blocks.STONE);
+                var other=RegionReplayColumn.load(c.source.spool(),RegionReplayOverlay.capture(List.of(fraction(),negative),()->false),-1,-1,c.source.terrain(),1,1,8,c.source.allowed(),()->false);
+                assertEquals(1,other.inputRows());assertEquals(WorldVoxels.encode(Blocks.STONE),other.cells().get(new WorldVoxels.CellPosition(-1,160,-1)).tree().get(0,0,0));
+                assertArrayEquals(c.original,Files.readAllBytes(c.path));return null;
+            }).get(10,TimeUnit.SECONDS);
+        }
+    }
     @Test public void indexedSelectionPreservesOrderAndBounds()throws Exception {
         var a=new Protocol.Edit(1,160,0,Blocks.STONE);var b=new Protocol.Edit(0,160,0,0);var c=fraction();
         var overlay=RegionReplayOverlay.capture(List.of(a,b,c,a),()->false);
