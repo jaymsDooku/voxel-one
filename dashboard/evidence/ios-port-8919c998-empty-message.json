@@ -1,0 +1,22 @@
+{
+  "sourceHead": "8919c998b486af89206e55304f9ac793d86d3412",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44581938848",
+  "observedEvents": {
+    "started": 30,
+    "passed": 29,
+    "failed": 1,
+    "unfinished": 0
+  },
+  "failedTestId": "5cab040e4538",
+  "checkpoint": "craft_book_empty_results",
+  "repair": "Move empty message from keyboard-covered table background to explicit row above list. Separate exact zero-row and message-presence diagnostic markers; retain both checks.",
+  "localChecks": {
+    "linuxHarnessTests": 63,
+    "failures": 0,
+    "projectGeneration": "passed",
+    "pythonCompilation": "passed",
+    "shellSyntax": "passed",
+    "diffCheck": "passed"
+  },
+  "Playtest": "Native repair and all30-case acceptance pending. No current gameplay media returned."
+}

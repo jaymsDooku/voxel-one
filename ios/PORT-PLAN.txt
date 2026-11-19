@@ -625,3 +625,22 @@ Playtest: native application, empty search and complete30-case result remain pen
 Request exact-source Mac verification with this bounded capture; do not claim native
 pass from Linux synthetic children. Source preserved, no timeout increase or test
 gate reduction. Full parity, live VPS, signing/install and physical gates stay open.
+
+Visible empty-state message repair
+Source8919c998b486af89206e55304f9ac793d86d3412, run44581938848 exited65.
+Bounded progress capture reports30 started,29 passed,1 failed,0 unfinished,
+expected30. Failed id5cab040e4538 is recipe search/join/background test; structured
+marker remainscraft_book_empty_results. This marker was shared by both zero-row
+wait and visible empty-message assertion, so exact failed check remains ambiguous.
+No complete native qualification or current gameplay image/video supplied.
+The empty message was centered inside UITableView.backgroundView even while a
+keyboard covered the lower table. Move it to an explicit labeled row above table,
+accessibility idcraftEmptyState; show only when filtered rows are zero. Preserve
+both exact zero-row and actual empty-message assertions; now use separate fixed
+checkpoints craft_book_empty_rows and craft_book_empty_message. No timeout/gate
+relaxation. Existing root safe area and list-only keyboard clearance remain.
+Executed63 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks. Playtest: this native UI repair still needs exact-source
+Mac30-case validation and actual media. Prior29 event passes are observations
+from a failed source run, not a passing suite or qualification for edited source.
+Full parity, live VPS, signed install and physical iPhone qualification stay open.
