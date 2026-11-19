@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T20:20:23+00:00",
+  "updatedAt": "2026-11-19T21:36:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4319,11 +4319,16 @@
           "kind": "link",
           "label": "Implementation review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        },
+        {
+          "kind": "link",
+          "label": "Coordinator feature review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
         }
       ],
       "status": "in_progress",
-      "note": "Consolidated lifecycle fixes pass 75 independent focused checks plus desktop Chromium and phone WebKit workflows. Root\u2019s overlapping-request regression now preserves newer planning state with one action/receipt. Hosted CI and independent acceptance remain pending; broader qualification is queued before activation.",
-      "updatedAt": "2026-11-19T20:20:23+00:00"
+      "note": "Coordinator implementation passed focused tests and hosted checks. Independent review identified an internal helper handoff issue; a controller repair is undergoing checks, and further reliability qualification is queued before deployment.",
+      "updatedAt": "2026-11-19T21:36:20+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
