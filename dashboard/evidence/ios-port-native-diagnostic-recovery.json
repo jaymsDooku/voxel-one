@@ -1,0 +1,23 @@
+{
+  "sourceHead": "7baa200c2463e7f40f095226fe103866830c3472",
+  "existingRun": 44537022192,
+  "artifactId": 14539391015,
+  "existingArtifactFiles": [
+    "report.json",
+    "client-diagnostics.json",
+    "client-diagnostics.txt",
+    "preflight.png"
+  ],
+  "recovery": "Existing artifact contains no structured XCTest result. Added bounded failure-name capture before scoped native rerun.",
+  "localCommands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 -m py_compile ios/native-test-runner.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "observed": {
+    "linuxHarnessTests": 58,
+    "failures": 0
+  },
+  "Playtest": "All30 native cases and original failure diagnosis remain pending Mac execution. No native pass or new gameplay media claimed."
+}

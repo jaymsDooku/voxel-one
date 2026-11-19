@@ -493,3 +493,38 @@ Request fresh exact-source Mac build and installed-client workflow/media validat
 Previous11 Java/56 Linux checks are historical and were not rerun for a test label.
 No deleted files against the review base; no unrelated source changes. Full engine
 parity, live VPS, signing/install and physical-device qualification remain open.
+
+Recipe-book native failure: diagnostic recovery required
+Source7baa200c2463e7f40f095226fe103866830c3472.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44537022192
+Inspected exact-source report and sanitized client-diagnostics.json. Client script
+exit65; native-tests.log exists, but sanitized diagnostic lines are empty and both
+read windows are truncated. No failing test, assertion, crash or cause is reported.
+No client screenshot/video was returned; preflight is not gameplay evidence.
+No source fix is justified by these receipts. Preserve source; request internal
+controller recovery of bounded failed XCTest names/assertions or fixed crash category
+from this exact run's structured NativeTests.xcresult. Never retrieve full runtime
+logs, profiles or account data. Do not rerun unchanged native suite merely to guess.
+Playtest: this run supplies no passing native qualification; all30-case acceptance
+remains pending. No new tests executed during diagnostic recovery. Full parity,
+live VPS, signing/install and physical-device qualification remain open.
+
+Bounded diagnostic recovery implemented
+Existing run44537022192 has exactly one retained artifact, ios-evidence14539391015.
+ZIP manifest contains only report.json, client-diagnostics.json/.txt and preflight.png;
+no structured test result or gameplay image/video can be recovered from that artifact.
+Did not download/read raw workflow logs or private profiles. Do not infer source cause.
+Before a scoped rerun, native-test-runner.py now preserves any nonzero child exit and
+asks xcresulttool for structured failure summary with30-second timeout. JSON reading
+is capped at1MiB. Only exact test method names declared in native test source leave
+the summary, maximum8; assertion payloads and account/profile text never enter output.
+Fixed error markers at log tail are consumable by the existing trusted sanitizer.
+If structured data is absent/malformed/oversized/times out, emit a fixed status only.
+No trusted validator limits, native30-case acceptance gates or gameplay code changed.
+Executed58 Linux harness tests, including known-name filtering, private payload
+exclusion, malformed summary and timeout behavior. Python compilation, shell syntax
+and diff checks passed. Playtest: Mac failure cause and current native qualification
+remain pending; Linux mock summary tests are not native application validation.
+Request one scoped exact-source Mac run of existing30 cases using repaired capture,
+then inspect real failure identifiers or passing receipt/media before further edits.
+Full parity, live VPS, signed install and physical iPhone gates remain unchanged.

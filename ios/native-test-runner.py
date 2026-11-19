@@ -2,6 +2,7 @@
 """Bound the owned xcodebuild child and retain only fixed XCTest progress on timeout."""
 import argparse
 import hashlib
+import json
 import os
 from pathlib import Path
 import re
@@ -58,6 +59,57 @@ def run(command, log, timeout):
     return 124
 
 
+SUMMARY_BYTES = 1024 * 1024
+
+
+def failed_methods(summary, allowed):
+    """Emit only source-declared test identifiers, never XCTest assertion payloads."""
+    failures = summary.get('testFailures', []) if isinstance(summary, dict) else []
+    if not isinstance(failures, list):
+        return []
+    found = set()
+    for failure in failures[:128]:
+        if not isinstance(failure, dict):
+            continue
+        for field in ('testName', 'testIdentifier', 'testIdentifierString'):
+            value = failure.get(field)
+            if isinstance(value, str) and len(value) <= 512:
+                for name in re.findall(r'(?<![A-Za-z0-9_])test[A-Za-z0-9_]{1,96}(?![A-Za-z0-9_])', value):
+                    if name in allowed:
+                        found.add(name)
+    return sorted(found)[:8]
+
+
+def record_failure(log, root):
+    """Recover bounded structured failure names before the hosted worker is deleted."""
+    state = 'unavailable'
+    names = []
+    result = root / 'ios/build/NativeTests.xcresult'
+    destination = root / 'ios/build/failure-summary.json'
+    try:
+        allowed = set()
+        for source in (root / 'ios/VoxelOneUITests').glob('*.swift'):
+            allowed.update(re.findall(r'func (test[A-Za-z0-9_]{1,96})\(', source.read_text()))
+        if result.exists():
+            with destination.open('wb') as output:
+                completed = subprocess.run(
+                    ['xcrun', 'xcresulttool', 'get', 'test-results', 'summary', '--path', str(result)],
+                    stdout=output, stderr=subprocess.DEVNULL, timeout=30, check=False)
+            if completed.returncode == 0 and destination.stat().st_size <= SUMMARY_BYTES:
+                with destination.open('rb') as stream:
+                    summary = json.loads(stream.read(SUMMARY_BYTES))
+                names = failed_methods(summary, allowed)
+                state = 'identified' if names else 'no_allowlisted_failure'
+            else:
+                state = 'summary_failed_or_oversized'
+    except (OSError, ValueError, subprocess.TimeoutExpired):
+        state = 'summary_unavailable'
+    with log.open('a') as output:
+        output.write('\nerror: native_test_failure_summary status=' + state + '\n')
+        for name in names:
+            output.write('error: native_test_failed test=' + name + '\n')
+
+
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=int, default=900)
@@ -67,7 +119,11 @@ def main():
     if not 1 <= args.timeout <= 900 or not command:
         parser.error('timeout must be 1..900 seconds and a child command is required')
     root = Path(__file__).resolve().parents[1]
-    return run(command, root / 'ios/build/native-tests.log', args.timeout)
+    log = root / 'ios/build/native-tests.log'
+    result = run(command, log, args.timeout)
+    if result != 0:
+        record_failure(log, root)
+    return result
 
 
 if __name__ == '__main__':
