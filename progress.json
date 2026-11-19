@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T12:05:42+00:00",
+  "updatedAt": "2026-11-19T13:08:58+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4254,11 +4254,26 @@
           "kind": "link",
           "label": "Cleaner implementation review",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/86"
+        },
+        {
+          "kind": "link",
+          "label": "Independently reviewed cleaner",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/86"
+        },
+        {
+          "kind": "link",
+          "label": "Live VPS health",
+          "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/health/"
+        },
+        {
+          "kind": "report",
+          "label": "vps cleaner verification 20261119.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/vps-cleaner-verification-20261119.json"
         }
       ],
-      "status": "in_progress",
-      "note": "16+GiB free remains verified after 9.18GB reclamation. Shared browsers tested without downloads. PR86 is in the normal review cycle: reviewer requires per-thread input protection before approval. No unreviewed cleaner installed; source, sessions and unique evidence remain preserved.",
-      "updatedAt": "2026-11-19T12:05:42+00:00"
+      "status": "complete",
+      "note": "Reclaimed 9.18GB from nine verified duplicate browser installs; 16.35GiB free at final check. PR86 independently reviewed, merged, published and installed. Live private-thread input protection, trusted activity scopes, scheduled healthy telemetry and shared browser default verified. Existing 12GiB trigger/16GiB target/8GiB admission preserved; active, unique and unproven data retained.",
+      "updatedAt": "2026-11-19T13:08:58+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
