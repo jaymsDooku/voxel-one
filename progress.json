@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T19:27:33+00:00",
+  "updatedAt": "2026-11-19T20:20:23+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4314,11 +4314,16 @@
           "kind": "link",
           "label": "Required transaction correction",
           "url": "https://codex-development-dashboard.jamesleaver1.chatgpt.site/?work=b0e53d29-0a04-44cf-9640-e7b2ad3c86d0"
+        },
+        {
+          "kind": "link",
+          "label": "Implementation review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
         }
       ],
       "status": "in_progress",
-      "note": "Coordinator implementation is in independent review. Lease/control and temporary-admission deadlocks were corrected and tested. A separate required pre-activation fix now tracks a reproduced overlapping-request race; deployment remains held until both are independently accepted.",
-      "updatedAt": "2026-11-19T19:27:33+00:00"
+      "note": "Consolidated lifecycle fixes pass 75 independent focused checks plus desktop Chromium and phone WebKit workflows. Root\u2019s overlapping-request regression now preserves newer planning state with one action/receipt. Hosted CI and independent acceptance remain pending; broader qualification is queued before activation.",
+      "updatedAt": "2026-11-19T20:20:23+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
