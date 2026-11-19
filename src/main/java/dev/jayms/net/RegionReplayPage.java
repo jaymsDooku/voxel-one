@@ -31,14 +31,17 @@ final class RegionReplayPage {
     private final CellRange range;
     private final Map<String,Protocol.Edit> history;
     private final Map<WorldVoxels.CellPosition,WorldVoxels.CellImage> cells;
+    private final int sourceRows;
 
-    private RegionReplayPage(ChunkPos region,CellRange range,WorldVoxels.History history,
-            LinkedHashMap<WorldVoxels.CellPosition,WorldVoxels.CellImage> cells) {
+    private RegionReplayPage(ChunkPos region,CellRange range,Map<String,Protocol.Edit> history,
+            Map<WorldVoxels.CellPosition,WorldVoxels.CellImage> cells,int sourceRows) {
+        this.sourceRows=sourceRows;
         this.region=region;
         this.range=range;
         this.history=Collections.unmodifiableMap(history);
         this.cells=Collections.unmodifiableMap(cells);
     }
+    int sourceRows(){return sourceRows;}
     ChunkPos region(){return region;}
     CellRange range(){return range;}
     Map<String,Protocol.Edit> history(){return history;}
@@ -77,6 +80,32 @@ final class RegionReplayPage {
         return assemble(cells.region(),range,terrain,maxRows,range.size(),sink->{
             for(var edit:cells.readWindow(range,maxRows,allowed,cancel))sink.accept(edit);
         },cancel);
+    }
+    /** Compose a separately bounded immutable pending overlay over physical
+     * source history. Physical fingerprint/generation stay unchanged. Counts raw
+     * selected source rows even when replay coalesces them. No input mutation. */
+    static RegionReplayPage withOverlay(RegionReplayPage base,RegionReplayOverlay overlay,Terrain terrain,
+            int maxRows,Predicate<Protocol.Edit> allowed,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(base);Objects.requireNonNull(overlay);Objects.requireNonNull(allowed);Objects.requireNonNull(cancel);
+        if(base.range.size()>MAX_CELLS||maxRows<0||maxRows>MAX_ROWS)throw new IllegalArgumentException("Replay overlay page budget");
+        StructurePackage.cancelled(cancel);int selected=base.sourceRows;
+        if(selected>maxRows)throw new IOException("Replay overlay selected row budget");
+        for(var edit:overlay.rows()) {
+            StructurePackage.cancelled(cancel);if(!allowed.test(edit))throw new IOException("Replay overlay policy rejected");
+            if(matches(edit,base.region,base.range)&&++selected>maxRows)
+                throw new IOException("Replay overlay selected row budget");
+        }
+        var result=assemble(base.region,base.range,terrain,maxRows,base.range.size(),sink->{
+            for(var edit:base.history.values()){StructurePackage.cancelled(cancel);if(!allowed.test(edit))throw new IOException("Replay base policy rejected");sink.accept(edit);}
+            for(var edit:overlay.rows()) {
+                StructurePackage.cancelled(cancel);
+                if(matches(edit,base.region,base.range))sink.accept(edit);
+            }
+        },cancel);
+        return new RegionReplayPage(result.region,result.range,result.history,result.cells,selected);
+    }
+    private static boolean matches(Protocol.Edit edit,ChunkPos region,CellRange range) {
+        return (edit.x()>>4)==region.chunkX()&&(edit.y()>>4)==region.chunkY()&&(edit.z()>>4)==region.chunkZ()&&range.contains(edit);
     }
     @FunctionalInterface private interface EditSink {void accept(Protocol.Edit edit)throws IOException;}
     @FunctionalInterface private interface RowSource {void visit(EditSink sink)throws IOException;}
@@ -131,6 +160,6 @@ final class RegionReplayPage {
             StructurePackage.cancelled(cancel);images.put(p,image);
         }
         StructurePackage.cancelled(cancel);
-        return new RegionReplayPage(region,range,history,images);
+        return new RegionReplayPage(region,range,history,images,selectedRows[0]);
     }
 }

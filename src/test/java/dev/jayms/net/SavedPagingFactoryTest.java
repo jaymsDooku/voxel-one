@@ -33,7 +33,7 @@ public class SavedPagingFactoryTest {
                     var page=next.submit(new ChunkPos(0,10,0),new RegionReplayPage.CellRange(0,64),64,NEXT);RegionReplayWorkerTest.await(()->page.outcome().phase()==RegionReplayWorker.Phase.READY);
                     var image=page.result(NEXT).cells().get(new WorldVoxels.CellPosition(0,160,0));assertNotNull(image);assertEquals(0,image.tree().get(0,0,0));assertThrows(IOException.class,()->page.result(ReadbackMetadataTest.REV));
                     var duplicate=new RegionReplayWorker(spool,factory,1,1,56*1024,2000);
-                    try{RegionReplayWorkerTest.await(()->duplicate.status().state()!=RegionReplayWorker.State.OPENING);assertEquals(RegionReplayWorker.State.FAILED,duplicate.status().state());}finally{RegionReplayWorkerTest.closed(duplicate);}
+                    try{RegionReplayWorkerTest.await(()->duplicate.status().state()==RegionReplayWorker.State.FAILED);assertEquals(RegionReplayWorker.State.FAILED,duplicate.status().state());}finally{RegionReplayWorkerTest.closed(duplicate);}
                 }finally{RegionReplayWorkerTest.closed(next);}
                 try(var files=Files.list(spool)){assertEquals(0,files.count());}
             }finally{RegionReplayWorkerTest.closed(old);}
@@ -48,7 +48,7 @@ public class SavedPagingFactoryTest {
             try{ReadbackMetadataTest.ready(foreign);RegionReplayWorkerTest.closed(foreign);assertThrows(IOException.class,()->publication.pagingFactory(foreign,spool,NEXT));}finally{RegionReplayWorkerTest.closed(foreign);}
             var factory=publication.pagingFactory(old,spool,NEXT);byte[] published=Files.readAllBytes(c.path);Files.write(c.path,c.original);
             var failed=new RegionReplayWorker(spool,factory,1,1,56*1024,2000);
-            try{RegionReplayWorkerTest.await(()->failed.status().state()!=RegionReplayWorker.State.OPENING);assertEquals(RegionReplayWorker.State.FAILED,failed.status().state());assertArrayEquals(c.original,Files.readAllBytes(c.path));}finally{RegionReplayWorkerTest.closed(failed);}
+            try{RegionReplayWorkerTest.await(()->failed.status().state()==RegionReplayWorker.State.FAILED);assertEquals(RegionReplayWorker.State.FAILED,failed.status().state());assertArrayEquals(c.original,Files.readAllBytes(c.path));}finally{RegionReplayWorkerTest.closed(failed);}
             try(var files=Files.list(spool)){assertEquals(0,files.count());}
             Files.write(c.path,published);var retry=new RegionReplayWorker(spool,publication.pagingFactory(old,spool,NEXT),1,1,56*1024,2000);
             try{ReadbackMetadataTest.ready(retry);}finally{RegionReplayWorkerTest.closed(retry);}

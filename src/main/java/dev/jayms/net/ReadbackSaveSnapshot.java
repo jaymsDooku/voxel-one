@@ -85,13 +85,16 @@ final class ReadbackSaveSnapshot {
         if(source.metadata()==null||source.metadata().generation()!=generation||!fingerprint.equals(source.fingerprint())
                 ||source.terrain().seed!=seed||source.terrain().version!=generator||!source.metadata().matchesTerrain(source.terrain()))
             throw new IOException("Readback save staging source changed");
+        var pending=source.overlay().rows();
+        if(pending.size()>overlay.rows().size())throw new IOException("Readback save must retain pending source overlay");
+        for(int i=0;i<pending.size();i++){StructurePackage.cancelled(cancel);if(!pending.get(i).equals(overlay.rows().get(i)))throw new IOException("Readback save pending overlay prefix changed");}
         var prefix=StagedOfflineSave.stageRegions(generation.target(),seed,generator,models,source.spool(),overlay,
                 edit->models.has(edit.type()),cancel,progress);
         try {
             prefix.sealTail(inventory,health,drops.values(),drops.size(),cancel);
             if(!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Readback save source terrain changed");
             String sealedFingerprint=prefix.sealedFingerprint(cancel);
-            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint,source.revision());
+            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint,source.revision(),source.overlay());
         }catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }
     final class Prepared implements AutoCloseable {
@@ -99,7 +102,8 @@ final class ReadbackSaveSnapshot {
         private boolean consumed,transferred;
         private final String sealedFingerprint;
         private final RegionReplayWorker.Revision sourceRevision;
-        private Prepared(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;}
+        private final RegionReplayOverlay sourceOverlay;
+        private Prepared(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision,RegionReplayOverlay sourceOverlay){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;this.sourceOverlay=sourceOverlay;}
         /** Owner-blocking reference integration only. No frame-time guarantee;
          * live integration still needs dirty-state and sidecar coordination. */
         void commit(BooleanSupplier cancel)throws IOException {
@@ -114,7 +118,7 @@ final class ReadbackSaveSnapshot {
             owner();Objects.requireNonNull(cancel);
             if(consumed)throw new IOException("Readback save already consumed");
             StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
-            var publication=new Publication(prefix,sealedFingerprint,sourceRevision);claim();transferred=true;return publication;
+            var publication=new Publication(prefix,sealedFingerprint,sourceRevision,sourceOverlay);claim();transferred=true;return publication;
         }
         @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
     }
@@ -133,7 +137,8 @@ final class ReadbackSaveSnapshot {
         private boolean sourceTransferred;
         private volatile RegionReplayWorker.Source reopenedSource;
         private boolean tailAdopted,overlayAcknowledged;
-        private Publication(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;}
+        private final RegionReplayOverlay sourceOverlay;
+        private Publication(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision,RegionReplayOverlay sourceOverlay){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;this.sourceOverlay=sourceOverlay;}
         Phase phase(){return phase.get();}
         PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
         private synchronized void worker()throws IOException {
@@ -216,9 +221,14 @@ final class ReadbackSaveSnapshot {
          * of transferring one across threads. Saved metadata is not live-state
          * adoption: callers still reconcile later edits and install a new view. */
         RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision)throws IOException {
-            owner();Objects.requireNonNull(previous);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
+            return pagingFactory(previous,directory,revision,RegionReplayOverlay.empty());
+        }
+        /** Pending geometry remains separate from physical source identity.
+         * Until all consumers support it, only cell-page requests may run. */
+        RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision,RegionReplayOverlay pending)throws IOException {
+            Objects.requireNonNull(pending);owner();Objects.requireNonNull(previous);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
             if(phase.get()!=Phase.PUBLISHED||revision.equals(sourceRevision)
-                    ||!previous.retiredSourceMatches(generation.target(),fingerprint,sourceRevision))
+                    ||!previous.retiredSourceMatches(generation.target(),fingerprint,sourceRevision,sourceOverlay))
                 throw new IOException("Saved paging source requires matching retired worker and fresh revision");
             Path target=generation.target();String expected=sealedFingerprint;var opened=new AtomicBoolean();Thread requestOwner=owner;
             // Capture only immutable source fields and the owner thread, not this
@@ -230,7 +240,7 @@ final class ReadbackSaveSnapshot {
                 var source=LocalGame.openRegionalReadback(target,directory,revision,cancel,progress);
                 try {
                     if(!expected.equals(source.fingerprint()))throw new IOException("Saved paging snapshot replaced before open");
-                    StructurePackage.cancelled(cancel);return source;
+                    StructurePackage.cancelled(cancel);return new RegionReplayWorker.Source(source.spool(),source.terrain(),source.allowed(),source.revision(),source.fingerprint(),source.metadata(),pending);
                 }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
             };
         }

@@ -19,11 +19,13 @@ import java.util.function.*;
 final class RegionReplayWorker implements AutoCloseable {
     static final int MAX_QUEUED=8;
     record Revision(long world,long models,long terrain) {}
-    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint,LocalGame.ReadbackMetadata metadata) {
+    record Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint,LocalGame.ReadbackMetadata metadata,RegionReplayOverlay overlay) {
+        Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint,LocalGame.ReadbackMetadata metadata){this(spool,terrain,allowed,revision,fingerprint,metadata,RegionReplayOverlay.empty());}
         Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision){this(spool,terrain,allowed,revision,"",null);}
         Source(RegionReplaySpool spool,Terrain terrain,Predicate<Protocol.Edit> allowed,Revision revision,String fingerprint){this(spool,terrain,allowed,revision,fingerprint,null);}
         Source {
             Objects.requireNonNull(spool);Objects.requireNonNull(terrain);Objects.requireNonNull(allowed);Objects.requireNonNull(revision);Objects.requireNonNull(fingerprint);
+            Objects.requireNonNull(overlay);if(metadata==null&&!overlay.rows().isEmpty())throw new IllegalArgumentException("Pending replay overlay requires metadata");
             if(metadata!=null&&!fingerprint.equals(metadata.fingerprint()))throw new IllegalArgumentException("Replay metadata fingerprint mismatch");
             if(metadata!=null&&!metadata.matchesTerrain(terrain))throw new IllegalArgumentException("Replay metadata terrain mismatch");
             if(!fingerprint.isEmpty()&&!fingerprint.matches("[0-9a-f]{64}"))throw new IllegalArgumentException("Replay source fingerprint");
@@ -177,11 +179,12 @@ final class RegionReplayWorker implements AutoCloseable {
     private LocalGame.ReadbackMetadata metadata;
     private Revision sourceRevision;
     private Path sourceTarget;
+    private RegionReplayOverlay sourceOverlay;
     /** Nonblocking retirement receipt; no spool/index or filesystem crosses to owner. */
-    boolean retiredSourceMatches(Path target,String expectedFingerprint,Revision expectedRevision)throws IOException {
+    boolean retiredSourceMatches(Path target,String expectedFingerprint,Revision expectedRevision,RegionReplayOverlay expectedOverlay)throws IOException {
         owner();Objects.requireNonNull(target);Objects.requireNonNull(expectedFingerprint);Objects.requireNonNull(expectedRevision);
         synchronized(gate){return status.state()==State.CLOSED&&sourceTarget!=null&&sourceTarget.equals(target)
-                &&fingerprint.equals(expectedFingerprint)&&expectedRevision.equals(sourceRevision);}
+                &&fingerprint.equals(expectedFingerprint)&&expectedRevision.equals(sourceRevision)&&sourceOverlay==expectedOverlay;}
     }
     // Owner-only transfer/binding receipts, never read by the worker.
     private LocalGame transferredMetadata;
@@ -892,7 +895,9 @@ final class RegionReplayWorker implements AutoCloseable {
                 synchronized(gate){if(!stopping.get())status=new Status(State.OPENING,Math.max(status.sourceRows(),Math.max(0,Math.min(rows,LocalGame.MAX_SAVED_EDITS))),null);}
             }));
             StructurePackage.cancelled(stopping::get);
+            for(var edit:source.overlay().rows()){StructurePackage.cancelled(stopping::get);if(!source.allowed().test(edit))throw new IOException("Pending replay overlay policy rejected");}
             fingerprint=source.fingerprint();metadata=source.metadata();sourceRevision=source.revision();
+            sourceOverlay=source.overlay();
             sourceTarget=metadata==null?null:metadata.generation().target();
             var opened=source;
             cache=new RegionReplayCache(directory,source.spool(),maxRegions,maxBytes,maxRegionRows,edit->{
@@ -910,6 +915,8 @@ final class RegionReplayWorker implements AutoCloseable {
                     request.finish(new Outcome(Phase.LOADING,null,null));
                     if(!request.revision.equals(source.revision()))throw new IOException("Replay source revision mismatch");
                     if(source.metadata()!=null&&!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Replay source terrain changed");
+                    if(!source.overlay().rows().isEmpty()&&(request.maxCellLeaves>=0||request.skyLimits!=null||request.mergeTiles!=null))
+                        throw new IOException("Pending replay overlay currently supports cell pages only");
                     RegionReplayPage page=null;RegionReplayChunk.Snapshot chunk=null;SkyTile sky=null;SkyMerge merge=null;
                     if(request.mergeTiles!=null) {
                         if(source.metadata()==null)throw new IOException("Replay sky merge requires source metadata");
@@ -942,8 +949,12 @@ final class RegionReplayWorker implements AutoCloseable {
                     }
                     else if(request.maxCellLeaves>=0)chunk=RegionReplayChunk.load(cache,request.region,source.terrain(),request.maxCellLeaves,
                             ()->stopping.get()||request.cancelled(),request.completedCells::set);
-                    else page=cache.load(request.region,request.range,source.terrain(),request.maxRows,
-                            ()->stopping.get()||request.cancelled());
+                    else {
+                        BooleanSupplier cancel=()->stopping.get()||request.cancelled();
+                        page=cache.load(request.region,request.range,source.terrain(),request.maxRows,cancel);
+                        if(!source.overlay().rows().isEmpty())page=RegionReplayPage.withOverlay(page,source.overlay(),source.terrain(),request.maxRows,
+                                edit->{request.checkedRows.incrementAndGet();return opened.allowed().test(edit);},cancel);
+                    }
                     if(chunk!=null&&!request.lightingOnly) {
                         var sourceMetadata=source.metadata();
                         chunk=RegionReplayModelDraws.prepare(chunk,sourceMetadata==null?type->null:sourceMetadata::sourceDefinition,

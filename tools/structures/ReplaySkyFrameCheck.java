@@ -97,6 +97,7 @@ public final class ReplaySkyFrameCheck {
  }
  public static void main(String[] args)throws Exception {
   Path root=Path.of(args[0]),report=Path.of(args[1]),image=Path.of(args[2]);if(Files.exists(root)||Files.exists(report)||Files.exists(image))throw new IllegalArgumentException("Fresh outputs required");Files.createDirectory(root);
+  var pendingOverlayCheck=new PendingReplayOverlayTest();pendingOverlayCheck.folder=Files.createDirectory(root.resolve("pending-overlay-fixture"));pendingOverlayCheck.detachedCompositionPreservesColourFractionEmptySpaceAndBounds();pendingOverlayCheck.workerPagesPendingGeometryAndRejectsMixedChunkAndSkyPaths();pendingOverlayCheck.savingPendingSourceRequiresPrefixAndWritesItOnce();
   var savedPagingCheck=new SavedPagingFactoryTest();savedPagingCheck.folder=Files.createDirectory(root.resolve("saved-paging-fixture"));savedPagingCheck.retiredSourceCreatesFreshOwnedWorkerAndRejectsOldReceipts();savedPagingCheck.differentValidDestinationFailsFactoryAndCleansItsOwnedSpool();
   var journalTailCheck=new JournalTailAdoptionTest();journalTailCheck.folder=Files.createDirectory(root.resolve("journal-tail-fixture"));journalTailCheck.trackedEditsDuringSaveRemainLiveAndSurviveNextSave();journalTailCheck.untrackedChangesModelsAndUnboundJournalCannotAdoptMetadata();
   var editorCheck=new RegionReplayEditorTest();editorCheck.editsAndCellReplacementKeepExactOrderedJournal();editorCheck.budgetCancellationInvalidInputAndForeignThreadRejectBeforeWorldMutation();editorCheck.bypassAndPartialWorldFailurePoisonJournalInsteadOfClaimingRollback();
