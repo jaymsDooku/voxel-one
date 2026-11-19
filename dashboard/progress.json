@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rebase recovered; master validator64-entry cap verified on GitHub. Final12 Java and74 Linux checks passed; inventory fixture wait corrected without weakening rules. No deleted files against review base. Current32-case Mac playtest/media and signed iPhone delivery pending.",
-      "updatedAt": "2026-11-19T21:31:25+00:00"
+      "note": "Mac deadline:15 started,13 passed,1 model failure,1 camera unfinished. Added terrain readiness and fixed checkpoint capture; skip unchanged HUD writes.74 Linux checks passed.32-case native validation and actual performance/media pending; full port and signed iPhone delivery open.",
+      "updatedAt": "2026-11-19T22:04:33+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

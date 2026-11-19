@@ -99,16 +99,22 @@ class NativeProgressCaptureTests(unittest.TestCase):
             lines=["Test Case '-[VoxelOneUITests.WorldRulesTests testFirst]' started.",
                    "Test Case '-[VoxelOneUITests.WorldRulesTests testFirst]' failed.",
                    "Test Case '-[VoxelOneUITests.WorldRulesTests testOpen]' started.",
+                   'error: native_workflow_checkpoint code=model_place',
+                   'error: native_workflow_checkpoint code=private_fixture',
                    'private-fixture-marker' * 5000,
                    "Test Case '-[PrivateAccount testSecret]' started."]
             code='import time;print('+repr('\n'.join(lines))+',flush=True);time.sleep(10)'
             self.assertEqual(runner.run([sys.executable,'-c',code],log,1,{'testFirst','testOpen'}),124)
-            markers=[line for line in log.read_text().splitlines() if line.startswith('error: native_test_')]
+            lines=log.read_text().splitlines()
+            first=next(i for i,line in enumerate(lines) if line.startswith('error: native_test_deadline'))
+            markers=lines[first:]
             text='\n'.join(markers)
             self.assertIn('started=2 passed=0 failed=1 unfinished=1 expected=2 phase=test_open',text)
             self.assertIn('native_test_unfinished_event test_id='+runner.hashlib.sha256(b'testOpen').hexdigest()[:12],text)
             self.assertNotIn('private-fixture-marker',text)
             self.assertNotIn('testSecret',text)
+            self.assertIn('error: native_workflow_checkpoint code=model_place',text)
+            self.assertNotIn('private_fixture',text)
 
     def test_closed_events_do_not_claim_result_finalization_pass(self):
         with tempfile.TemporaryDirectory(dir=ROOT / 'target') as scratch:

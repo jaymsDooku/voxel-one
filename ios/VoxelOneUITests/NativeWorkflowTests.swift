@@ -37,15 +37,18 @@ final class NativeWorkflowTests:XCTestCase {
         let expectation=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in element.exists && element.isHittable},object:element)
         XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:10),.completed,"Unusable \(id); frame=\(element.frame); viewport=\(app.frame)")
     }
-    func waitTerrain(){
+    func waitTerrain(checkpoint:String?=nil){
         let scene=app.otherElements["worldView"]
         let ready=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in scene.value as? String == "Terrain ready"},object:scene)
-        XCTAssertEqual(XCTWaiter.wait(for:[ready],timeout:30),.completed,"Native terrain did not finish: \(String(describing:scene.value))")
+        let result=XCTWaiter.wait(for:[ready],timeout:30)
+        if result != .completed,let checkpoint=checkpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
+        XCTAssertEqual(result,.completed,"Native terrain did not finish: \(String(describing:scene.value))")
     }
-    func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
+    func textContains(_ id:String,_ value:String,timeout:TimeInterval=15,checkpoint:String?=nil){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
         if XCTWaiter.wait(for:[expectation],timeout:timeout) != .completed {
+            if let checkpoint=checkpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
             XCTFail("HUD observed: \(app.staticTexts[id].label.prefix(80)); expected: \(value.prefix(25))")
         }
     }
@@ -254,7 +257,7 @@ final class NativeWorkflowTests:XCTestCase {
         waitTerrain();capture("final-native-terrain-edited")
     }
     func testSandboxCameraModesAimReachAndPersistence()throws {
-        newOffline();textContains("playerPosition","Ground")
+        newOffline();textContains("playerPosition","Ground");waitTerrain(checkpoint:"camera_terrain")
         func choose(_ name:String){app.buttons["cameraButton"].tap();wait(app.buttons[name]);app.buttons[name].tap();textContains("gameStatus",name+" camera")}
         choose("Third person");capture("sandbox-third-person")
         app.terminate();app.launch();wait(app.buttons["cameraButton"])
@@ -279,19 +282,19 @@ final class NativeWorkflowTests:XCTestCase {
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
     }
     func testNativeModelAndFractionalPlacementSaveRestart()throws {
-        newOffline();textContains("playerPosition","Ground")
+        newOffline();textContains("playerPosition","Ground");waitTerrain(checkpoint:"model_terrain")
         let scene=app.otherElements["worldView"]
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
         app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot5"].tap()
-        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot",checkpoint:"model_place")
         capture("native-flower-pot-placed")
-        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
-        app.buttons["slot6"].tap();app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt 1/2 cube")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected",checkpoint:"model_collect")
+        app.buttons["slot6"].tap();app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt 1/2 cube",checkpoint:"model_half_place")
         XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"));capture("native-fractional-half-placed")
         app.terminate();app.launch();wait(app.buttons["placeButton"])
         app.scrollViews["hotbarScroll"].swipeLeft();XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"))
         capture("native-fractional-save-restarted")
-        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected",checkpoint:"model_collect")
         XCTAssertTrue(app.buttons["slot6"].label.contains("8 blocks"))
     }
     func testSaveMenuBarrierBackgroundAndColdRestart()throws {

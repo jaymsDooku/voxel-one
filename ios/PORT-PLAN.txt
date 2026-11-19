@@ -769,3 +769,32 @@ background/City regressions under repaired trusted validator. Existing30-case
 images/receipts are historical, not current-head qualification. Full procedural
 streaming/distant terrain, item/tool parity, live VPS, signed device delivery and
 physical-device performance/thermal/battery qualification remain open.
+
+Native readiness and unchanged HUD work
+Sourceca6900a9abf24aebb35895784fddde36da5740aa, run44619659649 reached the
+900-second native deadline. Captured15 started,13 passed,1 failed,1 unfinished;
+expected32. Failed method id9afefd974978 is model/fractional placement/restart;
+unfinished camera method idde15746551c7. This is incomplete execution, not a
+passing suite. No native client screenshot/video supplied; preflight excluded.
+
+Model and camera tests now wait for actual terrain readiness before aiming or
+picking. Model HUD failures and readiness failures emit only fixed checkpoint
+codes. Bounded progress observer retains allowlisted codes even when xcresult
+cannot finish at global deadline. Existing32 cases and900-second limit unchanged.
+Source inspection also found HUD setters reapplied every frame even if display
+state was unchanged. Cache visible HUD state including text, inventory, revision,
+slot, planning/pause/flight/camera/grid and viewport; reset on game entry. Craft
+status likewise updates only when changed. Simulation, rendering, input, saves
+and network polling retain their existing paths/cadence. This removes duplicate
+UIKit/accessibility writes, but actual time, thermal and battery benefit remains
+unmeasured and must not be claimed as a physical-device qualification.
+
+Executed74 Linux harness checks including fixed checkpoint persistence through
+large log/deadline and exclusion of unknown/private payloads. Project generation,
+Python compilation, shell syntax and diff checks passed. Updated synthetic marker
+assertion to inspect appended sanitized diagnostic section, not pre-marker inputs.
+No deleted files against current review base8a53afce99e735a7574bffab70558252577b387b.
+Playtest: native HUD/cache behavior, model/camera readiness and complete32-case
+qualification remain pending exact-source Mac execution. Request actual media
+with repaired trusted validator. Full parity, live VPS, signed install and physical
+iPhone frame-time/memory/thermal/battery gates remain open.

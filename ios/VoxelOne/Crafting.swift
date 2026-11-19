@@ -56,8 +56,9 @@ import UIKit
         }
     }
     func update(inventory:[[Int]],message:String,pending:Bool){
-        loadViewIfNeeded();status.text=message;table.isUserInteractionEnabled = !pending;quantity.isEnabled = !pending && maximumBatch>1
+        loadViewIfNeeded();if status.text != message {status.text=message}
         guard self.inventory != inventory || self.pending != pending else{return}
+        table.isUserInteractionEnabled = !pending;quantity.isEnabled = !pending && maximumBatch>1
         self.inventory=inventory;self.pending=pending;table.reloadData()
     }
     @objc private func close(){view.endEditing(true);let finish=onClose;dismiss(animated:true){finish?()}}

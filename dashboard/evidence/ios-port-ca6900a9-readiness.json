@@ -1,0 +1,27 @@
+{
+  "sourceHead": "ca6900a9abf24aebb35895784fddde36da5740aa",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44619659649",
+  "observedEvents": {
+    "started": 15,
+    "passed": 13,
+    "failed": 1,
+    "unfinished": 1,
+    "expected": 32
+  },
+  "failedMethodId": "9afefd974978",
+  "unfinishedMethodId": "de15746551c7",
+  "changes": [
+    "Terrain readiness before model/camera interaction",
+    "Fixed allowlisted failure checkpoint capture before teardown",
+    "Skip duplicate HUD and crafting status writes while display state is unchanged"
+  ],
+  "localTests": {
+    "linuxHarness": 74,
+    "failures": 0,
+    "projectGeneration": "passed",
+    "pythonCompilation": "passed",
+    "shellSyntax": "passed",
+    "diffCheck": "passed"
+  },
+  "Playtest": "Current native source and complete32-case qualification pending. No current native media or device performance claims."
+}

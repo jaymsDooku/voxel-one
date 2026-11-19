@@ -24,6 +24,12 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var loadingOverlay:UIView?
     private var closingMenu=false
     private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
+    private struct HUDState:Equatable {
+        var status:String;var position:String;var city:String;var inventory:[[Int]]
+        var slot:Int;var revision:Int;var planning:Bool;var paused:Bool;var flying:Bool
+        var camera:String;var depth:Int;var size:CGSize
+    }
+    private var lastHUDState:HUDState?
     private var graphicsOpen=false
     private weak var craftingScreen:NativeCraftingScreen?
     private var craftSaving=false
@@ -123,6 +129,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         showGame();saveOffline()
     }
     private func showGame() {
+        lastHUDState=nil
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
         aimPoint=nil;hudLandscape=nil;breakDepth=0
         inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
@@ -389,17 +396,19 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
-        if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
-        else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
-        craftingScreen?.update(inventory:world.snapshot.inventory,message:status.text ?? "",pending:busy || craftSaving || paused || !active)
+        let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
+        let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
+        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
+        craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
         applyHUDLayout(view.bounds.size)
+        let next=HUDState(status:statusText,position:positionText,city:cityText,inventory:world.snapshot.inventory,slot:world.slot,revision:world.revision,planning:renderer.planning,paused:paused,flying:world.flying,camera:renderer.sandboxCamera.title,depth:breakDepth,size:view.bounds.size)
+        guard next != lastHUDState else{return};lastHUDState=next
+        status.text=statusText;positionLabel.text=positionText;cityLabel.text=cityText
         gridButton?.setTitle(breakDepth==0 ? "Grid":"1/\(1<<breakDepth)",for:.normal)
         cameraButton?.accessibilityValue=renderer.sandboxCamera.title
         flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
         flyButton?.accessibilityValue=world.flying ? "On":"Off"
         descendButton?.isHidden = !world.flying
-        positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
-        cityLabel.text=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
         for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(world.itemName(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(world.itemName(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
         if let controls=bottom?.arrangedSubviews[1] as? UIStackView {

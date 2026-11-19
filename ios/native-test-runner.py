@@ -11,6 +11,8 @@ import subprocess
 import threading
 
 TAIL_BYTES = 65536
+_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect"}
+_CHECKPOINT = re.compile(r"error: native_workflow_checkpoint code=([a-z_]{1,32})$")
 _TEST = re.compile(
     r"^Test Case '-\[VoxelOneUITests\.(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests) "
     r"(test[A-Za-z0-9_]{1,96})\]' (started|passed|failed)(?:[ .(]|$)"
@@ -38,6 +40,7 @@ class TestProgress:
         self.allowed = set(allowed)
         self.started, self.passed, self.failed = set(), set(), set()
         self.states = {}
+        self.checkpoints = set()
         self.stop = threading.Event()
         self.lock = threading.Lock()
         self.thread = threading.Thread(target=self.observe, daemon=True)
@@ -61,7 +64,11 @@ class TestProgress:
                         discard = True
                     if fragment.endswith(b'\n'):
                         if not discard:
-                            match = _TEST.match(pending.decode('utf-8', errors='replace'))
+                            line=pending.decode('utf-8', errors='replace').rstrip('\r\n')
+                            checkpoint=_CHECKPOINT.search(line)
+                            if checkpoint and checkpoint[1] in _CHECKPOINT_CODES:
+                                with self.lock:self.checkpoints.add(checkpoint[1])
+                            match = _TEST.match(line)
                             if match and match[2] in self.allowed:
                                 name, state = match[2], match[3]
                                 with self.lock:
@@ -86,6 +93,8 @@ class TestProgress:
             for kind, names in [('unfinished', unfinished), ('failed', sorted(self.failed))]:
                 for name in names[:3]:
                     lines.append('error: native_test_' + kind + '_event test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12])
+            for checkpoint in sorted(self.checkpoints)[:3]:
+                lines.append('error: native_workflow_checkpoint code=' + checkpoint)
             return lines
 
 
