@@ -64,6 +64,8 @@ final class PracticeWire {
             out.writeInt(f.combo());
             out.writeInt(f.used());
             out.writeInt(f.remaining());
+            out.writeByte(f.side());
+            out.writeUTF(f.role());
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
@@ -104,9 +106,16 @@ final class PracticeWire {
             int id = in.readInt();
             String name = in.readUTF();
             if (!name.matches("[A-Za-z0-9_ ]{1,16}")) throw new IOException("Invalid fighter name");
-            fighters.add(new Fighter(id, name, finite(in), finite(in), finite(in), finite(in), finite(in),
-                    finite(in), in.readBoolean(), in.readBoolean(), in.readBoolean(), readEnum(in, Item.values()),
-                    in.readInt(), in.readInt(), in.readInt(), in.readInt()));
+            float x = finite(in), y = finite(in), z = finite(in), yaw = finite(in), pitch = finite(in), health = finite(in);
+            boolean moving = in.readBoolean(), swinging = in.readBoolean(), ready = in.readBoolean();
+            Item held = readEnum(in, Item.values());
+            int hits = in.readInt(), combo = in.readInt(), used = in.readInt(), remaining = in.readInt();
+            int side = in.readByte();
+            String role = in.readUTF();
+            if (side < -1 || side > 1 || !role.matches("[A-Za-z]{0,12}"))
+                throw new IOException("Invalid fighter affiliation");
+            fighters.add(new Fighter(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready,
+                    held, hits, combo, used, remaining, side, role));
         }
         count = count(in, 36);
         if (count != 0 && count != 36) throw new IOException("Invalid practice inventory");

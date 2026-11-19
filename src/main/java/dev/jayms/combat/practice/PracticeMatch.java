@@ -19,7 +19,7 @@ public final class PracticeMatch implements ArenaMatch {
 
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
-                          int hits, int combo, int used, int remaining) { }
+                          int hits, int combo, int used, int remaining, int side, String role) { }
     public record Missile(long id, Item item, float x, float y, float z) { }
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
@@ -163,7 +163,7 @@ public final class PracticeMatch implements ArenaMatch {
             fighters.add(new Fighter(fighterId, member.name, (float) p.x(), (float) p.y(), (float) p.z(), f.yaw(),
                     f.pitch(), (float) f.health(), moving, member.lastSwing >= 0 && tick - member.lastSwing < 5,
                     member.ready, f.inventory().get(f.slot()).item(), stats.hits(), stats.longestCombo(),
-                    stats.potsUsed(), stats.potsRemaining()));
+                    stats.potsUsed(), stats.potsRemaining(), -1, ""));
         }
         Member member = members.get(id);
         PlayerState self = member == null || member.side < 0 ? null : engine.snapshot(id);

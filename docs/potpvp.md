@@ -37,8 +37,8 @@ java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --game practice --factions --
 
 Create a faction account in the sign-in prompt on your first visit. The server stores faction progress and salted account hashes in separate files next to the requested save. The kit map uses two factions, Ember and Slate, with up to two fighters per side. It supports eliminations and King of the Hill.
 
-- Press **Z** or **X** to select a team in the lobby. **F1–F5** select the Fighter, Bard, Archer, Rogue, or Miner armor loadout. Armor and role effects follow the selected loadout after its warmup. **R** triggers the active class ability.
-- Each faction has a protected home and supply stash. **C** takes supplies from your home stash. **V** raids the opposing stash after their deaths until raidable (DTR) reach zero and you enter the raid area.
+- Press **Z** or **X** to select a team in the lobby. **F1–F5** select the Fighter, Bard, Archer, Rogue, or Miner armor loadout. Armor and role effects follow the selected loadout after its warmup. **R** triggers the active class ability. Ember wears orange and Slate wears blue. A visible fighter's label shows their class.
+- Each faction has a protected home and supply stash. **C** takes supplies from your home stash. When a knockout leaves the other faction at zero deaths until raidable (DTR), the survivors have 20 seconds to enter the opposing home and press **V** to raid its finite stash.
 - Enemy damage and harmful splash start combat tags. A tagged player cannot retreat into a protected home. Press **L** to check safe logout. Disconnecting while tagged leaves a vulnerable body, and reconnecting with the same account can recover it.
 - A defeat records a five-minute deathban and reduces team DTR. The default DTR freeze lasts 90 seconds before recovery begins. Only an uncontested team progresses the central hill, and a takeover resets the opposing progress.
 

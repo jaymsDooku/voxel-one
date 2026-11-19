@@ -39,6 +39,10 @@ class FactionMatchTest {
         lobby.action(bard, 2);
         lobby.action(ally, 2);
         lobby.action(opponent, 4);
+        assertEquals(0, fighter(lobby, bard).side());
+        assertEquals("Bard", fighter(lobby, bard).role());
+        assertEquals(1, fighter(lobby, opponent).side());
+        assertEquals("Rogue", fighter(lobby, opponent).role());
         assertTrue(has(lobby, ally, "already has a Bard"));
         assertTrue(lobby.view(spectator).inventory().isEmpty());
         assertEquals(spectator, lobby.view(spectator).spectatorId());
@@ -77,6 +81,7 @@ class FactionMatchTest {
         assertEquals(Result.OBJECTIVE, lobby.view(ember).result());
         assertEquals(ember, lobby.view(slate).winner());
         assertTrue(has(lobby, ember, "Ember DTR 2 / stash 12 / hills 1"));
+        assertFalse(has(lobby, ember, "Raid"));
     }
 
     @Test
@@ -135,36 +140,52 @@ class FactionMatchTest {
     }
 
     @Test
-    void twoDeathsOpenEnemyTerritoryAndAllowFiniteStashRaids() throws Exception {
+    void defaultTeamEliminationOpensBoundedRaidBeforeDeathbansExpire() throws Exception {
         var clock = new TestClock();
-        var lobby = new FactionMatch(temporary.resolve("raid.dat"), DEFAULT, clock);
+        var file = temporary.resolve("raid.dat");
+        var settings = FactionMatch.Settings.DEFAULT;
+        var lobby = new FactionMatch(file, settings, clock);
         int ember = lobby.join("Ember");
         int slate = lobby.join("Slate");
-        start(lobby, ember, slate);
+        int emberGuard = lobby.join("EmberGuard");
+        int slateGuard = lobby.join("SlateGuard");
+        for (int id : new int[] {ember, slate, emberGuard, slateGuard}) lobby.ready(id);
+        assertEquals(Phase.COUNTDOWN, lobby.view(ember).phase());
+        advance(lobby, settings.countdownTicks());
+        assertEquals(Phase.FIGHT, lobby.view(ember).phase());
+        send(lobby, ember, -90, -80, 0, false, true, 7);
+        lobby.tick();
+        assertEquals(Item.EMPTY, lobby.view(ember).inventory().get(7).item());
         for (int i = 0; i < 145; i++) {
             drive(lobby, ember, 0, -14);
             lobby.tick();
         }
         assertTrue(fighter(lobby, ember).z() >= -11.51);
-        for (int i = 0; i < 80; i++) {
-            drive(lobby, ember, 0, 4);
-            drive(lobby, slate, 0, -4);
-            lobby.tick();
-        }
         defeat(lobby, ember, slate);
+        assertEquals(Phase.FIGHT, lobby.view(ember).phase());
         assertTrue(has(lobby, ember, "Slate DTR 1"));
-        clock.time += 501;
-        advance(lobby, 2);
-        start(lobby, ember, slate);
-        defeat(lobby, ember, slate);
-        assertTrue(has(lobby, ember, "Slate DTR 0 RAIDABLE"));
+        assertTrue(has(lobby, slate, "Deathban"));
+        defeat(lobby, ember, slateGuard);
 
-        clock.time += 501;
-        advance(lobby, 2);
-        start(lobby, ember, slate);
-        send(lobby, ember, -90, -80, 0, false, true, 7);
+        assertEquals(Phase.RESULT, lobby.view(ember).phase());
+        assertEquals(Result.KNOCKOUT, lobby.view(ember).result());
+        assertEquals(ember, lobby.view(ember).winner());
+        assertTrue(has(lobby, ember, "Slate DTR 0 RAIDABLE"));
+        assertTrue(has(lobby, ember, "Raid Slate stash / 20s / V at enemy home"));
+        assertTrue(has(lobby, slateGuard, "Deathban"));
+        assertFalse(has(lobby, slateGuard, "V at enemy home"));
+        lobby.ready(ember);
+        assertFalse(fighter(lobby, ember).ready());
+        assertThrows(IllegalStateException.class, lobby::endSeason);
+
+        int pearls = lobby.view(ember).inventory().get(1).count();
+        int confirmedHits = fighter(lobby, ember).hits();
+        send(lobby, ember, -90, -80, 0, true, true, 1);
         lobby.tick();
-        assertEquals(Item.EMPTY, lobby.view(ember).inventory().get(7).item());
+        assertEquals(pearls, lobby.view(ember).inventory().get(1).count());
+        assertEquals(confirmedHits, fighter(lobby, ember).hits());
+        assertFalse(fighter(lobby, ember).swinging());
+        assertTrue(lobby.view(ember).missiles().isEmpty());
         for (int i = 0; i < 145; i++) {
             drive(lobby, ember, 0, -13);
             lobby.tick();
@@ -175,6 +196,18 @@ class FactionMatchTest {
         assertTrue(has(lobby, ember, "Slate DTR 0 RAIDABLE / stash 11"));
         lobby.action(ember, FactionMatch.RAID);
         assertTrue(has(lobby, ember, "Slate DTR 0 RAIDABLE / stash 11"));
+        assertEquals(slate, lobby.view(slate).spectatorId());
+        advance(lobby, lobby.view(ember).ticksLeft());
+        assertFalse(has(lobby, ember, "Raid Slate stash"));
+        lobby.action(ember, FactionMatch.RAID);
+        assertTrue(has(lobby, ember, "Slate DTR 0 RAIDABLE / stash 11"));
+        lobby.ready(ember);
+        assertEquals(Phase.WAITING, lobby.view(ember).phase());
+        assertTrue(fighter(lobby, ember).ready());
+
+        var reopened = new FactionMatch(file, settings, clock);
+        assertTrue(has(reopened, reopened.join("SlateGuard"), "Deathban"));
+        assertTrue(has(reopened, 0, "Slate DTR 0 RAIDABLE / stash 11"));
     }
 
     @Test
@@ -203,7 +236,7 @@ class FactionMatchTest {
     }
 
     private static void defeat(FactionMatch lobby, int attacker, int target) {
-        for (int i = 0; i < 280 && lobby.view(attacker).phase() == Phase.FIGHT; i++) {
+        for (int i = 0; i < 280 && fighter(lobby, target).health() > 0; i++) {
             if (i < 55) {
                 drive(lobby, attacker, 0, 4);
                 drive(lobby, target, 0, -4);
@@ -217,8 +250,7 @@ class FactionMatchTest {
             }
             lobby.tick();
         }
-        assertEquals(Result.KNOCKOUT, lobby.view(attacker).result());
-        assertEquals(attacker, lobby.view(attacker).winner());
+        assertEquals(0, fighter(lobby, target).health());
     }
 
     private static void start(FactionMatch lobby, int... participants) {

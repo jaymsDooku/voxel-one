@@ -34,6 +34,7 @@ public final class FactionMatch implements ArenaMatch {
     private static final int MAX_PEERS = 8;
     private static final int TEAM_CAPACITY = 2;
     private static final int ABILITY_COOLDOWN = 200;
+    private static final int RAID_TICKS = 20 * TICKS_PER_SECOND;
     private static final int BARD_MAX_ENERGY = 100;
     private static final int BARD_STRENGTH_COST = 40;
     private static final String[] TEAM_NAMES = {"Ember", "Slate"};
@@ -103,6 +104,7 @@ public final class FactionMatch implements ArenaMatch {
     private int nextId = 1;
     private int ticksLeft, winner;
     private int captureSide = -1, captureTicks;
+    private int raidTarget = -1;
     private boolean contested, dirty;
     private long tick, serial, lastSplash = -1, retryAt;
 
@@ -201,11 +203,13 @@ public final class FactionMatch implements ArenaMatch {
 
     @Override public synchronized void input(int id, Intent intent) {
         Seat seat = active(id);
-        if (phase != Phase.FIGHT || seat == null || intent == null || intent.sequence() <= seat.lastClientSequence) {
+        boolean combat = phase == Phase.FIGHT;
+        if (seat == null || (!combat && !canRaid(seat)) || intent == null
+                || intent.sequence() <= seat.lastClientSequence) {
             return;
         }
         var authoritative = new Intent(++serial, intent.yaw(), intent.pitch(), intent.forward(), intent.strafe(),
-                intent.jump(), intent.sprint(), intent.attack(), intent.use(), intent.slot());
+                intent.jump(), intent.sprint(), combat && intent.attack(), combat && intent.use(), intent.slot());
         if (engine.submit(id, authoritative)) seat.lastClientSequence = intent.sequence();
     }
 
@@ -228,7 +232,10 @@ public final class FactionMatch implements ArenaMatch {
             }
             return;
         }
-        if (phase != Phase.FIGHT) return;
+        if (phase != Phase.FIGHT) {
+            if (action == RAID && canRaid(seat)) supplies(id, seat, true);
+            return;
+        }
         switch (action) {
             case ABILITY -> ability(id, seat);
             case RESUPPLY -> supplies(id, seat, false);
@@ -256,12 +263,7 @@ public final class FactionMatch implements ArenaMatch {
                 }
             }
             case FIGHT -> fight();
-            case RESULT -> {
-                if (ticksLeft > 0) ticksLeft--;
-                if (ticksLeft == 0 && seats.values().stream().noneMatch(s -> s.online && s.side >= 0)) {
-                    returnToLobby();
-                }
-            }
+            case RESULT -> tickResult();
         }
         persist();
     }
@@ -281,7 +283,7 @@ public final class FactionMatch implements ArenaMatch {
                     fighter.yaw(), fighter.pitch(), (float) fighter.health(), moving,
                     seat.lastSwing >= 0 && tick - seat.lastSwing < 5, seat.ready,
                     fighter.inventory().get(fighter.slot()).item(), stats.hits(), stats.longestCombo(),
-                    stats.potsUsed(), stats.potsRemaining()));
+                    stats.potsUsed(), stats.potsRemaining(), seat.side, seat.role.title));
         }
         Seat seat = seats.get(id);
         PlayerState self = seat == null || !seat.online || seat.side < 0 || seat.eliminated
@@ -320,7 +322,7 @@ public final class FactionMatch implements ArenaMatch {
     }
 
     private void requireSeasonBoundary() {
-        if (phase == Phase.COUNTDOWN || phase == Phase.FIGHT) {
+        if (phase == Phase.COUNTDOWN || phase == Phase.FIGHT || raidOpen()) {
             throw new IllegalStateException("Finish the faction match before switching seasons");
         }
     }
@@ -498,7 +500,7 @@ public final class FactionMatch implements ArenaMatch {
         for (int side = 0; side < 2; side++) {
             Team old = teams[side];
             final int checking = side;
-            if (old.dtr() >= MAX_DTR || now < old.nextRecovery()
+            if (old.dtr() >= MAX_DTR || now < old.nextRecovery() || raidOpen() && side == raidTarget
                     || seats.values().stream().anyMatch(s -> s.side == checking && tagged(s))) continue;
             int next = (int) Math.min(MAX_DTR, old.dtr() + 1L + (now - old.nextRecovery())
                     / settings.dtrRecoveryMillis());
@@ -555,6 +557,7 @@ public final class FactionMatch implements ArenaMatch {
         if (land < 0) return true;
         Seat seat = seats.get(id);
         if (seat == null) return false;
+        if (canRaid(seat)) return true;
         if (phase != Phase.FIGHT) return seat.side == land;
         if (seat.side != land && teams[land].dtr() == 0) return true;
         if (seat.side == land && !tagged(seat)) return true;
@@ -669,6 +672,7 @@ public final class FactionMatch implements ArenaMatch {
         result = cause;
         phase = Phase.RESULT;
         ticksLeft = settings.resultTicks();
+        Seat victor = seats.get(winner);
         for (var it = seats.entrySet().iterator(); it.hasNext();) {
             var entry = it.next();
             Seat seat = entry.getValue();
@@ -680,13 +684,56 @@ public final class FactionMatch implements ArenaMatch {
                 it.remove();
             }
         }
+        if (cause == Result.KNOCKOUT && victor != null) startRaid(victor.side);
+    }
+
+    private void startRaid(int winningSide) {
+        int losingSide = 1 - winningSide;
+        if (teams[losingSide].dtr() != 0 || seats.values().stream().noneMatch(
+                seat -> seat.side == winningSide && seat.online && eligible(seat))) return;
+        raidTarget = losingSide;
+        ticksLeft = RAID_TICKS;
+        engine.clearProjectiles();
+        for (var entry : seats.entrySet()) {
+            if (!canRaid(entry.getValue())) continue;
+            int id = entry.getKey();
+            engine.clearInput(id);
+            engine.applyEffect(id, Effect.POISON, 0);
+            engine.applyEffect(id, Effect.SLOWNESS, 0);
+            engine.applyEffect(id, Effect.MARK, 0);
+            entry.getValue().lastSwing = -1;
+        }
+    }
+
+    private void tickResult() {
+        if (raidOpen()) {
+            if (seats.values().stream().anyMatch(this::canRaid)) {
+                engine.tick();
+                engine.drainEvents();
+            } else {
+                ticksLeft = 0;
+            }
+        }
+        if (ticksLeft > 0) ticksLeft--;
+        if (ticksLeft == 0) {
+            raidTarget = -1;
+            if (seats.values().stream().noneMatch(s -> s.online && s.side >= 0)) returnToLobby();
+        }
+    }
+
+    private boolean raidOpen() {
+        return phase == Phase.RESULT && raidTarget >= 0 && ticksLeft > 0;
+    }
+
+    private boolean canRaid(Seat seat) {
+        return raidOpen() && seat.online && seat.side == 1 - raidTarget && eligible(seat);
     }
 
     private void returnToLobby() {
         phase = Phase.WAITING;
         result = Result.NONE;
         winner = ticksLeft = captureTicks = 0;
-        captureSide = -1;
+        captureSide = raidTarget = -1;
         contested = false;
         lastSplash = -1;
         marks.clear();
@@ -731,6 +778,10 @@ public final class FactionMatch implements ArenaMatch {
         if (phase == Phase.FIGHT || result == Result.OBJECTIVE) {
             info.add(contested ? "Hill contested" : captureSide < 0 ? "Hill open"
                     : TEAM_NAMES[captureSide] + " hill " + seconds(captureTicks) + "/" + seconds(settings.captureTicks()) + "s");
+        }
+        if (raidOpen()) {
+            info.add("Raid " + TEAM_NAMES[raidTarget] + " stash / " + seconds(ticksLeft) + "s"
+                    + (seat != null && canRaid(seat) ? " / V at enemy home" : ""));
         }
         if (seat != null && seat.online) {
             long bannedUntil = progress(seat).bannedUntil();

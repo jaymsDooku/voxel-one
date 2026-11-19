@@ -31,6 +31,7 @@ import dev.jayms.window.Window;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
 import org.joml.Vector3f;
+import org.joml.Vector4f;
 import org.lwjgl.glfw.GLFWErrorCallback;
 import org.lwjgl.opengl.GL;
 import org.lwjgl.system.MemoryStack;
@@ -51,6 +52,8 @@ import static org.lwjgl.opengl.GL33.*;
 /** First-person practice view backed by the same match simulation online and offline. */
 public final class PracticeGame {
     private static final long STEP = 50_000_000L;
+    private static final int[] TEAM_JERSEYS = {0xe75a36, 0x38a6ce};
+    private static final String[] TEAM_NAMES = {"Ember", "Slate"};
     private static final Controls.Action[] SLOTS = {SLOT_1, SLOT_2, SLOT_3, SLOT_4, SLOT_5, SLOT_6, SLOT_7, SLOT_8, SLOT_9};
     private final PracticeClient remote;
     private final PracticeMatch offline;
@@ -60,6 +63,7 @@ public final class PracticeGame {
     private final Camera camera = new Camera();
     private final Vector3f feet = new Vector3f(), destination = new Vector3f();
     private final Matrix4f projection = new Matrix4f();
+    private final Matrix4f clipFromWorld = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
     private Controls controls;
     private Window window;
@@ -362,7 +366,8 @@ public final class PracticeGame {
         Vector3f eye = camera.position();
         projection.identity().perspective((float) Math.toRadians(73), (float) width / height, .06f, 180);
         Matrix4f matrix = camera.createViewMatrix();
-        frustum.set(new Matrix4f(projection).mul(matrix));
+        clipFromWorld.set(projection).mul(matrix);
+        frustum.set(clipFromWorld);
         pipeline.time(GameConfig.sandbox(), 0);
         pipeline.update(world, eye.x, eye.z);
         pipeline.renderShadows(world, models, eye);
@@ -380,7 +385,7 @@ public final class PracticeGame {
             var pose = new Protocol.Pose(fighter.id(), fighter.x(), fighter.y(), fighter.z(), fighter.yaw(),
                     fighter.pitch(), view.tick() * .55f, fighter.moving() ? 1 : 0, false,
                     fighter.swinging() ? .36f : 1, renderItem(fighter.held()));
-            avatars.render(pose, shader, models);
+            avatars.render(pose, shader, models, fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()]);
         }
         for (var missile : view.missiles()) {
             var drop = new ItemDrop((int) missile.id(), renderItem(missile.item()), 1, missile.x(), missile.y(), missile.z());
@@ -440,6 +445,7 @@ public final class PracticeGame {
             ui.rectangle(0, 0, width, 8, 1, .16f, .12f, .75f);
             ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, .75f);
         }
+        if (factions) drawTeamLabels(ui);
         String title = factions ? "Faction Arena" : view.kit() == PracticeMatch.Kit.DEBUFF ? "Debuff" : "No Debuff";
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
         ui.text("Basalt Courtyard  /  " + title, 27, 24, 1.4f);
@@ -481,7 +487,37 @@ public final class PracticeGame {
     private String resultText() {
         if (view.winner() == 0) return "Draw";
         return view.fighters().stream().filter(f -> f.id() == view.winner()).findFirst()
-                .map(f -> f.name() + " wins").orElse("Faction victory");
+                .map(f -> (f.side() < 0 ? f.name() : TEAM_NAMES[f.side()]) + " wins").orElse("Faction victory");
+    }
+
+    private void drawTeamLabels(Overlay ui) {
+        for (Fighter fighter : view.fighters()) {
+            if (fighter.id() == id || fighter.side() < 0 || fighter.health() <= 0 || !visible(fighter)) continue;
+            Vector4f clip = clipFromWorld.transform(new Vector4f(fighter.x(), fighter.y() + 2.16f, fighter.z(), 1));
+            if (clip.w <= 0 || Math.abs(clip.x) > clip.w || Math.abs(clip.y) > clip.w || Math.abs(clip.z) > clip.w) continue;
+            float x = (clip.x / clip.w * .5f + .5f) * width;
+            float y = (.5f - clip.y / clip.w * .5f) * height;
+            String text = fighter.name() + " / " + fighter.role();
+            float boxWidth = ui.textWidth(text, 1.15f) + 14;
+            int color = TEAM_JERSEYS[fighter.side()];
+            ui.rectangle(x - boxWidth / 2, y - 3, boxWidth, 16, .031f, .05f, .065f, .83f);
+            ui.text(text, x - boxWidth / 2 + 7, y, 1.15f, (color >> 16 & 255) / 255f,
+                    (color >> 8 & 255) / 255f, (color & 255) / 255f, 1);
+        }
+    }
+
+    private boolean visible(Fighter fighter) {
+        Vector3f eye = camera.position();
+        Vector3f offset = new Vector3f(fighter.x(), fighter.y() + 1.36f, fighter.z()).sub(eye);
+        int count = (int) Math.ceil(offset.length() * 5);
+        if (count < 1 || count > 220) return false;
+        for (int i = 1; i < count; i++) {
+            float t = i / (float) count;
+            if (BasaltCourtyard.block((int) Math.floor(eye.x + offset.x * t),
+                    (int) Math.floor(eye.y + offset.y * t),
+                    (int) Math.floor(eye.z + offset.z * t)) != Blocks.AIR) return false;
+        }
+        return true;
     }
 
     private void drawPlayerHud(Overlay ui, Fighter actor) {

@@ -76,6 +76,12 @@ class FactionNetworkTest {
             assertTrue(bard.action(BARD));
             assertTrue(rogue.action(ROGUE));
             await(() -> status(bard, "Ember / Bard") && status(rogue, "Slate / Rogue"), "faction role HUD");
+            assertEquals("Bard", self(bard).role());
+            assertEquals("Rogue", self(rogue).role());
+            for (var client : clients) {
+                assertEquals(0, fighter(client, bard.id()).side());
+                assertEquals(1, fighter(client, rogue.id()).side());
+            }
             for (var client : clients) assertTrue(client.ready());
             await(() -> phase(clients, Phase.FIGHT), "all clients enter the 2v2 fight");
             await(() -> bard.view().status().stream().map(ENERGY::matcher)
@@ -132,7 +138,11 @@ class FactionNetworkTest {
     }
 
     private static Fighter self(PracticeClient client) {
-        return client.view().fighters().stream().filter(fighter -> fighter.id() == client.id()).findFirst().orElseThrow();
+        return fighter(client, client.id());
+    }
+
+    private static Fighter fighter(PracticeClient client, int id) {
+        return client.view().fighters().stream().filter(fighter -> fighter.id() == id).findFirst().orElseThrow();
     }
 
     private static boolean status(PracticeClient client, String text) {

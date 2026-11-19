@@ -248,6 +248,9 @@ public final class CombatEngine {
         return shots.stream().map(shot -> new ProjectileState(shot.id, shot.ownerId, shot.item, shot.position)).toList();
     }
 
+    /** Ends in-flight effects at a match phase boundary without resetting participants. */
+    public void clearProjectiles() { shots.clear(); }
+
     public List<Event> drainEvents() {
         var drained = List.copyOf(events);
         events.clear();
