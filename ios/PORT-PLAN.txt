@@ -798,3 +798,27 @@ Playtest: native HUD/cache behavior, model/camera readiness and complete32-case
 qualification remain pending exact-source Mac execution. Request actual media
 with repaired trusted validator. Full parity, live VPS, signed install and physical
 iPhone frame-time/memory/thermal/battery gates remain open.
+
+City world-data picking and graphics failure stages
+Source45d453902489458058ee6c85c52136acb5c12a1b, run44625107201 completed
+all32 cases:30 passed,2 failed,0 unfinished. Failing ids are City planning
+e84305363720 and graphics draftb85262609054. City HUD expected2 plan points
+but showed generic online status. This is a failed suite, not qualification;
+current gameplay media was not returned and preflight is excluded.
+
+City planning previously hit-tested only installed SceneKit mesh nodes. It now
+unprojects the displayed camera ray and picks exact received world geometry via
+existing bounded180-block raycast, matching Sandbox geometry semantics and avoiding
+mesh-installation gaps. Server plan validation/costs remain unchanged. Planning
+point count remains visible after transient notices expire. City native workflow
+waits for terrain readiness before touch selection; touch/coordinate/undo/server
+road-count/reconnect requirements remain intact.
+Graphics failure location was not retained within the trusted diagnostic window.
+Add fixed workflow stage codes from normal XCTest teardown on actual failure
+(open/draft/saved/landscape/reset-cancel/high), retained by bounded observer. No
+graphics preference or assertion change is guessed from incomplete diagnostics.
+Executed74 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: City picking repair and unresolved graphics regression need exact-source
+Mac32-case execution and real media. Existing32-case count and900s limit retained.
+Full engine parity, live VPS, signed install and physical iPhone gates remain open.

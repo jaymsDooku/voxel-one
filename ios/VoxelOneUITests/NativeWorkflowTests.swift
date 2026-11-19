@@ -3,8 +3,13 @@ import XCTest
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
 final class NativeWorkflowTests:XCTestCase {
     var app:XCUIApplication!
+    private var workflowCheckpoint:String?
+    override func tearDown(){
+        if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
+        super.tearDown()
+    }
     override func setUpWithError()throws {
-        continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
+        workflowCheckpoint=nil;continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
         app=XCUIApplication();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? ""
         app.launch()
     }
@@ -368,7 +373,7 @@ final class NativeWorkflowTests:XCTestCase {
         if app.buttons["planToggle"].label=="Plan" {app.buttons["planToggle"].tap()}
         app.buttons["toolButton"].tap();app.buttons["Dirt road"].tap()
         app.buttons["confirmPlan"].tap();textContains("gameStatus","two points")
-        let scene=app.otherElements["worldView"];wait(scene)
+        let scene=app.otherElements["worldView"];wait(scene);waitTerrain()
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.40,dy:0.46)).tap()
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.62,dy:0.48)).tap()
         textContains("gameStatus","2 plan points")
@@ -404,26 +409,32 @@ final class NativeWorkflowTests:XCTestCase {
     }
 
     func testGraphicsDraftApplyPersistenceAndLandscape(){
+        workflowCheckpoint="graphics_open"
         newOffline();app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         app.segmentedControls["graphicsAA"].buttons["Off"].tap()
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        workflowCheckpoint="graphics_draft"
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
         app.segmentedControls["graphicsPreset"].buttons["Low"].tap()
         app.segmentedControls["graphicsFrames"].buttons["60 FPS"].tap()
         app.segmentedControls["graphicsDetail"].buttons["64"].tap();capture("graphics-native-draft")
         app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap();wait(app.buttons["breakButton"])
+        workflowCheckpoint="graphics_saved"
         app.terminate();app.launch();wait(app.buttons["graphicsButton"])
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected)
         XCTAssertTrue(app.segmentedControls["graphicsFrames"].buttons["60 FPS"].isSelected)
         XCTAssertTrue(app.segmentedControls["graphicsDetail"].buttons["64"].isSelected)
+        workflowCheckpoint="graphics_landscape"
         XCUIDevice.shared.orientation = .landscapeLeft;capture("graphics-native-landscape")
         app.swipeUp();wait(app.buttons["graphicsReset"]);app.buttons["graphicsReset"].tap()
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        workflowCheckpoint="graphics_reset_cancel"
         XCUIDevice.shared.orientation = .portrait;app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected,"Reset is only a draft until Apply")
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+        workflowCheckpoint="graphics_high"
         // Exercise the high requested AA path; effective samples remain device limited.
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
         app.segmentedControls["graphicsPreset"].buttons["High"].tap();app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap()

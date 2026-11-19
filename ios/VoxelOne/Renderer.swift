@@ -208,9 +208,14 @@ import simd
         guard let seen=world.raycast(origin:eye,direction:SCNVector3(direction.x,direction.y,direction.z),reach:min(5,length+0.01)),seen.hit==pick.hit,abs(seen.distance-length)<0.03 else{return nil}
         return pick
     }
-    func point(at location:CGPoint) -> SCNVector3? {
-        let hits=view.hitTest(location,options:[.rootNode:terrain,.firstFoundOnly:true])
-        return hits.first?.worldCoordinates
+    func point(at location:CGPoint,world:VoxelWorld) -> SCNVector3? {
+        // City planning must use the received world, including while chunk meshes install.
+        let near=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),0))
+        let far=view.unprojectPoint(SCNVector3(Float(location.x),Float(location.y),1))
+        let delta=SIMD3<Float>(far.x-near.x,far.y-near.y,far.z-near.z)
+        let length=simd_length(delta)
+        guard length.isFinite,length>0 else{return nil};let d=delta/length
+        return world.raycast(origin:near,direction:SCNVector3(d.x,d.y,d.z),reach:180)?.point
     }
     func mark(_ points:[[Float]],world:VoxelWorld) {
         markers.childNodes.forEach{$0.removeFromParentNode()}

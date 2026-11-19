@@ -244,7 +244,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             crosshair.transform=CGAffineTransform(translationX:point.x-view.bounds.midX,y:point.y-view.bounds.midY)
             notify("Target set. Break or Place within five blocks.");return
         }
-        guard renderer.planning,let point=renderer.point(at:gesture.location(in:renderer.view)) else{return}
+        guard renderer.planning,let point=renderer.point(at:gesture.location(in:renderer.view),world:world) else{return}
         if tool==0 {
             let c=world.snapshot.city?.citizens.min{hypot($0.x-point.x,$0.z-point.z)<hypot($1.x-point.x,$1.z-point.z)}
             if let c=c,hypot(c.x-point.x,c.z-point.z)<4 {notify("\(c.name): \(c.activity), $\(Int(c.money)), hunger \(Int(c.hunger))")}
@@ -396,7 +396,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
-        let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
+        let defaultStatus=renderer.planning && !points.isEmpty ? "\(points.count) plan points.":"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
+        let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:defaultStatus
         let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
         let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
         craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
