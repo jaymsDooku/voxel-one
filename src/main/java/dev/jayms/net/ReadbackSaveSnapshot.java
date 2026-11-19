@@ -8,6 +8,7 @@ import java.util.*;
 import java.util.function.*;
 import java.util.concurrent.CancellationException;
 import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicLong;
 
 /** Private owner capture -> worker staging -> owner authorization -> worker
  * publication, plus a strict blocking reference commit. Neither is connected to
@@ -101,14 +102,18 @@ final class ReadbackSaveSnapshot {
         @Override public void close()throws IOException{owner();if(!transferred){consumed=true;prefix.close();}}
     }
     enum Phase {AUTHORIZED,WORKING,COMMITTING,PUBLISHED,CANCELLED,FAILED}
+    /** Verification progress only; bytes reaching total does not imply commit. */
+    record PublicationProgress(Phase phase,long verifiedBytes,long totalBytes) {}
     /** Private one-worker transfer. No executor, dirty-state clearing, generation
      * refresh, Main integration or sidecar transaction is supplied by this API. */
     final class Publication implements AutoCloseable {
         private final StagedOfflineSave prefix;
         private final AtomicReference<Phase> phase=new AtomicReference<>(Phase.AUTHORIZED);
+        private final AtomicLong verifiedBytes=new AtomicLong();
         private Thread worker;
         private Publication(StagedOfflineSave prefix){this.prefix=prefix;}
         Phase phase(){return phase.get();}
+        PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
         private synchronized void worker()throws IOException {
             if(Thread.currentThread()==owner)throw new IOException("Readback publication worker required");
             if(worker==null)worker=Thread.currentThread();
@@ -129,7 +134,8 @@ final class ReadbackSaveSnapshot {
             }
             try {
                 prefix.publishSealed(generation,()->phase.get()==Phase.CANCELLED,
-                        ()->phase.compareAndSet(Phase.WORKING,Phase.COMMITTING));
+                        ()->phase.compareAndSet(Phase.WORKING,Phase.COMMITTING),
+                        bytes->verifiedBytes.set(Math.min(bytes,generation.bytes())));
                 phase.set(Phase.PUBLISHED);
             }catch(IOException|RuntimeException|Error failure){
                 phase.compareAndSet(Phase.WORKING,Phase.FAILED);phase.compareAndSet(Phase.COMMITTING,Phase.FAILED);

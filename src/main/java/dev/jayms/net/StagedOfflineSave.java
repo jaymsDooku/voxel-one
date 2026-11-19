@@ -8,6 +8,7 @@ import java.nio.channels.FileChannel;
 import java.nio.file.*;
 import java.util.function.BooleanSupplier;
 import java.util.function.IntConsumer;
+import java.util.function.LongConsumer;
 import java.util.function.Predicate;
 import java.util.Objects;
 
@@ -158,12 +159,18 @@ final class StagedOfflineSave implements AutoCloseable {
     private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel)throws IOException {
         publishSealedInternal(expected,cancel,()->true);
     }
+    void publishSealed(WorldSavePublication.Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit,LongConsumer progress)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(beginCommit);Objects.requireNonNull(progress);publishSealedInternal(expected,cancel,beginCommit,progress);
+    }
     private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit)throws IOException {
+        publishSealedInternal(expected,cancel,beginCommit,n->{});
+    }
+    private void publishSealedInternal(WorldSavePublication.Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit,LongConsumer progress)throws IOException {
         Objects.requireNonNull(cancel);if(closed||!sealed)throw new IOException("Staged offline save not sealed or closed");
         try {
             StructurePackage.cancelled(cancel);
             if(expected==null)WorldSavePublication.replace(temp,target,true);
-            else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel,beginCommit);
+            else WorldSavePublication.replaceIfUnchanged(temp,target,expected,cancel,beginCommit,progress);
             closed=true;
         }catch(IOException|RuntimeException|Error failure){try{close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
     }

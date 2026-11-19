@@ -9,6 +9,7 @@ import java.nio.file.attribute.BasicFileAttributes;
 import java.security.*;
 import java.util.*;
 import java.util.function.BooleanSupplier;
+import java.util.function.LongConsumer;
 import java.util.concurrent.locks.ReentrantLock;
 import java.util.concurrent.locks.LockSupport;
 import dev.jayms.net.structure.StructurePackage;
@@ -88,6 +89,7 @@ final class WorldSavePublication {
         private final Path target;private final long revision,maxBytes;private final FileState file;private final Epoch epoch;
         private Generation(Path target,long revision,long maxBytes,FileState file,Epoch epoch){this.target=target;this.revision=revision;this.maxBytes=maxBytes;this.file=file;this.epoch=epoch;}
         Path target(){return target;}
+        long bytes(){return file.size();}
     }
     private record FileState(boolean exists,long size,Object key,Object modified,Object created,String digest) {}
     static Generation capture(Path target,long maxBytes,BooleanSupplier cancel)throws IOException {
@@ -120,7 +122,10 @@ final class WorldSavePublication {
         }
     }
     private static FileState observe(Path path,long maxBytes,BooleanSupplier cancel)throws IOException {
-        StructurePackage.cancelled(cancel);BasicFileAttributes before;
+        return observe(path,maxBytes,cancel,n->{});
+    }
+    private static FileState observe(Path path,long maxBytes,BooleanSupplier cancel,LongConsumer progress)throws IOException {
+        StructurePackage.cancelled(cancel);progress.accept(0);StructurePackage.cancelled(cancel);BasicFileAttributes before;
         try{before=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);}
         catch(NoSuchFileException absent){return new FileState(false,0,null,null,null,null);}
         if(!before.isRegularFile()||before.size()>maxBytes)throw new IOException("Save generation file budget/type");
@@ -129,7 +134,7 @@ final class WorldSavePublication {
         try(var input=Files.newInputStream(path)) {
             for(;;) {
                 StructurePackage.cancelled(cancel);int count=input.read(buffer);if(count<0)break;
-                if(count>maxBytes-read)throw new IOException("Save generation file budget");read+=count;digest.update(buffer,0,count);
+                if(count>maxBytes-read)throw new IOException("Save generation file budget");read+=count;digest.update(buffer,0,count);progress.accept(read);
             }
         }
         StructurePackage.cancelled(cancel);var after=Files.readAttributes(path,BasicFileAttributes.class,LinkOption.NOFOLLOW_LINKS);
@@ -156,12 +161,17 @@ final class WorldSavePublication {
     /** beginCommit claims the irreversible publication boundary under the lease.
      * A false result leaves both destination and publication epoch unchanged. */
     static void replaceIfUnchanged(Path source,Path target,Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit)throws IOException {
-        Objects.requireNonNull(expected);Objects.requireNonNull(cancel);Objects.requireNonNull(beginCommit);StructurePackage.cancelled(cancel);
+        replaceIfUnchanged(source,target,expected,cancel,beginCommit,n->{});
+    }
+    /** Worker callbacks report cumulative destination bytes at most once per
+     * 64 KiB read. Completion of hashing is not completion of publication. */
+    static void replaceIfUnchanged(Path source,Path target,Generation expected,BooleanSupplier cancel,BooleanSupplier beginCommit,LongConsumer progress)throws IOException {
+        Objects.requireNonNull(expected);Objects.requireNonNull(cancel);Objects.requireNonNull(beginCommit);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
         var path=normalized(target);if(!path.equals(expected.target))throw new IOException("Save generation target mismatch");var lock=stripe(path);
         try(var guard=enter(lock);var ignored=lease(path)) {
             if(lock.revision!=expected.revision)throw new IOException("Save publication generation changed");
             if(!ignored.epoch().equals(expected.epoch))throw new IOException("Save publication epoch changed");
-            if(!observe(path,expected.maxBytes,cancel).equals(expected.file))throw new IOException("Save destination changed");
+            if(!observe(path,expected.maxBytes,cancel,progress).equals(expected.file))throw new IOException("Save destination changed");
             StructurePackage.cancelled(cancel);if(!beginCommit.getAsBoolean())throw new java.util.concurrent.CancellationException("Save publication cancelled before commit");
             ignored.advance();move(source,target,true,Files::move);lock.revision++;
         }
