@@ -32,7 +32,7 @@ final class ReadbackSaveSnapshot {
     }
     static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(local);Objects.requireNonNull(world);Objects.requireNonNull(overlay);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
-        if(local.replayComplete()||local.readbackGeneration()==null||local.readbackFingerprint().isEmpty()
+        if(local.city!=null||local.replayComplete()||local.readbackGeneration()==null||local.readbackFingerprint().isEmpty()
                 ||world.models()!=local.models||world.terrain().seed!=local.seed||world.terrain().version!=local.generatorVersion)
             throw new IOException("Readback save source/World mismatch");
         var fence=world.beginReplayFence();
@@ -55,12 +55,16 @@ final class ReadbackSaveSnapshot {
         snapshot.validate();StructurePackage.cancelled(cancel);return snapshot;
     }
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Readback save owner required");}
-    private void validate()throws IOException {
+    private void validateGeometry()throws IOException {
         owner();
         try{fence.validate(world);}catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Readback save World changed",changed);}
-        if(local.replayComplete()||local.readbackGeneration()!=generation||!fingerprint.equals(local.readbackFingerprint())
-                ||local.models!=liveModels||world.models()!=liveModels||liveModels.revision()!=modelRevision||local.health!=health||!drops.equals(local.drops))
-            throw new IOException("Readback save owner state changed");
+        if(local.city!=null||local.replayComplete()||local.readbackGeneration()!=generation||!fingerprint.equals(local.readbackFingerprint())
+                ||local.models!=liveModels||world.models()!=liveModels||liveModels.revision()!=modelRevision)
+            throw new IOException("Readback save owner geometry/models changed");
+    }
+    private void validate()throws IOException {
+        validateGeometry();
+        if(local.health!=health||!drops.equals(local.drops))throw new IOException("Readback save owner state changed");
         var current=local.inventory;if(current==null)throw new IOException("Readback save inventory changed");
         for(int i=0;i<Inventory.SIZE;i++)if(current.type(i)!=inventory.type(i)||current.count(i)!=inventory.count(i))throw new IOException("Readback save inventory changed");
     }
@@ -116,6 +120,8 @@ final class ReadbackSaveSnapshot {
         private Thread worker;
         private final String sealedFingerprint;
         private boolean sourceTransferred;
+        private volatile RegionReplayWorker.Source reopenedSource;
+        private boolean tailAdopted;
         private Publication(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
         Phase phase(){return phase.get();}
         PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
@@ -158,8 +164,21 @@ final class ReadbackSaveSnapshot {
             var source=LocalGame.openRegionalReadback(generation.target(),directory,revision,cancel,progress);
             try {
                 if(!sealedFingerprint.equals(source.fingerprint()))throw new IOException("Published snapshot replaced before readback");
-                StructurePackage.cancelled(cancel);sourceTransferred=true;return source;
+                StructurePackage.cancelled(cancel);sourceTransferred=true;reopenedSource=source;return source;
             }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+        }
+        /** Prepare a new metadata-only baseline retaining current survival
+         * state. Geometry/model edits still need rebasing and reject here.
+         * Does not install a World read view, clear edits or promote Main. */
+        LocalGame adoptCurrentTail(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||tailAdopted||source==null||source!=reopenedSource)throw new IOException("Readback baseline candidate mismatch");
+            validateGeometry();
+            var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+            var currentDrops=new LinkedHashMap<>(current.drops);
+            validateGeometry();current.validate();StructurePackage.cancelled(cancel);
+            var result=source.metadata().transferCurrentTail(local,current.inventory,currentDrops,current.health);
+            tailAdopted=true;return result;
         }
         /** Owner completion check only. False never rolls back a published file. */
         boolean snapshotCurrent()throws IOException {

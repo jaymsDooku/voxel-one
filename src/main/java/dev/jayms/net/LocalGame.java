@@ -67,6 +67,14 @@ public final class LocalGame {
         long sourceModelsRevision(){return sourceModels.revision();}
         ModelLibrary sourceModelSnapshot(){return sourceModels.copy();}
         boolean matchesTerrain(Terrain terrain){return terrain.seed==seed&&terrain.version==generator&&terrain.stressGrid()==null&&terrain.geometryRevision()==0;}
+        /** Caller supplies already validated, independent tail copies. Only the
+         * private publication owner may reconcile a newly reopened source. */
+        synchronized LocalGame transferCurrentTail(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
+            if(transferred)throw new IOException("Replay metadata already transferred");
+            if(current.replayComplete||current.city!=null||current.seed!=seed||current.generatorVersion!=generator)throw new IOException("Replay baseline owner mismatch");
+            var result=new LocalGame(this,current,inventory,drops,health);
+            transferred=true;models=null;this.inventory=null;this.drops=null;return result;
+        }
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
             var result=new LocalGame(this);transferred=true;models=null;inventory=null;drops=null;return result;
@@ -76,6 +84,13 @@ public final class LocalGame {
     private LocalGame(ReadbackMetadata metadata) {
         save=metadata.save;seed=metadata.seed;generatorVersion=metadata.generator;health=metadata.health;nextDrop=metadata.nextDrop;
         models=metadata.models;inventory=metadata.inventory;drops=metadata.drops;
+        edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;readbackGeneration=metadata.generation;
+    }
+
+    private LocalGame(ReadbackMetadata metadata,LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health) {
+        save=metadata.save;seed=metadata.seed;generatorVersion=metadata.generator;
+        models=current.models;this.inventory=inventory;this.drops=drops;this.health=health;fallTop=current.fallTop;
+        nextDrop=current.nextDrop;for(int id:drops.keySet())nextDrop=Math.max(nextDrop,id);
         edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;readbackGeneration=metadata.generation;
     }
 
