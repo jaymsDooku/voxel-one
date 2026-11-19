@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mesh source9b571995 passed26 native tests; media inspected. Added atomic fine-grid editing and capability-gated gateway subcell requests;11 focused Java tests passed. Native28-case touch/rule validation pending; full parity and signed iPhone delivery remain open.",
-      "updatedAt": "2026-11-19T12:47:44+00:00"
+      "note": "Mac run44527341466 was cancelled and produced no ios-evidence artifact. Source preserved;28-case fine-edit native qualification remains pending. Request fresh exact-source Mac run; no source failure or native pass inferred.",
+      "updatedAt": "2026-11-19T13:05:27+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

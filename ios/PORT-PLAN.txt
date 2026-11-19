@@ -430,3 +430,16 @@ full-bag/trapping checks plus actual Grid collect/fill/restart touch flow requir
 fresh exact-source Mac execution; required count now28. No native pass is claimed.
 Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
 intended edits replace coarse controller targeting with exact shared region addresses.
+
+Fine-edit Mac run cancelled: qualification still pending
+Source6662a4d4f14c7e5aef1f52072aa2c638ad7f6169.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44527341466
+Connected GitHub job summary reports simulator job135571297762 completed/cancelled;
+artifact query returns zero ios-evidence artifacts. No report for this source is
+present locally. No runtime logs were fetched. This is not native source/test
+failure evidence and supplies no gameplay media or passing qualification.
+Source was clean and preserved; no speculative gameplay change made. Request a
+fresh controller exact-source Mac run for all28 required cases and inspect actual
+receipt/media when returned. Previous local Java/Linux checks remain historical;
+no tests were rerun solely for cancellation. Full parity, live VPS, streaming,
+signing/install and physical-device gates remain open.
