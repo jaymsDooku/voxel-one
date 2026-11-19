@@ -23,14 +23,21 @@ final class ReadbackSaveSnapshot {
     private final long seed;private final int generator,health;
     private final Inventory inventory;private final Map<Integer,ItemDrop> drops;
     private final RegionReplayOverlay overlay;
+    private final RegionReplayJournal.Snapshot journal;
     private ReadbackSaveSnapshot(LocalGame local,World world,World.ReplayFence fence,RegionReplayOverlay overlay,
-            Inventory inventory,Map<Integer,ItemDrop> drops) {
-        this.local=local;this.world=world;this.fence=fence;this.overlay=overlay;
+            Inventory inventory,Map<Integer,ItemDrop> drops,RegionReplayJournal.Snapshot journal) {
+        this.journal=journal;this.local=local;this.world=world;this.fence=fence;this.overlay=overlay;
         liveModels=local.models;modelRevision=liveModels.revision();models=liveModels.copy();
         generation=local.readbackGeneration();fingerprint=local.readbackFingerprint();
         seed=local.seed;generator=local.generatorVersion;health=local.health;this.inventory=inventory;this.drops=drops;
     }
     static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel)throws IOException {
+        return capture(local,world,overlay,cancel,null);
+    }
+    static ReadbackSaveSnapshot captureJournal(LocalGame local,World world,RegionReplayJournal.Snapshot journal,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(journal);journal.validate(cancel);return capture(local,world,journal.overlay(),cancel,journal);
+    }
+    private static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel,RegionReplayJournal.Snapshot journal)throws IOException {
         Objects.requireNonNull(local);Objects.requireNonNull(world);Objects.requireNonNull(overlay);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
         if(local.city!=null||local.replayComplete()||local.readbackGeneration()==null||local.readbackFingerprint().isEmpty()
                 ||world.models()!=local.models||world.terrain().seed!=local.seed||world.terrain().version!=local.generatorVersion)
@@ -51,8 +58,8 @@ final class ReadbackSaveSnapshot {
         }
         if(drops.size()!=count)throw new IOException("Readback save drops changed");
         for(var edit:overlay.rows()){StructurePackage.cancelled(cancel);if(!local.models.has(edit.type()))throw new IOException("Readback save overlay dependency");}
-        var snapshot=new ReadbackSaveSnapshot(local,world,fence,overlay,inventory,Collections.unmodifiableMap(drops));
-        snapshot.validate();StructurePackage.cancelled(cancel);return snapshot;
+        var snapshot=new ReadbackSaveSnapshot(local,world,fence,overlay,inventory,Collections.unmodifiableMap(drops),journal);
+        snapshot.validate();if(journal!=null)journal.validate(cancel);StructurePackage.cancelled(cancel);return snapshot;
     }
     private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Readback save owner required");}
     private void validateGeometry()throws IOException {
@@ -121,7 +128,7 @@ final class ReadbackSaveSnapshot {
         private final String sealedFingerprint;
         private boolean sourceTransferred;
         private volatile RegionReplayWorker.Source reopenedSource;
-        private boolean tailAdopted;
+        private boolean tailAdopted,overlayAcknowledged;
         private Publication(StagedOfflineSave prefix,String sealedFingerprint){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;}
         Phase phase(){return phase.get();}
         PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
@@ -179,6 +186,14 @@ final class ReadbackSaveSnapshot {
             validateGeometry();current.validate();StructurePackage.cancelled(cancel);
             var result=source.metadata().transferCurrentTail(local,current.inventory,currentDrops,current.health);
             tailAdopted=true;return result;
+        }
+        /** Acknowledge only the saved ordered prefix after exact readback.
+         * Caller still owns source installation and World edit reconciliation. */
+        RegionReplayOverlay acknowledgeOverlay(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||source==null||source!=reopenedSource||journal==null||overlayAcknowledged)
+                throw new IOException("Replay overlay acknowledgement unavailable");
+            var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
         }
         /** Owner completion check only. False never rolls back a published file. */
         boolean snapshotCurrent()throws IOException {

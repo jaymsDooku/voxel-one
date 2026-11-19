@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Guarded owner baseline preparation implemented. 73 tests and native saved-source regression passed; fresh images saved. Geometry rebasing, Main/sidecar integration and full city/maximum qualification remain pending. New source needs hosted checks.",
-      "updatedAt": "2026-11-19T15:27:14+00:00"
+      "note": "Bounded ordered journal and exact-publication prefix acknowledgement implemented. 76 tests and native saved-source regression passed; fresh images saved. World/Main integration, rebasing/sidecar saves and full city/maximum qualification remain pending. New source needs hosted checks.",
+      "updatedAt": "2026-11-19T16:00:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
