@@ -216,6 +216,37 @@ final class ReadbackSaveSnapshot {
                 throw new IOException("Replay overlay acknowledgement unavailable");
             var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
         }
+        private RegionReplayWorker adoptedPagingWorker;
+        private RegionReplayOverlay adoptedPagingOverlay;
+        /** Capture only the unsaved suffix; neither edits nor the journal change. */
+        RegionReplayOverlay pendingPagingOverlay(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||journal==null||overlayAcknowledged)throw new IOException("Saved paging journal unavailable");
+            journal.validateWorld(world,cancel,true);validateGeometry(true);return journal.remaining(cancel);
+        }
+        /** Reconcile live survival state with a fresh worker's exact saved source.
+         * Does not install its view, acknowledge edits or promote Main readiness. */
+        LocalGame adoptPagingTail(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                throw new IOException("Saved paging pending geometry changed");
+            var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+            var currentDrops=new LinkedHashMap<>(current.drops);
+            if(!pending.rows().equals(pendingPagingOverlay(cancel).rows()))throw new IOException("Saved paging pending geometry changed");
+            StructurePackage.cancelled(cancel);current.validate();
+            var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
+            tailAdopted=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+        }
+        /** Explicit saved-prefix acknowledgement after the matching owner transfer.
+         * World edit reconciliation and source installation remain caller-owned. */
+        RegionReplayOverlay acknowledgePagingOverlay(RegionReplayWorker replacement,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(!tailAdopted||replacement!=adoptedPagingWorker||overlayAcknowledged||adoptedPagingOverlay==null
+                    ||!adoptedPagingOverlay.rows().equals(pendingPagingOverlay(cancel).rows()))
+                throw new IOException("Saved paging acknowledgement unavailable");
+            var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
+        }
         /** Owner-created one-shot factory for a replacement paging worker.
          * Old cleanup must finish first. Opens a new worker-owned spool instead
          * of transferring one across threads. Saved metadata is not live-state
@@ -224,7 +255,7 @@ final class ReadbackSaveSnapshot {
             return pagingFactory(previous,directory,revision,RegionReplayOverlay.empty());
         }
         /** Pending geometry remains separate from physical source identity.
-         * Until all consumers support it, only cell-page requests may run. */
+         * All bounded paging consumers compose the same immutable overlay. */
         RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision,RegionReplayOverlay pending)throws IOException {
             Objects.requireNonNull(pending);owner();Objects.requireNonNull(previous);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
             if(phase.get()!=Phase.PUBLISHED||revision.equals(sourceRevision)

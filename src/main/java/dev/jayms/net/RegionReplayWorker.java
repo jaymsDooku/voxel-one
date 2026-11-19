@@ -211,6 +211,19 @@ final class RegionReplayWorker implements AutoCloseable {
             transferredMetadata=result;transferredModels=result.models;transferredModelsRevision=result.models.revision();return result;
         }
     }
+    /** Publication-only owner transfer with an exact physical and pending-source receipt.
+     * Caller must validate live World/journal coverage before supplying tail copies. */
+    LocalGame metadataResultCurrentTail(Revision current,String expectedFingerprint,Path expectedTarget,
+            RegionReplayOverlay pending,LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
+        owner();Objects.requireNonNull(current);Objects.requireNonNull(pending);Objects.requireNonNull(expectedTarget);
+        synchronized(gate) {
+            if(stopping.get()||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null
+                    ||!Objects.equals(expectedFingerprint,fingerprint)||!expectedTarget.toAbsolutePath().normalize().equals(sourceTarget)
+                    ||sourceOverlay!=pending)throw new IOException("Replay live-tail source mismatch");
+            var result=metadata.transferCurrentTail(live,inventory,drops,health);metadata=null;
+            transferredMetadata=result;transferredModels=result.models;transferredModelsRevision=result.models.revision();return result;
+        }
+    }
     /** Private detached-target session. This does not mark coverage loaded,
      * install geometry, promote metadata, or authorize a save over a live path. */
     final class Binding {

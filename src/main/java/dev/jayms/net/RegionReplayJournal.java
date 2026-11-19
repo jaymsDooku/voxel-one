@@ -29,6 +29,7 @@ final class RegionReplayJournal {
         void validate(BooleanSupplier cancel)throws IOException {journal.validate(this,cancel);}
         void validateWorld(World world,BooleanSupplier cancel,boolean requireBound)throws IOException {journal.validateWorld(this,world,cancel,requireBound);}
         RegionReplayOverlay acknowledge(BooleanSupplier cancel)throws IOException {return journal.acknowledge(this,cancel);}
+        RegionReplayOverlay remaining(BooleanSupplier cancel)throws IOException {return journal.remaining(this,cancel);}
     }
     private void enter()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay journal owner required");
@@ -91,6 +92,10 @@ final class RegionReplayJournal {
             if((requireBound&&boundWorld==null)||(boundWorld!=null&&boundWorld!=world))throw new IOException("Replay journal World mismatch");
             prefix(snapshot,cancel);
         }finally{busy=false;}
+    }
+    private RegionReplayOverlay remaining(Snapshot snapshot,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(cancel);enter();
+        try{prefix(snapshot,cancel);return RegionReplayOverlay.capture(rows.subList(snapshot.overlay.rows().size(),rows.size()),cancel);}finally{busy=false;}
     }
     private RegionReplayOverlay acknowledge(Snapshot snapshot,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);enter();

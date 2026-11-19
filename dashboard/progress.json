@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Pending-overlay worker sky and lighting integrated with overlay identity fences. 88 tests pass; native full coverage and lit reflection verified with fresh media. Main/live-tail integration and full qualification remain pending.",
-      "updatedAt": "2026-11-19T19:37:30+00:00"
+      "note": "Replacement paging worker now accepts validated current player-state copies and explicit saved-prefix acknowledgement. 147 tests and native regressions pass; fresh media captured. Atomic World/Main integration and full qualification remain pending.",
+      "updatedAt": "2026-11-19T20:08:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
