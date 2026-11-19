@@ -3,10 +3,9 @@ package dev.jayms.player;
 import dev.jayms.net.Items;
 import org.joml.Matrix4f;
 
-/** Rendering-only grips for Items' original 16-voxel tools; icons and drops use their own poses. */
+/** Rendering-only grips for built-in voxel tools. Icons and drops have their own poses. */
 public final class HeldToolPose {
-    // Normalized model coordinates: handle occupies x/z [7,9]/16, y [1,12]/16.
-    // Grip at voxel (8,4,8), below the sword guard at y=6. Shaft is +Y;
+    // Normalized grip coordinates are (8,4,8)/16, below the sword guard at 6/16. Shaft is +Y;
     // the broad head lies in XY, with the axe's cutting edge towards -X and faces +/-Z.
     public static final float ANCHOR_X = 8f / 16, ANCHOR_Y = 4f / 16, ANCHOR_Z = 8f / 16;
 

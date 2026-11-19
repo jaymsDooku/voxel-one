@@ -1,6 +1,7 @@
 package dev.jayms;
 
 import dev.jayms.net.Items;
+import dev.jayms.net.model.SparseVoxelOctree;
 import dev.jayms.player.*;
 import org.joml.*;
 import org.junit.jupiter.api.Test;
@@ -8,6 +9,25 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HeldToolPoseTest {
     private Vector3f anchor() { return new Vector3f(HeldToolPose.ANCHOR_X,HeldToolPose.ANCHOR_Y,HeldToolPose.ANCHOR_Z); }
+    @Test void swordModelsHaveAThinBladeAndTaperedTip() {
+        for (int item : new int[]{Items.WOODEN_SWORD, Items.STONE_SWORD}) {
+            var mesh = Items.get(item).model().voxels();
+            assertEquals(32, mesh.size());
+            assertEquals(12, sliceArea(mesh, 20));
+            assertEquals(8, sliceArea(mesh, 27));
+            assertEquals(4, sliceArea(mesh, 30));
+            assertEquals(2, sliceArea(mesh, 31));
+            assertEquals(48, sliceArea(mesh, 12));
+        }
+    }
+
+    private static int sliceArea(SparseVoxelOctree mesh, int y) {
+        int count = 0;
+        for (int x = 0; x < mesh.size(); x++)
+            for (int z = 0; z < mesh.size(); z++)
+                if (mesh.get(x, y, z) != 0) count++;
+        return count;
+    }
     @Test void lowerHandleStaysInsidePalmThroughEveryAnimatedPose() {
         for(int id=191;id<=198;id++) for(float progress:new float[]{0,.2f,.36f,.72f,.9f,1}) {
             var pose=PlayerAnimation.pose(2,.6f,progress,true,false);

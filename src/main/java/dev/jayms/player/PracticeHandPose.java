@@ -40,9 +40,8 @@ public final class PracticeHandPose {
             if (guard) {
                 held.rotateZ(.67f).rotateY(.23f).scale(.89f);
             } else {
-                // Twist about the shaft so the broad face appears on the left while
-                // the grip and projected blade axis stay in place.
-                held.rotateZ(.075f).rotateX(.05f).rotateY(-1.55f).scale(.98f, 1.49f, .83f);
+                // A shallow left-facing twist gives the blade a little visible depth.
+                held.rotateZ(.075f).rotateX(.05f).rotateY(-1.675f).scale(.98f, 1.49f, .83f);
             }
             held.translate(-HeldToolPose.ANCHOR_X, -HeldToolPose.ANCHOR_Y, -HeldToolPose.ANCHOR_Z);
         } else {

@@ -30,10 +30,12 @@ class PracticeHandPoseTest {
 
     @Test void idleSwordShowsTheBroadFaceOnTheLeft() {
         var sword = sample(1, 0, false).item();
-        var broadFace = new Vector3f(.5f, .72f, 9f / 16);
-        var edge = new Vector3f(10f / 16, .72f, .5f);
-        assertTrue(sword.transformDirection(new Vector3f(0, 0, 1))
-                .dot(sword.transformPosition(new Vector3f(broadFace)).negate()) > 0);
+        var broadFace = new Vector3f(.5f, .72f, 17f / 32);
+        var edge = new Vector3f(19f / 32, .72f, .5f);
+        float leftFaceExposure = sword.transformDirection(new Vector3f(0, 0, 1)).normalize()
+                .dot(sword.transformPosition(new Vector3f(broadFace)).negate().normalize());
+        assertTrue(leftFaceExposure > .06f && leftFaceExposure < .18f,
+                "Only a sliver of the left blade face should be visible");
         assertTrue(sword.transformDirection(new Vector3f(1, 0, 0))
                 .dot(sword.transformPosition(new Vector3f(edge)).negate()) > 0);
         for (float aspect : ASPECTS) {
@@ -44,18 +46,19 @@ class PracticeHandPoseTest {
 
     @Test void theBladeMeshClearsTheScreenEdgeAtFourByThree() {
         var voxels = Items.get(Items.STONE_SWORD).model().voxels();
+        int size = voxels.size();
         for (int frame = 0; frame < 12; frame++) {
             var idle = PracticeHandPose.sample(frame * (float) Math.PI / 6, 1, 1, 0, false, Items.STONE_SWORD);
             var transform = new Matrix4f().perspective((float) Math.toRadians(70), 4f / 3, .03f, 10).mul(idle.item());
-            for (int x = 0; x < voxels.size(); x++) {
-                for (int y = 6; y < voxels.size(); y++) {
-                    for (int z = 0; z < voxels.size(); z++) {
+            for (int x = 0; x < size; x++) {
+                for (int y = 3 * size / 8; y < size; y++) {
+                    for (int z = 0; z < size; z++) {
                         if (voxels.get(x, y, z) == 0) continue;
                         for (int corner = 0; corner < 8; corner++) {
                             var p = transform.transformProject(new Vector3f(
-                                    (x + (corner & 1)) / 16f,
-                                    (y + (corner >> 1 & 1)) / 16f,
-                                    (z + (corner >> 2 & 1)) / 16f));
+                                    (x + (corner & 1)) / (float) size,
+                                    (y + (corner >> 1 & 1)) / (float) size,
+                                    (z + (corner >> 2 & 1)) / (float) size));
                             assertTrue(p.x > .10f && p.x < .98f && p.y > -1 && p.y < .58f,
                                     "The drawn blade and guard should clear the view edges: " + p);
                         }

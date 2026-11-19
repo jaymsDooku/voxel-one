@@ -29,13 +29,22 @@ public final class Items {
         return Collections.unmodifiableMap(result);
     }
     private static ModelDefinition model(int id,String name) {
-        var t=new SparseVoxelOctree(16);
         int handle=0xff996337, edge=id>=195?0xffb4c5cd:0xffd69a51, shadow=id>=195?0xff607885:0xff895529;
+        if (id == WOODEN_SWORD || id == STONE_SWORD) {
+            var sword = new SparseVoxelOctree(32);
+            sword.fill(14, 2, 14, 18, 14, 18, handle);
+            sword.fill(10, 12, 14, 22, 14, 18, shadow);
+            sword.fill(13, 14, 15, 19, 26, 17, edge);
+            sword.fill(14, 26, 15, 18, 29, 17, edge);
+            sword.fill(15, 29, 15, 17, 31, 17, edge);
+            sword.fill(15, 31, 16, 17, 32, 17, edge);
+            return new ModelDefinition(name, sword.freeze());
+        }
+        var t=new SparseVoxelOctree(16);
         t.fill(7,1,7,9,12,9,handle);
         if(id==STICKS) { t.fill(4,3,7,6,14,9,0xffd59b5e); }
         else switch((id-191)%4) {
             case 0 -> { t.fill(2,12,6,14,14,10,edge); t.fill(1,10,7,3,13,9,shadow); t.fill(13,10,7,15,13,9,shadow); }
-            case 1 -> { t.fill(6,7,7,10,14,9,edge); t.fill(7,14,7,9,16,9,edge); t.fill(4,6,6,12,8,10,shadow); }
             case 2 -> { t.fill(5,11,6,11,15,10,edge); t.fill(6,10,6,10,12,10,shadow); }
             case 3 -> { t.fill(2,10,6,8,15,10,edge); t.fill(1,11,6,3,14,10,shadow); t.fill(8,12,7,11,14,9,shadow); }
         }
