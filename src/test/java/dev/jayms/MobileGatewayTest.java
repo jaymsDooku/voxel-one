@@ -56,6 +56,8 @@ class MobileGatewayTest {
         }
     }
     @Test void authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory()throws Exception {
+        assertEquals(-1,inventorySlot("{\"recipes\":[{\"inputs\":[[141,1]]}],\"inventory\":[[0,0]]}",141));
+        assertEquals(1,inventorySlot("{\"inventory\":[[0,0],[141,1]]}",141));
         try(var host=new MobileFixtureHost(temp.resolve("fine-profile"))){
             var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
             String bearer=token(login);
@@ -71,16 +73,27 @@ class MobileGatewayTest {
                     if(!seen)Thread.sleep(20);
                 }
                 assertTrue(seen,"Desktop protocol must see the exact fractional cut");assertEquals(Blocks.PARTIAL,mirror.type(x,y,z));
-                String stack="["+piece+",1]";end=System.nanoTime()+5_000_000_000L;String state=cut.body();
-                while(!state.contains(stack) && System.nanoTime()<end){Thread.sleep(50);state=post(host,"state",bearer,Map.of()).body();}
-                assertTrue(state.contains(stack),"Server owns the collected fractional stack");
+                end=System.nanoTime()+5_000_000_000L;String state=cut.body();
+                while(inventorySlot(state,piece)<0 && System.nanoTime()<end){Thread.sleep(50);state=post(host,"state",bearer,Map.of()).body();}
+                int pieceSlot=inventorySlot(state,piece);assertTrue(pieceSlot>=0,"Server owns the collected fractional stack");
                 assertEquals(400,post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",0,"slot",0,"depth",5,"ix",0,"iy",0,"iz",0)).statusCode());
-                var fill=post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",piece,"slot",0,"depth",1,"ix",0,"iy",1,"iz",0));assertEquals(200,fill.statusCode());
+                var fill=post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",piece,"slot",pieceSlot,"depth",1,"ix",0,"iy",1,"iz",0));assertEquals(200,fill.statusCode());
                 end=System.nanoTime()+5_000_000_000L;seen=false;
                 while(System.nanoTime()<end && !seen){for(var edit:observer.poll()){mirror.apply(edit);if(edit.x()==x && edit.y()==y && edit.z()==z && edit.depth()==1 && edit.type()==piece)seen=true;}if(!seen)Thread.sleep(20);}
                 assertTrue(seen,"Desktop protocol must see the fractional fill");assertEquals(material,mirror.type(x,y,z),"Filling rejoins the authoritative full cell");
             }
         }
+    }
+    static int inventorySlot(String body,int type){
+        String marker="\"inventory\":";
+        int begin=body.indexOf(marker);if(begin<0)return -1;
+        begin+=marker.length();int end=body.indexOf("]]",begin);if(end<0)return -1;
+        var slots=(List<?>)Json.object("{\"slots\":"+body.substring(begin,end+2)+"}").get("slots");
+        for(int i=0;i<slots.size();i++){
+            var slot=(List<?>)slots.get(i);
+            if(((Number)slot.get(0)).intValue()==type && ((Number)slot.get(1)).intValue()>0)return i;
+        }
+        return -1;
     }
     @TempDir Path temp;
     static final HttpClient HTTP=HttpClient.newHttpClient();

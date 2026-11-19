@@ -713,3 +713,59 @@ rollback rules and actual3x plank crafting/save/restart UI require fresh Mac run
 required count now32, retaining all prior cases. No native pass for current edits.
 Full procedural streaming/distant terrain, complete item/tool parity, live VPS,
 signed iPhone install and physical-device measurements remain open.
+
+Trusted receipt capacity repair
+Source0bb304c63a5e74098ce5df72b56729d89a1d4433, run44598845038 failed at
+client_receipt with native_client_receipt_invalid, not client_script. Sanitized
+diagnostic lines are empty. Source inspection found trusted client_receipt rejects
+more than30 test entries; expanded native suite reports32. Do not reduce reported
+cases or claim native acceptance from a rejected receipt. No current client media
+was returned; preflight remains environment evidence only.
+Prepared a bounded validator capacity update to64 entries, preserving exact-source/
+device, passed status, native-binary and installation, media/hash and fresh-directory
+checks. Added independent fresh mock cases:32 accepted,64 accepted,65 rejected.
+Initial combined-loop fixture failed the existing fresh-directory guard; split into
+fresh test fixtures rather than relaxing that guard. Final66 Linux harness tests
+passed; Python compilation and diff checks passed. No gameplay source or32-case
+qualification gate changed in this repair.
+The workflow deliberately runs validator from trusted default checkout. Feature
+publication alone cannot activate this patch. Request internal independent review
+and authorized publication of this scoped trusted-validator repair before another
+Mac run. If existing exact-source receipt/media can be recovered, validate them
+under repaired trusted code; otherwise one scoped exact-source Mac run is needed.
+Playtest: full32-case qualification and batch UI remain pending trusted validation.
+Full parity, live VPS, signed install and physical iPhone gates remain open.
+
+Post-rebase exact-source engineering checks
+Rebased source HEAD9e65024ab7b1467c0cee208ccd5d257e1256681b contains reviewed
+master8a53afce99e735a7574bffab70558252577b387b. No unmerged index remains.
+iOS app and Java gateway implementation match pre-rebase0bb304c63a5e74098ce5df72b56729d89a1d4433.
+Retained current master features, independent validator tests and all prior receipts.
+Audit full proposed diff against71612f09bfec4549456b3317676e76cdced085a4: no
+deleted files. Intended within-file replacements are exact leaf geometry/picking,
+atomic save/load workers, bounded mesh installation, safe input/cameras and native
+recipe book/batch controls; no unrelated feature/assets/evidence deletion.
+
+Fresh focused Java run exposed fractional fixture timing: whole-snapshot string
+search could match recipe ingredient141,1 before actual inventory arrived. Updated
+test helper to parse only inventory and choose the actual server-granted slot.
+Added narrow fixture assertions rejecting recipe-only matches and locating real
+slot1. Preserved real authenticated cut/fill, server inventory and desktop observer
+requirements; no server rules or test gates weakened. Final5 MobileGatewayTest +7
+FractionalWorldTest passed with zero failures/errors/skips. Intermediate repair
+compile errors were fixed before this final successful run; old XML not used as pass.
+74 Python harness checks passed on restored source. Project generation, Python
+compilation, shell syntax and diff checks passed. Browser playtest does not apply
+to this native client; these Linux checks exercise Java integration/CLI harnesses.
+
+Connected GitHub fetch of master tools/ios/simulator_checks.py confirms64-entry cap.
+Remote file blob70ceae5e8c30515e1518d47d29d74f704c475c07 exactly matches
+merged8a53afce source blob. Workflow binds trusted validator checkout to github.sha
+and client checkout to expectedHead; next controller dispatch must use merged
+trusted workflow (or descendant) and preserve its actual verifier/source identities.
+Playtest: current rebased source still needs all32 native cases and fresh screenshots/
+short video. Request batch-crafting/search/empty-state plus model/fractional/save/
+background/City regressions under repaired trusted validator. Existing30-case
+images/receipts are historical, not current-head qualification. Full procedural
+streaming/distant terrain, item/tool parity, live VPS, signed device delivery and
+physical-device performance/thermal/battery qualification remain open.

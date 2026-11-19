@@ -213,6 +213,26 @@ class RunContractTests(unittest.TestCase):
         self.assertTrue(any(a[:3] == ['xcrun', 'simctl', 'launch'] for a, _ in self.fake.calls))
         self.assertTrue(any(a[-1] == str(self.output / 'client.png') for a, _ in self.fake.calls))
 
+    def expanded_receipt(self, count):
+        self.script()
+        self.fake.receipt_mutator = lambda r: r.update(tests=[{'name':f'testNativeCase{i}', 'status':'passed'} for i in range(count)])
+        return self.run_check('client')
+
+    def test_expanded_32_case_native_receipt(self):
+        result=self.expanded_receipt(32)
+        self.assertEqual(result['status'],'passed')
+        self.assertEqual(len(result['client']['tests']),32)
+
+    def test_native_receipt_accepts_capacity_64(self):
+        result=self.expanded_receipt(64)
+        self.assertEqual(result['status'],'passed')
+        self.assertEqual(len(result['client']['tests']),64)
+
+    def test_native_receipt_rejects_over_capacity_65(self):
+        result=self.expanded_receipt(65)
+        self.assertEqual(result['errorCode'],'native_client_receipt_invalid')
+        self.assertFalse(result['clientChecked'])
+
     def test_synthetic_only_receipt_fails(self):
         self.script()
         self.fake.receipt_mutator = lambda r: r.update(synthetic=True, evidenceType='diagnostic-harness')
