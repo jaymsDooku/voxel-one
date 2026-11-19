@@ -662,3 +662,22 @@ checks. Playtest: Mac must execute actual query entry/background/empty rows/join
 restart plus all30 native cases. This source event-path repair remains unverified;
 Linux checks do not prove UIKit behavior. Full parity, live VPS, signed install and
 physical iPhone qualification remain open.
+
+Empty list accessibility isolation
+Source7cd1d3e0ea4d672f18e070f32f20c82068498520, run44591223784 reports
+30 started,29 passed,1 failed,0 unfinished. Exact marker craft_book_empty_rows.
+New entered-query and zero-filter-count assertions precede that marker and did
+not fail. This isolates the remaining issue to exposed UITableView cells despite
+zero filtered recipes, rather than missing input or nonzero filter results.
+Render explicit empty state while hiding the empty table. A flexible empty spacer
+keeps header rows at natural height. Unhide table when matching recipes return.
+Keep exact zero exposed recipe-cell count, zero filtered-count and actual empty
+message gates. Query count is now read on visible empty-state element; recipe-cell
+check spans exposed app cells with recipe identifiers, avoiding a hidden table root.
+Add normal clear-query restoration check after landscape capture and portrait return.
+No case skipped, native count reduced or timeout raised. This is an actual empty
+state rendering change; native execution must verify it before claiming a fix.
+Executed project generation, Python compilation, shell syntax and diff checks.
+Prior63 Linux harness checks are historical; no rerun needed for native-only edits.
+Playtest: all30 native cases and actual media remain pending for this source.
+Full parity, live VPS, signed install and physical iPhone gates remain open.

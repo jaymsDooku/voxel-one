@@ -8,6 +8,7 @@ import UIKit
     private let table=UITableView(frame:.zero,style:.plain)
     private let status=UILabel()
     private let emptyState=UILabel()
+    private let emptySpace=UIView()
     private let category=UISegmentedControl(items:["All","Materials","Build","Decor","Light"])
     private var shown:[NativeRecipe]=[]
     private var inventory:[[Int]]=[]
@@ -27,10 +28,10 @@ import UIKit
         category.selectedSegmentIndex=0;category.addTarget(self,action:#selector(filter),for:.valueChanged);category.accessibilityIdentifier="craftCategory"
         status.numberOfLines=0;status.font = .preferredFont(forTextStyle:.footnote);status.accessibilityIdentifier="craftStatus"
         emptyState.text="No matching recipes.";emptyState.textColor = .secondaryLabel
-        emptyState.accessibilityIdentifier="craftEmptyState";emptyState.numberOfLines=0;emptyState.isHidden=true
+        emptyState.accessibilityIdentifier="craftEmptyState";emptyState.numberOfLines=0;emptyState.isHidden=true;emptySpace.isHidden=true
         table.dataSource=self;table.delegate=self;table.accessibilityIdentifier="recipeTable";table.keyboardDismissMode = .onDrag
         table.rowHeight=UITableView.automaticDimension;table.estimatedRowHeight=76
-        let stack=UIStackView(arrangedSubviews:[header,search,category,status,emptyState,table]);stack.axis = .vertical;stack.spacing=8;stack.translatesAutoresizingMaskIntoConstraints=false
+        let stack=UIStackView(arrangedSubviews:[header,search,category,status,emptyState,emptySpace,table]);stack.axis = .vertical;stack.spacing=8;stack.translatesAutoresizingMaskIntoConstraints=false
         view.addSubview(stack);let safe=view.safeAreaLayoutGuide
         NSLayoutConstraint.activate([stack.leadingAnchor.constraint(equalTo:safe.leadingAnchor,constant:12),stack.trailingAnchor.constraint(equalTo:safe.trailingAnchor,constant:-12),stack.topAnchor.constraint(equalTo:safe.topAnchor,constant:8),stack.bottomAnchor.constraint(equalTo:safe.bottomAnchor,constant:-8),done.heightAnchor.constraint(greaterThanOrEqualToConstant:44),category.heightAnchor.constraint(greaterThanOrEqualToConstant:36)])
         NotificationCenter.default.addObserver(self,selector:#selector(keyboardChanged),name:UIResponder.keyboardDidChangeFrameNotification,object:nil)
@@ -61,7 +62,9 @@ import UIKit
             let text=([recipe.name,name(recipe.output)]+recipe.inputs.map{name($0[0])}).joined(separator:" ")
             return (chosen=="All" || recipe.category==chosen) && (query.isEmpty || text.localizedCaseInsensitiveContains(query))
         }
-        emptyState.isHidden = !shown.isEmpty;table.accessibilityValue="\(shown.count) recipes";table.reloadData()
+        emptyState.isHidden = !shown.isEmpty;emptyState.accessibilityValue="\(shown.count) recipes"
+        emptySpace.isHidden = !shown.isEmpty
+        table.isHidden=shown.isEmpty;table.accessibilityValue="\(shown.count) recipes";table.reloadData()
     }
     func searchBar(_ searchBar:UISearchBar,textDidChange searchText:String){queryText=searchText;filter()}
     func tableView(_ tableView:UITableView,numberOfRowsInSection section:Int)->Int {shown.count}

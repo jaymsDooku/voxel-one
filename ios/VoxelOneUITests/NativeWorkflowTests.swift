@@ -191,15 +191,17 @@ final class NativeWorkflowTests:XCTestCase {
         search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
         let entered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","no matching recipe xyz"),object:search)
         XCTAssertEqual(XCTWaiter.wait(for:[entered],timeout:10),.completed,"craft_book_query_entered")
-        let filtered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","0 recipes"),object:app.tables["recipeTable"])
+        let filtered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","0 recipes"),object:app.staticTexts["craftEmptyState"])
         XCTAssertEqual(XCTWaiter.wait(for:[filtered],timeout:10),.completed,"craft_book_filtered_count")
         let emptyResults=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in
-            self.app.tables["recipeTable"].cells.count==0
+            self.app.cells.matching(NSPredicate(format:"identifier BEGINSWITH %@","recipe")).count==0
         },object:nil)
         XCTAssertEqual(XCTWaiter.wait(for:[emptyResults],timeout:10),.completed,"craft_book_empty_rows")
         XCTAssertTrue(app.staticTexts["craftEmptyState"].exists,"craft_book_empty_message")
         XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"],"landscape Craft Done")
         capture("native-recipe-search-empty-landscape")
+        XCUIDevice.shared.orientation = .portrait
+        search.tap();search.buttons["Clear text"].tap();wait(app.cells["recipe88"],20,"recipes restored after clearing query")
         app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
         app.terminate();app.launch();wait(app.buttons["craftButton"])
         XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"craft_join_saved_count")
