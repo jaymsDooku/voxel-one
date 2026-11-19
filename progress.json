@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T21:36:20+00:00",
+  "updatedAt": "2026-11-19T22:47:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4329,6 +4329,15 @@
       "status": "in_progress",
       "note": "Coordinator implementation passed focused tests and hosted checks. Independent review identified an internal helper handoff issue; a controller repair is undergoing checks, and further reliability qualification is queued before deployment.",
       "updatedAt": "2026-11-19T21:36:20+00:00"
+    },
+    {
+      "id": "hcf-potpvp",
+      "title": "HCF and PotPvP combat",
+      "description": "Research complete. Combat rules and an original practice arena are queued for parallel implementation. Duel and faction playtests follow in dependency order.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Research complete. Combat rules and an original practice arena are queued for parallel implementation. Duel and faction playtests follow in dependency order.",
+      "updatedAt": "2026-11-19T22:47:00+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
