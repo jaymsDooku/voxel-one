@@ -130,7 +130,7 @@ public final class PracticeNativePlaytest {
         return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null);
     }
 
-    private static void screenshot(Path destination, int width, int height) throws Exception {
+    static void screenshot(Path destination, int width, int height) throws Exception {
         var pixels = MemoryUtil.memAlloc(width * height * 3);
         try {
             glPixelStorei(GL_PACK_ALIGNMENT, 1);

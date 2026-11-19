@@ -61,6 +61,7 @@ public final class PracticeGame {
     private final Path recordings;
     private final int id;
     private final Camera camera = new Camera();
+    private final PracticeHandAnimation hand = new PracticeHandAnimation();
     private final Vector3f feet = new Vector3f(), destination = new Vector3f();
     private final Matrix4f projection = new Matrix4f();
     private final Matrix4f clipFromWorld = new Matrix4f();
@@ -68,11 +69,11 @@ public final class PracticeGame {
     private Controls controls;
     private Window window;
     private View view;
-    private boolean inventory, attack, usePressed, firstMouse = true, positioned;
+    private boolean inventory, attack, usePressed, previousIntentUse, firstMouse = true, positioned;
+    private Boolean scriptedUse;
     private int width, height, slot, source = -1;
     private long frameInput, sequence;
     private double mouseX, mouseY;
-    private float handSwing = 1;
     private long confirmedAt = -1;
     private int confirmedHits;
     private Phase lastPhase;
@@ -194,7 +195,7 @@ public final class PracticeGame {
                 if (entry.getKey().chunkY() >= 2) entry.getValue().checkMesh();
             bind(recorder);
             view = snapshot();
-            updateCamera(1);
+            updateCamera(1, System.nanoTime());
             window.show();
             glViewport(0, 0, width, height);
             long previous = System.nanoTime();
@@ -205,7 +206,7 @@ public final class PracticeGame {
                 float dt = Math.min(.1f, (now - previous) / 1e9f);
                 previous = now;
                 if (now >= frameInput) {
-                    sendInput(observer);
+                    sendInput(observer, now);
                     if (offline == null) frameInput = Math.max(frameInput + STEP, now);
                     else {
                         int count = 0;
@@ -217,10 +218,9 @@ public final class PracticeGame {
                     }
                 }
                 view = snapshot();
-                updateCamera(dt);
+                updateCamera(dt, now);
                 if (width == 0 || height == 0) { glfwWaitEventsTimeout(.1); continue; }
-                handSwing = Math.min(1, handSwing + dt / .26f);
-                render(world, shader, rendering, models, avatars);
+                render(world, shader, rendering, models, avatars, now);
                 drawHud(overlay, recorder);
                 if (observer != null) observer.frame(window, recorder, view, width, height);
                 recorder.capture(width, height);
@@ -248,7 +248,7 @@ public final class PracticeGame {
             if (!focused) attack = usePressed = false;
         });
         glfwSetScrollCallback(handle, (w, x, y) -> {
-            if (!inventory && y != 0) slot = Math.floorMod(slot - (y > 0 ? 1 : -1), 9);
+            if (!inventory && y != 0) selectSlot(Math.floorMod(slot - (y > 0 ? 1 : -1), 9), System.nanoTime());
         });
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
             if (action != GLFW_PRESS) return;
@@ -271,7 +271,8 @@ public final class PracticeGame {
             } else if (factions && factionKey(key) != 0) {
                 remote.action(factionKey(key));
             } else {
-                for (int i = 0; i < SLOTS.length; i++) if (controls.matches(SLOTS[i], key)) slot = i;
+                for (int i = 0; i < SLOTS.length; i++)
+                    if (controls.matches(SLOTS[i], key)) selectSlot(i, System.nanoTime());
                 if (!inventory) combatPress(key);
             }
         });
@@ -280,12 +281,35 @@ public final class PracticeGame {
     private void combatPress(int key) {
         if (controls.matches(BREAK, key)) {
             attack = true;
-            if (handSwing >= .5) handSwing = 0;
+            if (canAnimateCombat()) hand.attack(selectedItem(), useHeld(), System.nanoTime());
         }
         if (controls.matches(PLACE, key)) {
             usePressed = true;
-            if (handSwing >= .5) handSwing = .12f;
+            if (canAnimateCombat()) hand.use(selectedItem(), System.nanoTime());
         }
+    }
+
+    private void selectSlot(int index, long now) {
+        slot = index;
+        hand.select(selectedItem(), now);
+    }
+
+    private Item selectedItem() {
+        return view != null && slot >= 0 && slot < view.inventory().size()
+                ? view.inventory().get(slot).item() : Item.EMPTY;
+    }
+
+    private boolean useHeld() {
+        long w = window.getHandle();
+        return !inventory && (scriptedUse != null ? scriptedUse
+                : glfwGetWindowAttrib(w, GLFW_FOCUSED) == GLFW_TRUE && controls.down(w, PLACE));
+    }
+
+    private boolean canAnimateCombat() {
+        if (view == null || view.phase() != Phase.FIGHT || view.spectatorId() == id
+                || remote != null && !remote.connected()) return false;
+        Fighter actor = self();
+        return actor != null && actor.health() > 0;
     }
 
     private static int factionKey(int key) {
@@ -322,7 +346,7 @@ public final class PracticeGame {
 
     private View snapshot() { return remote == null ? offline.view(id) : remote.view(); }
 
-    private void sendInput(FrameObserver observer) {
+    private void sendInput(FrameObserver observer, long now) {
         boolean enabled = !inventory && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE;
         long w = window.getHandle();
         float forward = enabled ? axis(w, FORWARD, BACKWARD) : 0;
@@ -330,10 +354,19 @@ public final class PracticeGame {
         Intent intent = new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe, enabled && controls.down(w, JUMP),
                 enabled && controls.down(w, SPRINT), enabled && attack, enabled && (usePressed || controls.down(w, PLACE)), slot);
         if (observer != null) {
+            Intent controlsIntent = intent;
             intent = observer.input(intent, view);
             camera.setYaw(intent.yaw());
             camera.setPitch(intent.pitch());
-            slot = intent.slot();
+            selectSlot(intent.slot(), now);
+            boolean startingUse = intent.use() && !previousIntentUse;
+            previousIntentUse = intent.use();
+            scriptedUse = intent == controlsIntent ? null : intent.use();
+            if (scriptedUse != null && !inventory && canAnimateCombat()) {
+                Item item = selectedItem();
+                if (startingUse && !usePressed) hand.use(item, now);
+                if (intent.attack()) hand.attack(item, scriptedUse, now);
+            }
         }
         if (remote == null) offline.input(id, intent);
         if (remote == null || remote.input(intent)) attack = usePressed = false;
@@ -345,7 +378,7 @@ public final class PracticeGame {
 
     private Fighter self() { return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null); }
 
-    private void updateCamera(float dt) {
+    private void updateCamera(float dt, long now) {
         Fighter actor = self();
         boolean spectator = actor == null || view.spectatorId() == id;
         var gallery = BasaltCourtyard.spectator();
@@ -355,6 +388,7 @@ public final class PracticeGame {
         if (respawn) {
             camera.setYaw(spectator ? gallery.yaw() : actor.yaw());
             camera.setPitch(spectator ? gallery.pitch() : actor.pitch());
+            hand.reset(spectator ? Item.EMPTY : selectedItem(), now);
         }
         if (respawn || feet.distanceSquared(destination) > 4) feet.set(destination);
         else feet.lerp(destination, 1 - (float) Math.exp(-25 * dt));
@@ -362,7 +396,8 @@ public final class PracticeGame {
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 
-    private void render(World world, ShaderProgram shader, RenderPipeline pipeline, VoxelModelRenderer models, PlayerModel avatars) {
+    private void render(World world, ShaderProgram shader, RenderPipeline pipeline, VoxelModelRenderer models,
+                        PlayerModel avatars, long now) {
         Vector3f eye = camera.position();
         projection.identity().perspective((float) Math.toRadians(73), (float) width / height, .06f, 180);
         Matrix4f matrix = camera.createViewMatrix();
@@ -393,7 +428,7 @@ public final class PracticeGame {
         }
         pipeline.finish();
         Fighter actor = self();
-        if (actor != null && view.inventory().size() == 36) {
+        if (actor != null && actor.health() > 0 && view.spectatorId() != id && view.inventory().size() == 36) {
             glClear(GL_DEPTH_BUFFER_BIT);
             pipeline.prepareHeld(shader);
             shader.setInt("uFog", 0);
@@ -403,8 +438,9 @@ public final class PracticeGame {
             shader.setVector3("uLightDirection", -.35f, -.70f, -.62f);
             shader.setMatrix4("uProjection", new Matrix4f().perspective((float) Math.toRadians(70), (float) width / height, .03f, 10));
             shader.setMatrix4("uView", new Matrix4f());
-            avatars.renderFirstPerson(view.tick() * .55f, actor.moving() ? 1 : 0, handSwing, false,
-                    renderItem(view.inventory().get(slot).item()), 0xffffff, shader, models);
+            var held = hand.pose(selectedItem(), canAnimateCombat() && useHeld(), actor.moving(), now);
+            avatars.renderPracticeFirstPerson(held.walkPhase(), held.walkAmount(), held.swing(),
+                    held.equipDrop(), held.blocking(), renderItem(held.item()), 0xffffff, shader, models);
             shader.setInt("uHeld", 0);
         }
     }

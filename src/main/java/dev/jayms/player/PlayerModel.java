@@ -177,6 +177,23 @@ public class PlayerModel implements AutoCloseable {
                 models);
     }
 
+    public void renderPracticeFirstPerson(float walkPhase, float walkAmount, float swing, float equipDrop,
+                                          boolean blocking, int item, int color, ShaderProgram shader,
+                                          VoxelModelRenderer models) {
+        var pose = PracticeHandPose.sample(walkPhase, walkAmount, swing, equipDrop, blocking, item);
+        shader.setInt("uVertexColor", 0);
+        shader.setInt("uInstanced", 0);
+        skin(shader);
+        box(shader, new Matrix4f(pose.hand()).translate(0, PracticeHandPose.PALM_BOTTOM, 0),
+                PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_TOP - PracticeHandPose.PALM_BOTTOM,
+                PracticeHandPose.PALM_DEPTH);
+        shirt(shader, -1);
+        box(shader, new Matrix4f(pose.hand()).translate(0, PracticeHandPose.SLEEVE_BOTTOM, 0),
+                PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_BOTTOM - PracticeHandPose.SLEEVE_BOTTOM,
+                PracticeHandPose.PALM_DEPTH);
+        held(item, color, pose.item(), shader, models);
+    }
+
     private void held(
             int type,
             int rgb,
