@@ -1,6 +1,9 @@
 package dev.jayms.combat.practice;
 
 import dev.jayms.combat.CombatEngine.Item;
+import dev.jayms.combat.CombatEngine.Intent;
+import dev.jayms.combat.CombatEngine.AttackView;
+import dev.jayms.combat.CombatEngine.PoseView;
 import dev.jayms.combat.practice.PracticeMatch.*;
 import dev.jayms.net.SecureTransport;
 import org.junit.jupiter.api.Test;
@@ -28,11 +31,34 @@ class PracticeWireTest {
     @Test void newestSnapshotsCarryVelocityDamageAndTeleportMetadata() throws Exception {
         var view = fixture();
         assertEquals(view, roundTrip(view, PracticeWire.VERSION));
+        assertEquals(view, roundTrip(view, PracticeWire.POSE_VERSION));
         var fighter = roundTrip(view, PracticeWire.LEGACY_VERSION).fighters().get(0);
         assertEquals(view.fighters().get(0).health(), fighter.health());
         assertEquals(0, fighter.vx());
         assertEquals(-1, fighter.hurtTick());
         assertEquals(0, fighter.motionEpoch());
+    }
+
+    @Test void attackViewRoundTripsWithoutChangingLegacyControls() throws Exception {
+        var click = new Intent(7, -90, 5, 1, 0, false, true, true, false, 0,
+                new AttackView(2, new PoseView(35, 36, 35.5), new PoseView(34, 36, 35)));
+        var move = new Intent(8, 0, 0, 0, 1, false, false, false, false, 2);
+        for (int version = PracticeWire.LEGACY_VERSION; version <= PracticeWire.VERSION; version++) {
+            var bytes = new ByteArrayOutputStream();
+            var out = new DataOutputStream(bytes);
+            PracticeWire.writeIntent(out, click, version);
+            PracticeWire.writeIntent(out, move, version);
+            try (var in = new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+                assertEquals(PracticeWire.CONTROL, in.readUnsignedByte());
+                var decoded = PracticeWire.readIntent(in, version);
+                assertEquals(click.yaw(), decoded.yaw());
+                assertTrue(decoded.sprint() && decoded.attack());
+                assertEquals(version == PracticeWire.VERSION ? click.attackView() : null, decoded.attackView());
+                assertEquals(PracticeWire.CONTROL, in.readUnsignedByte());
+                assertEquals(move, PracticeWire.readIntent(in, version));
+                assertEquals(-1, in.read());
+            }
+        }
     }
 
     @Test @Timeout(15)
@@ -57,18 +83,20 @@ class PracticeWireTest {
     }
 
     @Test @Timeout(15)
-    void updatedClientFallsBackWhenAnOlderServerClosesOnVersionTwo() throws Exception {
+    void updatedClientFallsBackWhenAnOlderServerClosesOnNewerVersions() throws Exception {
         var identity = SecureTransport.server(temporary.resolve("tls"));
         try (var listener = (SSLServerSocket) identity.context().getServerSocketFactory()
-                .createServerSocket(0, 2, InetAddress.getByName(HOST))) {
+                .createServerSocket(0, 3, InetAddress.getByName(HOST))) {
             var worker = Executors.newSingleThreadExecutor();
             try {
                 var previousServer = worker.submit(() -> {
-                    try (var rejected = listener.accept()) {
-                        rejected.setSoTimeout(3000);
-                        var in = new DataInputStream(rejected.getInputStream());
-                        assertEquals(PracticeWire.MAGIC, in.readInt());
-                        assertEquals(PracticeWire.VERSION, in.readInt());
+                    for (int version = PracticeWire.VERSION; version > PracticeWire.LEGACY_VERSION; version--) {
+                        try (var rejected = listener.accept()) {
+                            rejected.setSoTimeout(3000);
+                            var in = new DataInputStream(rejected.getInputStream());
+                            assertEquals(PracticeWire.MAGIC, in.readInt());
+                            assertEquals(version, in.readInt());
+                        }
                     }
                     try (var accepted = listener.accept()) {
                         accepted.setSoTimeout(3000);

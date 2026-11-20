@@ -1,10 +1,12 @@
 package dev.jayms.combat;
 
 import dev.jayms.combat.CombatEngine.Arena;
+import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Effect;
 import dev.jayms.combat.CombatEngine.EventType;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
+import dev.jayms.combat.CombatEngine.PoseView;
 import dev.jayms.combat.CombatEngine.Stack;
 import dev.jayms.combat.CombatEngine.Vec3;
 import org.junit.jupiter.api.Test;
@@ -73,6 +75,100 @@ class CombatEngineTest {
         input(unaimed, 1, 0, 12, 0, 0, false, true, false, 0);
         unaimed.tick();
         assertEquals(20, unaimed.snapshot(2).health());
+    }
+
+    @Test void laterMovementPacketDoesNotReplaceTheClickAimOrSlot() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        assertTrue(input(engine, 1, 1, 90, 0, 0, false, false, false, 5));
+        engine.tick();
+        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(90, engine.snapshot(1).yaw());
+        assertEquals(5, engine.snapshot(1).slot());
+    }
+
+    @Test void aimedSwingHitsTheServerPoseThatWasShownDuringAStrafe() {
+        for (boolean useHistory : List.of(false, true)) {
+            var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+            assertTrue(engine.reset(2, new Vec3(2.5, 1, -.85), 0));
+            assertTrue(engine.submit(2, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0)));
+            tick(engine, 7);
+            Vec3 displayed = engine.snapshot(2).feet();
+            engine.tick();
+            float yaw = (float) Math.toDegrees(Math.atan2(displayed.z() - ORIGIN.z(), displayed.x() - ORIGIN.x()));
+            var shown = useHistory ? new AttackView(2, 7.25, 7) : null;
+            assertTrue(engine.submit(1, new Intent(0, yaw, 0, 0, 0, false, false, true, false, 0, shown)));
+            engine.tick();
+            assertEquals(useHistory ? 1 : 0, engine.snapshot(1).stats().hits());
+        }
+    }
+
+    @Test void historyStillRejectsOccludedDisallowedOrExpiredTargets() {
+        var blocked = duel(CombatRules.NO_DEBUFF, field(true, true), 2.5);
+        var friendly = duel(CombatRules.NO_DEBUFF, field(false, false), 2.5);
+        var invalid = duel(CombatRules.NO_DEBUFF, field(false, true), 2.5);
+        for (var engine : List.of(blocked, friendly, invalid)) tick(engine, 10);
+        for (var engine : List.of(blocked, friendly)) {
+            assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 0, false, false, true, false, 0,
+                    new AttackView(2, 10, 10))));
+            engine.tick();
+            assertEquals(0, engine.snapshot(1).stats().hits());
+        }
+        for (var shown : List.of(new AttackView(2, 1, 1), new AttackView(2, 13, 13), new AttackView(3, 12, 12))) {
+            assertTrue(invalid.submit(1, new Intent(invalid.currentTick(), 0, 0, 0, 0, false, false, true, false, 0, shown)));
+            invalid.tick();
+            assertEquals(0, invalid.snapshot(1).stats().hits());
+        }
+        assertTrue(invalid.reset(2, new Vec3(3, 1, .5), 0));
+        assertTrue(invalid.submit(1, new Intent(20, 0, 0, 0, 0, false, false, true, false, 0,
+                new AttackView(2, 13, 13))));
+        invalid.tick();
+        assertEquals(0, invalid.snapshot(1).stats().hits());
+    }
+
+    @Test void historyReconstructsTheSamePoseWhenTheClientMissesSnapshotsDuringATurn() {
+        for (boolean useGap : List.of(false, true)) {
+            var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+            assertTrue(engine.reset(2, new Vec3(2.5, 1, -.85), 0));
+            engine.submit(2, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0));
+            tick(engine, 7);
+            double first = engine.snapshot(2).feet().z();
+            engine.tick();
+            engine.submit(2, new Intent(1, 0, 0, 0, -1, false, false, false, false, 0));
+            tick(engine, 2);
+            double last = engine.snapshot(2).feet().z();
+            double displayed = first + (last - first) / 3;
+            float yaw = (float) Math.toDegrees(Math.atan2(displayed - .25 - ORIGIN.z(), 2));
+            var view = new AttackView(2, new PoseView(8, 8, 8),
+                    useGap ? new PoseView(7, 10, 8) : new PoseView(8, 8, 8));
+            assertTrue(engine.submit(1, new Intent(0, yaw, 0, 0, 0, false, false, true, false, 0, view)));
+            engine.tick();
+            assertEquals(useGap ? 1 : 0, engine.snapshot(1).stats().hits());
+        }
+    }
+
+    @Test void strongerSprintHitAddsOnlyTheSprintPushInsideTheHurtWindow() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        input(engine, 1, 0, 0, 0, 0, false, true, false, 5);
+        engine.tick();
+        assertEquals(19.68, engine.snapshot(2).health(), .00001);
+        input(engine, 1, 1, 0, 0, 1, true, true, false, 0);
+        engine.tick();
+        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertFalse(engine.snapshot(1).sprinting());
+        engine.tick();
+        assertEquals(.35 * .68 + .25, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(.128184, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(2, engine.snapshot(1).stats().hits());
+    }
+
+    @Test void aClickThatStartsUsingAnItemCannotAddSprintKnockback() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(input(engine, 1, 0, 0, 0, 1, true, true, true, 3));
+        engine.tick();
+        assertEquals(1, engine.snapshot(1).stats().hits());
+        engine.tick();
+        assertEquals(.35, engine.snapshot(2).velocity().x(), .00001);
     }
 
     @Test void sprintResetRearmsBoostWhileHoldingSprintAfterAHitDoesNot() {

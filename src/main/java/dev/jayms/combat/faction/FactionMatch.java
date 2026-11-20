@@ -218,7 +218,8 @@ public final class FactionMatch implements ArenaMatch {
             return;
         }
         var authoritative = new Intent(++serial, intent.yaw(), intent.pitch(), intent.forward(), intent.strafe(),
-                intent.jump(), intent.sprint(), combat && intent.attack(), combat && intent.use(), intent.slot());
+                intent.jump(), intent.sprint(), combat && intent.attack(), combat && intent.use(), intent.slot(),
+                combat ? intent.attackView() : null);
         if (engine.submit(id, authoritative)) seat.lastClientSequence = intent.sequence();
     }
 
@@ -333,7 +334,7 @@ public final class FactionMatch implements ArenaMatch {
     private void fight() {
         boolean departed = expireLogoutActors();
         for (var entry : seats.entrySet()) passives(entry.getKey(), entry.getValue());
-        engine.tick();
+        engine.tick(tick);
         lastSimulationStep = tick;
         boolean killed = false;
         for (var events = engine.drainEvents(); !events.isEmpty(); events = engine.drainEvents()) {
@@ -712,7 +713,7 @@ public final class FactionMatch implements ArenaMatch {
     private void tickResult() {
         if (raidOpen()) {
             if (seats.values().stream().anyMatch(this::canRaid)) {
-                engine.tick();
+                engine.tick(tick);
                 lastSimulationStep = tick;
                 engine.drainEvents();
             } else {

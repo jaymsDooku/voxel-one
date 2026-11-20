@@ -1,5 +1,10 @@
 package dev.jayms.combat.client;
 
+import dev.jayms.combat.CombatEngine.Arena;
+import dev.jayms.combat.CombatEngine.PoseView;
+import dev.jayms.combat.CombatEngine.Vec3;
+import dev.jayms.combat.CombatGeometry;
+import dev.jayms.combat.CombatGeometry.PosePath;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 
@@ -14,56 +19,22 @@ final class ArenaMotionTimeline {
     private static final int MAX_SAMPLES = 12;
     private static final int MAX_BRIDGE_TICKS = 3;
     private static final long STALE_NANOS = 250_000_000;
-    private static final double BODY_RADIUS = .31, BODY_HEIGHT = 1.8, CONTACT_EPSILON = .0001;
     private static final double LOCAL_DELAY = 1;
     private static final double HURT_TICKS = 5;
 
     record Cursor(double tick, double fadeTick) {}
     record Frame(Cursor local, Cursor remote) {}
     record Presented(Fighter fighter, float x, float y, float z, float yaw, float pitch,
-                     float walkPhase, float walkAmount, float hurt) {
+                     float walkPhase, float walkAmount, float hurt, PoseView pose) {
         boolean visible() { return fighter.health() > 0 || hurt > 0; }
     }
 
-    private record Point(double x, double y, double z) {
-        static Point of(Fighter fighter) { return new Point(fighter.x(), fighter.y(), fighter.z()); }
-        Point blend(Point next, double t) {
-            return new Point(x + (next.x - x) * t, y + (next.y - y) * t, z + (next.z - z) * t);
-        }
-        double distance(Point point) {
-            double dx = x - point.x, dy = y - point.y, dz = z - point.z;
-            return Math.sqrt(dx * dx + dy * dy + dz * dz);
-        }
-    }
+    private static final Arena TERRAIN = new Arena() {
+        @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
+        @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
+    };
 
-    private record Route(Point[] points, double length) {
-        static Route between(Point left, Point right, long gap) {
-            double distance = left.distance(right);
-            if (gap > MAX_BRIDGE_TICKS || distance > 1.75 * gap
-                    || !BasaltCourtyard.contains(left.x, left.y, left.z)
-                    || !BasaltCourtyard.contains(right.x, right.y, right.z)) return null;
-            if (distance == 0 || clearSweep(left, right)) return new Route(new Point[]{left, right}, distance);
-            if (gap != 1) return null;
-            // The simulation clips Y, then X, then Z. Follow that route where the straight path hits terrain.
-            var y = new Point(left.x, right.y, left.z);
-            var x = new Point(right.x, right.y, left.z);
-            if (!clearSweep(left, y) || !clearSweep(y, x) || !clearSweep(x, right)) return null;
-            return new Route(new Point[]{left, y, x, right}, left.distance(y) + y.distance(x) + x.distance(right));
-        }
-
-        Point at(double t) {
-            double travel = length * t;
-            for (int i = 1; i < points.length; i++) {
-                Point from = points[i - 1], to = points[i];
-                double segment = from.distance(to);
-                if (segment > 0 && travel <= segment) return from.blend(to, travel / segment);
-                travel -= segment;
-            }
-            return points[points.length - 1];
-        }
-    }
-
-    private record Sample(long tick, Fighter fighter, Point point, long hurtTick, double stride, Route fromPrevious) {}
+    private record Sample(long tick, Fighter fighter, Vec3 point, long hurtTick, double stride, PosePath fromPrevious) {}
 
     private static final class Track {
         final ArrayDeque<Sample> samples = new ArrayDeque<>();
@@ -132,12 +103,14 @@ final class ArenaMotionTimeline {
             if (right.tick < tick) right = candidate;
         }
         Fighter discrete = left.fighter;
-        Point point = left.point;
+        Vec3 point = left.point;
+        PoseView pose = new PoseView(left.tick, left.tick, left.tick);
         float yaw = discrete.yaw(), pitch = discrete.pitch(), amount = walkAmount(discrete);
         double stride = left.stride;
         if (left != right && right.fromPrevious != null && left.tick < tick) {
             double progress = Math.min(1, (tick - left.tick) / (right.tick - left.tick));
             point = right.fromPrevious.at(progress);
+            pose = new PoseView(left.tick, right.tick, tick);
             yaw += (float) (Math.IEEEremainder(right.fighter.yaw() - yaw, 360) * progress);
             pitch += (float) ((right.fighter.pitch() - pitch) * progress);
             stride += (right.stride - stride) * progress;
@@ -145,8 +118,8 @@ final class ArenaMotionTimeline {
         }
         // The pose holds at the freshest sample during a stall. Visual feedback keeps expiring.
         float hurt = hurtTick < 0 ? 0 : injuryStrength(Math.max(tick, cursor.fadeTick) - hurtTick);
-        return new Presented(discrete, (float) point.x, (float) point.y, (float) point.z, yaw, pitch,
-                (float) (stride % (2 * Math.PI)), amount, hurt);
+        return new Presented(discrete, (float) point.x(), (float) point.y(), (float) point.z(), yaw, pitch,
+                (float) (stride % (2 * Math.PI)), amount, hurt, pose);
     }
 
     private void append(long tick, Fighter fighter) {
@@ -157,14 +130,14 @@ final class ArenaMotionTimeline {
             prior = null;
         }
         Sample previous = track.samples.peekLast();
-        Point next = Point.of(fighter);
+        Vec3 next = new Vec3(fighter.x(), fighter.y(), fighter.z());
         long hurt = fighter.hurtTick() > 0 && fighter.hurtTick() <= tick ? fighter.hurtTick() : -1;
         if (prior != null && fighter.motionEpoch() == 0 && hurt < 0 && fighter.health() < prior.health()) hurt = tick;
         track.confirmedHurt = Math.max(track.confirmedHurt, hurt);
         if (hurt <= track.skippedHurt) hurt = -1;
-        Route route = previous == null ? null : Route.between(previous.point, next, tick - previous.tick);
+        PosePath route = previous == null ? null : CombatGeometry.posePath(TERRAIN, previous.point, next, tick - previous.tick);
         double stride = route == null ? 0 : previous.stride
-                + Math.hypot(next.x - previous.point.x, next.z - previous.point.z) * 2.5;
+                + Math.hypot(next.x() - previous.point.x(), next.z() - previous.point.z()) * 2.5;
         track.samples.addLast(new Sample(tick, fighter, next, hurt, stride, route));
         if (track.samples.size() > MAX_SAMPLES) track.samples.removeFirst();
         track.latest = fighter;
@@ -181,41 +154,5 @@ final class ArenaMotionTimeline {
     private static float injuryStrength(double age) {
         if (age < 0 || age >= HURT_TICKS) return 0;
         return (float) Math.min(1, (HURT_TICKS - age) / (HURT_TICKS - 2));
-    }
-
-    private static boolean clearSweep(Point left, Point right) {
-        int minX = (int) Math.floor(Math.min(left.x, right.x) - BODY_RADIUS);
-        int maxX = (int) Math.floor(Math.max(left.x, right.x) + BODY_RADIUS);
-        int minY = (int) Math.floor(Math.min(left.y, right.y));
-        int maxY = (int) Math.floor(Math.max(left.y, right.y) + BODY_HEIGHT);
-        int minZ = (int) Math.floor(Math.min(left.z, right.z) - BODY_RADIUS);
-        int maxZ = (int) Math.floor(Math.max(left.z, right.z) + BODY_RADIUS);
-        for (int x = minX; x <= maxX; x++) {
-            for (int y = minY; y <= maxY; y++) {
-                for (int z = minZ; z <= maxZ; z++) {
-                    if (BasaltCourtyard.solid(x, y, z) && crossesBody(left, right, x, y, z)) return false;
-                }
-            }
-        }
-        return true;
-    }
-
-    private static boolean crossesBody(Point left, Point right, int x, int y, int z) {
-        // Minkowski-expanded cell. Find the overlap of its three entry/exit intervals.
-        Range sx = sweepAxis(left.x, right.x, x - BODY_RADIUS, x + 1 + BODY_RADIUS);
-        Range sy = sweepAxis(left.y, right.y, y - BODY_HEIGHT, y + 1);
-        Range sz = sweepAxis(left.z, right.z, z - BODY_RADIUS, z + 1 + BODY_RADIUS);
-        return Math.max(0, Math.max(sx.entry, Math.max(sy.entry, sz.entry)))
-                < Math.min(1, Math.min(sx.exit, Math.min(sy.exit, sz.exit)));
-    }
-
-    private record Range(double entry, double exit) {}
-
-    private static Range sweepAxis(double from, double to, double min, double max) {
-        min += CONTACT_EPSILON;
-        max -= CONTACT_EPSILON;
-        if (from == to) return from > min && from < max ? new Range(0, 1) : new Range(1, 0);
-        double a = (min - from) / (to - from), b = (max - from) / (to - from);
-        return new Range(Math.min(a, b), Math.max(a, b));
     }
 }

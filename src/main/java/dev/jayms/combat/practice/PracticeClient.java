@@ -38,11 +38,14 @@ public final class PracticeClient implements AutoCloseable {
             throw new IOException("Use a faction password of 10–128 characters");
         Login login;
         int negotiated = PracticeWire.VERSION;
-        try {
-            login = login(host, port, pin, name, password, register, negotiated);
-        } catch (UnsupportedVersion olderServer) {
-            negotiated = PracticeWire.LEGACY_VERSION;
-            login = login(host, port, pin, name, password, register, negotiated);
+        for (;;) {
+            try {
+                login = login(host, port, pin, name, password, register, negotiated);
+                break;
+            } catch (UnsupportedVersion olderServer) {
+                if (negotiated == PracticeWire.LEGACY_VERSION) throw olderServer;
+                negotiated--;
+            }
         }
         version = negotiated;
         socket = login.socket();
@@ -97,7 +100,7 @@ public final class PracticeClient implements AutoCloseable {
     public int id() { return id; }
     public PracticeMatch.View view() { return view; }
     public boolean connected() { return !socket.isClosed(); }
-    public boolean input(Intent intent) { return offer(out -> PracticeWire.writeIntent(out, intent)); }
+    public boolean input(Intent intent) { return offer(out -> PracticeWire.writeIntent(out, intent, version)); }
     public boolean ready() { return offer(out -> out.writeByte(PracticeWire.READY)); }
     public boolean action(int action) {
         if (action < 0 || action > 255) return false;

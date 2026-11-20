@@ -152,7 +152,7 @@ public final class PracticeMatch implements ArenaMatch {
             }
             case FIGHT -> {
                 if (offline) driveBot();
-                engine.tick();
+                engine.tick(tick);
                 lastSimulationStep = tick;
                 for (Event event : engine.drainEvents()) {
                     Member actor = members.get(event.actorId()), target = members.get(event.targetId());

@@ -5,9 +5,14 @@ import dev.jayms.Chunk;
 import dev.jayms.ShaderProgram;
 import dev.jayms.VoxelModelRenderer;
 import dev.jayms.World;
+import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
+import dev.jayms.combat.CombatEngine.PoseView;
 import dev.jayms.combat.CombatEngine.Stack;
+import dev.jayms.combat.CombatEngine.Vec3;
+import dev.jayms.combat.CombatGeometry;
+import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.arena.BasaltCourtyardWorld;
 import dev.jayms.combat.practice.PracticeClient;
@@ -73,8 +78,11 @@ public final class PracticeGame {
     private Window window;
     private View view;
     private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
-    private boolean inventory, attack, usePressed, previousIntentUse, firstMouse = true, positioned;
+    private boolean inventory, usePressed, previousIntentUse, firstMouse = true, positioned;
     private boolean sprintReleased;
+    private Intent pendingClick;
+    private boolean pendingClickRearm;
+    private PoseView localPose;
     private Boolean scriptedUse;
     private int width, height, slot, source = -1;
     private long frameInput, sequence;
@@ -254,7 +262,10 @@ public final class PracticeGame {
         });
         glfwSetWindowFocusCallback(handle, (w, focused) -> {
             firstMouse = true;
-            if (!focused) attack = usePressed = sprintReleased = false;
+            if (!focused) {
+                usePressed = sprintReleased = false;
+                pendingClick = null;
+            }
         });
         glfwSetScrollCallback(handle, (w, x, y) -> {
             if (!inventory && y != 0) selectSlot(Math.floorMod(slot - (y > 0 ? 1 : -1), 9), System.nanoTime());
@@ -316,14 +327,59 @@ public final class PracticeGame {
     }
 
     private void combatPress(int key) {
-        if (controls.matches(BREAK, key)) {
-            attack = true;
-            if (canAnimateCombat()) hand.attack(selectedItem(), useHeld(), System.nanoTime());
+        if (controls.matches(BREAK, key) && canAnimateCombat()) {
+            hand.attack(selectedItem(), useHeld(), System.nanoTime());
+            if (pendingClick == null) captureClick();
+            flushClick();
         }
         if (controls.matches(PLACE, key)) {
             usePressed = true;
             if (canAnimateCombat()) hand.use(selectedItem(), System.nanoTime());
         }
+    }
+
+    private void captureClick() {
+        long handle = window.getHandle();
+        float forward = axis(handle, FORWARD, BACKWARD), strafe = axis(handle, RIGHT, LEFT);
+        boolean sprint = controls.down(handle, SPRINT);
+        pendingClick = new Intent(0, camera.yaw(), camera.pitch(), forward, strafe, controls.down(handle, JUMP),
+                sprint, true, usePressed || useHeld(), slot, displayedTarget());
+        pendingClickRearm = sprintReleased && sprint && forward > 0;
+        sprintReleased = false;
+    }
+
+    private AttackView displayedTarget() {
+        Vector3f cameraEye = camera.position();
+        Vec3 eye = new Vec3(cameraEye.x, cameraEye.y, cameraEye.z);
+        CombatRules rules = view.kit() == PracticeMatch.Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
+        Vec3 ray = CombatGeometry.direction(camera.yaw(), camera.pitch()).scale(rules.reach());
+        ArenaMotionTimeline.Presented target = null;
+        double closest = Double.POSITIVE_INFINITY;
+        for (var candidate : remoteActors) {
+            if (candidate.fighter().health() <= 0) continue;
+            double hit = CombatGeometry.firstBody(eye, ray, new Vec3(candidate.x(), candidate.y(), candidate.z()));
+            if (hit < closest) {
+                closest = hit;
+                target = candidate;
+            }
+        }
+        if (target == null || Math.abs(target.pose().tick() - localPose.tick()) > 3)
+            return new AttackView(0, localPose, localPose);
+        return new AttackView(target.fighter().id(), localPose, target.pose());
+    }
+
+    private boolean flushClick() {
+        Intent click = pendingClick;
+        if (click == null) return true;
+        if (pendingClickRearm) {
+            if (!submitInput(new Intent(++sequence, click.yaw(), click.pitch(), click.forward(), click.strafe(),
+                    click.jump(), false, false, click.use(), click.slot()))) return false;
+            pendingClickRearm = false;
+        }
+        if (!submitInput(new Intent(++sequence, click.yaw(), click.pitch(), click.forward(), click.strafe(),
+                click.jump(), click.sprint(), true, click.use(), click.slot(), click.attackView()))) return false;
+        pendingClick = null;
+        return true;
     }
 
     private void selectSlot(int index, long now) {
@@ -364,7 +420,8 @@ public final class PracticeGame {
 
     private void setInventory(boolean open) {
         if (inventory == open) return;
-        inventory = open; source = -1; firstMouse = true; attack = usePressed = sprintReleased = false;
+        inventory = open; source = -1; firstMouse = true; usePressed = sprintReleased = false;
+        pendingClick = null;
         glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
@@ -410,7 +467,11 @@ public final class PracticeGame {
         boolean jump = enabled && controls.down(w, JUMP);
         boolean sprint = enabled && controls.down(w, SPRINT);
         boolean use = enabled && (usePressed || controls.down(w, PLACE));
-        if (!enabled || !canAnimateCombat()) sprintReleased = false;
+        if (!enabled || !canAnimateCombat()) {
+            sprintReleased = false;
+            pendingClick = null;
+        }
+        if (!flushClick()) return;
         // Preserve a release and repress that both happened between movement samples.
         if (sprintReleased && sprint && forward > 0) {
             if (!submitInput(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
@@ -418,7 +479,7 @@ public final class PracticeGame {
             sprintReleased = false;
         }
         Intent intent = new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
-                jump, sprint, enabled && attack, use, slot);
+                jump, sprint, false, use, slot);
         if (observer != null) {
             Intent controlsIntent = intent;
             intent = observer.input(intent, view);
@@ -434,7 +495,7 @@ public final class PracticeGame {
                 if (intent.attack()) hand.attack(item, scriptedUse, now);
             }
         }
-        if (submitInput(intent)) attack = usePressed = sprintReleased = false;
+        if (submitInput(intent)) usePressed = sprintReleased = false;
     }
 
     private boolean submitInput(Intent intent) {
@@ -468,6 +529,7 @@ public final class PracticeGame {
             hand.reset(spectator ? Item.EMPTY : selectedItem(), now);
         }
         var local = spectator || respawn ? null : motion.sample(id, frame.local());
+        localPose = local == null ? new PoseView(view.tick(), view.tick(), view.tick()) : local.pose();
         if (spectator) camera.position().set(gallery.x(), gallery.y() + 1.62f, gallery.z());
         else if (local == null) camera.position().set(actor.x(), actor.y() + 1.62f, actor.z());
         else camera.position().set(local.x(), local.y() + 1.62f, local.z());

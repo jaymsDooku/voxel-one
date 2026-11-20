@@ -17,6 +17,7 @@ public final class CombatEngine {
     public static final int INVENTORY_SIZE = 36, HOTBAR_SIZE = 9;
     public static final double MAX_HEALTH = 20;
     private static final int MAX_ACTORS = 32, MAX_EVENTS = 512, INPUT_TIMEOUT = 12;
+    private static final int MAX_REWIND_TICKS = 6;
     private static final int ARMOR_DURABILITY = 200;
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
     private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6;
@@ -59,9 +60,34 @@ public final class CombatEngine {
         }
     }
 
-    /** The server accepts poses as aim inputs only. Attack is a discrete click and use is held. */
+    /** The client identifies the displayed target and sample times. The server owns every position. */
+    public record AttackView(int targetId, PoseView attacker, PoseView target) {
+        public AttackView {
+            if (targetId < 0 || attacker == null || target == null || Math.abs(attacker.tick() - target.tick()) > 3)
+                throw new IllegalArgumentException("Invalid attack view");
+        }
+
+        public AttackView(int targetId, double attackerTick, double targetTick) {
+            this(targetId, new PoseView((long) Math.floor(attackerTick), (long) Math.ceil(attackerTick), attackerTick),
+                    new PoseView((long) Math.floor(targetTick), (long) Math.ceil(targetTick), targetTick));
+        }
+    }
+
+    public record PoseView(long first, long last, double tick) {
+        public PoseView {
+            if (first < 0 || last < first || last - first > 3 || !Double.isFinite(tick) || tick < first || tick > last)
+                throw new IllegalArgumentException("Invalid displayed pose");
+        }
+    }
+
+    /** Attack is a discrete click and use is held. Older inputs omit the displayed target. */
     public record Intent(long sequence, float yaw, float pitch, float forward, float strafe,
-                         boolean jump, boolean sprint, boolean attack, boolean use, int slot) {}
+                         boolean jump, boolean sprint, boolean attack, boolean use, int slot, AttackView attackView) {
+        public Intent(long sequence, float yaw, float pitch, float forward, float strafe,
+                      boolean jump, boolean sprint, boolean attack, boolean use, int slot) {
+            this(sequence, yaw, pitch, forward, strafe, jump, sprint, attack, use, slot, null);
+        }
+    }
     public record Stats(int hits, int longestCombo, int potsUsed, int potsRemaining) {}
     public record ProjectileState(long id, int ownerId, Item item, Vec3 position) {}
     public record Event(EventType type, int actorId, int targetId, Item item, Vec3 position, double amount) {}
@@ -77,7 +103,7 @@ public final class CombatEngine {
     private final Map<Integer, Actor> actors = new TreeMap<>();
     private final List<Projectile> shots = new ArrayList<>();
     private final ArrayDeque<Event> events = new ArrayDeque<>();
-    private long currentTick, nextProjectile;
+    private long currentTick, arenaTick, nextProjectile;
 
     public CombatEngine(CombatRules rules, Arena arena) {
         this.rules = java.util.Objects.requireNonNull(rules);
@@ -127,8 +153,12 @@ public final class CombatEngine {
         actor.sequence = intent.sequence();
         actor.lastInputTick = currentTick;
         actor.intent = intent;
-        if (intent.attack()) actor.attackRequested = true;
-        if (!intent.sprint() || intent.forward() <= 0) actor.sprintReleased = true;
+        if (!intent.sprint() || intent.forward() <= 0) {
+            actor.sprintReleased = true;
+            actor.lastSprintReleaseSequence = intent.sequence();
+        }
+        if (intent.attack() && actor.attack == null)
+            actor.attack = new Click(intent, actor.sprintKnockbackReady || actor.sprintReleased);
         if (intent.use() && !actor.submittedUse) actor.usePressed = true;
         if (!intent.use() && actor.submittedUse) actor.useReleased = true;
         actor.submittedUse = intent.use();
@@ -140,7 +170,7 @@ public final class CombatEngine {
         Actor actor = actors.get(playerId);
         if (actor == null) return;
         actor.intent = null;
-        actor.attackRequested = false;
+        actor.attack = null;
         actor.useHeld = false;
         actor.submittedUse = false;
         actor.usePressed = false;
@@ -306,7 +336,10 @@ public final class CombatEngine {
 
     public long currentTick() { return currentTick; }
 
-    public void tick() {
+    public void tick() { tick(currentTick + 1); }
+
+    public void tick(long matchTick) {
+        arenaTick = matchTick;
         currentTick++;
         for (Actor actor : actors.values()) {
             if (actor.alive()) {
@@ -316,10 +349,10 @@ public final class CombatEngine {
         }
         for (Actor actor : actors.values()) {
             if (actor.alive()) {
-                if (actor.attackRequested) melee(actor);
+                if (actor.attack != null) melee(actor, actor.attack);
                 use(actor);
             }
-            actor.attackRequested = false;
+            actor.attack = null;
             actor.usePressed = false;
             actor.useReleased = false;
         }
@@ -327,7 +360,13 @@ public final class CombatEngine {
             if (advance(iterator.next())) iterator.remove();
         }
         // Finish every attack against the same movement phase before changing any fighter's motion.
-        for (Actor actor : actors.values()) resolveHitMotion(actor);
+        for (Actor actor : actors.values()) {
+            resolveHitMotion(actor);
+            if (actor.alive()) {
+                actor.history.addLast(new Pose(arenaTick, actor.feet));
+                if (actor.history.size() > MAX_REWIND_TICKS + 1) actor.history.removeFirst();
+            }
+        }
     }
 
     private void tickEffects(Actor actor) {
@@ -398,7 +437,8 @@ public final class CombatEngine {
         actor.velocity = step.displacement();
         if (step.jumped()) actor.exhaustion += actor.sprinting ? .2 : .05;
         if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
-        if (step.hitHorizontalWall()) actor.sprinting = false;
+        actor.hitHorizontalWall = step.hitHorizontalWall();
+        if (actor.hitHorizontalWall) actor.sprinting = false;
         if (actor.velocity.y < 0) actor.fallDistance -= actor.velocity.y;
         if (actor.grounded) {
             if (actor.fallDistance > 3.5) applyDamage(actor, 0, Math.floor(actor.fallDistance - 3));
@@ -409,8 +449,10 @@ public final class CombatEngine {
     private void resolveHitMotion(Actor actor) {
         boolean sprintHit = actor.slowAfterSprintHit;
         Vec3 incoming = actor.pendingKnockback;
+        Vec3 sprintPush = actor.pendingSprintPush;
         actor.slowAfterSprintHit = false;
         actor.pendingKnockback = null;
+        actor.pendingSprintPush = ZERO;
         if (!actor.alive()) return;
         Vec3 motion = actor.motion;
         if (sprintHit) {
@@ -421,37 +463,68 @@ public final class CombatEngine {
             motion = motion.scale(HIT_MOTION_RETENTION).add(incoming);
             motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z);
         }
-        actor.motion = motion;
+        actor.motion = motion.add(sprintPush);
     }
 
-    private void melee(Actor attacker) {
-        if ((attacker.useHeld && attacker.selected() == Item.SWORD) || attacker.useTicks > 0) return;
-        Item weapon = attacker.selected() == Item.SWORD ? Item.SWORD : Item.EMPTY;
+    private void melee(Actor attacker, Click click) {
+        Intent input = click.input();
+        Item selected = attacker.inventory.get(input.slot()).item();
+        Item weapon = selected == Item.SWORD ? Item.SWORD : Item.EMPTY;
+        if (input.use() && weapon == Item.SWORD || attacker.useTicks > 0) return;
+        AttackView shown = input.attackView();
         Vec3 origin = attacker.feet.add(0, EYE_HEIGHT, 0);
-        Vec3 aim = direction(attacker.yaw, attacker.pitch).scale(rules.reach());
         emit(EventType.SWING, attacker.id, 0, weapon, origin, 0);
+        if (shown != null) {
+            if (shown.targetId() == 0) return;
+            Vec3 past = historicalFeet(attacker, shown.attacker());
+            if (past == null) return;
+            origin = past.add(0, EYE_HEIGHT, 0);
+        }
+        Vec3 aim = direction(input.yaw(), input.pitch()).scale(rules.reach());
         Actor target = null;
         double nearest = firstBlock(arena, origin, aim);
         for (Actor other : actors.values()) {
             if (other == attacker || !other.alive()) continue;
-            double hit = firstBody(origin, aim, other.feet);
+            Vec3 feet = shown == null ? other.feet : historicalFeet(other, shown.target());
+            if (feet == null) continue;
+            double hit = firstBody(origin, aim, feet);
             if (hit < nearest) {
                 target = other;
                 nearest = hit;
             }
         }
-        if (target == null || !arena.canHarm(attacker.id, target.id)) return;
+        if (target == null || shown != null && (target.id != shown.targetId()
+                || target.feet.minus(attacker.feet).length() > rules.reach() + 1)) return;
+        boolean startingUse = input.use() && startsTimedUse(attacker, selected);
+        boolean sprinting = input.sprint() && input.forward() > 0 && attacker.food > 6
+                && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
         if (attacker.has(Effect.STRENGTH)) damage *= 1.28;
-        if (!attacker.grounded && attacker.velocity.y < -.025 && !attacker.sprinting) damage *= 1.5;
-        boolean sprintHit = attacker.sprinting && attacker.sprintKnockbackReady;
-        if (strike(attacker, target, damage, sprintHit, weapon) && sprintHit) {
-            attacker.sprintKnockbackReady = false;
+        if (!attacker.grounded && attacker.velocity.y < -.025 && !sprinting) damage *= 1.5;
+        boolean sprintHit = sprinting && click.sprintReady();
+        Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()) : ZERO;
+        if (strike(attacker, target, damage, sprintPush, weapon) && sprintHit) {
+            attacker.sprintKnockbackReady = attacker.lastSprintReleaseSequence > input.sequence();
             attacker.slowAfterSprintHit = true;
         }
     }
 
-    private boolean strike(Actor attacker, Actor target, double rawDamage, boolean sprintHit, Item weapon) {
+    private Vec3 historicalFeet(Actor actor, PoseView view) {
+        if (view.first() < arenaTick - MAX_REWIND_TICKS || view.last() >= arenaTick) return null;
+        Vec3 first = null;
+        for (Pose pose : actor.history) {
+            if (pose.tick() == view.first()) first = pose.feet();
+            if (pose.tick() == view.last() && first != null) {
+                long span = view.last() - view.first();
+                if (span == 0) return first;
+                var path = posePath(arena, first, pose.feet(), span);
+                return path == null ? null : path.at((view.tick() - view.first()) / span);
+            }
+        }
+        return null;
+    }
+
+    private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
         Vec3 relative = target.feet.minus(attacker.feet);
         double distance = Math.hypot(relative.x, relative.z);
@@ -471,10 +544,10 @@ public final class CombatEngine {
         target.lastDamage = damage;
         if (fullHit) {
             target.hurtTicks = rules.hurtTicks();
-            Vec3 base = away.scale(rules.knockback()).add(0, rules.lift(), 0);
-            // Sprint resets affect spacing without extending the victim's time in the air.
-            target.pendingKnockback = sprintHit ? base.add(direction(attacker.yaw, 0).scale(rules.sprintKnockback())) : base;
+            target.pendingKnockback = away.scale(rules.knockback()).add(0, rules.lift(), 0);
         }
+        // A stronger hit inside the hurt window can still deliver the sprint bonus.
+        target.pendingSprintPush = target.pendingSprintPush.add(sprintPush);
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
         attacker.lastHit = currentTick;
         attacker.lastComboTarget = target.id;
@@ -489,7 +562,7 @@ public final class CombatEngine {
         }
         emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
         applyDamage(target, attacker.id, dealt);
-        return fullHit;
+        return true;
     }
 
     private void applyDamage(Actor target, int sourceId, double amount) {
@@ -595,7 +668,7 @@ public final class CombatEngine {
                 case PEARL -> landPearl(owner, hit, shot.velocity);
                 case ARROW -> {
                     if (target != null && target != owner) {
-                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), false, Item.ARROW);
+                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), ZERO, Item.ARROW);
                     }
                 }
                 default -> splash(owner, shot.item, hit, shot.velocity);
@@ -656,6 +729,8 @@ public final class CombatEngine {
                 owner.landedLastStep = false;
                 owner.jumpCooldown = 0;
                 owner.pendingKnockback = null;
+                owner.pendingSprintPush = ZERO;
+                owner.history.clear();
                 owner.motionEpoch++;
                 emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
                 applyDamage(owner, owner.id, rules.pearlDamage());
@@ -692,11 +767,15 @@ public final class CombatEngine {
         List<Stack> kit;
         Vec3 feet, motion = ZERO, velocity = ZERO;
         Vec3 pendingKnockback;
+        Vec3 pendingSprintPush = ZERO;
+        final ArrayDeque<Pose> history = new ArrayDeque<>();
         Intent intent;
+        Click attack;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
+        long lastSprintReleaseSequence = -1;
         float yaw, pitch;
-        boolean grounded, sprinting, sprintKnockbackReady = true, attackRequested, sprintReleased, slowAfterSprintHit;
+        boolean grounded, sprinting, sprintKnockbackReady = true, sprintReleased, slowAfterSprintHit, hitHorizontalWall;
         boolean landedLastStep;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
@@ -731,6 +810,9 @@ public final class CombatEngine {
                     hurtTick, motionEpoch);
         }
     }
+
+    private record Click(Intent input, boolean sprintReady) {}
+    private record Pose(long tick, Vec3 feet) {}
 
     private static final class Projectile {
         final long id;

@@ -1,6 +1,7 @@
 package dev.jayms.combat.practice;
 
 import dev.jayms.combat.CombatEngine.Intent;
+import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.CombatEngine.Effect;
 import dev.jayms.combat.arena.BasaltCourtyard;
@@ -74,7 +75,10 @@ class PracticeNetworkTest {
             Fighter aliceBefore = self(alice), bobBefore = self(bob);
             assertTrue(aliceBefore.z() - bobBefore.z() > .3 && aliceBefore.z() - bobBefore.z() < 3.2,
                     "Fighters reached the central trading lane");
-            assertTrue(input(alice, sequence++, -90, 0, 0, false, true, false, 8));
+            long shown = alice.view().tick();
+            assertTrue(alice.input(new Intent(sequence++, -90, 0, 0, 0, false, false, true, false, 8,
+                    new AttackView(bob.id(), shown, shown))));
+            assertTrue(input(alice, sequence++, 0, 0, 0, false, false, false, 0));
             await(() -> fighter(alice.view(), alice.id()).hits() == 1 && self(bob).health() < 20
                     && bothAgree(alice, bob), "authoritative sword hit on both clients");
             float injured = self(bob).health();

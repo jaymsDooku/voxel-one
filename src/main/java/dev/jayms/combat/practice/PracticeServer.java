@@ -109,7 +109,7 @@ public final class PracticeServer implements AutoCloseable {
             var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             if (in.readInt() != PracticeWire.MAGIC) return;
             int version = in.readInt();
-            if (version != PracticeWire.VERSION && version != PracticeWire.LEGACY_VERSION) return;
+            if (version < PracticeWire.LEGACY_VERSION || version > PracticeWire.VERSION) return;
             int length = in.readUnsignedByte();
             if (length < 1 || length > 16) return;
             byte[] name = new byte[length];
@@ -137,7 +137,7 @@ public final class PracticeServer implements AutoCloseable {
                 if (now - period >= 1_000_000_000L) { period = now; messages = 0; }
                 if (++messages > 120) return;
                 switch (action) {
-                    case PracticeWire.CONTROL -> match.input(id, PracticeWire.readIntent(in));
+                    case PracticeWire.CONTROL -> match.input(id, PracticeWire.readIntent(in, version));
                     case PracticeWire.READY -> match.ready(id);
                     case PracticeWire.SWAP -> {
                         int source = in.readUnsignedByte(), target = in.readUnsignedByte();

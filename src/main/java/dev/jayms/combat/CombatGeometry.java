@@ -3,16 +3,17 @@ package dev.jayms.combat;
 import dev.jayms.combat.CombatEngine.Arena;
 import dev.jayms.combat.CombatEngine.Vec3;
 
-final class CombatGeometry {
+public final class CombatGeometry {
     static final double BODY_RADIUS = .31;
     static final double BODY_HEIGHT = 1.8;
     static final double EYE_HEIGHT = 1.62;
     private static final double EPSILON = 1e-7;
+    private static final double CONTACT_EPSILON = .0001;
 
     private CombatGeometry() {}
 
     /** The game camera uses east as yaw zero and positive pitch for up. */
-    static Vec3 direction(float yaw, float pitch) {
+    public static Vec3 direction(float yaw, float pitch) {
         double azimuth = Math.toRadians(yaw), elevation = Math.toRadians(pitch);
         double horizontal = Math.cos(elevation);
         return new Vec3(Math.cos(azimuth) * horizontal, Math.sin(elevation), Math.sin(azimuth) * horizontal);
@@ -98,9 +99,79 @@ final class CombatGeometry {
         return Double.POSITIVE_INFINITY;
     }
 
-    static double firstBody(Vec3 start, Vec3 delta, Vec3 feet) {
+    public static double firstBody(Vec3 start, Vec3 delta, Vec3 feet) {
         return firstBox(start, delta, feet.add(-BODY_RADIUS, 0, -BODY_RADIUS),
                 feet.add(BODY_RADIUS, BODY_HEIGHT, BODY_RADIUS));
+    }
+
+    /** Collision-safe route shared by rendering and between-tick hit validation. */
+    public static PosePath posePath(Arena arena, Vec3 left, Vec3 right, long gap) {
+        double distance = left.minus(right).length();
+        if (gap < 1 || gap > 3 || distance > 1.75 * gap || !arena.contains(left) || !arena.contains(right)) return null;
+        if (distance == 0 || clearSweep(arena, left, right)) return new PosePath(distance, left, right);
+        if (gap != 1) return null;
+        // Match the movement solver's Y, X, Z clipping at an obstructed diagonal.
+        var y = new Vec3(left.x(), right.y(), left.z());
+        var x = new Vec3(right.x(), right.y(), left.z());
+        if (!clearSweep(arena, left, y) || !clearSweep(arena, y, x) || !clearSweep(arena, x, right)) return null;
+        return new PosePath(left.minus(y).length() + y.minus(x).length() + x.minus(right).length(), left, y, x, right);
+    }
+
+    public static final class PosePath {
+        private final double length;
+        private final Vec3[] points;
+
+        private PosePath(double length, Vec3... points) {
+            this.length = length;
+            this.points = points;
+        }
+
+        public Vec3 at(double progress) {
+            double travel = length * progress;
+            for (int i = 1; i < points.length; i++) {
+                Vec3 from = points[i - 1], delta = points[i].minus(from);
+                double segment = delta.length();
+                if (segment > 0 && travel <= segment) return from.add(delta.scale(travel / segment));
+                travel -= segment;
+            }
+            return points[points.length - 1];
+        }
+    }
+
+    private static boolean clearSweep(Arena arena, Vec3 left, Vec3 right) {
+        int minX = cell(Math.min(left.x(), right.x()) - BODY_RADIUS);
+        int maxX = cell(Math.max(left.x(), right.x()) + BODY_RADIUS);
+        int minY = cell(Math.min(left.y(), right.y()));
+        int maxY = cell(Math.max(left.y(), right.y()) + BODY_HEIGHT);
+        int minZ = cell(Math.min(left.z(), right.z()) - BODY_RADIUS);
+        int maxZ = cell(Math.max(left.z(), right.z()) + BODY_RADIUS);
+        for (int x = minX; x <= maxX; x++) {
+            for (int y = minY; y <= maxY; y++) {
+                for (int z = minZ; z <= maxZ; z++) {
+                    if (arena.solid(x, y, z) && crossesBody(left, right, x, y, z)) return false;
+                }
+            }
+        }
+        return true;
+    }
+
+    private static boolean crossesBody(Vec3 left, Vec3 right, int x, int y, int z) {
+        // Expand the cell by the body and intersect the three entry and exit intervals.
+        Range sx = sweepAxis(left.x(), right.x(), x - BODY_RADIUS, x + 1 + BODY_RADIUS);
+        Range sy = sweepAxis(left.y(), right.y(), y - BODY_HEIGHT, y + 1);
+        Range sz = sweepAxis(left.z(), right.z(), z - BODY_RADIUS, z + 1 + BODY_RADIUS);
+        return Math.max(0, Math.max(sx.entry, Math.max(sy.entry, sz.entry)))
+                < Math.min(1, Math.min(sx.exit, Math.min(sy.exit, sz.exit)));
+    }
+
+    private record Range(double entry, double exit) {}
+
+    private static Range sweepAxis(double from, double to, double min, double max) {
+        min += CONTACT_EPSILON;
+        max -= CONTACT_EPSILON;
+        if (from == to) return from > min && from < max ? new Range(0, 1) : new Range(1, 0);
+        double a = (min - from) / (to - from), b = (max - from) / (to - from);
+        return new Range(Math.min(a, b), Math.max(a, b));
     }
 
     private static double firstBox(Vec3 start, Vec3 delta, Vec3 min, Vec3 max) {

@@ -12,14 +12,14 @@ import java.util.List;
 
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
-    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, VERSION = 2;
+    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, VERSION = 3;
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
     static final int QUICK_MOVE = 255;
 
     private PracticeWire() { }
 
-    static void writeIntent(DataOutputStream out, Intent i) throws IOException {
+    static void writeIntent(DataOutputStream out, Intent i, int version) throws IOException {
         out.writeByte(CONTROL);
         out.writeLong(i.sequence());
         out.writeFloat(i.yaw());
@@ -28,16 +28,44 @@ final class PracticeWire {
         out.writeFloat(i.strafe());
         out.writeByte((i.jump() ? 1 : 0) | (i.sprint() ? 2 : 0) | (i.attack() ? 4 : 0) | (i.use() ? 8 : 0));
         out.writeByte(i.slot());
+        if (version >= VERSION && i.attack()) {
+            AttackView shown = i.attackView();
+            out.writeBoolean(shown != null);
+            if (shown != null) {
+                out.writeInt(shown.targetId());
+                writePoseView(out, shown.attacker());
+                writePoseView(out, shown.target());
+            }
+        }
     }
 
-    static Intent readIntent(DataInputStream in) throws IOException {
+    static Intent readIntent(DataInputStream in, int version) throws IOException {
         long sequence = in.readLong();
         float yaw = finite(in), pitch = finite(in), forward = finite(in), strafe = finite(in);
         int flags = in.readUnsignedByte(), slot = in.readUnsignedByte();
         if (sequence < 0 || Math.abs(yaw) > 360 || Math.abs(pitch) > 89 || Math.abs(forward) > 1
                 || Math.abs(strafe) > 1 || flags > 15 || slot > 8) throw new IOException("Invalid combat input");
+        boolean attack = (flags & 4) != 0;
+        AttackView shown = null;
+        if (version >= VERSION && attack && in.readBoolean()) {
+            try {
+                shown = new AttackView(in.readInt(), readPoseView(in), readPoseView(in));
+            } catch (IllegalArgumentException invalid) {
+                throw new IOException("Invalid attack view", invalid);
+            }
+        }
         return new Intent(sequence, yaw, pitch, forward, strafe, (flags & 1) != 0, (flags & 2) != 0,
-                (flags & 4) != 0, (flags & 8) != 0, slot);
+                attack, (flags & 8) != 0, slot, shown);
+    }
+
+    private static void writePoseView(DataOutputStream out, PoseView pose) throws IOException {
+        out.writeLong(pose.first());
+        out.writeLong(pose.last());
+        out.writeDouble(pose.tick());
+    }
+
+    private static PoseView readPoseView(DataInputStream in) throws IOException {
+        return new PoseView(in.readLong(), in.readLong(), in.readDouble());
     }
 
     static void writeView(DataOutputStream out, View v, int version) throws IOException {
@@ -68,7 +96,7 @@ final class PracticeWire {
             out.writeInt(f.remaining());
             out.writeByte(f.side());
             out.writeUTF(f.role());
-            if (version >= VERSION) {
+            if (version >= POSE_VERSION) {
                 out.writeFloat(f.vx());
                 out.writeFloat(f.vy());
                 out.writeFloat(f.vz());
@@ -125,7 +153,7 @@ final class PracticeWire {
                 throw new IOException("Invalid fighter affiliation");
             float vx = 0, vy = 0, vz = 0;
             long hurtTick = -1, motionEpoch = 0;
-            if (version >= VERSION) {
+            if (version >= POSE_VERSION) {
                 vx = finite(in);
                 vy = finite(in);
                 vz = finite(in);
