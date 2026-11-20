@@ -1,4 +1,4 @@
-// Host-side macOS utility. Export only the passing offline world-time test's clip.
+// Host-side macOS utility. Export only the passing offline touch-settings test's clip.
 // Raw suite video and timing stay in ignored ios/build; no external encoder needed.
 import Foundation
 import AVFoundation

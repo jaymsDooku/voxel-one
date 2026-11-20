@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:45:08+00:00",
+  "updatedAt": "2026-11-20T06:27:29+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "c76b517b Mac run stopped at terrain_contract before native gameplay. Replaced platform-dependent sun trig with StrictMath; kept exact fixture comparison and45 required native cases. Java17/21/25 fixture bytes match;15 focused Java and87 Linux harness tests passed. Fresh exact-source Mac run and actual night/day media pending. Full parity/live service/signing/physical gates remain open.",
-      "updatedAt": "2026-11-20T05:45:08+00:00"
+      "note": "60deab70 passed45 native cases, including night/day persistence; actual32.53s video/model screenshot inspected and copied. Added saved touch sensitivity/inversion and four movement-button bindings with safe swap, Apply/Cancel/Reset and input cancellation.87 Linux harness tests passed. New47-case Mac controls playtest/media pending; live VPS/signing/physical qualification remain open.",
+      "updatedAt": "2026-11-20T06:27:29+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

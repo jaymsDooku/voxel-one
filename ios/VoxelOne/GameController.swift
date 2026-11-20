@@ -4,6 +4,7 @@ import SceneKit
 @MainActor
 final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecognizerDelegate {
     private let renderer=VoxelRenderer()
+    private var controls=NativeControls.load()
     private var world:VoxelWorld?
     private let terrainStreamer=NativeTerrainStreamer()
     private var terrainRetryAfter:CFTimeInterval=0
@@ -159,8 +160,9 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let hotbarScroll=UIScrollView();hotbarScroll.accessibilityIdentifier="hotbarScroll";hotbarScroll.showsHorizontalScrollIndicator=true;hotbarScroll.addSubview(hotbar);hotbarScroll.heightAnchor.constraint(equalToConstant:44).isActive=true
         NSLayoutConstraint.activate([hotbar.leadingAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.leadingAnchor),hotbar.trailingAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.trailingAnchor),hotbar.topAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.topAnchor),hotbar.bottomAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.bottomAnchor),hotbar.heightAnchor.constraint(equalTo:hotbarScroll.frameLayoutGuide.heightAnchor),hotbar.widthAnchor.constraint(greaterThanOrEqualToConstant:444)])
         for b in slotButtons {b.widthAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true}
-        let left=directionButton("◀","moveLeft"),forward=directionButton("▲","moveForward"),back=directionButton("▼","moveBack"),right=directionButton("▶","moveRight")
-        let directions=row([left,forward,back,right])
+        let directions=row(controls.bindings.map{action in
+            directionButton(NativeControls.arrows[NativeControls.actions.firstIndex(of:action)!],action)
+        })
         let down=directionButton("Down","flyDown");descendButton=down;down.isHidden=true
         let grid=button("Grid","gridButton",#selector(chooseGrid));gridButton=grid
         grid.isHidden=world?.snapshot.contract==nil || (gateway != nil && world?.snapshot.contract?.fineEdits != true)
@@ -279,7 +281,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             else {notify("Ground \(Int(floor(point.x))), \(Int(floor(point.z))).")}
         } else if points.count<32 {points.append([Float(floor(point.x)),Float(floor(point.z))]);renderer.mark(points,world:world);notify("\(points.count) plan points.")}
     }
-    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,!renderer.planning,!isometric else{return};resetAim();let d=gesture.translation(in:renderer.view);world?.look(dx:Float(d.x),dy:Float(d.y));gesture.setTranslation(.zero,in:renderer.view)}
+    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,active,!graphicsOpen,!renderer.planning,!isometric else{return};resetAim();let d=gesture.translation(in:renderer.view),look=controls.lookDelta(dx:Float(d.x),dy:Float(d.y));world?.look(dx:look.x,dy:look.y);gesture.setTranslation(.zero,in:renderer.view)}
     @objc private func panPlanning(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,(renderer.planning || isometric) else{return};resetAim();let d=gesture.translation(in:renderer.view)
         renderer.focus.x-=Float(d.x+d.y)*renderer.distance/500;renderer.focus.z+=Float(d.x-d.y)*renderer.distance/500
         if isometric,let world=world {
@@ -511,6 +513,20 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         renderer.cancelMeshing();closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
         Task{await previous?.logout()};showMenu()
     }
+    @objc private func openControls(){
+        guard inMenu,!loadingOffline,!closingMenu,!graphicsOpen else{return}
+        movement.removeAll();resetAim();graphicsOpen=true;view.endEditing(true)
+        // Cancel recognizers as well as held buttons. A resumed finger starts a
+        // new translation after the modal, rather than replaying an old drag.
+        for gesture in view.gestureRecognizers ?? [] {gesture.isEnabled=false;gesture.isEnabled=true}
+        let screen=NativeControlsScreen(controls){[weak self] value in
+            guard let self=self else{return}
+            try value.save();self.controls=value;self.movement.removeAll();self.lastTime=0
+        }
+        screen.modalPresentationStyle = .fullScreen
+        screen.onClose={[weak self] in self?.graphicsOpen=false;self?.movement.removeAll();self?.lastTime=0}
+        present(screen,animated:true)
+    }
     private func showMenu(){
         inMenu=true;paused=false;networkFailureText=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview();menu?.removeFromSuperview();movement.removeAll()
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;scroll.backgroundColor=UIColor(red:0.035,green:0.075,blue:0.1,alpha:0.98);view.addSubview(scroll);menu=scroll
@@ -521,7 +537,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         for field in [address,username,password] {field.delegate=self;field.returnKeyType = .done;field.borderStyle = .roundedRect;field.backgroundColor = .white;field.textColor = .black;field.heightAnchor.constraint(equalToConstant:44).isActive=true}
         game.selectedSegmentIndex=0;game.accessibilityIdentifier="gameChoice";game.backgroundColor = .systemGray5
         let title=label("VOXEL ONE",size:30,id:"mainTitle")
-        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline builds save on this iPhone. Flower pots and fractional pieces are supported; the full desktop editor is still being ported.",size:13)])
+        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),button("Touch controls","controlsButton",#selector(openControls)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline builds save on this iPhone. Flower pots and fractional pieces are supported; the full desktop editor is still being ported.",size:13)])
         stack.axis = .vertical;stack.spacing=12;stack.translatesAutoresizingMaskIntoConstraints=false;scroll.addSubview(stack)
         NSLayoutConstraint.activate([stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:24),stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-24),stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:24),stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-24),stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-48)])
     }

@@ -366,3 +366,20 @@ physical lighting/GPU budgets remain unmeasured. The sun vector matches six
 Java-generated values in terrain-fixtures.json. This is not full desktop lighting
 or City schedule parity. All45 native cases and new actual night/day media need
 a fresh controller Mac run before this increment is qualified.
+
+
+Touch controls (new source; native validation pending)
+Source60deab70 passed all45 native cases, including saved world time/daylight.
+Its actual32.53-second native video and model screenshot were inspected.
+
+Menu -> Touch controls edits local0.5x/1x/2x look sensitivity, vertical inversion
+and the order of four movement actions. Changing one binding swaps its old slot,
+so every direction stays available. Apply saves on this phone; Cancel keeps the
+current controls; Reset defaults edits the draft. Jump, Down, Break and Place
+keep their own buttons. Changes apply when resuming offline or joining online;
+City/isometric map pan retains its existing behavior. No server rule changes.
+
+Preferences use a separate version1 atomic JSON file capped at4096bytes. Corrupt,
+oversized or unsupported data uses defaults. Settings stop held input and clear
+old drag state. New47-case Mac execution and actual touch-settings video remain
+pending; this does not establish iPhone signing/install or physical performance.

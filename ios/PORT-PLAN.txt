@@ -1,8 +1,8 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. Exact source a77e0e4b7bb70e5c59b5d62d2add0abdc7160934
-passed all43 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-Current saved offline world time and fallback daylight require a45-case Mac run.
+Status: implementation in progress. Exact source60deab7026332972448f1cf7ce074eff27925593
+passed all45 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
+Current saved touch controls require a47-case Mac run.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -14,10 +14,10 @@ Schema2 shares material/model/fractional definitions; schema1 remains readable.
 Current compatibility matrix
 Capability                 Desktop / source                 Native status
 Terrain                    net/Terrain.java, Geography.java Exact seed/version1-3 golden
-                                                            samples/window passed a77e0e4b
+                                                            samples/window passed60deab70
 Streaming / distance       TerrainScheduler, DistantTerrain Moving49x49 window, durable
                                                             journal and opt-in far preview
-                                                            passed a77e0e4b
+                                                            passed60deab70
 Fractional / models        net/WorldVoxels.java             Exact schema2 leaves/models;
                                                             edits/render/collision passed
 Collision / pick           player/Player.java, Camera.java  AABB and exact leaf ray;
@@ -28,7 +28,7 @@ City                       existing Java CityFrame          Native planning/road
                                                             synthetic gateway regression passed
                                                             specialized UI still missing
 Sky / graphics             atmosphere contract              Native opt-in sky/presets passed;
-                                                            new clock/daylight pending;
+                                                            clock/daylight passed45-case run;
                                                             device budgets unmeasured
 Persistence                desktop engine saves             Separate atomic JSON save;
                                                             bounded save/load queues passed;
@@ -37,8 +37,11 @@ Network                    pinned Java server transport     Native HTTPS gateway
                                                             synthetic auth/edit tests passed;
                                                             live VPS path unqualified
 
-Passed refers only to the43-case a77e0e4b developer Simulator run. It does not
-qualify new world time, independent review, physical device or signing.
+Touch controls             UIKit input                       New sensitivity/inversion and
+                                                            movement bindings pending47-case run
+
+Passed refers only to the45-case60deab70 developer Simulator run. It does not
+qualify new touch controls, independent review, physical device or signing.
 
 This slice
 Jump begins on touch-down and repeats while held. Release, drag exit, touch
@@ -56,9 +59,9 @@ Simulator validation needs the controller's Mac result and actual media inspecti
 30 FPS is the initial requested baseline, not a measured physical-device result.
 
 Remaining acceptance work
-1. Validate distant landscape and new export quality on exact source; finish
-   remaining engine parity, including time-of-day and further mobile settings.
-2. Remaining tool/equipment pose, touch/settings polish and shared save tooling.
+1. Validate new touch settings on exact source; finish remaining engine parity,
+   tool/equipment pose, landscape-first polish and shared save tooling.
+2. Qualify another Simulator size; continue mobile graphics/device budgets.
 3. Live Sandbox multiplayer resynchronization, denied-network paths and isolated
    HTTPS proxy checks, then root-coordinated production service qualification.
 4. Signed device delivery, install/update guide and versioned artifact checksums;
@@ -1326,3 +1329,49 @@ harness tests passed; project/Python/shell/diff checks passed.
 Playtest: no native gameplay executed for this repair. Request all45 native
 cases and actual night/day media again. Keep all full parity/live service/signing/
 physical-device and independent review gates pending. No deletions intended.
+
+
+45-case pass and saved touch-settings increment
+Exact source60deab7026332972448f1cf7ce074eff27925593 passed all45 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44683138384
+Verified exact source, passed/clientChecked,45 passed statuses and cleanup. Trusted
+verifier30a06872 contains independently reviewed8a53afce. Fixture regeneration,
+unsigned generic-device archive, Simulator app and actual native tests passed.
+This confirms the StrictMath repair on the hosted Mac; no tolerance gate changed.
+
+Inspected actual model screenshot and decoded video every4 seconds. Video shows
+Night, movement, save/terminate/relaunch with Night retained, Daylight, Run/Freeze
+and pause/background/resume. Measured360x640,32.53 seconds,4720719 bytes; the clip
+includes a short white launch interval. Its43.38fps presentation rate is not game
+FPS. Flat starting terrain is not full landscape-parity or device-budget proof.
+Copied current media and sanitized receipt under ios-port-60deab70-*; publication
+pending. This is developer Simulator evidence, not independent review or iPhone
+installation. Live VPS/signing/physical device remain unqualified.
+
+New Menu -> Touch controls is a full-screen safe-area scroll view. Per-device
+version1 preferences offer0.5x/1x/2x look sensitivity, vertical inversion and
+editable left-to-right bindings for four movement buttons. Rebinding swaps the
+action's old slot, preserving exactly one Left/Forward/Back/Right action. Jump,
+Down, Break and Place remain dedicated controls. Isometric/City map pan is unchanged.
+Default bindings and1x normal look preserve prior behavior. Active protocol action
+IDs remain moveLeft/moveForward/moveBack/moveRight; no authoritative network rule
+or world schema changes. No performance or physical-device claim follows.
+
+Apply atomically saves a bounded4096-byte preferences file before installing the
+active profile. Cancel does not install drafts; Reset changes only the draft until
+Apply. Unsupported/corrupt/oversized files use defaults; malformed bindings recover
+to a valid permutation. Movement and recognizers are cleared on settings entry;
+closing resets frame time and held input. Resume reconstructs the button order.
+Finite look events cap at4096points per axis before sensitivity; nonfinite deltas
+are ignored. This bounds malformed input without changing normal touch drags.
+
+All47 native cases are required: prior45 plus settings validation/binding swap/
+look mapping/failed-save preservation and actual Cancel/Apply -> camera/movement ->
+relaunch persistence -> landscape Reset draft -> normal-look and pause regression.
+Video anchors only after the persisted custom settings have been reopened in the
+passing offline touch test. Same40-second/640x480/<6MB media gates and900/1200-second
+budgets remain.87 Linux harness tests passed; project generation, Python/shell
+syntax and diff checks passed. New Swift compilation and47-case execution have
+not run. Playtest: current touch workflow and actual media require exact-source
+controller Mac execution. No file deletions intended; hardcoded movement order
+and fixed look scale are replaced by validated per-device preferences.
