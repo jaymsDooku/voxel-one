@@ -1,0 +1,21 @@
+{
+  "date": "2026-11-20",
+  "dashboard": "https://codex-development-dashboard.jamesleaver1.chatgpt.site",
+  "merged_source": "b87bda6ec6b1cec60992a7f6cd175f5b2a0babbb",
+  "feature_review": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87",
+  "qualification_review": "https://github.com/jaymsDooku/codex-development-dashboard/pull/89",
+  "focused_tests": {
+    "passed": 111,
+    "failed": 0,
+    "environment": "local synthetic Worker and SQLite"
+  },
+  "saved_answer_reproduction": "Synthetic answer held during unavailable quota became eligible for continuation after quota restored.",
+  "live_observation": {
+    "enabled": true,
+    "interval_seconds": 60,
+    "first_observed_scan_utc": "2026-11-20T11:09:10.445Z",
+    "site_deployment": "succeeded",
+    "runner": "active"
+  },
+  "browser_evidence": "Phone-sized WebKit screenshot uses synthetic fixture data; not physical-device testing."
+}
