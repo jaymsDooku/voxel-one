@@ -18,6 +18,7 @@ import javax.swing.*;
 public final class LoginDialog {
     public static volatile boolean citySelected = false;
     public static volatile boolean musicSelected = false;
+    public static volatile boolean practiceSelected = false;
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
@@ -27,6 +28,7 @@ public final class LoginDialog {
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin,
             boolean gameExplicit, boolean portExplicit) throws Exception {
         musicSelected = false;
+        practiceSelected = false;
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, gameExplicit, portExplicit, result));
         return result.get();
@@ -94,6 +96,7 @@ public final class LoginDialog {
             finally { changingPort[0] = false; }
             citySelected = selected == GameIdentity.CITY;
             musicSelected = selected == GameIdentity.MUSIC;
+            practiceSelected = selected == GameIdentity.PRACTICE;
             description.setText(selected.description);
         });
         String[] labels = {"Game", "Server", "Port", "Username", "Password"};
@@ -132,11 +135,12 @@ public final class LoginDialog {
         c.gridy = 9;
         panel.add(description, c);
         game.addActionListener(e -> {
-            boolean music = game.getSelectedItem() == GameIdentity.MUSIC;
+            boolean practice = game.getSelectedItem() == GameIdentity.PRACTICE;
+            boolean music = game.getSelectedItem() == GameIdentity.MUSIC || practice;
             host.setEnabled(!music); port.setEnabled(!music); username.setEnabled(!music); password.setEnabled(!music);
             login.setEnabled(!music); register.setEnabled(!music);
-            offline.setText(music ? "Open visualizer" : "Play offline");
-            status.setText(music ? "Local WAV, AIFF and AU playback. No sign-in needed." : "Sign in, create an account, or play offline.");
+            offline.setText(practice ? "Open practice" : music ? "Open visualizer" : "Play offline");
+            status.setText(practice ? "Choose a duel server or offline drill on the next screen." : music ? "Local WAV, AIFF and AU playback. No sign-in needed." : "Sign in, create an account, or play offline.");
             frame.getRootPane().setDefaultButton(music ? offline : login);
         });
         Runnable[] connect = new Runnable[2];

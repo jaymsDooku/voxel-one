@@ -65,6 +65,18 @@ public final class CombatSimulation {
     public long tick() { return tick; }
     public int projectileCount() { return projectiles.size(); }
     public long droppedEvents() { return droppedEvents; }
+    /** Immutable authoritative projectile poses for presentation; clients cannot set them. */
+    public record ProjectileView(long id, KitProfile.Item item, String source, Vec3 position) {}
+    public List<ProjectileView> projectileViews() {
+        return projectiles.stream().map(p -> new ProjectileView(p.id,p.item,p.source,p.position)).toList();
+    }
+    /** Trusted match inventory operation; preserves supplies and cancels an in-progress use. */
+    public void swapSlots(String id, int first, int second) {
+        Actor a=actor(id);
+        if(first<0 || second<0 || first>=a.slots.size() || second>=a.slots.size())
+            throw new IllegalArgumentException("Slot");
+        cancel(a); Collections.swap(a.slots,first,second);
+    }
     public List<CombatEvent> drainEvents() { var copy = List.copyOf(events); events.clear(); return copy; }
     public void addParticipant(String id, Pose pose, KitProfile kit) {
         if (id == null || id.isBlank() || id.length() > 64 || actors.containsKey(id)

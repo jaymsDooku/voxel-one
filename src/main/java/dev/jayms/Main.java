@@ -1843,6 +1843,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("practice")) {
+            dev.jayms.combat.duel.PracticeApp.main(args);return;
+        }
         if (java.util.Arrays.asList(args).contains("--asset-manager")) {
             dev.jayms.assets.AssetManagerServer.open(Controls.directory());
             return;
@@ -1916,7 +1919,8 @@ public class Main {
                     do {
                         game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
                         if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
-                    } while (LoginDialog.musicSelected);
+                        if (LoginDialog.practiceSelected) dev.jayms.combat.duel.PracticeApp.main(new String[0]);
+                    } while (LoginDialog.musicSelected || LoginDialog.practiceSelected);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
                 } catch (java.util.concurrent.ExecutionException e) {

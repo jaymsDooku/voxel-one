@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T01:01:45+00:00",
+  "updatedAt": "2026-11-20T02:21:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,36 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "ded4d353-5ee3-47bd-9c46-04b3ee7f53d9",
+      "title": "HCF / PotPvP 2 \u2014 Playable No Debuff and Debuff duels",
+      "description": "Inspecting merged combat and Basalt Courtyard contracts. Building a separate opt-in practice client and authoritative duel transport; City, Sandbox and existing saves remain compatible. Local milestones await controller publication.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "Two-client native duel; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-real-duel.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "Production controls and actual F10; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-controls.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "150 ms Debuff result; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-150ms-result.png"
+        },
+        {
+          "kind": "report",
+          "label": "Validation report; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/docs/practice-duels-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local validation complete. Final Java 17 Maven verify passed 99 tests across 12 suites and built client/server/launcher artifacts. Two real native clients passed normal/80/150 ms workflows with 1679/1630/1690 matching authoritative ticks. Actual F10 controls and duel clips are below 6 MB and visually checked. Full local verify ended 143 after 564 completed tests; no full-run pass is claimed. Controller master synchronization, publication, exact-head hosted CI and independent review remain pending. Physical-GPU qualification remains gated.",
+      "updatedAt": "2026-11-20T02:21:08+00:00"
+    },
     {
       "id": "hcf-potpvp-1b-basalt-courtyard",
       "title": "HCF / PotPvP 1B \u2014 Basalt Courtyard fixture",
