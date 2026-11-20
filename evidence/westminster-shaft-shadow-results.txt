@@ -1,0 +1,50 @@
+Native Windows 11, NVIDIA GeForce RTX 3060, 1280 x 720. Fixed daylight.
+Original df70039d
+East shaft upper/lower 105/24; approach 111/24
+Sunlit front 197; recessed gable window 29; west shaft 214
+
+Original with diffuse sky forced open (diagnostic only)
+East shaft upper/lower 104/98; approach 112/97
+Sunlit front 197; recessed gable window 28; west shaft 214
+
+Original with direct shadow factors removed (diagnostic only)
+East shaft upper/lower 95/21; approach 100/21
+Sunlit front 191; recessed gable window 80; west shaft 212
+
+Fixed 4e884e60
+East shaft upper/lower 103/94, approach 107/88
+Sunlit front 195, recessed gable window 28, west shaft 213
+
+Maven verify: 88 selected tests passed, 0 failures, 0 errors, 0 skipped.
+Packaged clock-tower GPU visibility checks
+Windows 11 / NVIDIA GeForce RTX 3060/PCIe/SSE2
+Open side beneath relief vertical=0.0 near=1.0 exterior=1.0 courtyard=0.97071666
+Fractional intervening wall vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+East shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.8138435
+West shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+North shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+South shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant east wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.8138435
+Sky above distant west wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant north wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant south wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+East cornice face vertical=1.0 near=1.0 exterior=1.0 courtyard=1.0
+Shaft behind thin stone screen vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Shaft behind glass screen vertical=0.0 near=0.0 exterior=1.0 courtyard=0.49507383
+Inside sealed shaft vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Chamber behind a distant thin shutter vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Open gap opposite gable Gap[face=east, x=9.001, z=7.25, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=east, x=9.001, z=7.5, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=east, x=9.001, z=7.625, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=west, x=4.999, z=7.5, nx=-1, nz=0] exterior daylight=0.81384337
+Open gap opposite gable Gap[face=north, x=6.5, z=6.999, nx=0, nz=-1] exterior daylight=0.81384337
+Open gap opposite gable Gap[face=south, x=6.5, z=10.001, nx=0, nz=1] exterior daylight=0.81384337
+Approach to cornice y=3.5 diffuse exposure=0.8138435
+Approach to cornice y=5.5 diffuse exposure=0.5146471
+Approach to cornice y=6.5 diffuse exposure=0.19619162
+
+Packaged spire and slate regression
+Horizontal luma ripple (0-255 scale): spire 0.44, dormer 1.86
+Median slate luma: shaded 48, sunlit 134
+
+Compiled palace geometry sky atlas (terrain excluded), before 2,244,608 bytes, after 3,615,852 bytes. 118 conservative overflow columns in both versions, none on the measured shaft.
