@@ -34,6 +34,9 @@ public final class RenderPipeline implements AutoCloseable {
     private long worldRevision = -1,sceneGeneration;
     private record ShadowRevision(World world,long edits,long scene,long models,int cascades,int distance,int x,int z,float y,float sunX,float sunY,float sunZ,boolean night){}
     private ShadowRevision shadowRevision;
+    private World previewWorld;
+    private long previewMeshRevision, previewModelRevision;
+    private final Vector3f previewMin = new Vector3f(), previewMax = new Vector3f();
     private WorldSkyVisibility worldSky;
     private int skyBufferOffset;
     private World sceneWorld;
@@ -371,6 +374,50 @@ public final class RenderPipeline implements AutoCloseable {
         long start=System.nanoTime();probeCpuNanos=0;
         try{renderShadowsImpl(world,models,position);}finally{shadowCpuNanos=Math.max(0,System.nanoTime()-start-probeCpuNanos);}
     }
+
+    /** Side visibility depends on the landmark meshes, so flying or moving the sun never rebakes it. */
+    public void previewSideDepth(World world, VoxelModelRenderer models, float grade,
+                                 float width, float height, float depth) {
+        if (world == previewWorld && previewMeshRevision == world.previewMeshRevision()
+                && previewModelRevision == world.models().revision()) return;
+        if (previewWorld == null) {
+            // Reuse the shadow sampler on devices with only 16 fragment texture units.
+            glBindTexture(GL_TEXTURE_2D_ARRAY, shadowTexture);
+            glTexImage3D(GL_TEXTURE_2D_ARRAY, 0, GL_DEPTH_COMPONENT24, shadowResolution,
+                    shadowResolution, 8, 0, GL_DEPTH_COMPONENT, GL_FLOAT, (ByteBuffer)null);
+            shadowRevision = null;
+        }
+        previewMin.set(-.25f, grade-.25f, -.25f);
+        previewMax.set(width+.25f, grade+height+.25f, depth+.25f);
+        glBindFramebuffer(GL_FRAMEBUFFER, shadowFbo);
+        glViewport(0, 0, shadowResolution, shadowResolution);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        shadow.bind();
+        shadow.setInt("uInstanced", 0);
+        shadow.setMatrix4("uView", new Matrix4f());
+        for (int side=0; side<4; side++) {
+            Matrix4f projection = PreviewSideDepth.projection(side, previewMin, previewMax);
+            shadow.setMatrix4("uProjection", projection);
+            glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTexture, 0, 3+side);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            drawShadowCasters(world, models, new FrustumIntersection(projection));
+        }
+        // One additional layer holds all four inclined views of the sky.
+        glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTexture, 0, 7);
+        glClear(GL_DEPTH_BUFFER_BIT);
+        int tile = shadowResolution/2;
+        for (int side=0; side<4; side++) {
+            glViewport(side%2*tile, side/2*tile, tile, tile);
+            Matrix4f projection = PreviewSideDepth.skyProjection(side, previewMin, previewMax);
+            shadow.setMatrix4("uProjection", projection);
+            drawShadowCasters(world, models, new FrustumIntersection(projection));
+        }
+        glBindFramebuffer(GL_FRAMEBUFFER, 0);
+        previewWorld = world;
+        previewMeshRevision = world.previewMeshRevision();
+        previewModelRevision = world.models().revision();
+    }
     private void renderShadowsImpl(World world,VoxelModelRenderer models,Vector3f position) {
         frameBudget.shadowsBegin();
         if(!settings.shadows){frameBudget.shadowsEnd();captureProbes(world,models,position);return;}
@@ -387,27 +434,38 @@ public final class RenderPipeline implements AutoCloseable {
             float extent = cascade==settings.shadowCascades-1?settings.shadowDistance:extents[cascade], texel = extent * 2 / shadowResolution;
             Vector3f center = new Vector3f((float)Math.floor(position.x/texel)*texel,
                     position.y, (float)Math.floor(position.z/texel)*texel);
+            float lightDistance = 384;
+            if (previewWorld == world && cascade == settings.shadowCascades-1) {
+                // Fit the entire asset into the last cascade even at the overview camera.
+                // The margin also keeps it inside the shader's cascade edge guard.
+                center.set(previewMin).add(previewMax).mul(.5f);
+                extent = Math.max(4, previewMin.distance(previewMax)*.53f);
+                lightDistance = extent+16;
+            }
             Vector3f direction = daylight > .01f ? sun : new Vector3f(sun).negate();
             Vector3f up = Math.abs(direction.y) > .98f ? new Vector3f(0,0,1) : new Vector3f(0,1,0);
-            Matrix4f lightView = new Matrix4f().lookAt(new Vector3f(center).fma(384,direction), center, up);
-            Matrix4f lightProjection = new Matrix4f().ortho(-extent, extent, -extent, extent, 1, 768);
+            Matrix4f lightView = new Matrix4f().lookAt(new Vector3f(center).fma(lightDistance,direction), center, up);
+            Matrix4f lightProjection = new Matrix4f().ortho(-extent, extent, -extent, extent, 1, lightDistance*2);
             shadowMatrices[cascade].set(lightProjection).mul(lightView);
             FrustumIntersection f = new FrustumIntersection(shadowMatrices[cascade]);
             glFramebufferTextureLayer(GL_FRAMEBUFFER, GL_DEPTH_ATTACHMENT, shadowTexture, 0, cascade);
             glClear(GL_DEPTH_BUFFER_BIT);
             shadow.setMatrix4("uProjection", lightProjection); shadow.setMatrix4("uView", lightView);
-            for (var entry : world.getLoadedChunks().entrySet()) {
-                var p = entry.getKey();
-                if (entry.getValue().getMesh()==null || !f.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,
-                        p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16)) continue;
-                shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
-                entry.getValue().getMesh().render();
-            }
-            models.render(world, f, shadow);
+            drawShadowCasters(world, models, f);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
         frameBudget.shadowsEnd();
         captureProbes(world,models,position);
+    }
+    private void drawShadowCasters(World world, VoxelModelRenderer models, FrustumIntersection frustum) {
+        for (var entry : world.getLoadedChunks().entrySet()) {
+            var p = entry.getKey();
+            if (entry.getValue().getMesh()==null || !frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,
+                    p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16)) continue;
+            shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
+            entry.getValue().getMesh().render();
+        }
+        models.render(world, frustum, shadow);
     }
     private void captureProbes(World world,VoxelModelRenderer models,Vector3f position){
         long start=System.nanoTime();try{captureProbesImpl(world,models,position);}finally{probeCpuNanos=System.nanoTime()-start;}
@@ -506,6 +564,11 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
         shader.setInt("uSkyIndexOrigin",worldSky==null?0:worldSky.indexOrigin);shader.setInt("uSkyIndexSpan",worldSky==null?0:worldSky.indexSpan);shader.setInt("uSkyIndexOffset",worldSky==null?0:worldSky.indexOffset);
         shader.setInt("uShadowEnabled",settings.shadows?1:0);
+        shader.setInt("uBuildingPreview",previewWorld==null?0:1);
+        if (previewWorld != null) {
+            shader.setVector3("uPreviewMin",previewMin.x,previewMin.y,previewMin.z);
+            shader.setVector3("uPreviewMax",previewMax.x,previewMax.y,previewMax.z);
+        }
         shader.setInt("uShadowCascades",settings.shadowCascades);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
         shader.setFloat("uModelEmission", 0);
@@ -587,7 +650,7 @@ public final class RenderPipeline implements AutoCloseable {
     public float waterGpuMillis(){return frameBudget.waterMilliseconds();}
     public float postGpuMillis(){return frameBudget.postMilliseconds();}
     public int actualWidth(){return width;}public int actualHeight(){return height;}
-    public long estimatedTargetBytes(){return lightingStores.retainedBytes()+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*3*4+settings.atmosphereQuality.bytes();}
+    public long estimatedTargetBytes(){return lightingStores.retainedBytes()+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*(previewWorld==null?3:8)*4+settings.atmosphereQuality.bytes();}
     public void prepareTargets(int w,int h){int rw=Math.max(1,Math.round(w*settings.renderScale)),rh=Math.max(1,Math.round(h*settings.renderScale));resize(rw,rh);temporal.prepare(w,h);}
     public boolean gpuDriven() { return gpuDraw.enabled(); }
     public void chunk(Chunk chunk, ChunkPos p) {

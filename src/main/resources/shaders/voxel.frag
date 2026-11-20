@@ -148,16 +148,13 @@ void main(){
         // Inspection fill follows the surface consistently as the local volume moves.
         if(uBuildingPreview==1){
             indirect+=vec3(.048,.046,.042);
+            skyVisibility=max(skyVisibility,previewSideExposure(point,geometricNormal));
             skyVisibility=previewWallSky(point,geometricNormal,skyVisibility);
-            if(skyVisibility==0.&&(uHasIrradiance==0||!volumeInside(point))
+            if(skyVisibility==0.&&!inPreviewBounds(point)&&(uHasIrradiance==0||!volumeInside(point))
                     &&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
         }
         vec3 skyDiffuse=textureLod(uEnvironment,N,7.).rgb;
         indirect+=skyDiffuse*skyVisibility;
-        if(uBuildingPreview==1){
-            float opening=previewOpeningLight(point,geometricNormal,uCameraPosition,skyVisibility);
-            indirect+=max(skyDiffuse,vec3(.24,.23,.21))*.65*opening;
-        }
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){

@@ -270,27 +270,83 @@ public class AtmospherePlaytest {
         while(System.nanoTime()<deadline){renderer.update(world,x,z);if((boolean)field(renderer,"hasIrradiance")&&(long)field(field(renderer,"lighting"),"revision")==world.editsVersion())return;Thread.sleep(10);}
         throw new AssertionError("Synthetic voxel lighting accepted within 30 seconds");
     }
-    /** Read back the same bounded wall-sky lookup used for inspection rendering. */
+    /** Use the same depth projection, shadow shaders, and mesher as the building preview. */
+    private static void drawPreviewDepth(Chunk chunk,Vector3f origin,Vector3f upper,int texture,int fbo) {
+        int resolution=512;
+        glActiveTexture(GL_TEXTURE3);
+        glBindTexture(GL_TEXTURE_2D_ARRAY,texture);
+        glTexImage3D(GL_TEXTURE_2D_ARRAY,0,GL_DEPTH_COMPONENT24,resolution,resolution,8,0,
+                GL_DEPTH_COMPONENT,GL_FLOAT,(ByteBuffer)null);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+        glTexParameteri(GL_TEXTURE_2D_ARRAY,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+        glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+        glDrawBuffer(GL_NONE);
+        glReadBuffer(GL_NONE);
+        glViewport(0,0,resolution,resolution);
+        glEnable(GL_DEPTH_TEST);
+        glEnable(GL_CULL_FACE);
+        try(var shadow=new ShaderProgram("shaders/shadow.vert","shaders/shadow.frag")){
+            shadow.bind();
+            shadow.setMatrix4("uView",new Matrix4f());
+            shadow.setMatrix4("uModel",new Matrix4f().translation(origin));
+            for(int side=0;side<4;side++){
+                glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,texture,0,3+side);
+                require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Preview side depth framebuffer");
+                glClear(GL_DEPTH_BUFFER_BIT);
+                shadow.setMatrix4("uProjection",PreviewSideDepth.projection(side,origin,upper));
+                chunk.getMesh().render();
+            }
+            glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,texture,0,7);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            int tile=resolution/2;
+            for(int side=0;side<4;side++){
+                glViewport((side%2)*tile,(side/2)*tile,tile,tile);
+                shadow.setMatrix4("uProjection",PreviewSideDepth.skyProjection(side,origin,upper));
+                chunk.getMesh().render();
+            }
+        } finally {glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);}
+    }
+
     private static void previewWallCoverage(Path evidence)throws Exception {
-        var root=new dev.jayms.net.model.SparseVoxelOctree(256);
-        int stone=dev.jayms.net.WorldVoxels.encode(Blocks.STONE);
-        // World-space receivers at x=2.5, looking toward +X. Thin relief above
-        // each one blocks the zenith. Only the second path crosses a small wall.
-        root.fill(40,48,16,42,49,18,stone);
-        root.fill(40,48,32,42,49,34,stone);
-        root.fill(50,32,32,51,33,34,stone);
-        // A closed room with its thinnest wall and ceiling one microvoxel thick.
-        root.fill(80,32,16,96,48,32,stone);
-        root.fill(81,33,17,95,47,31,0);
-        // A four-block canopy shades the near probes but opens onto daylight.
-        root.fill(16,64,80,80,66,96,stone);
+        // Hollow sandstone shaft, a two-block projecting cornice, thin stone
+        // and glass screens, and two small reliefs that only cover the zenith.
+        var recipe=dev.jayms.building.BuildingCompiler.compile("""
+                building coverage 256 160 256 grid16
+                part tower 0 0 0 256 160 256
+                box SAND 80 16 112 144 120 160
+                box AIR 81 17 113 143 119 159
+                box SAND 48 112 80 176 128 192
+                box STONE 145 48 144 146 64 152
+                box GLASS 145 64 144 146 80 152
+                box STONE 40 48 16 42 49 18
+                box STONE 40 48 32 42 49 34
+                box STONE 50 32 32 51 44 34
+                # Distant wings occlude the shaft's horizontal ray but leave the inclined ray clear.
+                box SAND 224 16 132 240 64 140
+                box SAND 0 16 132 16 64 140
+                box SAND 116 16 208 124 64 224
+                box SAND 116 16 32 124 64 48
+                end
+                """);
+        try(var chunk=new Chunk()){
+            recipe.edits().forEach(chunk::apply);
+            chunk.checkMesh();
+            checkWallSamples(evidence,chunk);
+        }
+    }
+
+    private static void checkWallSamples(Path evidence,Chunk chunk)throws Exception {
+        var offset=new Vector3f(-16,32,16);
+        var upper=new Vector3f(offset).add(16,10,16);
         var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(
-                java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(0,0,0),root)),
+                java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(-1,2,1),chunk.snapshot())),
                 java.util.List.of(),new dev.jayms.net.model.ModelLibrary()));
         int width=64,height=(sky.data.length+width-1)/width;
         int atlas=glGenTextures(),fbo=glGenFramebuffers(),pixelTexture=glGenTextures(),vao=glGenVertexArrays();
+        int sideTexture=glGenTextures(),depthFbo=glGenFramebuffers();
         StringBuilder report=new StringBuilder(System.getProperty("os.name")+" / "+glGetString(GL_RENDERER)+"\n");
         try(var probe=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-visibility-test.frag")){
+            drawPreviewDepth(chunk,offset,upper,sideTexture,depthFbo);
             glActiveTexture(GL_TEXTURE0);
             glBindTexture(GL_TEXTURE_3D,atlas);
             glTexImage3D(GL_TEXTURE_3D,0,GL_R32I,width,height,1,0,GL_RED_INTEGER,GL_INT,
@@ -308,35 +364,48 @@ public class AtmospherePlaytest {
             probe.setInt("uFineRoots",0);
             probe.setInt("uIrradiance",1);
             probe.setInt("uFineLight",2);
+            probe.setInt("uShadow",3);
+            probe.setVector3("uPreviewMin",offset.x,offset.y,offset.z);
+            probe.setVector3("uPreviewMax",upper.x,upper.y,upper.z);
             probe.setInt("uPlanetLighting",1);
             probe.setInt("uSkyColumns",sky.columns);
             probe.setInt("uSkyIndexOrigin",sky.indexOrigin);
             probe.setInt("uSkyIndexOffset",sky.indexOffset);
             probe.setInt("uSkyIndexSpan",sky.indexSpan);
-            probe.setVector3("uTestNormal",1,0,0);
-            record Sample(String name,float x,float y,float z,float eyeX,float side,float opening){}
+            record Sample(String name,float x,float y,float z,int nx,int nz,int overhead,int near,int side){}
             Sample[] cases={
-                new Sample("Open side beneath relief",2.51f,2.01f,1.01f,4,1,0),
-                new Sample("Fractional intervening wall",2.51f,2.01f,2.01f,2.53f,0,0),
-                new Sample("Sealed interior",5.5f,2.5f,1.5f,5.8f,0,0),
-                new Sample("Open beyond canopy",2.01f,2.01f,5.5f,12.01f,0,.5f),
-                new Sample("Observer under canopy",2.01f,2.01f,5.5f,2.26f,0,0)
+                new Sample("Open side beneath relief",2.51f,2.01f,1.01f,1,0,0,1,1),
+                new Sample("Fractional intervening wall",2.51f,2.01f,2.0625f,1,0,0,0,0),
+                new Sample("East shaft below cornice",9.001f,3.5f,8,1,0,0,0,1),
+                new Sample("West shaft below cornice",4.999f,3.5f,8,-1,0,0,0,1),
+                new Sample("North shaft below cornice",7,3.5f,6.999f,0,-1,0,0,1),
+                new Sample("South shaft below cornice",7,3.5f,10.001f,0,1,0,0,1),
+                new Sample("Sky above distant east wing",9.001f,3.5f,8.5f,1,0,0,0,1),
+                new Sample("Sky above distant west wing",4.999f,3.5f,8.5f,-1,0,0,0,1),
+                new Sample("Sky above distant north wing",7.5f,3.5f,6.999f,0,-1,0,0,1),
+                new Sample("Sky above distant south wing",7.5f,3.5f,10.001f,0,1,0,0,1),
+                new Sample("East cornice face",11.001f,7.5f,8,1,0,1,1,1),
+                new Sample("Shaft behind thin stone screen",9.001f,3.5f,9.25f,1,0,0,0,0),
+                new Sample("Shaft behind glass screen",9.001f,4.5f,9.25f,1,0,0,0,1),
+                new Sample("Inside sealed shaft",5.064f,3.5f,8,1,0,0,0,0)
             };
             for(Sample sample:cases){
                 float[] pixel=new float[4];
-                probe.setVector3("uTestPosition",sample.x(),sample.y(),sample.z());
-                probe.setVector3("uTestEye",sample.eyeX(),sample.y(),sample.z());
+                probe.setVector3("uTestPosition",offset.x+sample.x(),offset.y+sample.y(),offset.z+sample.z());
+                probe.setVector3("uTestNormal",sample.nx(),0,sample.nz());
                 glDrawArrays(GL_TRIANGLES,0,3);
                 glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
                 require(glGetError()==GL_NO_ERROR,sample.name()+" GPU readback");
-                require(pixel[0]<.001&&Math.abs(pixel[1]-sample.side())<.001&&Math.abs(pixel[2]-sample.opening())<.001,
+                require(Math.abs(pixel[0]-sample.overhead())<.001&&Math.abs(pixel[1]-sample.near())<.001
+                                &&Math.abs(pixel[2]-sample.side())<.001,
                         sample.name()+" got "+java.util.Arrays.toString(pixel));
-                report.append(sample.name()).append(" vertical=").append(pixel[0]).append(" side=").append(pixel[1])
-                        .append(" opening=").append(pixel[2]).append('\n');
+                report.append(sample.name()).append(" vertical=").append(pixel[0]).append(" near=").append(pixel[1])
+                        .append(" exterior=").append(pixel[2]).append('\n');
             }
             Files.writeString(evidence.resolve("preview-wall-coverage.txt"),report);
             System.out.print(report);
         }finally{
+            glDeleteTextures(sideTexture);glDeleteFramebuffers(depthFbo);
             glDeleteTextures(atlas);glDeleteTextures(pixelTexture);glDeleteFramebuffers(fbo);glDeleteVertexArrays(vao);
         }
     }

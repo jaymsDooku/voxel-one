@@ -534,6 +534,7 @@ public class Main {
         world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(grade));
         int grid = buildingPreview.unitsPerBlock();
         int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
+        world.trackPreviewMeshes(width, depth);
         var spawn = buildingPreviewSpawn();
         int front = -19;
         // Prepare the spawn before adding any exterior detail columns.
@@ -1353,7 +1354,6 @@ public class Main {
         shader.setMatrix4("uView", view);
 
         shader.setInt("uVertexColor", 1);
-        shader.setInt("uBuildingPreview",buildingPreview == null ? 0 : 1);
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
         shader.setInt("uFog", 1);
@@ -1375,6 +1375,11 @@ public class Main {
                                 : Math.min(1, (System.nanoTime() - network.cityReceived) / 1e9)));
         long ownerAllowance=rendering.ownerBudgetNanos;
         rendering.update(world, location.x, location.z,Math.max(0,ownerAllowance-streamNanos-detailedMeshes.totalNanos-rendering.focusNanos));
+        if (buildingPreview != null) {
+            float units = buildingPreview.unitsPerBlock();
+            rendering.previewSideDepth(world, modelRenderer, buildingPreviewGrade()+1,
+                    buildingPreview.width()/units, buildingPreview.height()/units, buildingPreview.depth()/units);
+        }
         rendering.renderShadows(world, modelRenderer, location);
         rendering.begin(
                 framebufferWidth,

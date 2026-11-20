@@ -48,8 +48,10 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         game.run(probe);
         if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
+        if (probe.facadeLighting) checkTowerLighting(output);
         Files.writeString(output.resolve("results.txt"),
                 probe.clockLighting ? "Captured two Elizabeth Tower corners and approach under fixed daylight.\n" :
+                probe.facadeLighting ? "PASS: Both tower shafts received exterior daylight. Captured the Thames view and both towers.\n" :
                 probe.grand ? "PASS: Captured the opening Palace overview, river roof and Westminster Hall lanterns in the native client. The plot stayed unsaved.\n" : probe.westminster
                         ? "PASS: Windows client captured the Thames elevation, Elizabeth Tower detail and an aerial view of the courts and hall. The plot stayed unsaved.\n"
                         : "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
@@ -58,7 +60,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
+        if (facadeLighting) glfwSetWindowSize(window,800,480);
+        else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
@@ -83,6 +86,11 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
                 float t=Math.min(1,(now-since)/1_800_000_000f);
                 placeFlying(game,49-9*t,77,-3+12*t,127,0);
             }
+        } else if (facadeLighting && stage==1) {
+            float t=Math.min(1,(now-since)/2_400_000_000f);
+            placeFlying(game,overviewStart.x+(49-overviewStart.x)*t,
+                    overviewStart.y+(77-overviewStart.y)*t,overviewStart.z+(-3-overviewStart.z)*t,
+                    90+37*t,-10+10*t);
         } else if (westminster && stage==1) {
             float t=Math.min(1,(now-since)/(grand ? 2_400_000_000f : 3_000_000_000f));
             if (grand) placeFlying(game,overviewStart.x+(110-overviewStart.x)*t,
@@ -144,13 +152,14 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             stage=1;
             since=System.nanoTime();
         } else if (stage==1 && elapsed>(grand ? 3_000_000_000L : 4_000_000_000L)) {
-            capture(game,grand ? "westminster-river-roof.png" : "westminster-clock.png");
-            if (grand) placeFlying(game,12,84,104,38,-30);
+            capture(game,facadeLighting ? "elizabeth-tower.png" : grand ? "westminster-river-roof.png" : "westminster-clock.png");
+            if (facadeLighting) placeFlying(game,244,91,49,54,-5);
+            else if (grand) placeFlying(game,12,84,104,38,-30);
             else placeFlying(game,78,118,90,-90,-48);
             stage=2;
             since=System.nanoTime();
         } else if (stage==2 && elapsed>(grand ? 1_600_000_000L : 3_500_000_000L)) {
-            capture(game,grand ? "westminster-hall-roof.png" : "westminster-courts.png");
+            capture(game,facadeLighting ? "victoria-tower.png" : grand ? "westminster-hall-roof.png" : "westminster-courts.png");
             pressRecord();
             stage=3;
             glfwSetWindowShouldClose(window,true);
@@ -168,6 +177,47 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     }
 
     private void pressRecord() { keys.invoke(window,GLFW_KEY_F10,0,GLFW_PRESS,0); }
+
+    private static void checkTowerLighting(Path output) throws Exception {
+        var image=ImageIO.read(output.resolve("westminster-thames.png").toFile());
+        // Coordinates in the fixed 800 x 480 opening view. Each pair samples
+        // the same sandstone on the shaft and an adjacent projecting detail.
+        int victoria=medianLuma(image,185,202,206,208), buttress=medianLuma(image,220,199,223,208);
+        int elizabeth=medianLuma(image,648,275,673,282), band=medianLuma(image,648,271,673,273);
+        var close=ImageIO.read(output.resolve("elizabeth-tower.png").toFile());
+        int shaded=medianLuma(close,331,320,356,341), sunlit=medianLuma(close,398,323,434,341);
+        String report="Median displayed luminance (0-255)\n"
+                +"Victoria shaft / buttress: "+victoria+" / "+buttress+"\n"
+                +"Elizabeth shaft / band: "+elizabeth+" / "+band+"\n"
+                +"Elizabeth close-up, shaded / sunlit shaft: "+shaded+" / "+sunlit+"\n";
+        Files.writeString(output.resolve("tower-lighting.txt"), report);
+        // The open-sky control on this view measured 144/144 and 143/159.
+        // The close-up control measured 92/161. The shaded face looks toward another wing.
+        if (buttress<110 || band<110 || victoria<.70*buttress || elizabeth<.70*band
+                || shaded<.4*sunlit)
+            throw new AssertionError(report);
+    }
+
+    private static int medianLuma(BufferedImage image,int left,int top,int right,int bottom) {
+        int width=image.getWidth(),height=image.getHeight();
+        if (width*480!=height*800) throw new AssertionError("Unexpected opening view aspect ratio: "+width+"x"+height);
+        int[] histogram=new int[256];
+        int count=0;
+        for (int y=top*height/480;y<bottom*height/480;y++) {
+            for (int x=left*width/800;x<right*width/800;x++) {
+                int rgb=image.getRGB(x,y);
+                int luma=(int)Math.round(.2126*((rgb>>16)&255)+.7152*((rgb>>8)&255)+.0722*(rgb&255));
+                histogram[luma]++;
+                count++;
+            }
+        }
+        int cumulative=0;
+        for (int value=0;value<histogram.length;value++) {
+            cumulative+=histogram[value];
+            if (cumulative>count/2) return value;
+        }
+        throw new AssertionError("Empty tower sample");
+    }
 
     private void capture(Main game,String file) throws Exception {
         int w=field("framebufferWidth").getInt(game), h=field("framebufferHeight").getInt(game);
