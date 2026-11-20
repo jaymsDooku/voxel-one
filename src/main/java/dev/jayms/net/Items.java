@@ -34,10 +34,13 @@ public final class Items {
             var sword = new SparseVoxelOctree(32);
             sword.fill(14, 2, 14, 18, 14, 18, handle);
             sword.fill(10, 12, 14, 22, 14, 18, shadow);
-            sword.fill(13, 14, 15, 19, 26, 17, edge);
-            sword.fill(14, 26, 15, 18, 29, 17, edge);
-            sword.fill(15, 29, 15, 17, 31, 17, edge);
-            sword.fill(15, 31, 16, 17, 32, 17, edge);
+            int bevel = id == STONE_SWORD ? 0xffd4e1df : 0xffe9b969;
+            swordSection(sword, 13, 19, 14, 22, edge, bevel);
+            swordSection(sword, 14, 19, 22, 25, edge, bevel);
+            swordSection(sword, 14, 18, 25, 27, edge, bevel);
+            swordSection(sword, 15, 18, 27, 29, edge, bevel);
+            swordSection(sword, 15, 17, 29, 31, edge, bevel);
+            swordSection(sword, 16, 17, 31, 32, edge, bevel);
             return new ModelDefinition(name, sword.freeze());
         }
         var t=new SparseVoxelOctree(16);
@@ -50,6 +53,16 @@ public final class Items {
         }
         return new ModelDefinition(name,t.freeze());
     }
+
+    private static void swordSection(SparseVoxelOctree sword, int left, int right, int bottom, int top,
+                                     int face, int bevel) {
+        sword.fill(left, bottom, 16, right, top, 17, bevel);
+        if (right - left > 2) {
+            // The blade flat is two voxels deep. The lighter cutting edges are one.
+            sword.fill(left + 1, bottom, 15, right - 1, top, 17, face);
+        }
+    }
+
     public static Definition get(int id) { return DEFINITIONS.get(id); }
     /** Resolve per-world names and voxel definitions for legacy custom model items. */
     public static Definition get(int id,ModelLibrary models) {

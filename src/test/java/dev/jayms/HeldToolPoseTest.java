@@ -9,14 +9,19 @@ import static org.junit.jupiter.api.Assertions.*;
 
 class HeldToolPoseTest {
     private Vector3f anchor() { return new Vector3f(HeldToolPose.ANCHOR_X,HeldToolPose.ANCHOR_Y,HeldToolPose.ANCHOR_Z); }
-    @Test void swordModelsHaveAThinBladeAndTaperedTip() {
+    @Test void swordModelsHaveThinHighlightedEdgesAndTaperToAPoint() {
         for (int item : new int[]{Items.WOODEN_SWORD, Items.STONE_SWORD}) {
             var mesh = Items.get(item).model().voxels();
             assertEquals(32, mesh.size());
-            assertEquals(12, sliceArea(mesh, 20));
-            assertEquals(8, sliceArea(mesh, 27));
-            assertEquals(4, sliceArea(mesh, 30));
-            assertEquals(2, sliceArea(mesh, 31));
+            assertEquals(10, sliceArea(mesh, 20));
+            assertEquals(8, sliceArea(mesh, 23));
+            assertEquals(6, sliceArea(mesh, 25));
+            assertEquals(4, sliceArea(mesh, 27));
+            assertEquals(2, sliceArea(mesh, 30));
+            assertEquals(1, sliceArea(mesh, 31));
+            assertEquals(0, mesh.get(18, 20, 15), "The cutting edge is one voxel deep");
+            assertEquals(mesh.get(18, 20, 16), mesh.get(16, 31, 16), "The cutting edge meets the point");
+            assertNotEquals(mesh.get(16, 20, 16), mesh.get(18, 20, 16), "The blade flat contrasts with the bevel");
             assertEquals(48, sliceArea(mesh, 12));
         }
     }

@@ -10,7 +10,7 @@ import static org.junit.jupiter.api.Assertions.*;
 class PracticeHandPoseTest {
     private static final Vector3f GRIP = new Vector3f(
             HeldToolPose.ANCHOR_X, HeldToolPose.ANCHOR_Y, HeldToolPose.ANCHOR_Z);
-    private static final Vector3f TIP = new Vector3f(.5f, 1, .5f);
+    private static final Vector3f TIP = new Vector3f(16.5f / 32, 1, 16.5f / 32);
     private static final float[] ASPECTS = {4f / 3, 16f / 9, 21f / 9};
 
     @Test void idleSwordAndPalmFitTheLowerRightCorner() {
@@ -31,7 +31,7 @@ class PracticeHandPoseTest {
     @Test void idleSwordShowsTheBroadFaceOnTheLeft() {
         var sword = sample(1, 0, false).item();
         var broadFace = new Vector3f(.5f, .72f, 17f / 32);
-        var edge = new Vector3f(19f / 32, .72f, .5f);
+        var edge = new Vector3f(19f / 32, .72f, 16.5f / 32);
         float leftFaceExposure = sword.transformDirection(new Vector3f(0, 0, 1)).normalize()
                 .dot(sword.transformPosition(new Vector3f(broadFace)).negate().normalize());
         assertTrue(leftFaceExposure > .06f && leftFaceExposure < .18f,
