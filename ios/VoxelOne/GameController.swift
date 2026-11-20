@@ -5,6 +5,8 @@ import SceneKit
 final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecognizerDelegate {
     private let renderer=VoxelRenderer()
     private var world:VoxelWorld?
+    private let terrainStreamer=NativeTerrainStreamer()
+    private var terrainRetryAfter:CFTimeInterval=0
     private var gateway:Gateway?
     private var displayLink:CADisplayLink?
     private var lastTime:CFTimeInterval=0,lastPoll:CFTimeInterval=0,lastSave:CFTimeInterval=0,lastMove:CFTimeInterval=0
@@ -92,7 +94,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         cityLabel.isHidden=world?.snapshot.city==nil && landscape
     }
     override func didReceiveMemoryWarning(){
-        super.didReceiveMemoryWarning();movement.removeAll()
+        super.didReceiveMemoryWarning();movement.removeAll();terrainStreamer.cancel()
         if !inMenu,let world=world {
             renderer.trimMeshes(around:world);paused=true;pauseButton?.setTitle("Resume",for:.normal)
             notify("Memory low. Paused. Resume to rebuild terrain.");saveOffline()
@@ -129,6 +131,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         else {stack.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-6).isActive=true}
     }
     private func startOffline(_ snapshot:Snapshot)throws {
+        terrainStreamer.cancel();terrainRetryAfter=0
         sessionID=UUID();busy=false;moveBusy=false;queuedAction=nil;world=try VoxelWorld(snapshot);gateway=nil;renderer.planning=false;renderer.focus=world!.position;points.removeAll();renderer.rebuild(world!);renderer.mark(points,world:world!)
         showGame();saveOffline()
     }
@@ -384,6 +387,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             }
         }
         renderer.updateCamera(world)
+        streamTerrainIfNeeded(world,now:link.timestamp)
         if let gateway=gateway,!moveBusy,!paused,link.timestamp-lastMove>0.1 {
             lastMove=link.timestamp;moveBusy=true;let id=sessionID
             Task {do {try await gateway.move(world)}catch {if id==sessionID && !paused {failNetwork(error.localizedDescription)}};if id==sessionID {moveBusy=false}}
@@ -398,13 +402,30 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         if gateway==nil,link.timestamp-lastSave>5 {lastSave=link.timestamp;saveOffline()}
         refreshHUD()
     }
+    private func streamTerrainIfNeeded(_ world:VoxelWorld,now:CFTimeInterval){
+        guard gateway==nil,world.streamsTerrain,!paused,!graphicsOpen,!closingMenu,!terrainStreamer.isBusy,now>=terrainRetryAfter,
+              let target=NativeTerrainTarget.needed(bounds:world.snapshot.bounds,x:world.position.x,y:world.position.y,z:world.position.z) else{return}
+        let id=sessionID,revision=world.geometryRevision
+        terrainStreamer.request(payload:world.savePayload(),target:target){[weak self,weak world] result in
+            guard let self=self,let world=world,id==self.sessionID,self.world === world,self.active,!self.inMenu,!self.paused,!self.closingMenu else{return}
+            switch result {
+            case .prepared(let region):
+                if world.installTerrain(region,expectedGeometryRevision:revision) {self.renderer.rebuild(world);self.saveOffline();self.refreshHUD()}
+                // An edit or a fast-moving player can make this region stale. Next frame retries current state.
+            case .failed:
+                self.terrainRetryAfter=CACurrentMediaTime()+5
+                self.notify("Terrain could not load. Existing edits are safe; retrying in 5 seconds.")
+            case .cancelled:break
+            }
+        }
+    }
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
         let defaultStatus=renderer.planning && !points.isEmpty ? "\(points.count) plan points.":"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
         let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:defaultStatus
         let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
-        let localDescription=gateway != nil ? "Sandbox · Seed \(world.snapshot.seed)":world.snapshot.generatorVersion == nil ? "49×49 local terrain · edits save on this phone":"Seed \(world.snapshot.seed) · 49×49 local terrain"
+        let localDescription=gateway != nil ? "Sandbox · Seed \(world.snapshot.seed)":world.streamsTerrain ? "Seed \(world.snapshot.seed) · Sandbox · \(world.snapshot.terrainEdits?.count ?? 0)/8192 edited cells":"Local Sandbox · edits save on this phone"
         let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? localDescription
         craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
         applyHUDLayout(view.bounds.size)
@@ -433,7 +454,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard networkFailureText==nil else{return}
         message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}
     }
-    func suspend(){active=false;movement.removeAll();renderer.cancelMeshing();saveOffline()}
+    func suspend(){active=false;movement.removeAll();terrainStreamer.cancel();renderer.cancelMeshing();saveOffline()}
     func becameActive(){active=true;lastTime=0;if let world=world {renderer.rebuild(world)}}
     private func endBackgroundSave(){
         if backgroundSave != .invalid {UIApplication.shared.endBackgroundTask(backgroundSave);backgroundSave = .invalid}
@@ -463,6 +484,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         } else {finishOpenMenu()}
     }
     private func finishOpenMenu(){
+        terrainStreamer.cancel()
         renderer.cancelMeshing();closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
         Task{await previous?.logout()};showMenu()
     }

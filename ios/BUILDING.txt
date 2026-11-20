@@ -38,7 +38,9 @@ Offline insufficient ingredients or output space reject the entire batch.
 Owned/required ingredients appear on each row; missing ingredients or a full bag
 leave inventory unchanged. Crafting stops local movement while the book is open.
 The32-case Simulator suite passed at6b60c5d6388bc3fc8f91b57087896f6a3a67ff34.
-Current item/tool and legacy-migration edits await a fresh34-case native run. Schema 2 snapshots retain octree/model leaf geometry for native rendering,
+Item/tool, legacy migration and seeded terrain passed all36 native cases on
+b2518472. The current moving-window edits require a new40-case run.
+Schema2 snapshots retain octree/model leaf geometry for native rendering,
 collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.
@@ -214,7 +216,7 @@ The simulator script runs xcodebuild tests through ios/native-test-runner.py wit
 a900-second child deadline, within the controller's1200-second client budget.
 A timeout remains a failed check. Only a bounded, validated last-test identifier
 is added to sanitized failure diagnostics; raw test/fixture logs remain private.
-All26 required native cases still must pass. Linux child-process tests do not
+All40 required native cases still must pass. Linux child-process tests do not
 qualify the running iPhone client.
 
 Fine-grid editing
@@ -227,15 +229,17 @@ Models stay whole-cell items with their accurate tiny geometry. Online fine edit
 require the gateway's fineEdits capability and retain authoritative inventory,
 reach, depth and subcell validation. An older gateway needs updating first.
 
-Native seeded terrain milestone (validation pending)
+Native seeded terrain milestone (b2518472 Simulator validation)
 New worlds now generate their bounded49×49 view in Swift on the existing offline
 load worker. New world accepts signed64-bit seeds, rejects invalid values before
 replacement and saves seed plus generatorVersion. Terrain/Geography versions1–3
 follow Java noise, caves, rivers/oceans, biomes, mineral and tree rules.10,080 Java
 golden samples plus a full window hash are checked by native tests and refreshed
-against current Java during Mac validation. This is not yet a native parity pass.
-Legacy saves without generatorVersion retain their saved finite patch. Horizontal
-streaming and distant terrain remain unfinished; do not call this an infinite world.
+against current Java during Mac validation. All36 cases passed on b2518472; this
+proves the tested generator/geometry subset, not full engine or device parity.
+Legacy saves without generatorVersion retain their saved finite patch. The new
+moving-window increment below awaits its own native run. Distant terrain remains
+unfinished; do not call this an infinite world.
 App generation has no Java/LWJGL dependency. Column/field caches cap at8192 entries
 each; generation work and cancellation use the existing bounded loader. Physical
 frame-time, memory, thermal and battery qualification remain pending.
@@ -249,3 +253,34 @@ not establish physical-device frame time, memory, thermal or battery budgets.
 New offline confirmation uses seed748291 by default without opening a keyboard.
 Choose Change seed to enter another signed64-bit seed. Invalid input disables
 New world; Cancel preserves the saved world. Both paths generate native terrain.
+
+
+Moving terrain window (new source; native validation pending)
+Generated Sandbox worlds load49x49 columns around the player and move in8-column
+steps. A bounded utility worker prepares the next region while the current one
+remains playable. Loaded edges retain collision while waiting. Both horizontal
+travel and vertical digging/flying adjust the window. At most120,000 resident
+cells, one terrain request,4 ready mesh pages and2 page installs/frame are kept.
+The world safety domain is +/-1,000,000 columns and y=-32..95. This is not a
+physical-device frame-rate or memory claim.
+
+Edits persist outside the loaded region, including removed blocks, models and
+fractional cells. Limit:8192 changed cells,512 partial cells and32768 detail
+leaves across the edit journal, with a16MB save cap. At capacity, a new-cell edit
+is rejected before consuming/collecting items. Existing changed cells can still
+be edited subject to detail caps. Old versioned saves compare against their
+original generator off-main; a save with more than8192 differences keeps its
+complete finite patch. Unversioned saves remain finite. Streaming does not
+convert a desktop save file or sync offline saves between phones.
+
+Mac qualification now requires all40 native cases, including travel beyond the
+old x=24 boundary, restart and return. The earlier36-case b2518472 pass does not
+qualify these edits. Signed installation, another Simulator size/video, live
+service qualification and physical iPhone testing remain pending.
+
+Mac playtest video uses only the supplied Simulator. The private raw recording
+stays in ignored ios/build. Numeric timings select the fixed, passing offline
+streaming test; AVFoundation exports at most40 seconds with metadata removed,
+below6MB. No optional ffmpeg installation is required. A missing recording,
+range or export fails qualification rather than silently omitting video. This
+new capture path awaits the controller Mac run and media inspection.

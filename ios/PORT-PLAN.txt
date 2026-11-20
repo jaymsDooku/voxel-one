@@ -1,35 +1,43 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. Source 1d7aa524 passed 24 native tests.
-New bounded mesh preparation needs its own exact-source Mac run.
-Baseline inspected: 71612f09. This is not full engine parity or iPhone delivery.
+Status: implementation in progress. Exact source b25184722108b4ff9514ec92e3162f44024820ee
+passed all36 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
+The current moving-window/journal increment has not run on Mac yet.
+This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
 Reuse UIKit, SceneKit and the Java mobile gateway. Keep authoritative online
 rules in Java; Swift supplies native input, rendering and offline rules. No JVM,
-LWJGL, webview or streaming dependency runs on iOS. Keep City planning unchanged.
-Use existing schema 1 until a versioned detail-preserving contract is added;
-never silently label schema 1 compatible with desktop fine geometry.
+LWJGL, webview or streamed desktop runtime runs on iOS. Preserve City planning.
+Schema2 shares material/model/fractional definitions; schema1 remains readable.
 
-Observed compatibility matrix
-Capability                 Desktop / source                 Current native status
-Terrain                    net/Terrain.java                 Bundled Java seed, version 3;
-                                                            offline 49x49 only
-Streaming / distance       TerrainScheduler, DistantTerrain Bounded online snapshots;
-                                                            no offline streaming
-Fractional / models        net/WorldVoxels.java             MobileSnapshot samples center;
-                                                            full cube approximation
-Collision / pick           player/Player.java, Camera.java  AABB, whole-cell ray only
-Inventory / crafting       net/Crafting.java                9 hotbar, 36 bag, 6 recipes;
-                                                            gateway craft action exists
-City                       existing Java CityFrame          Planning, roads/zones, walk;
+Current compatibility matrix
+Capability                 Desktop / source                 Native status
+Terrain                    net/Terrain.java, Geography.java Exact seed/version1-3 golden
+                                                            samples/window passed b2518472
+Streaming / distance       TerrainScheduler, DistantTerrain Proposed49x49 moving window;
+                                                            bounded worker/journal; Mac pending
+                                                            distant terrain unfinished
+Fractional / models        net/WorldVoxels.java             Exact schema2 leaves/models;
+                                                            edits/render/collision passed
+Collision / pick           player/Player.java, Camera.java  AABB and exact leaf ray;
+                                                            camera collision passed
+Inventory / crafting       net/Crafting.java                9 hotbar,36 bag,104 recipes;
+                                                            search/tools/batches passed
+City                       existing Java CityFrame          Native planning/roads/zones;
+                                                            synthetic gateway regression passed
                                                             specialized UI still missing
 Sky / graphics             atmosphere contract              Native opt-in sky, presets;
                                                             device budgets unmeasured
 Persistence                desktop engine saves             Separate atomic JSON save;
-                                                            no desktop migration
-Network                    pinned Java server transport     Gateway + native HTTPS;
+                                                            bounded save/load queues passed;
+                                                            no desktop save-file migration
+Network                    pinned Java server transport     Native HTTPS gateway;
+                                                            synthetic auth/edit tests passed;
                                                             live VPS path unqualified
+
+Passed refers only to the36-case b2518472 developer Simulator run. It does not
+qualify the new streaming source, independent review, physical device or signing.
 
 This slice
 Jump begins on touch-down and repeats while held. Release, drag exit, touch
@@ -46,16 +54,13 @@ Unsigned VoxelOne.xcarchive is not an installable iPhone artifact.
 Simulator validation needs the controller's Mac result and actual media inspection.
 30 FPS is the initial requested baseline, not a measured physical-device result.
 
-Next coherent slices (all still required)
-1. Versioned shared material/model/fractional schema and compatibility fixtures;
-   exact geometry picking/collision/rendering, model persistence.
-2. Incremental procedural chunks, bounded worker queues, cancellation and memory
-   pressure; move generation/meshing/save encoding off the main thread safely.
-3. Remaining crafting recipes, fly, camera/settings, landscape-first layout
-   and recovery.
-4. Sandbox authenticated multiplayer edit/resync tests, denied-network handling,
-   isolated HTTPS proxy health checks, then root-coordinated live service checks.
-5. Signed device delivery, install/update guide and versioned artifact checksums;
+Remaining acceptance work
+1. Validate moving terrain, durable evicted edits, migration and worker fences on
+   exact source. Add distant terrain and finish remaining engine parity.
+2. Remaining tool/equipment pose, touch/settings polish and shared save tooling.
+3. Live Sandbox multiplayer resynchronization, denied-network paths and isolated
+   HTTPS proxy checks, then root-coordinated production service qualification.
+4. Signed device delivery, install/update guide and versioned artifact checksums;
    physical iPhone gameplay/performance/thermal/battery qualification.
 
 Signing remains separate. No Apple team, device registration or protected signing
@@ -1022,3 +1027,52 @@ and covered by focused integration plus required native regressions. Unrelated
 merged HCF/desktop/server source and media are retained. Full engine streaming/
 parity, live VPS, signed artifact/iPhone installation and physical qualification
 remain open; no completion or Simulator/physical performance claim is made.
+
+
+Observed36-case native recovery and moving-window increment
+Exact source b25184722108b4ff9514ec92e3162f44024820ee passed36 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44654525025
+Trusted workflow verifier used master f446ad3f0c8332aa1002885468e1a20fa271018e,
+which contains independently reviewed cap fix8a53afce. Actual client screenshot
+was inspected and copied to dashboard/evidence/ios-port-b2518472-native-model.png.
+Receipt: ios-port-b2518472-receipt.json. No video returned. This is Simulator
+proof only. Historical failures/receipts remain intact.
+
+New proposed behavior: generated Sandbox worlds move a49x49 loaded window in
+8-column steps. Begin generation12 columns from the current center; adjust the
+bounded vertical band near its limits. Domain stays within +/-1,000,000 columns
+and y=-32..95. One utility request executes; frames choose the newest position,
+with no pending region queue. Generation, journal migration, validation and
+geometry expansion stay off the main thread. Main adopts prepared maps with
+copy-on-write storage, preserving live pose/inventory. geometryRevision and
+session/lifecycle fences reject stale results. Collision keeps the player in
+loaded terrain while a region is pending. Failure retains current terrain and
+retries no more often than every5 seconds. Existing bounded mesh paging applies.
+
+terrainEdits persists at most8192 changed world cells, including explicit air,
+model IDs/colors and exact fractional geometry. Journal-wide partial limit512
+and detail leaf limit32768 apply; save stays at most16MB. Capacity rejection
+precedes inventory/geometry commit. These are engineering caps, not measured
+physical-device budgets. Save schema remains2 with optional generatorVersion
+and terrainEdits. Old generated saves migrate by deterministic comparison on
+the load worker, preserving removed blocks and color/detail overrides. If more
+than8192 differences exist, preserve the complete finite save and disable
+streaming for it. Unversioned legacy patches stay finite. No save is overwritten
+on migration failure. Save file format is still separate from desktop.
+
+Native qualification now requires40 cases: all prior36 plus journal eviction/
+restart/migration/capacity, stale install/preserved pose and inventory, worker
+single-flight/cancellation/failure, and normal touch flight beyond x=24 then
+restart/return. These4 new cases are unexecuted until the controller Mac run.
+Playtest: new streaming workflow is pending on exact-source Simulator. No Linux
+browser test applies to the native UIKit/SceneKit client. Additional Simulator
+size/video, live VPS, signed install, physical-device measurements and independent
+review remain open. No feature deletions are intended. Full diff against review
+base f446ad3f has no deleted files; unrelated progress entries are preserved.
+
+The prior run returned no video. The Mac harness now records its assigned
+Simulator without depending on optional ffmpeg. The native test observer records
+only numeric start/duration for the fixed passing offline streaming case. A
+host-side AVFoundation utility exports at most40 seconds below6MB with metadata
+removed; raw recordings/timings stay ignored. Missing timing/video/export fails
+qualification. This path has not executed on Mac yet and cannot claim video.

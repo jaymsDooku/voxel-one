@@ -66,10 +66,8 @@ app="$repo/ios/build/DerivedData/Build/Products/Debug-iphonesimulator/VoxelOne.a
 export IOS_CHECK_STAGE=install
 xcrun simctl install "$udid" "$app"
 # Record only this role's assigned device. Raw video stays in ignored build output.
-if command -v ffmpeg >/dev/null 2>&1; then
-  xcrun simctl io "$udid" recordVideo --codec=h264 "$repo/ios/build/native-workflow.mp4" > ios/build/recorder.log 2>&1 &
-  video_pid=$!
-fi
+xcrun simctl io "$udid" recordVideo --codec=h264 "$repo/ios/build/native-workflow.mp4" > ios/build/recorder.log 2>&1 &
+video_pid=$!
 export IOS_CHECK_STAGE=native_playtests
 python3 ios/native-test-runner.py --timeout 900 -- xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -destination "platform=iOS Simulator,id=$udid" -derivedDataPath ios/build/DerivedData \
@@ -83,11 +81,10 @@ export IOS_CHECK_STAGE=evidence
 xcrun xcresulttool export attachments --path ios/build/NativeTests.xcresult --output-path ios/build/attachments > ios/build/export.log 2>&1
 xcrun xcresulttool get test-results summary --path ios/build/NativeTests.xcresult > ios/build/test-summary.json
 python3 ios/check-results.py success "$repo" "$evidence" "$head" "$udid"
-if command -v ffmpeg >/dev/null 2>&1 && [ -s ios/build/native-workflow.mp4 ]; then
-  ffmpeg -hide_banner -loglevel error -y -ss 10 -i ios/build/native-workflow.mp4 -t 40 \
-    -vf 'scale=540:-2' -r 15 -c:v libx264 -preset fast -crf 30 -an -movflags +faststart \
-    "$evidence/client-playtest.mp4" > ios/build/compression.log 2>&1 || true
-fi
+# The fixed, passing offline test supplies only numeric timing. AVFoundation is
+# present on the hosted Mac; lack of an optional ffmpeg install must not omit video.
+swift -swift-version 5 ios/export-playtest.swift "$repo/ios/build/native-workflow.mp4" \
+  "$evidence/client-playtest.mp4" "$repo/ios/build/native-video-window.json" > ios/build/compression.log 2>&1
 python3 - "$evidence/client-result.json" <<'PY'
 import json,pathlib,sys
 p=pathlib.Path(sys.argv[1]);data=json.loads(p.read_text());video=p.parent/'client-playtest.mp4'

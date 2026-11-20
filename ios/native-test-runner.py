@@ -49,6 +49,9 @@ class TestProgress:
         self.active = None
         self.issues = {}
         self.failure_steps = {}
+        self.started_at = time.monotonic()
+        self.video_started = None
+        self.video_ended = None
         self.stop = threading.Event()
         self.lock = threading.Lock()
         self.thread = threading.Thread(target=self.observe, daemon=True)
@@ -89,6 +92,14 @@ class TestProgress:
                                 with self.lock:
                                     self.states[name] = state
                                     now = time.monotonic()
+                                    if match[1] == 'NativeWorkflowTests' and name == 'testNativeTerrainStreamingBeyondInitialBoundaryAndRestart':
+                                        if state == 'started':
+                                            self.video_started = now
+                                            self.video_ended = None
+                                        elif state == 'passed':
+                                            self.video_ended = now
+                                        else:
+                                            self.video_ended = None
                                     if state == 'started':
                                         self.last_checkpoint = None
                                         self.active = name
@@ -142,7 +153,7 @@ class TestProgress:
             return lines
 
 
-def run(command, log, timeout, allowed=None, fail_fast=False):
+def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None):
     log.parent.mkdir(parents=True, exist_ok=True)
     if allowed is None:
         root = Path(__file__).resolve().parents[1]
@@ -151,6 +162,8 @@ def run(command, log, timeout, allowed=None, fail_fast=False):
             allowed.update(re.findall(r'func (test[A-Za-z0-9_]{1,96})\(', source.read_text()))
     # The child owns its new process group. Never signal the caller or another role.
     timed_out = False
+    if video_timing is not None:
+        video_timing.unlink(missing_ok=True)
     with log.open('wb') as output:
         process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT,
                                    start_new_session=True)
@@ -194,6 +207,15 @@ def run(command, log, timeout, allowed=None, fail_fast=False):
                     pass
                 process.wait(timeout=5)
             result = 124 if timed_out else 65
+    if result == 0 and video_timing is not None:
+        with progress.lock:
+            if progress.video_started is not None and progress.video_ended is not None:
+                offset = progress.video_started - progress.started_at
+                duration = progress.video_ended - progress.video_started
+                if 0 <= offset <= timeout and 1 <= duration <= timeout:
+                    # Numeric media range only. No XCTest payloads or form values.
+                    video_timing.write_text(json.dumps({'offsetSeconds': offset,
+                                                        'durationSeconds': min(40, duration)}) + '\n')
     if result != 0:
         with log.open('a') as output:
             if timed_out:
@@ -305,7 +327,8 @@ def main():
         parser.error('timeout must be 1..900 seconds and a child command is required')
     root = Path(__file__).resolve().parents[1]
     log = root / 'ios/build/native-tests.log'
-    result = run(command, log, args.timeout, fail_fast=True)
+    result = run(command, log, args.timeout, fail_fast=True,
+                 video_timing=root / 'ios/build/native-video-window.json')
     if result != 0:
         record_failure(log, root)
     return result

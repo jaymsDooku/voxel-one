@@ -65,7 +65,7 @@ struct NativeRecipe: Codable, Sendable {
         for value in values {try value.validate()};return values
     }
 }
-struct NativeGeometry:Codable,Sendable {
+struct NativeGeometry:Codable,Equatable,Sendable {
     var resolution:Int;var leaves:[[Int]]
     func validate()throws {
         guard [8,16,32].contains(resolution),!leaves.isEmpty,leaves.count<=32768 else {throw GameError.invalidWorld}
@@ -83,6 +83,24 @@ struct NativeGeometry:Codable,Sendable {
 struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:Int;var depth:Int;var color:Int}
 struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
 struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
+/// World coordinates, including explicit air, survive eviction from the loaded window.
+struct NativeTerrainEdit:Codable,Sendable {
+    var cell:GridKey;var type:Int;var color:Int;var geometry:NativeGeometry? = nil
+    static let maximumCells=8192
+    static func validate(_ edits:[NativeTerrainEdit])throws {
+        guard edits.count<=maximumCells,Set(edits.map{$0.cell}).count==edits.count else {throw GameError.invalidWorld}
+        var partials=0,leaves=0
+        for edit in edits {
+            guard abs(Double(edit.cell.x))<=1_000_000,abs(Double(edit.cell.z))<=1_000_000,(-32...95).contains(edit.cell.y),
+                  (0...189).contains(edit.type) || edit.type==255,(0...0xffffff).contains(edit.color) else {throw GameError.invalidWorld}
+            if edit.type==255 {
+                guard let geometry=edit.geometry,geometry.resolution==16 else {throw GameError.invalidWorld}
+                try geometry.validate();partials+=1;leaves+=geometry.leaves.count
+            } else if edit.geometry != nil {throw GameError.invalidWorld}
+        }
+        guard partials<=512,leaves<=32768 else {throw GameError.invalidWorld}
+    }
+}
 struct NativeItem:Codable,Sendable {
     var id:Int;var name:String;var category:String;var stackLimit:Int;var placeableBlock:Int
     func validate()throws {
@@ -124,6 +142,7 @@ struct Snapshot: Codable, Sendable {
     var contract:NativeContract? = nil;var details:[NativeDetail]? = nil
     var recipes:[NativeRecipe]? = nil
     var generatorVersion:Int? = nil
+    var terrainEdits:[NativeTerrainEdit]? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
     private func validInventoryEntry(_ entry:[Int])->Bool {
         guard entry.count==2,(0...198).contains(entry[0]),entry[1]>=0,(entry[0]==0)==(entry[1]==0) else{return false}
@@ -134,6 +153,17 @@ struct Snapshot: Codable, Sendable {
     func validate() throws {
         if let version=generatorVersion {guard (1...NativeTerrain.currentVersion).contains(version),Int64(seed) != nil else {throw GameError.invalidWorld}}
         try contract?.validate()
+        if let edits=terrainEdits {
+            guard schema==2,game=="sandbox",generatorVersion != nil else {throw GameError.invalidWorld}
+            try NativeTerrainEdit.validate(edits)
+            let modelSizes=Dictionary(uniqueKeysWithValues:(contract?.models ?? []).map{($0.id,$0.geometry.leaves.count)})
+            var leaves=0
+            for edit in edits {
+                if (8...136).contains(edit.type),modelSizes[edit.type]==nil {throw GameError.invalidWorld}
+                leaves+=edit.geometry?.leaves.count ?? modelSizes[edit.type] ?? 0
+            }
+            guard leaves<=32768 else {throw GameError.invalidWorld}
+        }
         if let recipes=recipes {
             guard recipes.count<=104,Set(recipes.map{$0.id}).count==recipes.count else {throw GameError.invalidWorld}
             for recipe in recipes {try recipe.validate();if recipe.output>=190 || recipe.inputs.contains(where:{$0[0]>=190}) {guard schema==2,contract?.items != nil else {throw GameError.invalidWorld}}}
@@ -166,6 +196,15 @@ struct Snapshot: Codable, Sendable {
             }
             guard expanded<=32768 else {throw GameError.invalidWorld}
         } else if contract != nil || !(details ?? []).isEmpty {throw GameError.invalidWorld}
+        if let edits=terrainEdits,!edits.isEmpty {
+            let saved=Dictionary(uniqueKeysWithValues:cells.map{(GridKey($0[0],$0[1],$0[2]),$0)})
+            let fine=Dictionary(uniqueKeysWithValues:(details ?? []).map{(GridKey($0.cell[0],$0.cell[1],$0.cell[2]),$0.geometry)})
+            for edit in edits where NativeTerrainRegion.inside(edit.cell,bounds) {
+                let cell=saved[edit.cell]
+                guard (cell?[3] ?? 0)==edit.type,edit.type==0 || cell?[4]==edit.color,
+                      edit.type != 255 || fine[edit.cell]==edit.geometry else {throw GameError.invalidWorld}
+            }
+        }
     }
 }
 
@@ -283,6 +322,7 @@ final class VoxelWorld {
     private(set) var flying=false
     var verticalSpeed: Float=0; var grounded=false
     var slot=0; var revision=0;private(set) var geometryRevision=0
+    var streamsTerrain:Bool {snapshot.game=="sandbox" && snapshot.generatorVersion != nil && snapshot.terrainEdits != nil}
     init(_ snapshot: Snapshot) throws { self.snapshot=snapshot; try replace(snapshot,resetPose:true) }
     func replace(_ value: Snapshot, resetPose: Bool=false) throws {
         try value.validate();let oldTypes=types,oldColors=colors,oldShapes=shapes;snapshot=value
@@ -297,6 +337,36 @@ final class VoxelWorld {
         if resetPose || value.resetPose==true { position=SCNVector3(value.pose[0],value.pose[1],value.pose[2]); yaw=value.pose[3]; pitch=value.pose[4]==0 ? -0.55 : value.pose[4]; verticalSpeed=0 }
         if oldTypes != types || oldColors != colors || oldShapes != shapes {geometryRevision+=1}
         revision += 1
+    }
+    /// Reserve journal capacity before any inventory or terrain mutation.
+    private func journalAfterEditing(_ key:GridKey,type:Int,color:Int,geometry:NativeGeometry?=nil)throws->[NativeTerrainEdit]? {
+        guard var edits=snapshot.terrainEdits else{return nil}
+        let edit=NativeTerrainEdit(cell:key,type:type,color:color,geometry:geometry)
+        if let index=edits.firstIndex(where:{$0.cell==key}) {edits[index]=edit}
+        else {edits.append(edit)}
+        // Existing records were validated on load; this record comes from the bounded
+        // edit transaction. Do not re-expand every old octree on the main thread.
+        guard edits.count<=NativeTerrainEdit.maximumCells else {throw GameError.message("World edit storage is full. Existing edits are safe; edit an already changed cell.")}
+        var partials=0,leaves=0
+        for edit in edits {if edit.type==255 {partials+=1};leaves+=edit.geometry?.leaves.count ?? models[edit.type]?.leaves.count ?? 0}
+        guard partials<=512,leaves<=32768 else {throw GameError.message("This world has reached its mobile detail limit.")}
+        return edits
+    }
+    /// Validation and dictionary/model expansion run on the terrain worker.
+    static func prepareTerrain(_ snapshot:Snapshot)throws->NativeTerrainRegion {
+        let prepared=try VoxelWorld(snapshot)
+        return NativeTerrainRegion(snapshot:snapshot,types:prepared.types,colors:prepared.colors,shapes:prepared.shapes)
+    }
+    /// A stale worker can never overwrite an edit, inventory transaction or current pose.
+    func installTerrain(_ region:NativeTerrainRegion,expectedGeometryRevision:Int)->Bool {
+        guard streamsTerrain,geometryRevision==expectedGeometryRevision,region.snapshot.seed==snapshot.seed,
+              region.snapshot.generatorVersion==snapshot.generatorVersion else{return false}
+        let b=region.snapshot.bounds,p=position
+        guard p.x>=Float(b[0])+1,p.x<=Float(b[1])-1,p.z>=Float(b[4])+1,p.z<=Float(b[5])-1,
+              p.y>=Float(b[2]),p.y+1.8<=Float(b[3])+1 else{return false}
+        snapshot.bounds=b;snapshot.cells=region.snapshot.cells;snapshot.details=region.snapshot.details;snapshot.terrainEdits=region.snapshot.terrainEdits
+        types=region.types;colors=region.colors;shapes=region.shapes
+        geometryRevision+=1;revision+=1;return true
     }
     func type(_ key: GridKey) -> Int { types[key] ?? 0 }
     static func boxes(_ geometry:NativeGeometry)->[VoxelBox] {
@@ -508,16 +578,20 @@ final class VoxelWorld {
             }
         }
         var detail=(snapshot.details ?? []).filter{$0.cell != [key.x,key.y,key.z]}
+        let journal=try journalAfterEditing(key,type:proposed.isEmpty ? 0:uniformFull ? geometry.leaves[0][4]:255,
+                                           color:uniformFull ? geometry.leaves[0][5]:0,geometry:proposed.isEmpty || uniformFull ? nil:geometry)
         if proposed.isEmpty {types.removeValue(forKey:key);colors.removeValue(forKey:key);shapes.removeValue(forKey:key)}
         else if uniformFull {types[key]=geometry.leaves[0][4];colors[key]=geometry.leaves[0][5];shapes.removeValue(forKey:key)}
         else {
             guard detail.count<512 else {throw GameError.message("This area has reached its partial-cell limit.")}
             types[key]=255;colors[key]=0;shapes[key]=proposed;detail.append(NativeDetail(cell:[key.x,key.y,key.z],geometry:geometry))
         }
-        snapshot.details=detail;snapshot.inventory=inventory;revision+=1;geometryRevision+=1
+        snapshot.terrainEdits=journal;snapshot.details=detail;snapshot.inventory=inventory;revision+=1;geometryRevision+=1
     }
     func offlineEdit(at key: GridKey, type: Int) throws {
         guard type==0 || itemPlaceable(type) else {throw GameError.message("This item cannot be placed.")}
+        guard (0..<9).contains(slot) else {throw GameError.invalidWorld}
+        let journal=try journalAfterEditing(key,type:type,color:type==0 ? 0:Self.color(type))
         if type==0 {
             guard var old=types[key] else {throw GameError.message("Aim at a block within five blocks.")}
             if old==255 {
@@ -545,6 +619,8 @@ final class VoxelWorld {
             colors[key]=Self.color(type);snapshot.inventory[slot][1]-=1
             if snapshot.inventory[slot][1]==0 {snapshot.inventory[slot][0]=0}
         }
+        snapshot.terrainEdits=journal
+        snapshot.details?.removeAll{$0.cell == [key.x,key.y,key.z]}
         revision+=1;geometryRevision+=1
     }
     /// Commit only after both ingredient consumption and all output storage succeed.
@@ -697,7 +773,7 @@ final class OfflineSave {
     }
     static func load() throws -> Snapshot {
         let value=try read(at:url)
-        return try migrate(value,contract:NativeContract.bundled())
+        return try NativeTerrainRegion.migrateJournal(migrate(value,contract:NativeContract.bundled()))
     }
     static func fresh(seed:Int64=748291) throws -> Snapshot {
         guard let url=Bundle.main.url(forResource:"sandbox",withExtension:"json") else {throw GameError.invalidWorld}
@@ -706,7 +782,7 @@ final class OfflineSave {
         let eyeY=generator.surfaceHeight(0,0)+1
         let colors=Dictionary(uniqueKeysWithValues:(value.contract?.materials ?? []).map{($0.id,$0.color)})
         let generated=try generator.window(cx:0,cz:0,eyeY:eyeY,radius:24,colors:colors)
-        value.seed=String(seed);value.generatorVersion=NativeTerrain.currentVersion;value.bounds=generated.bounds;value.cells=generated.cells
+        value.seed=String(seed);value.generatorVersion=NativeTerrain.currentVersion;value.terrainEdits=[];value.bounds=generated.bounds;value.cells=generated.cells
         value.pose=[0.5,Float(eyeY),0.5,0,0]
         value.inventory[5]=[8,2];value.inventory[6]=[141,8]
         try value.validate();return value

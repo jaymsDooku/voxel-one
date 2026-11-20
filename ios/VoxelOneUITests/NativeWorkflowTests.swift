@@ -223,6 +223,40 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         textContains("cityStatus","Seed -42");XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
         capture("native-seeded-world-restarted")
     }
+    func testNativeTerrainStreamingBeyondInitialBoundaryAndRestart()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        app.buttons["cameraButton"].tap();app.buttons["First person"].tap()
+        textContains("cityStatus","Seed 748291")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        let editStatus=app.staticTexts["cityStatus"].label
+        func x()->Float {
+            let first=app.staticTexts["playerPosition"].label.components(separatedBy:", ").first ?? ""
+            return Float(first.replacingOccurrences(of:"Position ",with:"")) ?? -999
+        }
+        app.buttons["flyButton"].tap();app.buttons["jumpButton"].press(forDuration:2)
+        for _ in 0..<4 {if x()>32 {break};app.buttons["moveRight"].press(forDuration:3)}
+        XCTAssertGreaterThan(x(),32,"Touch flight must cross the old x=24 world boundary")
+        waitTerrain();capture("native-streamed-beyond-original-boundary")
+        let farX=x()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        XCTAssertEqual(x(),farX,"Horizontal pose persists; transient flight ends on restart")
+        XCTAssertEqual(app.staticTexts["cityStatus"].label,editStatus,"Evicted world edits persist on restart")
+        XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
+        app.buttons["flyButton"].tap();app.buttons["jumpButton"].press(forDuration:2)
+        for _ in 0..<4 {if x()<8 {break};app.buttons["moveLeft"].press(forDuration:3)}
+        XCTAssertLessThan(x(),8);waitTerrain()
+        XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"),"Returning terrain must not duplicate collected items")
+        capture("native-streamed-return-with-edits")
+        // Held input must cancel when the app backgrounds after streaming.
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["moveRight"])
+        let stopped=x();app.buttons["pauseButton"].tap()
+        app.buttons["moveRight"].press(forDuration:0.4);XCTAssertEqual(x(),stopped)
+    }
     func testNativeToolCraftingPlacementGuardAndRestart()throws {
         workflowCheckpoint="tools_sticks"
         newOffline();app.buttons["craftButton"].tap()

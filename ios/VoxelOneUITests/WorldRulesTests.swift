@@ -24,6 +24,93 @@ private final class SaveWorkerProbe:@unchecked Sendable {
 }
 
 final class WorldRulesTests:NativeEvidenceTestCase {
+    private func terrainFixture()throws->Snapshot {
+        let bundle=Bundle(for:WorldRulesTests.self)
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:XCTUnwrap(bundle.url(forResource:"contract",withExtension:"json"))))
+        let generator=try NativeTerrain(seed:748291,version:3),height=generator.surfaceHeight(0,0)+1
+        let generated=try generator.window(cx:0,cz:0,eyeY:height,radius:24,colors:Dictionary(uniqueKeysWithValues:contract.materials.map{($0.id,$0.color)}))
+        var value=fixture();value.schema=2;value.contract=contract;value.details=[];value.generatorVersion=3;value.terrainEdits=[]
+        value.bounds=generated.bounds;value.cells=generated.cells;value.pose=[0.5,Float(height),0.5,0,0]
+        value.inventory=Array(repeating:[0,0],count:36);value.inventory[0]=[2,32];value.inventory[1]=[8,2];value.inventory[2]=[141,8]
+        try value.validate();return value
+    }
+    func testTerrainJournalEvictionMigrationAndAtomicCapacity()throws {
+        let world=try VoxelWorld(terrainFixture()),generator=try NativeTerrain(seed:748291,version:3)
+        let hole=GridKey(2,generator.surfaceHeight(2,2),2),pot=GridKey(3,60,3),half=GridKey(4,60,3)
+        try world.offlineEdit(at:hole,type:0)
+        world.slot=1;try world.offlineEdit(at:pot,type:8)
+        world.slot=2;try world.offlineRegionEdit(NativeVoxelAddress(cell:half,depth:1,ix:1,iy:0,iz:0),type:141)
+        let boxes=world.boxes(half),inventory=world.snapshot.inventory
+        let outbound=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:64,y:27,z:0))
+        world.position=SCNVector3(64.5,40,0.5)
+        XCTAssertTrue(world.installTerrain(outbound,expectedGeometryRevision:world.geometryRevision))
+        XCTAssertEqual(world.type(pot),0,"Evicted cells must leave resident maps")
+        XCTAssertEqual(world.snapshot.terrainEdits?.count,3);XCTAssertLessThanOrEqual(world.types.count,120000)
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        let inbound=try NativeTerrainRegion.build(restored.savePayload(),target:NativeTerrainTarget(x:0,y:27,z:0))
+        restored.position=SCNVector3(0.5,27,0.5)
+        XCTAssertTrue(restored.installTerrain(inbound,expectedGeometryRevision:restored.geometryRevision))
+        XCTAssertEqual(restored.type(hole),0,"Explicit air survives eviction and restart")
+        XCTAssertEqual(restored.type(pot),8);XCTAssertEqual(restored.boxes(half),boxes)
+        XCTAssertEqual(restored.snapshot.inventory,inventory,"Streaming neither consumes nor duplicates items")
+        var old=restored.savedSnapshot();old.terrainEdits=nil
+        let migrated=try NativeTerrainRegion.migrateJournal(old)
+        XCTAssertEqual(migrated.terrainEdits?.count,3);XCTAssertTrue(try VoxelWorld(migrated).streamsTerrain)
+        var finite=fixture();finite=try NativeTerrainRegion.migrateJournal(finite)
+        XCTAssertNil(finite.generatorVersion);XCTAssertNil(finite.terrainEdits)
+        var dense=try terrainFixture();dense.terrainEdits=nil
+        for index in 0...NativeTerrainEdit.maximumCells {
+            dense.cells[index][3]=dense.cells[index][3]==2 ? 3:2
+            dense.cells[index][4]=0x123456
+        }
+        let kept=try NativeTerrainRegion.migrateJournal(dense)
+        XCTAssertNil(kept.generatorVersion,"An oversized migration keeps a finite world")
+        XCTAssertNil(kept.terrainEdits);XCTAssertEqual(kept.cells,dense.cells,"Migration must never drop unique old edits")
+        // Capacity must be reserved before picking up a block or consuming inventory.
+        restored.snapshot.terrainEdits=(0..<NativeTerrainEdit.maximumCells).map{NativeTerrainEdit(cell:GridKey(1000+$0,0,0),type:0,color:0)}
+        let revision=restored.geometryRevision,bag=restored.snapshot.inventory,oldType=restored.type(GridKey(0,26,0))
+        XCTAssertThrowsError(try restored.offlineEdit(at:GridKey(0,26,0),type:0))
+        XCTAssertEqual(restored.type(GridKey(0,26,0)),oldType);XCTAssertEqual(restored.snapshot.inventory,bag);XCTAssertEqual(restored.geometryRevision,revision)
+        var invalid=restored.savedSnapshot();invalid.terrainEdits?.append(NativeTerrainEdit(cell:GridKey(0,0,0),type:0,color:0))
+        XCTAssertThrowsError(try invalid.validate())
+        invalid=restored.savedSnapshot();invalid.terrainEdits=[NativeTerrainEdit(cell:pot,type:0,color:0)]
+        XCTAssertThrowsError(try invalid.validate(),"A journal cannot contradict resident terrain")
+    }
+    func testTerrainInstallFencesEditsPreservesPoseAndInventory()throws {
+        let world=try VoxelWorld(terrainFixture()),target=NativeTerrainTarget(x:8,y:27,z:0),revision=world.geometryRevision
+        let region=try NativeTerrainRegion.build(world.savePayload(),target:target)
+        world.position=SCNVector3(12.5,30,0.5);world.yaw=1;world.snapshot.inventory[3]=[165,9]
+        XCTAssertTrue(world.installTerrain(region,expectedGeometryRevision:revision))
+        XCTAssertEqual(world.position.x,12.5);XCTAssertEqual(world.yaw,1);XCTAssertEqual(world.snapshot.inventory[3],[165,9])
+        let before=world.geometryRevision,stale=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:16,y:30,z:0))
+        try world.offlineEdit(at:GridKey(2,60,2),type:2)
+        XCTAssertFalse(world.installTerrain(stale,expectedGeometryRevision:before));XCTAssertEqual(world.type(GridKey(2,60,2)),2)
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:0.5,y:27,z:0.5))
+        XCTAssertEqual(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:12.5,y:27,z:0.5)?.x,8)
+        XCTAssertEqual(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:-12.5,y:27,z:0.5)?.x,-16)
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:Float.infinity,y:27,z:0))
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[999952,1000000,19,63,-24,24],x:999999,y:27,z:0))
+    }
+    func testTerrainWorkerSingleFlightCancellationAndFailure()throws {
+        let payload=try VoxelWorld(terrainFixture()).savePayload(),gate=DispatchSemaphore(value:0),started=expectation(description:"worker started"),done=expectation(description:"cancelled then retried")
+        DispatchQueue.main.async {
+            let worker=NativeTerrainStreamer(),target=NativeTerrainTarget(x:8,y:27,z:0)
+            XCTAssertTrue(worker.request(payload:payload,target:target,operation:{payload,target in
+                XCTAssertFalse(Thread.isMainThread);started.fulfill();gate.wait()
+                return try NativeTerrainRegion.build(payload,target:target)
+            }){result in
+                XCTAssertTrue(Thread.isMainThread)
+                if case .cancelled=result {}else{XCTFail("Cancelled region must never install")}
+                XCTAssertFalse(worker.isBusy)
+                XCTAssertTrue(worker.request(payload:payload,target:target,operation:{_,_ in throw GameError.invalidWorld}){result in
+                    if case .failed=result {}else{XCTFail("Generation failure must remain a failure")};done.fulfill()
+                })
+            })
+            XCTAssertFalse(worker.request(payload:payload,target:target){_ in XCTFail("A second worker must not be queued")})
+            worker.cancel();gate.signal()
+        }
+        wait(for:[started,done],timeout:20)
+    }
     func testNativeTerrainMatchesSharedJavaFixture()throws {
         struct Sample:Decodable {var seed:String;var version:Int;var x:Int;var y:Int;var z:Int;var block:Int;var surface:Int;var ocean:Bool}
         struct Window:Decodable {var seed:String;var generatorVersion:Int;var eyeY:Int;var bounds:[Int];var cellCount:Int;var sha256:String}

@@ -25,6 +25,33 @@ class NativeDeadlineTests(unittest.TestCase):
         self.assertEqual(runner.run([sys.executable, '-c', 'print("synthetic success")'], self.log, 5), 0)
         self.assertEqual(runner.run([sys.executable, '-c', 'raise SystemExit(7)'], self.log, 5), 7)
 
+    def test_video_window_is_bound_to_passing_offline_case_and_numeric_only(self):
+        name='testNativeTerrainStreamingBeyondInitialBoundaryAndRestart'
+        timing=self.log.parent/'timing.json'
+        start="Test Case '-[VoxelOneUITests.NativeWorkflowTests "+name+"]' started."
+        passed=start.replace('started.','passed.')
+        code='import time;print('+repr(start)+',flush=True);print("private-fixture-marker",flush=True);time.sleep(1.2);print('+repr(passed)+',flush=True)'
+        self.assertEqual(runner.run([sys.executable,'-c',code],self.log,5,{name},video_timing=timing),0)
+        data=json.loads(timing.read_text())
+        self.assertEqual(set(data),{'offsetSeconds','durationSeconds'})
+        self.assertGreaterEqual(data['offsetSeconds'],0)
+        self.assertGreaterEqual(data['durationSeconds'],1)
+        self.assertLessEqual(data['durationSeconds'],40)
+        self.assertNotIn('private',timing.read_text())
+        # An unsuccessful command must remove a previous run's timing.
+        self.assertEqual(runner.run([sys.executable,'-c','raise SystemExit(7)'],self.log,5,{name},video_timing=timing),7)
+        self.assertFalse(timing.exists())
+
+    def test_video_window_rejects_wrong_test_class_and_unfinished_case(self):
+        name='testNativeTerrainStreamingBeyondInitialBoundaryAndRestart'
+        timing=self.log.parent/'timing.json'
+        for kind,close in [('WorldRulesTests',True),('NativeWorkflowTests',False)]:
+            start="Test Case '-[VoxelOneUITests."+kind+' '+name+"]' started."
+            code='import time;print('+repr(start)+',flush=True);time.sleep(1.2)'
+            if close:code+=';print('+repr(start.replace('started.','passed.'))+',flush=True)'
+            self.assertEqual(runner.run([sys.executable,'-c',code],self.log,5,{name},video_timing=timing),0)
+            self.assertFalse(timing.exists())
+
     def test_timeout_has_only_allowlisted_progress(self):
         line = "Test Case '-[VoxelOneUITests.WorldRulesTests testBoundedMeshPagingCancellationAndGeometry]' started."
         code = 'import time;print(' + repr(line) + ',flush=True);print("private-fixture-marker",flush=True);time.sleep(10)'

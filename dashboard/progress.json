@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rebased sourcefc51743d: native run recorded15 passed,1 failed,1 open at900s; failure maps to batch crafting. Craft Search/batch now dismisses keyboard. Added source-only issue capture and stop after first observed failed case; all36 cases and900s cap retained.14 focused Java and80 Linux harness tests passed. New native workflow/media pending; full parity/live VPS/signing/physical gates remain open.",
-      "updatedAt": "2026-11-20T01:31:25+00:00"
+      "note": "Observed b2518472:36 native cases passed on iPhone SE Simulator/iOS18.5; screenshot saved. New moving terrain/edit journal and AVFoundation video export await40-case exact-source Mac validation.82 Linux harness and14 focused Java tests passed;110 unrelated progress entries preserved, no files deleted. Full parity, live VPS, second Simulator size, signed installation and physical qualification remain open.",
+      "updatedAt": "2026-11-20T02:13:14+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
