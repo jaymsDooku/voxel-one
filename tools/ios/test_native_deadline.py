@@ -6,6 +6,7 @@ import tempfile
 import unittest
 import json
 import subprocess
+import time
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -24,6 +25,68 @@ class NativeDeadlineTests(unittest.TestCase):
     def test_success_and_failure_preserve_child_exit_status(self):
         self.assertEqual(runner.run([sys.executable, '-c', 'print("synthetic success")'], self.log, 5), 0)
         self.assertEqual(runner.run([sys.executable, '-c', 'raise SystemExit(7)'], self.log, 5), 7)
+
+    def recorder(self, signals):
+        ready=self.log.parent/('ready-'+str(time.monotonic_ns()))
+        code=('import signal,time,sys;from pathlib import Path;'+signals+
+              ';Path('+repr(str(ready))+').write_text("ready");time.sleep(10)')
+        process=subprocess.Popen([sys.executable,'-c',code],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,start_new_session=True)
+        def cleanup():
+            if process.poll() is None:process.kill()
+            process.wait(timeout=2)
+        self.addCleanup(cleanup)
+        deadline=time.monotonic()+2
+        while not ready.exists() and process.poll() is None and time.monotonic()<deadline:time.sleep(.01)
+        self.assertTrue(ready.exists())
+        return process
+
+    def test_recorder_graceful_interrupt_is_reaped(self):
+        process=self.recorder('signal.signal(signal.SIGINT,lambda *args:sys.exit(0))')
+        self.assertTrue(runner.stop_recording(process,grace=1,terminate_grace=.2))
+        self.assertEqual(process.poll(),0)
+
+    def test_recorder_ignoring_interrupt_and_term_is_killed_without_signalling_other_child(self):
+        other=self.recorder('signal.signal(signal.SIGINT,signal.SIG_IGN)')
+        process=self.recorder('signal.signal(signal.SIGINT,signal.SIG_IGN);signal.signal(signal.SIGTERM,signal.SIG_IGN)')
+        started=time.monotonic()
+        self.assertFalse(runner.stop_recording(process,grace=.1,terminate_grace=.1))
+        self.assertLess(time.monotonic()-started,2)
+        self.assertIsNotNone(process.poll())
+        self.assertIsNone(other.poll(),"Only the owned recorder is signalled")
+
+    def test_failed_recorder_cannot_qualify_successful_native_child(self):
+        self.assertEqual(runner.run([sys.executable,'-c','import time;time.sleep(.2)'],self.log,5,
+                         recording_command=[sys.executable,'-c','raise SystemExit(3)']),74)
+        self.assertIn('error: native_video_finalize status=failed',self.log.read_text())
+
+    def test_fixture_shutdown_uses_owned_shell_job_and_leaves_external_child_running(self):
+        source=(ROOT/'ios/check-simulator.sh').read_text()
+        helpers='fixture_running() {'+source.split('fixture_running() {',1)[1].split('\ntrap cleanup EXIT',1)[0]
+        # Exercise the actual Bash cleanup functions, without starting Java/Xcode.
+        command=helpers+'\nsleep 10 &\nfixture_pid=$!\nfixture_running || exit 99\ncleanup\n'
+        result=subprocess.run(['bash','-c',command],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=2)
+        self.assertEqual(result.returncode,0)
+        other=self.recorder('signal.signal(signal.SIGINT,signal.SIG_IGN)')
+        command=helpers+'\nfixture_pid="$1"\ncleanup\n'
+        result=subprocess.run(['bash','-c',command,'fixture-scope-test',str(other.pid)],stdout=subprocess.DEVNULL,stderr=subprocess.DEVNULL,timeout=2)
+        self.assertEqual(result.returncode,0)
+        self.assertIsNone(other.poll(),"A PID outside the shell job table is never signalled")
+
+    def test_live_progress_and_success_counts_survive_later_failure_without_private_payloads(self):
+        name='testKnown'
+        start="Test Case '-[VoxelOneUITests.NativeWorkflowTests testKnown]' started."
+        passed=start.replace('started.','passed.')
+        code='import time;print('+repr(start)+',flush=True);print("private-fixture-marker",flush=True);time.sleep(.4);print('+repr(passed)+',flush=True)'
+        self.assertEqual(runner.run([sys.executable,'-c',code],self.log,5,{name},progress_interval=.05),0)
+        lines=self.log.read_text().splitlines()
+        live=[line for line in lines if line.startswith('error: native_test_live')]
+        self.assertTrue(live)
+        self.assertTrue(any('started=1 passed=0 failed=0 expected=1' in line for line in live))
+        self.assertNotIn('private',str(live));self.assertNotIn(name,str(live))
+        self.assertTrue(any('native_test_progress started=1 passed=1 failed=0 unfinished=0 expected=1' in line for line in lines))
+        spec=importlib.util.spec_from_file_location('live_diagnostics',ROOT/'tools/ios/client_diagnostics.py')
+        diagnostics=importlib.util.module_from_spec(spec);spec.loader.exec_module(diagnostics)
+        for line in live:self.assertEqual(diagnostics.diagnostic_line(line,ROOT)['text'],line)
 
     def test_video_window_is_bound_to_passing_offline_case_and_numeric_only(self):
         name='testNativeTerrainStreamingBeyondInitialBoundaryAndRestart'

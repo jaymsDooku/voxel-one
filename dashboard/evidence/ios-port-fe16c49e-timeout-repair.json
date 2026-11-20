@@ -1,0 +1,40 @@
+{
+  "sourceHead": "fe16c49ee7917f9153786f3df0e7457c66408f59",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44659268725",
+  "observedResult": "failed: controller client timeout; clientChecked=false; no passed native-case count available",
+  "trustedVerifierHead": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "trustedVerifierIncludes": "8a53afce99e735a7574bffab70558252577b387b",
+  "environment": "Mac run: macOS15.8.2 / Xcode16.4 / iPhone SE (3rd generation) Simulator / iOS18.5. Local repair checks: Linux.",
+  "sanitizedDiagnostics": "zero compiler/test lines; truncated128KiB windows for native-build.log and native-tests.log; no runtime logs read",
+  "image": "ios-port-fe16c49e-preflight-only.png",
+  "imageSha256": "af4b294b86e385f607d061df528ddad6faee8ab5fe3f690f5a4607715e8738b6",
+  "imageScope": "Preflight home screen only. Inspected; NOT Voxel One gameplay or native-client validation.",
+  "repair": "Bound owned recorder shutdown to10+2+2 seconds, shell-owned fixture shutdown to5 seconds, and media export to60 seconds plus2 seconds for owned process-group reap. Retain fixed phase markers and live/final test counters. All40 native cases and900/1200-second caps remain. Timeout phase/cause remains unproven.",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 -m py_compile ios/native-test-runner.py ios/check-results.py ios/make-project.py",
+    "bash -n ios/check-simulator.sh",
+    "git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b f446ad3f0c8332aa1002885468e1a20fa271018e",
+    "git diff --check"
+  ],
+  "results": [
+    "87 Linux harness tests passed. Apple command and screenshot fixtures are mocked.",
+    "Real isolated child processes exercised graceful/forced recorder shutdown, unrelated-child isolation, recorder-failure rejection, shell-owned fixture cleanup and live/final counter privacy.",
+    "Python compilation, all4 embedded Python blocks, shell syntax and diff checks passed.",
+    "Review-base audit:110 unrelated progress entries preserved; no file deletions. Intentional replacement: shell recorder lifetime is now an owned Popen handle with bounded stop/reap."
+  ],
+  "Playtest": "Affected harness/process integration ran on Linux with actual synthetic child processes. Native streaming, AVFoundation export, screenshot and short video require fresh controller Mac run; browser playtesting does not apply to this CLI harness. Prior36-case b2518472 pass is historical and does not qualify current source.",
+  "qualificationPending": [
+    "Current40-case exact-source native suite and gameplay media inspection",
+    "Additional iPhone Simulator size",
+    "Remaining engine parity and live VPS qualification",
+    "Signed iPhone install and physical-device measurements",
+    "Independent exact-head review"
+  ],
+  "repairSourceSha256": {
+    "ios/check-simulator.sh": "2e91ead518bcb51bff2c89dfceba67a69525b42ce36130bf19d0be07c1176a90",
+    "ios/native-test-runner.py": "e78f81c0cc59792881812333afdfb140ead10307b77c4356c85e94c042f458c8",
+    "tools/ios/test_native_deadline.py": "cc9d4ce8e92de57a188a6e64783747b4aa6b67fdc9b1daed30bd6eeedb35ca4e"
+  },
+  "publication": "Pending controller publication"
+}

@@ -10,6 +10,7 @@ import signal
 import subprocess
 import threading
 import time
+import uuid
 
 TAIL_BYTES = 65536
 _CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart"}
@@ -152,8 +153,57 @@ class TestProgress:
                 lines.append('error: native_workflow_checkpoint code=' + self.last_checkpoint)
             return lines
 
+    def live(self):
+        """Fixed counters only; safe even if the outer host deadline interrupts us."""
+        with self.lock:
+            active = self.active if self.active in self.allowed else None
+            suffix = ' active_id=' + (hashlib.sha256(active.encode()).hexdigest()[:12] if active else 'none')
+            elapsed = min(900, max(0, int(time.monotonic() - self.started_at)))
+            return ('error: native_test_live started=' + str(len(self.started)) +
+                    ' passed=' + str(len(self.passed)) + ' failed=' + str(len(self.failed)) +
+                    ' expected=' + str(len(self.allowed)) + suffix + ' elapsed_seconds=' + str(elapsed))
 
-def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None):
+
+def stop_recording(process, *, grace=10, terminate_grace=2):
+    """Signal/reap only the child represented by this owned Popen handle."""
+    if process.poll() is not None:
+        return process.returncode == 0
+    try:
+        process.send_signal(signal.SIGINT)
+    except ProcessLookupError:
+        return process.wait(timeout=terminate_grace) == 0
+    try:
+        return process.wait(timeout=grace) == 0
+    except subprocess.TimeoutExpired:
+        process.terminate()
+        try:
+            process.wait(timeout=terminate_grace)
+        except subprocess.TimeoutExpired:
+            process.kill()
+            process.wait(timeout=terminate_grace)
+        # Forced termination cannot qualify a possibly incomplete recording.
+        return False
+
+
+def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None,
+        recording_command=None, progress_interval=30):
+    log.parent.mkdir(parents=True, exist_ok=True)
+    # Keep ownership of the recorder in Python: shell wait after SIGINT has no
+    # deadline and can consume the controller's entire1200-second client budget.
+    if recording_command is not None:
+        with (log.parent / 'recorder.log').open('wb') as recording_log:
+            recorder = subprocess.Popen(recording_command, stdout=recording_log,
+                                        stderr=subprocess.STDOUT, start_new_session=True)
+            try:
+                result = run(command, log, timeout, allowed, fail_fast, video_timing,
+                             progress_interval=progress_interval)
+            finally:
+                complete = stop_recording(recorder)
+            if not complete:
+                with log.open('a') as output:
+                    output.write('\nerror: native_video_finalize status=failed\n')
+                return result if result != 0 else 74
+            return result
     log.parent.mkdir(parents=True, exist_ok=True)
     if allowed is None:
         root = Path(__file__).resolve().parents[1]
@@ -164,7 +214,7 @@ def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None)
     timed_out = False
     if video_timing is not None:
         video_timing.unlink(missing_ok=True)
-    with log.open('wb') as output:
+    with log.open('wb', buffering=0) as output:
         process = subprocess.Popen(command, stdout=output, stderr=subprocess.STDOUT,
                                    start_new_session=True)
         progress = TestProgress(log, allowed)
@@ -172,7 +222,13 @@ def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None)
         failed_early=False
         try:
             deadline=time.monotonic()+timeout
+            next_progress=time.monotonic()+max(.05, progress_interval)
             while True:
+                if time.monotonic() >= next_progress:
+                    # Parent and child share this open file description/offset.
+                    # One unbuffered write preserves the narrow marker at the tail.
+                    output.write(('\n' + progress.live() + '\n').encode())
+                    next_progress=time.monotonic()+max(.05, progress_interval)
                 with progress.lock:
                     failed_early=fail_fast and bool(progress.failed)
                 if failed_early:
@@ -216,6 +272,12 @@ def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None)
                     # Numeric media range only. No XCTest payloads or form values.
                     video_timing.write_text(json.dumps({'offsetSeconds': offset,
                                                         'durationSeconds': min(40, duration)}) + '\n')
+    # Persist completion counters even on success. A later recorder/export wait
+    # must not hide an otherwise completed native suite from bounded diagnostics.
+    if result == 0:
+        with log.open('a') as output:
+            for marker in markers:
+                output.write('\n' + marker + '\n')
     if result != 0:
         with log.open('a') as output:
             if timed_out:
@@ -320,15 +382,22 @@ def record_failure(log, root):
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument('--timeout', type=int, default=900)
+    parser.add_argument('--simulator', required=True)
     parser.add_argument('command', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command[1:] if args.command[:1] == ['--'] else args.command
     if not 1 <= args.timeout <= 900 or not command:
         parser.error('timeout must be 1..900 seconds and a child command is required')
+    try:
+        simulator = str(uuid.UUID(args.simulator))
+    except ValueError:
+        parser.error('the assigned simulator UUID is required')
     root = Path(__file__).resolve().parents[1]
     log = root / 'ios/build/native-tests.log'
     result = run(command, log, args.timeout, fail_fast=True,
-                 video_timing=root / 'ios/build/native-video-window.json')
+                 video_timing=root / 'ios/build/native-video-window.json',
+                 recording_command=['xcrun', 'simctl', 'io', simulator, 'recordVideo', '--codec=h264',
+                                    str(root / 'ios/build/native-workflow.mp4')])
     if result != 0:
         record_failure(log, root)
     return result

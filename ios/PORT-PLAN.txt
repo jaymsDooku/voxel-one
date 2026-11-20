@@ -1076,3 +1076,42 @@ only numeric start/duration for the fixed passing offline streaming case. A
 host-side AVFoundation utility exports at most40 seconds below6MB with metadata
 removed; raw recordings/timings stay ignored. Missing timing/video/export fails
 qualification. This path has not executed on Mac yet and cannot claim video.
+
+
+Streaming Mac timeout and bounded cleanup repair
+Exact source fe16c49ee7917f9153786f3df0e7457c66408f59 did not pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44659268725
+The controller's1200-second client timeout fired. Sanitized diagnostics contain
+zero compiler/test lines; both native logs exceeded the128KiB diagnostic window.
+No native-case counts or completed workflow can be inferred from this report.
+Only preflight.png was returned and inspected: Simulator home screen, not game
+validation. Copy is labelled ios-port-fe16c49e-preflight-only.png. The trusted
+workflow used master f446ad3f, containing independently reviewed cap fix8a53afce.
+Prior36-case b2518472 success remains historical; current40-case qualification
+and actual gameplay screenshot/video are still pending.
+
+Inspection found unbounded shell waits after recorder SIGINT and fixture TERM.
+That is a concrete harness defect, but the timeout report does not prove which
+phase consumed the budget. Recorder lifetime now belongs to a Python Popen
+handle: SIGINT permits10 seconds, then TERM2 seconds, then KILL/reap2 seconds.
+Forced/nonzero recorder shutdown fails qualification. Signals target only the
+owned child. The Java fixture permits5 seconds for TERM before KILL, verifies
+the PID is a running job owned by this shell, then reaps it. AVFoundation export
+has a60-second subprocess deadline plus2 seconds for owned process-group reap.
+Swift compiler output uses the existing
+bounded native-build.log diagnostic channel. No extra Simulator is created and
+only the controller-supplied UUID is recorded.
+
+Fixed phase literals are appended to the existing build diagnostic log. Native
+test counters plus an allowlisted active-test hash are emitted every30 seconds;
+final counters are retained even after a passing child, so a later media/export
+failure can be diagnosed without runtime logs. No assertion payload, account,
+URL or environment values enter these markers. Child900-second and controller
+1200-second limits, all40 required tests, structured receipts and independent
+native review stay required. No app behavior was changed by this repair.
+
+Playtest: Linux process/CLI integration only. Actual child processes exercised
+graceful recorder shutdown, forced shutdown with INT/TERM ignored, unrelated
+child isolation, failing recorder rejection, shell-owned fixture cleanup and
+safe live/final counters. Native streaming gameplay and video export still need
+a fresh exact-source Mac run; browser testing does not apply to this harness.

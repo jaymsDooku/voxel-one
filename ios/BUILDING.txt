@@ -284,3 +284,15 @@ streaming test; AVFoundation exports at most40 seconds with metadata removed,
 below6MB. No optional ffmpeg installation is required. A missing recording,
 range or export fails qualification rather than silently omitting video. This
 new capture path awaits the controller Mac run and media inspection.
+
+
+Native validation cleanup bounds
+The recorder is owned/reaped by ios/native-test-runner.py with SIGINT10 seconds,
+TERM2 seconds and KILL/reap2 seconds. Forced shutdown is a validation failure.
+Fixture shutdown checks the shell's owned job table and allows5 seconds before
+KILL. AVFoundation export allows60 seconds plus2 seconds for process-group reap.
+Fixed phase markers, live test
+counts every30 seconds and final counts survive later media failure through the
+existing bounded diagnostic collector; no raw logs or form values are evidence.
+All40 native cases, the900-second child cap and1200-second outer cap remain.
+Mac source fe16c49e timed out without native proof; this repair awaits rerun.
