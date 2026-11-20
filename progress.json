@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:22:14+00:00",
+  "updatedAt": "2026-11-20T23:24:52+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4488,6 +4488,15 @@
       "status": "in_progress",
       "note": "Fixed and verified on Windows RTX 3060. Striping reduced 91% on the spire and 81% on the dormer cap. Submitted PR 94 for repository review.",
       "updatedAt": "2026-11-20T23:22:14+00:00"
+    },
+    {
+      "id": "voxel-tower-side-shadow",
+      "title": "Westminster clock tower side shadow",
+      "description": "Comparing the shaded Elizabeth Tower shaft with adjacent trim and sealed spaces under fixed daylight.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Comparing the shaded Elizabeth Tower shaft with adjacent trim and sealed spaces under fixed daylight.",
+      "updatedAt": "2026-11-20T23:24:52+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
