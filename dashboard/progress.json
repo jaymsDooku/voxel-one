@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T02:21:08+00:00",
+  "updatedAt": "2026-11-20T03:13:55+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -17,32 +17,57 @@
     {
       "id": "ded4d353-5ee3-47bd-9c46-04b3ee7f53d9",
       "title": "HCF / PotPvP 2 \u2014 Playable No Debuff and Debuff duels",
-      "description": "Inspecting merged combat and Basalt Courtyard contracts. Building a separate opt-in practice client and authoritative duel transport; City, Sandbox and existing saves remain compatible. Local milestones await controller publication.",
+      "description": "Opt-in No Debuff and Debuff duels, with server-owned combat, isolated matches and recovery when pre-round peers leave.",
       "evidence": [
         {
           "kind": "video",
-          "label": "Two-client native duel; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-real-duel.mp4"
+          "label": "Historical aacdd747: Two-client native duel",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/aacdd74724f5c8fd89fe5e27f9e633366d4d5e81/dashboard/evidence/practice-real-duel.mp4"
         },
         {
           "kind": "video",
-          "label": "Production controls and actual F10; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-controls.mp4"
+          "label": "Historical aacdd747: Production controls and actual F10",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/aacdd74724f5c8fd89fe5e27f9e633366d4d5e81/dashboard/evidence/practice-controls.mp4"
         },
         {
           "kind": "image",
-          "label": "150 ms Debuff result; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-150ms-result.png"
+          "label": "Historical aacdd747: 150 ms Debuff result",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/aacdd74724f5c8fd89fe5e27f9e633366d4d5e81/dashboard/evidence/practice-150ms-result.png"
         },
         {
           "kind": "report",
-          "label": "Validation report; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/docs/practice-duels-validation.md"
+          "label": "Historical aacdd747: Validation report",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/aacdd74724f5c8fd89fe5e27f9e633366d4d5e81/docs/practice-duels-validation.md"
+        },
+        {
+          "kind": "video",
+          "label": "Revised real duel; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-duel.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "READY recovery with actual F10; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-recovery.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Recovered replacement duel; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-recovered-live.png"
+        },
+        {
+          "kind": "image",
+          "label": "Revised 150 ms Debuff result; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-150ms-result.png"
+        },
+        {
+          "kind": "report",
+          "label": "Lifecycle fixes and validation; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/docs/practice-duels-lifecycle-validation.md"
         }
       ],
       "status": "in_progress",
-      "note": "Implementation and local validation complete. Final Java 17 Maven verify passed 99 tests across 12 suites and built client/server/launcher artifacts. Two real native clients passed normal/80/150 ms workflows with 1679/1630/1690 matching authoritative ticks. Actual F10 controls and duel clips are below 6 MB and visually checked. Full local verify ended 143 after 564 completed tests; no full-run pass is claimed. Controller master synchronization, publication, exact-head hosted CI and independent review remain pending. Physical-GPU qualification remains gated.",
-      "updatedAt": "2026-11-20T02:21:08+00:00"
+      "note": "Fixed both reviewed lifecycle bugs: matchmaking requires a live waiter; READY supports immediate N requeue and cancels on existing reconnect-grace expiry without a combat win. Three real-TLS regressions failed before the fix. Revised verification passed 105 tests, packaging and native normal/80/150 ms workflows (1696/1654/1663 matching ticks). Production R/N/R and actual F10 recovery passed; fresh clips are below 6 MB and fully decoded. Revised-source publication, hosted CI and independent review/150 ms repeat remain pending. Physical-GPU qualification still gates stable rollout.",
+      "updatedAt": "2026-11-20T03:13:55+00:00"
     },
     {
       "id": "hcf-potpvp-1b-basalt-courtyard",

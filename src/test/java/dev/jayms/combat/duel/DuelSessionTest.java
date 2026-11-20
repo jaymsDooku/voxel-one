@@ -71,6 +71,15 @@ class DuelSessionTest {
         session.connected(1,false);for(int i=0;i<5;i++)session.step();assertTrue(session.state().result().contains("Disconnect: A wins"));
         session=new DuelSession(DuelSession.Profile.NO_DEBUFF,world,1,2,2);seq=new long[2];session.connected(0,true);session.connected(1,true);start();session.step();assertEquals("Draw: time limit",session.state().result());
     }
+    @Test void readyGraceCancelsBothDeparturesWithoutAwardingACombatWin(){
+        assertTrue(op(0,DuelSession.Op.READY,0,0));
+        session.connected(0,false);session.connected(1,false);
+        for(int i=0;i<4;i++)session.step();assertEquals(DuelSession.Phase.READY,session.phase());
+        session.step();assertEquals(DuelSession.Phase.RESULT,session.phase());
+        assertEquals("Ready cancelled: both disconnected",session.state().result());
+        assertEquals(0,session.state().fighters().get(0).score().hits());assertEquals(20,body(0).health());
+        session.connected(0,true);assertTrue(op(0,DuelSession.Op.QUEUE,0,0));
+    }
     @Test void exactSweepsCoverCornersAndArenaBounds(){
         assertEquals(.5,world.firstSolid(new Vec3(12,1.5,5),new Vec3(12,1.5,15),0).orElseThrow(),1e-9);
         assertTrue(world.firstSolid(new Vec3(9.8,2.2,9.8),new Vec3(9.8,2.2,10),.1).isEmpty());

@@ -1,5 +1,7 @@
 # Practice duel validation
 
+Historical validation of the initial `aacdd747` implementation. Its hosted Java 17 checks later passed on all four platforms (802 tests each, no failures/errors, one optional browser skip). Independent review then found two pre-round lifecycle defects. See [the lifecycle follow-up](practice-duels-lifecycle-validation.md) for fixes, new real-TLS regressions and fresh media. Earlier readiness does not qualify the changed source.
+
 Local implementation and workflow checks passed. Controller integration, publication, exact-head hosted CI and independent review remain pending. Physical-GPU performance is unqualified and gates stable rollout. No pending check is a pass.
 
 ## Environment and Maven

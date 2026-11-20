@@ -35,6 +35,10 @@ public final class DuelServer implements AutoCloseable {
             session=new DuelSession(profile,new CourtyardCombatWorld(arena));
             if(drill) {session.connected(1,true);session.submit(1,DuelSession.Command.operation(session.epoch(),nextSequence[1]++,DuelSession.Op.READY,0,0));}
         }
+        boolean waitingForOpponent(DuelSession.Profile profile) {
+            return !drill && session.phase()==DuelSession.Phase.QUEUE && session.state().profile()==profile
+                    && players[0]!=null && !players[0].dead && players[1]==null;
+        }
         public void close() {try{arena.close();}catch(Exception ignored){}}
     }
     public DuelServer(SSLContext tls,InetAddress bind,int port,boolean drill) throws IOException {
@@ -103,7 +107,7 @@ public final class DuelServer implements AutoCloseable {
             if(side<0 || (drill && side==1) || room.session.state().profile()!=hello.profile()) throw new IOException("Reconnect unavailable");
             if(room.players[side]!=null) room.players[side].stop();
         } else {
-            for(Room r:rooms) if(r.session.state().profile()==hello.profile() && r.session.phase()==DuelSession.Phase.QUEUE && r.players[1]==null && !drill) {room=r;side=1;break;}
+            for(Room r:rooms) if(r.waitingForOpponent(hello.profile())) {room=r;side=1;break;}
             if(room==null) {
                 if(rooms.size()>=MAX_ROOMS) throw new IOException("Practice queue full");
                 room=new Room(hello.profile());rooms.add(room);side=0;
@@ -125,9 +129,9 @@ public final class DuelServer implements AutoCloseable {
                     for(int n=0;n<4;n++) {
                         var command=p.inbox.poll();if(command==null) break;
                         room.nextSequence[i]=Math.max(room.nextSequence[i],command.sequence()+1);
-                        if(command.op()==DuelSession.Op.QUEUE && room.session.phase()==DuelSession.Phase.RESULT && command.epoch()==room.session.epoch()) {
+                        if(command.op()==DuelSession.Op.QUEUE && room.session.canQueue() && command.epoch()==room.session.epoch()) {
                             if(room.session.submit(i,command)) {
-                                boolean waiting=rooms.stream().anyMatch(r->r!=room && r.session.state().profile()==room.session.state().profile() && r.session.phase()==DuelSession.Phase.QUEUE && r.players[1]==null && !drill);
+                                boolean waiting=rooms.stream().anyMatch(r->r!=room && r.waitingForOpponent(room.session.state().profile()));
                                 if(rooms.size()>=MAX_ROOMS && !waiting) {
                                     p.offer(DuelWire.frame(DuelWire.ERROR,o->o.writeUTF("Practice queue full. Retry shortly.")));break;
                                 }

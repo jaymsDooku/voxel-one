@@ -68,6 +68,7 @@ public final class DuelSession {
     }
     public long epoch() { return epoch; }
     public Phase phase() { return phase; }
+    public boolean canQueue() { return phase==Phase.READY || phase==Phase.RESULT; }
     public void connected(int side,boolean value) {
         side(side);connected[side]=value;input[side]=null;leftAt[side]=tick;
         if(!value) ready[side]=false;
@@ -89,7 +90,7 @@ public final class DuelSession {
                 }
             }
             case QUEUE -> {
-                if(phase!=Phase.RESULT) return false;
+                if(!canQueue()) return false;
                 ready[side]=false;input[side]=null; // transport moves this participant into a fresh room
             }
             case FORFEIT -> {
@@ -130,9 +131,13 @@ public final class DuelSession {
     public void step() {
         tick++;Arrays.fill(received,0);events=List.of();
         if(phase==Phase.WARMUP && tick-phaseAt>=warmupTicks) start();
-        if(phase==Phase.LIVE || phase==Phase.WARMUP) {
+        if(phase==Phase.READY || phase==Phase.LIVE || phase==Phase.WARMUP) {
             boolean a=!connected[0] && tick-leftAt[0]>=graceTicks,b=!connected[1] && tick-leftAt[1]>=graceTicks;
-            if(a || b) { finish(a && b?"Draw: both disconnected":"Disconnect: "+IDS[a?1:0]+" wins");return; }
+            if(a || b) {
+                if(phase==Phase.READY) finish(a && b?"Ready cancelled: both disconnected":"Ready cancelled: "+IDS[a?0:1]+" disconnected");
+                else finish(a && b?"Draw: both disconnected":"Disconnect: "+IDS[a?1:0]+" wins");
+                return;
+            }
         }
         if(phase!=Phase.LIVE) return;
         for(int i=0;i<2;i++) move(i);

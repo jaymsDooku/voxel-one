@@ -8,7 +8,7 @@
 4. Test the real fixture and transport, then two rendered clients at normal, approximately 80 ms and 150 ms RTT. Record tick/input/frame observations and F10-path media under 6 MB.
 5. Run Java 17 Maven checks. Controller synchronizes master and publishes source/media; rerun affected checks after integration. Hosted CI and independent review remain required. Physical GPU qualification remains pending and gates stable rollout.
 
-Steps 1–4 are implemented and locally exercised. Final targeted Maven `verify` passed 99 tests and packaged the application. See [the validation report](practice-duels-validation.md) for actual commands, native latency results, media and the incomplete full-run attempt. Controller synchronization/publication and full hosted CI remain pending.
+Steps 1–4 are implemented and locally exercised. The [initial report](practice-duels-validation.md) records the original checks. The [lifecycle follow-up](practice-duels-lifecycle-validation.md) records the reviewed queue/READY fixes, 105 passing tests and fresh native latency and keyboard media. Revised-source controller publication, hosted CI and independent review remain pending.
 
 ## Bounded defaults
 
@@ -43,11 +43,13 @@ Each match owns a fresh resident Basalt fixture, with stable world identity `pra
 | E | Kit editor between rounds. Arrows choose a slot; Enter marks the first slot, then swaps it with the second |
 | F | Refill an empty selected hotbar slot from the first nonempty reserve slot; no supplies are created |
 | R | Ready / accept rematch |
-| Q / N | Forfeit / enter a new queue after the result |
+| Q / N | Forfeit / enter a new queue from READY or after the result |
 | C / Esc | Reconnect in the same process / leave |
 | F10 | Start / stop the engine MP4 recorder |
 
 Both participants ready in separate galleries. A three-second warmup precedes placement at the arena's facing starts. Editing, flight and terrain changes have no practice transport commands. A kill, timeout, forfeit or expired reconnect grace ends the match. Results show both players' hits, longest uninterrupted combo, splash pots used, splash pots remaining and health. Rematch requires both participants and creates fresh inventory, armor, effects, cooldown, projectile and pose state. A new queue leaves the old room and seeks a fresh opponent. A disconnected body remains in the round during the ten-second grace; an expired grace awards the connected opponent a win. Two expired disconnects draw.
+
+Before a round starts, N can leave READY immediately and seek another opponent. A READY disconnect keeps the existing ten-second reconnect grace; expiry cancels the pairing without awarding a combat win. A returning player must ready again. New queue entrants join only a room with a live waiting peer. An abandoned room can retain its reconnect lease, but cannot absorb unrelated newcomers.
 
 The table shows default movement, attack/use, inventory, hotbar and recording keys. Practice reads the existing `controls.properties` bindings and mouse sensitivity for those actions. It adds no flight or block-edit action. The HUD's compact hints show defaults.
 
@@ -63,6 +65,6 @@ Each connection retains at most four output frames. Backpressure coalesces queue
 
 ## Validation plan
 
-Run `DuelSessionTest` for real geometry, movement bounds, stale epochs, finite inventory, profiles, splash, pearl, round reset, disconnect and timeout. Run `DuelTransportTest` for bounded framing, two real pinned-TLS clients, exact-tick agreement, spectator/room isolation, reconnect, rematch and queue. Preserve existing combat, protocol, identity, Player and City regressions with Maven `verify`.
+Run `DuelSessionTest` for real geometry, movement bounds, stale epochs, finite inventory, profiles, splash, pearl, round reset, disconnect and timeout. Run `DuelTransportTest` for bounded framing, two real pinned-TLS clients, exact-tick agreement, spectator/room isolation, reconnect, rematch and queue. `DuelLifecycleTest` covers abandoned waiters, READY departure/requeue from both seats, grace expiry and reconnect consent over real TLS. `DuelLifecyclePlaytest` drives the production R/N/R recovery flow with real companion clients and the native keyboard. Preserve existing combat, protocol, identity, Player and City regressions with Maven `verify`.
 
 `PracticePlaytest` drives two real TLS clients and two native `PracticeView` windows against one server per latency case. It adds 0, 40 or 75 ms in each direction without serial per-packet sleeps, for normal, approximately 80 ms and 150 ms simulated RTT. Inputs use the same public client API as the native controls. It compares both clients' snapshots for matching authoritative ticks and records input frame, view frame, tick, health, hits, feet and impulses. Its scenarios cover spacing, sprint release/repress, counter-combos, self/opponent/forward/missed splashes, refill, profile effects, pearl escape/cooldown/wall containment, cover rejection, reconnect, forfeit, stale action and rematch reset. F10-path recording and screenshots come from the tested native views. Software rendering is workflow evidence, not physical-GPU performance qualification.
