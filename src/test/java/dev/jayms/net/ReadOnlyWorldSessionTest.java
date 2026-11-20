@@ -33,7 +33,7 @@ public class ReadOnlyWorldSessionTest {
     @Test public void opensPartialWorldAndPublishesOnlyRequestedCpuGeometry()throws Exception {
         var file=fixture("geometry");var bytes=Files.readAllBytes(file);var scratch=folder.resolve("scratch");
         try(var session=new ReadOnlyWorldSession(file,scratch)) {
-            assertThrows(IOException.class,session::world);ready(session);var world=session.world();assertEquals(2,session.status().checkedRows());assertTrue(world.hasReplayReadView());assertEquals(0,session.status().readyCpuChunks());assertEquals(0,session.status().readyGpuChunks());assertTrue(world.getLoadedChunks().isEmpty());
+            assertThrows(IOException.class,session::world);assertThrows(IOException.class,session::snapshotFingerprint);ready(session);assertEquals(HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes)),session.snapshotFingerprint());var world=session.world();assertEquals(2,session.status().checkedRows());assertTrue(world.hasReplayReadView());assertEquals(0,session.status().readyCpuChunks());assertEquals(0,session.status().readyGpuChunks());assertTrue(world.getLoadedChunks().isEmpty());
             assertThrows(IllegalStateException.class,()->world.apply(new Protocol.Edit(3,160,0,Blocks.STONE)));assertThrows(IllegalStateException.class,world::beginStructureSnapshot);
             session.desired(List.of(CHUNK));cpu(session);assertTrue(world.replayDataReady(0,160,0));assertFalse(world.isLoaded(0,160,0));assertEquals(WorldVoxels.encode(Blocks.STONE),world.cell(0,160,0).uniform(0,0,0,16));assertTrue(Blocks.structureModel(WorldVoxels.decode(world.cell(1,160,0).uniform(0,0,0,16))));
             assertFalse(world.replayDataReady(64,160,0));assertThrows(World.UnloadedReplayCellException.class,()->world.cell(64,160,0));assertArrayEquals(bytes,Files.readAllBytes(file));closed(session);assertTrue(world.isClosed());assertThrows(IOException.class,session::world);
@@ -52,7 +52,7 @@ public class ReadOnlyWorldSessionTest {
             assertThrows(CancellationException.class,()->session.poll(()->true));assertThrows(IOException.class,session::world);var calls=new AtomicInteger();
             long end=System.nanoTime()+20_000_000_000L;
             while(session.poll(()->{
-                calls.incrementAndGet();assertTrue(assertDoesNotThrow(session::status).ownerStepActive());assertThrows(IOException.class,session::world);assertThrows(IOException.class,()->session.poll(()->false));assertThrows(IOException.class,session::close);return false;
+                calls.incrementAndGet();assertTrue(assertDoesNotThrow(session::status).ownerStepActive());assertThrows(IOException.class,session::world);assertThrows(IOException.class,session::snapshotFingerprint);assertThrows(IOException.class,()->session.poll(()->false));assertThrows(IOException.class,session::close);return false;
             }).state()!=ReadOnlyWorldSession.State.READY&&System.nanoTime()<end)Thread.sleep(5);
             assertTrue(calls.get()>0);assertEquals(ReadOnlyWorldSession.State.READY,session.status().state());assertFalse(session.status().ownerStepActive());session.desired(List.of(CHUNK));cpu(session);
             assertThrows(CancellationException.class,()->session.pumpGpu(0,System.nanoTime()+1_000_000,()->true));assertEquals(ReadOnlyWorldSession.State.READY,session.status().state());assertEquals(0,session.status().readyGpuChunks());closed(session);
@@ -60,7 +60,7 @@ public class ReadOnlyWorldSessionTest {
     }
     @Test public void foreignThreadCannotPollReadDemandUploadOrClose()throws Exception {
         var file=fixture("owner");var executor=Executors.newSingleThreadExecutor();try(var session=new ReadOnlyWorldSession(file,folder.resolve("owner-scratch"))) {
-            executor.submit(()->{assertThrows(IOException.class,()->session.poll(()->false));assertThrows(IOException.class,session::status);assertThrows(IOException.class,session::world);assertThrows(IOException.class,()->session.desired(List.of(CHUNK)));assertThrows(IOException.class,session::tick);assertThrows(IOException.class,()->session.pumpGpu(0,0,()->false));assertThrows(IOException.class,session::close);return null;}).get(10,TimeUnit.SECONDS);
+            executor.submit(()->{assertThrows(IOException.class,()->session.poll(()->false));assertThrows(IOException.class,session::status);assertThrows(IOException.class,session::snapshotFingerprint);assertThrows(IOException.class,session::world);assertThrows(IOException.class,()->session.desired(List.of(CHUNK)));assertThrows(IOException.class,session::tick);assertThrows(IOException.class,()->session.pumpGpu(0,0,()->false));assertThrows(IOException.class,session::close);return null;}).get(10,TimeUnit.SECONDS);
             ready(session);closed(session);
         }finally{executor.shutdownNow();assertTrue(executor.awaitTermination(10,TimeUnit.SECONDS));}
     }
@@ -69,7 +69,7 @@ public class ReadOnlyWorldSessionTest {
         Files.write(file,new byte[]{1},StandardOpenOption.APPEND);
         try(var session=new ReadOnlyWorldSession(file,folder.resolve("bad-scratch"))) {
             long end=System.nanoTime()+20_000_000_000L;while(session.status().state()==ReadOnlyWorldSession.State.OPENING&&System.nanoTime()<end)Thread.sleep(5);
-            assertEquals(ReadOnlyWorldSession.State.FAILED,session.status().state());assertNotNull(session.status().failure());assertThrows(IOException.class,session::world);assertThrows(IOException.class,()->session.poll(()->false));closed(session);
+            assertEquals(ReadOnlyWorldSession.State.FAILED,session.status().state());assertNotNull(session.status().failure());assertThrows(IOException.class,session::world);assertThrows(IOException.class,session::snapshotFingerprint);assertThrows(IOException.class,()->session.poll(()->false));closed(session);
         }
     }
     @Test public void independentSessionsStayIsolatedWhenOneModelMapOrWorldChanges()throws Exception {

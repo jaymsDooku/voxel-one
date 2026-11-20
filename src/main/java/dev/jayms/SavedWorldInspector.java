@@ -4,6 +4,7 @@ import dev.jayms.net.*;
 import dev.jayms.recording.ScreenRecorder;
 import dev.jayms.ui.Controls;
 import dev.jayms.ui.Overlay;
+import dev.jayms.ui.SavedRegionCapturePanel;
 import dev.jayms.window.Window;
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
@@ -16,7 +17,8 @@ import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33.*;
 
 /** Explicit read-only native view. Never starts LocalGame, login, simulation,
- * resident replay, editing or saving. The ordinary client remains separate. */
+ * resident replay, editing or source-world saving. A separate saved-file worker
+ * can export selected construction. The ordinary client remains separate. */
 public final class SavedWorldInspector {
     record Options(Path file,float x,float y,float z) {}
     record Frame(String stage,int checkedRows,int cpuChunks,int gpuChunks,int failedChunks,
@@ -69,7 +71,7 @@ public final class SavedWorldInspector {
     private final Thread owner=Thread.currentThread();
     private final Camera camera=new Camera();
     private Window window;private ShaderProgram shader;private Overlay overlay;private ScreenRecorder recorder;
-    private ReadOnlyWorldSession session;private Path scratch;private List<ChunkPos> desired=List.of();
+    private ReadOnlyWorldSession session;private SavedRegionCapturePanel capturePanel;private Path scratch;private List<ChunkPos> desired=List.of();
     private int width=960,height=640;private long frames;private String fatal;private boolean closed;
     SavedWorldInspector(Options options){this.options=Objects.requireNonNull(options);Objects.requireNonNull(options.file());if(!validPosition(options.x(),options.y(),options.z()))throw new IllegalArgumentException("Inspection position bounds");camera.position().set(options.x(),options.y(),options.z());}
     private void owner(){if(Thread.currentThread()!=owner||closed)throw new IllegalStateException("Inspection owner unavailable");}
@@ -77,6 +79,8 @@ public final class SavedWorldInspector {
     World world()throws IOException{owner();return session.world();}
     Vector3f position(){owner();return new Vector3f(camera.position());}
     void toggleRecording(){owner();recorder.toggle(width,height);}
+    SavedRegionCapturePanel capturePanel(){owner();return capturePanel;}
+    private dev.jayms.net.structure.StructurePackage.Position cameraCell(){var p=camera.position();return new dev.jayms.net.structure.StructurePackage.Position((int)Math.floor(p.x),(int)Math.floor(p.y),(int)Math.floor(p.z));}
     /** Shared keyboard/capture control path. Free camera only: no collision,
      * movement permission or state is written into the saved world. */
     void control(int forward,int strafe,int vertical,int yaw,int pitch,float seconds) {
@@ -89,6 +93,7 @@ public final class SavedWorldInspector {
     }
     private int key(int code){return glfwGetKey(window.getHandle(),code)==GLFW_PRESS?1:0;}
     private void input(float seconds) {
+        if(capturePanel.open())return;
         control(key(GLFW_KEY_W)-key(GLFW_KEY_S),key(GLFW_KEY_D)-key(GLFW_KEY_A),key(GLFW_KEY_SPACE)-key(GLFW_KEY_LEFT_SHIFT),
                 key(GLFW_KEY_RIGHT)-key(GLFW_KEY_LEFT),key(GLFW_KEY_UP)-key(GLFW_KEY_DOWN),seconds);
     }
@@ -99,6 +104,7 @@ public final class SavedWorldInspector {
         if(fatal==null)try {
             if(status.state()==ReadOnlyWorldSession.State.OPENING)status=session.poll(window::shouldClose);
             if(status.state()==ReadOnlyWorldSession.State.READY) {
+                capturePanel.bindSnapshot(session.snapshotFingerprint());
                 var p=camera.position();var direction=camera.getDirection();ray=session.trace(p,direction,32);
                 var next=new LinkedHashSet<ChunkPos>();next.add(ChunkPos.fromBlock((int)Math.floor(p.x),(int)Math.floor(p.y),(int)Math.floor(p.z)));
                 if(ray.unavailable()!=null){var cell=ray.unavailable();var chunk=ChunkPos.fromBlock(cell.x(),cell.y(),cell.z());if(validChunk(chunk))next.add(chunk);}
@@ -121,9 +127,12 @@ public final class SavedWorldInspector {
             overlay.text(fatal!=null?fatal:stage.equals("opening")?"Checking saved data: "+status.checkedRows()+" rows":queryLabel(ray),20,58,1.3f);
             overlay.text("Visible regions ready: "+status.readyGpuChunks()+" / "+desired.size(),20,82,1.2f);
             if(status.failedChunks()>0)overlay.text("Region exceeds inspection limits; move to another region",20,106,1.2f);
-            overlay.text("WASD move | Space / Shift up / down | Arrows look",20,height-58,1.1f);overlay.text("F10 record | Escape close | No edits or saves",20,height-36,1.1f);
+            overlay.text("WASD move | Space / Shift up / down | Arrows look",20,height-58,1.1f);overlay.text("F10 record | F12 capture | Escape close | No world edits",20,height-36,1.1f);
+            var capturing=capturePanel.status();
+            if(!capturePanel.open()&&capturing.state()==SavedRegionCapturePanel.State.RUNNING)overlay.text(capturing.message()+" "+capturing.progress()+"% | F12 for cancel",20,124,1.1f);
             String recording=recorder.status("F10");if(!recording.isEmpty())overlay.text(recording,20,height-82,1.1f);
-            overlay.text("+",width/2f-3,height/2f,1.3f);overlay.end();
+            capturePanel.render(overlay,width,height);
+            if(!capturePanel.open())overlay.text("+",width/2f-3,height/2f,1.3f);overlay.end();
         }
         return result;
     }
@@ -138,7 +147,14 @@ public final class SavedWorldInspector {
             window=new Window(width,height,"Voxel One Saved World Inspector",true,true);window.setOpenGlContext();GL.createCapabilities();window.vSync();window.init();
             shader=new ShaderProgram("shaders/voxel.vert","shaders/inspection.frag");overlay=new Overlay();recorder=new ScreenRecorder(Controls.directory().resolve("recordings"));
             window.registerKeyListener(GLFW_KEY_F10,GLFW_PRESS,this::toggleRecording);
-            scratch=Files.createTempDirectory("voxel-inspection-");session=new ReadOnlyWorldSession(options.file(),scratch,2,8192);
+            scratch=Files.createTempDirectory("voxel-inspection-");
+            capturePanel=new SavedRegionCapturePanel(options.file(),Controls.directory().resolve("structures"),scratch.resolve("capture"));
+            window.registerKeyListener(GLFW_KEY_F12,GLFW_PRESS,capturePanel::toggle);
+            window.registerKeyListener(GLFW_KEY_BACKSPACE,GLFW_PRESS,capturePanel::backspace);
+            window.registerKeyListener(GLFW_KEY_BACKSPACE,GLFW_REPEAT,capturePanel::backspace);
+            window.registerKeyListener(GLFW_KEY_ENTER,GLFW_PRESS,()->capturePanel.enter(cameraCell()));
+            glfwSetCharCallback(window.getHandle(),(handle,value)->capturePanel.character(value));
+            session=new ReadOnlyWorldSession(options.file(),scratch,2,8192);
             if(observer!=null)observer.started(this);long previous=System.nanoTime();
             while(!window.shouldClose()) {
                 long start=System.nanoTime();input(Math.min(.05f,(start-previous)/1_000_000_000f));previous=start;
@@ -147,12 +163,21 @@ public final class SavedWorldInspector {
             }
         }catch(Exception|Error failure){primary=failure;throw failure;}
         finally {
-            var cleanup=new CloseSequence();cleanup.run(()->closeSource());cleanup.run(()->{if(recorder!=null)recorder.close();});
+            var cleanup=new CloseSequence();cleanup.run(()->closeCapture());cleanup.run(()->closeSource());cleanup.run(()->{if(recorder!=null)recorder.close();});
             cleanup.run(()->{if(observer!=null)observer.closed(this,session!=null&&session.status().state()==ReadOnlyWorldSession.State.CLOSED);});
             cleanup.run(()->{if(overlay!=null)overlay.close();});cleanup.run(()->{if(shader!=null)shader.close();});cleanup.run(()->{if(window!=null)window.destroy();});
             cleanup.run(()->glfwTerminate());closed=true;
             try{cleanup.finish();}catch(Exception|Error failure){if(primary!=null)primary.addSuppressed(failure);else throw failure;}
         }
+    }
+    private void closeCapture()throws Exception {
+        if(capturePanel==null)return;capturePanel.close();
+        while(capturePanel.status().state()!=SavedRegionCapturePanel.State.CLOSED) {
+            if(capturePanel.status().state()==SavedRegionCapturePanel.State.CLEANUP_FAILED)throw new IOException("Capture scratch cleanup failed; owned scratch retained");
+            if(width>0&&height>0){clear();overlay.begin(width,height);overlay.text("Cancelling saved construction capture...",20,40,1.5f);overlay.end();window.swapBuffers();}
+            window.pollEvents();java.util.concurrent.locks.LockSupport.parkNanos(16_666_667L);
+        }
+        Files.deleteIfExists(scratch.resolve("capture"));
     }
     private void closeSource()throws Exception {
         if(session==null){if(scratch!=null)Files.delete(scratch);return;}

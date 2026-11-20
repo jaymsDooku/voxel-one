@@ -46,7 +46,7 @@ recordings=list((folder/'home/.voxel-one/recordings').glob('*.mp4'))
 assert len(recordings)==1 and recordings[0].stat().st_size<6_000_000, 'One bounded F10 recording required'
 video=evidence/(args.evidence_prefix+'-workflow.mp4')
 with recordings[0].open('rb') as incoming,video.open('xb') as outgoing:shutil.copyfileobj(incoming,outgoing)
-images=[evidence/(args.evidence_prefix+'-'+suffix+'.png') for suffix in ['ready','moved','invalid']]
+images=[evidence/(args.evidence_prefix+'-'+suffix+'.png') for suffix in ['ready','moved','invalid','capture']]
 assert all(f.is_file() and f.stat().st_size<6_000_000 for f in images)
 result=json.loads((folder/'synthetic/result.json').read_text())
 assert result['status']=='passed' and result['qualification'] is False
@@ -54,7 +54,7 @@ receipt=dict(schema=1,commands=commands,elapsed_seconds=time.monotonic()-start,r
              artifact_sha256={f.name:sha(f) for f in images+[video]},os=platform.platform(),
              cpu=next(line.split(':',1)[1].strip() for line in Path('/proc/cpuinfo').read_text().splitlines() if line.startswith('model name')),
              java=subprocess.run(['java','-version'],capture_output=True,text=True,check=True).stderr.strip(),
-             method='Playtest: Main --inspect-world with a long synthetic saved-file path, isolated profile and inherited DISPLAY. Actual native viewer, shared keyboard/capture camera controls, progress/loading then GPU-ready saved-cell hit, visible geometry/models/water, crossing a chunk boundary, edit/capture rejection, F10 recorder, malformed-source error view, cancellation before first poll and observer-failure cleanup. Source bytes, zero resident chunks, bounded scene and complete scratch/Mesh cleanup asserted. Functional software rendering only; no ordinary-gameplay, city/maximum, cold-cache, physical-GPU/frame/network qualification pass.',
+             method='Playtest: Main --inspect-world with a long synthetic saved-file path, isolated profile and inherited DISPLAY. Actual native viewer, shared keyboard/capture camera controls, progress/loading then GPU-ready saved-cell hit, visible geometry/models/water, crossing a chunk boundary, read-only World edit/capture rejection, separate F12 saved-file capture through the same typed command path, library package validation, invalid-name rejection and cancellation without a published file, F10 recorder, malformed-source error view, cancellation before first poll and observer-failure cleanup. Source bytes, zero resident chunks, bounded scene and complete scratch/Mesh cleanup asserted. Functional software rendering only; no ordinary-gameplay, city/maximum, cold-cache, physical-GPU/frame/network qualification pass.',
              qualification=False,publication='Local evidence pending controller publication')
 if args.captured_region:
     receipt['saved_capture_result']=json.loads((folder/'synthetic/capture-result.json').read_text())

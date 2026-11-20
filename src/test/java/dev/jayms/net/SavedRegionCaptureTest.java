@@ -35,6 +35,13 @@ public class SavedRegionCaptureTest {
         }
         assertEquals(EnumSet.allOf(SavedRegionCapture.Phase.class),phases);assertArrayEquals(bytes,Files.readAllBytes(file));try(var files=Files.list(scratch)){assertEquals(List.of("keep"),files.map(p->p.getFileName().toString()).toList());}
     }
+    @Test public void expectedSnapshotIdentityRejectsAChangedValidSourceBeforePackageReturn()throws Exception {
+        var file=fixture(folder.resolve("identity"));var bytes=Files.readAllBytes(file);String identity=HexFormat.of().formatHex(java.security.MessageDigest.getInstance("SHA-256").digest(bytes));
+        var bounds=new Bounds(32,2,2,0,0,0);var origin=new Position(0,160,0);
+        try(var capture=new SavedRegionCapture(file,folder.resolve("identity-scratch"),"Matching",bounds,origin,identity)){assertArrayEquals(expected(file,"Matching",bounds,origin).encode(),capture.capture(()->false,p->{}).encode());}
+        try(var capture=new SavedRegionCapture(file,folder.resolve("mismatch-scratch"),"Mismatch",bounds,origin,"0".repeat(64))){assertThrows(IOException.class,()->capture.capture(()->false,p->{}));assertFalse(capture.cleanupPending());}
+        assertThrows(IOException.class,()->new SavedRegionCapture(file,folder.resolve("invalid-identity"),"Invalid",bounds,origin,"wrong"));assertFalse(Files.exists(folder.resolve("invalid-identity")));assertArrayEquals(bytes,Files.readAllBytes(file));
+    }
     @Test public void implicitTerrainAndExplicitAirArePreserved()throws Exception {
         var file=fixture(folder.resolve("terrain"));var bounds=new Bounds(3,2,3,0,0,0);var origin=new Position(0,10,0);
         try(var capture=new SavedRegionCapture(file,folder.resolve("terrain-scratch"),"Terrain",bounds,origin)) {var actual=capture.capture(()->false,p->{});assertArrayEquals(expected(file,"Terrain",bounds,origin).encode(),actual.encode());assertFalse(actual.occupiedPositions().contains(new Position(0,0,0)));}

@@ -19,7 +19,7 @@ public final class SavedRegionCapture implements AutoCloseable {
     public record Progress(Phase phase,int percent,Stats stats) {}
     private final Thread owner=Thread.currentThread();
     private final Path file,directory;
-    private final String name;
+    private final String name,expectedFingerprint;
     private final StructurePackage.Bounds bounds;
     private final StructurePackage.Position origin;
     private RegionReplayWorker.Source source;
@@ -29,6 +29,12 @@ public final class SavedRegionCapture implements AutoCloseable {
     private int checkedRows,visitedChunks,cellReads,peakRegions;private long peakBytes;
 
     public SavedRegionCapture(Path file,Path directory,String name,StructurePackage.Bounds bounds,StructurePackage.Position origin)throws IOException {
+        this(file,directory,name,bounds,origin,"");
+    }
+    /** Optional validated snapshot identity, for capture matching a read-only view. */
+    public SavedRegionCapture(Path file,Path directory,String name,StructurePackage.Bounds bounds,StructurePackage.Position origin,String expectedFingerprint)throws IOException {
+        if(expectedFingerprint==null||!expectedFingerprint.isEmpty()&&!expectedFingerprint.matches("[0-9a-f]{64}"))throw new IOException("Capture snapshot identity required");
+        this.expectedFingerprint=expectedFingerprint;
         this.file=Objects.requireNonNull(file).toAbsolutePath().normalize();this.directory=Objects.requireNonNull(directory).toAbsolutePath().normalize();
         this.name=name;this.bounds=Objects.requireNonNull(bounds);this.origin=Objects.requireNonNull(origin);
         if(name==null||!name.matches("[A-Za-z0-9 _-]{1,48}"))throw new IOException("Use 1-48 letters, digits, spaces, underscores or dashes");
@@ -51,6 +57,7 @@ public final class SavedRegionCapture implements AutoCloseable {
             StructurePackage.cancelled(cancel);progress(progress,Phase.OPENING,0);StructurePackage.cancelled(cancel);
             Files.createDirectories(directory);ownedDirectory=Files.createTempDirectory(directory,".structure-capture-");
             source=LocalGame.openRegionalReadback(file,ownedDirectory,new RegionReplayWorker.Revision(1,0,0),cancel,n->{checkedRows=n;progress(progress,Phase.OPENING,0);});
+            if(!expectedFingerprint.isEmpty()&&!expectedFingerprint.equals(source.fingerprint()))throw new IOException("Capture source differs from viewed snapshot");
             var models=source.metadata().sourceModelSnapshot();cache=new RegionReplayCache(ownedDirectory,source.spool(),2,4L*1024*1024,32768,source.allowed());
             var adapter=new StructurePackage.Source() {
                 private int lastX,lastY,lastZ;private SparseVoxelOctree last;

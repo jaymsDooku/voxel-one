@@ -60,6 +60,10 @@ public final class ReadOnlyWorldSession implements AutoCloseable {
         }finally{busy=false;}
         return status();
     }
+    /** Identity only; no file I/O, metadata transfer or edit authority. */
+    public String snapshotFingerprint()throws IOException {
+        owner();if(busy||closing)throw new IOException("Read-only source identity unavailable");ready();return worker.fingerprint();
+    }
     public Status status()throws IOException {
         owner();var current=worker.status();State state;Exception failure=worldFailure==null?current.failure():worldFailure;
         if(closing) {

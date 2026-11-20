@@ -2464,7 +2464,7 @@ GPU entry publishes. A failed region is shown as unavailable; moving can select
 another region. Camera motion is inspection only, with no collision or simulation
 permission. The pager retains metadata-only LocalGame state internally; its incomplete-replay
 gameplay/save guards stay closed. The inspector exposes only the read-only World.
-No edit, capture, save or multiplayer path starts here. Ordinary Main gameplay
+No world edit, world save or multiplayer path starts here. F12 opens a separate saved-file capture panel; it does not grant capture authority over the partial World. Ordinary Main gameplay
 still requires complete replay.
 
 The view owns one scratch directory. Escape or window close cancels its source
@@ -2545,3 +2545,54 @@ not city/maximum, cold-cache, frame/memory/network or reference-host qualificati
 Full editable paging, required city/maximum workflows and physical-GPU/shaped
 32-client benchmarks remain unfinished; supported limits and stable rollout stay
 gated.
+
+
+### Capture a saved region in the inspector
+
+Open a regional version 10 world with `--inspect-world FILE`, then press F12.
+Enter `first X Y Z` and `second X Y Z` for inclusive corners. Enter `anchor X Y Z`
+to choose placement alignment, or leave it at the minimum corner. Commands without
+coordinates use the camera cell. Type `capture NAME` and press Enter. Names use
+1–48 letters, digits, spaces, underscores or dashes. The self-contained package
+is saved as `NAME.vstr` in the existing structure library, ready for normal
+browsing, import/export and placement. The panel does not place or edit anything
+in the inspected world. F12 hides/shows the panel; camera keyboard movement pauses
+while typing. F10 still records. Escape closes and cancels pending capture.
+
+Capture runs on one bounded worker; the frame owner does not read source data,
+encode packages or join the job. The panel shows checking/capture/export progress.
+Type `cancel` before atomic package publication to stop without a new file.
+Publication wins over late cancellation: a saved file is reported as saved.
+Hiding the panel keeps a running progress line and F12 cancellation hint visible.
+A name already in the library is atomically replaced on success. Invalid names,
+selection/anchor bounds, missing or changed sources and existing output aliases
+of the source world reject. Ordinary World edit/capture/save guards stay closed.
+
+The panel binds the validated inspector source SHA-256. Its capture worker must
+open that exact source content; a changed valid file rejects rather than capturing
+construction different from the view. Files changed during opening also reject.
+The job keeps the resulting source snapshot fixed after spooling. No model,
+inventory, simulation or playable metadata authority crosses to the frame owner.
+The public read-only snapshot identity accessor performs no file I/O or transfer.
+
+Only one operation is admitted. Status/message updates are synchronized so cancel
+messages cannot replace a worker's terminal result with stale running state.
+Cancellation and close remain nonblocking on the frame owner. Failed capture
+cleanup retains its worker and owned child, reports a generic status and waits
+for `retry` or an explicit close retry. Status queries do not retry cleanup.
+The internal owned-directory accessor supports a private recovery checkpoint;
+it is never drawn or recorded. The source session and capture worker both close
+before the GL context is destroyed. A failed owned-child cleanup remains an error,
+with no recursive deletion of unknown files.
+
+Available checks cover actual typed commands, default camera-cell selection,
+canonical package bytes, repeat capture, cancellation/close, late cancellation,
+concurrent progress/message publication, malformed and changed source rejection,
+output alias protection and owner-thread fences. The real Main inspector run
+captures a region, reads the resulting library package, rejects an invalid name,
+cancels a large selection without publishing, renders the selected construction,
+crosses a chunk boundary and records through F10 on an isolated synthetic profile.
+These functional checks do not qualify city/maximum performance. Editable paging,
+source/owner reconciliation, true model-ID remapping and required 20-run physical
+GPU/reference-network qualification remain unfinished. No limits or rollout gates
+were raised.

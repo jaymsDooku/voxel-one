@@ -2,6 +2,9 @@ package dev.jayms;
 
 import dev.jayms.net.*;
 import dev.jayms.net.model.*;
+import dev.jayms.ui.SavedRegionCapturePanel;
+import dev.jayms.net.structure.StructurePackage;
+import dev.jayms.ui.Controls;
 import java.awt.image.BufferedImage;
 import java.nio.file.*;
 import java.util.*;
@@ -21,6 +24,10 @@ public final class SavedWorldInspectorPlaytest {
             if(geometry){assertTrue(red>100,"Saved red geometry visible");assertTrue(blue>10,"Saved blue model or water visible");}assertTrue(javax.imageio.ImageIO.write(output,"png",file.toFile()));
         }finally{MemoryUtil.memFree(pixels);}
     }
+    static void command(SavedWorldInspector app,String text) {
+        for(char value:text.toCharArray())app.capturePanel().character(value);
+        app.capturePanel().enter(new StructurePackage.Position(8,164,10));
+    }
     static Path capturedFixture(Path root)throws Exception {
         var worker=java.util.concurrent.Executors.newSingleThreadExecutor();
         try{return worker.submit(()->SavedRegionCaptureWorkflowFixture.create(root)).get(60,java.util.concurrent.TimeUnit.SECONDS);}
@@ -37,9 +44,17 @@ public final class SavedWorldInspectorPlaytest {
             public void frame(SavedWorldInspector app,SavedWorldInspector.Frame frame)throws Exception {
                 seen.add(frame.stage());assertEquals(0,frame.residentChunks());assertTrue(frame.cpuChunks()<=2&&frame.gpuChunks()<=2);readyGpu[0]=Math.max(readyGpu[0],frame.gpuChunks());assertNotEquals("unavailable",frame.stage());
                 assertTrue(frame.number()<3000,"Bounded native workflow deadline");
+                assertFalse(app.capturePanel().status().state()==SavedRegionCapturePanel.State.FAILED||app.capturePanel().status().state()==SavedRegionCapturePanel.State.CLEANUP_FAILED,"Native capture must succeed or cancel");
                 if(stage[0]==0&&frame.stage().equals("hit")&&frame.draws()>0) {
                     assertThrows(IllegalStateException.class,()->app.world().apply(new Protocol.Edit(8,160,0,Blocks.AIR)));assertThrows(IllegalStateException.class,()->app.world().beginStructureSnapshot());
-                    image(evidence.resolve(prefix+"-ready.png"),true);app.toggleRecording();recordStarted[0]=System.nanoTime();stage[0]=1;
+                    image(evidence.resolve(prefix+"-ready.png"),true);app.toggleRecording();recordStarted[0]=System.nanoTime();app.capturePanel().toggle();
+                    command(app,"first -8 160 0");command(app,"second 15 167 4");command(app,"anchor 0 160 0");command(app,"capture Saved construction");stage[0]=10;
+                }else if(stage[0]==10&&app.capturePanel().status().state()==SavedRegionCapturePanel.State.SAVED) {
+                    var asset=StructurePackage.load(Controls.directory().resolve("structures/Saved construction.vstr"));assertEquals(195,asset.cells.size());assertEquals(1,asset.models.size());assertEquals(new StructurePackage.Bounds(24,8,5,8,0,0),asset.bounds);
+                    image(evidence.resolve(prefix+"-capture.png"),false);command(app,"capture ../invalid");assertTrue(app.capturePanel().status().message().startsWith("Name:"));
+                    command(app,"first 0 0 0");command(app,"second 1023 255 1023");command(app,"anchor 0 0 0");command(app,"capture Cancelled region");command(app,"cancel");stage[0]=11;
+                }else if(stage[0]==11&&app.capturePanel().status().state()==SavedRegionCapturePanel.State.CANCELLED) {
+                    assertFalse(Files.exists(Controls.directory().resolve("structures/Cancelled region.vstr")));app.capturePanel().toggle();stage[0]=1;
                 }else if(stage[0]==1) {
                     app.control(0,-1,0,0,0,.05f);if(++ticks[0]>=28){stage[0]=2;ticks[0]=0;}
                 }else if(stage[0]==2&&app.position().x<0&&frame.stage().equals("hit")&&frame.draws()>0) {
@@ -70,6 +85,6 @@ public final class SavedWorldInspectorPlaytest {
         })){var failure=assertThrows(java.io.IOException.class,()->Main.main(new String[]{"--inspect-world",file.toString()}));assertEquals("Synthetic observer failure",failure.getMessage());assertTrue(Arrays.stream(failure.getSuppressed()).anyMatch(t->"Synthetic cleanup failure".equals(t.getMessage())));}
         assertTrue(completed[3]);assertEquals(baseline,Mesh.estimatedResidentBytes());assertArrayEquals(original,Files.readAllBytes(file));
         try(var files=Files.list(Path.of(System.getProperty("java.io.tmpdir")))){assertFalse(files.anyMatch(p->p.getFileName().toString().startsWith("voxel-inspection-")));}
-        Files.writeString(root.resolve("result.json"),"{\"status\":\"passed\",\"renderer\":\""+hardware[0]+"\",\"gl_version\":\""+hardware[1]+"\",\"main_dispatch\":true,\"camera_crossed_chunk\":true,\"loading_then_hit\":true,\"maximum_observed_gpu_chunks\":"+readyGpu[0]+",\"resident_chunks\":0,\"source_bytes_unchanged\":true,\"invalid_source_isolated\":true,\"cancel_before_poll\":true,\"observer_failure_cleanup\":true,\"scratch_mesh_cleanup\":true,\"qualification\":false}\n");
+        Files.writeString(root.resolve("result.json"),"{\"status\":\"passed\",\"renderer\":\""+hardware[0]+"\",\"gl_version\":\""+hardware[1]+"\",\"main_dispatch\":true,\"camera_crossed_chunk\":true,\"loading_then_hit\":true,\"maximum_observed_gpu_chunks\":"+readyGpu[0]+",\"resident_chunks\":0,\"source_bytes_unchanged\":true,\"invalid_source_isolated\":true,\"cancel_before_poll\":true,\"observer_failure_cleanup\":true,\"scratch_mesh_cleanup\":true,\"saved_capture_panel\":true,\"capture_cancel_no_file\":true,\"qualification\":false}\n");
     }
 }
