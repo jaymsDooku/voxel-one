@@ -12,7 +12,9 @@ import java.util.List;
 
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
-    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3, VERSION = 4;
+    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3,
+            WALL_VERSION = 4, VERSION = 5;
+    static final float MAX_VELOCITY = 3.9f; // Paper 1.7.10 entity velocity packet component bound.
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
     static final int QUICK_MOVE = 255;
@@ -103,7 +105,13 @@ final class PracticeWire {
                 out.writeLong(f.hurtTick());
                 out.writeLong(f.motionEpoch());
             }
-            if (version >= VERSION) out.writeLong(f.lastHorizontalWallTick());
+            if (version >= WALL_VERSION) out.writeLong(f.lastHorizontalWallTick());
+            if (version >= VERSION) {
+                out.writeLong(f.impulseTick());
+                out.writeFloat(f.impulseX());
+                out.writeFloat(f.impulseY());
+                out.writeFloat(f.impulseZ());
+            }
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
@@ -163,11 +171,21 @@ final class PracticeWire {
                 if (hurtTick < -1 || hurtTick > tick || motionEpoch < 0)
                     throw new IOException("Invalid fighter timing");
             }
-            long lastHorizontalWallTick = version >= VERSION ? in.readLong() : -1;
+            long lastHorizontalWallTick = version >= WALL_VERSION ? in.readLong() : -1;
             if (lastHorizontalWallTick < -1 || lastHorizontalWallTick > tick)
                 throw new IOException("Invalid fighter collision timing");
+            long impulseTick = -1;
+            float impulseX = 0, impulseY = 0, impulseZ = 0;
+            if (version >= VERSION) {
+                impulseTick = in.readLong();
+                impulseX = velocity(in);
+                impulseY = velocity(in);
+                impulseZ = velocity(in);
+                if (impulseTick < -1 || impulseTick > tick) throw new IOException("Invalid fighter impulse timing");
+            }
             fighters.add(new Fighter(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready,
-                    held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch, lastHorizontalWallTick));
+                    held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch,
+                    lastHorizontalWallTick, impulseTick, impulseX, impulseY, impulseZ));
         }
         count = count(in, 36);
         if (count != 0 && count != 36) throw new IOException("Invalid practice inventory");
@@ -213,6 +231,12 @@ final class PracticeWire {
     private static float finite(DataInputStream in) throws IOException {
         float value = in.readFloat();
         if (!Float.isFinite(value)) throw new IOException("Invalid practice coordinates");
+        return value;
+    }
+
+    private static float velocity(DataInputStream in) throws IOException {
+        float value = finite(in);
+        if (Math.abs(value) > MAX_VELOCITY) throw new IOException("Invalid fighter impulse");
         return value;
     }
 }

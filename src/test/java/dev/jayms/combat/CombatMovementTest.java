@@ -100,6 +100,17 @@ class CombatMovementTest {
     }
 
     @Test
+    void groundedJumpSetsVerticalSpeedWithoutDiscardingIncomingHorizontalImpulse() {
+        var hit = new State(SPAWN, new Vec3(.40, .3608, .12), true, 0);
+        var launch = CombatMovement.step(FLOOR, 1, hit, input(0, 0, true, false));
+        assertTrue(launch.jumped());
+        assertEquals(.42, launch.displacement().y(), EPSILON);
+        assertEquals(.40, launch.displacement().x(), EPSILON);
+        assertEquals(.12, launch.displacement().z(), EPSILON);
+        assertFalse(launch.state().grounded());
+    }
+
+    @Test
     void ceilingClipsJumpAndHoldingUsesTenTickCooldown() {
         Arena ceiling = field((x, y, z) -> y == 0 || y == 3);
         Input held = input(0, 0, true, false);

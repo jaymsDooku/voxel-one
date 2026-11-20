@@ -20,19 +20,28 @@ public final class PracticeMatch implements ArenaMatch {
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
                           int hits, int combo, int used, int remaining, int side, String role,
-                          float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick) {
+                          float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick,
+                          long impulseTick, float impulseX, float impulseY, float impulseZ) {
         public static Fighter fromCombat(PlayerState state, String name, boolean swinging,
                                          boolean ready, int side, String role,
                                          long simulationTick, long matchTickAtSimulationTick) {
             Vec3 p = state.feet(), v = state.velocity();
             Stats stats = state.stats();
-            // Keep the hit in match time even while combat is frozen at the result screen.
+            // Keep combat cues in match time even while the simulation is frozen at the result screen.
             long hurt = state.hurtTick() < 0 ? -1 : matchTickAtSimulationTick - (simulationTick - state.hurtTick());
+            long impulseTick = state.impulseTick() < 0 || state.health() <= 0 ? -1
+                    : matchTickAtSimulationTick - (simulationTick - state.impulseTick());
+            Vec3 impulse = impulseTick < 0 ? new Vec3(0, 0, 0) : state.hitImpulse();
             return new Fighter(state.id(), name, (float) p.x(), (float) p.y(), (float) p.z(), state.yaw(),
                     state.pitch(), (float) state.health(), Math.hypot(v.x(), v.z()) > .12, swinging, ready,
                     state.inventory().get(state.slot()).item(), stats.hits(), stats.longestCombo(),
                     stats.potsUsed(), stats.potsRemaining(), side, role,
-                    (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch(), state.lastHorizontalWallTick());
+                    (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch(), state.lastHorizontalWallTick(),
+                    impulseTick, wireImpulse(impulse.x()), wireImpulse(impulse.y()), wireImpulse(impulse.z()));
+        }
+
+        private static float wireImpulse(double component) {
+            return (float) Math.max(-PracticeWire.MAX_VELOCITY, Math.min(PracticeWire.MAX_VELOCITY, component));
         }
     }
     public record Missile(long id, Item item, float x, float y, float z) { }

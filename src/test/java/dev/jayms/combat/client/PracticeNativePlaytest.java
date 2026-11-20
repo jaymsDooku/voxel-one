@@ -61,7 +61,7 @@ public final class PracticeNativePlaytest {
         private double peakKnockbackHorizontal, peakKnockbackUp;
         private long lastSprintHit = -1, sampledLaunch = -1;
         private double sampledLaunchSpeed;
-        private int sprintHits, carriedLaunches;
+        private int sprintHits, carriedLaunches, immediateImpulseCues;
         private int betweenSnapshotFrames;
         private String report;
 
@@ -97,6 +97,10 @@ public final class PracticeNativePlaytest {
                 recordedAt = now;
             }
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
+            if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
+                    && b.impulseTick() == view.tick() && Math.hypot(b.impulseX(), b.impulseZ()) > .68) {
+                immediateImpulseCues++;
+            }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.hurtTick() >= 0 && view.tick() > b.hurtTick() && view.tick() <= b.hurtTick() + 3) {
                 double horizontal = Math.hypot(b.vx(), b.vz());
@@ -138,9 +142,12 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
-                    if (sprintHits < 3 || peakKnockbackUp < .20 || peakKnockbackUp > .26)
-                        throw new IllegalStateException("Expected three sprint hits with a low arc, got "
+                    if (sprintHits < 3 || peakKnockbackUp < .34 || peakKnockbackUp > .52)
+                        throw new IllegalStateException("Expected three sprint hits with Paper lift, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
+                    if (immediateImpulseCues < 3)
+                        throw new IllegalStateException("Too few sprint impulses arrived on their hit tick: "
+                                + immediateImpulseCues);
                     if (carriedLaunches == 0)
                         throw new IllegalStateException("No adjacent sprint launch snapshots retained momentum");
                     if (recorder.active()) recorder.toggle(width, height);
@@ -152,6 +159,7 @@ public final class PracticeNativePlaytest {
                             + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
+                            + immediateImpulseCues + " sprint impulses reached the client on their hit tick.\n"
                             + carriedLaunches + " sprint launches kept at least 45% of horizontal speed on the next tick while the defender could steer.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",

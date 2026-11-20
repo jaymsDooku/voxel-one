@@ -64,6 +64,13 @@ public final class CombatGeometry {
         return current;
     }
 
+    /** Resolves a movement vector along the same ordered axes for simulation and presentation. */
+    public static Vec3 clipMovement(Arena arena, int playerId, Vec3 feet, Vec3 delta) {
+        Vec3 next = move(arena, playerId, feet, delta.y(), 1);
+        next = move(arena, playerId, next, delta.x(), 0);
+        return move(arena, playerId, next, delta.z(), 2);
+    }
+
     static Vec3 axisOffset(Vec3 point, double amount, int axis) {
         return switch (axis) {
             case 0 -> point.add(amount, 0, 0);

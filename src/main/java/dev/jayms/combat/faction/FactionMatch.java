@@ -584,9 +584,7 @@ public final class FactionMatch implements ArenaMatch {
     }
 
     private static int territory(Vec3 feet) {
-        if (feet.z() >= 11.5) return 0;
-        if (feet.z() <= -11.5) return 1;
-        return -1;
+        return BasaltCourtyard.factionTerritory(feet.z());
     }
 
     private boolean tagged(Seat seat) { return seat.tagUntil > tick; }
