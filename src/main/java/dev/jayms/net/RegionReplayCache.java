@@ -58,25 +58,31 @@ final class RegionReplayCache implements AutoCloseable {
             throw new IllegalArgumentException("Replay cache page budget");
         check();StructurePackage.cancelled(cancel);busy=true;
         try {
-            var index=entries.get(region);
-            if(index==null) {
-                while(entries.size()>=maxRegions||bytes>maxBytes-reservation) {
-                    StructurePackage.cancelled(cancel);evictFirst();
-                }
-                // The build enforces maxRegionRows during both traversals.
-                index=RegionReplayCells.build(directory,source,region,maxRegionRows,allowed,cancel);
-                long size;
-                try {size=index.encodedBytes();}
-                catch(IOException|RuntimeException|Error failure) {
-                    try{index.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
-                }
-                entries.put(region,index);bytes+=size;
-            }
+            var index=index(region,cancel);
             var page=RegionReplayPage.loadIndexed(index,range,terrain,maxRows,allowed,cancel);
             if(overlay==null)return page;
             var pending=overlay.select(region,range,maxRows-page.sourceRows(),cancel);
             return pending.rows().isEmpty()?page:RegionReplayPage.withOverlay(page,pending,terrain,maxRows,allowed,cancel);
         }finally{busy=false;}
+    }
+    /** Physical absence only; the caller must prove implicit terrain empty.
+     * Any overlay makes this hint conservatively unavailable. */
+    boolean emptyRegion(ChunkPos region,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(region);Objects.requireNonNull(cancel);check();StructurePackage.cancelled(cancel);busy=true;
+        try {
+            if(overlay!=null)return false;var index=index(region,cancel);if(index.size()!=0)return false;
+            index.readWindow(new RegionReplayPage.CellRange(0,1),0,allowed,cancel);return true;
+        }finally{busy=false;}
+    }
+    private RegionReplayCells index(ChunkPos region,BooleanSupplier cancel)throws IOException {
+        var index=entries.get(region);
+        if(index==null) {
+            while(entries.size()>=maxRegions||bytes>maxBytes-reservation){StructurePackage.cancelled(cancel);evictFirst();}
+            index=RegionReplayCells.build(directory,source,region,maxRegionRows,allowed,cancel);long size;
+            try{size=index.encodedBytes();}catch(IOException|RuntimeException|Error failure){try{index.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+            entries.put(region,index);bytes+=size;
+        }
+        return index;
     }
     private void evictFirst()throws IOException {
         var iterator=entries.entrySet().iterator();var entry=iterator.next();

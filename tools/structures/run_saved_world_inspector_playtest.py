@@ -15,6 +15,7 @@ import time
 parser=argparse.ArgumentParser()
 parser.add_argument('--display',required=True)
 parser.add_argument('--evidence-prefix',default='structure-saved-inspector')
+parser.add_argument('--captured-region',action='store_true',help='Capture/export/import/place the synthetic saved region before viewing its durable result')
 args=parser.parse_args()
 assert args.display==os.environ.get('DISPLAY'), 'Use inherited assigned role display'
 assert re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.evidence_prefix), 'Use a simple evidence prefix'
@@ -26,13 +27,14 @@ folder.mkdir(parents=True)
 for name in ['home','tmp','classes','synthetic']:(folder/name).mkdir()
 sha=lambda f:hashlib.sha256(f.read_bytes()).hexdigest()
 files=sorted((root/'src/main/java').rglob('*.java'))+sorted((root/'src/test/java').rglob('*.java'))+sorted(f for f in (root/'src/main/resources/shaders').rglob('*') if f.is_file())
-helpers=[root/'tools/structures'/name for name in ['SavedWorldInspectorPlaytest.java','SavedWorldInspectorFixture.java']]
+helpers=[root/'tools/structures'/name for name in ['SavedWorldInspectorPlaytest.java','SavedWorldInspectorFixture.java','SavedRegionCaptureWorkflowFixture.java']]
 sources={str(f.relative_to(root)):sha(f) for f in files+helpers+[Path(__file__).resolve()]}
 classes={str(f.relative_to(root)):sha(f) for f in sorted((root/'target/classes').rglob('*.class'))+sorted((root/'target/test-classes').rglob('*.class'))}
 assert classes, 'Compile first'
 cp='target/test-classes:'+(root/'target/structure-limit-audit/diagnostic-classpath.txt').read_text().strip()
 commands=[['javac','--release','17','-cp',cp,'-d',str(folder/'classes')]+[str(f) for f in helpers],
           ['java','-Xmx256m','-Dvoxel.gl33=true','-Duser.home='+str(folder/'home'),'-Djava.io.tmpdir='+str(folder/'tmp'),'-cp',str(folder/'classes')+':'+cp,'dev.jayms.SavedWorldInspectorPlaytest',str(folder/'synthetic'),str(evidence),args.evidence_prefix]]
+if args.captured_region:commands[1].append('--captured-region')
 env=os.environ.copy()
 env.update(LIBGL_ALWAYS_SOFTWARE='1',LP_NUM_THREADS='2',ALSOFT_DRIVERS='null')
 start=time.monotonic()
@@ -54,5 +56,8 @@ receipt=dict(schema=1,commands=commands,elapsed_seconds=time.monotonic()-start,r
              java=subprocess.run(['java','-version'],capture_output=True,text=True,check=True).stderr.strip(),
              method='Playtest: Main --inspect-world with a long synthetic saved-file path, isolated profile and inherited DISPLAY. Actual native viewer, shared keyboard/capture camera controls, progress/loading then GPU-ready saved-cell hit, visible geometry/models/water, crossing a chunk boundary, edit/capture rejection, F10 recorder, malformed-source error view, cancellation before first poll and observer-failure cleanup. Source bytes, zero resident chunks, bounded scene and complete scratch/Mesh cleanup asserted. Functional software rendering only; no ordinary-gameplay, city/maximum, cold-cache, physical-GPU/frame/network qualification pass.',
              qualification=False,publication='Local evidence pending controller publication')
+if args.captured_region:
+    receipt['saved_capture_result']=json.loads((folder/'synthetic/capture-result.json').read_text())
+    receipt['method']='Playtest: captured-region variant first uses SavedRegionCapture on a saved source, checks byte-identical full-replay reference, exports/imports a self-contained package, restores an empty dependency world through real authoritative placement/save, reopens durable state and exercises undo/repeat. A separate regional serialization of that placed fixture is then opened by the actual Main inspector. '+receipt['method']
 (folder/'receipt.json').write_text(json.dumps(receipt,indent=2)+'\n')
 print('Playtest: Main saved-world inspector passed; evidence prefix '+args.evidence_prefix)

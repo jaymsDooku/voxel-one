@@ -189,6 +189,45 @@ public final class StructurePackage {
     public static void cancelled(BooleanSupplier cancel) {
         if(cancel.getAsBoolean()||Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException("Structure operation cancelled");
     }
+    /** Worker capture for region-backed immutable snapshots. Visit each clipped
+     * world chunk once, retaining the ordinary capture's y/z/x dependency order
+     * and canonical bytes. Source has the same detached/fenced contract as
+     * capture; this does not grant a partial World capture or save authority. */
+    public static StructurePackage capturePartitioned(String name,Bounds bounds,Position origin,Source source,
+            BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(bounds);Objects.requireNonNull(origin);Objects.requireNonNull(source);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);cancelled(cancel);
+        if(name==null||!name.matches("[A-Za-z0-9 _-]{1,48}"))throw new IOException("Use 1-48 letters, digits, spaces, underscores or dashes");
+        long maxX=(long)origin.x+bounds.x-1,maxY=(long)origin.y+bounds.y-1,maxZ=(long)origin.z+bounds.z-1;
+        if(maxX>Integer.MAX_VALUE||maxY>Integer.MAX_VALUE||maxZ>Integer.MAX_VALUE
+                ||!new Protocol.Edit(origin.x,origin.y,origin.z,0).valid()||!new Protocol.Edit((int)maxX,(int)maxY,(int)maxZ,0).valid())throw new IOException("Capture outside world");
+        var cells=new StructureCells.Builder();var definitions=new ArrayList<ModelDefinition>();var identities=new HashMap<String,Integer>();
+        var encountered=new IdentityHashMap<ModelDefinition,Integer>();var first=new long[MAX_MODELS];Arrays.fill(first,Long.MAX_VALUE);
+        long volume=(long)bounds.x*bounds.y*bounds.z,done=0,nextProgress=1024;int leaves=0,instances=0;
+        for(int cy=Math.floorDiv(origin.y,16);cy<=Math.floorDiv((int)maxY,16);cy++)
+            for(int cz=Math.floorDiv(origin.z,16);cz<=Math.floorDiv((int)maxZ,16);cz++)
+                for(int cx=Math.floorDiv(origin.x,16);cx<=Math.floorDiv((int)maxX,16);cx++) {
+                    cancelled(cancel);int x0=Math.max(origin.x,cx*16),x1=Math.min((int)maxX,cx*16+15);
+                    int y0=Math.max(origin.y,cy*16),y1=Math.min((int)maxY,cy*16+15),z0=Math.max(origin.z,cz*16),z1=Math.min((int)maxZ,cz*16+15);
+                    if(source.emptyChunk(new dev.jayms.ChunkPos(cx,cy,cz)))done+=(long)(x1-x0+1)*(y1-y0+1)*(z1-z0+1);
+                    else for(int y=y0;y<=y1;y++)for(int z=z0;z<=z1;z++)for(int x=x0;x<=x1;x++) {
+                        cancelled(cancel);
+                        if(!source.emptyCell(x,y,z)) {
+                            var p=new Position(x-origin.x,y-origin.y,z-origin.z);var tree=source.cell(x,y,z);int type=WorldVoxels.decode(tree.uniform(0,0,0,16));
+                            if(Blocks.isModel(type)) {
+                                var entry=source.models().get(type);if(entry==null)throw new IOException("Missing captured model");var definition=entry.definition();Integer id=encountered.get(definition);
+                                if(id==null){var identity=definition.fingerprint();id=identities.get(identity);if(id==null){id=definitions.size();if(id>=MAX_MODELS)throw new IOException("512 dependency limit");identities.put(identity,id);definitions.add(definition);}if(encountered.size()<MAX_MODELS)encountered.put(definition,id);}
+                                first[id]=Math.min(first[id],((long)p.y*bounds.z+p.z)*bounds.x+p.x);
+                                if(++instances>MAX_INSTANCES)throw new IOException("Experimental instance cap");cells.add(p,null,id);
+                            }else if(tree.occupied()!=0){leaves+=tree.leafCount();if(leaves>MAX_LEAVES)throw new IOException("Experimental geometry cap");cells.add(p,tree.copy().freeze(),-1);}
+                        }
+                        done++;if(done>=nextProgress){progress.accept((int)(done*100/volume));nextProgress=(done/1024+1)*1024;}
+                    }
+                    if(done>=nextProgress){progress.accept((int)(done*100/volume));nextProgress=(done/1024+1)*1024;}
+                }
+        cancelled(cancel);var order=new ArrayList<Integer>();for(int i=0;i<definitions.size();i++)order.add(i);order.sort(Comparator.comparingLong(i->first[i]));
+        var ordered=new ArrayList<ModelDefinition>();var mapping=new int[order.size()];for(int i=0;i<order.size();i++){mapping[order.get(i)]=i;ordered.add(definitions.get(order.get(i)));}
+        cells.remapModels(mapping,cancel);var result=new StructurePackage(name,bounds,ordered,cells,cancel);cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
+    }
     public byte[] encode() throws IOException {
         return encode(()->false,p->{});
     }

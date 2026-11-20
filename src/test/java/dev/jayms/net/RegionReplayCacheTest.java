@@ -92,4 +92,20 @@ class RegionReplayCacheTest {
             cache.close();assertThrows(IOException.class,()->load(cache,0));
         }
     }
+    @Test void emptyHintValidatesItsRootAndNeverIgnoresPendingOverlay()throws Exception {
+        try(var source=spool(List.of());var cache=new RegionReplayCache(folder,source,1,28,1,e->true)) {
+            assertTrue(cache.emptyRegion(region(0),()->false));assertEquals(1,cache.retainedRegions());
+            Path path;try(var files=Files.list(folder)){path=files.filter(p->p.getFileName().toString().startsWith(".replay-cells-")).findFirst().orElseThrow();}
+            Files.write(path,new byte[]{1});assertThrows(IOException.class,()->cache.emptyRegion(region(0),()->false));Files.write(path,new byte[0]);assertTrue(cache.emptyRegion(region(0),()->false));
+            var overlay=RegionReplayOverlay.capture(List.of(ROWS.get(0)),()->false);
+            try(var pending=new RegionReplayCache(folder,source,1,28,1,e->true,overlay,()->false)){assertFalse(pending.emptyRegion(region(0),()->false));assertEquals(0,pending.retainedRegions());}
+        }
+    }
+    @Test void emptyHintRejectsForeignOwnerAndCancellationBeforeBuilding()throws Exception {
+        try(var source=spool(List.of());var cache=new RegionReplayCache(folder,source,1,0,0,e->true)) {
+            assertThrows(CancellationException.class,()->cache.emptyRegion(region(0),()->true));assertEquals(0,cache.retainedRegions());
+            var executor=Executors.newSingleThreadExecutor();try{executor.submit(()->{assertThrows(IOException.class,()->cache.emptyRegion(region(0),()->false));return null;}).get(10,TimeUnit.SECONDS);}finally{executor.shutdownNow();assertTrue(executor.awaitTermination(10,TimeUnit.SECONDS));}
+            assertEquals(0,cache.retainedRegions());assertTrue(cache.emptyRegion(region(0),()->false));
+        }
+    }
 }

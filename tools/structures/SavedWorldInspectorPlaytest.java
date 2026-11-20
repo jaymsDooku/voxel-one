@@ -21,8 +21,13 @@ public final class SavedWorldInspectorPlaytest {
             if(geometry){assertTrue(red>100,"Saved red geometry visible");assertTrue(blue>10,"Saved blue model or water visible");}assertTrue(javax.imageio.ImageIO.write(output,"png",file.toFile()));
         }finally{MemoryUtil.memFree(pixels);}
     }
+    static Path capturedFixture(Path root)throws Exception {
+        var worker=java.util.concurrent.Executors.newSingleThreadExecutor();
+        try{return worker.submit(()->SavedRegionCaptureWorkflowFixture.create(root)).get(60,java.util.concurrent.TimeUnit.SECONDS);}
+        finally{worker.shutdownNow();assertTrue(worker.awaitTermination(10,java.util.concurrent.TimeUnit.SECONDS));}
+    }
     public static void main(String[] args)throws Exception {
-        Path root=Files.createDirectories(Path.of(args[0])),evidence=Path.of(args[1]);String prefix=args[2];var file=SavedWorldInspectorFixture.create(root);var original=Files.readAllBytes(file);assertEquals(10,java.nio.ByteBuffer.wrap(original).getInt());long baseline=Mesh.estimatedResidentBytes();String[] hardware={null,null};boolean[] completed={false,false,false,false};
+        Path root=Files.createDirectories(Path.of(args[0])),evidence=Path.of(args[1]);String prefix=args[2];var file=args.length>3&&args[3].equals("--captured-region")?capturedFixture(root):SavedWorldInspectorFixture.create(root);var original=Files.readAllBytes(file);assertEquals(10,java.nio.ByteBuffer.wrap(original).getInt());long baseline=Mesh.estimatedResidentBytes();String[] hardware={null,null};boolean[] completed={false,false,false,false};
         var seen=new HashSet<String>();int[] stage={0},ticks={0},readyGpu={0};long[] recordStarted={0};
         var observer=new SavedWorldInspector.Observer() {
             public void started(SavedWorldInspector app)throws Exception {

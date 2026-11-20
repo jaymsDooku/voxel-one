@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T19:50:23+00:00",
+  "updatedAt": "2026-11-20T20:51:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added explicit native read-only Main saved-world inspection. Passed 675 Java tests, 40 Python checks, packaged MP3/CLI checks, inspector workflow and full ordinary Main structure regression. Inspected 19 fresh captures and two fully decoded F10 recordings. All 677 source hashes stayed fixed; source/media await controller publication and CI. Writable paging, remapping and city/GPU/32-client qualification remain unfinished.",
-      "updatedAt": "2026-11-20T19:50:23+00:00"
+      "note": "Partitioned saved-region capture now matches full-replay package bytes without a resident World. Passed 55 focused tests, 692 Java regressions in 143 suites, 40 Python checks, packaging and shipped MP3 decoding. Native capture/export/import/placement/restart/undo/repeat and replay/render checks passed; ten fresh images and one fully decoded video inspected. Source/media await controller publication and exact-head CI. Editable paging, saved-file capture menu and city/maximum reference-GPU/shaped-network qualification remain unfinished.",
+      "updatedAt": "2026-11-20T20:51:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

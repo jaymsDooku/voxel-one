@@ -2477,3 +2477,71 @@ with cleanup errors suppressed. Source installation into editable gameplay,
 writable paging, model-ID remapping and full city/maximum, physical-GPU and shaped
 32-client qualification remain unfinished. Inspection adds no supported-city or
 stable-rollout claim.
+
+
+### Partitioned saved-region capture
+
+`SavedRegionCapture` captures physical construction directly from a validated
+regional version 10 saved snapshot, without a resident `World` or playable
+metadata transfer. Construct, capture and close it on the same worker:
+
+```java
+try (var capture = new SavedRegionCapture(input, scratch, "Saved house",
+        new StructurePackage.Bounds(24, 8, 5, 8, 0, 0),
+        new StructurePackage.Position(-8, 160, 0))) {
+    StructurePackage asset = capture.capture(cancel, progress -> report(progress));
+    // The returned package is detached; output publication remains caller-owned.
+}
+```
+
+This synchronous API does not start threads, install editing authority or write
+the input. A UI caller must schedule it on its bounded worker and keep frame/input
+processing separate. It is a single-attempt owner; use a fresh owner for another
+snapshot. Immutable progress reports distinguish opening, capturing, cleaning and
+done, with checked-row and logical cache counters. A result is published only by
+successful return, after cleanup and the final cancellation check. Progress,
+status and cleanup queries do not grant reentry or retry authority.
+
+Opening reuses full file/model/tail validation, source-generation matching and
+private geometry spooling. The capture uses two cached region indexes, at most
+4 MiB of copied row bytes, at most 32768 raw history rows per region, and one
+selected cell page of at most 4097 rows. These existing private caps may reject a
+valid but unusually fragmented saved region; they are not supported-city limits.
+One selected cell, including implicit terrain and explicit air, is reconstructed
+at a time. The last cell is retained for its empty/cell query pair. Immutable model
+definitions are copied into the ordinary self-contained package. Inventories,
+drops, players and simulation state are not included.
+
+`StructurePackage.capturePartitioned` visits each clipped world chunk once,
+with local y/z/x traversal. This avoids repeating distant region-index builds on
+every Y layer. Dependencies are normalized by their earliest logical y/z/x cell,
+using a validated private permutation of at most 512 IDs, before ordinary content
+validation and spatial sorting. Geometry is not rewritten by that permutation.
+The result keeps byte-identical output to ordinary capture for the same immutable
+source, name, bounds and anchor. The ordinary capture method remains unchanged.
+All dimensions, occupied-cell, model, geometry/instance, decoded/compressed and
+per-model gates remain. No placement cap was raised.
+
+Empty-region hints require a validated zero-row copied root and no pending
+overlay; the caller must also prove the entire chunk outside the generator's
+natural terrain band. A selected source cell is never replaced by known air on
+missing data or failed decoding. Original-file changes after spooling do not
+rewrite the fixed captured snapshot. Changes during opening reject. The caller's
+scratch container remains caller-owned; a private child retains any failed
+cleanup. Explicit close retries cleanup; queries never do. No recursive deletion
+hides a failure, and no package escapes on cancellation or cleanup failure.
+
+Validation includes byte equivalence against independent full replay, reversed
+model encounters and aliases, negative/unaligned bounds, fractional colours,
+water, natural terrain and explicit air, cancellation at every progress phase,
+source replacement/corruption, owner/reentry/cleanup fences and unchanged input
+bytes. A 1024-cell road visits exactly 64 chunks while retaining two cached roots.
+A dense history exceeding the existing 32768-row regional cache budget rejects
+without publishing a package. The native integration exports/imports captured
+construction, restores dependencies into an empty world, uses real authoritative
+placement/save/undo/repeat, reopens durable state, and draws that construction in
+the Main inspector. Component timings are single small-fixture observations,
+not city/maximum, cold-cache, frame/memory/network or reference-host qualification.
+Full editable paging, required city/maximum workflows and physical-GPU/shaped
+32-client benchmarks remain unfinished; supported limits and stable rollout stay
+gated.

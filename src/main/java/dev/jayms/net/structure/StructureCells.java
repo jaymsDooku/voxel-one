@@ -78,6 +78,16 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
             positions=new int[capacity];models=new short[capacity];values=new int[capacity];
         }
         int size(){return count;}
+        /** Private capture normalization only. Validate the complete bounded
+         * permutation before touching IDs; geometry storage never changes. */
+        void remapModels(int[] mapping,java.util.function.BooleanSupplier cancel)throws IOException {
+            Objects.requireNonNull(mapping);Objects.requireNonNull(cancel);
+            if(mapping.length>MAX_MODELS)throw new IOException("Structure model remap budget");
+            var seen=new boolean[mapping.length];
+            for(int id:mapping){cancelled(cancel);if(id<0||id>=mapping.length||seen[id])throw new IOException("Invalid structure model permutation");seen[id]=true;}
+            for(int i=0;i<count;i++){if((i&1023)==0)cancelled(cancel);if(models[i]>=mapping.length)throw new IOException("Missing structure model permutation");}
+            for(int i=0;i<count;i++){if((i&1023)==0)cancelled(cancel);if(models[i]>=0)models[i]=(short)mapping[models[i]];}
+        }
         /** Borrowed read-only view for immediate constructor validation; never publish it. */
         List<Cell> view() {
             return new AbstractList<>() {
