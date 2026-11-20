@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:38:01+00:00",
+  "updatedAt": "2026-11-20T23:39:47+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4518,6 +4518,15 @@
       "status": "in_progress",
       "note": "Fixed in PR 97. In the matched view the brightness gap fell from 81 to 9. Native GPU controls and 88 selected tests passed. Awaiting repository checks and merge.",
       "updatedAt": "2026-11-20T23:38:01+00:00"
+    },
+    {
+      "id": "voxel-ledge-shadow",
+      "title": "Westminster cornice and window sill shadows",
+      "description": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
+      "updatedAt": "2026-11-20T23:39:47+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
