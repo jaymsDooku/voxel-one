@@ -1535,3 +1535,26 @@ Actual Mac/archive/export/install remains unexecuted.47 native cases remain
 required; full engine/live-service/physical-device and independent review gates
 stay open. No file deletions intended; fixed version strings are replaced by
 build settings with their existing defaults preserved.
+
+
+70a659b7 preflight screenshot timeout repair
+Run44728050237 passed hosted tooling contracts, verified boot of a fresh iPhone
+SE3/iOS18.5 on Xcode16.4/macOS15.8.2, then timed out at preflight screenshot.
+Report source/expected head70a659b73109d1e259392b5f28f15780e3a70edf match;
+mode=preflight,environmentReady=false,clientChecked=false,cleanup=passed and
+evidence is empty. No native app, new image/video or phone result is qualified.
+Actual workflow source3be5a444 contains independently reviewed8a53afce.
+
+Capture now retries once only for command timeout, on the same assigned UDID/
+filename. It removes only that incomplete capture, waits5 seconds if budget
+remains, caps each command at60s and the entire capture at125s. Other failures
+are not retried; exhausted/repeated timeout stays failed with cleanup. Both
+preflight and final client capture use this path and record attempt counts. Real
+PNG/size/hash, exact-source, installed-native-app and client-case gates remain.
+106 Linux harness tests passed, including all six new recovery/error/budget
+checks. Python compilation and diff checks passed.47 native methods and113
+unrelated progress entries retained; no file deletions intended.
+Playtest: affected capture integration exercised via mock simctl unittest CLI.
+Actual hosted capture needs a new exact-source check; no old or invented image
+was substituted. Full native/controls media, trusted execution-budget repair,
+real signed delivery and physical/device/live-service qualifications stay open.

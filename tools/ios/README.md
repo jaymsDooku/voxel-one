@@ -86,3 +86,15 @@ bound for trusted-source integration. Feature edits cannot change the separately
 checked-out verifier used by a dispatch. Confirm the actual trusted checkout
 contains the new1800-second cap before requesting the new1500-second native run.
 Do not merge the full engine port to apply this bounded execution repair.
+
+
+Bounded cold screenshot capture
+Preflight and final native-client captures use only the assigned Simulator and
+fixed request-owned filename. A command timeout may retry once after5 seconds,
+with60 seconds per attempt and125 seconds total. The second command uses only
+the remaining total budget. Only the timed-out attempt's incomplete PNG is
+removed. Other errors are not retried. Repeated timeout/budget exhaustion stays
+failed and cleans up the assigned device; no client/preflight pass or substitute
+image is invented. Existing real-image/source/native-app/receipt checks remain.
+Reports record preflightScreenshotAttempts and clientScreenshotAttempts when
+those stages execute. Trusted-source changes still require independent review.

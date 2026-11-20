@@ -1,0 +1,58 @@
+{
+  "sourceBase": "70a659b73109d1e259392b5f28f15780e3a70edf",
+  "sourceState": "uncommitted bounded screenshot-capture retry",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "failedRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44728050237",
+  "observedFailure": {
+    "toolingContracts": "passed",
+    "mode": "preflight",
+    "status": "failed",
+    "environmentReady": false,
+    "clientChecked": false,
+    "phase": "screenshot",
+    "errorCode": "command_failed",
+    "timedOut": true,
+    "bootVerifyAttempts": 1,
+    "cleanup": "passed",
+    "mediaCount": 0
+  },
+  "observedEnvironment": "macOS15.8.2/Xcode16.4/iOS18.5/iPhone SE3 Simulator; fresh device boot verified before capture",
+  "trustedSource": "Actual workflow checkout3be5a444214ef6451d92c82e8bc858eec9b2f70c contains reviewed capacity fix8a53afce by verified commit ancestry. Screenshot timeout is separate from capacity/native-game qualification.",
+  "repair": "For both preflight and independently launched client capture, retry once only after a timed-out screenshot command. Same assigned Simulator and fixed output path. Remove only its incomplete capture, wait5 seconds if total budget remains, cap each attempt at60 seconds and both attempts at125 seconds. Non-timeout errors and exhausted/repeated timeouts remain failed. Add separate attempt counters; media validation and native/source gates unchanged.",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "106 passed in10.798s; Linux mocks, not actual Simulator capture"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_simulator_checks.py'",
+      "result": "50 passed in0.344s; includes preflight/client timeout recovery, owned partial removal, exact path/UDID, repeated-timeout cleanup/no client run, no non-timeout retry, exhausted total budget and reduced second-attempt allowance"
+    },
+    {
+      "command": "python3 -m py_compile tools/ios/simulator_checks.py tools/ios/test_simulator_checks.py; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "exact-head hosted job/report inspection and native-source/review-base audit",
+      "result": "source/expected head70a659b7 match; report verified preflight screenshot timeout with no media;47 native cases and113 unrelated progress entries retained;zero file deletions"
+    }
+  ],
+  "Playtest": "Exercised the affected verifier integration through actual unittest CLI with isolated mock simctl/image fixtures, including normal/recovery, failure/cleanup and native-install/source regression checks. Browser playtesting does not apply to capture infrastructure. Failed hosted run returned no image; no substitute/old image was used as proof. New actual capture,47-case native gameplay/controls media and iPhone installation remain pending.",
+  "intendedDeletions": "No file deletions. Single screenshot invocations are replaced with a timeout-only bounded retry. Only a failed attempt's own incomplete PNG is removed before retry.",
+  "qualificationPending": [
+    "Fresh exact-head hosted capture",
+    "Reviewed trusted-budget/capture repair before1500-second native run",
+    "Complete47-case native app run and actual controls media",
+    "Real versioned Mac/device export and signing",
+    "Owner iPhone installation/update",
+    "Remaining parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "sourceSha256": {
+    "tools/ios/simulator_checks.py": "cda680b1fcf658e25e4943e2652bd66e02beeb159bc3f1e3e6464d92df2a7c90",
+    "tools/ios/test_simulator_checks.py": "cca05f10b699a7f3e2d37a8ea4b3e9db72d8da3d9b6ba5366fcf1f71de108aed"
+  }
+}

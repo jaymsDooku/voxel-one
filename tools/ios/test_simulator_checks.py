@@ -229,6 +229,79 @@ class RunContractTests(unittest.TestCase):
         self.assertEqual(report['cleanup'],'passed')
         self.assertTrue(any(args[:3]==['xcrun','simctl','delete'] for args,_ in fake.calls))
 
+    def test_screenshot_timeout_retries_same_device_path_and_discards_partial(self):
+        calls=[];waits=[]
+        def slow_capture(args,**kwargs):
+            if args[:3]==['xcrun','simctl','io']:
+                calls.append(args)
+                self.assertLessEqual(kwargs['timeout'],60)
+                path=Path(args[-1])
+                if len(calls)==1:
+                    path.write_bytes(b'incomplete capture')
+                    raise checks.CheckError('command_failed',timed_out=True)
+                self.assertFalse(path.exists(),'Partial capture must be removed before retry')
+            return self.fake(args,**kwargs)
+        report=checks.run_checks(self.repo,self.output,HEAD,'preflight',REQUEST,
+                                run_command=slow_capture,system_name='Darwin',wait=waits.append)
+        self.assertEqual(report['status'],'passed');self.assertFalse(report['clientChecked'])
+        self.assertEqual(report['preflightScreenshotAttempts'],2);self.assertEqual(calls[0],calls[1])
+        self.assertEqual(calls[0][3],UDID);self.assertEqual(waits.count(5),1)
+
+    def test_repeated_screenshot_timeout_fails_before_client_and_cleans_up(self):
+        calls=0
+        def timeout(args,**kwargs):
+            nonlocal calls
+            if args[:3]==['xcrun','simctl','io']:
+                calls+=1
+                raise checks.CheckError('command_failed',timed_out=True)
+            return self.fake(args,**kwargs)
+        report=checks.run_checks(self.repo,self.output,HEAD,'client',REQUEST,
+                                run_command=timeout,system_name='Darwin',wait=lambda _:None)
+        self.assertEqual(calls,2);self.assertEqual(report['preflightScreenshotAttempts'],2)
+        self.assertEqual(report['status'],'failed');self.assertEqual(report['errorStage'],'screenshot')
+        self.assertTrue(report['timedOut']);self.assertFalse(report['clientChecked'])
+        self.assertEqual(report['evidence'],[]);self.assertEqual(report['cleanup'],'passed')
+        self.assertEqual(self.fake.client_runs,0)
+
+    def test_non_timeout_screenshot_error_is_not_retried(self):
+        self.fake.failure_stage='screenshot'
+        report=self.run_check('preflight')
+        calls=[a for a,_ in self.fake.calls if a[:3]==['xcrun','simctl','io']]
+        self.assertEqual(len(calls),1);self.assertEqual(report['preflightScreenshotAttempts'],1)
+        self.assertEqual(report['status'],'failed');self.assertEqual(report['cleanup'],'passed')
+
+    def test_screenshot_total_budget_prevents_retry_without_time_remaining(self):
+        calls=[];attempts=[];waits=[];path=self.repo/'owned.png'
+        def timeout(args,**kwargs):
+            calls.append(kwargs['timeout'])
+            raise checks.CheckError('command_failed',timed_out=True)
+        clock=iter([0,0,121])
+        with self.assertRaises(checks.CheckError):
+            checks.capture_screenshot(timeout,UDID,path,waits.append,attempts.append,now=lambda:next(clock))
+        self.assertEqual(calls,[60]);self.assertEqual(attempts,[1]);self.assertEqual(waits,[])
+
+    def test_client_screenshot_timeout_retries_without_weakening_native_checks(self):
+        self.script();client_calls=[]
+        def slow_client(args,**kwargs):
+            if args[:3]==['xcrun','simctl','io'] and args[-1].endswith('/client.png'):
+                client_calls.append(args)
+                if len(client_calls)==1:raise checks.CheckError('command_failed',timed_out=True)
+            return self.fake(args,**kwargs)
+        report=checks.run_checks(self.repo,self.output,HEAD,'client',REQUEST,
+                                run_command=slow_client,system_name='Darwin',wait=lambda _:None)
+        self.assertEqual(report['status'],'passed');self.assertTrue(report['clientChecked'])
+        self.assertEqual(report['clientScreenshotAttempts'],2);self.assertEqual(client_calls[0],client_calls[1])
+
+    def test_screenshot_second_attempt_uses_remaining_total_budget(self):
+        calls=[];attempts=[];waits=[]
+        def capture(args,**kwargs):
+            calls.append(kwargs['timeout'])
+            if len(calls)==1:raise checks.CheckError('command_failed',timed_out=True)
+        clock=iter([0,0,60,122])
+        checks.capture_screenshot(capture,UDID,self.repo/'owned.png',waits.append,attempts.append,
+                                  now=lambda:next(clock))
+        self.assertEqual(calls,[60,3]);self.assertEqual(waits,[5]);self.assertEqual(attempts,[1,2])
+
     def expanded_receipt(self, count):
         self.script()
         self.fake.receipt_mutator = lambda r: r.update(tests=[{'name':f'testNativeCase{i}', 'status':'passed'} for i in range(count)])

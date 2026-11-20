@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T11:29:09+00:00",
+  "updatedAt": "2026-11-20T11:44:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Continued independent delivery work while trusted Mac repair is queued. Added exact-source versioned Release iPhoneOS archive/local export, device-binary/signature checks, private artifacts and sanitized SHA256 receipts; install/update guide and candidate notes added.100 Linux harness tests passed, including11 delivery checks. Actual Mac export/signing/install/native47-case media remain pending; no installable build or device pass claimed.",
-      "updatedAt": "2026-11-20T11:29:09+00:00"
+      "note": "70a659b7 Mac tooling checks passed; preflight failed at screenshot timeout after verified boot, with no media/client run. Added one timeout-only capture retry on same assigned Simulator/path:60s each,125s total,5s backoff, strict failure/cleanup/media gates retained.106 local harness tests passed. Fresh hosted capture/native47-case/device/signing/physical qualification pending.",
+      "updatedAt": "2026-11-20T11:44:01+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
