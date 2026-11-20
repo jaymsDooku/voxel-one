@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:09:17+00:00",
+  "updatedAt": "2026-11-20T23:15:38+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4458,6 +4458,15 @@
       "status": "in_progress",
       "note": "Independently reviewed head db84152e is open in PR 92. All 252 resolved stationary road/grass pairs aligned, crossing-flight luminance change fell from 1.96 to 0.66, and 66 Maven tests and 70 GPU cases passed. Awaiting repository review and merge.",
       "updatedAt": "2026-11-20T23:09:17+00:00"
+    },
+    {
+      "id": "voxel-roof-lighting",
+      "title": "Westminster rooftop lighting artifacts",
+      "description": "Reproduced rooftop striping in a fixed-daylight Windows GPU capture. Comparing shadow and material paths independently.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Reproduced rooftop striping in a fixed-daylight Windows GPU capture. Comparing shadow and material paths independently.",
+      "updatedAt": "2026-11-20T23:15:38+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
