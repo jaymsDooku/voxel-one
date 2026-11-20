@@ -57,7 +57,9 @@ public class SavedPagingSessionTest {
                     try(var session=publication.adoptPagingScene(worker,SavedPagingFactoryTest.NEXT,pending,1,8192,()->{
                         assertThrows(IOException.class,()->publication.adoptPagingScene(worker,SavedPagingFactoryTest.NEXT,pending,1,8192,()->false));return false;
                     })) {
-                        assertNotSame(c.world,session.world());assertSame(c.local.models,session.world().models());assertSame(session.local().models,session.world().models());
+                        assertNotSame(c.world,session.world());assertNotSame(c.local.models,session.world().models());assertSame(session.local().models,session.world().models());
+                        assertEquals(c.local.models.revision(),session.local().models.revision());
+                        assertEquals(new ArrayList<>(c.local.models.entries()),new ArrayList<>(session.local().models.entries()));
                         assertEquals(c.local.health,session.local().health);assertEquals(c.local.drops,session.local().drops);assertNotSame(c.local.drops,session.local().drops);assertNotSame(c.local.inventory,session.local().inventory);
                         for(int i=0;i<Inventory.SIZE;i++){assertEquals(c.local.inventory.type(i),session.local().inventory.type(i));assertEquals(c.local.inventory.count(i),session.local().inventory.count(i));}
                         assertTrue(session.world().hasReplayReadView());assertFalse(session.world().replayDataReady(0,160,0));assertFalse(session.world().isLoaded(0,160,0));

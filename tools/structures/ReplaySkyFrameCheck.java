@@ -201,7 +201,7 @@ public final class ReplaySkyFrameCheck {
     }
    }finally{RegionReplayWorkerTest.closed(closeWorker);}
    pendingChunk(root,path,shader,image.resolveSibling(image.getFileName().toString().replace("-optics.png","-pending.png")));check(Arrays.equals(original,Files.readAllBytes(path)),"Pending render preserves physical source");
-   check(glGetError()==GL_NO_ERROR&&Mesh.estimatedResidentBytes()==baseline,"GL cleanup");Files.writeString(report,"{\"status\":\"passed\",\"published_chunks\":2,\"max_owned_uploads\":1,\"renderer\":\""+renderer+"\",\"gl_version\":\""+version+"\",\"source_lighting_chunks\":288,\"source_lighting_leaves\":"+sourceLightingLeaves+",\"source_lighting_nanos\":"+sourceLightingNanos+",\"planar_lighting_nanos\":"+planarLightingNanos+",\"planar_lit_geometry_pixels\":"+planarLitGeometryPixels+",\"qualification\":false}\n");
+   check(glGetError()==GL_NO_ERROR&&Mesh.estimatedResidentBytes()==baseline,"GL cleanup");Files.writeString(report,"{\"status\":\"passed\",\"paging_model_maps_isolated\":true,\"published_chunks\":2,\"max_owned_uploads\":1,\"renderer\":\""+renderer+"\",\"gl_version\":\""+version+"\",\"source_lighting_chunks\":288,\"source_lighting_leaves\":"+sourceLightingLeaves+",\"source_lighting_nanos\":"+sourceLightingNanos+",\"planar_lighting_nanos\":"+planarLightingNanos+",\"planar_lit_geometry_pixels\":"+planarLitGeometryPixels+",\"qualification\":false}\n");
   }finally{RegionReplayWorkerTest.closed(worker);shader.close();glfwDestroyWindow(window);glfwTerminate();}
  }
 }

@@ -54,8 +54,32 @@ public class SavedPagingJournalTest {
     @Test public void changedModelsInvalidateTheSourceJournalWithoutSaving()throws Exception {
         withSession("models",(c,editor,oldJournal,worker,session,pending)->{
             byte[] disk=Files.readAllBytes(c.path);var tree=new SparseVoxelOctree(8);tree.set(0,0,0,0xff010203);
-            session.world().models().stageStructureModel(new ModelDefinition("Synthetic changed model",tree));
+            long oldRevision=c.local.models.revision();
+            int id=session.world().models().stageStructureModel(new ModelDefinition("Synthetic changed model",tree)).id();
+            assertEquals(oldRevision,c.local.models.revision());assertFalse(c.local.models.has(id));
             assertThrows(IOException.class,()->session.journal().capture(()->false));assertArrayEquals(disk,Files.readAllBytes(c.path));
+        });
+    }
+    @Test public void retiredWorldModelChangesCannotAlterPagedGeometryOrRepeatSave()throws Exception {
+        withSession("isolated-models",(c,editor,oldJournal,worker,session,pending)->{
+            assertNotSame(c.local.models,session.local().models);long revision=session.local().models.revision();
+            var definitions=new ArrayList<>(session.local().models.entries());
+            for(var entry:definitions)assertSame(c.local.models.get(entry.id()).definition(),entry.definition());
+            var tree=new SparseVoxelOctree(8);tree.set(0,0,0,0xff73519b);
+            int retiredId=c.local.models.stageStructureModel(new ModelDefinition("Retired World only",tree)).id();
+            assertFalse(session.local().models.has(retiredId));assertEquals(revision,session.local().models.revision());
+            assertEquals(definitions,new ArrayList<>(session.local().models.entries()));
+            assertEquals(pending.rows(),session.journal().capture(()->false).overlay().rows());
+            session.scene().desired(List.of(new ChunkPos(0,10,0)));long deadline=System.nanoTime()+10_000_000_000L;
+            while(session.scene().status().data().ready()!=1&&System.nanoTime()<deadline){session.scene().tick();Thread.sleep(5);}
+            assertEquals(1,session.scene().status().data().ready());
+            assertEquals(WorldVoxels.encode(PendingReplayOverlayTest.fraction()),session.world().cell(3,160,0).get(8,0,8));
+            assertFalse(session.world().isLoaded(0,160,0));assertThrows(IOException.class,session.local()::save);
+            var publication=stage(worker,session,SavedPagingFactoryTest.NEXT);publish(worker,publication,SavedPagingFactoryTest.NEXT);
+            var saved=new LocalGame(c.path,0);assertFalse(saved.models.has(retiredId));
+            for(var entry:definitions)assertEquals(entry.definition().fingerprint(),saved.models.get(entry.id()).definition().fingerprint());
+            assertEquals(1,saved.edits.values().stream().filter(PendingReplayOverlayTest.fraction()::equals).count());
+            assertTrue(c.local.models.has(retiredId));
         });
     }
     @Test public void sourceJournalSavesPendingRowsOnceAndFreshSessionSupportsAnotherSave()throws Exception {

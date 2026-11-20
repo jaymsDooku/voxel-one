@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T06:56:41+00:00",
+  "updatedAt": "2026-11-20T07:30:34+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Recovered source 0d69fc67 validated against a9e8eed8: 388 Java tests/78 suites, 39 Python tests, package/MP3 checks, full native structure workflow (502.884 s), height/sealed-room GPU probe (200.588 s), replay/render checks and 15 colour panels passed. Fresh media decoded/inspected and hash-pinned locally, pending controller publication and hosted CI. HCF/practice and restored MP3/Hub features preserved. City/maximum implementation and GPU/32-client qualification remain gated.",
-      "updatedAt": "2026-11-20T06:56:41+00:00"
+      "note": "Replacement paging scenes now own independent model maps with stable IDs/frozen definitions; legacy resident-tail behavior retained. Passed 405 Java tests/83 suites, 39 Python tests, package/MP3 checks and corrected native repeat-save/reopen/render workflow. Initial native harness expectation failed and was fixed; final five images inspected and hash-pinned. Pending controller publication/hosted CI. Main/live-tail/editable paging and city/maximum/GPU/32-client qualification remain gated.",
+      "updatedAt": "2026-11-20T07:30:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

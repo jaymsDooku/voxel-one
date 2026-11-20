@@ -287,7 +287,7 @@ final class RegionReplayWorker implements AutoCloseable {
                     ||sourceOverlay!=pending)throw new IOException("Replay live-tail scene source mismatch");
             World world=null;preparingScene=true;
             try {
-                var capturedMetadata=metadata;var prepared=capturedMetadata.prepareCurrentTail(live,inventory,drops,health);var local=prepared.local();
+                var capturedMetadata=metadata;var prepared=capturedMetadata.prepareCurrentScene(live,inventory,drops,health);var local=prepared.local();
                 world=new World(local.seed,local.models,local.generatorVersion);
                 var binding=new Binding(local,world);
                 var pump=binding.new ChunkPump(sceneCapacity,maxCellLeaves);binding.chunkPump=pump;

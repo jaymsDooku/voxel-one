@@ -45,6 +45,10 @@ final class SavedPagingSessionFrame {
                 try {
                     ReadbackMetadataTest.ready(worker);long rows=worker.status().sourceRows();
                     try(var session=publication.adoptPagingScene(worker,SavedPagingFactoryTest.NEXT,pending,1,8192,()->false)) {
+                        assertNotSame(c.local.models,session.local().models);
+                        var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
+                        int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
+                        assertFalse(session.local().models.has(retiredId));
                         assertEquals(0,session.scene().status().data().ready());session.local().health--;
                         var second=SavedPagingJournalTest.stage(worker,session,SavedPagingFactoryTest.NEXT);SavedPagingJournalTest.publish(worker,second,SavedPagingFactoryTest.NEXT);
                         var nextPending=second.pendingPagingOverlay(()->false);assertTrue(nextPending.rows().isEmpty());RegionReplayWorkerTest.closed(worker);
@@ -52,9 +56,10 @@ final class SavedPagingSessionFrame {
                         try {
                             ReadbackMetadataTest.ready(nextWorker);assertEquals(rows+pending.rows().size(),nextWorker.status().sourceRows());
                             try(var next=second.adoptPagingScene(nextWorker,SavedPagingJournalTest.AFTER,nextPending,1,8192,()->false)) {
+                                assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));
                                 assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
                                 byte[] disk=Files.readAllBytes(c.path);render(next,image);assertArrayEquals(disk,Files.readAllBytes(c.path));
-                                assertEquals(pending.rows(),editor.capture(()->false).overlay().rows());assertFalse(c.world.hasReplayReadView());
+                                assertThrows(java.io.IOException.class,()->editor.capture(()->false));assertFalse(c.world.hasReplayReadView());
                             }
                         }finally{RegionReplayWorkerTest.closed(nextWorker);}
                     }

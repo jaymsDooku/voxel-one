@@ -79,6 +79,15 @@ public final class LocalGame {
             if(current.replayComplete||current.city!=null||current.seed!=seed||current.generatorVersion!=generator)throw new IOException("Replay baseline owner mismatch");
             return new PreparedTail(new LocalGame(this,current,inventory,drops,health));
         }
+        /** A replacement scene owns independent model maps. IDs, revision and
+         * frozen definitions survive unchanged; later changes in the retired
+         * World cannot change or invalidate this candidate. Copy before World
+         * allocation and the caller's final source guard, never after commit. */
+        synchronized PreparedTail prepareCurrentScene(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
+            var prepared=prepareCurrentTail(current,inventory,drops,health);
+            prepared.local.models=prepared.local.models.copy();
+            return prepared;
+        }
         final class PreparedTail {
             private final Thread owner=Thread.currentThread();
             private final LocalGame local;
