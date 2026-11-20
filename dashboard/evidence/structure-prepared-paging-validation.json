@@ -1,0 +1,248 @@
+{
+  "schema": 1,
+  "parent_head": "bf57e5bf6fbb7086034b579166afbc2acc036225",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available prepared-scene handover checks passed; complete structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "A published-source private preparation can warm a read-only scene before live-tail handover. Candidate metadata is consumed privately; old World, live state and journal stay untouched. One active preparation blocks competing adoption/ack/source factories. Its reserved binding cannot stage saves/publication/producer-cleanup jobs. Final commit revalidates exact pending geometry, source/model/terrain/World identity and latest independent inventory/drop copies plus health, then preallocates a new partial local/session. After final guards it changes only bound local metadata and acknowledges the saved prefix without callbacks/allocation/cancellation. World/scene/model/mesh/request identities stay fixed. Abandonment closes private World and signals worker cleanup; fresh source work waits for terminal cleanup and failed cleanup requires explicit worker-close retry.",
+  "limits": {
+    "active_preparations_per_publication": 1,
+    "scene_chunks": "existing one or two",
+    "scope": "All previous scene/cache, package, model, geometry/surface/chunk/mesh/persistence and qualification caps remain. No joins/filesystem work in cleanup polling; full overlay capture/adoption remains linear CPU and unqualified."
+  },
+  "focused": {
+    "status": "passed",
+    "tests": 35,
+    "suites": [
+      {
+        "name": "dev.jayms.net.PreparedPagingSceneTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingSessionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingTailTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingJournalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingModelBindingTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackSaveSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "inspection_refinements": "Initial focused checks passed. Added a reserved-candidate token and precommit save rejection, then an asynchronous cleanup receipt gate and real cleanup-failure case. Final focused checks passed; no assertion removed."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest",
+      "test"
+    ],
+    "tests": 618,
+    "suites": 133,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 370.93856234662235
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.05851587280631,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 816,
+    "shaders_match": 28,
+    "mp3": "Original shipped CBR/VBR fixtures both decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-prepared-paging"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 82.97747526317835,
+      "prefix": "structure-prepared-paging"
+    },
+    "receipt": "structure-prepared-paging-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12599864166,
+      "planar_lighting_nanos": 1165475555,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11722528556,
+      "planar_lighting_nanos": 743634536,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true
+  },
+  "playtest": "Playtest: native Java/GLFW/OpenGL saved-source integration CLI on inherited DISPLAY with synthetic offline v10 data. Expected complete bounded CPU/GPU warmup while old saved prefix remains unacknowledged; change old health/inventory/drops, then commit without rebuilding warmed resources. Observed ready GPU entry retained, same World/scene/binding, unchanged estimated mesh resident bytes across final transfer, latest independent survival tail, exact prefix acknowledgement, and saved bytes unchanged during capture. Existing coloured added model and later red geometry survive retry/save/reopen/render; source model-counter/sky receipts, ordinary/pending geometry, lighting/roof-clear sky, planar/model/water and lifecycle regressions pass. Eight new cases also cover precommit save rejection, ordinary-session refresh rejection, stale/foreign reservation, owner/reentry, all observed final cancellation hooks, changed geometry/model/closed World/stopped worker, abandon/fresh retry, and real failed cleanup gating new source work. All assertions passed. This internal engine integration has no browser workflow. Full Main was not rerun for these private read-only helpers; Main installation/editable paging and full-game qualification remain pending.",
+  "media": {
+    "inspected": [
+      "structure-prepared-paging-session.png",
+      "structure-prepared-paging-optics.png",
+      "structure-prepared-paging-pending-optics.png",
+      "structure-prepared-paging-pending.png",
+      "structure-prepared-paging-regression.png"
+    ],
+    "scope": "Five fresh implementation-native framebuffers; reloaded source scene was CPU/GPU ready before final metadata/ack transfer, then rendered after latest-tail refresh. Software rendering only; no physical-GPU/frame-time pass."
+  },
+  "source_files_fixed": 663,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/LocalGame.java": "ffcc8bd652fd0a3c18f38e3d5ece53f5773464535409acb917f5bd6fe3414366",
+    "src/main/java/dev/jayms/net/RegionReplayWorker.java": "70ba255561bc2e14b5402eb1e63fa0862cbe16b5369578c6f45cc9a0c0f90fa0",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "1a42373699aedbaee708d0c6060ed968db04a5fe8e4705bec59fcecdf1d2ae09",
+    "src/test/java/dev/jayms/net/PreparedPagingSceneTest.java": "338f4d2313187221a788d5077402520dd81c5205052ae3d4e5c8fbf85d73afd7",
+    "tools/structures/SavedPagingSessionFrame.java": "dfe57fb2f9989a12a03d56f111415f8d5d2541c0aac7f33480c86132f7028821",
+    "tools/structures/ReplaySkyFrameCheck.java": "d026f28d4abbe5c82e87aaca4e5dae2474d911736e1fd453a33f1f6191637613",
+    "tools/structures/run_replay_sky_frame_check.py": "ec83332d125a67481ec21cad61629b7a119b3d5cf563e0fbd8c7c9ce2991a72d"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "bf57e5bf6fbb7086034b579166afbc2acc036225",
+    "run": 44745758692,
+    "platform_builds": [
+      {
+        "name": "build (macos-latest, mac-arm)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (macos-15-intel, mac-intel)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (windows-latest, windows)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (ubuntu-latest, linux)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "publish": "skipped",
+    "scope": "Parent job summaries inspected; changed source requires fresh exact-head hosted checks."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Replace a final binding-local pointer with an owner-only pointer that changes solely through a reserved candidate tail commit; add deferred preparation without changing existing immediate-adoption semantics. Refactor native warmup so it runs before final transfer; extend assertions and method/progress notes. No production gate or regression case was removed. Prior base-diff world/history/render replacements and protocol compatibility adjustments remain as documented. No unrelated deletion intended."
+  },
+  "remaining": [
+    "Main installation and old World reconciliation remain unfinished; private source coordination is not full in-game integration.",
+    "Editable paging and true model-ID remapping remain unfinished. Ready private-scene preparation does not perform Main installation or old World retirement/reconciliation.",
+    "City/maximum remain rejected for placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only measurements are not whole-workflow qualification.",
+    "Required 20-run whole-workflow city/maximum benchmarks in reference client/server/network environment, physical GPU, shaped 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Prepared private read-only scene handover and available CLI/native functional regressions only. No supported-city/limit, whole-workflow, stable-rollout, physical-GPU, 30-FPS or 32-client qualification pass.",
+  "artifacts": {
+    "structure-prepared-paging-native.json": "35ea3df7e724af0508e93fd5da68e907db2285a23427e308d2b6d72b80185463",
+    "structure-prepared-paging-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-prepared-paging-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-prepared-paging-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-prepared-paging-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-prepared-paging-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}

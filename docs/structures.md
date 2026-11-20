@@ -2224,3 +2224,37 @@ This is private read-only paging integration. Main installation, old World
 reconciliation, editable paging and true model-ID remapping remain unfinished.
 No supported city, physical-GPU, frame-time or shaped-32-client qualification is
 claimed, and existing per-model/world/package/placement limits remain enforced.
+
+
+### Prepare paging geometry before live-tail handover
+
+A private published-source preparation can now warm its read-only World and
+bounded CPU/GPU scene before acknowledging the old saved journal prefix. Candidate
+metadata is consumed privately at preparation; the old live World, survival state
+and journal remain unchanged. Only one preparation can hold a publication.
+Competing adoption, acknowledgement and new source factories reject while held.
+
+The warm candidate reserves its tail binding and cannot stage saves, publication
+or producer cleanup jobs. Ordinary sessions cannot use the reserved tail-refresh
+path. Final commit rechecks exact pending geometry and all source/model/terrain/
+World guards, captures independent current inventory/drop copies and health, and
+preallocates a fresh partial local/session bundle. It then changes only the bound
+local metadata pointer and acknowledges the saved prefix without callbacks,
+cancellation or allocation after that boundary. World, scene, model maps, meshes
+and already validated geometry/sky request receipts stay the same. Read-only and
+partial-save restrictions remain.
+
+A later geometry edit rejects final handover rather than discarding that edit.
+Closing an uncommitted preparation closes its private World and signals worker
+retirement, without acknowledging any rows. A fresh candidate needs fresh worker
+metadata. New source/adoption work remains gated until the retiring worker reports
+terminal cleanup; failed cleanup needs explicit worker-close retry. No joins or
+filesystem work are moved onto the polling path. The caller retains that worker
+for its cleanup receipt. Successful commit transfers World/session ownership to
+the caller; closing the preparation afterward leaves that session open.
+
+This is still private read-only integration, not Main source installation or old
+World retirement. Scene residency stays at one or two chunks. Editable paging,
+true model-ID remapping and full city/maximum, physical-GPU and shaped-32-client
+qualification remain unfinished or pending. No performance or supported-city
+claim is made.

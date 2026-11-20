@@ -127,6 +127,23 @@ public final class LocalGame {
         edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;readbackFingerprint=metadata.fingerprint;readbackGeneration=metadata.generation;
     }
 
+    /** Private candidate-source identity with independently captured live tail.
+     * Caller validates the tail copies and publication/World/journal lineage. */
+    LocalGame copyReadbackTail(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
+        if(replayComplete||current.replayComplete||city!=null||current.city!=null||readbackGeneration==null||current.readbackGeneration==null
+                ||seed!=current.seed||generatorVersion!=current.generatorVersion
+                ||!readbackGeneration.target().equals(current.readbackGeneration.target())
+                ||!models.sameBindings(current.models))throw new IOException("Paging live-tail source mismatch");
+        return new LocalGame(this,current,inventory,drops,health);
+    }
+    private LocalGame(LocalGame baseline,LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health) {
+        save=baseline.save;seed=baseline.seed;generatorVersion=baseline.generatorVersion;models=baseline.models;
+        this.inventory=inventory;this.drops=drops;this.health=health;fallTop=current.fallTop;
+        nextDrop=current.nextDrop;for(int id:drops.keySet())nextDrop=Math.max(nextDrop,id);
+        edits=Collections.emptyMap();regionalSaves=true;replayComplete=false;
+        readbackFingerprint=baseline.readbackFingerprint;readbackGeneration=baseline.readbackGeneration;
+    }
+
     public LocalGame(Path save, long requestedSeed) throws IOException {
         this(save,requestedSeed,()->false,count->{});
     }

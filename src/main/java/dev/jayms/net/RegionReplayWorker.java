@@ -278,6 +278,11 @@ final class RegionReplayWorker implements AutoCloseable {
     PagingSession metadataResultCurrentScene(Revision current,String expectedFingerprint,Path expectedTarget,
             RegionReplayOverlay pending,LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health,
             int sceneCapacity,int maxCellLeaves,OwnerGuard guard)throws IOException {
+        return metadataResultCurrentScene(current,expectedFingerprint,expectedTarget,pending,live,inventory,drops,health,sceneCapacity,maxCellLeaves,guard,false);
+    }
+    PagingSession metadataResultCurrentScene(Revision current,String expectedFingerprint,Path expectedTarget,
+            RegionReplayOverlay pending,LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health,
+            int sceneCapacity,int maxCellLeaves,OwnerGuard guard,boolean reserveTail)throws IOException {
         owner();Objects.requireNonNull(current);Objects.requireNonNull(pending);Objects.requireNonNull(expectedTarget);Objects.requireNonNull(guard);
         if(sceneCapacity<1||sceneCapacity>2||maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
             throw new IllegalArgumentException("Replay scene budget");
@@ -295,6 +300,7 @@ final class RegionReplayWorker implements AutoCloseable {
                 world.attachReplayReadView(scene.readView());binding.baseline=world.beginReplayFence();
                 var journal=RegionReplayJournal.readOnlySource(world,pending);
                 var session=new PagingSession(local,world,binding,scene,journal);var models=local.models;long modelRevision=models.revision();
+                if(reserveTail)binding.preparedTail=session;
                 guard.validate();binding.baseline.validate(world);
                 if(stopping.get()||status.state()!=State.RUNNING||metadata!=capturedMetadata||targetBinding!=null)
                     throw new IOException("Replay scene source changed during preparation");
@@ -309,7 +315,8 @@ final class RegionReplayWorker implements AutoCloseable {
     /** Private detached-target session. This does not mark coverage loaded,
      * install geometry, promote metadata, or authorize a save over a live path. */
     final class Binding {
-        private final LocalGame local;
+        private LocalGame local;
+        private PagingSession preparedTail;
         private final World target;
         private World.ReplayFence baseline;
         private ReadView view;
@@ -332,6 +339,42 @@ final class RegionReplayWorker implements AutoCloseable {
                 throw new IOException("Replay source metadata changed");
             try{baseline.validate(current);}
             catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Replay bound target changed",changed);}
+        }
+        /** Refresh only a privately prepared scene's survival metadata. Geometry,
+         * source identity, model map and all existing cached receipts stay fixed.
+         * Caller supplies validated independent tail copies and owns the final
+         * publication/journal checks. No save or Main authority is granted. */
+        TailReplacement prepareLiveTail(PagingSession expected,Revision currentRevision,LocalGame current,Inventory inventory,
+                Map<Integer,ItemDrop> drops,int health)throws IOException {
+            owner();Objects.requireNonNull(expected);validate(target);
+            synchronized(gate) {
+                if(preparedTail!=expected||!revision.equals(currentRevision)||expected.binding()!=this||expected.local()!=local||expected.world()!=target
+                        ||pendingSave!=null||pendingPublication!=null||pendingCleanup!=null)
+                    throw new IOException("Paging scene tail transfer unavailable");
+                var next=local.copyReadbackTail(current,inventory,drops,health);
+                var session=new PagingSession(next,target,this,expected.scene(),expected.journal());
+                return new TailReplacement(local,next,session,target.beginReplayFence());
+            }
+        }
+        final class TailReplacement {
+            private final LocalGame previous,next;
+            private final PagingSession session;
+            private final World.ReplayFence fence;
+            private boolean consumed;
+            private TailReplacement(LocalGame previous,LocalGame next,PagingSession session,World.ReplayFence fence) {
+                this.previous=previous;this.next=next;this.session=session;this.fence=fence;
+            }
+            PagingSession commit()throws IOException {
+                owner();synchronized(gate) {
+                    validate(target);
+                    if(consumed||preparedTail==null||preparedTail.local()!=previous||local!=previous||next.models!=transferredModels
+                            ||pendingSave!=null||pendingPublication!=null||pendingCleanup!=null)
+                        throw new IOException("Paging scene tail transfer changed");
+                    try{fence.validate(target);}catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Paging scene tail World changed",changed);}
+                    // No callbacks, allocation or cancellation after this boundary.
+                    local=next;transferredMetadata=next;preparedTail=null;consumed=true;return session;
+                }
+            }
         }
         Request submit(ChunkPos region,RegionReplayPage.CellRange range,int maxRows,World current)throws IOException {
             validate(current);var request=enqueue(region,range,maxRows,revision,current.beginReplayFence(),this);requestsIssued=true;return request;
@@ -939,7 +982,8 @@ final class RegionReplayWorker implements AutoCloseable {
     Request submitCleanup(ReadbackSaveSnapshot.Prepared prepared,Revision revision)throws IOException {
         owner();Objects.requireNonNull(prepared);Objects.requireNonNull(revision);var request=new Request(prepared,revision);
         synchronized(gate) {
-            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)||pendingCleanup!=null||queue.size()>=capacity)
+            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)||pendingCleanup!=null||queue.size()>=capacity
+                    ||targetBinding!=null&&targetBinding.preparedTail!=null)
                 throw new IOException("Paging cleanup queue unavailable");
             prepared.claimCleanup(transferredMetadata,revision,fingerprint,sourceTarget,sourceOverlay,workerThread);
             pendingCleanup=request;queue.addLast(request);gate.notifyAll();return request;
@@ -949,7 +993,8 @@ final class RegionReplayWorker implements AutoCloseable {
     Request submitPublication(ReadbackSaveSnapshot.Publication publication,Revision revision)throws IOException {
         owner();Objects.requireNonNull(publication);Objects.requireNonNull(revision);var request=new Request(publication,revision);
         synchronized(gate) {
-            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)||pendingPublication!=null||queue.size()>=capacity)
+            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)||pendingPublication!=null||queue.size()>=capacity
+                    ||targetBinding!=null&&targetBinding.preparedTail!=null)
                 throw new IOException("Paging publication queue unavailable");
             publication.claimPagingWorker(transferredMetadata,revision,fingerprint,sourceTarget,sourceOverlay,workerThread);
             pendingPublication=request;queue.addLast(request);gate.notifyAll();return request;
@@ -961,7 +1006,8 @@ final class RegionReplayWorker implements AutoCloseable {
         owner();Objects.requireNonNull(snapshot);Objects.requireNonNull(revision);
         snapshot.validatePagingCapture(transferredMetadata);
         synchronized(gate) {
-            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision))throw new IOException("Paging save source unavailable");
+            if(stopping.get()||status.state()!=State.RUNNING||!revision.equals(sourceRevision)
+                    ||targetBinding!=null&&targetBinding.preparedTail!=null)throw new IOException("Paging save source unavailable");
             if(pendingSave!=null||queue.size()>=capacity)throw new IOException("Paging save queue full");
             var request=new Request(snapshot,revision);pendingSave=request;queue.addLast(request);gate.notifyAll();return request;
         }
