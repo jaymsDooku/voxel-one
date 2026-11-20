@@ -60,7 +60,9 @@ box WOOD 44 23 47 45 69 49
 end
 ```
 
-The compiler paints sparse engine octrees in bounded tiles. Uniform regions merge automatically, and the output uses the largest matching native cube at each position, from whole blocks to 1/16-block details. The largest envelope is 64 game blocks per axis. A separate fine-work budget limits expensive unaligned geometry. The schema endpoint reports the limits.
+The compiler paints sparse engine octrees in bounded tiles. Uniform regions merge automatically, and the output uses the largest matching native cube at each position, from whole blocks to 1/16-block details. The envelope can span 256 game blocks per axis. Compilation visits occupied tiles and skips empty space. The fill-work and placement-edit budgets still apply. The schema endpoint reports the limits.
+
+The [Westminster study](westminster-build-plan.md) shows how to plan a larger complex as bounded parts and fit close-up details into the same envelope.
 
 The opt-in JSON result has `schemaVersion: 2`, `unitsPerBlock: 16`, and an `editsByDepth` array ordered from whole blocks to sixteenths. Dimensions and `occupied` are in recipe units. Existing half-block recipes still return v1 JSON and the same canonical edit stream.
 

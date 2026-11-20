@@ -37,14 +37,14 @@ class OctreeBuildingTest {
 
     @Test void largeSparseEnvelopeAndCutsAcrossTilesDoNotExpandTheWholeGrid() {
         var building = BuildingCompiler.compile("""
-                building sparse 1024 1024 1024 grid16
+                building sparse 4096 4096 4096 grid16
                 part edge 240 0 0 272 16 16
                 box STONE 240 0 0 272 16 16
                 box AIR 255 0 0 257 1 1
                 box LED:aa4411 256 0 0 257 1 1
                 end
-                part far 1008 1008 1008 1024 1024 1024
-                box WOOD 1008 1008 1008 1024 1024 1024
+                part far 4080 4080 4080 4096 4096 4096
+                box WOOD 4080 4080 4080 4096 4096 4096
                 end
                 """);
         assertEquals(3*4096-1,building.occupied());
@@ -52,7 +52,13 @@ class OctreeBuildingTest {
         assertEquals(Blocks.AIR,materialAt(building,255,0,0));
         assertEquals(Blocks.LED,materialAt(building,256,0,0));
         assertEquals(Blocks.STONE,materialAt(building,257,0,0));
-        assertEquals(Blocks.WOOD,materialAt(building,1023,1023,1023));
+        assertEquals(Blocks.WOOD,materialAt(building,4095,4095,4095));
+        var endpoint=building.edits().get(building.edits().size()-1);
+        assertEquals(255,endpoint.x());
+        assertEquals(255,endpoint.y());
+        assertEquals(255,endpoint.z());
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(
+                "building too-wide 4097 16 16 grid16\npart sample 0 0 0 16 16 16\nbox STONE 0 0 0 16 16 16\nend"));
     }
 
     @Test void fineCurvesAreSymmetricAndFineBudgetFailsCleanly() {
@@ -87,6 +93,31 @@ class OctreeBuildingTest {
         assertEquals(Blocks.WOOD,materialAt(building,44,27,48));
         assertEquals(Blocks.LED,materialAt(building,36,47,49));
         assertEquals(Blocks.STONE,materialAt(building,24,72,45));
+    }
+
+    @Test void westminsterRecipeMeetsItsMassingPlan() throws Exception {
+        var building = BuildingCompiler.compile(
+                BuildingApi.readRecipe(Path.of("assets/buildings/westminster.vbuild")));
+        assertEquals(150*16,building.width());
+        assertEquals(51*16,building.height());
+        assertEquals(76*16,building.depth());
+        assertEquals(Set.of(0,1,2,3,4),building.edits().stream().map(Protocol.Edit::depth).collect(Collectors.toSet()));
+        assertEquals(Blocks.SAND,materialAt(building,136,47*16,312)); // Elizabeth finial
+        assertEquals(Blocks.STONE,materialAt(building,1192,45*16,600)); // Central spire
+        assertEquals(Blocks.SAND,materialAt(building,135*16,48*16,45*16)); // Victoria turret
+        assertEquals(Blocks.SNOW,materialAt(building,130,27*16,213)); // river clock face
+        assertEquals(Blocks.SNOW,materialAt(building,130,27*16,410)); // opposing clock face
+        assertEquals(Blocks.SNOW,materialAt(building,38,27*16,310));
+        assertEquals(Blocks.SNOW,materialAt(building,234,27*16,310));
+        for (int x : new int[]{50,95}) {
+            assertEquals(Blocks.STONE,materialAt(building,x*16,0,43*16));
+            for (int y=1;y<51;y++)
+                assertEquals(Blocks.AIR,materialAt(building,x*16,y*16,43*16));
+        }
+        assertEquals(Blocks.STONE,materialAt(building,20*16,0,62*16));
+        assertEquals(Blocks.AIR,materialAt(building,20*16,5*16,62*16));
+        assertEquals(Blocks.AIR,materialAt(building,30*16,3*16,57*16));
+        assertEquals(Blocks.STONE,materialAt(building,20*16,15*16,62*16));
     }
 
     private static int materialAt(BuildingCompiler.Building building,int x,int y,int z) {

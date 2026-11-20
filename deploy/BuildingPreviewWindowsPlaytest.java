@@ -14,7 +14,7 @@ import org.lwjgl.glfw.GLFWKeyCallback;
 import static org.lwjgl.glfw.GLFW.*;
 import static org.lwjgl.opengl.GL33.*;
 
-/** Native Breakwater House preview. Capture both street elevations, then walk into the lobby. */
+/** Native building inspection with representative views and an engine recording. */
 public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver {
     private final Path output;
     private World world;
@@ -22,7 +22,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private GLFWKeyCallback keys;
     private long window, since, previous;
     private int stage;
-    private boolean cedar;
+    private boolean cedar, westminster;
 
     private BuildingPreviewWindowsPlaytest(Path output) { this.output=output; }
 
@@ -37,36 +37,48 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         field("renderOnlyReplay").setBoolean(game,true);
         var probe=new BuildingPreviewWindowsPlaytest(output);
         probe.cedar=building.name().equals("cedar-court-entry");
+        probe.westminster=building.name().equals("westminster");
         game.run(probe);
-        if (probe.stage!=2 || Files.exists(output.resolve("unused.dat")))
-            throw new AssertionError("Preview walk did not finish or wrote a world save");
+        if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
+            throw new AssertionError("Preview did not finish or wrote a world save");
         Files.writeString(output.resolve("results.txt"),
-                "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
+                probe.westminster
+                        ? "PASS: Windows client captured the Thames elevation, Elizabeth Tower detail and an aerial view of the courts and hall. The plot stayed unsaved.\n"
+                        : "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
     }
 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        glfwSetWindowSize(window,960,600);
+        glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (cedar) place(game,5,33.04f,-8,90,9);
+        if (westminster) placeFlying(game,71,54,-47,90,-2);
+        else if (cedar) place(game,5,33.04f,-8,90,9);
         else place(game,13,33.04f,-25,90,15);
         since=previous=System.nanoTime();
     }
 
-    @Override public void beforeFrame(Main game) {
+    @Override public void beforeFrame(Main game) throws Exception {
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
-        if (stage==1 && player.position().z<(cedar ? 4.5f : 8))
+        if (westminster && stage==1) {
+            float t=Math.min(1,(now-since)/3_000_000_000f);
+            placeFlying(game,71-61*t,54+3*t,-47+37*t,90,-2+11*t);
+        }
+        if (!westminster && stage==1 && player.position().z<(cedar ? 4.5f : 8))
             player.step(world,dt,1,0,false,true);
     }
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (westminster) {
+            inspectWestminster(game,elapsed);
+            return;
+        }
         if (stage==0 && elapsed>2_400_000_000L) {
             capture(game,cedar ? "cedar-exterior.png" : "breakwater-exterior.png");
             if (cedar) place(game,5,33.04f,-5,90,-6);
@@ -84,6 +96,30 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
                 glfwSetWindowShouldClose(window,true);
             }
         }
+    }
+
+    private void inspectWestminster(Main game,long elapsed) throws Exception {
+        if (stage==0 && elapsed>2_500_000_000L) {
+            capture(game,"westminster-thames.png");
+            pressRecord();
+            stage=1;
+            since=System.nanoTime();
+        } else if (stage==1 && elapsed>4_000_000_000L) {
+            capture(game,"westminster-clock.png");
+            placeFlying(game,78,118,90,-90,-48);
+            stage=2;
+            since=System.nanoTime();
+        } else if (stage==2 && elapsed>3_500_000_000L) {
+            capture(game,"westminster-courts.png");
+            pressRecord();
+            stage=3;
+            glfwSetWindowShouldClose(window,true);
+        }
+    }
+
+    private void placeFlying(Main game,float x,float y,float z,float yaw,float pitch) throws Exception {
+        place(game,x,y,z,yaw,pitch);
+        player.toggleFlight();
     }
 
     private void place(Main game,float x,float y,float z,float yaw,float pitch) throws Exception {

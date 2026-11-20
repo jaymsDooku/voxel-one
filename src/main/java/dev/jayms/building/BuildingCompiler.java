@@ -5,6 +5,7 @@ import dev.jayms.net.Protocol;
 import dev.jayms.net.WorldVoxels;
 import dev.jayms.net.model.SparseVoxelOctree;
 import java.util.ArrayList;
+import java.util.BitSet;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Locale;
@@ -22,7 +23,7 @@ public final class BuildingCompiler {
     public static final int MAX_WORK = 8_000_000;
     public static final int MAX_EDITS = 160_000;
     public static final int FINE_UNITS_PER_BLOCK = 16;
-    public static final int MAX_FINE_DIMENSION = MAX_DIMENSION * 8;
+    public static final int MAX_FINE_DIMENSION = 4096;
     public static final int MAX_OCTREE_WORK = 2_000_000;
 
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_-]{0,47}");
@@ -185,6 +186,7 @@ public final class BuildingCompiler {
     /** Forest of engine octrees. A tile covers sixteen game blocks on each axis. */
     private static final class Grid {
         private static final int TILE = 256, TILES_PER_AXIS = MAX_FINE_DIMENSION / TILE;
+        private static final int BLOCKS_PER_AXIS = MAX_FINE_DIMENSION / FINE_UNITS_PER_BLOCK;
         private final String name;
         private final Bounds bounds;
         private final int scale;
@@ -263,13 +265,41 @@ public final class BuildingCompiler {
 
         Building build() {
             List<Protocol.Edit> edits=new ArrayList<>();
+            BitSet occupiedBlocks = new BitSet();
+            for (int i=0; i<tiles.length; i++) {
+                SparseVoxelOctree tree = tiles[i];
+                if (tree == null || tree.isEmpty()) continue;
+                int x = i % TILES_PER_AXIS * TILE;
+                int z = i / TILES_PER_AXIS % TILES_PER_AXIS * TILE;
+                int y = i / TILES_PER_AXIS / TILES_PER_AXIS * TILE;
+                collectBlocks(occupiedBlocks,tree,x,y,z,TILE);
+            }
+            // Keep the canonical block order of existing recipes across tile boundaries.
             int occupied=0;
-            for (int y=0;y<bounds.y1*scale;y+=16) for (int z=0;z<bounds.z1*scale;z+=16) for (int x=0;x<bounds.x1*scale;x+=16) {
-                var tree=tiles[index(x/TILE,y/TILE,z/TILE)];
-                if (tree!=null && !tree.isEmpty()) occupied+=emit(edits,tree,x,y,z,16,0);
+            for (int block=occupiedBlocks.nextSetBit(0); block>=0; block=occupiedBlocks.nextSetBit(block+1)) {
+                int x = block % BLOCKS_PER_AXIS * 16;
+                int z = block / BLOCKS_PER_AXIS % BLOCKS_PER_AXIS * 16;
+                int y = block / BLOCKS_PER_AXIS / BLOCKS_PER_AXIS * 16;
+                occupied += emit(edits,tiles[index(x/TILE,y/TILE,z/TILE)],x,y,z,16,0);
             }
             if (occupied==0) throw new IllegalArgumentException("Recipe leaves an empty building");
             return new Building(name,bounds.x1,bounds.y1,bounds.z1,edits,occupied,16/scale);
+        }
+
+        private void collectBlocks(BitSet blocks,SparseVoxelOctree tree,int x,int y,int z,int side) {
+            int value = tree.uniform(x%TILE,y%TILE,z%TILE,side);
+            if (value == 0) return;
+            if (value == -1 && side > 16) {
+                int half = side/2;
+                for (int i=0; i<8; i++)
+                    collectBlocks(blocks,tree,x+(i&1)*half,y+(i>>2)*half,z+((i>>1)&1)*half,half);
+                return;
+            }
+            int span = side/16;
+            for (int by=y/16; by<y/16+span; by++) for (int bz=z/16; bz<z/16+span; bz++) {
+                int first = (by*BLOCKS_PER_AXIS+bz)*BLOCKS_PER_AXIS+x/16;
+                blocks.set(first,first+span);
+            }
         }
 
         private int emit(List<Protocol.Edit> edits,SparseVoxelOctree tree,int x,int y,int z,int side,int depth) {

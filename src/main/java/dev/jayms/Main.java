@@ -411,7 +411,7 @@ public class Main {
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 buildingPreview != null
-                        ? new Protocol.Pose(0, buildingPreview.width()/(2f*buildingPreview.unitsPerBlock()), PREVIEW_GRADE+1.01f, -14, 90, 0)
+                        ? buildingPreviewSpawn()
                 : network == null
                         ? new Protocol.Pose(
                                 0,
@@ -506,13 +506,33 @@ public class Main {
         setCaptured(true);
     }
 
+    private Protocol.Pose buildingPreviewSpawn() {
+        float width = buildingPreview.width()/(float)buildingPreview.unitsPerBlock();
+        float setback = width <= 64 ? 14 : Math.min(47,width*.4f);
+        return new Protocol.Pose(0,width*.5f,PREVIEW_GRADE+1.01f,-setback,90,width <= 64 ? 0 : 11);
+    }
+
     private void prepareBuildingPlot() throws Exception {
         world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(PREVIEW_GRADE));
         int grid = buildingPreview.unitsPerBlock();
         int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
-        // Prepare the bounded asset footprint before the preview camera opens.
-        world.stream(width*.5f,depth*.5f,25);
-        for (int z=-19; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {
+        var spawn = buildingPreviewSpawn();
+        int spawnColumnX = Math.floorDiv((int)spawn.x(),16);
+        int spawnColumnZ = Math.floorDiv((int)Math.floor(spawn.z()),16);
+        int front = (int)Math.floor(spawn.z())-5;
+        // Prepare the spawn before adding any exterior detail columns.
+        world.stream(spawn.x(),spawn.z(),9);
+        // Load the part of the footprint that the normal streamer can retain at spawn.
+        // Farther edits remain in world history and stream in as the player approaches.
+        for (int cz=0; cz<=(depth-1)/16; cz++) for (int cx=0; cx<=(width-1)/16; cx++) {
+            if (Math.abs(cx-spawnColumnX)>6 || Math.abs(cz-spawnColumnZ)>6) continue;
+            for (int cy=-2; cy<=7; cy++) {
+                var position = new ChunkPos(cx,cy,cz);
+                if (!world.getLoadedChunks().containsKey(position))
+                    world.addChunk(position,ChunkGenerator.generate(position,world.terrain()));
+            }
+        }
+        for (int z=front; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {
             int material = z < -6 ? Blocks.ASPHALT : z <= -4 ? Blocks.SNOW : Blocks.STONE;
             world.setBlock(x,PREVIEW_GRADE,z,material);
         }
@@ -1310,6 +1330,7 @@ public class Main {
         shader.setMatrix4("uView", view);
 
         shader.setInt("uVertexColor", 1);
+        shader.setInt("uBuildingPreview",buildingPreview == null ? 0 : 1);
         shader.setInt("uInstanced", 0);
         shader.setInt("uDistantTerrain", 0);
         shader.setInt("uFog", 1);
@@ -1468,7 +1489,7 @@ public class Main {
         for (var parked : cheatParked) jeepModel.glass(parked, shader);
         rendering.water(world,modelRenderer,projection,view,(isometric ? overview.camera() : camera).position());
         rendering.finish();
-        if (!isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
+        if (buildingPreview == null && !isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
             glClear(GL_DEPTH_BUFFER_BIT);
             rendering.prepareHeld(shader);
             shader.setInt("uFog", 0);

@@ -5,7 +5,7 @@ in vec3 vColor,vNormal,vWorldPosition;
 flat in vec3 vSurface;
 out vec4 fragColor;
 uniform float uDaylight;
-uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld;
+uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld,uBuildingPreview;
 uniform int uShadowCascades,uVoxelAO,uVoxelGI,uContactTransport,uLocalReflection;
 uniform vec3 uColor,uLightDirection,uCameraPosition;
 uniform float uModelEmission,uTransparency,uOutputExposure;
@@ -144,6 +144,11 @@ void main(){
     if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
     if(uPlanetLighting==1&&uHeld==0){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
+        // Keep shadowed façades legible in inspection views beyond the local light volume.
+        if(uBuildingPreview==1){
+            indirect+=vec3(.24,.23,.21)*(volumeInside(point)?.2:1.);
+            if(skyVisibility==0.&&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
+        }
         indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
     }
     float sdfVisibility=1.;
