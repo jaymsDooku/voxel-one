@@ -39,7 +39,7 @@ class PracticeNetworkTest {
     @ParameterizedTest(name = "No Debuff with {0} ms added RTT on both TLS connections")
     @ValueSource(ints = {0, 80, 150})
     @Timeout(30)
-    void clientsAgreeOnHitMovementAndPotionInBasaltCourtyard(int rtt) throws Exception {
+    void clientsAgreeOnHitPotionAndPearlInBasaltCourtyard(int rtt) throws Exception {
         var tls = SecureTransport.server(temporary.resolve("tls"));
         try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), Kit.NO_DEBUFF);
              var relayA = new TcpDelay(server.port(), rtt / 2);
@@ -105,7 +105,19 @@ class PracticeNetworkTest {
             await(() -> bob.view().inventory().get(5).item() == Item.HEALING, "shift-click reserve refill");
             assertEquals(Item.EMPTY, bob.view().inventory().get(21).item());
             assertEquals(Item.HEALING, alice.view().inventory().get(21).item());
-            System.out.printf("Basalt Courtyard: %d ms added RTT, %d ms ready observed, hit timing and potion snapshots agree%n",
+
+            Fighter beforePearl = self(bob);
+            assertTrue(input(bob, sequence++, 0, -20, 0, false, false, false, 1));
+            assertTrue(input(bob, sequence, 0, -20, 0, false, false, true, 1));
+            await(() -> {
+                Fighter own = self(bob), remote = fighter(alice.view(), bob.id());
+                return own.motionEpoch() == beforePearl.motionEpoch() + 1 && own.motionEpoch() == remote.motionEpoch()
+                        && own.x() == remote.x() && own.x() > beforePearl.x() + 2
+                        && own.health() == beforePearl.health() - 5 && bothAgree(alice, bob);
+            }, "shared pearl teleport and landing damage");
+            assertEquals(15, bob.view().inventory().get(1).count());
+            assertTrue(bob.view().cooldown() > 0);
+            System.out.printf("Basalt Courtyard: %d ms added RTT, %d ms ready observed, hit, potion and pearl snapshots agree%n",
                     rtt, readyRtt);
 
             if (rtt == 0) verifySpectatorForfeitAndRematch(server.port(), tls.fingerprint(), alice, bob);

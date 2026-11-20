@@ -7,7 +7,9 @@ import java.util.EnumMap;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.TreeMap;
+import java.util.random.RandomGenerator;
 
 import static dev.jayms.combat.CombatGeometry.*;
 
@@ -26,6 +28,9 @@ public final class CombatEngine {
     public interface Arena {
         boolean solid(int x, int y, int z);
         boolean contains(Vec3 feet);
+        default boolean throwableSolid(int x, int y, int z) { return solid(x, y, z); }
+        default boolean containsThrowable(Vec3 position) { return contains(position); }
+        default boolean throwableInWater(Vec3 position) { return false; }
         default boolean canHarm(int attackerId, int targetId) { return true; }
         default boolean canEnter(int playerId, Vec3 feet) { return true; }
     }
@@ -101,14 +106,20 @@ public final class CombatEngine {
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
     private final CombatRules rules;
     private final Arena arena;
+    private final RandomGenerator throwableRandom;
     private final Map<Integer, Actor> actors = new TreeMap<>();
     private final List<Projectile> shots = new ArrayList<>();
     private final ArrayDeque<Event> events = new ArrayDeque<>();
     private long currentTick, arenaTick, nextProjectile;
 
     public CombatEngine(CombatRules rules, Arena arena) {
-        this.rules = java.util.Objects.requireNonNull(rules);
-        this.arena = java.util.Objects.requireNonNull(arena);
+        this(rules, arena, RandomGenerator.getDefault());
+    }
+
+    CombatEngine(CombatRules rules, Arena arena, RandomGenerator throwableRandom) {
+        this.rules = Objects.requireNonNull(rules);
+        this.arena = Objects.requireNonNull(arena);
+        this.throwableRandom = Objects.requireNonNull(throwableRandom);
     }
 
     public boolean join(int playerId, Vec3 feet, float yaw) {
@@ -530,10 +541,7 @@ public final class CombatEngine {
 
     private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
-        Vec3 relative = target.feet.minus(attacker.feet);
-        double distance = Math.hypot(relative.x, relative.z);
-        Vec3 away = distance > .01 ? new Vec3(relative.x / distance, 0, relative.z / distance)
-                : direction(attacker.yaw, 0);
+        Vec3 away = knockbackDirection(attacker, target);
         double mitigation = java.util.Arrays.stream(target.armor).filter(value -> value > 0).count()
                 * target.armorReduction / target.armor.length;
         double damage = rawDamage * (1 - mitigation);
@@ -546,10 +554,7 @@ public final class CombatEngine {
         double dealt = fullHit ? damage : Math.max(0, damage - target.lastDamage);
         if (dealt <= 0) return false;
         target.lastDamage = damage;
-        if (fullHit) {
-            target.hurtTicks = rules.hurtTicks();
-            target.pendingKnockback = away.scale(rules.knockback()).add(0, rules.lift(), 0);
-        }
+        if (fullHit) beginHitMotion(target, away);
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
         target.pendingSprintPush = target.pendingSprintPush.add(sprintPush);
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
@@ -567,6 +572,18 @@ public final class CombatEngine {
         emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
         applyDamage(target, attacker.id, dealt);
         return true;
+    }
+
+    private static Vec3 knockbackDirection(Actor attacker, Actor target) {
+        Vec3 relative = target.feet.minus(attacker.feet);
+        double distance = Math.hypot(relative.x, relative.z);
+        return distance > .01 ? new Vec3(relative.x / distance, 0, relative.z / distance)
+                : direction(attacker.yaw, 0);
+    }
+
+    private void beginHitMotion(Actor target, Vec3 away) {
+        target.hurtTicks = rules.hurtTicks();
+        target.pendingKnockback = away.scale(rules.knockback()).add(0, rules.lift(), 0);
     }
 
     private void applyDamage(Actor target, int sourceId, double amount) {
@@ -591,7 +608,7 @@ public final class CombatEngine {
         Item selected = actor.selected();
         if (actor.useReleased) {
             if (selected == Item.BOW && actor.useItem == Item.BOW && actor.useTicks >= 3 && consumeArrow(actor)) {
-                launch(actor, Item.ARROW, Math.min(2.55, actor.useTicks * .1275) + .15, 0);
+                launchArrow(actor, Math.min(2.55, actor.useTicks * .1275) + .15);
             }
             actor.cancelUse();
         }
@@ -599,11 +616,11 @@ public final class CombatEngine {
             if (selected == Item.HEALING || (isDebuff(selected) && rules.debuffs())) {
                 if (selected == Item.HEALING) actor.potsUsed++;
                 actor.consume(actor.slot);
-                launch(actor, selected, .78, -.04);
+                launchThrowable(actor, selected);
             } else if (selected == Item.PEARL && actor.pearlCooldown == 0) {
                 actor.consume(actor.slot);
                 actor.pearlCooldown = rules.pearlCooldown();
-                launch(actor, selected, 1.2, .01);
+                launchThrowable(actor, selected);
             } else if (actor.useHeld && startsTimedUse(selected, actor.food)) {
                 actor.useItem = selected;
                 actor.useTicks = 0;
@@ -645,10 +662,19 @@ public final class CombatEngine {
         return false;
     }
 
-    private void launch(Actor actor, Item item, double speed, double loft) {
+    private void launchArrow(Actor actor, double speed) {
         Vec3 aim = direction(actor.yaw, actor.pitch);
         Vec3 position = actor.feet.add(0, EYE_HEIGHT - .12, 0);
-        Vec3 velocity = aim.scale(speed).add(actor.velocity.x * .35, loft, actor.velocity.z * .35);
+        Vec3 velocity = aim.scale(speed).add(actor.velocity.x * .35, 0, actor.velocity.z * .35);
+        launch(actor, Item.ARROW, position, velocity);
+    }
+
+    private void launchThrowable(Actor actor, Item item) {
+        var launch = ThrowablePhysics.launch(actor.feet, actor.yaw, actor.pitch, item, throwableRandom);
+        launch(actor, item, launch.position(), launch.velocity());
+    }
+
+    private void launch(Actor actor, Item item, Vec3 position, Vec3 velocity) {
         shots.add(new Projectile(++nextProjectile, actor.id, item, position, velocity));
         emit(EventType.THROW, actor.id, 0, item, position, 0);
     }
@@ -656,12 +682,15 @@ public final class CombatEngine {
     private boolean advance(Projectile shot) {
         Actor owner = actors.get(shot.ownerId);
         if (owner == null || !owner.alive() || shot.age++ >= PROJECTILE_LIFETIME) return true;
-        double impact = firstBlock(arena, shot.position, shot.velocity);
+        boolean arrow = shot.item == Item.ARROW;
+        double impact = arrow ? firstBlock(arena, shot.position, shot.velocity)
+                : firstThrowableBlock(arena, shot.position, shot.velocity);
         Actor target = null;
         for (Actor actor : actors.values()) {
-            if (!actor.alive() || (actor == owner && shot.age <= 3)) continue;
-            double bodyHit = firstBody(shot.position, shot.velocity, actor.feet);
-            if (bodyHit < impact) {
+            if (!actor.alive() || (actor == owner && shot.age < (arrow ? 4 : 5))) continue;
+            double bodyHit = arrow ? firstBody(shot.position, shot.velocity, actor.feet)
+                    : firstThrowableBody(shot.position, shot.velocity, actor.feet);
+            if (bodyHit < impact || (!arrow && target == null && bodyHit <= 1 && bodyHit == impact)) {
                 impact = bodyHit;
                 target = actor;
             }
@@ -669,81 +698,110 @@ public final class CombatEngine {
         if (impact <= 1) {
             Vec3 hit = shot.position.add(shot.velocity.scale(impact));
             switch (shot.item) {
-                case PEARL -> landPearl(owner, hit, shot.velocity);
+                case PEARL -> {
+                    pearlHit(owner, target, hit);
+                    landPearl(owner, shot.position, hit, shot.velocity);
+                }
                 case ARROW -> {
                     if (target != null && target != owner) {
                         strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), ZERO, Item.ARROW);
                     }
                 }
-                default -> splash(owner, shot.item, hit, shot.velocity);
+                default -> splash(owner, shot.item, shot.position, target);
             }
             return true;
         }
-        shot.position = shot.position.add(shot.velocity);
-        if (!arena.contains(shot.position)) {
-            if (shot.item == Item.PEARL) emit(EventType.REJECTED_PEARL, owner.id, owner.id, Item.PEARL, shot.position, 0);
+        Vec3 next = shot.position.add(shot.velocity);
+        if (!(arrow ? arena.contains(next) : arena.containsThrowable(next))) {
+            if (shot.item == Item.PEARL) emit(EventType.REJECTED_PEARL, owner.id, owner.id, Item.PEARL, next, 0);
             return true;
         }
-        double gravity = shot.item == Item.ARROW ? .05 : .06;
-        shot.velocity = shot.velocity.scale(.985).add(0, -gravity, 0);
+        shot.velocity = arrow ? shot.velocity.scale(.985).add(0, -.05, 0)
+                : ThrowablePhysics.nextVelocity(shot.item, shot.velocity, arena.throwableInWater(shot.position));
+        shot.position = next;
         return false;
     }
 
-    private void splash(Actor owner, Item item, Vec3 impact, Vec3 velocity) {
-        emit(EventType.SPLASH, owner.id, 0, item, impact, rules.splashRadius());
-        double length = velocity.length();
-        Vec3 visibleImpact = length > .001 ? impact.add(velocity.scale(-.012 / length)) : impact;
+    private void pearlHit(Actor owner, Actor target, Vec3 contact) {
+        if (target == null || target == owner || target.hurtTicks != 0 || !arena.canHarm(owner.id, target.id)) return;
+        // Paper's zero-damage hit still causes a fresh hurt reaction and attributes it to the thrower.
+        target.lastDamage = 0;
+        target.hurtTick = currentTick;
+        target.recentAttacker = owner.id;
+        target.lastDamageTick = currentTick;
+        beginHitMotion(target, knockbackDirection(owner, target));
+        emit(EventType.HIT, owner.id, target.id, Item.PEARL, contact, 0);
+    }
+
+    private void splash(Actor owner, Item item, Vec3 center, Actor directTarget) {
+        double radius = rules.splashRadius();
+        emit(EventType.SPLASH, owner.id, 0, item, center, radius);
         for (Actor actor : actors.values()) {
             if (!actor.alive() || (item != Item.HEALING && actor != owner && !arena.canHarm(owner.id, actor.id))) {
                 continue;
             }
-            Vec3 chest = actor.feet.add(0, .65, 0);
-            Vec3 offset = chest.minus(visibleImpact);
-            double scale = 1 - actor.feet.minus(visibleImpact).length() / rules.splashRadius();
-            if (scale <= 0 || firstBlock(arena, visibleImpact, offset) <= 1) continue;
+            // The radius covers horizontal candidates. Vertically, Paper grows the 0.25-block
+            // projectile box by two blocks and requires it to overlap the target's body.
+            if (actor.feet.y + BODY_HEIGHT <= center.y - 2 || actor.feet.y >= center.y + 2.25) continue;
+            double distance = actor.feet.minus(center).length();
+            if (distance >= radius) continue;
+            double scale = actor == directTarget ? 1 : 1 - distance / radius;
             if (item == Item.HEALING) {
-                heal(actor, rules.healing() * scale);
+                heal(actor, Math.round(rules.healing() * scale));
             } else {
                 Effect effect = item == Item.POISON ? Effect.POISON : Effect.SLOWNESS;
                 int duration = item == Item.POISON ? rules.poisonDuration() : rules.slownessDuration();
-                int effectiveDuration = (int) (duration * scale);
-                if (effectiveDuration > 0 && applyEffect(actor.id, effect, effectiveDuration) && actor != owner) {
+                int effectiveDuration = (int) Math.round(duration * scale);
+                if (effectiveDuration > TICKS_PER_SECOND
+                        && applyEffect(actor.id, effect, effectiveDuration) && actor != owner) {
                     emit(EventType.DEBUFF, owner.id, actor.id, item, actor.feet, effectiveDuration);
                 }
             }
         }
     }
 
-    private void landPearl(Actor owner, Vec3 impact, Vec3 velocity) {
-        double length = velocity.length();
-        Vec3 back = length > .001 ? velocity.scale(-1 / length) : ZERO;
-        for (double retreat : new double[] {.02, .18, .34, .52, .72, .95}) {
-            Vec3 clearImpact = impact.add(back.scale(retreat));
-            for (int drop = 0; drop <= 3; drop++) {
-                Vec3 feet = new Vec3(clearImpact.x, Math.floor(clearImpact.y + .09) - drop + .001, clearImpact.z);
-                if (!free(arena, feet) || !supported(arena, feet) || occupied(owner, feet)
-                        || !arena.canEnter(owner.id, feet)) continue;
-                Vec3 chest = feet.add(0, .4, 0);
-                if (firstBlock(arena, clearImpact, chest.minus(clearImpact)) <= 1) continue;
-                owner.feet = feet;
-                owner.motion = ZERO;
-                owner.velocity = ZERO;
-                owner.fallDistance = 0;
-                owner.grounded = true;
-                owner.landedLastStep = false;
-                owner.hitHorizontalWall = false;
-                owner.lastHorizontalWallTick = -1;
-                owner.jumpCooldown = 0;
-                owner.pendingKnockback = null;
-                owner.pendingSprintPush = ZERO;
-                owner.history.clear();
-                owner.motionEpoch++;
-                emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
-                applyDamage(owner, owner.id, rules.pearlDamage());
-                return;
-            }
+    private void landPearl(Actor owner, Vec3 previousPosition, Vec3 impact, Vec3 velocity) {
+        // Paper teleports to the projectile's position at the start of the collision tick.
+        // Check the actual contact too so an impact across a claim edge cannot fall back outside it.
+        Vec3 feet = null;
+        if (arena.contains(impact) && arena.canEnter(owner.id, impact)
+                && arena.contains(previousPosition) && arena.canEnter(owner.id, previousPosition)) {
+            feet = pearlDestination(owner, previousPosition, velocity);
         }
-        emit(EventType.REJECTED_PEARL, owner.id, owner.id, Item.PEARL, impact, 0);
+        if (feet == null) {
+            emit(EventType.REJECTED_PEARL, owner.id, owner.id, Item.PEARL, impact, 0);
+            return;
+        }
+        owner.feet = feet;
+        owner.motion = ZERO;
+        owner.velocity = ZERO;
+        owner.fallDistance = 0;
+        owner.grounded = supported(arena, feet);
+        owner.landedLastStep = false;
+        owner.hitHorizontalWall = false;
+        owner.lastHorizontalWallTick = -1;
+        owner.jumpCooldown = 0;
+        owner.pendingKnockback = null;
+        owner.pendingSprintPush = ZERO;
+        owner.history.clear();
+        owner.motionEpoch++;
+        emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
+        applyDamage(owner, owner.id, rules.pearlDamage());
+    }
+
+    private Vec3 pearlDestination(Actor owner, Vec3 previousPosition, Vec3 velocity) {
+        if (free(arena, previousPosition) && !occupied(owner, previousPosition)) return previousPosition;
+        double length = velocity.length();
+        if (length < .001) return null;
+        Vec3 back = velocity.scale(-.16 / length);
+        for (int step = 1; step <= 6; step++) {
+            Vec3 offset = back.scale(step);
+            Vec3 feet = previousPosition.add(offset);
+            if (!arena.contains(feet) || !arena.canEnter(owner.id, feet)
+                    || firstBlock(arena, previousPosition, offset) <= 1) break;
+            if (free(arena, feet) && !occupied(owner, feet)) return feet;
+        }
+        return null;
     }
 
     private boolean occupied(Actor owner, Vec3 feet) {

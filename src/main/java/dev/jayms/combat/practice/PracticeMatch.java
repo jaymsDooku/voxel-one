@@ -71,6 +71,12 @@ public final class PracticeMatch implements ArenaMatch {
         engine = new CombatEngine(rules, new CombatEngine.Arena() {
             @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
             @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
+            @Override public boolean throwableSolid(int x, int y, int z) {
+                return BasaltCourtyard.throwableSolid(x, y, z);
+            }
+            @Override public boolean containsThrowable(Vec3 position) {
+                return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
+            }
         });
         if (offline) {
             join("You");

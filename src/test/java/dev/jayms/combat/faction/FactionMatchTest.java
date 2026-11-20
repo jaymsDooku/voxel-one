@@ -109,6 +109,37 @@ class FactionMatchTest {
     }
 
     @Test
+    void pearlInterceptedInAnEnemyClaimCannotTeleportOrKnockBackItsDefender() throws Exception {
+        var lobby = new FactionMatch(null, DEFAULT, new TestClock());
+        int ember = lobby.join("Ember");
+        int slate = lobby.join("Slate");
+        start(lobby, ember, slate);
+        for (int i = 0; i < 145; i++) {
+            drive(lobby, ember, 0, -8.5);
+            lobby.tick();
+        }
+        send(lobby, ember, -90, -12, 0, false, false, 1);
+        advance(lobby, 8);
+        Fighter thrower = fighter(lobby, ember), defender = fighter(lobby, slate);
+        assertTrue(thrower.z() > -9 && thrower.z() < -8, "Thrower set up outside the claim at z=" + thrower.z());
+        assertTrue(defender.z() < -11.5);
+        int pearls = lobby.view(ember).inventory().get(1).count();
+
+        send(lobby, ember, -90, -12, 0, false, true, 1);
+        lobby.tick();
+        assertEquals(Item.PEARL, lobby.view(ember).missiles().get(0).item());
+        advance(lobby, 12);
+
+        assertTrue(lobby.view(ember).missiles().isEmpty());
+        assertEquals(pearls - 1, lobby.view(ember).inventory().get(1).count());
+        assertTrue(lobby.view(ember).cooldown() > 0);
+        assertEquals(thrower.motionEpoch(), fighter(lobby, ember).motionEpoch());
+        assertEquals(thrower.health(), fighter(lobby, ember).health());
+        assertEquals(defender.z(), fighter(lobby, slate).z());
+        assertEquals(defender.hurtTick(), fighter(lobby, slate).hurtTick());
+    }
+
+    @Test
     void aRestartDuringTaggedLogoutAppliesExactlyOnePersistentDefeat() throws Exception {
         var file = temporary.resolve("season.dat");
         var clock = new TestClock();

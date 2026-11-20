@@ -8,6 +8,7 @@ public final class CombatGeometry {
     static final double BODY_RADIUS = PlayerDimensions.RADIUS;
     static final double BODY_HEIGHT = PlayerDimensions.HEIGHT;
     static final double EYE_HEIGHT = PlayerDimensions.EYE_HEIGHT;
+    private static final double THROWABLE_TARGET_MARGIN = .3F;
     private static final double EPSILON = 1e-7;
     private static final double CONTACT_EPSILON = .0001;
 
@@ -74,6 +75,14 @@ public final class CombatGeometry {
 
     /** Walk the crossed voxels and return the first impact fraction in [0,1]. */
     static double firstBlock(Arena arena, Vec3 start, Vec3 delta) {
+        return firstBlock(start, delta, arena::solid);
+    }
+
+    static double firstThrowableBlock(Arena arena, Vec3 start, Vec3 delta) {
+        return firstBlock(start, delta, arena::throwableSolid);
+    }
+
+    private static double firstBlock(Vec3 start, Vec3 delta, BlockTest blocks) {
         int x = cell(start.x()), y = cell(start.y()), z = cell(start.z());
         int stepX = sign(delta.x()), stepY = sign(delta.y()), stepZ = sign(delta.z());
         double timeX = boundary(start.x(), delta.x(), x, stepX);
@@ -82,7 +91,7 @@ public final class CombatGeometry {
         double incrementX = interval(delta.x()), incrementY = interval(delta.y()), incrementZ = interval(delta.z());
         double time = 0;
         while (time <= 1) {
-            if (arena.solid(x, y, z)) return time;
+            if (blocks.solid(x, y, z)) return time;
             if (timeX <= timeY && timeX <= timeZ) {
                 time = timeX;
                 x += stepX;
@@ -100,9 +109,21 @@ public final class CombatGeometry {
         return Double.POSITIVE_INFINITY;
     }
 
+    @FunctionalInterface
+    private interface BlockTest {
+        boolean solid(int x, int y, int z);
+    }
+
     public static double firstBody(Vec3 start, Vec3 delta, Vec3 feet) {
         return firstBox(start, delta, feet.add(-BODY_RADIUS, 0, -BODY_RADIUS),
-                feet.add(BODY_RADIUS, BODY_HEIGHT, BODY_RADIUS));
+                feet.add(BODY_RADIUS, BODY_HEIGHT, BODY_RADIUS), true);
+    }
+
+    static double firstThrowableBody(Vec3 start, Vec3 delta, Vec3 feet) {
+        double radius = BODY_RADIUS + THROWABLE_TARGET_MARGIN;
+        Vec3 min = feet.add(-radius, -THROWABLE_TARGET_MARGIN, -radius);
+        Vec3 max = feet.add(radius, BODY_HEIGHT + THROWABLE_TARGET_MARGIN, radius);
+        return firstBox(start, delta, min, max, false);
     }
 
     /** Collision-safe route shared by rendering and between-tick hit validation. */
@@ -175,8 +196,9 @@ public final class CombatGeometry {
         return new Range(Math.min(a, b), Math.max(a, b));
     }
 
-    private static double firstBox(Vec3 start, Vec3 delta, Vec3 min, Vec3 max) {
-        double entry = 0, exit = 1;
+    private static double firstBox(Vec3 start, Vec3 delta, Vec3 min, Vec3 max, boolean includeInterior) {
+        double entry = includeInterior ? 0 : Double.NEGATIVE_INFINITY;
+        double exit = includeInterior ? 1 : Double.POSITIVE_INFINITY;
         for (int axis = 0; axis < 3; axis++) {
             double origin = start.component(axis), direction = delta.component(axis);
             double lo = min.component(axis), hi = max.component(axis);
@@ -189,7 +211,9 @@ public final class CombatGeometry {
             exit = Math.min(exit, Math.max(from, to));
             if (entry > exit) return Double.POSITIVE_INFINITY;
         }
-        return entry;
+        // Paper intersects box faces. A segment starting inside hits only if it reaches an exit face.
+        double hit = entry >= 0 ? entry : exit;
+        return hit >= 0 && hit <= 1 ? hit : Double.POSITIVE_INFINITY;
     }
 
     private static int cell(double value) {
