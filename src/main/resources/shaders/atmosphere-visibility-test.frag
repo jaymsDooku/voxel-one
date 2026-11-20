@@ -8,5 +8,6 @@ out vec4 fragColor;
 void main(){
     float sky=irradiance(uTestPosition).a;
     float side=previewWallSky(uTestPosition,uTestNormal,sky);
-    fragColor=vec4(sky,side,previewSideExposure(uTestPosition,uTestNormal),1.);
+    fragColor=vec4(sky,side,previewSideExposure(uTestPosition,uTestNormal),
+            previewCourtyardSky(uTestPosition,uTestNormal));
 }

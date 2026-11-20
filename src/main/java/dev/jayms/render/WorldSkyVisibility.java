@@ -16,7 +16,9 @@ public final class WorldSkyVisibility {
     private record Segment(float x0,float y0,float z0,float x1,float y1,float z1,float transmission){}
     public record Geometry(ChunkPos position,SparseVoxelOctree root) {}
     public record EditedCell(int x,int y,int z,SparseVoxelOctree root) {}
-    public record Input(List<Geometry> chunks,List<EditedCell> edits,ModelLibrary models) {}
+    public record Input(List<Geometry> chunks,List<EditedCell> edits,ModelLibrary models,boolean preview) {
+        public Input(List<Geometry> chunks,List<EditedCell> edits,ModelLibrary models){this(chunks,edits,models,false);}
+    }
     public final int[] data;
     public final int columns;
     /** Optional bounded GPU directory; headers/segments keep their reference encoding. */
@@ -78,7 +80,7 @@ public final class WorldSkyVisibility {
                 expand(paths,world.models(),type,x,y,z,size);
             }
         }
-        return pack(paths);
+        return pack(paths,false);
     }
     /** Worker entry point. Inputs contain immutable roots and no live World or Chunk. */
     public static WorldSkyVisibility build(Input input) {
@@ -96,11 +98,11 @@ public final class WorldSkyVisibility {
             int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
             expand(paths,input.models,type,cell.x+leaf.x()/16f,cell.y+leaf.y()/16f,cell.z+leaf.z()/16f,leaf.side()/16f);
         }
-        return pack(paths);
+        return pack(paths,input.preview);
     }
-    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths) {
+    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths,boolean preview) {
         cancelled();
-        paths.replaceAll((column,segments)->compact(segments));
+        paths.replaceAll((column,segments)->compact(segments,preview));
         int count=paths.size(),length=count*4;
         for(var segments:paths.values()){cancelled();length=Math.addExact(length,segments.size()<=MAX_COLUMN_SEGMENTS?segments.size()*7:0);}
         if(length>MAX_INTS)throw new IllegalStateException("Loaded sky visibility exceeds bounded buffer capacity");
@@ -145,7 +147,7 @@ public final class WorldSkyVisibility {
                 for(var cell:leaves)add(paths,new Segment(x+dx+cell.x()*scale,y+dy+cell.y()*scale,z+dz+cell.z()*scale,x+dx+(cell.x()+cell.side())*scale,y+dy+(cell.y()+cell.side())*scale,z+dz+(cell.z()+cell.side())*scale,0));
         }else add(paths,new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
     }
-    private static List<Segment> compact(List<Segment> source){
+    private static List<Segment> compact(List<Segment> source,boolean preview){
         cancelled();
         // Octrees split a 1/32 planar roof into many cubes. Merge only touching
         // rectangles with identical height/transmission; retain every real gap.
@@ -153,8 +155,79 @@ public final class WorldSkyVisibility {
         // caves. Keep layers and fractional footprints above it exactly.
         Segment ceiling=null;
         for(var a:source){cancelled();if(a.transmission==0&&a.x1-a.x0==1&&a.z1-a.z0==1&&(ceiling==null||a.y1>ceiling.y1))ceiling=a;}
-        List<Segment> result=source;
-        if(ceiling!=null){result=new ArrayList<>();for(var a:source){cancelled();if(a==ceiling||a.y1>ceiling.y1)result.add(a);}}
+        if(ceiling==null)return mergeFootprints(source);
+        var above=new ArrayList<Segment>();
+        var below=new ArrayList<Segment>();
+        for(var segment:source){
+            cancelled();
+            if(segment.y1>ceiling.y1)above.add(segment);
+            else if(preview)below.add(segment);
+        }
+        var result=mergeFootprints(above);
+        if(preview){
+            // Keep the real footprints beneath architectural ledges. Vertical
+            // coalescing joins adjacent solid wall sections but leaves recessed
+            // mortar joints, narrow shutters and each glass layer intact.
+            var lower=mergeSolidHeights(mergeFootprints(mergeSolidHeights(below)));
+            if(result.size()+lower.size()<=MAX_COLUMN_SEGMENTS){
+                result.addAll(lower);
+                return result;
+            }
+            // If exact spans overflow, round footprints outward to a subgrid.
+            // Union heights within each subcell. Recessed faces can still reach
+            // daylight from their exposed quarter of a mostly-solid wall column.
+            below.sort(Comparator.comparingDouble(Segment::y0));
+            for(int divisions:new int[]{4,1}){
+                var bands=occupiedBands(below,ceiling,divisions);
+                if(result.size()+bands.size()<=MAX_COLUMN_SEGMENTS){
+                    result.addAll(bands);
+                    return result;
+                }
+            }
+        }
+        // Geometry below this ceiling was discarded. Treat it as occupied for
+        // horizontal queries and retain the original exact upper sky layers.
+        result.add(new Segment(ceiling.x0,-Float.MAX_VALUE,ceiling.z0,ceiling.x1,ceiling.y1,ceiling.z1,0));
+        return result;
+    }
+    private static List<Segment> occupiedBands(List<Segment> sorted,Segment ceiling,int divisions){
+        var bands=new ArrayList<Segment>();
+        for(int x=0;x<divisions;x++)for(int z=0;z<divisions;z++){
+            float size=1f/divisions, x0=ceiling.x0+x*size, z0=ceiling.z0+z*size;
+            float low=Float.NaN, high=Float.NEGATIVE_INFINITY;
+            for(var a:sorted){
+                cancelled();
+                if(a.x1<=x0 || a.z1<=z0 || a.x0>=x0+size || a.z0>=z0+size)continue;
+                if(a.y0>high){
+                    if(!Float.isNaN(low))bands.add(new Segment(x0,low,z0,x0+size,high,z0+size,0));
+                    low=a.y0;
+                }
+                high=Math.max(high,a.y1);
+            }
+            if(!Float.isNaN(low))bands.add(new Segment(x0,low,z0,x0+size,high,z0+size,0));
+        }
+        return mergeFootprints(bands);
+    }
+    private static List<Segment> mergeSolidHeights(List<Segment> source){
+        source.sort(Comparator.comparingDouble(Segment::x0).thenComparingDouble(Segment::x1)
+                .thenComparingDouble(Segment::z0).thenComparingDouble(Segment::z1)
+                .thenComparingDouble(Segment::y0));
+        var merged=new ArrayList<Segment>();
+        for(var a:source){
+            cancelled();
+            if(!merged.isEmpty()){
+                var b=merged.get(merged.size()-1);
+                if(a.transmission==0 && b.transmission==0 && b.x0==a.x0 && b.x1==a.x1 &&
+                        b.z0==a.z0 && b.z1==a.z1 && a.y0==b.y1){
+                    merged.set(merged.size()-1,new Segment(b.x0,b.y0,b.z0,b.x1,a.y1,b.z1,0));
+                    continue;
+                }
+            }
+            merged.add(a);
+        }
+        return merged;
+    }
+    private static List<Segment> mergeFootprints(List<Segment> result){
         for(boolean axisX:new boolean[]{true,false}){
             Comparator<Segment> order=Comparator.comparingDouble(Segment::y0).thenComparingDouble(Segment::y1).thenComparingDouble(Segment::transmission)
                 .thenComparingDouble(a->axisX?a.z0:a.x0).thenComparingDouble(a->axisX?a.z1:a.x1).thenComparingDouble(a->axisX?a.x0:a.z0);

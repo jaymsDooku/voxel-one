@@ -1,7 +1,7 @@
 // A vertical sky ray misses daylight arriving from the open side of a wall.
 // Trace a short horizontal segment in a packed sky column before using sky
 // from its outer endpoint. Never carry light through a solid or unknown column.
-float previewSkyPath(int header,vec3 from,vec3 to){
+float previewSkyPath(int header,vec3 from,vec3 to,bool underCornice,inout float clearance){
     if(header<0)return 0.;
     int count=skyInt(header+3);
     if(count<0)return from.y>=intBitsToFloat(skyInt(header+2))?1.:0.;
@@ -18,7 +18,8 @@ float previewSkyPath(int header,vec3 from,vec3 to){
         float materialTransmission=intBitsToFloat(skyInt(a+6));
         // Geometry below the highest full opaque ceiling is compacted out.
         bool compactCeiling=materialTransmission==0.&&all(equal(upper.xz-lower.xz,vec2(1)));
-        if(from.y>=lower.y||compactCeiling)transmission*=materialTransmission;
+        if(from.y>=lower.y||(!underCornice&&compactCeiling))transmission*=materialTransmission;
+        else if(underCornice && materialTransmission==0.)clearance=min(clearance,lower.y-from.y);
         if(transmission==0.)break;
     }
     return transmission;
@@ -30,9 +31,45 @@ float previewWallSky(vec3 point,vec3 normal,float overhead){
     float openSky=worldSkyVisibility(outside);
     if(openSky<=overhead)return overhead;
     ivec2 first=ivec2(floor(point.xz)),last=ivec2(floor(outside.xz));
-    float path=previewSkyPath(skyHeader(first),point,outside);
-    if(path>0.&&any(notEqual(first,last)))path*=previewSkyPath(skyHeader(last),point,outside);
+    float clearance=1e6;
+    float path=previewSkyPath(skyHeader(first),point,outside,false,clearance);
+    if(path>0.&&any(notEqual(first,last)))path*=previewSkyPath(skyHeader(last),point,outside,false,clearance);
     return max(overhead,openSky*path);
+}
+
+// Diffuse sky can reach the wall through an opening above a narrow courtyard,
+// even if the opposite wing hides the horizon. Follow the wall normal past its
+// lip, stopping at every opaque obstruction or unknown column.
+float previewCourtyardSky(vec3 point,vec3 normal){
+    if(uSkyColumns==0||max(abs(normal.x),abs(normal.z))<.999)return 0.;
+    vec3 direction=abs(normal.x)>abs(normal.z)?vec3(sign(normal.x),0,0):vec3(0,0,sign(normal.z));
+    ivec2 cell=ivec2(floor(point.xz));
+    float coord=direction.x!=0.?point.x:point.z;
+    float travel=direction.x+direction.z;
+    float edge=travel>0.?floor(coord)+1.-coord:coord-floor(coord);
+    float start=0.,transmission=1.,clearance=1e6;
+    // Visit each crossed column once so that a pane multiplies transmission
+    // once, even when a sample lies inside that pane.
+    for(int i=0;i<5;i++){
+        float end=min(edge,4.);
+        int header=skyHeader(cell);
+        transmission*=previewSkyPath(header,point+direction*start,point+direction*end,true,clearance);
+        if(transmission==0.)break;
+        float middle=(start+end)*.5;
+        float sky=worldSkyVisibility(point+direction*middle);
+        if(sky>0.){
+            // The angle between the cornice lip and the horizontal bounds
+            // the portion of sky visible underneath it. A high, shallow lip
+            // leaves nearly the whole opening visible.
+            float aperture=clearance/length(vec2(clearance,middle));
+            return sky*transmission*aperture;
+        }
+        if(end>=4.)break;
+        cell+=ivec2(direction.xz);
+        start=edge;
+        edge+=1.;
+    }
+    return 0.;
 }
 
 uniform vec3 uPreviewMin,uPreviewMax;

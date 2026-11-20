@@ -173,7 +173,10 @@ void main(){
                     &&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
         }
         vec3 skyDiffuse=textureLod(uEnvironment,N,7.).rgb;
-        indirect+=skyDiffuse*skyVisibility;
+        float diffuseVisibility=skyVisibility;
+        if(uBuildingPreview==1 && skyVisibility<1. && inPreviewBounds(point))
+            diffuseVisibility=max(skyVisibility,previewCourtyardSky(point,geometricNormal));
+        indirect+=skyDiffuse*diffuseVisibility;
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){

@@ -319,13 +319,25 @@ public class AtmospherePlaytest {
                 box STONE 145 48 144 146 64 152
                 box GLASS 145 64 144 146 80 152
                 box STONE 40 48 16 42 49 18
-                box STONE 40 48 32 42 49 34
+                # Continue the upper ledge to the screen. Leaving a skylight in
+                # front of the screen would admit diffuse light without crossing it.
+                box STONE 40 48 32 51 49 34
                 box STONE 50 32 32 51 44 34
                 # Distant wings occlude the shaft's horizontal ray but leave the inclined ray clear.
                 box SAND 224 16 132 240 64 140
                 box SAND 0 16 132 16 64 140
                 box SAND 116 16 208 124 64 224
                 box SAND 116 16 32 124 64 48
+                # A neighboring gable obscures the wall normal and the inclined sky
+                # ray. Daylight still enters the open gap between gable and shaft.
+                box SAND 208 16 112 224 128 124
+                box SAND 16 16 112 32 128 124
+                box SAND 96 16 48 108 128 64
+                box SAND 96 16 216 108 128 232
+                # The far edge of this shaded chamber is a 1/16-block shutter.
+                # Open sky immediately beyond it must not reach its inner wall.
+                box SAND 144 32 198 181 80 248
+                box AIR 145 33 199 180 79 247
                 end
                 """);
         try(var chunk=new Chunk()){
@@ -340,7 +352,7 @@ public class AtmospherePlaytest {
         var upper=new Vector3f(offset).add(16,10,16);
         var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(
                 java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(-1,2,1),chunk.snapshot())),
-                java.util.List.of(),new dev.jayms.net.model.ModelLibrary()));
+                java.util.List.of(),new dev.jayms.net.model.ModelLibrary(),true));
         int width=64,height=(sky.data.length+width-1)/width;
         int atlas=glGenTextures(),fbo=glGenFramebuffers(),pixelTexture=glGenTextures(),vao=glGenVertexArrays();
         int sideTexture=glGenTextures(),depthFbo=glGenFramebuffers();
@@ -387,20 +399,43 @@ public class AtmospherePlaytest {
                 new Sample("East cornice face",11.001f,7.5f,8,1,0,1,1,1),
                 new Sample("Shaft behind thin stone screen",9.001f,3.5f,9.25f,1,0,0,0,0),
                 new Sample("Shaft behind glass screen",9.001f,4.5f,9.25f,1,0,0,0,1),
-                new Sample("Inside sealed shaft",5.064f,3.5f,8,1,0,0,0,0)
+                new Sample("Inside sealed shaft",5.064f,3.5f,8,1,0,0,0,0),
+                new Sample("Chamber behind a distant thin shutter",9.0635f,3.5f,14,1,0,0,0,0)
             };
             for(Sample sample:cases){
-                float[] pixel=new float[4];
-                probe.setVector3("uTestPosition",offset.x+sample.x(),offset.y+sample.y(),offset.z+sample.z());
-                probe.setVector3("uTestNormal",sample.nx(),0,sample.nz());
-                glDrawArrays(GL_TRIANGLES,0,3);
-                glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
-                require(glGetError()==GL_NO_ERROR,sample.name()+" GPU readback");
+                float[] pixel=wallSample(probe,offset,sample.x(),sample.y(),sample.z(),sample.nx(),sample.nz());
                 require(Math.abs(pixel[0]-sample.overhead())<.001&&Math.abs(pixel[1]-sample.near())<.001
                                 &&Math.abs(pixel[2]-sample.side())<.001,
                         sample.name()+" got "+java.util.Arrays.toString(pixel));
+                if(sample.near()==0&&sample.side()==0)
+                    require(pixel[3]<.001f,sample.name()+" let courtyard daylight through opaque geometry: "+pixel[3]);
                 report.append(sample.name()).append(" vertical=").append(pixel[0]).append(" near=").append(pixel[1])
-                        .append(" exterior=").append(pixel[2]).append('\n');
+                        .append(" exterior=").append(pixel[2]).append(" courtyard=").append(pixel[3]).append('\n');
+            }
+            // The eastern wall has three samples on the same masonry course.
+            // Exercise each orientation because the depth projections are mirrored.
+            record Gap(String face,float x,float z,int nx,int nz){}
+            Gap[] gaps={
+                new Gap("east",9.001f,7.25f,1,0),new Gap("east",9.001f,7.5f,1,0),
+                new Gap("east",9.001f,7.625f,1,0),new Gap("west",4.999f,7.5f,-1,0),
+                new Gap("north",6.5f,6.999f,0,-1),new Gap("south",6.5f,10.001f,0,1)
+            };
+            for(Gap gap:gaps){
+                float[] pixel=wallSample(probe,offset,gap.x(),3.5f,gap.z(),gap.nx(),gap.nz());
+                float daylight=pixel[3];
+                require(pixel[0]<.001f&&pixel[1]<.001f&&pixel[2]<.001f&&daylight>.25f,gap+
+                        " expected exterior daylight under cornice, got "+java.util.Arrays.toString(pixel));
+                report.append("Open gap opposite gable ").append(gap).append(" exterior daylight=")
+                        .append(daylight).append('\n');
+            }
+            // Follow a single face toward the underside of the cornice.
+            // A progressively smaller opening should admit progressively less daylight.
+            float previous=1;
+            for(float y:new float[]{3.5f,5.5f,6.5f}){
+                float fraction=wallSample(probe,offset,9.001f,y,7.5f,1,0)[3];
+                require(fraction>0 && fraction<previous-.05f,"Courtyard daylight at y="+y+" was "+fraction+" after "+previous);
+                previous=fraction;
+                report.append("Approach to cornice y=").append(y).append(" diffuse exposure=").append(fraction).append('\n');
             }
             Files.writeString(evidence.resolve("preview-wall-coverage.txt"),report);
             System.out.print(report);
@@ -408,6 +443,16 @@ public class AtmospherePlaytest {
             glDeleteTextures(sideTexture);glDeleteFramebuffers(depthFbo);
             glDeleteTextures(atlas);glDeleteTextures(pixelTexture);glDeleteFramebuffers(fbo);glDeleteVertexArrays(vao);
         }
+    }
+
+    private static float[] wallSample(ShaderProgram probe,Vector3f origin,float x,float y,float z,int nx,int nz){
+        probe.setVector3("uTestPosition",origin.x+x,origin.y+y,origin.z+z);
+        probe.setVector3("uTestNormal",nx,0,nz);
+        glDrawArrays(GL_TRIANGLES,0,3);
+        float[] pixel=new float[4];
+        glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
+        require(glGetError()==GL_NO_ERROR,"Wall GPU readback");
+        return pixel;
     }
 
     public static void main(String[] args)throws Exception {
