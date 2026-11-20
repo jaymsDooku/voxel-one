@@ -364,10 +364,10 @@ public class Main {
      * while the first detached field and bounded GPU transfers finish. */
     private void awaitInitialLighting()throws Exception{
         var p=new Vector3f(player.position());
-        while(!rendering.nearLightingReady(world,p.x,p.z)){
+        while(!rendering.nearLightingReady(world,p.x,p.y,p.z)){
             if(window.shouldClose()||glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
                 throw new java.util.concurrent.CancellationException("Lighting loading cancelled");
-            long start=System.nanoTime();world.streamAsync(p.x,p.y,p.z,500_000L);rendering.prepareFocus(world,p.x,p.z);
+            long start=System.nanoTime();world.streamAsync(p.x,p.y,p.z,500_000L);rendering.prepareFocus(world,p.x,p.y,p.z);
             rendering.update(world,p.x,p.z,Math.max(0,rendering.ownerBudgetNanos-(System.nanoTime()-start)));
             loadingFrame("lighting");
         }
@@ -1356,7 +1356,7 @@ public class Main {
         // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
         int detailBlocks=graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL);
         int passBlocks=Math.max(detailBlocks,Math.max(rendering.settings.shadows?rendering.settings.shadowDistance:0,rendering.settings.reflections?112:0));
-        rendering.prepareFocus(world,location.x,location.z);
+        rendering.prepareFocus(world,location.x,location.y,location.z);
         detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,Math.max(0,1_000_000L-streamNanos),2*1024*1024);
         rendering.time(
                 city().config(),

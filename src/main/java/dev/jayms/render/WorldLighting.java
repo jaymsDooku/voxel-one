@@ -37,9 +37,20 @@ public final class WorldLighting implements AutoCloseable {
 
     private Capture capture,submittedCapture,acceptedCapture;
     private long acceptedModels=-1,submittedModels;
+    private int originY=-32;
+    /** Resident focus only; explicit replay still requires its fixed joint coverage. */
+    public void focusHeight(float y){originY=heightOrigin(originY,y);}
+    int originY(){return originY;}
+    static int heightOrigin(int previous,float y){
+        if(!Float.isFinite(y)||Math.abs((double)y)>Integer.MAX_VALUE-256L)throw new IllegalArgumentException("Lighting focus height");
+        if(y>=previous+16L&&y<previous+112L)return previous;
+        return Math.toIntExact((long)Math.floor((double)y/16)*16-64);
+    }
+    static boolean heightCovered(LightVolume volume,float y){return volume!=null&&Float.isFinite(y)&&y>=volume.y+16L&&y<volume.y+112L;}
+
     static final class Capture {
         final long created=System.nanoTime();
-        final World world;final int x,z;final long stamp,modelsRevision;
+        final World world;final int x,y,z;final long stamp,modelsRevision;
         final ModelLibrary models;final Object terrainGrid;
         final long[] geometry=new long[36];final boolean[] ceilings=new boolean[36];
         final Map<ChunkPos,SparseVoxelOctree> replayChunks;
@@ -49,8 +60,10 @@ public final class WorldLighting implements AutoCloseable {
         int capturedCells,editing;
         int index;Iterator<World.EditedCell> cells=Collections.emptyIterator();
         Capture(World world,int x,int z) {this(world,x,z,null);}
-        Capture(World world,int x,int z,World.ReplayLightingSnapshot replayCoverage) {
-            this.replayCoverage=replayCoverage;
+        Capture(World world,int x,int z,World.ReplayLightingSnapshot replayCoverage) {this(world,x,z,-32,replayCoverage);}
+        Capture(World world,int x,int z,int y,World.ReplayLightingSnapshot replayCoverage) {
+            if(Math.floorMod(y,16)!=0||y>Integer.MAX_VALUE-128||replayCoverage!=null&&y!=-32)throw new IllegalArgumentException("Lighting capture height");
+            this.y=y;this.replayCoverage=replayCoverage;
             this.world=world;this.x=x;this.z=z;terrainGrid=world.terrain().stressGrid();replayChunks=replayCoverage==null?world.replayLightingChunks():replayCoverage.roots();
             stamp=stamp(world,x,z);modelsRevision=world.models().revision();models=world.models().copy();
             for(int i=0;i<36;i++){int a=Math.floorDiv(x-48,16)+i%6,b=Math.floorDiv(z-48,16)+i/6;geometry[i]=world.geometryRevision(a,b);ceilings[i]=replayCoverage!=null||world.requiresSkyCeiling(a,b);}
@@ -64,9 +77,9 @@ public final class WorldLighting implements AutoCloseable {
             for(int i=0;i<36;i++)if(geometry[i]!=w.geometryRevision(Math.floorDiv(x-48,16)+i%6,Math.floorDiv(z-48,16)+i/6))return false;
             return true;
         }
-        int slot(int px,int py,int pz){return (px-x+48)/16+6*((py+32)/16+8*((pz-z+48)/16));}
+        int slot(int px,int py,int pz){return (px-x+48)/16+6*((py-y)/16+8*((pz-z+48)/16));}
         SparseVoxelOctree overrideAt(int px,int py,int pz){
-            if(px<x-48||px>x+47||py< -32||py>95||pz<z-48||pz>z+47)return null;
+            if(px<x-48||px>x+47||py<y||(long)py>=y+128L||pz<z-48||pz>z+47)return null;
             var cells=overrides[slot(px,py,pz)];return cells==null?null:cells[Math.floorMod(px,16)+16*(Math.floorMod(py,16)+16*Math.floorMod(pz,16))];
         }
         void releasePayload(){chunks=null;overrides=null;}
@@ -79,7 +92,7 @@ public final class WorldLighting implements AutoCloseable {
                     overrides[editing][Math.floorMod(c.x(),16)+16*(Math.floorMod(c.y(),16)+16*Math.floorMod(c.z(),16))]=c.voxels();capturedCells++;continue;
                 }
                 if(index==288)return true;
-                int i=index,cx=Math.floorDiv(x-48,16)+i%6,cy=-2+i/6%8,cz=Math.floorDiv(z-48,16)+i/48;
+                int i=index,cx=Math.floorDiv(x-48,16)+i%6,cy=y/16+i/6%8,cz=Math.floorDiv(z-48,16)+i/48;
                 var p=new ChunkPos(cx,cy,cz);
                 if(replayChunks!=null) {
                     var known=replayChunks.get(p);if(known==null)return false;
@@ -122,7 +135,7 @@ public final class WorldLighting implements AutoCloseable {
         return updatePredicted(world,px,pz,actualX,actualZ,skyStrength,dynamicSky,prepared,deadline,allowPrepare,true);
     }
     public LightVolume updatePredicted(World world,float px,float pz,float actualX,float actualZ,float skyStrength,boolean dynamicSky,SkyVisibilityScheduler.Prepared prepared,long deadline,boolean allowPrepare,boolean collect){
-        if(capture!=null&&capture.valid(world,capture.x,capture.z)&&Math.abs(actualX-capture.x)<=80&&Math.abs(actualZ-capture.z)<=80){px=capture.x;pz=capture.z;}
+        if(capture!=null&&capture.y==originY&&capture.valid(world,capture.x,capture.z)&&Math.abs(actualX-capture.x)<=80&&Math.abs(actualZ-capture.z)<=80){px=capture.x;pz=capture.z;}
         Object key=SkyVisibilityScheduler.ceilingKey(prepared,world,px,pz);
         Object completionKey=pending==null?key:SkyVisibilityScheduler.ceilingKey(prepared,world,submittedX,submittedZ);
         return updateInternal(world,px,pz,actualX,actualZ,skyStrength,dynamicSky,prepared==null?null:prepared.data,key,completionKey,deadline,allowPrepare,true,collect);
@@ -146,12 +159,13 @@ public final class WorldLighting implements AutoCloseable {
         if(world.isClosed()||System.nanoTime()>=deadline)return null;
         int cx = Math.floorDiv((int) Math.floor(px), 16) * 16,
                 cz = Math.floorDiv((int) Math.floor(pz), 16) * 16;
+        int cy=world.hasReplayReadView()?-32:originY;
         LightVolume result = null;
         if (collect && pending != null && pending.isDone()) {
             try {
                 var baked = pending.get();
                 boolean focusMatches=relevant?Math.abs(actualX-submittedX)<=80&&Math.abs(actualZ-submittedZ)<=80:submittedX==cx&&submittedZ==cz;
-                if (submittedCapture.valid(world,submittedX,submittedZ)&&submittedModels==world.models().revision()&&submittedWorld==world&&submittedRevision == Capture.stamp(world,submittedX,submittedZ)
+                if (submittedCapture.y==cy&&submittedCapture.valid(world,submittedX,submittedZ)&&submittedModels==world.models().revision()&&submittedWorld==world&&submittedRevision == Capture.stamp(world,submittedX,submittedZ)
                         && focusMatches
                         && submittedAmbient == skyStrength && submittedSeparateSky==dynamicSky && Objects.equals(submittedSkyKey,completionKey)) {
                     completed++;result = baked;
@@ -169,11 +183,11 @@ public final class WorldLighting implements AutoCloseable {
         }
         // Let the caller occupy the GPU slot before considering another capture.
         if (result == null && allowPrepare && pending == null
-                && (acceptedCapture==null||!acceptedCapture.valid(world,cx,cz)||acceptedModels!=world.models().revision()||acceptedWorld!=world||cx != centerX
+                && (acceptedCapture==null||acceptedCapture.y!=cy||!acceptedCapture.valid(world,cx,cz)||acceptedModels!=world.models().revision()||acceptedWorld!=world||cx != centerX
                         || cz != centerZ
                         || revision != Capture.stamp(world,cx,cz)
                         || ambient != skyStrength || separateSky!=dynamicSky || !Objects.equals(skyKey,globalSkyKey))) {
-            if(capture==null||!capture.valid(world,cx,cz)||!capture.matchesReplay(replay)){if(capture!=null)captureRestarts++;capture=new Capture(world,cx,cz,replay);}
+            if(capture==null||capture.y!=cy||!capture.valid(world,cx,cz)||!capture.matchesReplay(replay)){if(capture!=null)captureRestarts++;capture=new Capture(world,cx,cz,cy,replay);}
             if(!capture.pump(deadline))return result;
             if(!capture.valid(world,cx,cz)){capture=null;return result;}
             // Ordinary replay updates remain closed. Only the explicit lane has
@@ -186,7 +200,7 @@ public final class WorldLighting implements AutoCloseable {
             submittedX = cx;
             submittedZ = cz;
             submittedRevision = prepared.stamp;submittedModels=prepared.modelsRevision;
-            var chunks=prepared.chunks;
+            int baseY=prepared.y;var chunks=prepared.chunks;
             var overrides=prepared.overrides;var ceilings=prepared.ceilings;
             var timing=finishedWorkerTiming;long workerTicket=submitted;
             long seed = world.terrain().seed;
@@ -203,7 +217,7 @@ public final class WorldLighting implements AutoCloseable {
 
                                 var bakedField=LightVolume.bake(
                                         cx - 48,
-                                        -32,
+                                        baseY,
                                         cz - 48,
                                         96,
                                         128,
@@ -215,7 +229,7 @@ public final class WorldLighting implements AutoCloseable {
                                                     new HashMap<>();
 
                                             private SparseVoxelOctree cell(int x, int y, int z) {
-                                                int slot=(x-cx+48)/16+6*((y+32)/16+8*((z-cz+48)/16));
+                                                int slot=(x-cx+48)/16+6*((y-baseY)/16+8*((z-cz+48)/16));
                                                 var octree=chunks[slot];var cells=overrides[slot];
                                                 var override=cells==null?null:cells[Math.floorMod(x,16)+16*(Math.floorMod(y,16)+16*Math.floorMod(z,16))];
                                                 return octree == null
@@ -228,7 +242,7 @@ public final class WorldLighting implements AutoCloseable {
                                             }
 
                                             public int value(int x, int y, int z) {
-                                                int slot=(x-cx+48)/16+6*((y+32)/16+8*((z-cz+48)/16));
+                                                int slot=(x-cx+48)/16+6*((y-baseY)/16+8*((z-cz+48)/16));
                                                 var root=chunks[slot];var cells=overrides[slot];var override=cells==null?null:cells[Math.floorMod(x,16)+16*(Math.floorMod(y,16)+16*Math.floorMod(z,16))];
                                                 int value=root!=null?root.uniform(Math.floorMod(x,16)*16,Math.floorMod(y,16)*16,Math.floorMod(z,16)*16,16):override!=null?override.uniform(0,0,0,16):WorldVoxels.encode(terrain.block(x,y,z));
                                                 return Blocks.isModel(WorldVoxels.decode(value))

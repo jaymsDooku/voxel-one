@@ -90,6 +90,11 @@ public final class RenderPipeline implements AutoCloseable {
     private boolean giFirst;
     private int lightingPriorityTurn;
     private long previousFocusTime,lastVolumeLatency;private boolean focusPrepared;
+    public void prepareFocus(World world,float x,float y,float z){
+        if(!world.hasReplayReadView())lighting.focusHeight(y);
+        prepareFocus(world,x,z);
+    }
+    private boolean heightCurrent(World world,LightVolume value){return value!=null&&(world.hasReplayReadView()||value.y==lighting.originY());}
     public void prepareFocus(World world,float x,float z){
         long now=System.nanoTime();float dx=focusWorld==world?x-previousFocusX:0,dz=focusWorld==world?z-previousFocusZ:0;
         double elapsed=previousFocusTime==0?0:(now-previousFocusTime)/1e9;
@@ -101,7 +106,7 @@ public final class RenderPipeline implements AutoCloseable {
         if(!SkyVisibilityScheduler.ceilingReady(desiredSky,world,requestedX,requestedZ)&&SkyVisibilityScheduler.ceilingReady(desiredSky,world,x,z)){requestedX=x;requestedZ=z;}
         // Bound lead relative to the current camera. Clamping against the OLD
         // field center can request terrain behind a moving camera near its edge.
-        if(volume!=null&&x>=volume.x&&x<volume.x+volume.width&&z>=volume.z&&z<volume.z+volume.length&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)){
+        if(heightCurrent(world,volume)&&x>=volume.x&&x<volume.x+volume.width&&z>=volume.z&&z<volume.z+volume.length&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)){
             requestedX=Math.max(x-32,Math.min(x+32,requestedX));
             requestedZ=Math.max(z-32,Math.min(z+32,requestedZ));
         }else{requestedX=x;requestedZ=z;} // Missing/stale coverage needs the camera's area first.
@@ -116,9 +121,10 @@ public final class RenderPipeline implements AutoCloseable {
     }
     /** First playable area and per-frame budget use the same bounded readiness check. */
     public boolean nearLightingReady(World world,float x,float z){
-        if(!hasIrradiance||!nearCovered(volume,x,z)||activeVolumeFence==null||!activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)||worldSky==null||activeSky!=null&&!activeSky.belongsTo(world))return false;
+        if(!hasIrradiance||!heightCurrent(world,volume)||!nearCovered(volume,x,z)||activeVolumeFence==null||!activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)||worldSky==null||activeSky!=null&&!activeSky.belongsTo(world))return false;
         return nearSkyCovered(x,z);
     }
+    public boolean nearLightingReady(World world,float x,float y,float z){return WorldLighting.heightCovered(volume,y)&&nearLightingReady(world,x,z);}
     private boolean nearSkyCovered(float x,float z){return skyCovered(worldSky,x,z);}
     private static boolean skyCovered(WorldSkyVisibility sky,float x,float z){
         if(sky==null)return false;int x0=(int)Math.floor(x-24),x1=(int)Math.floor(x+24),z0=(int)Math.floor(z-24),z1=(int)Math.floor(z+24),width=z1-z0+1;
@@ -249,9 +255,13 @@ public final class RenderPipeline implements AutoCloseable {
     private void updateScene(World world,float x,float z,long deadline) {
         int trace=dev.jayms.OwnerTrace.begin("render.prepare");try{
         long stage=System.nanoTime();
+        if(!world.hasReplayReadView()&&desiredVolume!=volume&&desiredVolume!=null&&!heightCurrent(world,desiredVolume)){
+            if(lightingUpload!=null&&lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;}
+            desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
+        }
         if(desiredVolume!=volume&&desiredVolume!=null){
             float cx=desiredVolume.x+48,cz=desiredVolume.z+48;boolean outside=x<desiredVolume.x||x>=desiredVolume.x+desiredVolume.width||z<desiredVolume.z||z>=desiredVolume.z+desiredVolume.length;
-            boolean toward=(cx-x)*motionX+(cz-z)*motionZ>0;boolean oldGood=nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z);
+            boolean toward=(cx-x)*motionX+(cz-z)*motionZ>0;boolean oldGood=heightCurrent(world,volume)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z);
             if(Math.abs(cx-x)>80||Math.abs(cz-z)>80||(outside&&!toward)||(!toward&&!nearCovered(desiredVolume,x,z)&&oldGood)||(motionX==0&&motionZ==0&&!nearCovered(desiredVolume,x,z)&&oldGood)){
                 if(lightingUpload!=null&&lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;}
                 desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
@@ -265,8 +275,8 @@ public final class RenderPipeline implements AutoCloseable {
             pumpLighting(world,x,z,deadline);return;
         }
         SkyVisibilityScheduler.Prepared rebuilt=null;
-        boolean uncovered=volume==null||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
-        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        boolean uncovered=!heightCurrent(world,volume)||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&(!heightCurrent(world,volume)||!nearCovered(volume,x,z));
         // Missing camera sky is visible as darkness outside GI. Keep its capture
         // lane active even while a completed GI bake waits for upload.
         boolean missingCameraSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
@@ -441,7 +451,7 @@ public final class RenderPipeline implements AutoCloseable {
         if(!independentSky&&skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
         // Alternate first service: a single non-preemptible GL copy may consume its
         // share, but cannot prevent the other lane from starting on the next frame.
-        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&(!heightCurrent(world,volume)||!nearCovered(volume,x,z));
         boolean nearGiPriority=independentSky&&prioritizeNearGi(missingNearGi,missingNearSky,++lightingPriorityTurn);
         // Three urgent turns may use the remaining slice; every fourth starts
         // sky first. Both lanes keep the same shared deadline and byte ceiling.
@@ -472,8 +482,8 @@ public final class RenderPipeline implements AutoCloseable {
         if(!lightingUpload.valid(world)){lightingUpload.close();lightingUpload=null;return;}
         if(!lightingUpload.skyCurrent(world))return;
         if(lightingUpload.replaceVolume&&lightingUpload.volume!=null){
-            var next=lightingUpload.volume;if(x<next.x||x>=next.x+next.width||z<next.z||z>=next.z+next.length)return;
-            if(!nearCovered(next,x,z)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z))return;
+            var next=lightingUpload.volume;if(!heightCurrent(world,next)||x<next.x||x>=next.x+next.width||z<next.z||z>=next.z+next.length)return;
+            if(!nearCovered(next,x,z)&&heightCurrent(world,volume)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z))return;
         }
         var resources=lightingUpload.take();
         if(!lightingUpload.separateRoots){lightingStores.releaseTexture(fineRoots);fineRoots=resources.atlas();}

@@ -43,7 +43,7 @@ public class StructurePlaytest {
         var scheduler=(dev.jayms.render.SkyVisibilityScheduler)field(pipeline,"skyVisibility");
         int program=(int)field(get("shader"),"programId");
         var sample=new StringBuilder("{\"stage\":\"").append(label).append("\",\"frames\":").append(frames.get());
-        sample.append(",\"near_ready\":").append(pipeline.nearLightingReady(world(),camera.x,camera.z));
+        sample.append(",\"near_ready\":").append(pipeline.nearLightingReady(world(),camera.x,camera.y,camera.z));
         sample.append(",\"has_irradiance\":").append(field(pipeline,"hasIrradiance"));
         sample.append(",\"sky_columns\":").append(sky==null?0:sky.columns);
         sample.append(",\"sky_pending\":").append(scheduler.pending());
@@ -63,6 +63,11 @@ public class StructurePlaytest {
         sample.append("},\"volume\":").append(volume==null?"null":"["+volume.x+","+volume.y+","+volume.z+","+volume.width+","+volume.height+","+volume.length+"]");
         var points=List.of(new float[]{camera.x,camera.y,camera.z},new float[]{6.5f,130,14.5f},new float[]{7.5f,130,14.5f});
         var gpu=lightingProbeOnly?StructureLightingProbe.sample(program,points):null;
+        if(lightingProbeOnly) {
+            require(volume!=null&&camera.y>=volume.y&&camera.y<volume.y+volume.height,"Actual camera height inside lighting volume");
+            if(!label.equals("structure-lighting-altitude"))for(int i=1;i<points.size();i++)require(gpu.get(i)[0]+gpu.get(i)[1]+gpu.get(i)[2]>.01f,"High component local light");
+            if(label.equals("structure-lighting-under-roof"))require(gpu.get(0)[3]<.001f&&sky.sampleKnown(camera.x,camera.y,camera.z,-1)==0,"Sealed room rejects sky while retaining local light");
+        }
         sample.append(",\"points\":[");first=true;
         int index=0;for(float[] point:points) {
             if(!first)sample.append(',');first=false;
@@ -120,6 +125,9 @@ public class StructurePlaytest {
             return null;
         });
         long next=frames.get()+3;waitFor(()->frames.get()>=next,"Capture frame");
+        if(lightingProbeOnly)waitFor(()->{
+            var ready=new java.util.concurrent.atomic.AtomicBoolean();onFrame(()->{var camera=((Camera)get("camera")).position();ready.set(((dev.jayms.render.RenderPipeline)get("rendering")).nearLightingReady(world(),camera.x,camera.y,camera.z));return null;});return ready.get();
+        },"Current camera-height lighting ready");
         onFrame(()->{lightingSample(name,path.getParent());return null;});
         var process=new ProcessBuilder("import","-window",window,path.toString()).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(process.waitFor()==0,"Native screenshot");stage("capture-"+name+"-done");
     }
@@ -144,6 +152,7 @@ public class StructurePlaytest {
                     for(int y=128;y<=131;y++)for(int z=12;z<=16;z++)for(int xx=4;xx<=8;xx++)
                         if(y==128||y==131||xx==4||xx==8||z==12||z==16)edit(new Protocol.Edit(xx,y,z,Blocks.BRICKS));
                     edit(new Protocol.Edit(5,129,13,Blocks.piece(Blocks.LED,3),3,1,2,3,0x22bbff));
+                    edit(new Protocol.Edit(5,130,15,Blocks.LED).withColor(0xffffff));
                     for(int xx=6;xx<=7;xx++)for(int y=129;y<=130;y++)edit(new Protocol.Edit(xx,y,16,0));
                     var tree=new SparseVoxelOctree(32);tree.fill(2,0,2,30,2,30,0xff998855);tree.fill(14,2,14,18,27,18,0xff55ccaa);tree.set(31,31,31,0xffff5533);
                     int model=local().models.register(new ModelDefinition("Structure lamp",tree),"fixture").id();edit(new Protocol.Edit(6,129,14,model));
@@ -163,17 +172,20 @@ public class StructurePlaytest {
                 if(lightingProbeOnly) {
                     x("key","F12");onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,19.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
                     capture(window,output.resolve("structure-lighting-components.png"));
-                    onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,15.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                    onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,260,19.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                    capture(window,output.resolve("structure-lighting-altitude.png"));
+                    onFrame(()->{for(int xx=6;xx<=7;xx++)for(int y=129;y<=130;y++)edit(new Protocol.Edit(xx,y,16,Blocks.BRICKS));var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,15.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
                     capture(window,output.resolve("structure-lighting-under-roof.png"));
+                    onFrame(()->{for(int xx=6;xx<=7;xx++)for(int y=129;y<=130;y++)edit(new Protocol.Edit(xx,y,16,0));return null;});
                     onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,19.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
                     x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Probe inventory regression");x("key","e");
                     x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Probe model editor regression");x("key","F7");
                     capture(window,output.resolve("structure-lighting-restored-state.png"));
                     double outdoor=handLuma(output.resolve("structure-lighting-components.png")),roof=handLuma(output.resolve("structure-lighting-under-roof.png")),restored=handLuma(output.resolve("structure-lighting-restored-state.png"));
-                    require(outdoor>5&&restored>5&&roof<outdoor*.2,"Held sky diffuse and roof occlusion: "+outdoor+" / "+roof+" / "+restored);
-                    Files.writeString(output.resolve("structure-native-hand.json"),"{\"outdoor_luma\":"+outdoor+",\"roof_luma\":"+roof+",\"restored_luma\":"+restored+",\"scope\":\"Mean display luma in fixed relative first-person patch; synthetic camera; outdoor >5 and roof <20% of outdoor; not HDR radiance or performance qualification\"}\n");
+                    require(outdoor>5&&restored>5&&roof>5,"Sky and local-emitter hand lighting: "+outdoor+" / "+roof+" / "+restored);
+                    Files.writeString(output.resolve("structure-native-hand.json"),"{\"outdoor_luma\":"+outdoor+",\"roof_luma\":"+roof+",\"restored_luma\":"+restored+",\"scope\":\"Mean display luma in fixed relative first-person patch; synthetic camera; outdoor/roof/return >5; sealed-roof sky visibility asserted separately; roof contains a physical white LED; not HDR radiance or performance qualification\"}\n");
                     onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});stage("lighting-probe-passed");
-                    Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus roof-covered component samples, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.\",\"renderer\":\""+renderer+"\",\"qualification\":false}\n");return;
+                    Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus sealed-roof samples with local LED light and high component emission, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.\",\"renderer\":\""+renderer+"\",\"qualification\":false}\n");return;
                 }
                 command("export");Path exported=Controls.directory().resolve("structures/exports/Demo house.vstr");require(Files.exists(exported),"Self-contained export");
                 Path longImport=exported.getParent().resolve("long import path "+"a".repeat(100)).resolve("b".repeat(100)).resolve("Demo house.vstr");
