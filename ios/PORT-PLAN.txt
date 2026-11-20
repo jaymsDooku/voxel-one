@@ -1636,3 +1636,23 @@ redirect following; fixture endpoints are not part of production MobileGateway.
 18 existing Java gateway regression tests passed in197.624seconds; the new
 redirect-trap test passed separately in3.462seconds. Both used isolated synthetic
 profiles and real loopback HTTP. These are not Swift/native execution results.
+
+
+33b474f2 hosted dependency-resolution repair
+The PR Linux build failed before compilation/tests resolving the unchanged pinned
+LWJGL3.4.1 BOM. Its sanitized summary has0 suites; merge source1666d479 has parents
+a9e8eed8 and33b474f2. Other matrix jobs were cancelled and Simulator preflight was
+pending. None is a native/gameplay or platform pass. Official Maven Central now
+returns200 for that BOM; no dependency version or POM content changed.
+
+Desktop verify and native bootstrap compile now use-U to recheck missing releases
+after restoring Maven cache state. Maven documents this bounded CLI behavior; no
+retry loop,cache deletion,version downgrade,test skip or checksum relaxation was
+added. Actual hosted recovery still needs a new exact-head run.
+Playtest: actual isolated Maven CLI mirror/repository fixture first returns404;
+ordinary next validate makes0 BOM requests and fails despite availability; -U
+validate makes1 request and passes with the same public pinned BOM bytes. Then
+actual project-U validate and native bootstrap compile passed. Shell syntax and
+diff/POM audits passed. No browser or game UI applies to this build-step repair.
+All48 native cases and physical/live/signing/independent review gates remain.
+No file deletions are intended; unrelated source/assets/progress are preserved.

@@ -50,7 +50,7 @@ phase() {
   printf '\nerror: native_client_phase stage=%s\n' "$1" >> ios/build/native-build.log
 }
 phase java_build
-mvn -q -DskipTests compile > ios/build/java-build.log 2>&1
+mvn -q -U -DskipTests compile > ios/build/java-build.log 2>&1
 phase terrain_contract
 java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/build/terrain-fixtures.json
 phase terrain_contract_compare

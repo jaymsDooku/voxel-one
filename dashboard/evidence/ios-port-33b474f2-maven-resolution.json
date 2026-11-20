@@ -1,0 +1,69 @@
+{
+  "sourceBase": "33b474f2f286ded9363ccd1e5a04ad947a4ce7fa",
+  "sourceState": "uncommitted missing-release refresh flags in desktop/native bootstrap commands",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "failedRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44739079998",
+  "observedFailure": "Maven stopped while resolving org.lwjgl:lwjgl-bom:3.4.1 (present,but unavailable), before compilation or tests. Downloaded sanitized Maven summary contains0 suites.",
+  "ciSource": {
+    "summaryHead": "1666d47943514c5495f2064d38785dda77e10eb1",
+    "verifiedParents": [
+      "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+      "33b474f2f286ded9363ccd1e5a04ad947a4ce7fa"
+    ]
+  },
+  "publicArtifactCheck": "Official Maven Central HEAD returned200 with89388bytes for pinned3.4.1 BOM. This proves current availability,not the exact cause of the earlier hosted resolution failure.",
+  "repair": "Add-U to desktop mvn--batch-mode verify and native Java bootstrap compile. Force a check for missing releases/updated snapshots; no loop,retries,version change,cache deletion,skip or relaxed checksum option introduced.",
+  "reference": "https://maven.apache.org/ref/3.9.11/maven-embedder/cli.html",
+  "commands": [
+    {
+      "command": "python3 target/ios-checks/pr-88-33b474f2/check_cache.py",
+      "environment": "Linux Maven; isolated loopback mirror; fresh worktree-local repository; public pinned BOM bytes; no actual user/global settings read",
+      "expected": "Initial404 fails; ordinary second validation remains cached without fetch; -U validation rechecks the now-available same pinned release and succeeds.",
+      "observed": [
+        {
+          "phase": "initial-404",
+          "exitCode": 1,
+          "bomRequests": 1
+        },
+        {
+          "phase": "ordinary-cached-miss",
+          "exitCode": 1,
+          "bomRequests": 0
+        },
+        {
+          "phase": "force-missing-release-check",
+          "exitCode": 0,
+          "bomRequests": 1
+        }
+      ]
+    },
+    {
+      "command": "timeout --kill-after=5s 90s mvn --batch-mode -U -Dmaven.repo.local=target/maven-repository validate",
+      "observed": "passed"
+    },
+    {
+      "command": "timeout --kill-after=5s 90s mvn -q -U -Dmaven.repo.local=target/maven-repository -DskipTests compile",
+      "observed": "passed; native bootstrap Java compile only,not test verification"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh;git diff --check;exact POM/review-base audit",
+      "observed": "passed;pom.xml exactly matches review base;all48 native cases retained"
+    }
+  ],
+  "Playtest": "Executed actual Maven CLI with an isolated loopback mirror and fresh worktree-local repository: request/exit counts demonstrate cached-miss edge and forced recheck recovery. Then validated/compiled actual assigned project using the repaired option. Browser/gameplay testing does not apply to dependency-resolution commands; no native/physical result inferred.",
+  "pinnedBomSha256": "67686e9093a5f2a13fcd11a0a1f836b5c4b32f9ff72d611fede3b717827cd56c",
+  "qualificationPending": [
+    "Fresh hosted full Mavenverify and four-platform packaging",
+    "Simulator preflight result for earlier source remains pending",
+    "Full48-case native app run/media after reviewed trusted-budget repair",
+    "Live VPS,another Simulator size,remaining parity",
+    "Signed device build/export/install/update and physical performance/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "sourceSha256": {
+    ".github/workflows/build.yml": "49bdd4eb9efd6ae578bb273c0b88c4c71a287b8f4fc94e36f341bf69506dbfb9",
+    "ios/check-simulator.sh": "0dd7723b218605da715ef2d1173c0a19dba550eba9d9a30e231f6219245af5c3",
+    "pom.xml": "39459d48ca2f7f8fcc64ec1a968df53ffdd462649b7f9f2b49936169589116a7"
+  },
+  "intendedDeletions": "No file deletions.Only missing-release refresh options and one explanatory comment are added."
+}
