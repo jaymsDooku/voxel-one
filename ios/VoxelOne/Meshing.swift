@@ -1,6 +1,6 @@
 import Foundation
 
-struct NativeMeshRequest:Sendable {var payload:NativeSavePayload;var atmosphere:Bool;var center:[Float];var distantRadius:Int=0}
+struct NativeMeshRequest:Sendable {var payload:NativeSavePayload;var atmosphere:Bool;var center:[Float];var distantRadius:Int=0;var reuseDistant:Bool=false}
 struct NativeMeshKey:Hashable,Sendable {var color:Int;var sky:Int;var emitter:Bool}
 struct NativeMeshBuffer:Sendable {
     var key:NativeMeshKey
@@ -27,6 +27,7 @@ final class NativeMeshWorker:@unchecked Sendable {
     private var running=false
     private var pending:(UInt64,NativeMeshRequest)?
     private var ready:[NativeMeshResult]=[]
+    private let distantCache=NativeDistantCache()
     @discardableResult func submit(_ request:NativeMeshRequest)->UInt64 {
         condition.lock();generation &+= 1;let value=generation
         pending=(value,request);ready.removeAll();let start = !running;running=true
@@ -34,7 +35,7 @@ final class NativeMeshWorker:@unchecked Sendable {
         if start {queue.async{self.work()}}
         return value
     }
-    func cancel(){condition.lock();generation &+= 1;pending=nil;ready.removeAll();condition.broadcast();condition.unlock()}
+    func cancel(){condition.lock();generation &+= 1;pending=nil;ready.removeAll();distantCache.clear();condition.broadcast();condition.unlock()}
     func drain()->[NativeMeshResult] {
         condition.lock();defer{condition.broadcast();condition.unlock()}
         let n=min(Self.maximumDrain,ready.count),result=Array(ready.prefix(n));ready.removeFirst(n);return result
@@ -72,11 +73,17 @@ final class NativeMeshWorker:@unchecked Sendable {
                     if !current(job.0) || !build(chunk,index[chunk]!,world,job.1.atmosphere,job.0) {complete=false;break}
                 }
                 if complete,job.1.distantRadius>0,world.streamsTerrain {
-                    var first=true
-                    complete=try NativeDistantMesher.build(world.snapshot,radius:job.1.distantRadius,cancelled:{!self.current(job.0)}){buffer in
-                        let accepted=self.emit(.distant(first,buffer),job.0);first=false;return accepted
+                    if let prepared=try distantCache.prepare(world.snapshot,radius:job.1.distantRadius,cancelled:{!self.current(job.0)}) {
+                        if !prepared.reused || !job.1.reuseDistant {
+                            var first=true
+                            for buffer in prepared.pages {
+                                if !emit(.distant(first,buffer),job.0) {complete=false;break};first=false
+                            }
+                            if complete && first {_ = emit(.distant(true,nil),job.0)}
+                        }
+                    } else {
+                        complete=false
                     }
-                    if complete && first {_ = emit(.distant(true,nil),job.0)}
                 }
                 if complete {_ = emit(.finished,job.0)}
             }catch{_ = emit(.failed,job.0)}

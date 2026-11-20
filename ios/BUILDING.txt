@@ -318,3 +318,16 @@ page installs/frame. The existing single mesh worker handles both layers and
 cancels stale generations; memory warning drops distant nodes until resume.
 These are engineering caps, not measured device memory/frame-rate claims.
 All42 native cases and new screenshot/video inspection remain pending.
+
+
+Distant landscape cache repair (native qualification pending)
+Source989ec634 reached18 started/17 passed/0 failed of42 at873 seconds, then
+hit the900-second child deadline. It did not qualify the client or larger video.
+One bounded far cache now avoids repeated generation and SceneKit installation
+for nearby edits, pose or inventory changes. Only a completely installed mesh
+can reuse its nodes; an incomplete one replays pages. Bounds, radius, material
+or far edits invalidate it. Memory warning/cancellation evicts cached values and
+fences late results. Far preview nodes do not cast coarse shadows; close geometry
+keeps its existing lights/shadows. One cache holds at most16 pages. Resource caps
+are engineering choices, not measured physical-device memory or speed claims.
+All43 native cases, actual gameplay media and independent review remain required.

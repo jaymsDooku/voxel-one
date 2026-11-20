@@ -19,7 +19,9 @@ enum NativeDistantMesher {
         let cx=(b[0]+b[1])/2,cz=(b[4]+b[5])/2
         let materials=Dictionary(uniqueKeysWithValues:(snapshot.contract?.materials ?? []).map{($0.id,$0)})
         var columns:[Column:[Int:NativeTerrainEdit]]=[:]
-        for edit in edits {columns[Column(x:edit.cell.x,z:edit.cell.z),default:[:]][edit.cell.y]=edit}
+        for edit in edits where !NativeTerrainRegion.inside(edit.cell,b) {
+            columns[Column(x:edit.cell.x,z:edit.cell.z),default:[:]][edit.cell.y]=edit
+        }
         var cache:[Column:Surface]=[:]
         func surface(_ x:Int,_ z:Int)throws->Surface {
             let key=Column(x:x,z:z)
@@ -107,5 +109,45 @@ enum NativeDistantMesher {
         }}
         if cancelled(){return false}
         return buffer.indices.isEmpty || emit(buffer)
+    }
+}
+
+struct NativeDistantPrepared:Sendable {var pages:[NativeMeshBuffer];var reused:Bool}
+/// One value-only far mesh, at most16 pages/16384 quads. Cache lookup does not
+/// depend on pose, inventory or edits already covered by the resident volume.
+/// Lock/epoch also let memory warnings evict it while the worker is running.
+final class NativeDistantCache:@unchecked Sendable {
+    private struct Key:Equatable {
+        var seed:String;var version:Int?;var bounds:[Int];var radius:Int
+        var materials:[[Int]];var edits:[NativeTerrainEdit]
+        init(_ value:Snapshot,_ radius:Int){
+            seed=value.seed;version=value.generatorVersion;bounds=value.bounds;self.radius=radius
+            materials=(value.contract?.materials ?? []).map{[$0.id,$0.material,$0.depth,$0.color]}
+            edits=(value.terrainEdits ?? []).filter{!NativeTerrainRegion.inside($0.cell,value.bounds)}
+        }
+    }
+    private let lock=NSLock()
+    private var epoch:UInt64=0,key:Key?,pages:[NativeMeshBuffer]=[]
+    func clear(){lock.lock();epoch &+= 1;key=nil;pages.removeAll();lock.unlock()}
+    func prepare(_ snapshot:Snapshot,radius:Int,cancelled:()->Bool)throws->NativeDistantPrepared? {
+        guard snapshot.bounds.count==6 else {throw GameError.invalidWorld}
+        if cancelled(){return nil}
+        let requested=Key(snapshot,radius)
+        lock.lock();let requestEpoch=epoch
+        if key==requested {
+            let result=pages;lock.unlock()
+            return cancelled() ? nil:NativeDistantPrepared(pages:result,reused:true)
+        }
+        // Release the previous mesh before building its replacement.
+        key=nil;pages.removeAll();lock.unlock()
+        var built:[NativeMeshBuffer]=[]
+        let complete=try NativeDistantMesher.build(snapshot,radius:radius,cancelled:cancelled){page in
+            guard !cancelled(),built.count<16 else{return false};built.append(page);return true
+        }
+        guard complete,!cancelled() else{return nil}
+        lock.lock()
+        guard requestEpoch==epoch else {lock.unlock();return nil}
+        key=requested;pages=built;lock.unlock()
+        return NativeDistantPrepared(pages:built,reused:false)
     }
 }

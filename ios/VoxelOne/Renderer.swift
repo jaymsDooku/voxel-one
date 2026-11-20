@@ -26,6 +26,7 @@ import simd
     private var distantNodes:[SCNNode]=[]
     private var distantBounds:[Int]=[]
     private var distantRadius=0
+    private var distantComplete=false
     private var skyMaterials:[(SCNMaterial,Int,Double,Bool)]=[]
     init() {
         let body=SCNCapsule(capRadius:0.28,height:1.8);body.firstMaterial?.diffuse.contents=UIColor.systemCyan
@@ -77,17 +78,17 @@ import simd
             case .distant(let first,let page):
                 if first {clearDistant()}
                 if let page=page {
-                    let node=meshNode(page,outdoor:false);node.name="distant-terrain-preview"
+                    let node=meshNode(page,outdoor:false);node.name="distant-terrain-preview";node.castsShadow=false
                     terrain.addChildNode(node);distantNodes.append(node)
                     view.accessibilityLabel="Voxel world. Drag to look; distant landscape prepared."
                 }
-            case .finished:view.accessibilityValue="Terrain ready"
+            case .finished:distantComplete = !distantNodes.isEmpty;view.accessibilityValue="Terrain ready"
             case .failed:view.accessibilityValue="Terrain failed"
             }
         }
     }
     private func clearDistant(){
-        distantNodes.forEach{$0.removeFromParentNode()};distantNodes.removeAll()
+        distantNodes.forEach{$0.removeFromParentNode()};distantNodes.removeAll();distantComplete=false
         view.accessibilityLabel="Voxel world. Drag to look; two fingers pan the planning view."
     }
     private func meshNode(_ page:NativeMeshBuffer,outdoor:Bool)->SCNNode {
@@ -114,7 +115,7 @@ import simd
             if meshWorld != identity {for key in Array(renderChunks.keys) {dropChunk(key)}}
             meshWorld=identity;meshRevision=world.geometryRevision;meshOutdoor=outdoor;distantRadius=radius
             let p=planning ? focus:world.position
-            meshGeneration=meshWorker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:outdoor,center:[p.x,p.y,p.z],distantRadius:radius))
+            meshGeneration=meshWorker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:outdoor,center:[p.x,p.y,p.z],distantRadius:radius,reuseDistant:distantComplete))
             view.accessibilityValue="Terrain loading"
         }
         zones.childNodes.forEach{$0.removeFromParentNode()}

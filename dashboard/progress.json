@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Source ea0a95ab passed all40 native cases on iPhone SE Simulator/iOS18.5. Actual screenshot/video inspected and copied;40s clip is only108x192. Added bounded render-only distant surfaces on existing mesh worker and higher-resolution export target.87 Linux harness tests passed. Fresh42-case Mac run/media pending; second Simulator size, remaining parity/live VPS/signing/physical qualification stay open.",
-      "updatedAt": "2026-11-20T03:21:19+00:00"
+      "note": "Source989ec634 reached18 started/17 passed/0 failed of42 at873s;900s test deadline, no client qualification/gameplay media. Added one bounded far cache, complete-node reuse and memory-eviction fences to remove repeated distant work on near edits.87 Linux harness tests passed. All43 native cases and900/1200s caps remain; fresh exact-source Mac/media pending. Signing/live VPS/physical gates stay open.",
+      "updatedAt": "2026-11-20T04:04:21+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

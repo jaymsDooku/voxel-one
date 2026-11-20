@@ -1,0 +1,51 @@
+{
+  "failedSource": "989ec6347ac734b41e23c4a1e03914d3980b5fb4",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44667388258",
+  "trustedVerifierHead": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "trustedVerifierIncludes": "8a53afce99e735a7574bffab70558252577b387b",
+  "observedResult": "Failed timeout, clientChecked=false; no qualifying native gameplay screenshot/video returned",
+  "lastLiveAt873Seconds": {
+    "started": 18,
+    "passed": 17,
+    "failed": 0,
+    "expected": 42
+  },
+  "deadline": "900-second child deadline; last named case NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld still open. Outer1200-second timeout also reported. No full native pass inferred.",
+  "preflightImage": "ios-port-989ec634-preflight-only.png",
+  "preflightSha256": "9e7f9dfbe926d5832cc8e498000f6c2ef502bedb6c4f9646605362ba3f2aa283",
+  "mediaScope": "Inspected fresh Simulator home screen only; not Voxel One gameplay evidence.",
+  "repairSourceState": "Uncommitted bounded far-cache and complete-node reuse repair; pending controller commit/exact-source native validation",
+  "repair": "Retain one far mesh with <=16 pages, keyed by generator/materials/bounds/radius and edits outside resident volume. Near edits/pose/inventory reuse unchanged geometry; only complete installed far nodes may stay. Incomplete nodes replay pages. Cancellation/memory eviction fences late cache publication. Distant nodes no longer cast coarse shadows; exact nearby lighting remains. No measured speedup claimed.",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/make-project.py ios/native-test-runner.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check",
+    "git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b f446ad3f0c8332aa1002885468e1a20fa271018e"
+  ],
+  "localResults": [
+    "87 Linux harness tests passed; Apple commands/media fixtures are mocked; process-supervision tests use actual isolated Python/Bash children.",
+    "Project generation, Python compilation, shell syntax and diff checks passed.",
+    "43 declared native cases remain required, retaining all prior42; no omissions.",
+    "110 unrelated progress entries preserved; zero deleted files."
+  ],
+  "Playtest": "CI partial native execution at the failed head observed only through sanitized counters. Current cache repair is unexecuted on Mac. New native case covers actual cache reuse after near edit/inventory/pose, far edit/radius/bounds invalidation, memory eviction and late-publication fencing. Existing42 cases plus actual gameplay media remain required. Browser playtesting does not apply to UIKit/SceneKit.",
+  "qualificationPending": [
+    "Current43-case exact-source native suite and higher-resolution gameplay media",
+    "Additional Simulator size",
+    "Remaining engine parity",
+    "Live VPS service qualification",
+    "Signed iPhone installation and physical-device measurements",
+    "Independent exact-head native review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/DistantTerrain.swift": "dab4dd5cb3d874d0d0bfcc0017b51b103020f1ee2580d4bc17f29b0e7bba3905",
+    "ios/VoxelOne/Meshing.swift": "a8bda767e8577d4b1590e736c47845b15d040d8c7e9249171e8a40ffc192f6ae",
+    "ios/VoxelOne/Renderer.swift": "0d2442e3eca15a8dfca4bf04afc36841e6320630201c1134761b137075dd480d",
+    "ios/VoxelOne/World.swift": "d22ca51e608d4d49b6b8653d74d61bcff06f7c49131f6e8a3790a33b87e7b9b9",
+    "ios/VoxelOneUITests/WorldRulesTests.swift": "cb4b5b27d705a9873d223865d70a2bfdb2600b61afeb06adcf246dce5e6a918b",
+    "ios/check-results.py": "10b2a0179327d710d716ab7311d4d2435aa8e69407f46155d4fd6b0fd15858d4"
+  },
+  "publication": "Pending controller publication"
+}

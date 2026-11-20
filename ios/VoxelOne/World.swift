@@ -84,7 +84,7 @@ struct NativeMaterial:Codable,Sendable {var id:Int;var name:String;var material:
 struct NativeModel:Codable,Sendable {var id:Int;var fingerprint:String;var geometry:NativeGeometry}
 struct NativeDetail:Codable,Sendable {var cell:[Int];var geometry:NativeGeometry}
 /// World coordinates, including explicit air, survive eviction from the loaded window.
-struct NativeTerrainEdit:Codable,Sendable {
+struct NativeTerrainEdit:Codable,Equatable,Sendable {
     var cell:GridKey;var type:Int;var color:Int;var geometry:NativeGeometry? = nil
     static let maximumCells=8192
     static func validate(_ edits:[NativeTerrainEdit])throws {

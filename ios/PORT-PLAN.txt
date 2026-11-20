@@ -2,7 +2,7 @@ Native engine port: milestone 1 / early Sandbox slice
 
 Status: implementation in progress. Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913
 passed all40 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-Current distant landscape and higher-resolution video changes have not run on Mac.
+Distant landscape run989ec634 timed out; cache repair needs a fresh43-case run.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -1165,3 +1165,43 @@ second Simulator size, remaining core parity, live VPS, signed installation,
 physical qualification and independent review remain open. No file deletions
 are intended. The old mesh-node construction was factored into a shared helper
 for resident and distant pages; it still creates SceneKit objects only on main.
+
+
+Distant run deadline and cache repair
+Source989ec6347ac734b41e23c4a1e03914d3980b5fb4 did not qualify.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44667388258
+Sanitized phases reached install/native_playtests. Latest live counters at873s:
+18 started,17 passed,0 failed,42 expected. The900-second child deadline recorded
+testPlanetAtmosphereNativeToggleAndLegacyWorld still open; the outer client also
+timed out. This is partial execution, not a42-case pass or clientChecked proof.
+Only a Simulator home-screen preflight image was returned, inspected and saved
+with an explicit preflight-only label. No new gameplay screenshot/video exists.
+Trusted workflow again used master f446ad3f, containing cap fix8a53afce.
+
+Inspection found distant geometry regenerated/reinstalled for every nearby edit.
+The repair retains one value-only far mesh, at most16 pages/16384 quads, on the
+existing worker. Key: seed/version, material geometry/colors, loaded bounds,
+radius and journal entries outside the resident volume. Pose, inventory and
+nearby edits cannot change that far surface. Resident edits remain rendered by
+exact close meshes; below-band preview excludes edits already covered by that
+resident volume. A complete, unchanged distant mesh keeps its SceneKit nodes.
+An incomplete installation always replays cached pages. Bounds/radius/material/
+far-journal changes rebuild it; no unseen online terrain is synthesized.
+
+Cache storage uses a lock/epoch. Cancellation and memory warning evict it;
+epoch fencing prevents a cancelled build from publishing late cached data.
+Replacement drops the previous cached mesh before building another. Existing
+ready4-page backpressure,4096 vertices/page and2 installs/frame stay unchanged.
+Distant preview nodes no longer cast expensive coarse shadows onto exact nearby
+geometry. Close geometry retains existing lighting/shadows. Physical budget
+qualification remains pending; no measured speedup is claimed from Linux.
+
+One new native case exercises actual warm reuse after near edit/inventory/pose,
+changed far edits, radius/bounds invalidation, memory eviction and late-publication
+fencing. Qualification now requires all43 cases, retaining every prior42.
+It prints only numeric Simulator CPU elapsed samples; those are not physical
+frame-time, thermal or battery measurements. Both900/1200-second caps remain.
+Playtest: current cache and SceneKit reuse are unexecuted until a fresh exact-
+source Mac run. Linux harness/process integration does not qualify gameplay.
+No file deletions are intended; the old unconditional far generation is replaced
+by keyed value reuse, while exact close rebuilds and all regressions remain.

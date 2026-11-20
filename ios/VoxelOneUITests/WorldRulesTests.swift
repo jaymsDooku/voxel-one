@@ -24,6 +24,35 @@ private final class SaveWorkerProbe:@unchecked Sendable {
 }
 
 final class WorldRulesTests:NativeEvidenceTestCase {
+    func testDistantCacheReusesNearEditsInvalidatesAndEvicts()throws {
+        let world=try VoxelWorld(terrainFixture()),cache=NativeDistantCache()
+        let started=ProcessInfo.processInfo.systemUptime
+        let first=try XCTUnwrap(cache.prepare(world.savedSnapshot(),radius:32,cancelled:{false}))
+        let built=ProcessInfo.processInfo.systemUptime
+        XCTAssertFalse(first.reused);XCTAssertFalse(first.pages.isEmpty);XCTAssertLessThanOrEqual(first.pages.count,16)
+        world.position.x=1.5;world.snapshot.inventory[3]=[165,9]
+        try world.offlineEdit(at:GridKey(2,60,2),type:2)
+        let warm=try XCTUnwrap(cache.prepare(world.savedSnapshot(),radius:32,cancelled:{false}))
+        let reused=ProcessInfo.processInfo.systemUptime
+        XCTAssertTrue(warm.reused,"Nearby edits, inventory and pose must not regenerate unchanged far geometry")
+        XCTAssertEqual(warm.pages.flatMap{$0.positions},first.pages.flatMap{$0.positions})
+        var changed=world.savedSnapshot()
+        changed.terrainEdits?.append(NativeTerrainEdit(cell:GridKey(29,90,-3),type:3,color:0x8c949e))
+        let edited=try XCTUnwrap(cache.prepare(changed,radius:32,cancelled:{false}))
+        XCTAssertFalse(edited.reused);XCTAssertNotEqual(edited.pages.flatMap{$0.positions},first.pages.flatMap{$0.positions})
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(changed,radius:64,cancelled:{false})).reused)
+        let moved=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:8,y:27,z:0))
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:32,cancelled:{false})).reused)
+        cache.clear()
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:32,cancelled:{false})).reused,"Memory eviction forces a clean rebuild")
+        XCTAssertNil(try cache.prepare(moved.snapshot,radius:32,cancelled:{true}))
+        var calls=0
+        XCTAssertNil(try cache.prepare(moved.snapshot,radius:64,cancelled:{
+            calls+=1;if calls==3 {cache.clear()};return false
+        }),"Eviction during generation fences its late cache publication")
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:64,cancelled:{false})).reused)
+        print("native_distant_cache first_ms=\(Int((built-started)*1000)) warm_with_edit_ms=\(Int((reused-built)*1000))")
+    }
     func testDistantTerrainBoundsJournalModelsAndCancellation()throws {
         var value=try terrainFixture()
         func pages(_ value:Snapshot)throws->[NativeMeshBuffer] {
