@@ -1,0 +1,28 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1100" height="720" viewBox="0 0 1100 720">
+<title>Palace of Westminster voxel study</title><desc>Dimensioned Thames elevation and plan with three towers, Westminster Hall, two courtyards and the river terrace.</desc>
+<defs><pattern id="grid" width="20" height="20" patternUnits="userSpaceOnUse"><path d="M20 0H0V20" fill="none" stroke="#a7b4aa" opacity=".25"/></pattern>
+<g id="bay"><path d="M0 60V4 M24 60V4 M5 53V29l7-9 7 9v24z M8 18V8l4-5 4 5v10z M12 24v29" fill="#637371" stroke="#5e5742" stroke-width="1.4"/></g></defs>
+<path fill="#f7f3e5" d="M0 0h1100v720H0z"/><path fill="url(#grid)" d="M39 85h1022v598H39z"/>
+<g font-family="Georgia, serif" fill="#263b3a"><text x="40" y="49" font-size="34">Palace of Westminster</text><text x="42" y="72" font-size="15">Voxel study · 1 block ≈ 2 metres · river face shown from the Thames</text>
+<text x="42" y="116" font-size="19">Thames elevation</text><text x="42" y="431" font-size="19">Footprint · south at left, north at right</text></g>
+<g stroke="#66583b" stroke-width="2" fill="#d9bd86" stroke-linejoin="round">
+<path d="M244 371V296h584v75z"/><path d="M244 296l22-22h538l24 22z" fill="#52615d"/><path d="M266 300h536M266 361h536" fill="none"/>
+<path d="M169 371V169h14v-13h9v12h12v-12h9v12h12v-12h9v13h14v202z"/><path d="M176 371v-29l32-31 32 31v29" fill="#53625d"/><path d="M180 174v142m56-142v142M193 192v94m29-94v94" fill="none"/>
+<path d="M514 274v-57h18l8-17 17-44 17 44 8 17h18v57" fill="#c4a975"/><path d="M527 253v-24l8-11 8 11v24zm30 0v-24l8-11 8 11v24z" fill="#53625d"/>
+<path d="M844 371V204h15v-24l23-37 23 37v24h15v167z"/><path d="M852 195l9-17 21-52 21 52 9 17z" fill="#52615d"/>
+<circle cx="882" cy="224" r="19" fill="#f0e6b8"/><path d="M882 209v15l11 6M854 250h56M854 262h56m-47 8v81m19-81v81m19-81v81" fill="none"/>
+</g><use href="#bay" x="271" y="302"/><use href="#bay" x="295" y="302"/><use href="#bay" x="319" y="302"/><use href="#bay" x="343" y="302"/><use href="#bay" x="367" y="302"/><use href="#bay" x="391" y="302"/><use href="#bay" x="415" y="302"/><use href="#bay" x="439" y="302"/><use href="#bay" x="463" y="302"/><use href="#bay" x="487" y="302"/><use href="#bay" x="511" y="302"/><use href="#bay" x="535" y="302"/><use href="#bay" x="559" y="302"/><use href="#bay" x="583" y="302"/><use href="#bay" x="607" y="302"/><use href="#bay" x="631" y="302"/><use href="#bay" x="655" y="302"/><use href="#bay" x="679" y="302"/><use href="#bay" x="703" y="302"/><use href="#bay" x="727" y="302"/><use href="#bay" x="751" y="302"/><use href="#bay" x="775" y="302"/>
+<g fill="#263b3a" font-family="Segoe UI, sans-serif" font-size="13"><text x="45" y="158">Victoria · 49 blocks</text><text x="515" y="142">Central · 46 blocks</text><text x="913" y="150">Elizabeth · 48 blocks</text></g>
+<g fill="none" stroke="#728986"><path d="M158 152h22m377-7v12m354-8h-24M160 388h765m-765-7v14m765-14v14"/></g>
+<text x="499" y="405" fill="#263b3a" font-family="Segoe UI" font-size="13">150-block plot length</text>
+<g transform="translate(160 449) scale(5.1 3.1)">
+<path d="M0 68h150v8H0z" fill="#b6d0cc"/><path d="M3 61h144v7H3z" fill="#b2ac93"/>
+<g fill="#d9bd86" stroke="#66583b" stroke-width=".45">
+<path d="M14 39h118v21H14z"/><path d="M17 20h12v19H17z M121 27h10v12h-10z M20 20h102v8H20z M70 26h11v14H70z"/>
+<path d="M68 31h15v15H68z" fill="#c4a975"/><path d="M38 23h33v15H38z M82 23h36v15H82z" fill="#f7f3e5"/>
+<path d="M109 8h37v11h-37z" fill="#82928a"/><path d="M115 17h10v8h-10z"/>
+<path d="M1 17h15v15H1z M136 51h11v11h-11z"/></g>
+</g>
+<g fill="#263b3a" stroke="none" font-family="Segoe UI, sans-serif" font-size="12"><text x="168" y="481">Victoria Tower</text><text x="721" y="468">Westminster Hall · 37 × 11</text><text x="382" y="548">Royal Court</text><text x="625" y="548">Commons Court</text><text x="515" y="573">Central Lobby</text><text x="859" y="606">Elizabeth Tower</text><text x="504" y="651">Riverside Terrace</text><text x="523" y="679">THAMES</text></g>
+<path stroke="#728986" fill="none" d="M210 485v17M861 471v4m38 143v5M947 450v236m-6-236h12m-12 236h12"/><text x="960" y="565" fill="#263b3a" font-family="Segoe UI" font-size="13">76 blocks</text>
+</svg>
