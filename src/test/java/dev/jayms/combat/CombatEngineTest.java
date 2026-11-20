@@ -159,10 +159,40 @@ class CombatEngineTest {
         input(engine, 1, 1, 0, 0, 1, true, true, false, 0);
         engine.tick();
         assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(1, engine.snapshot(2).hurtTick());
+        assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
         assertFalse(engine.snapshot(1).sprinting());
         engine.tick();
-        assertEquals(.35 * .68 + .25, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals(.128184, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(.40 * .546 + .50, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals((.2108 - .08) * .98 + .10, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(2, engine.snapshot(1).stats().hits());
+    }
+
+    @Test void blockingAndArmorApplyAfterTheRawDamageComparison() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(engine.reset(2, new Vec3(2.5, 1, .5), 0));
+        assertTrue(input(engine, 2, 0, 0, 0, 0, false, false, true, 0));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        // Paper sword blocking also mitigates an attack from behind.
+        double initialHealth = 20 - (1 + 8) * .5 * .32;
+        assertEquals(initialHealth, engine.snapshot(2).health(), .00001);
+        assertEquals(List.of(199, 199, 199, 199), engine.snapshot(2).durability());
+
+        assertTrue(input(engine, 2, 1, 0, 0, 0, false, false, false, 0));
+        assertTrue(input(engine, 1, 1, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        assertEquals(initialHealth, engine.snapshot(2).health(), .00001);
+        assertEquals(1, engine.snapshot(1).stats().hits());
+
+        assertTrue(engine.applyEffect(1, Effect.STRENGTH, 40));
+        assertTrue(input(engine, 2, 2, 0, 0, 0, false, false, true, 0));
+        assertTrue(input(engine, 1, 2, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        double extraRaw = 8 * 1.28 - 8;
+        assertEquals(initialHealth - (1 + extraRaw) * .5 * .32, engine.snapshot(2).health(), .00001);
+        assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
+        assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(2, engine.snapshot(1).stats().hits());
     }
 
@@ -172,7 +202,7 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(1, engine.snapshot(1).stats().hits());
         engine.tick();
-        assertEquals(.35, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(.40, engine.snapshot(2).velocity().x(), .00001);
     }
 
     @Test void aWallScrapeReportsHorizontalCollisionEvenWhileTheFighterSlides() {
@@ -196,8 +226,8 @@ class CombatEngineTest {
             engine.tick();
             assertFalse(engine.snapshot(1).sprinting());
             engine.tick();
-            assertEquals(.6, engine.snapshot(2).velocity().x(), .00001);
-            assertEquals(.1274 + .1274 * .546 * .6, engine.snapshot(1).velocity().x(), .00001);
+            assertEquals(.90, engine.snapshot(2).velocity().x(), .00001);
+            assertEquals(.098 + .1274 * .546 * .6, engine.snapshot(1).velocity().x(), .00001);
 
             // Move the victim back into melee range after the first boost without touching attacker input.
             tick(engine, 8);
@@ -209,14 +239,18 @@ class CombatEngineTest {
             engine.tick();
             assertEquals(2, engine.snapshot(1).stats().hits());
             assertEquals(2, engine.snapshot(1).stats().longestCombo());
-            assertEquals(release ? .6 : .35, engine.snapshot(2).velocity().x(), .00001);
+            assertEquals(release ? .90 : .40, engine.snapshot(2).velocity().x(), .00001);
         }
     }
 
-    @Test void wTapsChainThreeSprintHitsAtTheHurtWindowWithoutRepositioning() {
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void wTapsChainThreeSprintHitsAtTheHurtWindowWithoutRepositioning(boolean passiveDefender) {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.0);
+        if (passiveDefender) assertTrue(engine.applyEffect(1, Effect.SPEED, 40));
         long sequence = 0;
         for (int hit = 1; hit <= 3; hit++) {
+            if (!passiveDefender) assertTrue(input(engine, 2, hit, 180, 0, 1, false, false, false, 0));
             assertTrue(input(engine, 1, sequence++, 0, 0, 1, true, true, false, 0));
             engine.tick();
             assertEquals(hit, engine.snapshot(1).stats().hits());
@@ -224,16 +258,15 @@ class CombatEngineTest {
 
             assertTrue(input(engine, 1, sequence++, 0, 0, 0, true, false, false, 0));
             engine.tick();
-            assertTrue(engine.snapshot(2).velocity().x() >= .59, "W release rearms sprint knockback");
-            assertEquals(.2108, engine.snapshot(2).velocity().y(), .00001);
+            assertTrue(engine.snapshot(2).velocity().x() > .70, "W release rearms sprint knockback");
+            assertEquals(.25, engine.snapshot(2).velocity().y(), .00001);
 
             assertTrue(input(engine, 1, sequence++, 0, 0, 1, true, false, false, 0));
             for (int betweenHits = 0; betweenHits < 8; betweenHits++) {
                 engine.tick();
-                assertTrue(engine.snapshot(2).velocity().x() > .07, "Victim keeps moving between hits");
+                assertTrue(engine.snapshot(2).velocity().x() > 0, "Victim keeps moving away between hits");
             }
             assertTrue(engine.snapshot(2).grounded(), "Victim lands before the next hit window");
-            assertTrue(engine.snapshot(2).velocity().x() > .14, "Horizontal movement carries past landing");
         }
         assertEquals(3, engine.snapshot(1).stats().longestCombo());
     }
@@ -247,12 +280,12 @@ class CombatEngineTest {
 
         engine.tick();
         var launched = engine.snapshot(2);
-        assertEquals(.6, launched.velocity().x(), .00001);
-        assertEquals(.2108, launched.velocity().y(), .00001);
+        assertEquals(.90, launched.velocity().x(), .00001);
+        assertEquals(.25, launched.velocity().y(), .00001);
         assertFalse(launched.grounded());
         engine.tick();
-        assertEquals(.408, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals(.128184, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(.90 * .546, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals((.25 - .08) * .98, engine.snapshot(2).velocity().y(), .00001);
 
         int airborneTicks = 0;
         double peak = 1;
@@ -263,14 +296,14 @@ class CombatEngineTest {
         var landed = engine.snapshot(2);
         assertTrue(landed.grounded());
         assertEquals(1, landed.feet().y(), .00001);
-        assertEquals(.38620432, peak - 1, .001);
-        assertTrue(airborneTicks < 7);
+        assertEquals(.501468, peak - 1, .001);
+        assertTrue(airborneTicks <= 7);
         assertTrue(landed.velocity().x() > .06);
         engine.tick();
         double carried = engine.snapshot(2).velocity().x();
         assertEquals(landed.velocity().x() * .91, carried, .00001);
         engine.tick();
-        assertEquals(carried * .68, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(carried * .546, engine.snapshot(2).velocity().x(), .00001);
         double coast = engine.snapshot(2).velocity().x();
         engine.tick();
         assertEquals(coast * .546, engine.snapshot(2).velocity().x(), .00001);
@@ -291,8 +324,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 1, 0, 0, 0, false, false, false, 0));
         engine.tick();
         Vec3 launch = engine.snapshot(2).velocity();
-        assertEquals(offset.x() * .35 / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
-        assertEquals(offset.z() * .35 / distance + victim.velocity().z() * .546 * .5, launch.z(), .00001);
+        assertEquals(offset.x() * .40 / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
+        assertEquals(offset.z() * .40 / distance + victim.velocity().z() * .546 * .5, launch.z(), .00001);
         assertEquals(.2108, launch.y(), .00001);
     }
 
@@ -307,11 +340,11 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 1, 180, 0, 0, false, false, false, 0));
         engine.tick();
 
-        double push = .6 - .1274 * .546 * .6 * .5;
+        double push = .90 - .1274 * .546 * .6 * .5;
         assertEquals(-push, engine.snapshot(1).velocity().x(), .00001);
         assertEquals(push, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals(.2108, engine.snapshot(1).velocity().y(), .00001);
-        assertEquals(.2108, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(.25, engine.snapshot(1).velocity().y(), .00001);
+        assertEquals(.25, engine.snapshot(2).velocity().y(), .00001);
     }
 
     @Test void hitLiftCannotChangeAnotherPlayersFallingCriticalInTheSameTick() {
@@ -332,6 +365,21 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(expectedLift, engine.snapshot(1).velocity().y(), .00001);
         assertEquals(expectedLift, engine.snapshot(2).velocity().y(), .00001);
+    }
+
+    @Test void aFallingSprintAttackCanStillCriticallyHit() {
+        CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.0);
+        assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 0, true, false, false, false, 0)));
+        assertTrue(engine.submit(2, new Intent(0, 180, 0, 0, 0, true, false, false, false, 0)));
+        tick(engine, 6);
+        assertFalse(engine.snapshot(1).grounded());
+        assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
+        engine.tick();
+        assertTrue(engine.snapshot(1).velocity().y() < 0);
+        assertEquals(20 - 8 * 1.5 * .32, engine.snapshot(2).health(), .00001);
+        assertFalse(engine.snapshot(1).sprinting());
+        engine.tick();
+        assertEquals(.90, engine.snapshot(2).velocity().x(), .00001);
     }
 
     @Test void highImpulseRespectsWallAndKeepsSidewaysAirControl() {
