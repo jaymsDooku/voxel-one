@@ -247,6 +247,9 @@ final class ReadbackSaveSnapshot {
                 throw new IOException("Replay overlay acknowledgement unavailable");
             var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
         }
+        boolean matchesOwner(LocalGame expectedLocal,World expectedWorld)throws IOException {
+            owner();return phase.get()==Phase.PUBLISHED&&!tailAdopted&&!pagingAdopting&&expectedLocal==local&&expectedWorld==world;
+        }
         /** Preallocate an exact old-owner receipt before source transfer. Closing
          * remains an explicit caller action after installation, never part of ack. */
         WorldRetirement prepareWorldRetirement(BooleanSupplier cancel)throws IOException {

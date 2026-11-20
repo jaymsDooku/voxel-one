@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T16:06:30+00:00",
+  "updatedAt": "2026-11-20T16:41:34+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added exact old-World retirement receipts after private source handover, with stale-state/owner/cancellation guards and explicit-only cleanup retry. Passed 633 Java tests in 135 suites, 40 Python checks, packaging/original MP3 decoding and 31 focused tests. Repaired native-only journal assertion order; complete native rerun passed in 84.872 s. Estimated Mesh bytes fell from 14,448 to 7,224 while the new scene retained one ready GPU entry. Inspected five fresh images. Source/media await controller publication and exact-head CI. Main installation/reconciliation, editable paging, model-ID remapping and full city/reference-GPU/32-client qualification remain unfinished and gated.",
-      "updatedAt": "2026-11-20T16:06:30+00:00"
+      "note": "Added coherent owner-slot installation with precommit reservation and one active bundle swap after source transfer. Passed 641 Java tests in 136 suites, 40 Python checks, packaging/original MP3 decoding and 39 focused tests. Native GLFW integration passed in 86.220 s: two installs, stale views rejected, current local/World model map matched, warm GPU resources retained and old Worlds retired explicitly. Inspected five fresh images. Source/media await controller publication and exact-head CI. Main wiring, editable paging, model-ID remapping and full city/reference-GPU/32-client qualification remain unfinished and gated.",
+      "updatedAt": "2026-11-20T16:41:34+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

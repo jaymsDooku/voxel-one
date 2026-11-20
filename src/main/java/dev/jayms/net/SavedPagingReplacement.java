@@ -138,6 +138,14 @@ final class SavedPagingReplacement implements AutoCloseable {
         }catch(CancellationException stop){cancelled=true;retire(false);throw stop;}
         finally{busy=false;}
     }
+    /** Reserve a matching slot before any source consumption. Once take commits,
+     * install publishes the preallocated coherent bundle without another guard. */
+    Transfer takeInto(SavedPagingOwner target,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(target);Objects.requireNonNull(cancel);
+        try(var reservation=target.reserve(publication)) {
+            var result=take(cancel);reservation.install(result);return result;
+        }
+    }
     /** Returned ownership includes both scene and worker. Close signals cleanup;
      * callers still observe the worker's terminal cleanup receipt separately.
      * Old World retirement is explicit and never performed by close. */

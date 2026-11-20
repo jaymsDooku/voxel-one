@@ -44,7 +44,7 @@ final class SavedPagingSessionFrame {
                 var publication=prepared.authorize(()->false);editor.apply(PendingReplayOverlayTest.fraction(),()->false);
                 c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
                 var spool=Files.createDirectories(c.fixture.folder.resolve("paging"));
-                try(var replacement=new SavedPagingReplacement(publication,old,spool,SavedPagingFactoryTest.NEXT,1,8192,()->false)) {
+                try(var owner=new SavedPagingOwner(c.local,c.world);var replacement=new SavedPagingReplacement(publication,old,spool,SavedPagingFactoryTest.NEXT,1,8192,()->false)) {
                     SavedPagingReplacementTest.ready(replacement);replacement.prepare(()->false);
                     warm(replacement.warmingWorld(),replacement.warmingScene());var abandonedWorld=replacement.warmingWorld();
                     // Edit after the first candidate warmed: the red geometry
@@ -56,10 +56,11 @@ final class SavedPagingSessionFrame {
                     replacement.prepare(()->false);var firstWorld=replacement.warmingWorld();var firstScene=replacement.warmingScene();var firstBinding=replacement.warmingBinding();warm(firstWorld,firstScene);
                     long firstWarmBytes=Mesh.estimatedResidentBytes();c.local.health--;c.local.inventory.add(Blocks.STONE,1);c.local.drops.put(91,new ItemDrop(91,Blocks.STONE,1,1,2,3));
                     assertFalse(editor.capture(()->false).overlay().rows().isEmpty());
-                    var transfer=replacement.take(()->false);var worker=transfer.worker();var revision=transfer.revision();
+                    var rootView=owner.view();var transfer=replacement.takeInto(owner,()->false);var worker=transfer.worker();var revision=transfer.revision();
+                    assertThrows(java.io.IOException.class,rootView::world);
                     long rows=worker.status().sourceRows();
                     try(transfer) {
-                        var session=transfer.session();
+                        var installed=owner.view();var session=installed.transfer().session();assertSame(transfer,installed.transfer());assertSame(session.local(),installed.local());assertSame(session.world(),installed.world());
                         assertSame(firstWorld,session.world());assertSame(firstScene,session.scene());assertSame(firstBinding,session.binding());assertEquals(1,session.scene().status().gpuEntries());assertEquals(firstWarmBytes,Mesh.estimatedResidentBytes());
                         assertEquals(c.local.health,session.local().health);assertEquals(c.local.drops,session.local().drops);assertNotSame(c.local.drops,session.local().drops);assertNotSame(c.local.inventory,session.local().inventory);
                         assertNotSame(c.local.models,session.local().models);
@@ -75,30 +76,29 @@ final class SavedPagingSessionFrame {
                         var second=SavedPagingJournalTest.stage(worker,session,revision);SavedPagingJournalTest.publish(worker,second,revision);
                         var nextPending=second.pendingPagingOverlay(()->false);assertTrue(nextPending.rows().isEmpty());RegionReplayWorkerTest.closed(worker);
                         var nextRevision=new RegionReplayWorker.Revision(revision.world()+1,revision.models(),revision.terrain());
-                        var nextSpool=Files.createDirectories(c.fixture.folder.resolve("reloaded"));var nextWorker=new RegionReplayWorker(nextSpool,second.pagingFactory(worker,nextSpool,nextRevision,nextPending),1,1,56*1024,2000);
-                        try {
-                            ReadbackMetadataTest.ready(nextWorker);assertEquals(rows+pending.rows().size(),nextWorker.status().sourceRows());
-                            try(var preparedScene=second.preparePagingScene(nextWorker,nextRevision,nextPending,1,8192,()->false)) {
-                                assertFalse(session.journal().capture(()->false).overlay().rows().isEmpty());
-                                var warmWorld=preparedScene.world();var warmScene=preparedScene.scene();var warmBinding=preparedScene.binding();warm(warmWorld,warmScene);
-                                long warmBytes=Mesh.estimatedResidentBytes();session.local().health--;session.local().inventory.add(Blocks.STONE,1);session.local().drops.put(99,new ItemDrop(99,Blocks.STONE,1,1,2,3));
-                                var oldRetirement=second.prepareWorldRetirement(()->false);
-                                try(var next=preparedScene.commit(()->false)) {
-                                preparedScene.close();
+                        var nextSpool=Files.createDirectories(c.fixture.folder.resolve("reloaded"));
+                        try(var nextReplacement=new SavedPagingReplacement(second,worker,nextSpool,nextRevision,1,8192,()->false)) {
+                            SavedPagingReplacementTest.ready(nextReplacement);assertEquals(rows+pending.rows().size(),nextReplacement.status().worker().sourceRows());nextReplacement.prepare(()->false);
+                            assertFalse(session.journal().capture(()->false).overlay().rows().isEmpty());
+                            var warmWorld=nextReplacement.warmingWorld();var warmScene=nextReplacement.warmingScene();var warmBinding=nextReplacement.warmingBinding();warm(warmWorld,warmScene);
+                            long warmBytes=Mesh.estimatedResidentBytes();session.local().health--;session.local().inventory.add(Blocks.STONE,1);session.local().drops.put(99,new ItemDrop(99,Blocks.STONE,1,1,2,3));
+                            var previousView=owner.view();var previousWorld=previousView.world();var nextTransfer=nextReplacement.takeInto(owner,()->false);
+                            try(nextTransfer) {
+                                var current=owner.view();var next=current.transfer().session();assertSame(nextTransfer,current.transfer());assertSame(next.local(),current.local());assertSame(next.world(),current.world());assertThrows(java.io.IOException.class,previousView::local);assertThrows(java.io.IOException.class,previousView::world);
                                 assertSame(warmWorld,next.world());assertSame(warmScene,next.scene());assertSame(warmBinding,next.binding());assertEquals(1,next.scene().status().gpuEntries());assertEquals(warmBytes,Mesh.estimatedResidentBytes());
                                 assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());
-                                oldRetirement.retire(session.world(),()->false);assertTrue(session.world().isClosed());assertFalse(next.world().isClosed());assertEquals(1,next.scene().status().gpuEntries());
+                                nextTransfer.retirePrevious(previousWorld,()->false);assertTrue(previousWorld.isClosed());assertFalse(current.world().isClosed());assertEquals(1,next.scene().status().gpuEntries());
                                 long retiredBytes=Mesh.estimatedResidentBytes();assertTrue(retiredBytes<warmBytes,"Old paged GPU resources released without closing new scene");
                                 assertEquals(session.local().drops,next.local().drops);assertNotSame(session.local().drops,next.local().drops);assertNotSame(session.local().inventory,next.local().inventory);
                                 for(int i=0;i<Inventory.SIZE;i++){assertEquals(session.local().inventory.type(i),next.local().inventory.type(i));assertEquals(session.local().inventory.count(i),next.local().inventory.count(i));}
-                                assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));
+                                assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));assertSame(current.local().models,current.world().models());
                                 assertThrows(java.io.IOException.class,()->session.journal().capture(()->false));assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
-                                byte[] disk=Files.readAllBytes(c.path);render(next,image);assertArrayEquals(disk,Files.readAllBytes(c.path));
+                                byte[] disk=Files.readAllBytes(c.path);render(current.transfer().session(),image);assertArrayEquals(disk,Files.readAllBytes(c.path));
                                 assertThrows(java.io.IOException.class,()->editor.capture(()->false));assertFalse(c.world.hasReplayReadView());
                                 Files.writeString(root.resolve("retirement-result.json"),"{\"status\":\"passed\",\"old_root_closed\":true,\"old_paged_world_closed\":true,\"new_gpu_entries\":1,\"mesh_bytes_before_retirement\":"+warmBytes+",\"mesh_bytes_after_retirement\":"+retiredBytes+"}\n");
-                                }
-                            }
-                        }finally{RegionReplayWorkerTest.closed(nextWorker);}
+                                Files.writeString(root.resolve("owner-result.json"),"{\"status\":\"passed\",\"installed_bundles\":2,\"stale_views_rejected\":true,\"active_model_map_matches_world\":true,\"new_gpu_entries\":1}\n");
+                            }finally{RegionReplayWorkerTest.closed(nextTransfer.worker());}
+                        }
                     }finally{RegionReplayWorkerTest.closed(worker);}
                     assertEquals(baseline,Mesh.estimatedResidentBytes());
                 }

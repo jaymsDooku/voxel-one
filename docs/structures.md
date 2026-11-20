@@ -2318,3 +2318,26 @@ Receipt capture copies current state and is not constant-time or performance
 qualified. Partial saves remain rejected. Main installation, old-owner
 reconciliation after changes, editable paging, model-ID remapping and full
 city/maximum/reference-GPU/32-client qualification remain unfinished and gated.
+
+### Install one coherent owner bundle
+
+The private `SavedPagingOwner` slot holds the active local state, World and source
+transfer in one view. `takeInto` first reserves a matching slot and preallocates a
+new view. Only after the existing source transfer and journal acknowledgement
+succeed does it fill the new view and publish one active pointer. This final step
+uses field assignments only, with no caller callback, allocation, cancellation or
+new validation failure after source commit. Failed or cancelled transfer releases
+the reservation and leaves the old view active.
+
+Views belong to the original owner thread. Reads reject during reservation and
+callback reentry, after replacement or close, and when the active local/World
+model map, seed or generator no longer match. Held old views cannot silently
+provide stale parts of a current bundle. The slot does not freeze mutable
+inventory, health or other state inside LocalGame.
+
+Closing a slot closes only its current transferred scene/worker or initial World.
+Superseded Worlds still require explicit guarded retirement. A pending replacement
+coordinator remains separately caller-owned until transfer; closing the slot does
+not implicitly close a private candidate. Failed active cleanup requires explicit
+close retry. This is internal read-only ownership integration, not Main wiring,
+editable paging, model-ID remapping or city/maximum performance qualification.
