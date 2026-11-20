@@ -19,6 +19,9 @@ public final class CombatEngine {
     private static final int MAX_ACTORS = 32, MAX_EVENTS = 512, INPUT_TIMEOUT = 12;
     private static final int ARMOR_DURABILITY = 200;
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
+    private static final double GROUND_CONTROL = .66, AIR_CONTROL = .20, AIR_BLEND_RESPONSE = .62;
+    private static final double GROUND_KNOCKBACK_RETENTION = .57, AIR_KNOCKBACK_RETENTION = .83;
+    private static final double MAX_KNOCKBACK_STEP = 1.55, MAX_LAUNCH_STEP = 1.0;
 
     public interface Arena {
         boolean solid(int x, int y, int z);
@@ -66,7 +69,7 @@ public final class CombatEngine {
     public record PlayerState(int id, Vec3 feet, Vec3 velocity, float yaw, float pitch, boolean grounded,
                               boolean sprinting, double health, int food, int slot, List<Stack> inventory,
                               List<Integer> durability, Map<Effect, Integer> effects, int pearlCooldownTicks,
-                              Stats stats, int killerId, long sequence) {}
+                              Stats stats, int killerId, long sequence, long hurtTick, long motionEpoch) {}
 
     private static final Stack EMPTY = new Stack(Item.EMPTY, 0);
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
@@ -104,6 +107,7 @@ public final class CombatEngine {
         Actor replacement = new Actor(playerId, feet, yaw, old.kit, old.startingArmorReduction);
         replacement.grounded = supported(arena, feet);
         replacement.sequence = old.sequence;
+        replacement.motionEpoch = old.motionEpoch + 1;
         actors.put(playerId, replacement);
         shots.removeIf(shot -> shot.ownerId == playerId);
         return true;
@@ -330,9 +334,7 @@ public final class CombatEngine {
         actor.effects.values().removeIf(ticks -> ticks <= 0);
         if (actor.pearlCooldown > 0) actor.pearlCooldown--;
         if (actor.hurtTicks > 0) actor.hurtTicks--;
-        if (actor.has(Effect.POISON) && currentTick % 25 == 0 && actor.health > 1) {
-            actor.health = Math.max(1, actor.health - 1);
-        }
+        if (actor.has(Effect.POISON) && currentTick % 25 == 0) applyNonlethalDamage(actor);
         if (actor.has(Effect.REGENERATION) && currentTick % 25 == 0) heal(actor, 1);
         if (actor.food >= 18 && actor.health < MAX_HEALTH && ++actor.foodRegeneration >= 80) {
             heal(actor, 1);
@@ -346,7 +348,13 @@ public final class CombatEngine {
             if (actor.saturation >= 1) actor.saturation--;
             else if (actor.food > 0) actor.food--;
         }
-        if (actor.food == 0 && currentTick % 80 == 0 && actor.health > 1) actor.health = Math.max(1, actor.health - 1);
+        if (actor.food == 0 && currentTick % 80 == 0) applyNonlethalDamage(actor);
+    }
+
+    private void applyNonlethalDamage(Actor actor) {
+        if (actor.health <= 1) return;
+        actor.health = Math.max(1, actor.health - 1);
+        actor.hurtTick = currentTick;
     }
 
     private void move(Actor actor) {
@@ -369,6 +377,23 @@ public final class CombatEngine {
             actor.submittedUse = false;
         }
         actor.useHeld = fresh && intent.use();
+        Knockback incoming = actor.pendingKnockback;
+        actor.pendingKnockback = null;
+        if (incoming != null) {
+            Vec3 momentum = actor.impulse.scale(.42).add(incoming.horizontal());
+            actor.impulse = momentum.scale(MAX_KNOCKBACK_STEP / Math.max(MAX_KNOCKBACK_STEP, momentum.length()));
+        }
+        boolean launched = incoming != null && incoming.lift() > 0;
+        boolean jumping = !launched && fresh && intent.jump() && actor.grounded;
+        if (launched) {
+            // Apply the full launch step before gravity and keep part of any existing ascent.
+            actor.vertical = Math.min(MAX_LAUNCH_STEP, Math.max(0, actor.vertical) * .32 + incoming.lift());
+        } else if (jumping) {
+            actor.vertical = .42;
+            actor.exhaustion += actor.sprinting ? .2 : .05;
+        } else {
+            actor.vertical = Math.max(-1.5, (actor.vertical - .08) * .98);
+        }
         Vec3 direction = direction(actor.yaw, 0);
         double inputLength = Math.max(1, Math.hypot(forward, strafe));
         double speed = actor.sprinting ? .283 : .216;
@@ -377,15 +402,12 @@ public final class CombatEngine {
         if ((actor.useHeld && actor.selected() == Item.SWORD) || actor.useTicks > 0) speed *= .6;
         double targetX = (direction.x() * forward - direction.z() * strafe) * speed / inputLength;
         double targetZ = (direction.z() * forward + direction.x() * strafe) * speed / inputLength;
-        double response = actor.grounded ? .62 : .24;
+        // Blend the surface change instead of switching drag or steering abruptly at impact and landing.
+        actor.airBlend = approach(actor.airBlend, !actor.grounded || launched || jumping ? 1 : 0, AIR_BLEND_RESPONSE);
+        double impact = Math.min(1, actor.impulse.length() / .4);
+        double response = approach(GROUND_CONTROL, AIR_CONTROL, actor.airBlend) * (1 - impact * .30);
         actor.drive = new Vec3(approach(actor.drive.x(), targetX, response), 0,
                 approach(actor.drive.z(), targetZ, response));
-        if (fresh && intent.jump() && actor.grounded) {
-            actor.vertical = .42;
-            actor.exhaustion += actor.sprinting ? .2 : .05;
-        } else {
-            actor.vertical = Math.max(-1.5, (actor.vertical - .08) * .98);
-        }
         Vec3 before = actor.feet;
         double dx = actor.drive.x + actor.impulse.x, dz = actor.drive.z + actor.impulse.z;
         actor.feet = CombatGeometry.move(arena, actor.id, actor.feet, dx, 0);
@@ -395,11 +417,10 @@ public final class CombatEngine {
         boolean blockedX = Math.abs(actor.velocity.x - dx) > .0002;
         boolean blockedZ = Math.abs(actor.velocity.z - dz) > .0002;
         boolean blockedY = Math.abs(actor.velocity.y - actor.vertical) > .0002;
-        if (blockedX) actor.drive = new Vec3(0, 0, actor.drive.z);
-        if (blockedZ) actor.drive = new Vec3(actor.drive.x, 0, 0);
-        double friction = actor.grounded ? .58 : .83;
-        actor.impulse = new Vec3(blockedX ? 0 : actor.impulse.x * friction, 0,
-                blockedZ ? 0 : actor.impulse.z * friction);
+        if (blockedX || blockedZ) actor.drive = new Vec3(blockedX ? 0 : actor.drive.x, 0, blockedZ ? 0 : actor.drive.z);
+        double retention = approach(GROUND_KNOCKBACK_RETENTION, AIR_KNOCKBACK_RETENTION, actor.airBlend);
+        actor.impulse = new Vec3(blockedX ? 0 : actor.impulse.x * retention, 0,
+                blockedZ ? 0 : actor.impulse.z * retention);
         if (actor.velocity.y < 0) actor.fallDistance -= actor.velocity.y;
         actor.grounded = blockedY && actor.vertical < 0;
         if (blockedY) actor.vertical = 0;
@@ -461,8 +482,8 @@ public final class CombatEngine {
         if (fullHit) {
             target.hurtTicks = rules.hurtTicks();
             double knockback = rules.knockback() + (sprintHit ? rules.sprintKnockback() : 0);
-            target.impulse = away.scale(knockback).add(target.impulse.scale(.35));
-            target.vertical = Math.max(target.vertical * .4, rules.lift());
+            // Resolve movement next tick so exchanges share the same pre-impact pose and falling state.
+            target.pendingKnockback = new Knockback(away.scale(knockback), rules.lift());
         }
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
         attacker.lastHit = currentTick;
@@ -483,7 +504,10 @@ public final class CombatEngine {
 
     private void applyDamage(Actor target, int sourceId, double amount) {
         if (!target.alive() || amount <= 0) return;
-        target.health = Math.max(0, target.health - amount);
+        double health = Math.max(0, target.health - amount);
+        if (health == target.health) return;
+        target.health = health;
+        target.hurtTick = currentTick;
         if (sourceId > 0 && sourceId != target.id) {
             target.recentAttacker = sourceId;
             target.lastDamageTick = currentTick;
@@ -637,6 +661,9 @@ public final class CombatEngine {
                 owner.vertical = 0;
                 owner.fallDistance = 0;
                 owner.grounded = true;
+                owner.airBlend = 0;
+                owner.pendingKnockback = null;
+                owner.motionEpoch++;
                 emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
                 applyDamage(owner, owner.id, rules.pearlDamage());
                 return;
@@ -671,15 +698,17 @@ public final class CombatEngine {
         final EnumMap<Effect, Integer> effects = new EnumMap<>(Effect.class);
         List<Stack> kit;
         Vec3 feet, drive = ZERO, impulse = ZERO, velocity = ZERO;
+        Knockback pendingKnockback;
         Intent intent;
         Item useItem = Item.EMPTY;
-        long sequence = -1, lastInputTick, lastHit, lastDamageTick;
+        long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
         float yaw, pitch;
         boolean grounded, sprinting, sprintKnockbackReady = true, attackRequested, sprintReleased;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
         int hits, combo, longestCombo, lastComboTarget, potsUsed;
         double health = MAX_HEALTH, saturation = 6, exhaustion, vertical, fallDistance, lastDamage, armorReduction;
+        double airBlend;
 
         Actor(int id, Vec3 feet, float yaw, List<Stack> kit, double armorReduction) {
             this.id = id;
@@ -705,9 +734,12 @@ public final class CombatEngine {
             int potsRemaining = (int) inventory.stream().filter(stack -> stack.item() == Item.HEALING).count();
             return new PlayerState(id, feet, velocity, yaw, pitch, grounded, sprinting, health, food, slot,
                     List.copyOf(inventory), List.of(armor[0], armor[1], armor[2], armor[3]), Map.copyOf(effects),
-                    pearlCooldown, new Stats(hits, longestCombo, potsUsed, potsRemaining), killerId, sequence);
+                    pearlCooldown, new Stats(hits, longestCombo, potsUsed, potsRemaining), killerId, sequence,
+                    hurtTick, motionEpoch);
         }
     }
+
+    private record Knockback(Vec3 horizontal, double lift) {}
 
     private static final class Projectile {
         final long id;

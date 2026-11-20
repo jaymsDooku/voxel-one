@@ -54,8 +54,10 @@ public final class PracticeNativePlaytest {
     private static final class Observer implements PracticeGame.FrameObserver {
         private final PracticeClient first, second;
         private final Path output;
-        private long start, recordedAt;
-        private boolean ready, captured, stopped;
+        private long start, recordedAt, previousTick = -1;
+        private boolean ready, captured, capturedFlash, stopped, remotePresented;
+        private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
+        private int betweenSnapshotFrames;
         private String report;
 
         Observer(PracticeClient first, PracticeClient second, Path output) {
@@ -68,6 +70,15 @@ public final class PracticeNativePlaytest {
             return intent(view, first.id(), controls.sequence(), true);
         }
 
+        @Override public void presented(int id, float x, float y, float z, float hurtTint) {
+            if (id != second.id()) return;
+            remotePresented = true;
+            presentX = x;
+            presentY = y;
+            presentZ = z;
+            this.hurtTint = hurtTint;
+        }
+
         @Override public void frame(Window window, ScreenRecorder recorder, View view, int width, int height) throws Exception {
             long now = System.nanoTime();
             if (start == 0) start = now;
@@ -77,10 +88,24 @@ public final class PracticeNativePlaytest {
                 ready = true;
             }
             if (view.phase() == Phase.FIGHT && recordedAt == 0) {
-                recorder.toggle(width * 3 / 4, height * 3 / 4);
+                recorder.toggle(width * 2 / 3, height * 2 / 3);
                 recordedAt = now;
             }
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
+            if (remotePresented && view.phase() == Phase.FIGHT && b != null && b.hurtTick() >= 0) {
+                double moved = Math.abs(presentX - previousX) + Math.abs(presentY - previousY)
+                        + Math.abs(presentZ - previousZ);
+                if (previousTick == view.tick() && moved > .005) betweenSnapshotFrames++;
+                if (!capturedFlash && a != null && a.pitch() > -40 && hurtTint > .5f) {
+                    screenshot(output.resolve("hit-flash.png"), width, height);
+                    capturedFlash = true;
+                }
+            }
+            previousTick = view.tick();
+            previousX = presentX;
+            previousY = presentY;
+            previousZ = presentZ;
+            remotePresented = false;
             if (!captured && a != null && b != null && a.hits() > 0 && b.hits() > 0 && a.used() > 0
                     && a.pitch() > -40) {
                 screenshot(output.resolve("basalt-courtyard.png"), width, height);
@@ -89,12 +114,16 @@ public final class PracticeNativePlaytest {
             if (view.phase() == Phase.RESULT && captured && !stopped) {
                 var acknowledged = second.view();
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
+                    if (!capturedFlash || betweenSnapshotFrames == 0)
+                        throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
                     report = "Windows native Voxel One renderer and two TLS clients in Basalt Courtyard.\n"
                             + "Both clients agreed on " + view.result() + " and winner " + view.winner() + ".\n"
                             + a.name() + " hits " + a.hits() + ", longest combo " + a.combo() + ", pots used " + a.used() + ".\n"
-                            + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n";
+                            + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n"
+                            + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
+                            + " moving frames between received snapshots after damage.\n";
                 }
             }
             if (stopped && recorder.status("F10").startsWith("Recording saved"))
@@ -122,8 +151,9 @@ public final class PracticeNativePlaytest {
             }
         }
         float forward = heal ? -.2f : range > 2.35 ? 1 : 0;
-        return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0, !heal
-                && range < 3.05 && (primary || self.hits() < 2) && sequence % 3 == 0, heal, slot);
+        boolean swing = primary ? self.used() > 0 || other.hits() >= 2 : self.hits() < 2;
+        return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0,
+                !heal && range < 3.05 && swing && sequence % 3 == 0, heal, slot);
     }
 
     private static Fighter fighter(View view, int id) {

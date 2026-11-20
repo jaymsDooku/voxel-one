@@ -43,7 +43,7 @@ public final class PracticeServer implements AutoCloseable {
     private final Set<Socket> connections = ConcurrentHashMap.newKeySet();
     private final Set<Peer> peers = ConcurrentHashMap.newKeySet();
 
-    private record Peer(int id, ArrayBlockingQueue<PracticeMatch.View> updates) { }
+    private record Peer(int id, int version, ArrayBlockingQueue<PracticeMatch.View> updates) { }
 
     public PracticeServer(String host, int port, SSLContext tls, PracticeMatch.Kit kit) throws IOException {
         this(host, port, tls, new PracticeMatch(kit, false), null);
@@ -107,7 +107,9 @@ public final class PracticeServer implements AutoCloseable {
             socket.setSoTimeout(8000);
             var in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
             var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-            if (in.readInt() != PracticeWire.MAGIC || in.readInt() != PracticeWire.VERSION) return;
+            if (in.readInt() != PracticeWire.MAGIC) return;
+            int version = in.readInt();
+            if (version != PracticeWire.VERSION && version != PracticeWire.LEGACY_VERSION) return;
             int length = in.readUnsignedByte();
             if (length < 1 || length > 16) return;
             byte[] name = new byte[length];
@@ -120,7 +122,7 @@ public final class PracticeServer implements AutoCloseable {
                 return;
             }
             int id = match.join(accounts == null ? username : AccountStore.normalize(username));
-            if (id != 0) peer = new Peer(id, new ArrayBlockingQueue<>(1));
+            if (id != 0) peer = new Peer(id, version, new ArrayBlockingQueue<>(1));
             out.writeInt(id);
             out.flush();
             if (peer == null) return;
@@ -178,7 +180,7 @@ public final class PracticeServer implements AutoCloseable {
             while (!socket.isClosed()) {
                 var view = peer.updates().poll(250, TimeUnit.MILLISECONDS);
                 if (view != null) {
-                    PracticeWire.writeView(out, view);
+                    PracticeWire.writeView(out, view, peer.version());
                     out.flush();
                 }
             }

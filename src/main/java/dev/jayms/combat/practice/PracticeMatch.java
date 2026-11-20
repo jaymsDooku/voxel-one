@@ -19,7 +19,22 @@ public final class PracticeMatch implements ArenaMatch {
 
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
-                          int hits, int combo, int used, int remaining, int side, String role) { }
+                          int hits, int combo, int used, int remaining, int side, String role,
+                          float vx, float vy, float vz, long hurtTick, long motionEpoch) {
+        public static Fighter fromCombat(PlayerState state, String name, boolean swinging,
+                                         boolean ready, int side, String role,
+                                         long simulationTick, long matchTickAtSimulationTick) {
+            Vec3 p = state.feet(), v = state.velocity();
+            Stats stats = state.stats();
+            // Keep the hit in match time even while combat is frozen at the result screen.
+            long hurt = state.hurtTick() < 0 ? -1 : matchTickAtSimulationTick - (simulationTick - state.hurtTick());
+            return new Fighter(state.id(), name, (float) p.x(), (float) p.y(), (float) p.z(), state.yaw(),
+                    state.pitch(), (float) state.health(), Math.hypot(v.x(), v.z()) > .12, swinging, ready,
+                    state.inventory().get(state.slot()).item(), stats.hits(), stats.longestCombo(),
+                    stats.potsUsed(), stats.potsRemaining(), side, role,
+                    (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch());
+        }
+    }
     public record Missile(long id, Item item, float x, float y, float z) { }
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
@@ -36,7 +51,7 @@ public final class PracticeMatch implements ArenaMatch {
     private final CombatEngine engine;
     private final boolean offline;
     private int nextId = 1;
-    private long tick, lastSplash = -1;
+    private long tick, lastSimulationStep, lastSplash = -1;
     private int ticksLeft, winner;
     private Phase phase = Phase.WAITING;
     private Result result = Result.NONE;
@@ -138,6 +153,7 @@ public final class PracticeMatch implements ArenaMatch {
             case FIGHT -> {
                 if (offline) driveBot();
                 engine.tick();
+                lastSimulationStep = tick;
                 for (Event event : engine.drainEvents()) {
                     Member actor = members.get(event.actorId()), target = members.get(event.targetId());
                     if (event.type() == EventType.HIT && target != null) target.lastHit = tick;
@@ -166,13 +182,8 @@ public final class PracticeMatch implements ArenaMatch {
             Member member = entry.getValue();
             if (member.side < 0) continue;
             PlayerState f = engine.snapshot(fighterId);
-            Vec3 p = f.feet();
-            Stats stats = f.stats();
-            boolean moving = Math.hypot(f.velocity().x(), f.velocity().z()) > .12;
-            fighters.add(new Fighter(fighterId, member.name, (float) p.x(), (float) p.y(), (float) p.z(), f.yaw(),
-                    f.pitch(), (float) f.health(), moving, member.lastSwing >= 0 && tick - member.lastSwing < 5,
-                    member.ready, f.inventory().get(f.slot()).item(), stats.hits(), stats.longestCombo(),
-                    stats.potsUsed(), stats.potsRemaining(), -1, ""));
+            fighters.add(Fighter.fromCombat(f, member.name, member.lastSwing >= 0 && tick - member.lastSwing < 5,
+                    member.ready, -1, "", engine.currentTick(), lastSimulationStep));
         }
         Member member = members.get(id);
         PlayerState self = member == null || member.side < 0 ? null : engine.snapshot(id);

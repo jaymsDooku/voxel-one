@@ -140,6 +140,17 @@ public class PlayerModel implements AutoCloseable {
                 models);
     }
 
+    /** Scoped overlay tint for confirmed damage to a practice opponent. */
+    public void renderPracticeAvatar(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models,
+                                     int jerseyColor, float hurt) {
+        shader.setFloat("uAvatarHurt", hurt);
+        try {
+            render(player, shader, models, jerseyColor);
+        } finally {
+            shader.setFloat("uAvatarHurt", 0);
+        }
+    }
+
     public void renderFirstPerson(Player player, ShaderProgram shader, VoxelModelRenderer models) {
         renderFirstPerson(player.walkPhase(), player.walkAmount(), player.swingProgress(), player.placingSwing(),
                 player.heldItem(), player.heldColor(), shader, models);

@@ -7,6 +7,7 @@ import java.io.BufferedInputStream;
 import java.io.BufferedOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.EOFException;
 import java.io.IOException;
 import java.net.Socket;
 import java.nio.charset.StandardCharsets;
@@ -21,6 +22,7 @@ public final class PracticeClient implements AutoCloseable {
     private final Thread reader, writer;
     private volatile PracticeMatch.View view;
     private final int id;
+    private final int version;
 
     @FunctionalInterface private interface Command { void write(DataOutputStream out) throws IOException; }
 
@@ -34,13 +36,41 @@ public final class PracticeClient implements AutoCloseable {
             throw new IOException("Use a practice name of 1–16 letters, numbers, spaces, or underscores");
         if (password != null && (password.length < 10 || password.length > 128))
             throw new IOException("Use a faction password of 10–128 characters");
-        socket = SecureTransport.connect(host, port, pin);
+        Login login;
+        int negotiated = PracticeWire.VERSION;
         try {
-            in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
-            out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
+            login = login(host, port, pin, name, password, register, negotiated);
+        } catch (UnsupportedVersion olderServer) {
+            negotiated = PracticeWire.LEGACY_VERSION;
+            login = login(host, port, pin, name, password, register, negotiated);
+        }
+        version = negotiated;
+        socket = login.socket();
+        in = login.in();
+        out = login.out();
+        id = login.id();
+        view = login.view();
+        reader = thread("practice-snapshot-reader", this::read);
+        writer = thread("practice-intent-writer", this::write);
+        reader.start();
+        writer.start();
+    }
+
+    private record Login(Socket socket, DataInputStream in, DataOutputStream out, int id, PracticeMatch.View view) { }
+
+    private static final class UnsupportedVersion extends EOFException {
+        UnsupportedVersion() { super("Arena server closed during version handshake"); }
+    }
+
+    private static Login login(String host, int port, String pin, String name, char[] password,
+                               boolean register, int version) throws IOException {
+        Socket socket = SecureTransport.connect(host, port, pin);
+        try {
+            var in = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+            var out = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             byte[] encoded = name.getBytes(StandardCharsets.US_ASCII);
             out.writeInt(PracticeWire.MAGIC);
-            out.writeInt(PracticeWire.VERSION);
+            out.writeInt(version);
             out.writeByte(encoded.length);
             out.write(encoded);
             out.writeByte(password == null ? 0 : register ? 2 : 1);
@@ -49,18 +79,19 @@ public final class PracticeClient implements AutoCloseable {
                 for (char c : password) out.writeChar(c);
             }
             out.flush();
-            id = in.readInt();
+            int id;
+            try {
+                id = in.readInt();
+            } catch (EOFException unsupported) {
+                throw new UnsupportedVersion();
+            }
             if (id == -1) throw new IOException("Arena sign-in rejected. Check credentials and server mode.");
             if (id <= 0) throw new IOException("Practice lobby is full or that name is in use");
-            view = PracticeWire.readView(in);
+            return new Login(socket, in, out, id, PracticeWire.readView(in, version));
         } catch (IOException | RuntimeException failed) {
             socket.close();
             throw failed;
         }
-        reader = thread("practice-snapshot-reader", this::read);
-        writer = thread("practice-intent-writer", this::write);
-        reader.start();
-        writer.start();
     }
 
     public int id() { return id; }
@@ -93,7 +124,7 @@ public final class PracticeClient implements AutoCloseable {
 
     private void read() {
         try {
-            while (connected()) view = PracticeWire.readView(in);
+            while (connected()) view = PracticeWire.readView(in, version);
         } catch (IOException | IllegalArgumentException closed) {
             close();
         }

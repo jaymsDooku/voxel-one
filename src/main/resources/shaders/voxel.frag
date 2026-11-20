@@ -9,6 +9,7 @@ uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld;
 uniform int uShadowCascades,uVoxelAO,uVoxelGI,uContactTransport,uLocalReflection;
 uniform vec3 uColor,uLightDirection,uCameraPosition;
 uniform float uModelEmission,uTransparency,uOutputExposure;
+uniform float uAvatarHurt;
 uniform int uOutputTone;
 uniform samplerCube uEnvironment;
 uniform sampler2DArray uShadow;
@@ -193,6 +194,10 @@ void main(){
                 color+=albedo*texelFetch(uLights,id*2+1).rgb*max(0.,dot(N,normalize(delta)))*attenuation*visible*3.;
             }
         }
+    }
+    if(uAvatarHurt>0.){
+        vec3 tint=vec3(max(color.r,.55),color.g*.13,color.b*.13);
+        color=mix(color,tint,clamp(uAvatarHurt,0.,1.)*.66);
     }
     if(uFog==1&&uHeld==0){
         vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;

@@ -106,7 +106,7 @@ public final class FactionMatch implements ArenaMatch {
     private int captureSide = -1, captureTicks;
     private int raidTarget = -1;
     private boolean contested, dirty;
-    private long tick, serial, lastSplash = -1, retryAt;
+    private long tick, lastSimulationStep, serial, lastSplash = -1, retryAt;
 
     public FactionMatch(Path save) throws IOException {
         this(save, Settings.DEFAULT, Clock.systemUTC());
@@ -285,14 +285,8 @@ public final class FactionMatch implements ArenaMatch {
             if (seat.side < 0) continue;
             PlayerState fighter = engine.snapshot(fighterId);
             if (fighter == null) continue;
-            Vec3 feet = fighter.feet();
-            Stats stats = fighter.stats();
-            boolean moving = Math.hypot(fighter.velocity().x(), fighter.velocity().z()) > .12;
-            fighters.add(new Fighter(fighterId, seat.display, (float) feet.x(), (float) feet.y(), (float) feet.z(),
-                    fighter.yaw(), fighter.pitch(), (float) fighter.health(), moving,
-                    seat.lastSwing >= 0 && tick - seat.lastSwing < 5, seat.ready,
-                    fighter.inventory().get(fighter.slot()).item(), stats.hits(), stats.longestCombo(),
-                    stats.potsUsed(), stats.potsRemaining(), seat.side, seat.role.title));
+            fighters.add(Fighter.fromCombat(fighter, seat.display, seat.lastSwing >= 0 && tick - seat.lastSwing < 5,
+                    seat.ready, seat.side, seat.role.title, engine.currentTick(), lastSimulationStep));
         }
         Seat seat = seats.get(id);
         PlayerState self = seat == null || !seat.online || seat.side < 0 || seat.eliminated
@@ -340,6 +334,7 @@ public final class FactionMatch implements ArenaMatch {
         boolean departed = expireLogoutActors();
         for (var entry : seats.entrySet()) passives(entry.getKey(), entry.getValue());
         engine.tick();
+        lastSimulationStep = tick;
         boolean killed = false;
         for (var events = engine.drainEvents(); !events.isEmpty(); events = engine.drainEvents()) {
             for (Event event : events) {
@@ -718,6 +713,7 @@ public final class FactionMatch implements ArenaMatch {
         if (raidOpen()) {
             if (seats.values().stream().anyMatch(this::canRaid)) {
                 engine.tick();
+                lastSimulationStep = tick;
                 engine.drainEvents();
             } else {
                 ticksLeft = 0;

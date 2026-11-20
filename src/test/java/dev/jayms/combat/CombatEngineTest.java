@@ -112,6 +112,102 @@ class CombatEngineTest {
         assertTrue(reset.snapshot(2).velocity().x() > .5);
     }
 
+    @Test void knockbackMaintainsMomentumAcrossLaunchAndLanding() {
+        CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.5);
+        input(engine, 1, 0, 0, 0, 1, true, true, false, 0);
+        engine.tick();
+        assertEquals(0, engine.snapshot(2).velocity().x());
+        assertEquals(1, engine.snapshot(2).hurtTick());
+
+        engine.tick();
+        var launched = engine.snapshot(2);
+        assertEquals(.52, launched.velocity().x(), .00001);
+        assertEquals(.29, launched.velocity().y(), .00001);
+        assertFalse(launched.grounded());
+        engine.tick();
+        assertEquals(.380224, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(.2058, engine.snapshot(2).velocity().y(), .00001);
+
+        int airborneTicks = 0;
+        while (!engine.snapshot(2).grounded() && airborneTicks++ < 12) engine.tick();
+        var landed = engine.snapshot(2);
+        assertTrue(landed.grounded());
+        assertEquals(1, landed.feet().y(), .00001);
+        assertTrue(landed.velocity().x() > .06);
+        engine.tick();
+        double carried = engine.snapshot(2).velocity().x();
+        assertTrue(carried / landed.velocity().x() > .80);
+        engine.tick();
+        assertTrue(engine.snapshot(2).velocity().x() / carried > .65);
+        assertTrue(engine.snapshot(2).velocity().x() / carried < .70);
+        assertEquals(1, engine.snapshot(2).hurtTick());
+    }
+
+    @Test void hitLiftCannotChangeAnotherPlayersFallingCriticalInTheSameTick() {
+        CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.0);
+        assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 0, true, false, false, false, 0)));
+        assertTrue(engine.submit(2, new Intent(0, 180, 0, 0, 0, true, false, false, false, 0)));
+        tick(engine, 6);
+        input(engine, 1, 1, 0, 0, 0, false, true, false, 0);
+        input(engine, 2, 1, 180, 0, 0, false, true, false, 0);
+        engine.tick();
+        assertEquals(16.16, engine.snapshot(1).health(), .00001);
+        assertEquals(16.16, engine.snapshot(2).health(), .00001);
+        assertEquals(7, engine.snapshot(1).hurtTick());
+        assertEquals(7, engine.snapshot(2).hurtTick());
+        assertTrue(engine.snapshot(1).velocity().y() < 0);
+        assertTrue(engine.snapshot(2).velocity().y() < 0);
+        engine.tick();
+        assertEquals(.29, engine.snapshot(1).velocity().y(), .00001);
+        assertEquals(.29, engine.snapshot(2).velocity().y(), .00001);
+    }
+
+    @Test void highImpulseRespectsWallAndKeepsSidewaysAirControl() {
+        Arena wall = new Arena() {
+            @Override public boolean solid(int x, int y, int z) { return y <= 0 || x == 4 && y <= 4; }
+            @Override public boolean contains(Vec3 feet) { return Math.abs(feet.x()) < 25; }
+        };
+        var base = CombatRules.NO_DEBUFF;
+        var heavy = new CombatRules(false, base.reach(), base.hurtTicks(), base.swordDamage(), base.armorReduction(),
+                1, 1, base.lift(), base.healing(), base.splashRadius(), base.pearlCooldown(), base.pearlDamage(),
+                base.speedDuration(), base.fireResistanceDuration(), base.poisonDuration(), base.slownessDuration());
+        CombatEngine engine = duel(heavy, wall, 2.5);
+        input(engine, 1, 0, 0, 0, 1, true, true, false, 0);
+        engine.tick();
+        assertTrue(engine.submit(2, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0)));
+        engine.tick();
+        var alongWall = engine.snapshot(2);
+        assertEquals(4 - .31, alongWall.feet().x(), .00001);
+        assertEquals(.05666976, alongWall.velocity().z(), .00001);
+        assertFalse(alongWall.grounded());
+        tick(engine, 4);
+        assertEquals(alongWall.feet().x(), engine.snapshot(2).feet().x(), .00001);
+        assertTrue(engine.snapshot(2).feet().z() > alongWall.feet().z() + .3);
+        assertEquals(0, engine.snapshot(2).velocity().x(), .00001);
+    }
+
+    @Test void starvationMarksActualDamageWithoutKillingOrCreatingAnAttacker() {
+        var engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, true));
+        assertTrue(engine.join(1, ORIGIN, 0));
+        for (int i = 0; i < 16_000 && engine.snapshot(1).food() > 0; i++) {
+            assertTrue(engine.submit(1, new Intent(i, 0, 0, 1, 0, true, true, false, false, 0)));
+            engine.tick();
+        }
+        assertEquals(0, engine.snapshot(1).food());
+        tick(engine, 80);
+        var hurt = engine.snapshot(1);
+        assertTrue(hurt.health() < 20);
+        assertEquals(0, hurt.hurtTick() % 80);
+        assertTrue(hurt.hurtTick() > 0 && engine.currentTick() - hurt.hurtTick() < 80);
+        tick(engine, 20 * 80);
+        var starving = engine.snapshot(1);
+        assertEquals(1, starving.health());
+        assertEquals(0, starving.killerId());
+        assertTrue(engine.drainEvents().stream().noneMatch(event -> event.type() == EventType.DEATH));
+        tick(engine, 80);
+        assertEquals(starving.hurtTick(), engine.snapshot(1).hurtTick());
+    }
+
     @Test void healingSplashCanHelpBothPlayersAndUsesSlotOnlyOnce() {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
         assertTrue(engine.damage(0, 1, 10));
@@ -149,6 +245,9 @@ class CombatEngineTest {
         assertTrue(debuff.snapshot(2).effects().containsKey(Effect.POISON));
         tick(debuff, 20);
         assertEquals(1, debuff.snapshot(2).health(), .0001);
+        assertEquals(25, debuff.snapshot(2).hurtTick());
+        tick(debuff, 23);
+        assertEquals(25, debuff.snapshot(2).hurtTick());
         assertEquals(0, debuff.snapshot(2).killerId());
 
         CombatEngine team = duel(CombatRules.DEBUFF, field(false, false), 2);
@@ -192,6 +291,8 @@ class CombatEngineTest {
         assertEquals(15, engine.snapshot(1).inventory().get(1).count());
         assertEquals(320, engine.snapshot(1).pearlCooldownTicks());
         assertEquals(18, engine.snapshot(1).health());
+        assertEquals(1, engine.snapshot(1).hurtTick());
+        assertEquals(1, engine.snapshot(1).motionEpoch());
         assertTrue(engine.snapshot(1).feet().x() > .5);
         assertTrue(engine.snapshot(1).feet().x() < 1);
         assertTrue(engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.TELEPORT));
@@ -215,12 +316,16 @@ class CombatEngineTest {
         assertTrue(engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.REJECTED_PEARL));
         assertEquals(ORIGIN, engine.snapshot(1).feet());
         assertEquals(20, engine.snapshot(1).health());
+        assertEquals(0, engine.snapshot(1).motionEpoch());
+        assertEquals(-1, engine.snapshot(1).hurtTick());
         assertTrue(engine.swapKit(1, 0, 8));
         assertEquals(Item.SWORD, engine.snapshot(1).inventory().get(0).item());
         assertTrue(engine.reset(1, ORIGIN, 0));
         assertEquals(Item.SWORD, engine.snapshot(1).inventory().get(8).item());
         assertEquals(16, engine.snapshot(1).inventory().get(1).count());
         assertEquals(0, engine.snapshot(1).pearlCooldownTicks());
+        assertEquals(1, engine.snapshot(1).motionEpoch());
+        assertEquals(-1, engine.snapshot(1).hurtTick());
         assertFalse(input(engine, 1, 0, 0, 0, 0, false, false, true, 1));
     }
 

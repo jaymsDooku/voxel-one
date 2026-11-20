@@ -80,6 +80,9 @@ class PracticeNetworkTest {
             float injured = self(bob).health();
             assertTrue(injured > 17 && injured < 18);
             assertTrue(bob.view().lastHit() >= 0);
+            assertEquals(bob.view().lastHit(), self(bob).hurtTick());
+            assertEquals(self(bob).hurtTick(), fighter(alice.view(), bob.id()).hurtTick());
+            await(() -> self(bob).vz() < -.12f, "authoritative knockback velocity");
 
             await(() -> {
                 var own = self(bob);
@@ -98,7 +101,7 @@ class PracticeNetworkTest {
             await(() -> bob.view().inventory().get(5).item() == Item.HEALING, "shift-click reserve refill");
             assertEquals(Item.EMPTY, bob.view().inventory().get(21).item());
             assertEquals(Item.HEALING, alice.view().inventory().get(21).item());
-            System.out.printf("Basalt Courtyard: %d ms added RTT, %d ms ready observed, sword and pot snapshots agree%n",
+            System.out.printf("Basalt Courtyard: %d ms added RTT, %d ms ready observed, hit timing and potion snapshots agree%n",
                     rtt, readyRtt);
 
             if (rtt == 0) verifySpectatorForfeitAndRematch(server.port(), tls.fingerprint(), alice, bob);

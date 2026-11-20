@@ -12,7 +12,7 @@ import java.util.List;
 
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
-    static final int MAGIC = 0x56505241, VERSION = 1;
+    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, VERSION = 2;
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
     static final int QUICK_MOVE = 255;
@@ -40,7 +40,7 @@ final class PracticeWire {
                 (flags & 4) != 0, (flags & 8) != 0, slot);
     }
 
-    static void writeView(DataOutputStream out, View v) throws IOException {
+    static void writeView(DataOutputStream out, View v, int version) throws IOException {
         out.writeByte(v.phase().ordinal());
         out.writeByte(v.kit().ordinal());
         out.writeByte(v.result().ordinal());
@@ -68,6 +68,13 @@ final class PracticeWire {
             out.writeInt(f.remaining());
             out.writeByte(f.side());
             out.writeUTF(f.role());
+            if (version >= VERSION) {
+                out.writeFloat(f.vx());
+                out.writeFloat(f.vy());
+                out.writeFloat(f.vz());
+                out.writeLong(f.hurtTick());
+                out.writeLong(f.motionEpoch());
+            }
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
@@ -96,7 +103,7 @@ final class PracticeWire {
         }
     }
 
-    static View readView(DataInputStream in) throws IOException {
+    static View readView(DataInputStream in, int version) throws IOException {
         Phase phase = readEnum(in, Phase.values());
         Kit kit = readEnum(in, Kit.values());
         Result result = readEnum(in, Result.values());
@@ -116,8 +123,19 @@ final class PracticeWire {
             String role = in.readUTF();
             if (side < -1 || side > 1 || !role.matches("[A-Za-z]{0,12}"))
                 throw new IOException("Invalid fighter affiliation");
+            float vx = 0, vy = 0, vz = 0;
+            long hurtTick = -1, motionEpoch = 0;
+            if (version >= VERSION) {
+                vx = finite(in);
+                vy = finite(in);
+                vz = finite(in);
+                hurtTick = in.readLong();
+                motionEpoch = in.readLong();
+                if (hurtTick < -1 || hurtTick > tick || motionEpoch < 0)
+                    throw new IOException("Invalid fighter timing");
+            }
             fighters.add(new Fighter(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready,
-                    held, hits, combo, used, remaining, side, role));
+                    held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch));
         }
         count = count(in, 36);
         if (count != 0 && count != 36) throw new IOException("Invalid practice inventory");

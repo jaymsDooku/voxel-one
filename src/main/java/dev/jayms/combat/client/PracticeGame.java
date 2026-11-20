@@ -42,7 +42,9 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 import java.util.Locale;
 
 import static dev.jayms.ui.Controls.Action.*;
@@ -62,14 +64,15 @@ public final class PracticeGame {
     private final int id;
     private final Camera camera = new Camera();
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
+    private final ArenaMotionTimeline motion = new ArenaMotionTimeline();
     private final String[] hotbarLabels = new String[SLOTS.length];
-    private final Vector3f feet = new Vector3f(), destination = new Vector3f();
     private final Matrix4f projection = new Matrix4f();
     private final Matrix4f clipFromWorld = new Matrix4f();
     private final FrustumIntersection frustum = new FrustumIntersection();
     private Controls controls;
     private Window window;
     private View view;
+    private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
     private boolean inventory, attack, usePressed, previousIntentUse, firstMouse = true, positioned;
     private Boolean scriptedUse;
     private int width, height, slot, source = -1;
@@ -85,6 +88,8 @@ public final class PracticeGame {
     public interface FrameObserver {
         void frame(Window window, ScreenRecorder recorder, View view, int width, int height) throws Exception;
         default Intent input(Intent controls, View view) { return controls; }
+        /** The world pose and confirmed flash strength submitted for each visible remote fighter. */
+        default void presented(int id, float x, float y, float z, float hurtTint) {}
     }
 
     public PracticeGame(PracticeClient remote, PracticeMatch.Kit kit, boolean factions, Path recordings) {
@@ -196,16 +201,13 @@ public final class PracticeGame {
                 if (entry.getKey().chunkY() >= 2) entry.getValue().checkMesh();
             bind(recorder);
             view = snapshot();
-            updateCamera(1, System.nanoTime());
+            updatePresentation(System.nanoTime());
             window.show();
             glViewport(0, 0, width, height);
-            long previous = System.nanoTime();
-            frameInput = previous;
+            frameInput = System.nanoTime();
             while (!window.shouldClose()) {
                 window.pollEvents();
                 long now = System.nanoTime();
-                float dt = Math.min(.1f, (now - previous) / 1e9f);
-                previous = now;
                 if (now >= frameInput) {
                     sendInput(observer, now);
                     if (offline == null) frameInput = Math.max(frameInput + STEP, now);
@@ -219,11 +221,15 @@ public final class PracticeGame {
                     }
                 }
                 view = snapshot();
-                updateCamera(dt, now);
+                updatePresentation(now);
                 if (width == 0 || height == 0) { glfwWaitEventsTimeout(.1); continue; }
                 render(world, shader, rendering, models, avatars, now);
                 drawHud(overlay, recorder);
-                if (observer != null) observer.frame(window, recorder, view, width, height);
+                if (observer != null) {
+                    for (var fighter : remoteActors)
+                        observer.presented(fighter.fighter().id(), fighter.x(), fighter.y(), fighter.z(), fighter.hurt());
+                    observer.frame(window, recorder, view, width, height);
+                }
                 recorder.capture(width, height);
                 window.swapBuffers();
             }
@@ -419,21 +425,28 @@ public final class PracticeGame {
 
     private Fighter self() { return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null); }
 
-    private void updateCamera(float dt, long now) {
+    private void updatePresentation(long now) {
+        motion.observe(view.tick(), view.fighters(), now);
+        var frame = motion.frame(now);
+        remoteActors.clear();
+        for (Fighter fighter : view.fighters()) {
+            if (fighter.id() == id) continue;
+            var candidate = motion.sample(fighter.id(), frame.remote());
+            if (candidate != null && candidate.visible()) remoteActors.add(candidate);
+        }
         Fighter actor = self();
         boolean spectator = actor == null || view.spectatorId() == id;
         var gallery = BasaltCourtyard.spectator();
-        if (spectator) destination.set(gallery.x(), gallery.y(), gallery.z());
-        else destination.set(actor.x(), actor.y(), actor.z());
         boolean respawn = !positioned || spectator != wasSpectator || view.phase() == Phase.COUNTDOWN && lastPhase != Phase.COUNTDOWN;
         if (respawn) {
             camera.setYaw(spectator ? gallery.yaw() : actor.yaw());
             camera.setPitch(spectator ? gallery.pitch() : actor.pitch());
             hand.reset(spectator ? Item.EMPTY : selectedItem(), now);
         }
-        if (respawn || feet.distanceSquared(destination) > 4) feet.set(destination);
-        else feet.lerp(destination, 1 - (float) Math.exp(-25 * dt));
-        camera.position().set(feet).add(0, 1.62f, 0);
+        var local = spectator || respawn ? null : motion.sample(id, frame.local());
+        if (spectator) camera.position().set(gallery.x(), gallery.y() + 1.62f, gallery.z());
+        else if (local == null) camera.position().set(actor.x(), actor.y() + 1.62f, actor.z());
+        else camera.position().set(local.x(), local.y() + 1.62f, local.z());
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 
@@ -456,12 +469,13 @@ public final class PracticeGame {
             shader.setMatrix4("uModel", new Matrix4f().translation(x, y, z));
             pipeline.chunk(entry.getValue(), position);
         }
-        for (Fighter fighter : view.fighters()) {
-            if (fighter.id() == id || fighter.health() <= 0) continue;
-            var pose = new Protocol.Pose(fighter.id(), fighter.x(), fighter.y(), fighter.z(), fighter.yaw(),
-                    fighter.pitch(), view.tick() * .55f, fighter.moving() ? 1 : 0, false,
+        for (var actor : remoteActors) {
+            Fighter fighter = actor.fighter();
+            var pose = new Protocol.Pose(fighter.id(), actor.x(), actor.y(), actor.z(), actor.yaw(),
+                    actor.pitch(), actor.walkPhase(), actor.walkAmount(), false,
                     fighter.swinging() ? .36f : 1, renderItem(fighter.held()));
-            avatars.render(pose, shader, models, fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()]);
+            avatars.renderPracticeAvatar(pose, shader, models,
+                    fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()], actor.hurt());
         }
         for (var missile : view.missiles()) {
             var drop = new ItemDrop((int) missile.id(), renderItem(missile.item()), 1, missile.x(), missile.y(), missile.z());
@@ -568,9 +582,10 @@ public final class PracticeGame {
     }
 
     private void drawTeamLabels(Overlay ui) {
-        for (Fighter fighter : view.fighters()) {
-            if (fighter.id() == id || fighter.side() < 0 || fighter.health() <= 0 || !visible(fighter)) continue;
-            Vector4f clip = clipFromWorld.transform(new Vector4f(fighter.x(), fighter.y() + 2.16f, fighter.z(), 1));
+        for (var actor : remoteActors) {
+            Fighter fighter = actor.fighter();
+            if (fighter.side() < 0 || !visible(actor)) continue;
+            Vector4f clip = clipFromWorld.transform(new Vector4f(actor.x(), actor.y() + 2.16f, actor.z(), 1));
             if (clip.w <= 0 || Math.abs(clip.x) > clip.w || Math.abs(clip.y) > clip.w || Math.abs(clip.z) > clip.w) continue;
             float x = (clip.x / clip.w * .5f + .5f) * width;
             float y = (.5f - clip.y / clip.w * .5f) * height;
@@ -583,7 +598,7 @@ public final class PracticeGame {
         }
     }
 
-    private boolean visible(Fighter fighter) {
+    private boolean visible(ArenaMotionTimeline.Presented fighter) {
         Vector3f eye = camera.position();
         Vector3f offset = new Vector3f(fighter.x(), fighter.y() + 1.36f, fighter.z()).sub(eye);
         int count = (int) Math.ceil(offset.length() * 5);
