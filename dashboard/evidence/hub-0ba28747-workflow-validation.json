@@ -1,0 +1,23 @@
+{
+  "sourceSha": "0ba28747860c0102ef6064c676ec802fb4cabe34",
+  "localTestEdit": "HubWorkflowPlaytest.java now serves catalog and client from one synthetic loopback service; adds visible failure capture. Production code unchanged.",
+  "command": "LIBGL_ALWAYS_SOFTWARE=1 LP_NUM_THREADS=2 ALSOFT_DRIVERS=null timeout 240 java -Dhub.playtest.skipRecording=true -cp target/hub-rebased-workflow/classes:target/voxel-one-1.0-SNAPSHOT-client.jar HubWorkflowPlaytest target/hub-rebased-workflow/media target/hub-rebased-workflow/profile",
+  "environment": "Linux inherited role display/auth; JDK21; isolated synthetic profile; LOW software graphics; native recording disabled for local run.",
+  "Playtest": "Passed actual Hub install, City/Sandbox/editor offline launch, invalid offline server/port ignored, one shared download, incompatible latest fallback and cached-client refusal, corrupt-update retention, cancel and service-offline cache.",
+  "initialAttempt": "Failed City launch because test mixed production catalog with synthetic revision. Fixed test endpoint injection; repeated workflow passed.",
+  "windows": {
+    "matchedFingerprints": 324,
+    "checksPassed": 19,
+    "javaTests": 24,
+    "nativeMedia": "Each movie metadata has 4 frames; durations city7.029s/sandbox6.675s/editor6.507s. Decoded and inspected first frame of each: City HUD/zones, Sandbox terrain/vehicle, editor workspace. llvmpipe software smoke only."
+  },
+  "pythonTests": 14,
+  "pending": [
+    "Mac native rendering",
+    "physical GPU/Windows DPI/performance",
+    "independent review",
+    "two public shell generations",
+    "deployed web upgrade freshness"
+  ],
+  "fullQualificationPassed": false
+}

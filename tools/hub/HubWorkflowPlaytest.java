@@ -76,6 +76,21 @@ public class HubWorkflowPlaytest {
         if(Files.size(movie)>6*1024*1024)throw new AssertionError("Movie exceeds artifact limit");
         Files.copy(movie,evidence.resolve(name+".mp4"),StandardCopyOption.REPLACE_EXISTING);
     }
+    static HubFrame fixtureFrame(Path profile, URI manifest, URI catalogEndpoint) throws Exception {
+        // Use the same bounded loopback seam as packaged catalog tests. Never
+        // mix a synthetic client revision with a live production catalog.
+        var storeConstructor = CatalogStore.class.getDeclaredConstructor(Path.class, URI.class);
+        storeConstructor.setAccessible(true);
+        CatalogStore store = storeConstructor.newInstance(profile, catalogEndpoint);
+        Class<?> browserType = Class.forName("dev.jayms.launcher.HubFrame$Browser");
+        Object browser = java.lang.reflect.Proxy.newProxyInstance(browserType.getClassLoader(),
+                new Class<?>[]{browserType}, (proxy, method, values) -> {
+                    throw new AssertionError("Native workflow must not open a browser");
+                });
+        var constructor = HubFrame.class.getDeclaredConstructor(Path.class, URI.class, CatalogStore.class, browserType);
+        constructor.setAccessible(true);
+        return constructor.newInstance(profile, manifest, store, browser);
+    }
     public static void main(String[] args) throws Exception {
         Path profile=Path.of(args[1]).resolve("run-" + System.nanoTime()); Files.createDirectories(profile); evidence=Path.of(args[0]);
         System.setProperty("user.home", profile.toAbsolutePath().toString());
@@ -91,13 +106,23 @@ public class HubWorkflowPlaytest {
             try { metadata+=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(client))+"\n"; } catch(Exception x) { throw new RuntimeException(x); }
             byte[] bytes=metadata.getBytes(); e.sendResponseHeaders(200,bytes.length); try(var out=e.getResponseBody()){out.write(bytes);}
         });
+        byte[] catalogBytes;
+        try (var in = HubCatalog.class.getResourceAsStream("catalog.properties")) {
+            catalogBytes = new String(in.readAllBytes(), java.nio.charset.StandardCharsets.ISO_8859_1)
+                    .replace(HubCatalog.bundled().entries().get(0).source(), "a".repeat(40))
+                    .getBytes(java.nio.charset.StandardCharsets.ISO_8859_1);
+        }
+        server.createContext("/catalog", e -> {
+            e.sendResponseHeaders(200, catalogBytes.length);
+            try (var out = e.getResponseBody()) { out.write(catalogBytes); }
+        });
         server.createContext("/client",e->{ downloads.incrementAndGet(); e.sendResponseHeaders(200,client.length); try(var out=e.getResponseBody()) {
             byte[] bytes=client.clone(); if(corrupt.get())bytes[bytes.length-1]^=1;
             for(int pos=0;pos<bytes.length;pos+=65536) { out.write(bytes,pos,Math.min(65536,bytes.length-pos)); if(slow.get())try{Thread.sleep(20);}catch(InterruptedException x){Thread.currentThread().interrupt();} }
         } catch(java.io.IOException ignored){} }); server.start();
         Properties prefs=new Properties(); prefs.setProperty("updates","true"); try(var out=Files.newOutputStream(profile.resolve("hub.properties"))){prefs.store(out,"Synthetic");}
         try {
-            SwingUtilities.invokeAndWait(()->{try{frame=new HubFrame(profile,URI.create(base+"/manifest"));frame.setSize(900,600);frame.setVisible(true);}catch(Exception x){throw new RuntimeException(x);}});
+            SwingUtilities.invokeAndWait(()->{try{frame=fixtureFrame(profile,URI.create(base+"/manifest"),URI.create(base+"/catalog"));frame.setSize(900,600);frame.setVisible(true);}catch(Exception x){throw new RuntimeException(x);}});
             SwingUtilities.invokeAndWait(()->frame.showPage("Downloads")); click("Retry / Repair client");
             for(int i=0;i<100&&!textPresent("Client ready.");i++)Thread.sleep(200);
             if(!textPresent("Client ready."))throw new AssertionError("Install did not finish"); capture("hub-install-complete");
@@ -116,7 +141,7 @@ public class HubWorkflowPlaytest {
                 }
             }); click("Play / Install");
             for(int i=0;i<100&&!textPresent("Game started.");i++)Thread.sleep(200);
-            if(!textPresent("Game started."))throw new AssertionError("City did not launch"); Thread.sleep(10000);
+            if(!textPresent("Game started.")) { capture("hub-city-launch-failure"); throw new AssertionError("City did not launch"); } Thread.sleep(10000);
             if (ProcessHandle.current().descendants().noneMatch(ProcessHandle::isAlive)) throw new AssertionError("Game exited before gameplay capture");
             focusGame();
             recordGame(profile, "hub-native-city");

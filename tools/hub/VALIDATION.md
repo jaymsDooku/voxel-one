@@ -401,3 +401,11 @@ mode survives helper exit. This applies only to the fenced ephemeral Actions
 login session, never permanent preferences. Verify subsequent Java bounds and
 actual captures in the next scoped run. facd02e3 also failed its first shell
 capture as mostly black; this remains a failed check, not an update pass.
+
+The full local HubWorkflowPlaytest uses the package-local catalog seam to serve
+both synthetic catalog and client on loopback. A production refresh must never
+replace its synthetic compatibility metadata. The first rebased run exposed this
+fixture mismatch and correctly refused Play; after endpoint injection the actual
+workflow passed, including native windows and update/cache failure cases. Local
+recording was disabled; separate hosted Windows four-frame software smoke media
+was inspected. Physical and Mac native qualification remain pending.
