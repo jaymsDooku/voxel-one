@@ -2430,3 +2430,50 @@ sessions and callback reentry reject. This provides read-only navigation queries
 not movement/physics scheduling, edit/capture/save authority or Main gameplay.
 All existing package, chunk, scene/cache, placement and qualification gates stay
 in force. City/maximum and physical-GPU/shaped-32-client qualification remain pending.
+
+
+### Native saved-world inspection
+
+Launch the bounded read-only pager through the desktop client:
+
+```sh
+java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --inspect-world world.dat --inspect-position 8 164 10
+```
+
+The explicit inspection mode accepts only `--inspect-world FILE` and an optional
+`--inspect-position X Y Z`; default position is 8 / 104 / 24. Mixed game, server,
+login, editor or save arguments reject before window/account/config startup.
+The file must use the existing regional version 10 format. Older saves retain
+ordinary gameplay loading; inspection does not convert or overwrite them.
+
+WASD moves a free camera, Space/Shift moves up/down, and arrow keys change its
+view. Escape closes. The fixed inspection controls do not load or change saved
+control/graphics preferences. F10 uses the existing engine recorder and writes a
+separate video under the normal recordings folder. The viewport shows saved
+geometry, fractional pieces, independent model definitions and opaque water with
+simple inspection lighting; it does not claim complete GI/reflections. Progress,
+loading boundaries, saved-cell hits and known misses remain distinct. File paths,
+metadata inventory/drops and raw errors are not drawn in the view or recording.
+
+Only the camera chunk and first unavailable ray chunk are demanded, within the
+unchanged two-chunk scene and cache budgets. The 32-cell query range is bounded.
+Demand changes are explicit; each frame ticks once and pumps at most 65536 GPU
+bytes under a 2 ms staging deadline. Those caps are work budgets, not measured
+stall/FPS guarantees. CPU-only data stays unavailable for ray hits until its full
+GPU entry publishes. A failed region is shown as unavailable; moving can select
+another region. Camera motion is inspection only, with no collision or simulation
+permission. The pager retains metadata-only LocalGame state internally; its incomplete-replay
+gameplay/save guards stay closed. The inspector exposes only the read-only World.
+No edit, capture, save or multiplayer path starts here. Ordinary Main gameplay
+still requires complete replay.
+
+The view owns one scratch directory. Escape or window close cancels its source
+lifetime, releases scene resources while the GL context is live, and keeps a
+closing view while asynchronous worker cleanup reaches its terminal state. A
+cleanup failure is reported and owned scratch is retained; the directory is never
+recursively deleted to hide failure. Recording and remaining GL/window resources
+close even when the source or observer fails. The original error is preserved,
+with cleanup errors suppressed. Source installation into editable gameplay,
+writable paging, model-ID remapping and full city/maximum, physical-GPU and shaped
+32-client qualification remain unfinished. Inspection adds no supported-city or
+stable-rollout claim.

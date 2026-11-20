@@ -1915,6 +1915,7 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        if(SavedWorldInspector.launchIfRequested(args))return;
         for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("practice")) {
             dev.jayms.combat.duel.PracticeApp.main(args);return;
         }
