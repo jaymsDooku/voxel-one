@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T22:54:00+00:00",
+  "updatedAt": "2026-11-20T23:09:17+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4428,6 +4428,36 @@
       "status": "in_progress",
       "note": "Submitted independently reviewed head bfcda4aa in PR 90. Native overview, clock and pan flicker fell by 96%, 93%, and 92%. Default graphics, tower lighting, and 45 targeted Maven tests passed. Awaiting repository review and merge.",
       "updatedAt": "2026-11-20T22:54:00+00:00"
+    },
+    {
+      "id": "voxel-distant-grid",
+      "title": "Keep the Westminster grid continuous into the distance",
+      "description": "Independently reviewed head db84152e is open in PR 92. All 252 resolved stationary road/grass pairs aligned, crossing-flight luminance change fell from 1.96 to 0.66, and 66 Maven tests and 70 GPU cases passed. Awaiting repository review and merge.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Terrain grid pull request and CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/92"
+        },
+        {
+          "kind": "image",
+          "label": "westminster distant grid.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-distant-grid.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster distant grid.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-distant-grid.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster distant grid.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-distant-grid.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Independently reviewed head db84152e is open in PR 92. All 252 resolved stationary road/grass pairs aligned, crossing-flight luminance change fell from 1.96 to 0.66, and 66 Maven tests and 70 GPU cases passed. Awaiting repository review and merge.",
+      "updatedAt": "2026-11-20T23:09:17+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
