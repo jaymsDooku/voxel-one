@@ -120,6 +120,49 @@ class OctreeBuildingTest {
         assertEquals(Blocks.STONE,materialAt(building,20*16,15*16,62*16));
     }
 
+    @Test void masonryStaggersClipsAndLeavesExistingMortar() {
+        String source = """
+                building wall 8192 32 64 grid16 monument
+                part return 8176 0 0 8192 32 64
+                box STONE 8176 0 0 8192 32 64
+                masonry SAND z 16 8 2 4 8176 0 0 8180 32 64
+                row 3 0 0 -16
+                box WOOD 8176 12 48 8184 16 52
+                endrow
+                end
+                """;
+        var wall=BuildingCompiler.compile(source);
+        assertEquals(Blocks.SAND,materialAt(wall,8176,0,0));
+        assertEquals(Blocks.STONE,materialAt(wall,8176,0,10));
+        assertEquals(Blocks.SAND,materialAt(wall,8176,8,10));
+        assertEquals(Blocks.STONE,materialAt(wall,8176,6,0));
+        for(int z:new int[]{16,32,48}) assertEquals(Blocks.WOOD,materialAt(wall,8176,12,z));
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(source.replace("3 0 0 -16","5 0 0 -16")));
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(source.replace("16 8 2 4","16 8 8 4")));
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(source.replace("3 0 0 -16","3 2147483647 0 0")));
+    }
+
+    @Test void monumentOccupancyExceedsSignedIntegerRange() {
+        var building=BuildingCompiler.compile("""
+                building mass 2048 2048 528 grid16 monument
+                part plinth 0 0 0 2048 2048 528
+                box STONE 0 0 0 2048 2048 528
+                end
+                """);
+        assertEquals(2048L*2048*528,building.occupied());
+    }
+
+    @Test void fullScaleRiverWallHasRecessedJointsAndFineRelief() throws Exception {
+        var building=BuildingCompiler.compile(BuildingApi.readRecipe(Path.of("assets/buildings/westminster-grand.vbuild")));
+        assertEquals(4800,building.width());
+        assertEquals(1632,building.height());
+        assertEquals(2432,building.depth());
+        assertEquals(Blocks.SAND,materialAt(building,60*16,4*16,32*16));
+        assertEquals(Blocks.AIR,materialAt(building,60*16,4*16+15,32*16));
+        assertEquals(Blocks.SAND,materialAt(building,60*16,4*16+15,32*16+4));
+        assertTrue(building.edits().stream().anyMatch(edit->edit.depth()==4));
+    }
+
     private static int materialAt(BuildingCompiler.Building building,int x,int y,int z) {
         for (var edit : building.edits()) {
             int side=16>>edit.depth();

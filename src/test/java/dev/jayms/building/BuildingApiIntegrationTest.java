@@ -18,6 +18,28 @@ import org.junit.jupiter.api.io.TempDir;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BuildingApiIntegrationTest {
+    @Test void monumentWallToolsAreDiscoverableAndCompileOverHttp(@TempDir Path directory) throws Exception {
+        String source="""
+                building portico 4800 64 16 grid16 monument
+                part wing 4096 0 0 4800 64 16
+                masonry STONE x 32 16 2 0 4096 0 8 4800 64 16
+                row 4 32 0 0
+                box SAND 4096 0 0 4104 64 8
+                endrow
+                end
+                """;
+        try (var server=new AssetManagerServer(directory)) {
+            var client=HttpClient.newHttpClient();
+            var schema=send(client,authorized(server,SCHEMA).build());
+            assertTrue(schema.body().contains("\"monument\""));
+            assertTrue(schema.body().contains("masonry MATERIAL"));
+            var response=post(client,server,source.getBytes(StandardCharsets.UTF_8));
+            assertEquals(200,response.statusCode());
+            var expected=new ByteArrayOutputStream();
+            BuildingApi.writeJson(BuildingCompiler.compile(source),expected);
+            assertEquals(expected.toString(StandardCharsets.UTF_8),response.body());
+        }
+    }
     private static final String SCHEMA = "/api/buildings/schema";
     private static final String COMPILE = "/api/buildings/compile";
     private static final String RECIPE = """

@@ -509,11 +509,17 @@ public class Main {
     private Protocol.Pose buildingPreviewSpawn() {
         float width = buildingPreview.width()/(float)buildingPreview.unitsPerBlock();
         float setback = width <= 64 ? 14 : Math.min(47,width*.4f);
-        return new Protocol.Pose(0,width*.5f,PREVIEW_GRADE+1.01f,-setback,90,width <= 64 ? 0 : 11);
+        return new Protocol.Pose(0,width*.5f,buildingPreviewGrade()+1.01f,-setback,90,width <= 64 ? 0 : 11);
+    }
+
+    private int buildingPreviewGrade() {
+        int height=(buildingPreview.height()+buildingPreview.unitsPerBlock()-1)/buildingPreview.unitsPerBlock();
+        return Math.max(0,Math.min(PREVIEW_GRADE,126-height));
     }
 
     private void prepareBuildingPlot() throws Exception {
-        world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(PREVIEW_GRADE));
+        int grade=buildingPreviewGrade();
+        world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(grade));
         int grid = buildingPreview.unitsPerBlock();
         int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
         var spawn = buildingPreviewSpawn();
@@ -534,10 +540,10 @@ public class Main {
         }
         for (int z=front; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {
             int material = z < -6 ? Blocks.ASPHALT : z <= -4 ? Blocks.SNOW : Blocks.STONE;
-            world.setBlock(x,PREVIEW_GRADE,z,material);
+            world.setBlock(x,grade,z,material);
         }
         for (var e : buildingPreview.edits()) {
-            world.apply(new Protocol.Edit(e.x(),e.y()+PREVIEW_GRADE+1,e.z(),e.type(),
+            world.apply(new Protocol.Edit(e.x(),e.y()+grade+1,e.z(),e.type(),
                     e.depth(),e.ix(),e.iy(),e.iz(),e.color()));
         }
         // A detail column replaces the distant mesh only when all of its chunks

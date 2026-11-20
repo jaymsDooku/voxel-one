@@ -25,6 +25,7 @@ public final class BuildingCompiler {
     public static final int FINE_UNITS_PER_BLOCK = 16;
     public static final int MAX_FINE_DIMENSION = 4096;
     public static final int MAX_OCTREE_WORK = 2_000_000;
+    public static final int MONUMENT_AXIS = 8192, MONUMENT_EDITS = 1_200_000, MONUMENT_WORK = 16_000_000;
 
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_-]{0,47}");
     private static final Pattern RGB = Pattern.compile("[0-9a-fA-F]{6}");
@@ -40,7 +41,7 @@ public final class BuildingCompiler {
 
     /** Dimensions and occupied-cell count use the recipe grid. Edits are local to the building. */
     public record Building(String name, int width, int height, int depth,
-                           List<Protocol.Edit> edits, int occupied, int unitsPerBlock) {
+                           List<Protocol.Edit> edits, long occupied, int unitsPerBlock) {
         public Building {
             edits = List.copyOf(edits);
         }
@@ -52,6 +53,7 @@ public final class BuildingCompiler {
 
         Grid grid = null;
         Bounds part = null;
+        Row row = null;
         Set<String> parts = new HashSet<>();
         int operationCount = 0, work = 0, lineNumber = 0, partLine = 0;
         for (String rawLine : source.split("\\R", -1)) {
@@ -81,7 +83,28 @@ public final class BuildingCompiler {
                     case "end" -> {
                         requireLength(words, 1, "end");
                         if (part == null) throw new IllegalArgumentException("No open part to end");
+                        if (row != null) throw new IllegalArgumentException("Close the row with 'endrow' first");
                         part = null;
+                    }
+                    case "row" -> {
+                        requireLength(words,5,"row COUNT DX DY DZ");
+                        if (part == null || row != null || grid.scale != 1)
+                            throw new IllegalArgumentException("Open a row inside a grid16 part");
+                        row = new Row(dimension(words[1],MAX_OPERATIONS),integer(words[2]),integer(words[3]),integer(words[4]));
+                    }
+                    case "endrow" -> {
+                        requireLength(words,1,"endrow");
+                        if (row == null) throw new IllegalArgumentException("No open row");
+                        row = null;
+                    }
+                    case "masonry" -> {
+                        requireLength(words,13,"masonry MATERIAL AXIS LENGTH COURSE JOINT PHASE X0 Y0 Z0 X1 Y1 Z1");
+                        if (part == null || row != null || grid.scale != 1)
+                            throw new IllegalArgumentException("Place masonry directly inside a grid16 part");
+                        if (++operationCount > MAX_OPERATIONS) throw new IllegalArgumentException("Operation budget exceeded");
+                        grid.masonry(bounds(words,7,part),material(words[1]),axis(words[2]),
+                                dimension(words[3],MONUMENT_AXIS),dimension(words[4],MONUMENT_AXIS),
+                                dimension(words[5],MONUMENT_AXIS),integer(words[6]));
                     }
                     case "box", "cylinder" -> {
                         boolean cylinder = words[0].equals("cylinder");
@@ -93,9 +116,15 @@ public final class BuildingCompiler {
                         Axis axis = cylinder ? axis(words[2]) : null;
                         Bounds paint = bounds(words, cylinder ? 3 : 2, part);
                         if (grid.scale == 8) work += paint.volume();
-                        if (++operationCount > MAX_OPERATIONS || work > MAX_WORK)
+                        int copies = row == null ? 1 : row.count();
+                        operationCount += copies;
+                        if (operationCount > MAX_OPERATIONS || work > MAX_WORK)
                             throw new IllegalArgumentException("Recipe exceeds the operation or fill-work budget");
-                        grid.paint(paint, material, axis);
+                        for (int i=0; i<copies; i++) {
+                            Bounds placed = i==0 ? paint : row.translate(paint,i);
+                            if (!part.contains(placed)) throw new IllegalArgumentException("Row extends outside its part");
+                            grid.paint(placed,material,axis);
+                        }
                     }
                     default -> throw new IllegalArgumentException("Unknown command " + words[0]);
                 }
@@ -110,16 +139,17 @@ public final class BuildingCompiler {
     }
 
     private static Grid header(String[] words) {
-        boolean fine = words.length == 6 && words[5].equals("grid16");
+        boolean monument = words.length == 7 && words[5].equals("grid16") && words[6].equals("monument");
+        boolean fine = monument || words.length == 6 && words[5].equals("grid16");
         if (!fine && words.length != 5)
-            throw new IllegalArgumentException("Expected 'building ID WIDTH HEIGHT DEPTH [grid16]'");
+            throw new IllegalArgumentException("Expected 'building ID WIDTH HEIGHT DEPTH [grid16 [monument]]'");
         requireId(words[1]);
-        int max = fine ? MAX_FINE_DIMENSION : MAX_DIMENSION;
+        int max = monument ? MONUMENT_AXIS : fine ? MAX_FINE_DIMENSION : MAX_DIMENSION;
         int w = dimension(words[2],max), h = dimension(words[3],max), d = dimension(words[4],max);
         var bounds = new Bounds(0, 0, 0, w, h, d);
         if (!fine && bounds.volume() > MAX_VOLUME)
             throw new IllegalArgumentException("Building volume exceeds " + MAX_VOLUME + " half-block cells");
-        return new Grid(words[1],bounds,fine ? 1 : 8);
+        return new Grid(words[1],bounds,fine ? 1 : 8,monument);
     }
 
     private static void requireId(String value) {
@@ -171,6 +201,18 @@ public final class BuildingCompiler {
 
     private enum Axis { X, Y, Z }
 
+    private record Row(int count,int dx,int dy,int dz) {
+        Bounds translate(Bounds b,int index) {
+            try {
+                int x=Math.multiplyExact(dx,index), y=Math.multiplyExact(dy,index), z=Math.multiplyExact(dz,index);
+                return new Bounds(Math.addExact(b.x0,x),Math.addExact(b.y0,y),Math.addExact(b.z0,z),
+                        Math.addExact(b.x1,x),Math.addExact(b.y1,y),Math.addExact(b.z1,z));
+            } catch (ArithmeticException e) {
+                throw new IllegalArgumentException("Row offset exceeds coordinate range",e);
+            }
+        }
+    }
+
     private record Bounds(int x0, int y0, int z0, int x1, int y1, int z1) {
         boolean contains(Bounds inner) {
             return x0 <= inner.x0 && inner.x0 < inner.x1 && inner.x1 <= x1
@@ -185,21 +227,46 @@ public final class BuildingCompiler {
 
     /** Forest of engine octrees. A tile covers sixteen game blocks on each axis. */
     private static final class Grid {
-        private static final int TILE = 256, TILES_PER_AXIS = MAX_FINE_DIMENSION / TILE;
-        private static final int BLOCKS_PER_AXIS = MAX_FINE_DIMENSION / FINE_UNITS_PER_BLOCK;
+        private static final int TILE = 256;
+        private final int tilesPerAxis, blocksPerAxis, maxEdits, maxWork;
         private final String name;
         private final Bounds bounds;
         private final int scale;
-        private final SparseVoxelOctree[] tiles = new SparseVoxelOctree[TILES_PER_AXIS*TILES_PER_AXIS*TILES_PER_AXIS];
+        private final SparseVoxelOctree[] tiles;
         private long fineWork;
+        private int masonryStones;
 
-        Grid(String name, Bounds bounds, int scale) {
+        Grid(String name, Bounds bounds, int scale, boolean monument) {
             this.name = name;
             this.bounds = bounds;
             this.scale = scale;
+            int extent = Math.max(bounds.x1, Math.max(bounds.y1,bounds.z1))*scale;
+            tilesPerAxis = (extent+TILE-1)/TILE;
+            blocksPerAxis = tilesPerAxis*(TILE/16);
+            tiles = new SparseVoxelOctree[tilesPerAxis*tilesPerAxis*tilesPerAxis];
+            maxEdits = monument ? MONUMENT_EDITS : MAX_EDITS;
+            maxWork = monument ? MONUMENT_WORK : MAX_OCTREE_WORK;
         }
 
         Bounds bounds() { return bounds; }
+
+        void masonry(Bounds b,int material,Axis run,int length,int course,int joint,int phase) {
+            if (run==Axis.Y || joint>=Math.min(length,course) || phase<0 || phase>=length)
+                throw new IllegalArgumentException("Masonry needs an X or Z run, joint smaller than stone, and phase in [0,length)");
+            int start=run==Axis.X ? b.x0 : b.z0, end=run==Axis.X ? b.x1 : b.z1;
+            for (int y=b.y0, row=0; y<b.y1; y+=course,row++) {
+                int top=Math.min(b.y1,y+course-joint);
+                int offset=(phase+(row%2)*(length/2))%length;
+                for (int u=start-offset; u<end; u+=length) {
+                    int left=Math.max(start,u), right=Math.min(end,u+length-joint);
+                    if (left>=right) continue;
+                    if (++masonryStones>maxEdits) throw new IllegalArgumentException("Masonry stone budget exceeded");
+                    Bounds stone=run==Axis.X ? new Bounds(left,y,b.z0,right,top,b.z1)
+                            : new Bounds(b.x0,y,left,b.x1,top,right);
+                    paint(stone,material,null);
+                }
+            }
+        }
 
         void paint(Bounds b, int packed, Axis axis) {
             int material = packed >>> 24;
@@ -242,7 +309,7 @@ public final class BuildingCompiler {
                 // create many leaves, so charge at the smallest required dyadic size.
                 int side=Math.min(16,Integer.lowestOneBit(x0|y0|z0|x1|y1|z1));
                 fineWork+=(long)((x1-x0)/side)*((y1-y0)/side)*((z1-z0)/side);
-                if (fineWork>MAX_OCTREE_WORK) throw new IllegalArgumentException("Recipe exceeds the octree fill-work budget");
+                if (fineWork>maxWork) throw new IllegalArgumentException("Recipe exceeds the octree fill-work budget");
             }
             for (int ty=y0/TILE; ty<=(y1-1)/TILE; ty++)
                 for (int tz=z0/TILE; tz<=(z1-1)/TILE; tz++)
@@ -259,8 +326,8 @@ public final class BuildingCompiler {
                     }
         }
 
-        private static int index(int x, int y, int z) {
-            return (y*TILES_PER_AXIS+z)*TILES_PER_AXIS+x;
+        private int index(int x, int y, int z) {
+            return (y*tilesPerAxis+z)*tilesPerAxis+x;
         }
 
         Building build() {
@@ -269,17 +336,17 @@ public final class BuildingCompiler {
             for (int i=0; i<tiles.length; i++) {
                 SparseVoxelOctree tree = tiles[i];
                 if (tree == null || tree.isEmpty()) continue;
-                int x = i % TILES_PER_AXIS * TILE;
-                int z = i / TILES_PER_AXIS % TILES_PER_AXIS * TILE;
-                int y = i / TILES_PER_AXIS / TILES_PER_AXIS * TILE;
+                int x = i % tilesPerAxis * TILE;
+                int z = i / tilesPerAxis % tilesPerAxis * TILE;
+                int y = i / tilesPerAxis / tilesPerAxis * TILE;
                 collectBlocks(occupiedBlocks,tree,x,y,z,TILE);
             }
             // Keep the canonical block order of existing recipes across tile boundaries.
-            int occupied=0;
+            long occupied=0;
             for (int block=occupiedBlocks.nextSetBit(0); block>=0; block=occupiedBlocks.nextSetBit(block+1)) {
-                int x = block % BLOCKS_PER_AXIS * 16;
-                int z = block / BLOCKS_PER_AXIS % BLOCKS_PER_AXIS * 16;
-                int y = block / BLOCKS_PER_AXIS / BLOCKS_PER_AXIS * 16;
+                int x = block % blocksPerAxis * 16;
+                int z = block / blocksPerAxis % blocksPerAxis * 16;
+                int y = block / blocksPerAxis / blocksPerAxis * 16;
                 occupied += emit(edits,tiles[index(x/TILE,y/TILE,z/TILE)],x,y,z,16,0);
             }
             if (occupied==0) throw new IllegalArgumentException("Recipe leaves an empty building");
@@ -297,7 +364,7 @@ public final class BuildingCompiler {
             }
             int span = side/16;
             for (int by=y/16; by<y/16+span; by++) for (int bz=z/16; bz<z/16+span; bz++) {
-                int first = (by*BLOCKS_PER_AXIS+bz)*BLOCKS_PER_AXIS+x/16;
+                int first = (by*blocksPerAxis+bz)*blocksPerAxis+x/16;
                 blocks.set(first,first+span);
             }
         }
@@ -311,7 +378,7 @@ public final class BuildingCompiler {
                     total+=emit(edits,tree,x+(i&1)*half,y+(i>>2)*half,z+((i>>1)&1)*half,half,depth+1);
                 return total;
             }
-            if (edits.size()>=MAX_EDITS) throw new IllegalArgumentException("Building exceeds " + MAX_EDITS + " placement edits");
+            if (edits.size()>=maxEdits) throw new IllegalArgumentException("Building exceeds " + maxEdits + " placement edits");
             int material=WorldVoxels.decode(value), units=side/scale;
             edits.add(new Protocol.Edit(x/16,y/16,z/16,Blocks.piece(material,depth),depth,
                     x%16/side,y%16/side,z%16/side,material==Blocks.LED ? WorldVoxels.lightColor(value) : 0));

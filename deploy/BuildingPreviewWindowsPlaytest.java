@@ -22,7 +22,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private GLFWKeyCallback keys;
     private long window, since, previous;
     private int stage;
-    private boolean cedar, westminster;
+    private boolean cedar, westminster, grand;
 
     private BuildingPreviewWindowsPlaytest(Path output) { this.output=output; }
 
@@ -37,12 +37,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         field("renderOnlyReplay").setBoolean(game,true);
         var probe=new BuildingPreviewWindowsPlaytest(output);
         probe.cedar=building.name().equals("cedar-court-entry");
-        probe.westminster=building.name().equals("westminster");
+        probe.grand=building.name().equals("westminster-grand");
+        probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
         if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         Files.writeString(output.resolve("results.txt"),
-                probe.westminster
+                probe.grand ? "PASS: Captured the monument river range, window bay and masonry frieze in the native client. The plot stayed unsaved.\n" : probe.westminster
                         ? "PASS: Windows client captured the Thames elevation, Elizabeth Tower detail and an aerial view of the courts and hall. The plot stayed unsaved.\n"
                         : "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
     }
@@ -55,7 +56,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (westminster) placeFlying(game,71,54,-47,90,-2);
+        if (grand) placeFlying(game,145,50,-30,86,1);
+        else if (westminster) placeFlying(game,71,54,-47,90,-2);
         else if (cedar) place(game,5,33.04f,-8,90,9);
         else place(game,13,33.04f,-25,90,15);
         since=previous=System.nanoTime();
@@ -67,7 +69,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         previous=now;
         if (westminster && stage==1) {
             float t=Math.min(1,(now-since)/3_000_000_000f);
-            placeFlying(game,71-61*t,54+3*t,-47+37*t,90,-2+11*t);
+            if (grand) placeFlying(game,145-10*t,50-5*t,-30+47*t,86+4*t,1+4*t);
+            else placeFlying(game,71-61*t,54+3*t,-47+37*t,90,-2+11*t);
         }
         if (!westminster && stage==1 && player.position().z<(cedar ? 4.5f : 8))
             player.step(world,dt,1,0,false,true);
@@ -105,12 +108,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             stage=1;
             since=System.nanoTime();
         } else if (stage==1 && elapsed>4_000_000_000L) {
-            capture(game,"westminster-clock.png");
-            placeFlying(game,78,118,90,-90,-48);
+            capture(game,grand ? "westminster-wall-bay.png" : "westminster-clock.png");
+            if (grand) placeFlying(game,138,49,25,103,5);
+            else placeFlying(game,78,118,90,-90,-48);
             stage=2;
             since=System.nanoTime();
         } else if (stage==2 && elapsed>3_500_000_000L) {
-            capture(game,"westminster-courts.png");
+            capture(game,grand ? "westminster-masonry.png" : "westminster-courts.png");
             pressRecord();
             stage=3;
             glfwSetWindowShouldClose(window,true);

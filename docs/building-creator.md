@@ -64,6 +64,32 @@ The compiler paints sparse engine octrees in bounded tiles. Uniform regions merg
 
 The [Westminster study](westminster-build-plan.md) shows how to plan a larger complex as bounded parts and fit close-up details into the same envelope.
 
+### Monument-scale walls
+
+Append `grid16 monument` to opt into a 512-block compiler envelope, 1,200,000 placement edits and 16,000,000 units of octree fill work. Both the authenticated compile endpoint and CLI emit the existing version 2 placement format. Read `occupied` into a 64-bit integer. The native inspection plot lowers its ground for tall buildings. Its streamed vertical range reaches world Y=127.
+
+```text
+building arcade 4800 96 32 grid16 monument
+part stonework 0 0 0 4800 96 32
+box STONE 0 0 8 4800 96 32
+masonry SAND x 48 16 2 0 0 0 4 4800 96 8
+row 60 80 0 0
+box SAND 0 0 0 8 72 8
+box SAND 0 72 0 16 80 8
+endrow
+end
+```
+
+`masonry MATERIAL RUN_AXIS LENGTH COURSE JOINT PHASE X0 Y0 Z0 X1 Y1 Z1` places clipped, staggered courses. Choose X or Z as the horizontal direction. Length and course are the pitches including the joint. Phase shifts the pattern along the wall by that many grid units. Alternate courses shift another half-length. The backing shows through the joints. Use AIR behind the facing for an open joint or place a recessed mortar bed as above. Apply openings after the masonry.
+
+`row COUNT DX DY DZ` repeats each enclosed box or cylinder, including AIR cuts, at integer grid offsets. Count includes the first placement. Each instruction is applied to all copies before the next instruction. Every copy must fit its part and counts towards the operation budget. Close the row with `endrow`. Both wall tools work in ordinary grid16 recipes too.
+
+The [full-scale Palace recipe](../assets/buildings/westminster-grand.vbuild) doubles the dimensions of the earlier study. Regenerate it with `python deploy/author_westminster_grand.py`. To explore the riverfront at walking scale, run:
+
+```sh
+java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/buildings/westminster-grand.vbuild
+```
+
 The opt-in JSON result has `schemaVersion: 2`, `unitsPerBlock: 16`, and an `editsByDepth` array ordered from whole blocks to sixteenths. Dimensions and `occupied` are in recipe units. Existing half-block recipes still return v1 JSON and the same canonical edit stream.
 
 **Cedar Court Entry** is an original detail study informed by the Gamble House in Pasadena. The [Historic American Buildings Survey](https://www.loc.gov/resource/hhh.ca0279.sheet?st=gallery) lists 11 measured drawings. The [Gamble House Conservancy research guide](https://gamblehouse.org/learn/) identifies floor plans, elevations, and a site plan. Its [joinery notes](https://gamblehouse.org/design-without-compromise/) document proud pegs, inlay, and stepped wood profiles. The sample uses deep eaves, layered brackets, round pegs, narrow glazing bars, and patterned flooring to exercise all five edit depths. The colored points behind the sidelights use the engine's LED material.

@@ -28,6 +28,7 @@ public final class BuildingApi {
                 "unitsPerBlock": %d,
                 "maxAxis": %d,
                 "maxOctreeWork": %d,
+                "monument": {"suffix":"monument","maxAxis":%d,"maxOutputEdits":%d,"maxOctreeWork":%d},
                 "editDepths": [0, 1, 2, 3, 4],
                 "occupied": "Count in sixteenth-block cells"
               },
@@ -41,10 +42,13 @@ public final class BuildingApi {
               "comments": "Blank lines and # comments are ignored.",
               "ordering": "Parts and operations are applied in source order; later operations replace earlier voxels.",
               "commands": [
-                "building ID WIDTH HEIGHT DEPTH [grid16]",
+                "building ID WIDTH HEIGHT DEPTH [grid16 [monument]]",
                 "part ID X0 Y0 Z0 X1 Y1 Z1",
                 "box MATERIAL X0 Y0 Z0 X1 Y1 Z1",
                 "cylinder MATERIAL AXIS X0 Y0 Z0 X1 Y1 Z1",
+                "masonry MATERIAL RUN_AXIS STONE_LENGTH COURSE_HEIGHT JOINT PHASE X0 Y0 Z0 X1 Y1 Z1",
+                "row COUNT DX DY DZ",
+                "endrow",
                 "end"
               ],
               "axes": ["x", "y", "z"],
@@ -52,7 +56,8 @@ public final class BuildingApi {
               "editFields": ["x", "y", "z", "type", "depth", "ix", "iy", "iz", "color"]
             }
             """.formatted(MAX_RECIPE_BYTES,BuildingCompiler.FINE_UNITS_PER_BLOCK,BuildingCompiler.MAX_FINE_DIMENSION,
-                    BuildingCompiler.MAX_OCTREE_WORK,BuildingCompiler.MAX_DIMENSION,BuildingCompiler.MAX_VOLUME,
+                    BuildingCompiler.MAX_OCTREE_WORK,BuildingCompiler.MONUMENT_AXIS,BuildingCompiler.MONUMENT_EDITS,
+                    BuildingCompiler.MONUMENT_WORK,BuildingCompiler.MAX_DIMENSION,BuildingCompiler.MAX_VOLUME,
                     BuildingCompiler.MAX_LINE_CHARS,BuildingCompiler.MAX_OPERATIONS,
                     BuildingCompiler.MAX_WORK,BuildingCompiler.MAX_EDITS);
 
