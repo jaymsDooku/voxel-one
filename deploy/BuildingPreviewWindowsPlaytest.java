@@ -1,6 +1,7 @@
 import dev.jayms.*;
 import dev.jayms.building.*;
 import dev.jayms.net.city.GameConfig;
+import dev.jayms.net.city.StressGrid;
 import dev.jayms.player.Player;
 import dev.jayms.window.Window;
 import java.awt.image.BufferedImage;
@@ -12,6 +13,7 @@ import java.util.Locale;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import org.joml.Vector3f;
+import org.joml.Matrix4f;
 import org.lwjgl.BufferUtils;
 import org.lwjgl.glfw.GLFWKeyCallback;
 import static org.lwjgl.glfw.GLFW.*;
@@ -29,6 +31,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean clockLighting;
     private boolean facadeLighting;
     private PreviewFlickerPlaytest flicker;
+    private DistantGridMotion distantGrid;
     private int clockFrames;
     private Vector3f overviewStart;
 
@@ -49,12 +52,14 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
+        if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
         if (probe.stage!=(probe.flicker!=null ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.distantGrid!=null ? "Captured the Palace grid at rest and over a cross-tile flight.\n" :
                 probe.flicker!=null ? "Captured settled Palace, flight, and clock detail under fixed daylight.\n" :
                 probe.clockLighting ? "Captured two Elizabeth Tower corners and approach under fixed daylight.\n" :
                 probe.facadeLighting ? "PASS: Both tower shafts received exterior daylight. Captured the Thames view and both towers.\n" :
@@ -66,7 +71,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (facadeLighting || flicker!=null) glfwSetWindowSize(window,800,480);
+        if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
@@ -87,6 +92,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (distantGrid!=null) {
+            if(stage==2 && clockFrames<96) {
+                float t=(clockFrames+1)/96f;
+                placeFlying(game,-180-84*t,87,-146+128*t,90+12*t,-18);
+            }
+            return;
+        }
         if (flicker!=null) {
             if (stage==3) {
                 placeFlying(game,49,77,-3,127+(clockFrames+1)*PreviewFlickerPlaytest.PAN_DEGREES,0);
@@ -121,6 +133,33 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (distantGrid!=null) {
+            clockFrames++;
+            if((stage==1 && clockFrames>=209) || (stage==2 && clockFrames<=96)) {
+                Camera camera=(Camera)field("camera").get(game);
+                Matrix4f vp=new Matrix4f((Matrix4f)field("projection").get(game)).mul(camera.createViewMatrix());
+                boolean still=stage==1;
+                int sample=still?clockFrames-208:clockFrames;
+                distantGrid.sample(vp,camera.position(),world.terrain().stressGrid().grade()+1,sample==1);
+                if(sample==(still?32:96)) distantGrid.write(output,still?"stationary":"crossing");
+            }
+            if(stage==0 && clockFrames==240) {
+                capture(game,"palace-grid.png");
+                placeFlying(game,-180,87,-146,90,-18);
+            } else if(stage==1 && clockFrames==240) {
+                measureGrid(game,"stationary");
+                pressRecord();
+            } else if(stage==2 && clockFrames==144) {
+                measureGrid(game,"after-flight");
+                pressRecord();
+                glfwSetWindowShouldClose(window,true);
+            } else {
+                if(stage==2 && clockFrames==64) measureGrid(game,"in-flight");
+                return;
+            }
+            stage++;clockFrames=0;
+            return;
+        }
         if (flicker!=null) {
             clockFrames++;
             if (stage==1) {
@@ -218,6 +257,56 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     private void pressRecord() { keys.invoke(window,GLFW_KEY_F10,0,GLFW_PRESS,0); }
 
+    private void measureGrid(Main game,String label) throws Exception {
+        if(field("framebufferWidth").getInt(game)!=800 || field("framebufferHeight").getInt(game)!=480)
+            throw new AssertionError("Grid measurements require the 800 x 480 framebuffer");
+        String file=label+".png";
+        capture(game,file);
+        var image=ImageIO.read(output.resolve(file).toFile());
+        Camera camera=(Camera)field("camera").get(game);
+        var vp=new Matrix4f((Matrix4f)field("projection").get(game)).mul(camera.createViewMatrix());
+        float surface=world.terrain().stressGrid().grade()+1;
+        // Compare the visible material at road centers with the grass in the
+        // neighboring plot. Sample mid-plot Z to stay clear of intersections.
+        int[] hits=new int[3],samples=new int[3];
+        int firstRow=(int)Math.floor((camera.position().z-StressGrid.MIN_Z)/StressGrid.STRIDE);
+        for(int iz=Math.max(0,firstRow);iz<StressGrid.SIDE;iz++) {
+            float z=StressGrid.MIN_Z+iz*StressGrid.STRIDE+StressGrid.ROAD+StressGrid.PLOT*.5f;
+            float distance=z-camera.position().z;
+            if(distance>620) break;
+            if(distance<90) continue;
+            int band=distance<180?0:distance<340?1:2;
+            int firstColumn=(int)Math.floor((camera.position().x-distance-StressGrid.MIN_X)/StressGrid.STRIDE);
+            for(int ix=Math.max(0,firstColumn);ix<StressGrid.SIDE;ix++) {
+                float road=StressGrid.MIN_X+ix*StressGrid.STRIDE+StressGrid.ROAD*.5f;
+                if(road> -24) break; // Stay outside the authored Palace plot.
+                if(Math.abs(road-camera.position().x)>distance) continue;
+                int street=greenExcess(image,vp,road,surface,z);
+                int lawn=greenExcess(image,vp,road+StressGrid.STRIDE*.5f,surface,z);
+                if(street==Integer.MIN_VALUE || lawn==Integer.MIN_VALUE) continue;
+                samples[band]++;
+                if(lawn-street>8) hits[band]++;
+            }
+        }
+        for(int band=0;band<3;band++) {
+            String line=String.format(Locale.ROOT,"%s %s: %d/%d road and grass pairs aligned%n",
+                    label,new String[]{"90-180","180-340","340-620"}[band],hits[band],samples[band]);
+            Files.writeString(output.resolve("grid-alignment.txt"),line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+            // At this resolution the first two bands have resolvable street
+            // widths. The last band includes legitimately filtered subpixel lines.
+            if(band<2 && (samples[band]<20 || hits[band]<.85*samples[band])) throw new AssertionError(line);
+        }
+    }
+
+    private static int greenExcess(BufferedImage image,Matrix4f vp,float x,float y,float z) {
+        var ndc=vp.transformProject(new Vector3f(x,y,z));
+        int px=(int)((.5f+.5f*ndc.x)*image.getWidth()),py=(int)((.5f-.5f*ndc.y)*image.getHeight());
+        if(ndc.z<=0||ndc.z>=1||px<8||py<108||px>=image.getWidth()-8||py>=image.getHeight()-116
+                || Math.abs(px-image.getWidth()/2)<10 && Math.abs(py-image.getHeight()/2)<10) return Integer.MIN_VALUE;
+        int rgb=image.getRGB(px,py);
+        return ((rgb>>8)&255)-((rgb>>16)&255);
+    }
+
     private static void checkTowerLighting(Path output) throws Exception {
         var image=ImageIO.read(output.resolve("westminster-thames.png").toFile());
         // Coordinates in the fixed 800 x 480 opening view. Each pair samples
@@ -275,6 +364,54 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         var field=Main.class.getDeclaredField(name);
         field.setAccessible(true);
         return field;
+    }
+}
+
+/** Reproject the grid plane to compare the same piece of ground on successive frames. */
+final class DistantGridMotion {
+    private static final int X=485,Y=293,W=260,H=33; // lower-left coordinates, 800 x 480
+    private final ByteBuffer pixels=BufferUtils.createByteBuffer(W*H*4);
+    private final Matrix4f previousVP=new Matrix4f(),inverse=new Matrix4f();
+    private final Vector3f point=new Vector3f();
+    private int[] previous=new int[W*H],current=new int[W*H];
+    private long count,sum,large;
+    private double peak;
+
+    void sample(Matrix4f vp,Vector3f eye,float grade,boolean first) {
+        glReadPixels(X,Y,W,H,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+        for(int i=0;i<W*H;i++) {
+            int k=i*4;
+            current[i]=(54*(pixels.get(k)&255)+183*(pixels.get(k+1)&255)+19*(pixels.get(k+2)&255)+128)>>8;
+        }
+        inverse.set(vp).invert();
+        long frameSum=0,frameCount=0;
+        if(first){count=0;sum=0;large=0;peak=0;}
+        else for(int y=0;y<H;y++) for(int x=0;x<W;x++) {
+            point.set(2*(X+x+.5f)/800-1,2*(Y+y+.5f)/480-1,0);
+            inverse.transformProject(point).sub(eye);
+            if(point.y>=0) continue;
+            point.mul((grade-eye.y)/point.y).add(eye);
+            previousVP.transformProject(point);
+            double sx=(point.x+1)*400-X-.5,sy=(point.y+1)*240-Y-.5;
+            if(sx<0 || sy<0 || sx>=W-1 || sy>=H-1) continue;
+            int ix=(int)sx,iy=(int)sy;
+            double fx=sx-ix,fy=sy-iy;
+            double old=(1-fy)*((1-fx)*previous[iy*W+ix]+fx*previous[iy*W+ix+1])
+                    +fy*((1-fx)*previous[(iy+1)*W+ix]+fx*previous[(iy+1)*W+ix+1]);
+            int diff=(int)Math.round(Math.abs(current[y*W+x]-old));
+            frameSum+=diff;frameCount++;if(diff>=12)large++;
+        }
+        previousVP.set(vp);
+        int[] swap=previous;previous=current;current=swap;
+        if(frameCount>0){sum+=frameSum;count+=frameCount;peak=Math.max(peak,(double)frameSum/frameCount);}
+    }
+
+    void write(Path output,String label) throws Exception {
+        if(count==0) throw new AssertionError("Missing projected ground samples");
+        String line=String.format(Locale.ROOT,"%s distant ground: mean luma change %.3f, worst frame mean %.3f, change >=12 %.3f%% (%d samples)%n",
+                label,(double)sum/count,peak,100.*large/count,count);
+        Files.writeString(output.resolve("grid-motion.txt"),line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+        if(large>.015*count) throw new AssertionError("Distant grid shimmer: "+line);
     }
 }
 

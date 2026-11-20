@@ -60,6 +60,8 @@ public final class RoadMarkings {
         return new MeshData(v,indices.stream().mapToInt(Integer::intValue).toArray());
     }
     /** The stress grid is implicit: only paint detailed columns, never expand its million plots. */
+    public static final float GRID_STRIPE_WIDTH=.125f;
+
     public static MeshData stressMesh(StressGrid grid, Set<dev.jayms.ChunkPos> columns) {
         var vertices=new ArrayList<Float>();var indices=new ArrayList<Integer>();
         for(var column:columns) {
@@ -71,11 +73,11 @@ public final class RoadMarkings {
             for(int axis=0;axis<2;axis++) {
                 float low=axis==0?z0:x0,high=axis==0?z1:x1;
                 float origin=(axis==0?StressGrid.MIN_Z:StressGrid.MIN_X)+1.5f;
-                int first=(int)Math.ceil((low-.0625f-origin)/StressGrid.STRIDE);
+                int first=(int)Math.ceil((low-GRID_STRIPE_WIDTH/2-origin)/StressGrid.STRIDE);
                 for(int line=Math.max(0,first);line<=StressGrid.SIDE;line++) {
                     float center=origin+line*StressGrid.STRIDE;
-                    if(center-.0625f>=high)break;
-                    float a=Math.max(low,center-.0625f),b=Math.min(high,center+.0625f);
+                    if(center-GRID_STRIPE_WIDTH/2>=high)break;
+                    float a=Math.max(low,center-GRID_STRIPE_WIDTH/2),b=Math.min(high,center+GRID_STRIPE_WIDTH/2);
                     if(a>=b)continue;
                     float[][] quad=axis==0?new float[][]{{x0,a},{x1,a},{x1,b},{x0,b}}
                             :new float[][]{{a,z0},{b,z0},{b,z1},{a,z1}};
