@@ -2166,3 +2166,31 @@ The current-source functional run and media checks are in `dashboard/evidence/st
 Ordinary LocalGame save attempts use unique `.world-save-*.tmp` files in the destination directory. Each attempt opens, serializes, flushes, forces, publishes and cleans only its own path. They no longer truncate or consume a shared `world.dat.tmp`. This prevents a failed buffered writer from rewriting another attempt's already-published file. Existing serialization and atomic-required/compatibility-fallback policies remain. An unowned legacy `.tmp` file stays unchanged.
 
 The controlled parent/candidate probe reproduced changed published bytes on the shared-temp implementation and byte preservation with the fix. Actual interleaved-save/reload/failure CLI checks and the 237-test affected-path run are in `dashboard/evidence/structure-save-isolation.json`. Successful concurrent saves keep last-writer replacement behavior. This change adds no source-generation CAS, atomic city sidecars, directory-sync/power-loss guarantee or city qualification. Partial replay saves remain rejected.
+
+
+### Saved-source replacement coordination
+
+A private `SavedPagingReplacement` owner coordinator now retains edits made while
+an already published save is reopening for read-only paging. Its advisory journal
+stamp checks owner, bound World, append-only row count and acknowledgement epoch
+without copying the full pending overlay on every poll. The stamp grants no save
+or transfer authority; complete prefix, pending rows, source generation, model,
+terrain and World guards still run at adoption.
+
+A changed stamp retires the unconsumed candidate before another worker opens.
+There is one candidate at a time and at most three attempts, each with a fresh
+revision. Continued editing returns a retry-required state without acknowledging
+any rows. Failed cleanup remains visible until an explicit close retries it;
+polling and repeated cancellation do not retry filesystem cleanup. Cancellation,
+source changes, unjournaled edits and model changes leave the published save and
+journal prefix intact. Successful transfer takes the latest inventory, health and
+drops through the existing atomic metadata/acknowledgement path. The new scene's
+model map remains independent. The retired World remains caller-owned.
+
+Worker I/O and cleanup stay off the owner; overlay capture and final adoption can
+still take linear CPU time. This private coordinator uses one queued request,
+two cache regions, 4 MiB of cache row bytes and 32,768 rows per cached region;
+read-only scene residency remains one or two chunks. These are diagnostic caps,
+not supported city limits. Main source installation, old World reconciliation,
+editable paging, model-ID rebasing, city/maximum operation budgets, physical-GPU
+rendering and shaped synchronization to 32 clients remain unfinished or pending.

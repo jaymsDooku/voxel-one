@@ -1,0 +1,247 @@
+{
+  "schema": 1,
+  "parent_head": "569f66b5e155c4e1a6ccebf1415c8fec3088bc45",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available saved-source coordination checks passed; complete structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "Private owner SavedPagingReplacement coordinates one unconsumed read-only paging source at a time. An advisory journal epoch/append-only-row-count stamp detects later geometry before metadata transfer. A changed tail retires the candidate and opens a fresh revision only after cleanup. At most three attempts; continued editing returns retry-required without journal acknowledgement. Worker cleanup failure waits for explicit close; neither normal polling nor repeated cancellation retries failed filesystem cleanup. The existing final source/model/terrain/World and complete prefix/pending-row checks remain unchanged. Latest inventory, health and drops transfer through existing atomic adoption. The handle is allocated before metadata consumption; no successful-path callback/allocation follows adoption.",
+  "limits": {
+    "attempts": 3,
+    "concurrent_candidates": 1,
+    "queued_worker_requests": 1,
+    "cache_regions": 2,
+    "cache_row_bytes": 4194304,
+    "rows_per_cache_region": 32768,
+    "scene_chunks": "existing one or two",
+    "scope": "Private diagnostic resource caps, not supported-city/latency/peak-memory qualification. Overlay capture and adoption remain linear CPU work; no Main installation or editing promotion."
+  },
+  "focused": {
+    "status": "passed",
+    "tests": 28,
+    "suites": [
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingSessionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingTailTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingJournalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayEditorTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayJournalTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "observed_cancellation_hooks": [],
+    "initial_run": "26 tests passed; inspection then found repeated-cancellation cleanup retry edge. Added explicit cleanup-failure and all-observed-hook cancellation checks; final focused run passed."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest",
+      "test"
+    ],
+    "tests": 601,
+    "suites": 130,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 402.67386117205024
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 9.888152139261365,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 814,
+    "shaders_match": 28,
+    "mp3": "Original shipped CBR/VBR fixtures both decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-paging-replacement"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 86.14446095563471,
+      "prefix": "structure-paging-replacement"
+    },
+    "receipt": "structure-paging-replacement-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12828728070,
+      "planar_lighting_nanos": 1208474944,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12776641661,
+      "planar_lighting_nanos": 824817468,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true
+  },
+  "playtest": "Playtest: native Java/GLFW/OpenGL saved-paging integration CLI on inherited DISPLAY, synthetic offline v10 sources. Expected an edit added after the first candidate opens to survive retirement, second attempt, exact adoption/acknowledgement, repeat save, reopen and actual CPU/GPU paging rendering without altering the saved bytes during capture. Observed two attempts; red later LED geometry and blue saved model geometry rendered, disk bytes stayed unchanged during capture, independent model IDs/definitions and latest health survived repeat save/reopen, partial LocalGame.save stayed rejected, old World stayed caller-owned, and resource counters returned to baseline. CLI correctness also exercised cancellation at every observed adoption hook, three-attempt exhaustion without acknowledgement, wrong-owner/reentry, cleanup failure requiring explicit retry, changed source/model/unjournaled geometry rejection, malformed/budget cases and ordinary paging/lighting/sky/planar/model/water regressions. All assertions passed. This is an internal integration with no browser workflow. Main full-game playtest was not rerun for this private coordinator and is not claimed as current-source qualification.",
+  "media": {
+    "inspected": [
+      "structure-paging-replacement-session.png",
+      "structure-paging-replacement-optics.png",
+      "structure-paging-replacement-pending-optics.png",
+      "structure-paging-replacement-pending.png",
+      "structure-paging-replacement-regression.png"
+    ],
+    "scope": "Five fresh implementation-native framebuffer images. Session frame includes red geometry added after initial candidate readiness, carried through replacement/save/reopen. Software rendering only; no physical-GPU/frame-time pass."
+  },
+  "source_files_fixed": 659,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/SavedPagingReplacement.java": "4096265d2e8990b8aeb898f2ab69aeff164119d715360fd42ebc6e39b3141750",
+    "src/main/java/dev/jayms/net/RegionReplayJournal.java": "4e63fc433ab52029fa8d3571fbafad2a586dc68c35a56e568860828445a62c48",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "9f0ff133f79628b048994aa09bfb332994baf3c901255f074cb35519533ceae4",
+    "src/test/java/dev/jayms/net/SavedPagingReplacementTest.java": "fe11a67abea41ea7302d4a1fcc4fac82238092c51ca61e8c1ccba00d294ea6f7",
+    "tools/structures/SavedPagingSessionFrame.java": "1b1157c520d330b0e6a0c98411d773140fe855c45c275ee6962fba0183991ded",
+    "tools/structures/ReplaySkyFrameCheck.java": "56a7b75eb5cd8381ec050a1b5c5471e37d9c44744212cfdf0ac407606e58e36e",
+    "tools/structures/run_replay_sky_frame_check.py": "be242ef6ff765ad3eda694be32297ec1a6f302c85bde36fa3b1b01769c45794c"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "569f66b5e155c4e1a6ccebf1415c8fec3088bc45",
+    "run": 44732256268,
+    "platform_builds": [
+      {
+        "name": "build (windows-latest, windows)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (macos-15-intel, mac-intel)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (macos-latest, mac-arm)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (ubuntu-latest, linux)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "publish": "skipped",
+    "scope": "Read job/step summaries through GitHub connector; parent only. No full runtime logs read. Changed source requires new exact-head hosted checks."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Replace the native direct first-source adoption with the new bounded coordinator and derive follow-up revision from the transferred worker. Extend native method notes and the existing progress note. No production gate or regression case was removed. Prior base-diff world/history/render replacements and protocol compatibility adjustments remain as documented. No unrelated deletion intended."
+  },
+  "remaining": [
+    "Main installation and old World reconciliation remain unfinished; private source coordination is not full in-game integration.",
+    "Editable paging and later model-ID rebasing remain unfinished. Source/model changes still reject rather than silently remap.",
+    "City/maximum remain rejected for placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only measurements are not whole-workflow qualification.",
+    "Required 20-run whole-workflow city/maximum benchmarks in reference client/server/network environment, physical GPU, shaped 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Bounded private saved-source coordination and available CLI/native functional regressions only. No supported-city/limit, whole-workflow, stable-rollout, physical-GPU, 30-FPS or 32-client qualification pass.",
+  "artifacts": {
+    "structure-paging-replacement-native.json": "ab2a954ad69c3fc661170e57813db088fabceb5fbc4bfd3931b15d9a0a6f1ba1",
+    "structure-paging-replacement-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-replacement-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-replacement-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-replacement-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-replacement-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d"
+  }
+}

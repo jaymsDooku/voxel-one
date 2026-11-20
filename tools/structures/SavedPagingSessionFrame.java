@@ -38,33 +38,41 @@ final class SavedPagingSessionFrame {
             var editor=new RegionReplayEditor(c.world,new RegionReplayJournal());editor.apply(new Protocol.Edit(2,160,2,Blocks.STONE),()->false);
             var snapshot=ReadbackSaveSnapshot.captureJournal(c.local,c.world,editor.capture(()->false),()->false);var old=c.fixture.worker(c.path);ReadbackMetadataTest.ready(old);RegionReplayWorkerTest.closed(old);
             try(var prepared=c.stage(snapshot)) {
-                var publication=prepared.authorize(()->false);editor.apply(PendingReplayOverlayTest.fraction(),()->false);editor.apply(new Protocol.Edit(6,160,2,Blocks.LED).withColor(0xed593c),()->false);
+                var publication=prepared.authorize(()->false);editor.apply(PendingReplayOverlayTest.fraction(),()->false);
                 c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
-                var pending=publication.pendingPagingOverlay(()->false);var spool=Files.createDirectories(c.fixture.folder.resolve("paging"));
-                var worker=new RegionReplayWorker(spool,publication.pagingFactory(old,spool,SavedPagingFactoryTest.NEXT,pending),1,1,56*1024,2000);
-                try {
-                    ReadbackMetadataTest.ready(worker);long rows=worker.status().sourceRows();
-                    try(var session=publication.adoptPagingScene(worker,SavedPagingFactoryTest.NEXT,pending,1,8192,()->false)) {
+                var spool=Files.createDirectories(c.fixture.folder.resolve("paging"));
+                try(var replacement=new SavedPagingReplacement(publication,old,spool,SavedPagingFactoryTest.NEXT,1,8192,()->false)) {
+                    SavedPagingReplacementTest.ready(replacement);
+                    // Edit after the first candidate opened: the red geometry
+                    // must survive its retirement, fresh source and repeat save.
+                    editor.apply(new Protocol.Edit(6,160,2,Blocks.LED).withColor(0xed593c),()->false);
+                    assertEquals(SavedPagingReplacement.State.RETIRING,replacement.poll(()->false));SavedPagingReplacementTest.ready(replacement);
+                    assertEquals(2,replacement.status().attempts());var pending=publication.pendingPagingOverlay(()->false);
+                    var transfer=replacement.take(()->false);var worker=transfer.worker();var revision=transfer.revision();
+                    long rows=worker.status().sourceRows();
+                    try(transfer) {
+                        var session=transfer.session();
                         assertNotSame(c.local.models,session.local().models);
                         var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
                         int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
                         assertFalse(session.local().models.has(retiredId));
                         assertEquals(0,session.scene().status().data().ready());session.local().health--;
-                        var second=SavedPagingJournalTest.stage(worker,session,SavedPagingFactoryTest.NEXT);SavedPagingJournalTest.publish(worker,second,SavedPagingFactoryTest.NEXT);
+                        var second=SavedPagingJournalTest.stage(worker,session,revision);SavedPagingJournalTest.publish(worker,second,revision);
                         var nextPending=second.pendingPagingOverlay(()->false);assertTrue(nextPending.rows().isEmpty());RegionReplayWorkerTest.closed(worker);
-                        var nextSpool=Files.createDirectories(c.fixture.folder.resolve("reloaded"));var nextWorker=new RegionReplayWorker(nextSpool,second.pagingFactory(worker,nextSpool,SavedPagingJournalTest.AFTER,nextPending),1,1,56*1024,2000);
+                        var nextRevision=new RegionReplayWorker.Revision(revision.world()+1,revision.models(),revision.terrain());
+                        var nextSpool=Files.createDirectories(c.fixture.folder.resolve("reloaded"));var nextWorker=new RegionReplayWorker(nextSpool,second.pagingFactory(worker,nextSpool,nextRevision,nextPending),1,1,56*1024,2000);
                         try {
                             ReadbackMetadataTest.ready(nextWorker);assertEquals(rows+pending.rows().size(),nextWorker.status().sourceRows());
-                            try(var next=second.adoptPagingScene(nextWorker,SavedPagingJournalTest.AFTER,nextPending,1,8192,()->false)) {
+                            try(var next=second.adoptPagingScene(nextWorker,nextRevision,nextPending,1,8192,()->false)) {
                                 assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));
                                 assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
                                 byte[] disk=Files.readAllBytes(c.path);render(next,image);assertArrayEquals(disk,Files.readAllBytes(c.path));
                                 assertThrows(java.io.IOException.class,()->editor.capture(()->false));assertFalse(c.world.hasReplayReadView());
                             }
                         }finally{RegionReplayWorkerTest.closed(nextWorker);}
-                    }
+                    }finally{RegionReplayWorkerTest.closed(worker);}
                     assertEquals(baseline,Mesh.estimatedResidentBytes());
-                }finally{RegionReplayWorkerTest.closed(worker);}
+                }
             }
         }
     }

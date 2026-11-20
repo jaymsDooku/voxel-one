@@ -252,6 +252,12 @@ final class ReadbackSaveSnapshot {
         private void beginPagingAdoption()throws IOException {
             owner();if(pagingAdopting)throw new IOException("Saved paging adoption reentry");pagingAdopting=true;
         }
+        /** Advisory change receipt only. Adoption still validates complete rows. */
+        RegionReplayJournal.TailStamp pendingPagingStamp(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||journal==null||overlayAcknowledged)throw new IOException("Saved paging journal unavailable");
+            validateGeometry(true);return journal.tailStamp(world);
+        }
         /** Capture only the unsaved suffix; neither edits nor the journal change. */
         RegionReplayOverlay pendingPagingOverlay(BooleanSupplier cancel)throws IOException {
             owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);

@@ -45,6 +45,7 @@ final class RegionReplayJournal {
         void validateWorld(World world,BooleanSupplier cancel,boolean requireBound)throws IOException {journal.validateWorld(this,world,cancel,requireBound);}
         RegionReplayOverlay acknowledge(BooleanSupplier cancel)throws IOException {return journal.acknowledge(this,cancel);}
         RegionReplayOverlay remaining(BooleanSupplier cancel)throws IOException {return journal.remaining(this,cancel);}
+        TailStamp tailStamp(World world)throws IOException {return journal.tailStamp(this,world);}
         Acknowledgement prepareAcknowledgement(RegionReplayOverlay expected,BooleanSupplier cancel)throws IOException {return journal.prepareAcknowledgement(this,expected,cancel);}
     }
     private void enter()throws IOException {
@@ -108,6 +109,19 @@ final class RegionReplayJournal {
         try {
             if((requireBound&&boundWorld==null)||(boundWorld!=null&&boundWorld!=world))throw new IOException("Replay journal World mismatch");
             prefix(snapshot,cancel);
+        }finally{busy=false;}
+    }
+    /** Advisory constant-size change receipt. Rows are append-only between epoch
+     * changes and immutable after append. This never authorizes transfer or save:
+     * those paths still compare the complete prefix and exact pending rows. */
+    record TailStamp(long epoch,int rows) {}
+    private TailStamp tailStamp(Snapshot snapshot,World world)throws IOException {
+        Objects.requireNonNull(world);enter();
+        try {
+            if(boundWorld!=world)throw new IOException("Replay journal World mismatch");
+            if(snapshot.journal!=this||snapshot.epoch!=epoch||snapshot.overlay.rows().size()>rows.size())
+                throw new IOException("Replay journal prefix changed");
+            return new TailStamp(epoch,rows.size());
         }finally{busy=false;}
     }
     private RegionReplayOverlay remaining(Snapshot snapshot,BooleanSupplier cancel)throws IOException {

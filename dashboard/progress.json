@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T12:00:14+00:00",
+  "updatedAt": "2026-11-20T12:42:44+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Production storage accepted both full reference archives across 20 decodes each; p95 6.486/12.321 s on shared VPS. Existing lower placement gates remain enforced before authority reads. Passed 593 Java tests, 40 Python checks, MP3 packaging, TLS regressions, Main import/rejection/restart/editor workflow and replay retry. Fresh video/images and sanitized reports await controller publication and exact-source CI. Main paging, whole-workflow city/maximum, physical-GPU and 32-client qualification remain unfinished and gated.",
-      "updatedAt": "2026-11-20T12:00:14+00:00"
+      "note": "Bounded saved-source replacement now retains geometry edited while a paging candidate opens: one candidate, three attempts, cleanup before retry and full final adoption guards. Passed 601 Java tests, 40 Python checks, packaging/MP3 smoke and native replacement/save/reopen/render plus lighting/sky/model/water regressions. Five fresh images and sanitized reports await controller publication and exact-source CI. Main installation, editable paging/model-ID rebasing, city/maximum, physical-GPU and 32-client qualification remain unfinished and gated.",
+      "updatedAt": "2026-11-20T12:42:44+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
