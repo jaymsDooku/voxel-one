@@ -1,0 +1,18 @@
+{
+  "sourceHead": "234777d7f42cc765e3cb9212610b5393f6027590",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44554486541",
+  "failedTest": "testNativeRecipeSearchFractionalJoinAndBackground",
+  "testId": "5cab040e4538",
+  "category": "assertion",
+  "rootCause": "Exact assertion not reported. Source inspection found landscape keyboard overconstraint risk.",
+  "change": "Keep recipe header in safe area; add keyboard overlap inset only to recipe table. Add fixed assertion checkpoints without changing checks.",
+  "localChecks": {
+    "linuxHarnessTests": 61,
+    "failures": 0,
+    "projectGeneration": "passed",
+    "pythonCompilation": "passed",
+    "shellSyntax": "passed",
+    "diffCheck": "passed"
+  },
+  "Playtest": "Pending exact-source Mac run of all30 cases; no passing gameplay media supplied."
+}

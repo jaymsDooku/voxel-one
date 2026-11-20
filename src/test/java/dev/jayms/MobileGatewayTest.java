@@ -11,6 +11,137 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MobileGatewayTest {
+    @Test void healthIsOnlyPublicGatewayLiveness()throws Exception {
+        // Unreachable game targets deliberately cannot affect process liveness.
+        var target=new MobileGateway.Target("127.0.0.1",1,"not-a-real-server-pin");
+        try(var gateway=new MobileGateway(0,target,target)){
+            gateway.start();var uri=URI.create("http://127.0.0.1:"+gateway.port()+"/mobile/v1/health");
+            var request=healthProbe(uri).GET().build();
+            var health=HTTP.send(request,HttpResponse.BodyHandlers.ofString());
+            assertEquals(200,health.statusCode());
+            assertEquals(Map.of("application","voxel-one","component","mobile-gateway","status","alive","protocol",1.0),Json.object(health.body()));
+            assertEquals("no-store",health.headers().firstValue("Cache-Control").orElseThrow());
+            assertEquals(405,HTTP.send(healthProbe(uri).POST(HttpRequest.BodyPublishers.ofString("{}")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(400,HTTP.send(healthProbe(URI.create(uri+"?probe=1")).GET().build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(400,HTTP.send(healthProbe(uri).method("GET",HttpRequest.BodyPublishers.ofString("x")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(403,HTTP.send(healthProbe(uri).header("Origin","https://example.invalid").GET().build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(401,HTTP.send(healthProbe(URI.create("http://127.0.0.1:"+gateway.port()+"/mobile/v1/state")).POST(HttpRequest.BodyPublishers.ofString("{}")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+        }
+    }
+    private static HttpRequest.Builder healthProbe(URI uri){return HttpRequest.newBuilder(uri).timeout(java.time.Duration.ofSeconds(5));}
+    @Test void syntheticRedirectTrapCountsOnlyRequestsAndForwards()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("redirect-profile"))){
+            var request=HttpRequest.newBuilder(URI.create(host.redirectUrl()+"/mobile/v1/login"))
+                .timeout(java.time.Duration.ofSeconds(5)).POST(HttpRequest.BodyPublishers.ofString("{\"probe\":true}")).build();
+            var refused=HTTP.send(request,HttpResponse.BodyHandlers.ofString());
+            assertEquals(307,refused.statusCode());
+            var destination=URI.create(refused.headers().firstValue("Location").orElseThrow());
+            assertEquals("127.0.0.1",destination.getHost());assertNotEquals(URI.create(host.redirectUrl()).getPort(),destination.getPort());
+            var probe=healthProbe(URI.create(host.redirectUrl()+"/probe")).GET().build();
+            assertEquals(Map.of("redirects",1.0,"forwards",0.0),Json.object(HTTP.send(probe,HttpResponse.BodyHandlers.ofString()).body()));
+            // Deliberately following client is confined to a synthetic marker and loopback trap.
+            var following=HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+            assertEquals(401,following.send(request,HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(Map.of("redirects",2.0,"forwards",1.0),Json.object(HTTP.send(probe,HttpResponse.BodyHandlers.ofString()).body()));
+        }
+    }
+    @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
+        var catalog=MobileSnapshot.recipeCatalog();assertEquals(104,catalog.size());
+        Set<Integer> ids=new HashSet<>();
+        for(var item:catalog) {
+            int id=(Integer)item.get("id");assertTrue(ids.add(id));var recipe=Crafting.recipe(id);
+            assertEquals(recipe.name(),item.get("name"));assertEquals(recipe.output(),item.get("output"));
+            assertEquals(recipe.count(),item.get("count"));assertEquals(recipe.category(),item.get("category"));
+            assertEquals(recipe.inputs().entrySet().stream().map(e->List.of(e.getKey(),e.getValue())).toList(),item.get("inputs"));
+        }
+        // Canonical response assets exceed the bounded request parser; do not weaken its limit.
+        assertEquals(Json.write(catalog),Files.readString(Path.of("ios/Resources/recipes.json")));
+    }
+    @Test void snapshotsRetainFractionalLeavesModelsAndVersionedContract()throws Exception {
+        var terrain=new Terrain(Terrain.DEFAULT_SEED);var world=new WorldVoxels(terrain);
+        int y=terrain.surfaceHeight(0,0)+3;
+        world.apply(new Protocol.Edit(0,y,-2,Blocks.STONE,1,0,0,0));
+        world.apply(new Protocol.Edit(2,y,-2,Blocks.FLOWER_POT));
+        var pose=new Protocol.Pose(1,.5f,y,.5f,0,0,0,0,false,0,0,false);
+        var snapshot=MobileSnapshot.capture(world,terrain,pose,new Inventory(),20,dev.jayms.net.city.CityFrame.empty(dev.jayms.net.city.GameConfig.sandbox()),"",8);
+        assertEquals(2,snapshot.get("schema"));
+        var details=(List<?>)snapshot.get("details");assertEquals(1,details.size());
+        var detail=(Map<?,?>)details.get(0);assertEquals(List.of(0,y,-2),detail.get("cell"));
+        var geometry=(Map<?,?>)detail.get("geometry");assertEquals(16,geometry.get("resolution"));
+        assertEquals(List.of(List.of(0,0,0,8,Blocks.STONE,WorldVoxels.color(Blocks.STONE)&0xffffff)),geometry.get("leaves"));
+        var contract=(Map<?,?>)snapshot.get("contract");assertEquals(1,contract.get("version"));assertEquals(Boolean.TRUE,contract.get("fineEdits"));assertEquals(Boolean.TRUE,contract.get("batchCrafting"));
+        assertEquals(1,contract.get("itemsVersion"));var definitions=(List<?>)contract.get("items");assertEquals(199,definitions.size());
+        for(var raw:definitions){var item=(Map<?,?>)raw;int id=(Integer)item.get("id");assertEquals(Items.name(id),item.get("name"));assertEquals(Items.stackLimit(id),item.get("stackLimit"));assertEquals(Items.get(id).placeableBlock(),item.get("placeableBlock"));}
+        var models=(List<?>)contract.get("models");assertEquals(1,models.size());
+        var model=(Map<?,?>)models.get(0);assertEquals(8,model.get("id"));
+        var expected=new dev.jayms.net.model.ModelLibrary().get(8).definition();assertEquals(expected.fingerprint(),model.get("fingerprint"));
+        assertEquals(expected.voxels().leaves().size(),((List<?>)((Map<?,?>)model.get("geometry")).get("leaves")).size());
+        // Canonically ordered exporter permits exact parity without weakening the 8 KiB request parser.
+        assertEquals(Json.write(contract),Files.readString(Path.of("ios/Resources/contract.json")));
+    }
+    @Test void authenticatedBatchBoundsAndDefaultQuantity()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("batch-profile"))){
+            var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
+            String bearer=token(login);
+            for(int invalid:new int[]{0,65,Integer.MAX_VALUE})assertEquals(400,post(host,"action",bearer,Map.of("kind","craft","recipe",88,"quantity",invalid)).statusCode());
+            // Both paths reach existing authoritative crafting; a fresh player has no Wood.
+            assertEquals(200,post(host,"action",bearer,Map.of("kind","craft","recipe",88,"quantity",2)).statusCode());
+            Thread.sleep(150);
+            assertEquals(200,post(host,"action",bearer,Map.of("kind","craft","recipe",88)).statusCode());
+            assertEquals(200,post(host,"logout",bearer,Map.of()).statusCode());
+        }
+    }
+    @Test void itemCatalogNegotiationPreservesLegacyRecipeViews()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("items-profile"))){
+            var old=post(host,"login",null,Map.of("game","city","username","ios_fixture","password","fixture-password-123"));assertEquals(200,old.statusCode());
+            assertFalse(old.body().contains("\"id\":96,\"inputs\":"));
+            assertEquals(426,post(host,"action",token(old),Map.of("kind","craft","recipe",95)).statusCode());
+            assertEquals(200,post(host,"logout",token(old),Map.of()).statusCode());
+            var current=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123","itemsVersion",1));assertEquals(200,current.statusCode());
+            assertTrue(current.body().contains("\"id\":96,\"inputs\":"));
+            assertEquals(200,post(host,"logout",token(current),Map.of()).statusCode());
+        }
+    }
+    @Test void authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory()throws Exception {
+        assertEquals(-1,inventorySlot("{\"recipes\":[{\"inputs\":[[141,1]]}],\"inventory\":[[0,0]]}",141));
+        assertEquals(1,inventorySlot("{\"inventory\":[[0,0],[141,1]]}",141));
+        try(var host=new MobileFixtureHost(temp.resolve("fine-profile"))){
+            var login=post(host,"login",null,Map.of("game","sandbox","username","ios_fixture","password","fixture-password-123"));assertEquals(200,login.statusCode());
+            String bearer=token(login);
+            var match=java.util.regex.Pattern.compile("\\\"pose\\\":\\[(.*?)\\]").matcher(login.body());assertTrue(match.find());
+            var pose=match.group(1).split(",");int x=(int)Math.floor(Double.parseDouble(pose[0])),y=(int)Math.floor(Double.parseDouble(pose[1]))-1,z=(int)Math.floor(Double.parseDouble(pose[2]));
+            var terrain=new Terrain(Terrain.DEFAULT_SEED);int material=terrain.block(x,y,z),piece=Blocks.piece(material,1);
+            var mirror=new WorldVoxels(terrain);
+            try(var observer=new MultiplayerClient("127.0.0.1",host.sandbox.port(),"fine_observer","observer-pass-123".toCharArray(),true,host.fingerprint)){
+                var cut=post(host,"action",bearer,Map.ofEntries(Map.entry("kind","edit"),Map.entry("blockX",x),Map.entry("blockY",y),Map.entry("blockZ",z),Map.entry("type",0),Map.entry("slot",0),Map.entry("depth",1),Map.entry("ix",0),Map.entry("iy",1),Map.entry("iz",0)));assertEquals(200,cut.statusCode());
+                long end=System.nanoTime()+5_000_000_000L;boolean seen=false;
+                while(System.nanoTime()<end && !seen){
+                    for(var edit:observer.poll()){mirror.apply(edit);if(edit.x()==x && edit.y()==y && edit.z()==z && edit.depth()==1 && edit.ix()==0 && edit.iy()==1 && edit.iz()==0 && edit.type()==0)seen=true;}
+                    if(!seen)Thread.sleep(20);
+                }
+                assertTrue(seen,"Desktop protocol must see the exact fractional cut");assertEquals(Blocks.PARTIAL,mirror.type(x,y,z));
+                end=System.nanoTime()+5_000_000_000L;String state=cut.body();
+                while(inventorySlot(state,piece)<0 && System.nanoTime()<end){Thread.sleep(50);state=post(host,"state",bearer,Map.of()).body();}
+                int pieceSlot=inventorySlot(state,piece);assertTrue(pieceSlot>=0,"Server owns the collected fractional stack");
+                assertEquals(400,post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",0,"slot",0,"depth",5,"ix",0,"iy",0,"iz",0)).statusCode());
+                var fill=post(host,"action",bearer,Map.of("kind","edit","blockX",x,"blockY",y,"blockZ",z,"type",piece,"slot",pieceSlot,"depth",1,"ix",0,"iy",1,"iz",0));assertEquals(200,fill.statusCode());
+                end=System.nanoTime()+5_000_000_000L;seen=false;
+                while(System.nanoTime()<end && !seen){for(var edit:observer.poll()){mirror.apply(edit);if(edit.x()==x && edit.y()==y && edit.z()==z && edit.depth()==1 && edit.type()==piece)seen=true;}if(!seen)Thread.sleep(20);}
+                assertTrue(seen,"Desktop protocol must see the fractional fill");assertEquals(material,mirror.type(x,y,z),"Filling rejoins the authoritative full cell");
+            }
+        }
+    }
+    static int inventorySlot(String body,int type){
+        String marker="\"inventory\":";
+        int begin=body.indexOf(marker);if(begin<0)return -1;
+        begin+=marker.length();int end=body.indexOf("]]",begin);if(end<0)return -1;
+        var slots=(List<?>)Json.object("{\"slots\":"+body.substring(begin,end+2)+"}").get("slots");
+        for(int i=0;i<slots.size();i++){
+            var slot=(List<?>)slots.get(i);
+            if(((Number)slot.get(0)).intValue()==type && ((Number)slot.get(1)).intValue()>0)return i;
+        }
+        return -1;
+    }
     @TempDir Path temp;
     static final HttpClient HTTP=HttpClient.newHttpClient();
     HttpResponse<String> post(MobileFixtureHost host,String route,String token,Map<String,Object> body)throws Exception{

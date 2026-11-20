@@ -1,0 +1,1658 @@
+Native engine port: milestone 1 / early Sandbox slice
+
+Status: implementation in progress. Exact source60deab7026332972448f1cf7ce074eff27925593
+passed all45 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
+Current saved touch controls and gateway redirect policy require a48-case Mac run.
+This is not full engine parity or signed iPhone delivery.
+
+Architecture decision
+Reuse UIKit, SceneKit and the Java mobile gateway. Keep authoritative online
+rules in Java; Swift supplies native input, rendering and offline rules. No JVM,
+LWJGL, webview or streamed desktop runtime runs on iOS. Preserve City planning.
+Schema2 shares material/model/fractional definitions; schema1 remains readable.
+
+Current compatibility matrix
+Capability                 Desktop / source                 Native status
+Terrain                    net/Terrain.java, Geography.java Exact seed/version1-3 golden
+                                                            samples/window passed60deab70
+Streaming / distance       TerrainScheduler, DistantTerrain Moving49x49 window, durable
+                                                            journal and opt-in far preview
+                                                            passed60deab70
+Fractional / models        net/WorldVoxels.java             Exact schema2 leaves/models;
+                                                            edits/render/collision passed
+Collision / pick           player/Player.java, Camera.java  AABB and exact leaf ray;
+                                                            camera collision passed
+Inventory / crafting       net/Crafting.java                9 hotbar,36 bag,104 recipes;
+                                                            search/tools/batches passed
+City                       existing Java CityFrame          Native planning/roads/zones;
+                                                            synthetic gateway regression passed
+                                                            specialized UI still missing
+Sky / graphics             atmosphere contract              Native opt-in sky/presets passed;
+                                                            clock/daylight passed45-case run;
+                                                            device budgets unmeasured
+Persistence                desktop engine saves             Separate atomic JSON save;
+                                                            bounded save/load queues passed;
+                                                            no desktop save-file migration
+Network                    pinned Java server transport     Native HTTPS gateway;
+                                                            synthetic auth/edit tests passed;
+                                                            live VPS path unqualified
+
+Touch controls             UIKit input                       New sensitivity/inversion and
+                                                            movement bindings pending48-case run
+
+Passed refers only to the45-case60deab70 developer Simulator run. It does not
+qualify new touch controls, independent review, physical device or signing.
+
+This slice
+Jump begins on touch-down and repeats while held. Release, drag exit, touch
+cancel, pause, planning, menu, graphics and suspend clear the shared input set.
+A full inventory now rejects breaking before changing terrain or inventory.
+Tests cover full-bag rejection, partial-stack collection and empty-slot collection.
+The native workflow suite adds held-jump release, pause and background regression.
+
+Build and device boundary
+Target: iPhone, iOS 16+, native arm64 device and available compatible simulator.
+Run bash ios/archive-device.sh on the Mac for an unsigned generic-device archive.
+The exact-source simulator script now builds that archive before native tests.
+Unsigned VoxelOne.xcarchive is not an installable iPhone artifact.
+Simulator validation needs the controller's Mac result and actual media inspection.
+30 FPS is the initial requested baseline, not a measured physical-device result.
+
+Remaining acceptance work
+1. Validate new touch settings on exact source; finish remaining engine parity,
+   tool/equipment pose, landscape-first polish and shared save tooling.
+2. Qualify another Simulator size; continue mobile graphics/device budgets.
+3. Live Sandbox multiplayer resynchronization, denied-network paths and isolated
+   HTTPS proxy checks, then root-coordinated production service qualification.
+4. Signed device delivery, install/update guide and versioned artifact checksums;
+   physical iPhone gameplay/performance/thermal/battery qualification.
+
+Signing remains separate. No Apple team, device registration or protected signing
+provisioning has been established by this slice. Do not publish, purchase, invite,
+or claim installation. Continue engineering while the delivery route is pending.
+
+Crafting increment
+The native Craft sheet uses IDs 88,89,90,91,92,94 exported from Java Crafting.
+The bundled JSON and gateway snapshots share the same exporter; a Java test checks
+catalog/asset equality. Old saves without recipes use the bundled catalog. Missing
+inputs or full output storage reject atomically. This bounded offline mode has no
+craft overflow drops; online overflow remains governed by the real Java server.
+Model, fractional and tool recipes remain gated on the detail/item schema port.
+Regenerate the catalog after deliberate recipe changes:
+  mvn -q -DskipTests compile
+  java -cp target/classes dev.jayms.net.mobile.MobileSnapshot --recipes ios/Resources/recipes.json
+
+Observed validation
+Source b22dadbbcf0401a865a5a5d565ea79f04ccafefe passed 11 native tests on
+Xcode 16.4, macOS 15.8.2, iPhone SE (3rd generation), iOS 18.5 Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43660827057
+Inspected receipt sourceHead, status, clientChecked and screenshot SHA-256.
+Actual screenshot shows Graphics sheet; it does not prove visible gameplay.
+The next capture launches the saved world rather than forcing Graphics open.
+No physical-device, signing, battery, thermal or live VPS claim follows this run.
+
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4
+Changes are limited to iOS source/tests/build/evidence/progress and the mobile
+snapshot recipe adapter/test. Intended replacements remove pre-capacity terrain
+mutation, replace tap-only jump binding, and replace forced Graphics launch for
+final evidence. No unrelated source or asset deletions are intended.
+
+Crafting local checks: Java compile passed with worktree Maven cache; all 13
+MobileGatewayTest cases passed using isolated worktree temp files (no live service).
+53 Linux harness tests passed. Native crafting and transaction XCTest cases remain
+pending. Initial default-cache/default-temp attempts failed before verification;
+worktree-local cache and temp paths resolved those environment failures.
+
+Flight increment (native qualification pending)
+Offline-only fly toggle; Jump rises, Down descends; release hovers. AABB collision
+is shared with walking, including roof/floor/walls and placement overlap rejection.
+Speed is 4.2 blocks/second, normalized across all three axes; dt stays capped at
+0.04 seconds with vertical steps no larger than 0.1 blocks. Flight cannot leave
+the snapshot volume or be enabled while the player is outside that volume.
+Flight state is transient; loading saves restores walking at the saved position.
+City and online movement retain gravity; no online flight protocol claim is made.
+Native tests add bounds, roof/floor/wall, hover, diagonal/capped-frame, pause,
+background/resume and walk/jump recovery checks. They need a fresh Mac run.
+
+Crafting source fb4dfc47cd57a40f136664117bb9e490b6d983aa passed 13 native tests
+on Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43663487628
+Receipt identity and image SHA-256 verified; actual image inspected. It shows
+native gameplay controls but aims at sky, so terrain media remains insufficient.
+A final native test now edits terrain and saves a downward view for cold-launch
+capture. Prior receipt does not qualify these newer flight or evidence changes.
+
+Camera increment (new native qualification pending)
+Sandbox camera choice is local, persisted in UserDefaults: first, third, isometric.
+The SceneKit renderer reuses its orthographic path for Sandbox without enabling
+City planning commands. City still selects its original Plan/Walk behavior.
+Third-person lens sweep: <=12 blocks, steps <=0.1 blocks, 0.15-block corner samples;
+solid terrain and snapshot boundaries retract the lens. The simple local capsule
+hides when the lens is within one block of the eye. This is not a desktop skin port.
+Isometric pan stays within loaded X/Z bounds; zoom remains 12..80. Movement recenters
+on the player, while panning never moves their authoritative pose. Tap aiming uses
+the displayed camera ray, then checks five-block player-eye reach and occlusion.
+First-person picking reuses the same bounded DDA traversal with the old semantics.
+Pan, zoom, movement and orientation changes clear a prior tap aim. Held movement
+also clears on orientation changes. New native tests cover mode persistence,
+overview reach rejection, zoom, movement, landscape and walking/jump recovery.
+
+Flight source f87f9fe060b5ba36499069fa7ba2a04de876137d passed 16 native tests on
+Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43664750206
+Report source and screenshot SHA-256 checked. Inspected image shows terrain,
+placed dirt, updated inventory and native controls. Screenshot saved for controller
+publication. This qualifies prior flight/terrain work on Simulator, not these newer
+camera edits, physical iPhone performance, live VPS or signed installation.
+
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4 remains scoped to the
+iOS port and shared mobile recipe adapter. No unrelated files/assets were deleted.
+Camera replaces only the renderer's camera dispatch and controller aim/gesture
+routing; City planning continues through its original branch.
+
+Detail increment (new native qualification pending)
+Schema 2 replaces center sampling: fractional cells retain complete 16-grid leaves,
+and model cells reference world-specific definitions from MultiplayerClient.models.
+Contract version 1 exports the Java Blocks material/name/depth/color table and
+model geometry plus the authoritative ModelDefinition fingerprint. Swift uses one
+leaf-box cache for rendering, AABB collision, picking, sky samples and camera lens
+sweeps. The bundled flower pot is the existing engine model, not a new approximation.
+Schema 1 local saves migrate to the bundled contract; schema 2 rejects missing or
+unknown references, overlapping/alignment-invalid leaves, or budget overflow.
+Limit: 512 partial cells; 32,768 expanded leaves including model occurrences.
+Canonical JSON contract parity is checked against the Java exporter; request JSON
+limits remain unchanged. Current bundled contract is 41,423 bytes; flower pot has
+1,252 colored leaves at resolution 32. These are data counts, not performance claims.
+Offline starter inventory now includes model/piece items; placement, collection and
+save persistence use their actual dimensions. One-leaf fractional cells collect
+as the matching shared item. Mixed-cell harvesting, arbitrary fine-grid alignment,
+merging and all fine crafting/tool recipes remain open. Cell-low-corner placement
+is the bounded initial behavior; do not label this full precision-editor parity.
+The final normal-control playtest now places a pot after editing terrain before
+cold-launch evidence capture. New XCTest cases cover empty fractional corners,
+ray/collision agreement, model persistence, missing data, overlap, integer overflow,
+expanded caps, actual model/fraction placement, collection and restart.
+
+Camera source 1df5eeb76f037b0a2d5f42349922f56986eeaa31 passed 18 native tests on
+Xcode 16.4 / iOS 18.5 / iPhone SE (3rd generation) Simulator.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43666238773
+Receipt and screenshot checksum verified; actual edited terrain and controls
+inspected and preserved. New detail changes require a fresh exact-source Mac run.
+Local focused Java integration: 3 MobileGatewayTest cases plus 7 FractionalWorldTest
+cases passed. Initial contract comparison incorrectly used the bounded request
+parser for a response-sized asset; canonical export equality fixed that test without
+relaxing transport limits. Java compile and 53 Linux harness tests passed.
+Native compilation/playtest for this increment remains pending, as do physical
+hardware, signing/install delivery, live VPS and the remaining engine parity work.
+
+Durable pause checkpoint: bounded background saves
+Paused on explicit quota/service-control instruction. Preserve all unpublished edits.
+Last controller-tested source: bcb158fb06d6fbdad9a47a8e2c062323c4de4ba7.
+Mac run https://github.com/jaymsDooku/voxel-one/actions/runs/43668407608 passed
+20 native tests. Receipt/source/checksum checked; actual flower-pot colored leaf
+geometry, terrain and controls inspected. Sanitized image and receipt copied to
+dashboard/evidence/ios-port-bcb158fb-model.png and ios-port-bcb158fb-receipt.json.
+
+Unpublished increment: NativeSavePayload captures value-only snapshot/dictionaries;
+NativeSaveWriter serial utility queue validates/encodes/atomically writes off main,
+with one active and one latest pending payload. Important action acknowledgements
+survive autosave coalescing. Controller waits for save before Menu and reports
+edit/craft success only after writing; session IDs fence stale callbacks. Finite
+background task ends on idle or expiration. Startup load/decode and generation
+still run synchronously; no claim of full asynchronous world handling is made.
+Added native queue/immutability/atomic-failure test and menu/background/cold-restart
+playtest; required native test count is now 22. These new tests are UNEXECUTED.
+Local checks already finished: 53 mocked Linux harness tests passed, project
+regeneration, Python compilation, shell syntax and diff checks passed. No native
+compilation or save-worker execution occurred on Linux. No new tests after pause.
+
+Resume: inspect queue/callback/background races and Swift concurrency compilation;
+request remote_ios_test for the saved edits once controller quota permits. Inspect
+actual result/media before claiming save behavior. Keep engine parity, streaming,
+precision tools, live VPS, signing/install and physical hardware gates open.
+No commit/push/deploy performed. Delegate review failed; attempted local takeover
+was denied when delegation paused. Do not retry inference while paused; resolve
+that helper record after authorized resume. No delegate result counts as evidence.
+
+Authorized resume: background-save validation handoff
+Resumed under a fresh controller lease/quota authorization. Retained all checkpoint
+edits. Resolved failed helper task locally; no delegate result is test evidence.
+Reviewed queue, session and lifecycle paths. Fixed callback reentrancy by publishing
+the replacement pending payload before invoking the superseded callback. A native
+regression test submits another save from that callback and checks newest data wins.
+Menu save failure now restores the prior pause state and keeps the world available.
+The existing tests also gate the first write, verify active+latest coalescing,
+copy-on-write snapshot isolation, off-main work, important acknowledgement retention,
+and old-file preservation after validation failure. UI test covers menu save barrier,
+background/resume and cold restart. Required native test count remains 22.
+Local 53 harness tests, project generation, Python compilation, shell syntax and
+diff checks passed after resume; new Swift save-worker execution remains pending.
+Request remote_ios_test for this exact assigned feature source. Preserve physical
+hardware, live VPS, full engine parity and signing/install gates.
+Diff audit against 71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
+intentional replacement moves synchronous save encoding/IO to the bounded worker.
+
+Save-worker timeout follow-up
+Mac source fdab3d60bd12bdcca1a34b1b4b854dea00ee4fa3 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43670540599
+Source/request receipt and diagnostic artifact SHA-256 verified. Client script
+exceeded the unchanged 1,200-second limit; clientChecked=false. Sanitized compiler
+and assertion diagnostic line count is zero. Cause remains unproven. Preflight
+image is environment evidence only and was not promoted as native game media.
+
+Repair: save payload and its nested value types explicitly conform to Sendable;
+worker write closure is @Sendable. The test worker probe locks every access to
+its captured state. Replaced actor-isolated async XCTest orchestration with explicit
+main-queue phases and one 60-second XCTest completion wait, retaining 10-second
+worker gates. Coalescing, immutable capture, off-main execution, user acknowledgement,
+atomic failure and reentrant latest-save assertions remain required. No timeout or
+clean-source acceptance gate was increased or disabled. Required count stays 22.
+Local 53 mocked harness tests, project generation, Python compilation, shell syntax
+and diff checks passed. The changed Swift source still needs exact-source Mac
+compilation and actual native playtesting. No physical iPhone/live VPS/signing pass.
+Diff against recorded review base remains confined to the port; no unrelated file
+deletions were introduced. All edits and prior media retained for controller handoff.
+
+Asynchronous offline loader increment (native qualification pending)
+Save-worker source 14cad956bea09b10a72c0b124392ad5b9aa94ef5 passed 22 native tests.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43672710267
+Verified report source and actual screenshot SHA-256; inspected saved flower-pot
+geometry, edited terrain, inventory and controls. Copied image and sanitized receipt
+to dashboard/evidence/ios-port-14cad956-saved-model.png and ios-port-14cad956-receipt.json.
+That receipt qualifies prior save-worker work on Simulator, not this newer loader.
+
+NativeOfflineLoader executes one value-returning operation on a utility queue.
+Controller owns at most one pending intent and waits for both save/loader idle;
+no synchronous main-queue wait or unbounded load queue. Main callbacks are fenced
+by loader generation and controller session UUID. Cancel restores the menu and
+invalidates the result; a new request waits for the old operation to leave the worker.
+Cold start shows the real menu/loading panel before building the actual world.
+File reads stop at 16,000,001 bytes and reject more than 16,000,000; atomic writes
+have the same cap. Migration is a validated value transform and does not rewrite
+its source. Malformed and oversized saves remain untouched by load failure.
+World construction, collision cache building and meshing still run on main; chunk
+generation/streaming and incremental mesh work remain open. No device timing claim.
+
+Native tests add off-main loader execution, single-worker rejection, cancellation,
+retry, legacy migration with exact original-byte preservation, malformed-file
+preservation and oversized input rejection. A normal-control cancellation/retry/
+cold-load playtest uses a simulator-only, 2-second load delay for deterministic
+fault injection; it still reads the real synthetic saved world. Device builds
+exclude this delay. Required native test count is now 24; all new native cases
+remain unexecuted pending exact-source remote_ios_test. Local 53 mocked harness
+checks, project generation, Python compilation, shell syntax and diff checks pass.
+Current diff remains scoped to this port and shared mobile adapters; no unrelated
+source/assets were deleted. Physical iPhone, signed installation, live VPS and full
+engine parity remain unfinished and gated separately.
+
+Loader cancellation test repair (native qualification pending)
+Mac source 09f4bdd25590c177d9d070d0dc6a5b0605ea2f33 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43674370733
+Verified source/request receipt and diagnostic SHA-256. xcodebuild exited65; the
+recorded failure is testOfflineLoadCancelRetryAndColdRestart, missing requested
+control with no game error alert,38.456 seconds. Sanitized output does not identify
+which wait. No new gameplay media exists from that failed run; preflight is not
+game evidence. No other native test pass is inferred from the failed suite.
+
+The two-second simulator fault delay could expire before XCTest reaches Cancel.
+Replaced it with a simulator-only one-shot semaphore gate released by the normal
+Cancel action, with an unchanged-purpose safety deadline of30 seconds. Retry is
+not gated; it still loads the actual synthetic saved world. Device builds do not
+include the test trigger. Named each menu/cancel/retry/cold-restart wait so another
+failure identifies its exact step. The previous timing race is a source-based
+hypothesis; only the fresh Mac run can qualify the repair. No tests removed or
+skipped:24 required native cases and the1200-second outer limit remain unchanged.
+Local53 mocked harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. Full engine parity, live VPS, physical iPhone and
+signed delivery remain open. Diff audit against recorded base remains scoped to
+the iOS port; no unrelated deletions or clean-source gate changes.
+
+Landscape camera transition repair (native qualification pending)
+Mac source155362017a913380b2399b8bcf0261a21ac829e7 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43676042699
+Verified report source and diagnostic SHA-256. Reported failure moved to the
+Camera isHittable assertion immediately after landscape rotation, line228 in
+testSandboxCameraModesAimReachAndPersistence,31.167 seconds. Returned diagnostics
+do not report cancellation failure; no other native passes are inferred from this
+failed suite. Preflight is not promoted as gameplay evidence.
+
+Repair: apply compact HUD visibility/line counts when bounds change and at rotation
+completion, rather than relying on the next display tick. Cache the orientation
+state to avoid repeated hidden-state layout changes. Rotation still clears held
+input and tap aim. Test waits up to10 seconds for actual Camera hittability, opens
+Camera and selects First person in landscape, then verifies camera interaction
+again in portrait. The interaction assertion is retained and exercised by taps;
+no tests skipped, required count24 and outer1200-second budget unchanged.
+Local53 mocked harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. Swift/native repair remains unqualified until the
+fresh exact-source Mac run. Full parity, live VPS, signing and physical iPhone gates
+remain open. Diff audit against recorded base shows no unrelated deletions.
+
+Bounded native mesh increment (native qualification pending)
+Source1d7aa5247254d1382e8ad908d79ce4cab0930db5 passed all24 required native tests.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/43681472647
+Verified source, passed/clientChecked receipt, all test statuses and screenshot
+SHA-256. Inspected actual flower pot, edited terrain, inventory and native controls;
+saved sanitized image/receipt as ios-port-1d7aa524-model.png and
+ios-port-1d7aa524-receipt.json.
+This qualifies the prior loader/cancellation/rotation repair on Simulator only.
+
+Meshing.swift now prepares value-only pages on a serial utility worker. Captures
+retain Swift value dictionaries; the worker builds a private VoxelWorld from that
+capture so it reuses actual leaf geometry and sky rules without sharing the live
+mutable class. SceneKit nodes/materials/geometry are created on the main actor.
+Queue caps: one active request plus one latest pending request, four ready events,
+4,096 vertices per page, two installed events per display frame. Producer waits on
+NSCondition rather than spinning. Cancellation increments generation, drops queued
+pages and wakes backpressure; main drains only the current generation. Nearby
+chunks prepare first, obsolete chunks are removed and old valid chunks remain
+until their replacement's first page. This is progressive installation, not atomic
+whole-chunk swapping or full dirty-region caching. Geometry revisions skip rebuilds
+for unchanged network cells/colors/shapes; poses/inventory do not force meshing.
+Menu/background cancels work, foreground rebuilds. A memory warning pauses input,
+cancels ready/pending work and drops render nodes beyond16 blocks; Resume rebuilds.
+The native test injects the actual memory-warning handler in Simulator only and
+labels the capture simulated; it is not physical memory/thermal qualification.
+
+New native tests cover queue backpressure, drain/page caps, cancellation generations,
+shared-face removal, fractional dimensions, unchanged-snapshot revisions, actual
+edit rendering, background/resume, cold restart and simulated pressure recovery.
+Required count26; these new cases are UNEXECUTED pending exact-source remote_ios_test.
+Local53 mocked harness checks, project generation, Python compilation, shell syntax
+and diff checks passed. GPU uploads remain on main with bounded page size; physical
+frame-time/stall/RAM/thermal/battery budgets remain unmeasured. Other engine work
+including procedural streaming, fine edit tools, full crafting, network/live VPS,
+landscape-first polish and signed iPhone installation remains open.
+
+Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated file deletion.
+Intended renderer deletions replace synchronous face assembly and mesh installation
+with the new worker/paged path. City overlays, people, camera and atmosphere behavior
+remain in their existing native path and must pass the independent native regressions.
+
+Bounded mesh timeout investigation (native qualification pending)
+Mac source2a9cccf926f05d82bdf9378ed7799e7411cfa7b3 did NOT pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44516014231
+Verified source receipt and diagnostic SHA-256. Client exceeded1200 seconds;
+clientChecked=false. Returned bounded diagnostic windows contain zero compiler/
+assertion lines and are truncated. This does not prove no test failed elsewhere;
+active test and root cause remain unknown. Preflight is not gameplay evidence.
+
+Added ios/native-test-runner.py to bound the owned xcodebuild child at900 seconds,
+inside the unchanged1200-second outer budget. Successful/nonzero child statuses
+are preserved. Timeout terminates only its isolated child process group, then
+reads at most64KiB from the private test log tail. It appends a fixed error with
+only regex-allowlisted XCTest suite/method/state and a short identifier. No arbitrary
+runtime, command arguments, credentials, profile data or full log is exported.
+This ensures the trusted existing diagnostic collector can identify a future stall
+before the outer timeout removes the client. Native cases remain26, none skipped.
+Mesh test now cancels its worker in defer even if fixture setup/assertion exits.
+No mesh deadlock is claimed fixed without actual remote evidence.
+
+Actual local CLI/core checks run synthetic Python child processes: success0,
+nonzero7 and deadline124; timeout summary excludes a private fixture marker, and
+progress reading is bounded/rejects arbitrary class names. Total56 Linux tests
+passed, plus shell syntax, Python compilation, CLI --help and diff checks.
+Browser playtesting does not apply to this diagnostic CLI; actual native gameplay
+and mesh qualification still require exact-source remote_ios_test. No new game
+image exists from this failed run. Full parity, streaming, live VPS, signing and
+physical iPhone requirements remain open. Diff audit: intended test command
+redirection moves to the bounded child runner; no unrelated file deletions.
+
+Fine-grid editing increment (native qualification pending)
+Mac source9b571995cf3fdbad6a9945be4f8502022f30926a passed26 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44520681928
+Verified source/status/clientChecked, every test status and screenshot SHA-256;
+inspected actual meshed flower pot, terrain, inventory and controls. Copied image
+and receipt as ios-port-9b571995-meshed-model.png and ios-port-9b571995-receipt.json.
+This qualifies prior bounded mesh/lifecycle work on Simulator, not new fine edits.
+The earlier timeout cause was not proven; no broader device performance claim.
+
+Rich picking now retains hit face normal, point and actual leaf box. Grid addressing
+uses local double coordinates, interior clamps and half-open parallel slabs to avoid
+wrong neighboring regions at voxel edges/negative coordinates. Third/isometric
+picking also rejects a nearer occluder inside the same cell. Whole placement uses
+adjacent cells; fractional placement uses the exact face and matching item depth.
+Offline region transactions use a bounded4096-sample16-grid scratch. They require a
+uniform region to collect or air to fill, reserve inventory, check detail caps and
+player AABB overlap, then commit terrain/inventory/details together. Dyadic colored
+leaf compression preserves untouched samples and compacts full regions to normal
+material cells. Models remain immutable whole-cell items; unknown definitions fail
+instead of becoming cubes. Existing whole-cell API remains for compatibility/tests.
+The Grid control exposes depths0..4; placement derives depth from shared Java material
+metadata. Default Whole/hit piece automatically collects the actual fractional leaf.
+Inventory/full-bag/mixed-region/collision/cap failures leave state unchanged.
+
+Gateway now constructs Protocol.Edit with validated depth/ix/iy/iz fields. Existing
+slot, reach, authenticated transport and server inventory rules remain authoritative.
+Contract version1 adds optional fineEdits capability; old readers can ignore it,
+new clients never send fine edits to a gateway that does not advertise support.
+Snapshots include definitions for model inventory items as well as placed models.
+No TLS/ATS/pinning or server validation was relaxed. Full crafting catalog, tool UI,
+procedural streaming, live VPS and signed/physical iPhone delivery remain open.
+
+Local execution: Java compile plus4 focused MobileGatewayTest cases and7
+FractionalWorldTest cases passed. New authenticated fixture cut/fill was observed
+through the real desktop protocol, with server-granted piece inventory and invalid
+depth rejection.56 Linux harness/CLI checks, project generation, Python compilation,
+shell syntax and diff checks passed. New native rule/negative-coordinate/merge/
+full-bag/trapping checks plus actual Grid collect/fill/restart touch flow require
+fresh exact-source Mac execution; required count now28. No native pass is claimed.
+Diff audit against71612f09bfec4549456b3317676e76cdced085a4: no unrelated deletions;
+intended edits replace coarse controller targeting with exact shared region addresses.
+
+Fine-edit Mac run cancelled: qualification still pending
+Source6662a4d4f14c7e5aef1f52072aa2c638ad7f6169.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44527341466
+Connected GitHub job summary reports simulator job135571297762 completed/cancelled;
+artifact query returns zero ios-evidence artifacts. No report for this source is
+present locally. No runtime logs were fetched. This is not native source/test
+failure evidence and supplies no gameplay media or passing qualification.
+Source was clean and preserved; no speculative gameplay change made. Request a
+fresh controller exact-source Mac run for all28 required cases and inspect actual
+receipt/media when returned. Previous local Java/Linux checks remain historical;
+no tests were rerun solely for cancellation. Full parity, live VPS, streaming,
+signing/install and physical-device gates remain open.
+
+Fine-edit milestone qualified on Simulator
+Exact source ed9d59ad933e79b754afdaefdb49341a04a617df passed all28 required
+native cases on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44530081797
+Verified source/expected head, test statuses and client.png SHA-256; inspected
+actual cold-restarted model rendering. Saved sanitized receipt and gameplay image
+under dashboard/evidence/ios-port-ed9d59ad-*. Pending controller publication.
+This is Simulator qualification, not physical iPhone or live VPS proof.
+
+Next coherent milestone: searchable block recipe book
+Replaced six-recipe alert with full-screen search/category table, owned/required
+ingredients and explicit Done. No local movement while open. Save acknowledgements
+and authoritative gateway actions retain their existing paths; pending transactions
+disable recipe selection. Offline ignores old saved catalogs and uses current app
+recipes; online respects the gateway catalog. Optional category preserves old JSON.
+Export all95 supported Java block/fraction/model recipes, IDs0..94, with canonical
+category metadata. Nine stick/tool recipes95..103 remain pending item schema190..198;
+no claim of full crafting parity. Batch UI and offline overflow drops stay open.
+The expanded response asset exceeds the request parser limit; asset parity compares
+canonical JSON directly, preserving the8192-character request limit unchanged.
+
+Local execution: Maven compile passed;4 MobileGatewayTest +7 FractionalWorldTest
+cases passed, including catalog equality, authenticated fine edits and normal edit/
+logout regression.56 Python Linux harness checks passed. Project generation, Python
+compilation, shell syntax and git diff --check passed. No browser playtest applies:
+this is a native UIKit/SceneKit client; Linux covers Java integration and harnesses.
+Playtest: prior28-case native run inspected above. New search/category/fractional
+crafting UI, empty search, landscape, background and restart cases are unexecuted.
+Request exact-source Mac run of all30 required cases, including existing City and
+movement regressions. No native or physical pass claimed for current edits.
+Audit against71612f09bfec4549456b3317676e76cdced085a4 found no deleted files.
+Intended replacement removes the six-action alert and six-entry catalog; no unrelated
+feature or evidence deletion. Full procedural streaming, distant terrain, full item/
+tool parity, actual VPS access, signed iPhone install and device measurements stay open.
+
+Recipe-book Mac compile repair
+Source4a3bf55b3ae80830ed78ffdda501470418d3a50f failed client build, exit65.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44535250965
+Inspected sanitized report and compiler diagnostics only. NativeWorkflowTests.swift
+line193 omitted required argument2 of waitHittable(element,id). Added the explicit
+"landscape Craft Done" label; helper timeout and assertions are unchanged.
+No XCTest execution or client gameplay media was produced by this failed run.
+Preflight home-screen image is not game evidence and was not copied as such.
+Local project generation, Python compilation, shell syntax and diff checks passed.
+Playtest: all30 required native cases remain pending after this compile repair.
+Request fresh exact-source Mac build and installed-client workflow/media validation.
+Previous11 Java/56 Linux checks are historical and were not rerun for a test label.
+No deleted files against the review base; no unrelated source changes. Full engine
+parity, live VPS, signing/install and physical-device qualification remain open.
+
+Recipe-book native failure: diagnostic recovery required
+Source7baa200c2463e7f40f095226fe103866830c3472.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44537022192
+Inspected exact-source report and sanitized client-diagnostics.json. Client script
+exit65; native-tests.log exists, but sanitized diagnostic lines are empty and both
+read windows are truncated. No failing test, assertion, crash or cause is reported.
+No client screenshot/video was returned; preflight is not gameplay evidence.
+No source fix is justified by these receipts. Preserve source; request internal
+controller recovery of bounded failed XCTest names/assertions or fixed crash category
+from this exact run's structured NativeTests.xcresult. Never retrieve full runtime
+logs, profiles or account data. Do not rerun unchanged native suite merely to guess.
+Playtest: this run supplies no passing native qualification; all30-case acceptance
+remains pending. No new tests executed during diagnostic recovery. Full parity,
+live VPS, signing/install and physical-device qualification remain open.
+
+Bounded diagnostic recovery implemented
+Existing run44537022192 has exactly one retained artifact, ios-evidence14539391015.
+ZIP manifest contains only report.json, client-diagnostics.json/.txt and preflight.png;
+no structured test result or gameplay image/video can be recovered from that artifact.
+Did not download/read raw workflow logs or private profiles. Do not infer source cause.
+Before a scoped rerun, native-test-runner.py now preserves any nonzero child exit and
+asks xcresulttool for structured failure summary with30-second timeout. JSON reading
+is capped at1MiB. Only exact test method names declared in native test source leave
+the summary, maximum8; assertion payloads and account/profile text never enter output.
+Fixed error markers at log tail are consumable by the existing trusted sanitizer.
+If structured data is absent/malformed/oversized/times out, emit a fixed status only.
+No trusted validator limits, native30-case acceptance gates or gameplay code changed.
+Executed58 Linux harness tests, including known-name filtering, private payload
+exclusion, malformed summary and timeout behavior. Python compilation, shell syntax
+and diff checks passed. Playtest: Mac failure cause and current native qualification
+remain pending; Linux mock summary tests are not native application validation.
+Request one scoped exact-source Mac run of existing30 cases using repaired capture,
+then inspect real failure identifiers or passing receipt/media before further edits.
+Full parity, live VPS, signed install and physical iPhone gates remain unchanged.
+
+Failure locator survives privacy redaction
+Source7b95e65f5c10eb7c32b6ff17251eaa62288ce0c0, run44543500735 failed exit65.
+Structured summary capture identified one failed source-declared test, but trusted
+sanitizer redacted its name as an opaque token of48+ characters. This does not
+identify which long method failed; do not guess or change gameplay from that result.
+Changed emitted locator to SHA-256(method) first12 hex, mapped from checked-out
+native test source. Existing privacy redaction remains unchanged. Also emit fixed
+failure category and allowlisted Swift source filename/line when present in bounded
+structured failureText; never emit actual failureText or assertion values.
+Executed60 Linux harness checks, including long-name identifier through the existing
+sanitizer and exclusion of private fixture payloads from fixed locators. Python
+compilation and diff checks passed. Playtest: original gameplay failure remains
+unresolved; all30 required native cases need exact-source Mac execution. No passing
+client receipt or gameplay media returned. Preflight not copied as game evidence.
+Request scoped Mac run with actionable identifiers; no native gate or gameplay
+assertion weakened. Full parity, live VPS, signing/install and physical gates stay open.
+
+Recipe-book landscape keyboard repair
+Source234777d7f42cc765e3cb9212610b5393f6027590, run44554486541 failed exit65.
+Sanitized identifier5cab040e4538 maps exactly to
+testNativeRecipeSearchFractionalJoinAndBackground; fixed category is assertion.
+This identifies the test, not the exact assertion or root cause. No gameplay
+pass or media supplied. No raw logs read and preflight not used as game evidence.
+Source inspection found the entire header/search/category/status/table stack was
+constrained above the keyboard. On short landscape screens its required controls
+can exceed the remaining height. Root now fills safe area; only the recipe list
+gets keyboard overlap content/indicator insets, recalculated after keyboard frame
+changes and layout. Done remains in safe area. Add fixed assertion checkpoints
+for empty search and saved ingredient/output checks so remaining failures can be
+distinguished without exposing assertion payloads. No assertions removed or loosened.
+Executed61 Linux harness checks (including private-payload exclusion of fixed
+checkpoint capture), project generation, Python compilation, shell syntax and
+diff checks. Playtest: actual landscape keyboard/background/join/save behavior
+and all30 native cases still need exact-source Mac execution. This local layout
+repair is not proof of the original failure cause or a native pass. Full engine
+parity, live VPS, signing/install and physical-device gates remain open.
+
+Exact empty-search assertion repair
+Sourcec95a24bc3ea484ce72c33c81a7054747dc3d43ed, run44559481026 failed exit65.
+Sanitized locator5cab040e4538 plus checkpointcraft_book_empty_results identifies
+the new recipe-book test's immediate zero-cell assertion after typing an unmatched
+query following background/resume. Other tests are not claimed passed from this
+failed receipt. No client media supplied; preflight is not gameplay evidence.
+Filter now uses delegate textDidChange's supplied new query instead of rereading
+UISearchBar.text. Test retains exact zero-cell requirement but waits at most10s
+for the asynchronous native accessibility tree; also asserts actual visible
+"No matching recipes." empty state. Search/category limits and inventory rules
+unchanged. This addresses callback/snapshot timing risk; native rerun must prove it.
+Executed project generation, Python compilation, shell syntax and diff checks.
+No Java/Linux suite repeated for native-only query handling/test synchronization.
+Previous61 Linux checks remain historical. Playtest: all30 native cases, including
+empty search, landscape, background, join/save/restart and City regression, pending
+exact-source Mac run. Full parity, live VPS, signing/install and device gates open.
+
+Mac test deadline: execution recovery required
+Sourced5f4d809f8e424dd4ade12c1d4f240cdcbef1cd2.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44564432885
+Inspected exact-source report and sanitized diagnostics. Owned native-test-runner
+reached900-second deadline. Last allowlisted progress is
+WorldRulesTests.testSnapshotValidationAndSaveRoundTrip passed (id81798f8dcf2f).
+Structured summary capture reports summary_failed_or_oversized. This gives neither
+a complete30-case pass nor proof that the prior empty-search assertion still fails.
+No current client gameplay media supplied; preflight is not game evidence.
+No source mutation, gate change, timeout increase or test rerun justified solely
+by this result. Preserve all source. Request bounded internal execution audit of
+this exact run: counts of started/passed/failed native test identifiers, unfinished
+test identifier if any, and fixed classification of test execution versus result
+finalization stall. Recover only sanitized structured/progress summaries, never raw
+logs, profiles or private values. If no diagnostics survived, controller must arrange
+bounded observation before a scoped continuation rather than unchanged retry loops.
+Playtest: native30-case qualification and empty-search repair remain pending. No
+new tests run this turn. Full parity, live VPS, signed install and device gates open.
+
+Native execution-progress capture before teardown
+Preserved sourced5f4d809f8e424dd4ade12c1d4f240cdcbef1cd2 and all unpublished
+checkpoint edits. Existing run44564432885 cannot supply complete counts from its
+retained artifact. Implemented bounded observation of append-only native test
+output during the owned xcodebuild child:4096-byte reads,1024-byte maximum line,
+source-declared method names only, fixed XCTest classes/states only. No runtime
+payload is copied into diagnostics. Unique started/passed/failed sets and current
+unfinished methods are captured before deadline teardown. Nonzero runs append
+counts, expected source count, fixed phase and short source-mappable hashed IDs
+(maximum3 unfinished and3 failed). Observer shutdown is bounded. Child exit code,
+900-second deadline and owned process-group termination remain unchanged.
+No-open-test events do not prove successful result finalization or native pass.
+Existing structured result and all30 required XCTest gates remain authoritative.
+
+Executed63 Linux harness checks. Synthetic child tests cover a failed method
+buried before>64KiB output, an unfinished test at deadline, ignored unknown/private
+lines and all events closed while child exits65. After safe process/observer start
+ordering adjustment, focused native-deadline tests rerun successfully. Python
+compilation, shell syntax and diff checks passed. No deletions against review base.
+Playtest: native application, empty search and complete30-case result remain pending.
+Request exact-source Mac verification with this bounded capture; do not claim native
+pass from Linux synthetic children. Source preserved, no timeout increase or test
+gate reduction. Full parity, live VPS, signing/install and physical gates stay open.
+
+Visible empty-state message repair
+Source8919c998b486af89206e55304f9ac793d86d3412, run44581938848 exited65.
+Bounded progress capture reports30 started,29 passed,1 failed,0 unfinished,
+expected30. Failed id5cab040e4538 is recipe search/join/background test; structured
+marker remainscraft_book_empty_results. This marker was shared by both zero-row
+wait and visible empty-message assertion, so exact failed check remains ambiguous.
+No complete native qualification or current gameplay image/video supplied.
+The empty message was centered inside UITableView.backgroundView even while a
+keyboard covered the lower table. Move it to an explicit labeled row above table,
+accessibility idcraftEmptyState; show only when filtered rows are zero. Preserve
+both exact zero-row and actual empty-message assertions; now use separate fixed
+checkpoints craft_book_empty_rows and craft_book_empty_message. No timeout/gate
+relaxation. Existing root safe area and list-only keyboard clearance remain.
+Executed63 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks. Playtest: this native UI repair still needs exact-source
+Mac30-case validation and actual media. Prior29 event passes are observations
+from a failed source run, not a passing suite or qualification for edited source.
+Full parity, live VPS, signed install and physical iPhone qualification stay open.
+
+Explicit search editing event and state gates
+Source7a0ef0d32b4f35a7a5286b90b078233e7686a9a8, run44585446550 reports
+30 started,29 passed,1 failed,0 unfinished. Failure id5cab040e4538 has exact
+checkpointcraft_book_empty_rows, separating it from the visible-message check.
+No native30-case pass or current gameplay media available.
+Added direct UISearchTextField editingChanged binding alongside UISearchBar
+delegate so field edits explicitly drive the filter after background/resume.
+Expose actual filtered count as table accessibilityValue for VoiceOver and tests.
+Before existing zero-row and visible-message assertions, require the field value
+to equal the full fixed query and table count to equal0 recipes, each bounded10s.
+Distinct fixed diagnostic markers separate entered query, filtering and native
+accessibility row snapshot. No assertion removed, timeout raised or gate weakened.
+Executed63 Linux harness checks, project generation, Python compilation and diff
+checks. Playtest: Mac must execute actual query entry/background/empty rows/join/
+restart plus all30 native cases. This source event-path repair remains unverified;
+Linux checks do not prove UIKit behavior. Full parity, live VPS, signed install and
+physical iPhone qualification remain open.
+
+Empty list accessibility isolation
+Source7cd1d3e0ea4d672f18e070f32f20c82068498520, run44591223784 reports
+30 started,29 passed,1 failed,0 unfinished. Exact marker craft_book_empty_rows.
+New entered-query and zero-filter-count assertions precede that marker and did
+not fail. This isolates the remaining issue to exposed UITableView cells despite
+zero filtered recipes, rather than missing input or nonzero filter results.
+Render explicit empty state while hiding the empty table. A flexible empty spacer
+keeps header rows at natural height. Unhide table when matching recipes return.
+Keep exact zero exposed recipe-cell count, zero filtered-count and actual empty
+message gates. Query count is now read on visible empty-state element; recipe-cell
+check spans exposed app cells with recipe identifiers, avoiding a hidden table root.
+Add normal clear-query restoration check after landscape capture and portrait return.
+No case skipped, native count reduced or timeout raised. This is an actual empty
+state rendering change; native execution must verify it before claiming a fix.
+Executed project generation, Python compilation, shell syntax and diff checks.
+Prior63 Linux harness checks are historical; no rerun needed for native-only edits.
+Playtest: all30 native cases and actual media remain pending for this source.
+Full parity, live VPS, signed install and physical iPhone gates remain open.
+
+Searchable recipe-book Simulator milestone accepted by execution
+Exact source3d0fec111be962ca569870f66d4cae60dc1bdc10 passed all30 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44594607480
+Verified source/expected head, test statuses and screenshot SHA-256. Inspected
+saved flower-pot rendering in actual native app on iPhone SE3 / iOS18.5 /
+Xcode16.4 / macOS15.8.2. Saved sanitized receipt and screenshot under
+dashboard/evidence/ios-port-3d0fec11-*; pending controller publication. This
+qualifies the tested Simulator milestone, not full port or physical installation.
+
+Next bounded parity milestone: batch crafting
+Added1–64 batch selector; displayed output and ingredient costs scale together.
+Offline validates quantity before bounded multiplication, consumes on inventory
+copy and stores the entire output before commit. Missing ingredients or insufficient
+space leave inventory/revision unchanged. No offline overflow drops. Pending save
+or server action disables quantity control. Persisted success reports multiplied
+output. Java gateway defaults missing quantity to1, validates1..Crafting.MAX_BATCH,
+then uses the existing authoritative craft(recipe,quantity,pose) command. No new
+client-supplied counts, dedup changes or TLS relaxation. Optional contract capability
+batchCrafting gates online quantity>1; old gateway remains1. Generated contract
+asset matches Java canonical output. Stick/tool item schema and9 recipes still open.
+
+Executed Maven compile;5 focused MobileGatewayTest +7 FractionalWorldTest cases
+passed. Authenticated batch integration exercised invalid0/65/Int.MAX_VALUE rejection,
+valid quantity2 and legacy quantity1 server dispatch; no claim of positive live-VPS
+batch output.63 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks passed. No deleted files against recorded review base.
+Playtest: prior30-case native pass inspected above. New batch bounds/64x storage/
+rollback rules and actual3x plank crafting/save/restart UI require fresh Mac run;
+required count now32, retaining all prior cases. No native pass for current edits.
+Full procedural streaming/distant terrain, complete item/tool parity, live VPS,
+signed iPhone install and physical-device measurements remain open.
+
+Trusted receipt capacity repair
+Source0bb304c63a5e74098ce5df72b56729d89a1d4433, run44598845038 failed at
+client_receipt with native_client_receipt_invalid, not client_script. Sanitized
+diagnostic lines are empty. Source inspection found trusted client_receipt rejects
+more than30 test entries; expanded native suite reports32. Do not reduce reported
+cases or claim native acceptance from a rejected receipt. No current client media
+was returned; preflight remains environment evidence only.
+Prepared a bounded validator capacity update to64 entries, preserving exact-source/
+device, passed status, native-binary and installation, media/hash and fresh-directory
+checks. Added independent fresh mock cases:32 accepted,64 accepted,65 rejected.
+Initial combined-loop fixture failed the existing fresh-directory guard; split into
+fresh test fixtures rather than relaxing that guard. Final66 Linux harness tests
+passed; Python compilation and diff checks passed. No gameplay source or32-case
+qualification gate changed in this repair.
+The workflow deliberately runs validator from trusted default checkout. Feature
+publication alone cannot activate this patch. Request internal independent review
+and authorized publication of this scoped trusted-validator repair before another
+Mac run. If existing exact-source receipt/media can be recovered, validate them
+under repaired trusted code; otherwise one scoped exact-source Mac run is needed.
+Playtest: full32-case qualification and batch UI remain pending trusted validation.
+Full parity, live VPS, signed install and physical iPhone gates remain open.
+
+Post-rebase exact-source engineering checks
+Rebased source HEAD9e65024ab7b1467c0cee208ccd5d257e1256681b contains reviewed
+master8a53afce99e735a7574bffab70558252577b387b. No unmerged index remains.
+iOS app and Java gateway implementation match pre-rebase0bb304c63a5e74098ce5df72b56729d89a1d4433.
+Retained current master features, independent validator tests and all prior receipts.
+Audit full proposed diff against71612f09bfec4549456b3317676e76cdced085a4: no
+deleted files. Intended within-file replacements are exact leaf geometry/picking,
+atomic save/load workers, bounded mesh installation, safe input/cameras and native
+recipe book/batch controls; no unrelated feature/assets/evidence deletion.
+
+Fresh focused Java run exposed fractional fixture timing: whole-snapshot string
+search could match recipe ingredient141,1 before actual inventory arrived. Updated
+test helper to parse only inventory and choose the actual server-granted slot.
+Added narrow fixture assertions rejecting recipe-only matches and locating real
+slot1. Preserved real authenticated cut/fill, server inventory and desktop observer
+requirements; no server rules or test gates weakened. Final5 MobileGatewayTest +7
+FractionalWorldTest passed with zero failures/errors/skips. Intermediate repair
+compile errors were fixed before this final successful run; old XML not used as pass.
+74 Python harness checks passed on restored source. Project generation, Python
+compilation, shell syntax and diff checks passed. Browser playtest does not apply
+to this native client; these Linux checks exercise Java integration/CLI harnesses.
+
+Connected GitHub fetch of master tools/ios/simulator_checks.py confirms64-entry cap.
+Remote file blob70ceae5e8c30515e1518d47d29d74f704c475c07 exactly matches
+merged8a53afce source blob. Workflow binds trusted validator checkout to github.sha
+and client checkout to expectedHead; next controller dispatch must use merged
+trusted workflow (or descendant) and preserve its actual verifier/source identities.
+Playtest: current rebased source still needs all32 native cases and fresh screenshots/
+short video. Request batch-crafting/search/empty-state plus model/fractional/save/
+background/City regressions under repaired trusted validator. Existing30-case
+images/receipts are historical, not current-head qualification. Full procedural
+streaming/distant terrain, item/tool parity, live VPS, signed device delivery and
+physical-device performance/thermal/battery qualification remain open.
+
+Native readiness and unchanged HUD work
+Sourceca6900a9abf24aebb35895784fddde36da5740aa, run44619659649 reached the
+900-second native deadline. Captured15 started,13 passed,1 failed,1 unfinished;
+expected32. Failed method id9afefd974978 is model/fractional placement/restart;
+unfinished camera method idde15746551c7. This is incomplete execution, not a
+passing suite. No native client screenshot/video supplied; preflight excluded.
+
+Model and camera tests now wait for actual terrain readiness before aiming or
+picking. Model HUD failures and readiness failures emit only fixed checkpoint
+codes. Bounded progress observer retains allowlisted codes even when xcresult
+cannot finish at global deadline. Existing32 cases and900-second limit unchanged.
+Source inspection also found HUD setters reapplied every frame even if display
+state was unchanged. Cache visible HUD state including text, inventory, revision,
+slot, planning/pause/flight/camera/grid and viewport; reset on game entry. Craft
+status likewise updates only when changed. Simulation, rendering, input, saves
+and network polling retain their existing paths/cadence. This removes duplicate
+UIKit/accessibility writes, but actual time, thermal and battery benefit remains
+unmeasured and must not be claimed as a physical-device qualification.
+
+Executed74 Linux harness checks including fixed checkpoint persistence through
+large log/deadline and exclusion of unknown/private payloads. Project generation,
+Python compilation, shell syntax and diff checks passed. Updated synthetic marker
+assertion to inspect appended sanitized diagnostic section, not pre-marker inputs.
+No deleted files against current review base8a53afce99e735a7574bffab70558252577b387b.
+Playtest: native HUD/cache behavior, model/camera readiness and complete32-case
+qualification remain pending exact-source Mac execution. Request actual media
+with repaired trusted validator. Full parity, live VPS, signed install and physical
+iPhone frame-time/memory/thermal/battery gates remain open.
+
+City world-data picking and graphics failure stages
+Source45d453902489458058ee6c85c52136acb5c12a1b, run44625107201 completed
+all32 cases:30 passed,2 failed,0 unfinished. Failing ids are City planning
+e84305363720 and graphics draftb85262609054. City HUD expected2 plan points
+but showed generic online status. This is a failed suite, not qualification;
+current gameplay media was not returned and preflight is excluded.
+
+City planning previously hit-tested only installed SceneKit mesh nodes. It now
+unprojects the displayed camera ray and picks exact received world geometry via
+existing bounded180-block raycast, matching Sandbox geometry semantics and avoiding
+mesh-installation gaps. Server plan validation/costs remain unchanged. Planning
+point count remains visible after transient notices expire. City native workflow
+waits for terrain readiness before touch selection; touch/coordinate/undo/server
+road-count/reconnect requirements remain intact.
+Graphics failure location was not retained within the trusted diagnostic window.
+Add fixed workflow stage codes from normal XCTest teardown on actual failure
+(open/draft/saved/landscape/reset-cancel/high), retained by bounded observer. No
+graphics preference or assertion change is guessed from incomplete diagnostics.
+Executed74 Linux harness checks, project generation, Python compilation, shell
+syntax and diff checks. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: City picking repair and unresolved graphics regression need exact-source
+Mac32-case execution and real media. Existing32-case count and900s limit retained.
+Full engine parity, live VPS, signed install and physical iPhone gates remain open.
+
+Batch/City/graphics milestone qualified on Simulator
+Exact source6b60c5d6388bc3fc8f91b57087896f6a3a67ff34 passed all32 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44628077255
+Verified expected/source head, statuses and client image SHA-256; inspected actual
+saved flower-pot rendering on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2.
+Sanitized receipt/image saved under dashboard/evidence/ios-port-6b60c5d6-*; pending
+controller publication. This is Simulator milestone evidence, not physical readiness.
+
+Next bounded parity milestone: shared item inventory and full recipe catalog
+Java contract adds optional itemsVersion1 and all199 Items definitions: id/name/
+category/stackLimit/placeableBlock. Existing geometry/material IDs remain1..189;
+partial terrain remains255. Inventory190..198 requires versioned definitions.
+Tools191..198 stack at1; sticks190 at64; neither can become terrain. Native catalog
+now exposes all104 Java recipes, including Tools filter. Offline crafting splits
+nonstacking outputs and rejects overflow before committing any ingredient changes.
+Both controller and world edit entry points reject nonplaceable items.
+
+Old schema2 saves missing item metadata merge bundled definitions while retaining
+existing material names and model geometry/fingerprints. Loader performs no write
+until successful normal world start/save. Schema1 migration still works. Unsupported
+item schemas, absent tool definitions and overfull tool stacks fail validation.
+Online login explicitly negotiates itemsVersion1. Legacy clients receive block-only
+recipes and fixed update-required errors for item-only inventory/recipe requests.
+Failed initial-state generation closes the new transport before storing a session.
+TLS, bearer privacy, server inventory/action validation and batch bounds retained.
+Held/equipped tool geometry/pose, offline overflow drops and tool bonuses are not
+claimed; current engine tool definitions also state no mining/combat bonus.
+
+Executed Maven compile and6 focused MobileGatewayTest +7 FractionalWorldTest cases
+with zero failures/errors/skips. Catalog parity covers104 recipes and199 canonical
+item definitions; authenticated fixtures check legacy City and negotiated Sandbox
+views.74 Linux harness tests, project generation, Python compilation, shell syntax
+and diff checks passed. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: new tool stacks/rollback/migration rules and normal-control sticks->wooden
+pickaxe->placement rejection->cold restart require fresh Mac execution. Required
+count now34 with all prior32 cases retained. No native pass for current edits.
+Full procedural streaming/distant terrain, remaining reusable engine parity, live
+VPS, signed installation and physical-device performance qualification remain open.
+
+Shared items milestone qualified on Simulator
+Exact sourcea37f44eb612a8473d6d2d1855c19e40aa00dab2b passed all34 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44632685028
+Verified source, statuses and client image hash; inspected actual saved model
+rendering on iPhone SE3 / iOS18.5 / Xcode16.4 / macOS15.8.2. Sanitized receipt
+and image under dashboard/evidence/ios-port-a37f44eb-* await controller publication.
+
+Next bounded milestone: native seeded generation foundation
+Direct Swift Terrain/Geography implementation supports shared versions1/2/3.
+Preserve Java unsigned hash shifts/wrapping, negative floor division, distinct
+terrain weighted interpolation versus geography mix interpolation, drainage order,
+caves, trees, water/ocean and mineral rules. Independent Java fixture factory
+exports10,080 cases across3 seeds (including -42 and Int64.min),3 versions,
+negative/seam/world-edge coordinates, all terrain materials and68 interior-air
+samples. Full default49×49 window has17,380 cells and SHA256a01c47fcee1ac04580bb3123ce547220371bfbdbafa850b1e001d51c40f9c272.
+Mac script regenerates and compares this source artifact against current Java
+before building; native rules compare actual Swift samples/window hash. Never
+claim Swift compatibility from Java-only fixture checks.
+
+New offline worlds generate cells in Swift, on existing single utility loader,
+rather than using bundled terrain cells. Existing bundled profile supplies
+inventory/sky defaults only. Seed accepts signed64-bit values; invalid input
+disables creation and Cancel preserves current save. Persist explicit generator
+version; online snapshots now include it too. Old unversioned saves keep their
+finite patch. Worker generation windows remain bounded49×49 / at most45 vertical
+layers, with8192-entry field and column caches. Cancellation fences results via
+existing loader; no unbounded job queue or main-thread generation introduced.
+Current scope is procedural bounded-window generation, not moving chunks/distant
+terrain. Those gaps remain explicit and block full engine completion.
+
+Executed14 Java tests (new golden-asset parity +6 mobile +7 fractional),74 Linux
+harness checks, project generation, Python compilation, shell syntax and diff
+checks. No deleted files against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: Swift parity/cached eviction and new-world seed validation->edit->save->
+restart are unexecuted and require exact-source Mac run; required count now36
+with all prior34 retained. Physical-device performance, live VPS, complete parity
+and signed iPhone delivery remain open.
+
+Seeded-generation native deadline recovery
+Source 738f11e89842f06025b95bfb6f523945595c7beb reached XCTest but exited124
+at900 seconds:16 started,15 passed,0 failed,1 unfinished,36 expected.
+NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld was open.
+No complete native qualification or gameplay capture returned. The preflight
+home screen is not game evidence and is not published as gameplay.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44638759661
+GitHub run metadata independently confirms workflow_dispatch on master at
+8a53afce99e735a7574bffab70558252577b387b, so this run used the reviewed
+trusted validator with the64-entry receipt bound. Feature source includes it too.
+
+The new procedural CPU path was still built with -Onone. Use standard Swift -O
+for app and directly compiled native rules, retaining testability, all36 cases,
+all XCTest assertions and the900-second child deadline. No -Ounchecked or
+fast-math. This is a performance correction to the build, not a measured device
+performance claim. Timing evidence does not yet prove generation caused the
+suite deadline. Default bundled/generated windows have matching17380-cell
+counts and49x49x45 bounds; shared sample/window parity remains required on Mac.
+
+Before owned-child teardown, diagnostics now capture at most two slowest closed
+tests and one open-test age, with source-declared hashed identifiers, numeric
+observer elapsed seconds capped900, and the last allowlisted workflow step.
+Atmosphere steps distinguish creation, horizon, first sun aim, relaunch and
+second sun aim. Test starts clear stale prior-test steps. Bounded reads/lines,
+private raw logs, fixed-code filtering and execution/finalization distinction
+remain. These timings describe observer/test elapsed time, not FPS or thermals.
+
+Executed76 Linux mock/harness checks, including deterministic timing, truncation,
+unknown-code/name rejection and last-step retention. Project generation, Python
+compilation, shell syntax and diff checks passed. No deleted files against the
+recorded review base8a53afce99e735a7574bffab70558252577b387b.
+Playtest: optimized native generation, all36 native cases and real gameplay
+media require a fresh exact-source Mac run. No current native pass claimed.
+Full streaming/distant terrain, complete parity, live VPS, signed installation,
+physical iPhone playtesting and device performance qualification remain open.
+
+Seed confirmation and diagnostic extraction recovery
+Source575636547b85363b2f7ab2124c0534d574cbf428 again reached900 seconds.
+Observed15 started,14 passed,0 failed,1 unfinished,36 expected. City login was
+open; the retained slowest completed case was incremental mesh/background/
+restart at93 observer seconds. The optimized build alone did not resolve the
+suite deadline. No complete native qualification or gameplay media returned.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44642981796
+Run metadata again confirms trusted workflow_dispatch master8a53afce99e735a7574bffab70558252577b387b.
+
+Default New world confirmation now shows seed748291 without a text field, so
+UIKit does not open a keyboard for every new-world operation. Change seed opens
+the validated signed64-bit editor. Creation with default and custom seeds still
+uses native procedural generation; replacement confirmation, invalid-input
+creation guard, Cancel preserving the existing save and save/relaunch remain.
+The existing seed UI case now also checks the default route has no keyboard
+and exercises Change seed before both invalid and negative seed input.
+This removes repeated UI transitions; its effect on the aggregate native runtime
+still needs measurement. No timeout increase, case removal or native pass claimed.
+
+Routine allowlisted step events are observed privately without error prefixes.
+Only the runner's final failure summary emits the last step as an error marker.
+Previously four normal tool-step errors consumed half the trusted eight-line
+native-test diagnostic allowance, hiding later timings. A Linux integration test
+runs a bounded synthetic child, exceeds128KiB output, hits its1-second deadline,
+and uses the actual trusted diagnostic collector: counts, closed/open timings,
+last step and finalization state all survive within eight exported lines.
+No trusted collector limit or privacy boundary changed; no raw logs published.
+
+Executed77 Linux harness checks. Project generation, Python compilation, shell
+syntax and diff checks passed. No files deleted against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: new default/Change seed native controls, all36-case qualification and
+fresh app media require exact-source Mac execution. Physical iPhone signing,
+installation, live VPS, full streaming/parity and device performance remain open.
+
+Post-integration batch workflow repair and first-failure capture
+Exact sourcefc51743d51b5ac33314665406c4a1e86e7380883 is based on current
+review base1772d6158cadf2d97f28ef21a425c6f072c10ce6. Native run observed17
+started,15 passed,1 failed,1 open of36 at900 seconds. The failed case maps to
+testNativeBatchCraftingSaveAndRestart (110 observer seconds); missing-ingredient
+crafting passed at93 observer seconds. Camera mode workflow was still open.
+No complete native qualification or gameplay media returned.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44649067654
+GitHub metadata confirms workflow_dispatch/master at1772d6158cadf2d97f28ef21a425c6f072c10ce6;
+ancestry check confirms this trusted source includes reviewed validator8a53afce.
+
+Craft Search now dismisses the keyboard when Search is pressed; changing batch
+quantity also ends editing. This exposes recipe selection while preserving query,
+quantity and inventory transactions. The batch and missing-ingredient tests use
+the actual Search action. Batch also checks the keyboard closed before selection.
+The exact prior failing assertion was unavailable, so no claim this change alone
+has resolved the observed failure. The updated native flow still needs execution.
+
+All three XCTest classes inherit a source-only issue recorder. It forwards every
+issue to XCTest and emits only one of the three source basenames, bounded source
+line and assertion/execution category. Descriptions, errors, stacks, attachments
+and profile data remain private. API: https://developer.apple.com/documentation/xctest/xctestcase/record(_:)
+The bounded observer binds this metadata and the last fixed step to the open,
+source-declared case, then includes it on that case's failed-event marker. New
+batch steps cover opening, query, quantity, crafting and cold restart.
+
+The command-line runner stops its own child process group after the first
+observed failed case (exit65), preserving diagnostics before teardown. Passing
+runs still execute every required case, and receipt validation still requires
+all36 passed/zero skipped plus the native app/media checks. The900-second cap
+remains; no independent test or physical-device gate removed. This prevents
+another full deadline run after a known case has already failed.
+
+Executed14 focused Java tests after integration (1 golden fixture,6 mobile,
+7 fractional; zero failures/errors/skips) and80 Linux harness tests. Harness
+checks exercise child success/exit preservation, first-failure termination,
+issue source/line/code bounds, inactive/unknown issue rejection and passage
+through the trusted diagnostic sanitizer. Project generation, Python compilation,
+shell syntax and diff checks passed. Native Swift/UIKit checks remain pending.
+Playtest: Search -> batch3 -> craft12 -> save -> cold restart, invalid seed Cancel,
+model/fractional edits and all prior36 native cases require exact-source Mac run.
+
+Whole proposed diff audit against1772d6158cadf2d97f28ef21a425c6f072c10ce6:
+no file deletions, and all unrelated master progress entries compare exactly.
+Intended line replacements are scoped to native voxel geometry/physics, bounded
+mesh/load/save workers, recipe-book controls, versioned mobile detail/item
+contracts and their checks. They replace earlier whole-block rendering/editing
+and fixed recipe UI; City camera/planning and legacy mobile views are retained
+and covered by focused integration plus required native regressions. Unrelated
+merged HCF/desktop/server source and media are retained. Full engine streaming/
+parity, live VPS, signed artifact/iPhone installation and physical qualification
+remain open; no completion or Simulator/physical performance claim is made.
+
+
+Observed36-case native recovery and moving-window increment
+Exact source b25184722108b4ff9514ec92e3162f44024820ee passed36 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44654525025
+Trusted workflow verifier used master f446ad3f0c8332aa1002885468e1a20fa271018e,
+which contains independently reviewed cap fix8a53afce. Actual client screenshot
+was inspected and copied to dashboard/evidence/ios-port-b2518472-native-model.png.
+Receipt: ios-port-b2518472-receipt.json. No video returned. This is Simulator
+proof only. Historical failures/receipts remain intact.
+
+New proposed behavior: generated Sandbox worlds move a49x49 loaded window in
+8-column steps. Begin generation12 columns from the current center; adjust the
+bounded vertical band near its limits. Domain stays within +/-1,000,000 columns
+and y=-32..95. One utility request executes; frames choose the newest position,
+with no pending region queue. Generation, journal migration, validation and
+geometry expansion stay off the main thread. Main adopts prepared maps with
+copy-on-write storage, preserving live pose/inventory. geometryRevision and
+session/lifecycle fences reject stale results. Collision keeps the player in
+loaded terrain while a region is pending. Failure retains current terrain and
+retries no more often than every5 seconds. Existing bounded mesh paging applies.
+
+terrainEdits persists at most8192 changed world cells, including explicit air,
+model IDs/colors and exact fractional geometry. Journal-wide partial limit512
+and detail leaf limit32768 apply; save stays at most16MB. Capacity rejection
+precedes inventory/geometry commit. These are engineering caps, not measured
+physical-device budgets. Save schema remains2 with optional generatorVersion
+and terrainEdits. Old generated saves migrate by deterministic comparison on
+the load worker, preserving removed blocks and color/detail overrides. If more
+than8192 differences exist, preserve the complete finite save and disable
+streaming for it. Unversioned legacy patches stay finite. No save is overwritten
+on migration failure. Save file format is still separate from desktop.
+
+Native qualification now requires40 cases: all prior36 plus journal eviction/
+restart/migration/capacity, stale install/preserved pose and inventory, worker
+single-flight/cancellation/failure, and normal touch flight beyond x=24 then
+restart/return. These4 new cases are unexecuted until the controller Mac run.
+Playtest: new streaming workflow is pending on exact-source Simulator. No Linux
+browser test applies to the native UIKit/SceneKit client. Additional Simulator
+size/video, live VPS, signed install, physical-device measurements and independent
+review remain open. No feature deletions are intended. Full diff against review
+base f446ad3f has no deleted files; unrelated progress entries are preserved.
+
+The prior run returned no video. The Mac harness now records its assigned
+Simulator without depending on optional ffmpeg. The native test observer records
+only numeric start/duration for the fixed passing offline streaming case. A
+host-side AVFoundation utility exports at most40 seconds below6MB with metadata
+removed; raw recordings/timings stay ignored. Missing timing/video/export fails
+qualification. This path has not executed on Mac yet and cannot claim video.
+
+
+Streaming Mac timeout and bounded cleanup repair
+Exact source fe16c49ee7917f9153786f3df0e7457c66408f59 did not pass.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44659268725
+The controller's1200-second client timeout fired. Sanitized diagnostics contain
+zero compiler/test lines; both native logs exceeded the128KiB diagnostic window.
+No native-case counts or completed workflow can be inferred from this report.
+Only preflight.png was returned and inspected: Simulator home screen, not game
+validation. Copy is labelled ios-port-fe16c49e-preflight-only.png. The trusted
+workflow used master f446ad3f, containing independently reviewed cap fix8a53afce.
+Prior36-case b2518472 success remains historical; current40-case qualification
+and actual gameplay screenshot/video are still pending.
+
+Inspection found unbounded shell waits after recorder SIGINT and fixture TERM.
+That is a concrete harness defect, but the timeout report does not prove which
+phase consumed the budget. Recorder lifetime now belongs to a Python Popen
+handle: SIGINT permits10 seconds, then TERM2 seconds, then KILL/reap2 seconds.
+Forced/nonzero recorder shutdown fails qualification. Signals target only the
+owned child. The Java fixture permits5 seconds for TERM before KILL, verifies
+the PID is a running job owned by this shell, then reaps it. AVFoundation export
+has a60-second subprocess deadline plus2 seconds for owned process-group reap.
+Swift compiler output uses the existing
+bounded native-build.log diagnostic channel. No extra Simulator is created and
+only the controller-supplied UUID is recorded.
+
+Fixed phase literals are appended to the existing build diagnostic log. Native
+test counters plus an allowlisted active-test hash are emitted every30 seconds;
+final counters are retained even after a passing child, so a later media/export
+failure can be diagnosed without runtime logs. No assertion payload, account,
+URL or environment values enter these markers. Child900-second and controller
+1200-second limits, all40 required tests, structured receipts and independent
+native review stay required. No app behavior was changed by this repair.
+
+Playtest: Linux process/CLI integration only. Actual child processes exercised
+graceful recorder shutdown, forced shutdown with INT/TERM ignored, unrelated
+child isolation, failing recorder rejection, shell-owned fixture cleanup and
+safe live/final counters. Native streaming gameplay and video export still need
+a fresh exact-source Mac run; browser testing does not apply to this harness.
+
+
+Observed moving-window pass and distant-landscape increment
+Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913 passed all40 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44663550947
+Verified source/expected head, passed/clientChecked, all40 test statuses, media
+bytes and SHA-256. Trusted verifier was master f446ad3f, which contains8a53afce.
+Actual client screenshot was inspected: native flower-pot model and touch HUD.
+Video was decoded locally and sampled every4 seconds: offline menu with empty
+account fields, editing, flight and terrain return. It is40.00 seconds at15 FPS,
+108x192,381450 bytes. That resolution is too small for readable HUD inspection;
+new export requests Apple's640x480 preset and a5,500,000-byte length limit, still
+rejecting artifacts >=6MB. Output dimensions/clarity must be measured on Mac.
+Copies: ios-port-ea0a95ab-native-model.png, ios-port-ea0a95ab-streaming.mp4 and
+preflight-only image; receipt ios-port-ea0a95ab-receipt.json. Publication pending.
+The preflight image is only a Simulator home screen, not gameplay qualification.
+
+New distant landscape follows desktop DistantTerrainMesher's coarse-column
+surface approach with the same versioned NativeTerrain generator. It is a
+render-only surface preview outside the exact resident window. Coarse samples
+are4 columns apart, radius=min(graphics detail,96), with a maximum4096 cached
+column samples and16384 quads. Bounds split exactly at the resident rectangle;
+no distant top covers a resident cell. Ground below the loaded vertical band
+remains visible during high flight. Downward side faces cover height steps,
+and4-block near-border skirts reduce LOD cracks. Known journal column edits
+change height/color; removed blocks expose the next solid sample. Tiny models
+and trees are omitted at this LOD instead of being drawn as full cubes. Fine
+geometry remains exact in the resident layer; the far preview is not an export,
+picking, collision or authoritative world snapshot. It is not desktop LOD parity.
+
+Only versioned journal-backed offline Sandbox uses this preview. Online City,
+online Sandbox and unversioned finite saves keep their received/saved geometry;
+unseen authoritative edits are not invented. Main-thread SceneKit nodes use the
+existing mesh page installer. Near pages are built first, then distant pages;
+ready queue<=4, page<=4096 vertices, installs<=2/frame, one active worker and
+one latest pending request. Generation fences apply to both layers. Resident
+window/radius/world changes clear stale far nodes; memory warning releases far
+nodes and existing pause/resume rebuilds them. Physical GPU/memory costs remain
+unmeasured; these caps are engineering defaults. Radius32/64 follow detail choices;
+detail128/180 cap the initial distant preview at96 blocks.
+
+Qualification now requires42 cases: all prior40 plus distant surface bounds,
+page/index caps, journal/model behavior, invalid radius and cancellation; normal
+native horizon, far reach rejection, detail Apply and memory-warning recovery.
+New Swift source is unexecuted on Linux. Request exact-source Mac build/run and
+inspect the actual screenshot plus higher-resolution video before claims. A
+second Simulator size, remaining core parity, live VPS, signed installation,
+physical qualification and independent review remain open. No file deletions
+are intended. The old mesh-node construction was factored into a shared helper
+for resident and distant pages; it still creates SceneKit objects only on main.
+
+
+Distant run deadline and cache repair
+Source989ec6347ac734b41e23c4a1e03914d3980b5fb4 did not qualify.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44667388258
+Sanitized phases reached install/native_playtests. Latest live counters at873s:
+18 started,17 passed,0 failed,42 expected. The900-second child deadline recorded
+testPlanetAtmosphereNativeToggleAndLegacyWorld still open; the outer client also
+timed out. This is partial execution, not a42-case pass or clientChecked proof.
+Only a Simulator home-screen preflight image was returned, inspected and saved
+with an explicit preflight-only label. No new gameplay screenshot/video exists.
+Trusted workflow again used master f446ad3f, containing cap fix8a53afce.
+
+Inspection found distant geometry regenerated/reinstalled for every nearby edit.
+The repair retains one value-only far mesh, at most16 pages/16384 quads, on the
+existing worker. Key: seed/version, material geometry/colors, loaded bounds,
+radius and journal entries outside the resident volume. Pose, inventory and
+nearby edits cannot change that far surface. Resident edits remain rendered by
+exact close meshes; below-band preview excludes edits already covered by that
+resident volume. A complete, unchanged distant mesh keeps its SceneKit nodes.
+An incomplete installation always replays cached pages. Bounds/radius/material/
+far-journal changes rebuild it; no unseen online terrain is synthesized.
+
+Cache storage uses a lock/epoch. Cancellation and memory warning evict it;
+epoch fencing prevents a cancelled build from publishing late cached data.
+Replacement drops the previous cached mesh before building another. Existing
+ready4-page backpressure,4096 vertices/page and2 installs/frame stay unchanged.
+Distant preview nodes no longer cast expensive coarse shadows onto exact nearby
+geometry. Close geometry retains existing lighting/shadows. Physical budget
+qualification remains pending; no measured speedup is claimed from Linux.
+
+One new native case exercises actual warm reuse after near edit/inventory/pose,
+changed far edits, radius/bounds invalidation, memory eviction and late-publication
+fencing. Qualification now requires all43 cases, retaining every prior42.
+It prints only numeric Simulator CPU elapsed samples; those are not physical
+frame-time, thermal or battery measurements. Both900/1200-second caps remain.
+Playtest: current cache and SceneKit reuse are unexecuted until a fresh exact-
+source Mac run. Linux harness/process integration does not qualify gameplay.
+No file deletions are intended; the old unconditional far generation is replaced
+by keyed value reuse, while exact close rebuilds and all regressions remain.
+
+
+Distant graphics option and explicit enabled-feature qualification
+Source ea7debd0cfbfc39a0f8d0aa8a03d7b78130c366e did not qualify.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44672049502
+Sanitized phases reached native_playtests. Latest live counters at844 seconds:
+17 started,16 passed,0 failed,43 expected; outer1200-second timeout reported.
+No completed43-case proof, gameplay screenshot or video returned. No measured
+cache speedup follows this run. Trusted verifier used master f446ad3f, which
+contains reviewed cap fix8a53afce. Preflight image is home screen only.
+
+Distant landscape is now a public Graphics option, off by default in every
+preset and legacy profile. This is an explicit production engineering default
+while its physical-device budget remains unqualified, matching the existing
+opt-in treatment of costly atmosphere visuals. It is not a hidden test flag.
+Users can enable it through normal Graphics -> Distant landscape -> Apply.
+The setting persists in the existing version2 graphics file. Cancel retains the
+working renderer. Disabling cancels queued far work and releases far nodes and
+the value cache. Native near chunks still stream with exact model/fractional
+geometry. Radius/detail choices continue to bound the enabled far preview.
+
+All43 cases remain required. testNativeDistantLandscapeGraphicsMemoryAndReach
+now explicitly enables the public switch, checks horizon/reach/detail32, cold
+restart with the setting persisted, memory-warning/resume, then disables it and
+checks node release. Migration/preset/round-trip rules assert the new preference.
+Other regression cases exercise the actual public default renderer. Far geometry
+and cache behavior are also still covered by their required native rules cases.
+No gate, timeout or required case was removed to obtain a pass.
+
+Video selection now targets that enabled distant-landscape workflow. A flushed
+fixed distant_ready checkpoint is emitted after native terrain is prepared;
+only that checkpoint inside the declared NativeWorkflowTests case starts the
+numeric export window. A missing checkpoint, wrong class, unfinished/failed case
+or failed export cannot qualify media. Capturing starts in the world after the
+setting is applied. Maximum40 seconds,640x480 preset,5,500,000-byte target and
+strict below6MB publication gate stay in place. Larger output remains unmeasured.
+Playtest: Linux process/harness checks only; current native option, persistence,
+release behavior and enabled-feature media need a fresh exact-source Mac run.
+No physical-device or full-port completion claim follows these local checks.
+No file deletions are intended. The automatic far-radius decision is replaced by
+a saved public graphics choice, with the same enabled distant implementation.
+
+
+Rebased43-case pass and native world-time increment
+Exact source a77e0e4b7bb70e5c59b5d62d2add0abdc7160934 passed all43 required
+native cases after integration of review base30a0687254a6afd731686402823952599d798a69.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44676749164
+Verified exact source, passed/clientChecked,43 passed statuses and media hashes.
+Trusted verifier used master30a06872, containing independently reviewed8a53afce.
+Actual client screenshot shows the native flower-pot model and touch HUD. Video
+was decoded and sampled every4 seconds: Graphics controls, native gameplay and
+cold reload. Measured360x640,39.15 seconds,4988177 bytes. Its presentation rate is
+not game FPS. The clip mostly shows controls/flat starting terrain; it is not
+broad landscape-parity or physical-performance proof. Evidence copied under
+ios-port-a77e0e4b-*; publication pending. No signing/install/live VPS claim.
+
+New optional worldTime metadata records version1, day1..1,000,000,000, hour0..<24,
+daySeconds60..86400 and cycling. Fresh Sandbox defaults match Java
+GameConfig.sandbox(): fixed10:00 and1200 seconds/day. Time -> Run day/night
+advances only active foreground offline play; Freeze time stops it. Presets
+Dawn06:00, Daylight10:00, Sunset18:00 and Midnight00:00 freeze at that hour.
+Time settings, pause, background and menus stop advancement. A frame gap advances
+at most1 second; there is no background wall-clock catch-up. Day overflow freezes
+safely at the supported limit. Existing nil-clock saves keep their original sun
+until the user configures Time. Period labels describe native light phases, not
+City economic schedules. Online time/sun remain authoritative gateway state;
+Time controls are hidden online and local advancement is never applied there.
+
+The existing atomic COW save includes the clock. Clock/sun consistency is
+validated; malformed metadata cannot replace a good save. Terrain result install
+preserves the current clock. Time and light changes never bump geometryRevision
+or regenerate near/far meshes. HUD shows the light period rather than a constantly
+changing digital clock; exact HH:MM is available in the paused Time sheet.
+
+Sun direction uses the same normalized hour vector as MobileSnapshot. Java now
+exports six clock vectors in the existing golden fixture, including its actual
+Sandbox snapshot sun. Native tests compare those values instead of copying the
+formula into assertions. Java capture uses the same extracted helper, preserving
+its existing sun calculation. Basic SceneKit directional/ambient/sky colors now
+follow sun height without requiring planetary scattering. Artistic night ambient
+keeps play possible; these intensities are not photometry. The low-poly solar
+sphere draws as background at a distance within the current camera clip range;
+opaque world geometry covers it. Opt-in planetary scattering remains available
+with its existing qualification limits. No device frame/memory claim is made.
+
+All45 cases are required: all prior43 plus clock validation/cycling/overflow,
+Java sun parity, legacy/save consistency, stale-region preservation, and native
+Night -> movement -> save/terminate/relaunch -> Daylight -> cycle/freeze/cancel ->
+pause/background recovery. Video targets that passing prepared-world workflow
+through a fixed clock_ready checkpoint. Same40-second/640x480/<6MB gates and
+900/1200-second budgets remain. Current Swift code and media are unexecuted on
+Mac. Linux validation:87 harness tests and14 focused Java tests passed; fixture
+regeneration, project generation, Python/shell syntax and diff checks passed.
+Playtest: prior43-case native run inspected; new clock/daylight workflow awaits
+fresh exact-source Mac execution and actual night/day media inspection.
+No file deletions are intended. Fixed fallback illumination is replaced by
+sun-aware lighting; Java sun math is factored into the shared fixture helper.
+Remaining full engine parity, another Simulator size, live VPS, signed delivery,
+physical iPhone qualification and independent review remain open.
+
+
+Portable clock fixture repair after c76b517b
+Run44681419381 failed at terrain_contract before native build/install/playtest.
+Only the Simulator home-screen preflight image exists; it proves no client
+behavior. Source/expected head match c76b517b and cleanup passed. Trusted workflow
+head30a06872 includes reviewed capacity fix8a53afce. No validator-cap regression.
+
+New clock fixtures contain floating-point sun vectors. Platform Math rounding
+is the leading inferred cause of the fixture mismatch; generated Mac values
+were not returned, so the cause and repair still need Mac confirmation. The
+shared sun helper now uses StrictMath.cos/sin/sqrt. Exact fixture cmp remains;
+no tolerance or required-case gate was weakened. A separate terrain_contract_compare
+phase distinguishes generator failure from byte-comparison failure. Existing
+terrain data and Linux-generated clock bytes are unchanged. Java17,21 and25
+regeneration is byte-identical. A compatibility test checks six original sun
+directions and unit normalization within1e-15.15 focused Java tests and87 Linux
+harness tests passed; project/Python/shell/diff checks passed.
+Playtest: no native gameplay executed for this repair. Request all45 native
+cases and actual night/day media again. Keep all full parity/live service/signing/
+physical-device and independent review gates pending. No deletions intended.
+
+
+45-case pass and saved touch-settings increment
+Exact source60deab7026332972448f1cf7ce074eff27925593 passed all45 native cases.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44683138384
+Verified exact source, passed/clientChecked,45 passed statuses and cleanup. Trusted
+verifier30a06872 contains independently reviewed8a53afce. Fixture regeneration,
+unsigned generic-device archive, Simulator app and actual native tests passed.
+This confirms the StrictMath repair on the hosted Mac; no tolerance gate changed.
+
+Inspected actual model screenshot and decoded video every4 seconds. Video shows
+Night, movement, save/terminate/relaunch with Night retained, Daylight, Run/Freeze
+and pause/background/resume. Measured360x640,32.53 seconds,4720719 bytes; the clip
+includes a short white launch interval. Its43.38fps presentation rate is not game
+FPS. Flat starting terrain is not full landscape-parity or device-budget proof.
+Copied current media and sanitized receipt under ios-port-60deab70-*; publication
+pending. This is developer Simulator evidence, not independent review or iPhone
+installation. Live VPS/signing/physical device remain unqualified.
+
+New Menu -> Touch controls is a full-screen safe-area scroll view. Per-device
+version1 preferences offer0.5x/1x/2x look sensitivity, vertical inversion and
+editable left-to-right bindings for four movement buttons. Rebinding swaps the
+action's old slot, preserving exactly one Left/Forward/Back/Right action. Jump,
+Down, Break and Place remain dedicated controls. Isometric/City map pan is unchanged.
+Default bindings and1x normal look preserve prior behavior. Active protocol action
+IDs remain moveLeft/moveForward/moveBack/moveRight; no authoritative network rule
+or world schema changes. No performance or physical-device claim follows.
+
+Apply atomically saves a bounded4096-byte preferences file before installing the
+active profile. Cancel does not install drafts; Reset changes only the draft until
+Apply. Unsupported/corrupt/oversized files use defaults; malformed bindings recover
+to a valid permutation. Movement and recognizers are cleared on settings entry;
+closing resets frame time and held input. Resume reconstructs the button order.
+Finite look events cap at4096points per axis before sensitivity; nonfinite deltas
+are ignored. This bounds malformed input without changing normal touch drags.
+
+All47 native cases are required: prior45 plus settings validation/binding swap/
+look mapping/failed-save preservation and actual Cancel/Apply -> camera/movement ->
+relaunch persistence -> landscape Reset draft -> normal-look and pause regression.
+Video anchors only after the persisted custom settings have been reopened in the
+passing offline touch test. Same40-second/640x480/<6MB media gates and900/1200-second
+budgets remain.87 Linux harness tests passed; project generation, Python/shell
+syntax and diff checks passed. New Swift compilation and47-case execution have
+not run. Playtest: current touch workflow and actual media require exact-source
+controller Mac execution. No file deletions intended; hardcoded movement order
+and fixed look scale are replaced by validated per-device preferences.
+
+
+Rebased47-case deadline and touch-footer repair
+Exact sourceaad67cd61106fc34f1058429ae27446e70cfb35c failed run44688351165.
+Trusted verifiera9e8eed8 contains8a53afce. Java/terrain comparison, unsigned device
+archive, native build and install reached native_playtests. At the900-second
+child limit,22 cases had started,21 passed,0 failed,1 open,47 expected. Last open
+case was testSandboxCameraModesAimReachAndPersistence. This is a partial run,
+not a full native pass. Cleanup passed. Only a home-screen preflight image was
+returned and copied with verified SHA256; it proves no client behavior.
+
+Apply, Cancel, Reset defaults and draft/error status now stay in a fixed footer
+inside the safe area. All actions retain44x44-point minimum targets. Four binding
+rows scroll independently; content also respects horizontal safe areas. Test
+checks footer access/targets and the last binding in landscape, then resets and
+applies without scrolling to action buttons. One redundant offline load is
+removed. Cancel, Apply, sensitivity/inversion, binding swap, actual camera/movement,
+termination/relaunch persistence, landscape Reset and pause assertions remain.
+This reduces required UI work, but elapsed savings and the new layout are not
+measured until the next Mac run. All47 cases and900/1200-second deadlines remain.
+No required test, media bound or qualification gate is weakened.
+
+87 Linux harness tests and15 focused Java tests passed after rebase. Project
+generation, Python/shell syntax and diff checks passed.113 unrelated progress
+entries remain unchanged; no file deletions or unmerged paths. Only iOS/mobile
+source, tests, guides and this work's evidence/progress differ from review base
+a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef. No deletions intended; scrolling action
+placement is replaced by a footer while preserving actions and save behavior.
+Playtest: revised native controls and all47 cases need fresh exact-source Mac
+execution and actual media inspection. Full parity, second Simulator size, live
+VPS, signing/install, physical iPhone and independent review remain pending.
+
+
+UI-case launch reuse after aeec7ecf deadline
+Exact sourceaeec7ecf0d30cd0dce49c68b0af129ac7b7987ac failed run44691821274.
+Native build/install succeeded. Latest returned live counter at874seconds had
+20 started,19 passed,0 failed,47 expected. Deadline900s occurred with
+testPlanetAtmosphereNativeToggleAndLegacyWorld open. Final counts were not
+returned by the bounded collector. This is not a full pass. Cleanup passed; only
+preflight media was returned. Inspected/copy-verified image proves no gameplay.
+Trusted verifiera9e8eed8 contains reviewed capacity fix8a53afce.
+
+UI setup now reuses an existing app only when already foreground with a hittable
+normal game Menu or main-menu New world button. First launch, background/terminated
+apps, obstructing modals and unusable entries still launch normally. Each case
+retains its public-control fresh-world or sign-in setup. Every explicit cold
+restart/save persistence assertion inside the cases remains. Simulator-only
+memory/cancel launches use a helper that marks the case for process termination
+at teardown. Clearing launchArguments on the proxy cannot accidentally carry
+those runtime flags into a later reused case. The initial cold launch and the
+actual cold/relaunch acceptance routes are retained; per-case process reuse is
+limited to normal usable foreground state. Runtime savings/isolation need Mac
+qualification. No hidden app state, animation bypass or assertion skipping.
+
+87 Linux mock harness tests passed; project generation, Python/shell syntax and
+diff checks passed. All47 native methods remain required, all3 injected launch
+sites are fenced,113 unrelated progress entries preserved, no file deletions.
+No900/1200-second budget, clean-source, media or qualification gate changes.
+Playtest: revised setup and complete47-case native run need exact-source Mac
+execution and actual controls media inspection. Full port, another Simulator
+size, live service, signed delivery, physical iPhone and independent review stay
+pending. No deletions intended; unconditional launches are replaced with normal
+foreground reuse while all explicit cold-restart checks remain.
+
+
+Bounded trusted Mac budget repair after462e20a5
+Run44696424204 built/installed source462e20a512beaaaf547950ba2c3fc30d5ac9640f
+but hit900 seconds with21 started,20 passed,0 failed,1 open,47 expected. Last
+open case was testPlanetAtmosphereNativeToggleAndLegacyWorld. Cleanup passed.
+Trusted verifiera9e8eed8 contains8a53afce but still caps client execution at1200s.
+Only preflight image was returned; it was inspected and copied with verified hash.
+No full native, new controls media, physical-device or install pass is claimed.
+
+Three full47-case attempts hit this same resource limit despite reducing footer
+scrolling and launch overhead. Prepare a finite1500s native/1800s trusted-client/
+40-minute job budget instead of more guesses under the old cap. Native CLI
+rejects0/1501 and retains owned-process cleanup, recorder/export/media bounds and
+fail-fast. All47 cases and assertions remain required. Expired client budget stays
+failed/clientChecked=false and cleans up its assigned Simulator.89 Linux harness
+tests passed, including new cap boundaries/propagation/failure cleanup. Python,
+shell, YAML and diff checks passed.113 unrelated progress entries and all source/
+media retained; no file deletions intended. These are wall-time bounds, not a
+weaker gameplay or physical-device qualification.
+
+A bounded internal controller repair must independently review/integrate only
+the trusted verifier timeout/cleanup-test hunks and workflow job bound. Keep the
+feature-native runner changes on the assigned branch. Do not merge the full port
+for this repair. Verify the actual dispatched trusted checkout has1800 seconds,
+then resume exact-source47-case testing and inspect actual controls media. No
+owner answer is needed for this execution repair. Full parity, another Simulator
+size, live VPS, signing/install, physical iPhone and independent review stay open.
+Playtest: current proposed resource change has no Mac/native execution yet.
+
+
+PR88 fresh-checkout harness repair
+Hosted source5a6a97d29e1a3d194a2a38f7070b2aa7d364ee2f failed run44701160338
+in Verify exact checkout and tooling contracts. Simulator boot/evidence steps
+were skipped, so no game-client or media qualification exists for this check.
+Bounded tooling diagnostics identify FileNotFoundError in the diagnostic
+integration test because target/ did not exist. Its class runs before the class
+whose setup previously created that parent; local Maven output hid the issue.
+
+Moved ignored target/ parent initialization into unittest setUpModule, preserving
+all existing scratch, source/cleanliness rules, assertions and47 required native
+cases. Reproduced the exact old failure in fresh copied tooling with target/
+absent:24 tests,1 error. Fresh post-fix run passes24 tests; full Linux harness
+passes89 tests. Python/shell syntax and diff checks pass.113 unrelated progress
+entries retained; no file deletions intended. Only directory initialization
+placement changes. No new ignore rule, test skip or gate reduction.
+Playtest: actual affected noninteractive unittest CLI exercised before/after.
+Browser playtesting does not apply. Fresh hosted checks and full native game
+run/media remain pending, along with trusted-master budget repair, physical
+iPhone/signing, live service, remaining parity and independent review.
+
+
+Independent versioned iPhone delivery tooling
+The internal trusted-budget repair remains queued/unverified. Continue available
+engineering without repeating an unchanged hosted wait or claiming qualification.
+New ios/device-delivery.py builds an explicit Release generic-iPhoneOS arm64
+archive tied to clean exact Git source, release version and build. Existing
+Simulator/Debug defaults remain version1.0/build1; source Info.plist now resolves
+standard MARKETING_VERSION/CURRENT_PROJECT_VERSION settings. The generated
+project adds Release configurations with testability off; native tests stay Debug.
+Real Xcode builds for this new source have not run yet.
+
+Unsigned mode packages a versioned .xcarchive ZIP and SHA256 receipt and marks
+it not_installable_unsigned. Signed local modes require existing protected
+xcconfig/ExportOptions inputs; no actual owner signing material was read. Xcode
+receives those inputs only for an explicit signed request. Export is forced
+local, with symbol upload and version mutation off and no provisioning-update
+flag. Both archive/export signatures must verify against Apple's certificate
+anchor and have an embedded profile; profile/account/device contents are not
+decoded or published. Receipts contain only source/version/build/platform,
+artifact checksum/size and qualification status. Signed receipts still record
+installStatus=not_attempted, uploadStatus=not_attempted, physical=pending.
+
+The validator checks Info.plist identity/version/iPhoneOS metadata, arm64
+MH_EXECUTE and LC_BUILD_VERSION platform2, rejecting arm64 Simulator platform7.
+Private outputs are fresh/versioned,0700 and Git-ignored. Protected export options
+are0600. Artifacts cap at20000 files/1GiB; IPA extraction rejects traversal, aliases,
+duplicates, symlinks and unsupported top-level roots (Payload/SwiftSupport only).
+Metadata caps64KiB and load-command data1MiB. Existing outputs are never overwritten.
+Archive/export commands cap at600/180seconds; timeout kills/reaps only their owned
+process group. No actual archive/IPA was signed or installed by these local tests.
+
+DEVICE-INSTALL.txt documents Mac/signing/device prerequisites, versioned local
+export, private artifact handling, registered-phone installation/update checks and
+TestFlight as an existing-access route. RELEASE-NOTES.txt labels the candidate
+unreleased and states current gaps. Apple primary docs were checked; no team,
+account, membership, invite, live upload or install was created. Full native
+qualification, actual versioned device artifact/checksums and owner installation
+remain required; mock artifact hashes are not release evidence.
+Playtest: local noninteractive device-tool CLI/help/Linux refusal and isolated
+mock-Xcode integration exercise normal unsigned/signed export, signing failure,
+metadata/simulator rejection, unsafe ZIPs, dirty/source-change rejection and owned
+command deadline. Browser playtesting does not apply to this build/export tool.
+Actual Mac/archive/export/install remains unexecuted.47 native cases remain
+required; full engine/live-service/physical-device and independent review gates
+stay open. No file deletions intended; fixed version strings are replaced by
+build settings with their existing defaults preserved.
+
+
+70a659b7 preflight screenshot timeout repair
+Run44728050237 passed hosted tooling contracts, verified boot of a fresh iPhone
+SE3/iOS18.5 on Xcode16.4/macOS15.8.2, then timed out at preflight screenshot.
+Report source/expected head70a659b73109d1e259392b5f28f15780e3a70edf match;
+mode=preflight,environmentReady=false,clientChecked=false,cleanup=passed and
+evidence is empty. No native app, new image/video or phone result is qualified.
+Actual workflow source3be5a444 contains independently reviewed8a53afce.
+
+Capture now retries once only for command timeout, on the same assigned UDID/
+filename. It removes only that incomplete capture, waits5 seconds if budget
+remains, caps each command at60s and the entire capture at125s. Other failures
+are not retried; exhausted/repeated timeout stays failed with cleanup. Both
+preflight and final client capture use this path and record attempt counts. Real
+PNG/size/hash, exact-source, installed-native-app and client-case gates remain.
+106 Linux harness tests passed, including all six new recovery/error/budget
+checks. Python compilation and diff checks passed.47 native methods and113
+unrelated progress entries retained; no file deletions intended.
+Playtest: affected capture integration exercised via mock simctl unittest CLI.
+Actual hosted capture needs a new exact-source check; no old or invented image
+was substituted. Full native/controls media, trusted execution-budget repair,
+real signed delivery and physical/device/live-service qualifications stay open.
+
+
+HTTPS gateway deployment increment (local qualification)
+Exact d14fcbaf hosted Linux, Windows, mac-intel, mac-arm and Simulator preflight
+checks passed. The downloaded preflight receipt matches that source and image
+checksum; the inspected image is the fresh Simulator home screen. It records
+clientChecked=false and one screenshot attempt. This does not qualify gameplay.
+
+The new deploy/mobile Nginx include/renderer prepares a concrete HTTPS origin for
+the existing loopback gateway. Literal values only; exclusive output creation;
+normal TLS1.2/1.3 trust; exact native routes;8192-byte body bound;16 peer/64 total
+concurrent requests; no proxy retry/cache/request or response buffering. Forwarded
+identity headers are removed. Authorization and Java's independent native-client
+guard remain. No production service, protected configuration or certificate was
+read, installed or reloaded. The renderer never reads private-key contents.
+
+GET /mobile/v1/health exposes only fixed gateway process liveness, with no account,
+session, world or game connection. It is deliberately not upstream readiness.
+Other game paths retain POST/auth/server authority and normal pinned Java TLS.
+The proxy disables request/error logging; its setup guide preserves production
+publication, certificate renewal and live qualification as controller work.
+
+Playtest: actual unprivileged Nginx1.22.1 from a checksum-verified Debian package,
+test-only localhost certificate and fresh synthetic Java Sandbox/City profiles.
+All31 CLI integration checks passed: normal trust rejects the fixture certificate;
+the explicit isolated trust context accepts TLS1.2/1.3; health, route/method/Origin/
+body/Host limits; authenticated movement ordering, edit/reach rejection, token
+revocation and reconnect resynchronization; City road/treasury regression; gateway
+loss returns502. Owned processes stop and private fixture directories are removed.
+No browser UI applies to this native-only HTTP integration.108 Linux harness
+tests and the actual renderer CLI normal/injection/overwrite checks passed.
+The18-case Java gateway suite passed with0 failures/errors/skips after correcting
+the new health test's numeric expectation (the bounded JSON parser returns1.0).
+The initial run had only that assertion failure; production parsing did not change.
+
+No file deletions are intended. The health branch adds one GET endpoint and moves
+the existing Origin guard before method dispatch; game mutation logic is retained.
+All47 required native cases and113 unrelated progress entries remain intact.
+The actual default-branch verifier still caps clients at1200 seconds. Independent
+bounded trusted-budget repair is still needed before a1500-second native run.
+Native controls/gameplay media, another Simulator size, remaining parity and
+landscape-first polish, live VPS, actual signed device export/install/update and
+physical iPhone performance/thermal/battery remain pending. No acceptance gate is
+reduced by this proxy increment or by the passing preflight.
+
+
+Native gateway redirect privacy and online Sandbox qualification
+The ephemeral URLSession now uses a stateless task delegate that refuses HTTP
+redirects with completionHandler(nil), including same-origin redirects. A3xx
+response produces a fixed public error. No authentication-challenge override,
+ATS exception, alternate trust store or game-server pin change was introduced.
+This prevents login bodies/bearers being deliberately forwarded to a redirect
+location; it does not claim that every network/platform qualification is complete.
+Apple delegate contract was checked against its primary Foundation documentation.
+
+A loopback-only redirect/capture pair lives solely in MobileFixtureHost. It stores
+only request/forward counters, never request bodies or header values. The ready
+receipt supplies the test origin through the generated XCTest scheme. The native
+48th required case submits a synthetic login, verifies the fixed refusal and no
+forwards, then uses the normal gateway for actual Sandbox movement, confirmed
+collection, inventory change, logout and reconnect persistence. Existing City
+planning/reconnect and every other native case remain required. Forms are never
+explicitly captured; the planned new captures show only the game world.
+
+Playtest: real Java loopback fixture test exercises both refusal and deliberate
+following of307 with a non-secret marker, verifying counter differences. This
+qualifies the fixture, not Swift URLSession or UIKit behavior. The existing actual
+Nginx/TLS/Sandbox/City CLI regression passed31 checks after the fixture change.
+108 Linux harness tests, scheme origin wiring, required-method parity and Python/
+shell syntax passed. The actual Swift/native48-case run and its new screenshots
+remain pending; no simulator or physical pass follows from the Linux fixture.
+The independently reviewed trusted-budget repair is still required before the
+next full native run. Existing private proposal/receipts and source edits remain.
+No file deletions are intended. A fixed-origin URLSession replaces only default
+redirect following; fixture endpoints are not part of production MobileGateway.
+18 existing Java gateway regression tests passed in197.624seconds; the new
+redirect-trap test passed separately in3.462seconds. Both used isolated synthetic
+profiles and real loopback HTTP. These are not Swift/native execution results.
+
+
+33b474f2 hosted dependency-resolution repair
+The PR Linux build failed before compilation/tests resolving the unchanged pinned
+LWJGL3.4.1 BOM. Its sanitized summary has0 suites; merge source1666d479 has parents
+a9e8eed8 and33b474f2. Other matrix jobs were cancelled and Simulator preflight was
+pending. None is a native/gameplay or platform pass. Official Maven Central now
+returns200 for that BOM; no dependency version or POM content changed.
+
+Desktop verify and native bootstrap compile now use-U to recheck missing releases
+after restoring Maven cache state. Maven documents this bounded CLI behavior; no
+retry loop,cache deletion,version downgrade,test skip or checksum relaxation was
+added. Actual hosted recovery still needs a new exact-head run.
+Playtest: actual isolated Maven CLI mirror/repository fixture first returns404;
+ordinary next validate makes0 BOM requests and fails despite availability; -U
+validate makes1 request and passes with the same public pinned BOM bytes. Then
+actual project-U validate and native bootstrap compile passed. Shell syntax and
+diff/POM audits passed. No browser or game UI applies to this build-step repair.
+All48 native cases and physical/live/signing/independent review gates remain.
+No file deletions are intended; unrelated source/assets/progress are preserved.

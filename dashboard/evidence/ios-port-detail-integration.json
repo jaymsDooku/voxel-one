@@ -1,0 +1,28 @@
+{
+  "source": "working edits after 1df5eeb76f037b0a2d5f42349922f56986eeaa31; exact source pending controller publication",
+  "status": "passed",
+  "suites": [
+    {
+      "name": "dev.jayms.MobileGatewayTest",
+      "tests": "3",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "6.255"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.125"
+    }
+  ],
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+  "playtest": "Actual isolated Java game/gateway login, edit observed by desktop protocol, reach rejection, logout and reconnect passed. Snapshot test preserves half-cell octree leaves and the authoritative flower-pot definition/fingerprint. Browser playtesting does not apply to this native/server contract. New native model/fraction placement/rendering/collision/persistence tests await Mac execution.",
+  "limits": [
+    "Synthetic profiles only; no live VPS or physical iPhone validation.",
+    "Initial parity test rejected its oversized response via request parser; fixed by canonical export comparison without relaxing parser limits."
+  ]
+}

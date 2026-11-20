@@ -2,14 +2,14 @@ Voxel One native iPhone client
 
 This is a UIKit/SceneKit app, rendered natively through Apple's graphics stack.
 It does not open the desktop game in Safari or stream desktop screenshots.
-The first client supports offline whole-block sandbox building and online
+The native client supports offline sandbox building with fractional/model geometry and online
 Voxel One sandbox / Voxel City One through the Java mobile gateway.
 
 Phone controls
 
-Hold the four direction buttons to walk. Drag the world to look. Jump, Break
-and Place use the selected hotbar stack. Scroll the hotbar to reach all nine
-slots. Bag swaps a stack into the selected hotbar slot. Pause stops local input;
+Hold the four direction buttons to walk. Drag the world to look. Break and Place
+use the selected hotbar stack. Hold Jump to jump again after landing. Scroll the
+hotbar to reach all nine slots. Bag swaps a stack into the selected hotbar slot. Pause stops local input;
 online simulation keeps running. Menu signs out of online play.
 
 Offline sandbox starts from Terrain.DEFAULT_SEED, generator version 3, exported
@@ -23,10 +23,25 @@ this release does not import desktop saves or simulate an offline city.
 Online sandbox keeps the existing game server's inventory, health, item drops,
 authentication, multiplayer edits and crafting rules. The initial phone UI exposes
 walking, jumping, whole-block edits, hotbar and inventory swaps. The desktop model
-editor, fractional-block tools, mounts, crafting UI and specialized transport or
-finance tools are not exposed by this first phone UI. Subdivided/model cells use a
-whole-block approximation for display/collision; use the desktop client to edit
-those structures precisely.
+editor, mounts and specialized transport or finance tools are not exposed by
+this phone UI. Craft now has a searchable, category-filtered book of all104 shared recipes,
+including cut/join, flower pots, sticks and eight tools. Offline uses the app catalog;
+online shows the gateway catalog, so an older gateway may offer fewer recipes.
+Shared itemsVersion1 defines199 inventory IDs. Tools stack at1, sticks at64;
+item-only tools cannot be placed as terrain. Held-tool models/equipment pose and
+offline overflow drops remain follow-up work. No mining/combat bonus is added.
+New clients request itemsVersion1 at login. Older clients receive block recipes;
+if item-only inventory requires an update, the gateway returns a fixed upgrade error.
+Batch selects1–64 recipes per transaction; costs/output update together. Online
+batches require gateway batchCrafting capability; older gateways stay at1.
+Offline insufficient ingredients or output space reject the entire batch.
+Owned/required ingredients appear on each row; missing ingredients or a full bag
+leave inventory unchanged. Crafting stops local movement while the book is open.
+The32-case Simulator suite passed at6b60c5d6388bc3fc8f91b57087896f6a3a67ff34.
+Item/tool, legacy migration and seeded terrain passed all36 native cases on
+b2518472. The current moving-window edits require a new40-case run.
+Schema2 snapshots retain octree/model leaf geometry for native rendering,
+collision and picking. Grid collects uniform subcell regions; mixed regions require a smaller grid.
 
 Online city starts in an isometric planning view. Plan/Walk switches views.
 Two fingers pan; pinch zooms. Tool selects Inspect, Dirt road, Residential,
@@ -60,7 +75,8 @@ For manual simulator play:
   open ios/build/VoxelOne.xcodeproj
 
 Choose the VoxelOne scheme and an iPhone Simulator. Run the app and choose New
-offline sandbox. For a physical phone, use your own Mac and Apple account/team,
+offline sandbox. The versioned device-export workflow, protected signing inputs,
+installation and update steps are documented in ios/DEVICE-INSTALL.txt. For a physical phone, use your own Mac and Apple account/team,
 change the app target's CODE_SIGNING_ALLOWED to YES and configure Signing &
 Capabilities before building to your connected iPhone. TestFlight/App Store
 publication and physical-device signing are separate steps; this check does not
@@ -85,6 +101,16 @@ a proxy or alter the current live services. Enter that HTTPS origin in the nativ
 app, choose Sandbox or City, then sign in or create an account on that game server.
 The phone uses standard system TLS trust. HTTP is accepted only for localhost
 simulator fixtures; remote cleartext URLs are rejected by the app.
+The ephemeral native URL session refuses all HTTP redirects, including redirects
+to the same origin. Enter the canonical HTTPS gateway origin directly. Redirect
+responses produce a fixed public error; passwords/bearers are never deliberately
+resent to a new location. Standard system TLS trust and server pinning remain.
+
+deploy/mobile/README.txt now supplies a literal Nginx HTTPS include renderer,
+process-liveness health contract and an actual isolated TLS/game integration
+check. It preserves the loopback gateway and pinned game-server transport. This
+prepares the VPS path; no production proxy or certificate was installed. Root must
+review/integrate its configuration before live native Sandbox qualification.
 
 The gateway never reads an account database. Passwords are forwarded only through
 the existing pinned-TLS login path, and no credentials are retained by the app.
@@ -114,3 +140,257 @@ To regenerate the bundled starter terrain intentionally before committing source
 
   mvn -q -DskipTests compile
   java -cp target/classes dev.jayms.net.mobile.MobileSnapshot ios/Resources/sandbox.json
+
+Device archive foundation
+
+  bash ios/archive-device.sh
+
+This builds ios/build/VoxelOne.xcarchive for generic arm64 iOS 16+ without signing.
+It is NOT installable on an iPhone. The Mac simulator check also builds this device
+archive before running the native test suite. Signed export and owner installation
+remain separate delivery work. See PORT-PLAN.txt for the current parity gaps.
+
+Offline flight
+
+Fly toggles collision-aware flight in the local Sandbox. Hold Jump to rise and
+Down to descend. Let go to hover. Walk restores gravity. Movement remains bounded
+to the loaded area and known snapshot ceiling. Flight mode resets to walking on
+world load; the saved position is retained. Pause, menu, graphics and backgrounding
+clear held input. Online flight is unavailable pending authoritative protocol work.
+
+Sandbox cameras
+
+Camera selects First person, Third person or Isometric. The choice survives app
+restart. Third person shows a simple local player capsule; its lens retracts near
+solid terrain. Isometric uses two fingers to pan and pinch to zoom. Walk input
+recenters the overview on the player. Tap terrain to aim, then Break or Place.
+A camera overview does not extend the player's five-block reach or see through
+walls for edits. City keeps its existing Plan/Walk controls. Orientation changes
+cancel held movement and reset the aim point.
+
+Detail contract
+
+Snapshot schema 2 carries contract version 1, material IDs and subdivisions from
+Java Blocks, model fingerprints/colored octree leaves, and per-cell fractional
+leaves. Native drawing, collision and ray picking use those boxes. Models keep their
+8/16/32 resolution; fractional world cells use 16. Missing detail or budget overflow
+is rejected, never replaced by a whole cube. Limits: 512 partial cells and 32,768
+expanded model/fractional leaves per snapshot. New offline worlds include two
+flower pots and eight half-size dirt cubes for normal building. Old local schema 1
+saves migrate to the bundled contract while keeping their terrain and inventory.
+Uniform fractional regions can be collected at any supported grid depth. Pieces
+place against the exact aimed face, including another empty region in the same cell;
+filled regions merge back into full cells. Full tool and crafting parity is pending.
+
+Regenerate the checked-in contract from the authoritative Java definitions:
+
+  java -cp target/classes dev.jayms.net.mobile.MobileSnapshot --contract ios/Resources/contract.json
+
+Save worker
+
+Offline changes capture value-only world data on the main thread. A serial utility
+worker builds the save snapshot, validates it, encodes JSON and atomically replaces
+the file. The queue holds at most one active and one latest pending capture.
+Edit/craft success messages wait for saving; Menu waits before discarding the world.
+A failed save keeps the session open for retry. Background saves use a finite iOS
+background task; expiration does not promise that the newest change reached disk.
+The previous atomic file remains the recovery point if a write is interrupted.
+Swift dictionary copy-on-write can still copy storage on the next edit. Startup
+load/decode, generation and mesh rebuilding are separate remaining performance work.
+
+Offline loading
+
+Cold launch, Continue and New now read, decode, validate and migrate on a serial
+utility loader. The menu shows Loading/Creating Sandbox with Cancel. Continue
+waits for pending saves to drain. One loader may execute at a time; cancellation
+invalidates its result, and a newer intent waits rather than adding another worker.
+Local saves are limited to 16,000,000 bytes on both write and read. Invalid data
+fails without replacing the source file; migration does not write until the loaded
+world starts successfully. Scene/world construction and meshing still run on main.
+
+Bounded mesh preparation
+
+Terrain preparation uses one serial utility worker and one latest pending value
+capture. No mutable live world or SceneKit node crosses to that worker. It creates
+a private detached rule model and emits pages of at most 4,096 vertices into a
+four-page condition queue. The main actor installs at most two pages per frame.
+Nearby chunks prepare first; old chunks remain until replacement starts. Unchanged
+network geometry does not restart preparation. SceneKit objects stay on the main
+actor. Menu/background cancels stale generations; resume rebuilds current terrain.
+On a memory warning the app pauses, cancels prepared work and drops meshes more
+than 16 blocks from the player. Resume rebuilds. These caps are initial engineering
+limits, not measured physical iPhone memory/frame-time/thermal qualifications.
+
+Native test deadline diagnostics
+
+The simulator script runs xcodebuild tests through ios/native-test-runner.py with
+a900-second child deadline, within the controller's1200-second client budget.
+A timeout remains a failed check. Only a bounded, validated last-test identifier
+is added to sanitized failure diagnostics; raw test/fixture logs remain private.
+All40 required native cases still must pass. Linux child-process tests do not
+qualify the running iPhone client.
+
+Fine-grid editing
+
+Grid selects Whole/hit piece,1/2,1/4,1/8 or1/16 collection cubes. Placement always
+uses the selected inventory item's actual size. Smaller pieces attach to the aimed
+voxel face and snap to the matching subcell grid. Collecting a nonuniform region
+asks for a smaller grid; full bags and player-overlap placement reject atomically.
+Models stay whole-cell items with their accurate tiny geometry. Online fine edits
+require the gateway's fineEdits capability and retain authoritative inventory,
+reach, depth and subcell validation. An older gateway needs updating first.
+
+Native seeded terrain milestone (b2518472 Simulator validation)
+New worlds now generate their bounded49×49 view in Swift on the existing offline
+load worker. New world accepts signed64-bit seeds, rejects invalid values before
+replacement and saves seed plus generatorVersion. Terrain/Geography versions1–3
+follow Java noise, caves, rivers/oceans, biomes, mineral and tree rules.10,080 Java
+golden samples plus a full window hash are checked by native tests and refreshed
+against current Java during Mac validation. All36 cases passed on b2518472; this
+proves the tested generator/geometry subset, not full engine or device parity.
+Legacy saves without generatorVersion retain their saved finite patch. The new
+moving-window increment below awaits its own native run. Distant terrain remains
+unfinished; do not call this an infinite world.
+App generation has no Java/LWJGL dependency. Column/field caches cap at8192 entries
+each; generation work and cancellation use the existing bounded loader. Physical
+frame-time, memory, thermal and battery qualification remain pending.
+
+Native builds now use standard Swift -O for app and native rules; testability and
+all XCTest cases/assertions stay enabled. The900-second suite limit remains.
+The seeded terrain sample/window parity check must pass with these settings.
+Do not substitute -Ounchecked or fast-math. Simulator/test observer timings do
+not establish physical-device frame time, memory, thermal or battery budgets.
+
+New offline confirmation uses seed748291 by default without opening a keyboard.
+Choose Change seed to enter another signed64-bit seed. Invalid input disables
+New world; Cancel preserves the saved world. Both paths generate native terrain.
+
+
+Moving terrain window (new source; native validation pending)
+Generated Sandbox worlds load49x49 columns around the player and move in8-column
+steps. A bounded utility worker prepares the next region while the current one
+remains playable. Loaded edges retain collision while waiting. Both horizontal
+travel and vertical digging/flying adjust the window. At most120,000 resident
+cells, one terrain request,4 ready mesh pages and2 page installs/frame are kept.
+The world safety domain is +/-1,000,000 columns and y=-32..95. This is not a
+physical-device frame-rate or memory claim.
+
+Edits persist outside the loaded region, including removed blocks, models and
+fractional cells. Limit:8192 changed cells,512 partial cells and32768 detail
+leaves across the edit journal, with a16MB save cap. At capacity, a new-cell edit
+is rejected before consuming/collecting items. Existing changed cells can still
+be edited subject to detail caps. Old versioned saves compare against their
+original generator off-main; a save with more than8192 differences keeps its
+complete finite patch. Unversioned saves remain finite. Streaming does not
+convert a desktop save file or sync offline saves between phones.
+
+Mac qualification now requires all40 native cases, including travel beyond the
+old x=24 boundary, restart and return. The earlier36-case b2518472 pass does not
+qualify these edits. Signed installation, another Simulator size/video, live
+service qualification and physical iPhone testing remain pending.
+
+Mac playtest video uses only the supplied Simulator. The private raw recording
+stays in ignored ios/build. Numeric timings select the fixed, passing offline
+streaming test; AVFoundation exports at most40 seconds with metadata removed,
+below6MB. No optional ffmpeg installation is required. A missing recording,
+range or export fails qualification rather than silently omitting video. This
+new capture path awaits the controller Mac run and media inspection.
+
+
+Native validation cleanup bounds
+The recorder is owned/reaped by ios/native-test-runner.py with SIGINT10 seconds,
+TERM2 seconds and KILL/reap2 seconds. Forced shutdown is a validation failure.
+Fixture shutdown checks the shell's owned job table and allows5 seconds before
+KILL. AVFoundation export allows60 seconds plus2 seconds for process-group reap.
+Fixed phase markers, live test
+counts every30 seconds and final counts survive later media failure through the
+existing bounded diagnostic collector; no raw logs or form values are evidence.
+All40 native cases, the900-second child cap and1200-second outer cap remain.
+Mac source fe16c49e timed out without native proof; this repair awaits rerun.
+
+
+Distant landscape preview (new source, native validation pending)
+Source ea0a95ab passed all40 moving-window and prior native cases; its actual
+40-second video was inspected but is only108x192. New export uses the640x480
+preset with a5,500,000-byte target, retaining a strict below6MB artifact gate.
+This output quality still needs Mac inspection.
+
+Versioned offline Sandbox adds a coarse surface beyond loaded voxels, using the
+same seeded generator and known journal heights/colors. During high flight,
+ground below the loaded band remains visible as a distant surface. Initial radius is the
+smaller of detail distance and96 blocks. It never grants editing or collision
+outside the exact loaded window. Tiny models/trees are omitted at distance;
+exact nearby models and fractional cells stay in the resident mesh. Online and
+unversioned legacy worlds do not synthesize an unseen far world. This is an
+initial bounded preview, not full desktop LOD or cross-platform save parity.
+
+Bounds:4096 sampled columns,16384 quads,4096 vertices/page,4 ready pages and2
+page installs/frame. The existing single mesh worker handles both layers and
+cancels stale generations; memory warning drops distant nodes until resume.
+These are engineering caps, not measured device memory/frame-rate claims.
+All42 native cases and new screenshot/video inspection remain pending.
+
+
+Distant landscape cache repair (native qualification pending)
+Source989ec634 reached18 started/17 passed/0 failed of42 at873 seconds, then
+hit the900-second child deadline. It did not qualify the client or larger video.
+One bounded far cache now avoids repeated generation and SceneKit installation
+for nearby edits, pose or inventory changes. Only a completely installed mesh
+can reuse its nodes; an incomplete one replays pages. Bounds, radius, material
+or far edits invalidate it. Memory warning/cancellation evicts cached values and
+fences late results. Far preview nodes do not cast coarse shadows; close geometry
+keeps its existing lights/shadows. One cache holds at most16 pages. Resource caps
+are engineering choices, not measured physical-device memory or speed claims.
+All43 native cases, actual gameplay media and independent review remain required.
+
+
+Distant landscape graphics option (native qualification pending)
+Graphics -> Distant landscape (experimental) -> Apply enables the coarse far
+preview. It is off by default in every preset and older graphics profile until
+its device budget is qualified. The setting persists across app restart. Cancel
+keeps the working profile; disabling releases far nodes/cache and pending work.
+Nearby chunks still stream with exact voxel/model collision and editing.
+
+All43 native cases remain required. The distant workflow explicitly enables
+the option and exercises horizon/reach, detail32, persistence, memory recovery
+and disabling. The video window begins at the prepared-world checkpoint in that
+passing case, not at a menu. Missing checkpoint or incomplete case fails media
+qualification. Source ea7debd0 timed out with only partial progress; this control
+and capture change need a new exact-source Mac run and actual media inspection.
+
+
+Saved world time and daylight (new source; native validation pending)
+Rebased source a77e0e4b passed all43 native cases. Its actual360x640/39.15-second
+video was inspected; this does not prove physical-device performance or signing.
+
+Offline Sandbox now has Time controls. Run day/night advances while actively
+playing; Freeze time and Dawn/Daylight/Sunset/Midnight presets hold the chosen
+hour. New worlds match desktop Sandbox's fixed10:00/1200-second-day defaults.
+Older saves keep their existing light until Time is configured. Pause, settings,
+background and menus do not advance time; stalled frames never catch up more
+than1 second. The optional version1 clock is saved atomically with the world.
+Clock changes update light, not geometry; online time stays owned by the server.
+
+Basic directional/ambient/sky lighting reflects day and night without enabling
+planetary scattering. Night keeps an artistic ambient floor for playability;
+physical lighting/GPU budgets remain unmeasured. The sun vector matches six
+Java-generated values in terrain-fixtures.json. This is not full desktop lighting
+or City schedule parity. All45 native cases and new actual night/day media need
+a fresh controller Mac run before this increment is qualified.
+
+
+Touch controls (new source; native validation pending)
+Source60deab70 passed all45 native cases, including saved world time/daylight.
+Its actual32.53-second native video and model screenshot were inspected.
+
+Menu -> Touch controls edits local0.5x/1x/2x look sensitivity, vertical inversion
+and the order of four movement actions. Changing one binding swaps its old slot,
+so every direction stays available. Apply saves on this phone; Cancel keeps the
+current controls; Reset defaults edits the draft. Jump, Down, Break and Place
+keep their own buttons. Changes apply when resuming offline or joining online;
+City/isometric map pan retains its existing behavior. No server rule changes.
+
+Preferences use a separate version1 atomic JSON file capped at4096bytes. Corrupt,
+oversized or unsupported data uses defaults. Settings stop held input and clear
+old drag state. New47-case Mac execution and actual touch-settings video remain
+pending; this does not establish iPhone signing/install or physical performance.

@@ -1,0 +1,20 @@
+{
+  "sourceHead": "b25184722108b4ff9514ec92e3162f44024820ee",
+  "trustedVerifierHead": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44654525025",
+  "status": "passed",
+  "platform": "iPhone SE (3rd generation) Simulator, iOS 18.5, Xcode 16.4, macOS 15.8.2",
+  "nativeCases": 36,
+  "image": "ios-port-b2518472-native-model.png",
+  "imageSha256": "cfe55db89e2c8035ea3f666a51768760a73d60ce8ab7e52c3ee7084b43719489",
+  "publication": "Pending controller publication",
+  "Playtest": "Controller ran actual native client checks: cold boot, saved world, movement, whole/fractional/model edits, inventory/crafting and batch transactions, lifecycle, local authenticated gateway, City and graphics regressions. Screenshot inspected: native Sandbox terrain, exact flower-pot mesh and touch HUD. No video returned. This receipt applies only to the recorded source head.",
+  "qualificationPending": [
+    "Additional iPhone Simulator size and short gameplay video",
+    "Moving terrain streaming and remaining engine parity",
+    "Live VPS service playtest",
+    "Signed iPhone artifact and installation",
+    "Physical iPhone frame time, stalls, memory, thermal and battery measurements",
+    "Independent exact-head reviewer run"
+  ]
+}

@@ -2,27 +2,43 @@ package dev.jayms.net.mobile;
 
 import dev.jayms.net.*;
 import dev.jayms.net.city.*;
+import dev.jayms.net.model.*;
 import java.util.*;
 
-/** Whole-block mobile view of the same authoritative terrain and edit stream. */
+/** Versioned mobile view retaining authoritative fractional and model leaf geometry. */
 public final class MobileSnapshot {
     private MobileSnapshot() {}
     public static Map<String,Object> capture(WorldVoxels world, Terrain terrain, Protocol.Pose pose,
             Inventory inventory, int health, CityFrame city, String notice, int radius) {
+        return capture(world,terrain,pose,inventory,health,city,notice,radius,new ModelLibrary());
+    }
+    public static Map<String,Object> capture(WorldVoxels world,Terrain terrain,Protocol.Pose pose,
+            Inventory inventory,int health,CityFrame city,String notice,int radius,ModelLibrary models) {
         if(radius<8 || radius>24)throw new IllegalArgumentException("Invalid view radius");
         int cx=(int)Math.floor(pose.x()),cz=(int)Math.floor(pose.z());
         int low=Math.max(Terrain.MIN_Y,Math.min(Terrain.MAX_Y-8,(int)Math.floor(pose.y())-8)), high=Math.min(Terrain.MAX_Y,(int)Math.floor(pose.y())+36);
-        var cells=new ArrayList<List<Integer>>();
+        var cells=new ArrayList<List<Integer>>();var details=new ArrayList<Map<String,Object>>();
+        Set<Integer> usedModels=new TreeSet<>();usedModels.add(Blocks.FLOWER_POT);
+        for(int slot=0;slot<Inventory.SIZE;slot++)if(inventory.count(slot)>0 && Blocks.isModel(inventory.type(slot)))usedModels.add(inventory.type(slot));
+        int expanded=0;
         for(int x=cx-radius;x<=cx+radius;x++)for(int z=cz-radius;z<=cz+radius;z++)for(int y=low;y<=high;y++){
             int type=world.type(x,y,z);
-            // A subdivided cell uses its center material in the initial whole-block touch client.
-            if(type==Blocks.PARTIAL)type=WorldVoxels.decode(world.cell(x,y,z).get(8,8,8));
-            if(type!=0)cells.add(List.of(x,y,z,type,WorldVoxels.color(type)&0xffffff));
+            if(type==Blocks.PARTIAL) {
+                var geometry=geometry(world.cell(x,y,z),false);
+                details.add(Map.of("cell",List.of(x,y,z),"geometry",geometry));
+                expanded+=((List<?>)geometry.get("leaves")).size();
+            } else if(Blocks.isModel(type)) {
+                var model=models.get(type);if(model==null)throw new IllegalArgumentException("Mobile model definition unavailable");
+                usedModels.add(type);expanded+=model.definition().voxels().leaves().size();
+            }
+            if(expanded>32768 || details.size()>512)throw new IllegalArgumentException("Mobile detail budget exceeded");
+            if(type!=0)cells.add(List.of(x,y,z,type,type==Blocks.PARTIAL?0:WorldVoxels.color(type)&0xffffff));
         }
         var slots=new ArrayList<List<Integer>>();
         for(int i=0;i<Inventory.SIZE;i++)slots.add(List.of(inventory.type(i),inventory.count(i)));
         var result=new LinkedHashMap<String,Object>();
-        result.put("schema",1);result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));
+        result.put("recipes",recipeCatalog());
+        result.put("schema",2);result.put("details",details);result.put("contract",contract(models,usedModels));result.put("game",city.config().city()?"city":"sandbox");result.put("seed",Long.toString(terrain.seed));result.put("generatorVersion",terrain.version);
         result.put("bounds",List.of(cx-radius,cx+radius,low,high,cz-radius,cz+radius));
         result.put("pose",List.of(pose.x(),pose.y(),pose.z(),(float)Math.toRadians(pose.yaw()),(float)Math.toRadians(pose.pitch())));result.put("cells",cells);
         result.put("inventory",slots);result.put("health",health);result.put("notice",notice);
@@ -33,10 +49,7 @@ public final class MobileSnapshot {
         for(double v:new double[]{atmosphere.molecularScale(),atmosphere.aerosolScale(),atmosphere.absorptionCentre(),atmosphere.absorptionWidth(),atmosphere.anisotropy()})values.add(v);
         for(var v:List.of(atmosphere.groundAlbedo(),atmosphere.solarIrradiance())){values.add(v.x());values.add(v.y());values.add(v.z());}values.add(atmosphere.solarRadius());
         result.put("atmosphere",Map.of("version",1,"enabled",atmosphere.enabled(),"values",values));
-        double angle=(city.config().hour(city.elapsed())-6)/24*Math.PI*2;
-        double sx=Math.cos(angle),sy=Math.sin(angle),sz=-.35;
-        double length=Math.sqrt(sx*sx+sy*sy+sz*sz);
-        result.put("sun",List.of(sx/length,sy/length,sz/length));
+        result.put("sun",sunDirection(city.config().hour(city.elapsed())));
         if(city.config().city()){
             var c=new LinkedHashMap<String,Object>();c.put("time",city.config().time(city.elapsed()).label());
             c.put("treasury",city.economy().budget());
@@ -48,7 +61,46 @@ public final class MobileSnapshot {
         }
         return result;
     }
+    /** Shared clock/light contract used by snapshots and native golden fixtures.
+     * StrictMath keeps the golden JSON identical across Linux and hosted Macs. */
+    public static List<Double> sunDirection(double hour) {
+        if(!Double.isFinite(hour)||hour<0||hour>=24)throw new IllegalArgumentException("Invalid hour");
+        double angle=(hour-6)/24*Math.PI*2;
+        double sx=StrictMath.cos(angle),sy=StrictMath.sin(angle),sz=-.35;
+        double length=StrictMath.sqrt(sx*sx+sy*sy+sz*sz);
+        return List.of(sx/length,sy/length,sz/length);
+    }
+    public static Map<String,Object> geometry(SparseVoxelOctree tree,boolean model) {
+        var leaves=tree.leaves().stream().map(leaf->List.of(leaf.x(),leaf.y(),leaf.z(),leaf.side(),
+            model?Blocks.FLOWER_POT:WorldVoxels.decode(leaf.color()),
+            (model?leaf.color():WorldVoxels.surfaceColor(leaf.color()))&0xffffff)).toList();
+        if(leaves.size()>32768)throw new IllegalArgumentException("Mobile geometry budget exceeded");
+        return new TreeMap<>(Map.of("resolution",tree.size(),"leaves",leaves));
+    }
+    public static Map<String,Object> contract(ModelLibrary library,Set<Integer> ids) {
+        var materials=java.util.stream.IntStream.rangeClosed(1,189).mapToObj(id->new TreeMap<>(Map.of(
+            "id",id,"name",Blocks.name(id),"material",Blocks.material(id),"depth",Blocks.depth(id),"color",WorldVoxels.color(id)&0xffffff))).toList();
+        var models=ids.stream().sorted().map(id->{var e=library.get(id);
+            if(e==null)throw new IllegalArgumentException("Mobile model definition unavailable");
+            return new TreeMap<>(Map.of("id",id,"fingerprint",e.definition().fingerprint(),"geometry",geometry(e.definition().voxels(),true)));}).toList();
+        var items=java.util.stream.IntStream.rangeClosed(0,198).mapToObj(id->{var item=Items.get(id,library);
+            return new TreeMap<>(Map.of("id",id,"name",item.name(),"category",item.category(),"stackLimit",item.stackLimit(),"placeableBlock",item.placeableBlock()));}).toList();
+        return new TreeMap<>(Map.of("version",1,"fineEdits",true,"batchCrafting",true,"itemsVersion",1,"items",items,"materials",materials,"models",models));
+    }
+    /** Full authoritative catalog, including item-only tools. */
+    public static List<Map<String,Object>> recipeCatalog() {
+        return Crafting.recipes().stream().map(r -> {
+            return (Map<String,Object>)new TreeMap<String,Object>(Map.of("id",r.id(),"name",r.name(),"category",r.category(),"inputs",r.inputs().entrySet().stream()
+                .map(e->List.of(e.getKey(),e.getValue())).toList(),"output",r.output(),"count",r.count()));
+        }).toList();
+    }
     public static void main(String[] args) throws Exception {
+        if(args.length==2 && args[0].equals("--contract")) {
+            java.nio.file.Files.writeString(java.nio.file.Path.of(args[1]),Json.write(contract(new ModelLibrary(),Set.of(8))));return;
+        }
+        if(args.length==2 && args[0].equals("--recipes")) {
+            java.nio.file.Files.writeString(java.nio.file.Path.of(args[1]),Json.write(recipeCatalog()));return;
+        }
         if(args.length!=1)throw new IllegalArgumentException("Usage: OUTPUT_JSON");
         var terrain=new Terrain(Terrain.DEFAULT_SEED);var world=new WorldVoxels(terrain);
         int y=terrain.surfaceHeight(0,0)+1;var inventory=new Inventory();

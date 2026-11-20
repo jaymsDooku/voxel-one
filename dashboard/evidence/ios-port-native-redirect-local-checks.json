@@ -1,0 +1,65 @@
+{
+  "sourceBase": "855472c03dc72029f14a480aa09ff5cbc99f28a4",
+  "sourceState": "uncommitted native redirect refusal and synthetic online Sandbox workflow",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "change": "Stateless ephemeral URLSession delegate refuses redirects;3xx yields fixed public error. Normal system TLS/ATS/server pinning unchanged. Test-only loopback redirect/capture servers retain only counters. Native Sandbox workflow verifies refusal with0 forwards, then normal authoritative movement/collection and inventory reconnect.",
+  "commands": [
+    "mvn -q -o -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+    "timeout --kill-after=5s 40s mvn -q -o -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#syntheticRedirectTrapCountsOnlyRequestsAndForwards -Dsurefire.reportNameSuffix=redirect-fixture test",
+    "python3 deploy/mobile/test_proxy.py --nginx target/mobile-proxy/nginx/usr/sbin/nginx --report target/ios-checks/redirect-https-regression.json",
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 -m py_compile ios/make-project.py ios/check-results.py; bash -n ios/check-simulator.sh; git diff --check"
+  ],
+  "actualResults": [
+    {
+      "scope": "existing gateway regressions",
+      "tests": 18,
+      "status": "passed",
+      "seconds": 197.624
+    },
+    {
+      "scope": "new redirect trap",
+      "tests": 1,
+      "status": "passed",
+      "seconds": 3.462
+    },
+    {
+      "scope": "real isolated Nginx/TLS/Sandbox/City regression",
+      "tests": 31,
+      "status": "passed"
+    },
+    {
+      "scope": "Linux harness/mock contracts",
+      "tests": 108,
+      "seconds": 11.071,
+      "status": "passed"
+    },
+    {
+      "scope": "Python/shell syntax,diff and generated test-origin wiring",
+      "status": "passed"
+    }
+  ],
+  "Playtest": "Actually exercised Java redirect trap over loopback HTTP: refusal leaves forward count0; deliberately following with a non-secret marker reaches the second origin and increments its counter. Actual31-check HTTPS Sandbox/City regression passed after fixture changes. This qualifies the fixture/integration only. Swift delegate and new UIKit48-case workflow have not executed; no native or physical claim follows Linux tests. Browser playtesting does not apply to these native gateway/CLI integrations.",
+  "nativeGate": "All48 native methods exactly match required list; every original47 retained. The new method is testOnlineSandboxRedirectPrivacyEditAndReconnect. No skip or receipt/source/media relaxation.",
+  "media": "New native network captures are pending Mac execution. Existing855472c0 image is explicitly preflight-only and does not show this change. No form/credentials are explicitly captured by the new test.",
+  "remaining": [
+    "Independent trusted-budget repair before full48-case native run and media",
+    "Another Simulator size",
+    "Remaining engine/landscape-first parity",
+    "Live native secure VPS and remote players",
+    "Actual signed artifact/export/install/update",
+    "Physical iPhone gameplay/FPS/memory/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "intendedDeletions": "No file deletions. Default redirect following replaced;required native count47->48;existingfixtureclose includes its new owned HTTP listeners.",
+  "reference": "https://developer.apple.com/documentation/foundation/urlsessiontaskdelegate/urlsession(_:task:willperformhttpredirection:newrequest:completionhandler:)",
+  "sourceSha256": {
+    "ios/VoxelOne/Gateway.swift": "de311b6ff6af3de6269d742f803e77fe20dcafd008360995feee90117b505a45",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "080e7509fa8c7ecedbe14ff2b794e73b03521c545fbd68ad4388bc3900f9c624",
+    "ios/check-results.py": "00b5ef47ea56c05cbc9b3f8400af65cda4d25ef3f61fcca1377daa71790c0d84",
+    "ios/check-simulator.sh": "8285821ae01c9a3bfa8583ab3cd1625889038a53b7e5e637e782be9765b8927b",
+    "ios/make-project.py": "e7d43eac0fc26a8eea31f8980be8e83159438b81e5a6a0befa299ec17912d3e8",
+    "src/main/java/dev/jayms/net/mobile/MobileFixtureHost.java": "291efbe58ec418d24b69cb30071ecbc103ab9ae0c1ec324c3b80ba75e30e2305",
+    "src/test/java/dev/jayms/MobileGatewayTest.java": "0bf405b34f71776ea8887edb198a34bac5a16e9d87124f98866930b88533d9c7"
+  }
+}

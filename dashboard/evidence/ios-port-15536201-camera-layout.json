@@ -1,0 +1,10 @@
+{
+  "sourceHead": "155362017a913380b2399b8bcf0261a21ac829e7",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/43676042699",
+  "status": "failed",
+  "clientChecked": false,
+  "exitCode": 65,
+  "reportedFailure": "testSandboxCameraModesAimReachAndPersistence: Camera isHittable assertion immediately after landscape rotation, source line228;31.167 seconds",
+  "repair": "Apply HUD compact layout on bounds/transition completion. Require bounded hittability and actual camera mode selection in landscape and portrait.",
+  "limits": "No other native test passes inferred from failed suite. No game image returned; preflight is not gameplay evidence. Changed source still needs exact-source Mac validation."
+}

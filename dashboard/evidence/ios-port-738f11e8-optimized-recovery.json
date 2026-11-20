@@ -1,0 +1,54 @@
+{
+  "sourceHead": "738f11e89842f06025b95bfb6f523945595c7beb",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44638759661",
+  "observedResult": {
+    "status": "failed",
+    "exitCode": 124,
+    "deadlineSeconds": 900,
+    "started": 16,
+    "passed": 15,
+    "failed": 0,
+    "unfinished": 1,
+    "required": 36,
+    "openCase": "NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld"
+  },
+  "trustedVerifierHead": "8a53afce99e735a7574bffab70558252577b387b",
+  "trustedVerifierCheck": "GitHub Actions run metadata: workflow_dispatch, head_branch master, head_sha exact reviewed validator commit. Workflow checks out validator at github.sha.",
+  "changes": [
+    "Standard Swift -O replaces -Onone for app and directly compiled rules. No -Ounchecked or fast-math.",
+    "All36 native cases and900-second deadline retained.",
+    "Bounded hashed test timing and last allowlisted atmosphere step captured before teardown."
+  ],
+  "executedChecks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "76 passed; Linux mocks/harness only"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/make-project.py ios/native-test-runner.py tools/ios/test_native_deadline.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh ios/archive-device.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "Playtest": "No complete gameplay result or client media returned by failed source738f11e8 run. Fresh optimized exact-source36-case Simulator run is pending. Browser playtesting does not apply to native app/compiler/harness changes.",
+  "limits": [
+    "Cause remains an inference until new timing evidence returns.",
+    "No current native pass, physical-device qualification or installable signed artifact claimed.",
+    "Prior native media is historical and remains labelled by exact source."
+  ],
+  "diffAudit": {
+    "reviewBase": "8a53afce99e735a7574bffab70558252577b387b",
+    "deletedFiles": []
+  }
+}

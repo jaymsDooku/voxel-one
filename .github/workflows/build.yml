@@ -32,7 +32,8 @@ jobs:
           distribution: temurin
           java-version: '17'
           cache: maven
-      - run: mvn --batch-mode verify
+      # Recheck missing releases after restoring Maven's cached resolution state.
+      - run: mvn --batch-mode -U verify
       - name: Check bundled MP3 decoder in shipped client
         run: java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java
       - name: Summarize Maven tests without runtime data

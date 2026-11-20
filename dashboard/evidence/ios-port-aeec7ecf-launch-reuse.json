@@ -1,0 +1,72 @@
+{
+  "sourceBase": "aeec7ecf0d30cd0dce49c68b0af129ac7b7987ac",
+  "sourceState": "uncommitted UI-case launch reuse; fresh exact-head Mac qualification pending",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44691821274",
+  "observedFailure": {
+    "sourceMatched": true,
+    "status": "failed",
+    "clientChecked": false,
+    "cleanup": "passed",
+    "exitCode": 124,
+    "timeoutSeconds": 900,
+    "latestReturnedLiveCounter": {
+      "started": 20,
+      "passed": 19,
+      "failed": 0,
+      "expected": 47,
+      "elapsedSeconds": 874
+    },
+    "deadlineOpenCase": "NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld",
+    "finalCounts": "not returned by bounded diagnostic collector; full suite unqualified"
+  },
+  "repair": "Reuse a running foreground app only when its normal Menu or game Menu button exists and is hittable. Other states still launch. Each case retains its normal fresh-world/sign-in setup through public controls. All explicit in-case terminate/relaunch assertions remain. Three simulator-only memory/cancel launches use a helper that forces termination at teardown, even if launchArguments was later cleared on the proxy.",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "87 passed in10.461s; Linux mock harness only"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/check-results.py ios/native-test-runner.py ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "AST source/required-case inventory and fixture-launch/review-base audit",
+      "result": "47 unique native test methods required; all3 injected launch sites use forced teardown;113 unrelated progress entries preserved;zero deleted files"
+    },
+    {
+      "command": "gh api repos/jaymsDooku/voxel-one/actions/runs/44691821274 --jq {head_sha,event,conclusion}; git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+      "result": "observed workflow_dispatch trusted verifiera9e8eed8 contains independently reviewed capacity fix8a53afce"
+    }
+  ],
+  "unchanged": "All47 cases and assertions, explicit cold-restart checks, initial cold launch,900-second child/1200-second outer bounds, clean exact-source checks, media gates, independent review and physical-device requirements.",
+  "Playtest": "Failed source built and installed the app, but reached900s without a full pass. Only the actual Simulator home-screen preflight image was returned; inspected and copied with verified hash. Revised case setup, fixture isolation, complete47-case UI/model run and actual touch-controls media remain unexecuted. Browser playtesting does not apply to this UIKit/SceneKit client. No physical iPhone, live VPS or install claim.",
+  "media": {
+    "file": "ios-port-aeec7ecf-preflight-only.png",
+    "bytes": 1105460,
+    "sha256": "796477bfca4120e9164dc7f41a0f502a3158e7b4ebd92d8ef371cc718d9d6ebe",
+    "publication": "pending controller publication; preflight only"
+  },
+  "intendedDeletions": "No file deletions. Removed unconditional per-case launch; replaced only when a usable normal foreground entry already exists. Simulator fixture launches retain their termination/relaunch semantics and force a clean following process.",
+  "qualificationPending": [
+    "Complete47-case native pass and actual controls media",
+    "Measured suite-time improvement and case isolation",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed iPhone artifact/install",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "f93739b38621c3247e6ea8b80db28a39ef88582d9149fc4005c3051611874d6c"
+  }
+}

@@ -16,6 +16,10 @@ import uuid
 import zlib
 from client_diagnostics import stage_artifacts
 
+# Full native suite wall time, not a gameplay/device-performance qualification.
+CLIENT_TIMEOUT_SECONDS = 1800
+SCREENSHOT_BUDGET_SECONDS = 125
+
 
 class CheckError(Exception):
     def __init__(self, code, *, exit_code=None, timed_out=False):
@@ -23,6 +27,30 @@ class CheckError(Exception):
         self.code = code
         self.exit_code = exit_code
         self.timed_out = timed_out
+
+
+def capture_screenshot(run, udid, path, wait, attempted, *, now=time.monotonic):
+    """Retry one cold render-server timeout; never retry another error or fake media."""
+    deadline = now() + SCREENSHOT_BUDGET_SECONDS
+    for attempt in (1, 2):
+        attempted(attempt)
+        remaining = deadline - now()
+        if remaining <= 0:
+            raise CheckError('command_failed', timed_out=True)
+        try:
+            run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(path)],
+                timeout=min(60, remaining))
+            return
+        except CheckError as error:
+            if not error.timed_out or attempt == 2 or deadline - now() <= 5:
+                raise
+            # This is the fixed filename in this request's fresh evidence folder.
+            # Remove only our incomplete capture, never another source/artifact.
+            try:
+                path.unlink(missing_ok=True)
+            except OSError:
+                raise CheckError('media_file_invalid') from None
+            wait(5)
 
 
 def command(args, *, cwd, timeout=60, env=None):
@@ -239,7 +267,8 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             raise CheckError('simulator_not_booted')
         wait(2)
         report['phase'] = 'screenshot'
-        run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(output / 'preflight.png')])
+        capture_screenshot(run, udid, output / 'preflight.png', wait,
+                           lambda n: report.update(preflightScreenshotAttempts=n))
         report['evidence'].append({**media_metadata(output, 'preflight.png'), 'kind': 'image',
                                    'description': 'Fresh iPhone simulator home screen; environment preflight, not Voxel One client evidence.'})
         report['environmentReady'] = True
@@ -254,7 +283,7 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             client_env.update(IOS_SIMULATOR_UDID=udid, IOS_EVIDENCE_DIR=str(output), IOS_SOURCE_HEAD=expected_head,
                               IOS_RUNTIME_ID=runtime['identifier'])
             client_started = True
-            run(['bash', str(script), udid, str(output), expected_head], timeout=1200, env=client_env)
+            run(['bash', str(script), udid, str(output), expected_head], timeout=CLIENT_TIMEOUT_SECONDS, env=client_env)
             report['phase'] = 'client_receipt'
             receipt, videos = client_receipt(repo, output, expected_head, udid)
             report['phase'] = 'client_install'
@@ -268,7 +297,8 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
                 raise CheckError('native_client_launch_failed')
             wait(2)
             report['phase'] = 'client_screenshot'
-            run(['xcrun', 'simctl', 'io', udid, 'screenshot', str(output / 'client.png')])
+            capture_screenshot(run, udid, output / 'client.png', wait,
+                               lambda n: report.update(clientScreenshotAttempts=n))
             report['evidence'].append({**media_metadata(output, 'client.png'), 'kind': 'image',
                                        'description': 'Actual launched native Voxel One simulator client; captured by the controller tooling.'})
             report['evidence'].extend({**v, 'kind': 'video'} for v in videos)

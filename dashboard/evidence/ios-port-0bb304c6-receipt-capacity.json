@@ -1,0 +1,18 @@
+{
+  "sourceHead": "0bb304c63a5e74098ce5df72b56729d89a1d4433",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44598845038",
+  "phase": "client_receipt",
+  "errorCode": "native_client_receipt_invalid",
+  "diagnosis": "Native suite expanded to32 entries; trusted validator capacity was30.",
+  "repair": "Bounded64-entry receipt capacity with all existing source/status/native/media guards retained.",
+  "localTests": {
+    "linuxHarness": 66,
+    "failures": 0,
+    "boundaries": [
+      "32 accepted",
+      "64 accepted",
+      "65 rejected"
+    ]
+  },
+  "Playtest": "Native32-case acceptance pending activation of repaired trusted validator. No passing current gameplay media claimed."
+}

@@ -1,0 +1,34 @@
+{
+  "baseHead": "6b60c5d6388bc3fc8f91b57087896f6a3a67ff34",
+  "scope": "Working edits: itemsVersion1 shared inventory and104 recipes",
+  "contract": {
+    "inventoryIds": 199,
+    "recipeCount": 104,
+    "toolStackLimit": 1,
+    "toolItemsPlaceable": false,
+    "legacyLoginCatalog": "block recipes only"
+  },
+  "tests": {
+    "MobileGatewayTest": 6,
+    "FractionalWorldTest": 7,
+    "javaFailures": 0,
+    "javaErrors": 0,
+    "javaSkipped": 0,
+    "linuxHarness": 74,
+    "linuxFailures": 0
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DskipTests compile",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/native-test-runner.py ios/make-project.py",
+    "bash -n ios/check-simulator.sh ios/archive-device.sh",
+    "git diff --check"
+  ],
+  "Playtest": "Current34-case tool/migration native suite is unexecuted. Prior32-case passing source separately receipted.",
+  "limits": [
+    "Held-tool rendering/equipment pose remains follow-up.",
+    "Full port, live VPS, signed install and physical qualification remain open."
+  ]
+}

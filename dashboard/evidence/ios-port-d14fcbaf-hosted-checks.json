@@ -1,0 +1,24 @@
+{
+  "sourceHead": "d14fcbaf4966bf964da45dc93e5bbf41d41e6618",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/44730252104",
+  "status": "passed",
+  "mode": "preflight",
+  "clientChecked": false,
+  "captureAttempts": 1,
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": "iOS 18.5",
+  "device": "iPhone SE (3rd generation)",
+  "image": {
+    "path": "ios-port-d14fcbaf-preflight-only.png",
+    "bytes": 1082982,
+    "sha256": "591557e9cfe4b8cabba440520ed6278b4bffc51405957bf0d31f65854ff0e743"
+  },
+  "Playtest": "Inspected the actual verified image. It shows the fresh iPhone Simulator home screen, not the native game. No gameplay executed.",
+  "hostedBuilds": "Controller exact-head observation: Linux, Windows, mac-intel and mac-arm succeeded; publication skipped.",
+  "qualification": "All47 current native cases/controls media, physical iPhone/signing/install, live VPS and independent review remain pending. Actual master verifier still uses1200second client timeout;1500second native budget requires independent bounded repair."
+}

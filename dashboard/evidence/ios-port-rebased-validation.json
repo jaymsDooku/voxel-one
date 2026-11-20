@@ -1,0 +1,30 @@
+{
+  "baseHead": "9e65024ab7b1467c0cee208ccd5d257e1256681b",
+  "scope": "Rebased source plus final inventory-fixture wait correction and preserved metadata",
+  "reviewBase": "71612f09bfec4549456b3317676e76cdced085a4",
+  "deletedFiles": 0,
+  "trustedValidatorCommit": "8a53afce99e735a7574bffab70558252577b387b",
+  "verifiedRemoteValidatorBlob": "70ceae5e8c30515e1518d47d29d74f704c475c07",
+  "tests": {
+    "MobileGatewayTest": 5,
+    "FractionalWorldTest": 7,
+    "JavaFailures": 0,
+    "JavaErrors": 0,
+    "JavaSkipped": 0,
+    "linuxHarness": 74,
+    "linuxFailures": 0
+  },
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/make-project.py ios/native-test-runner.py tools/ios/simulator_checks.py",
+    "bash -n ios/check-simulator.sh ios/archive-device.sh",
+    "git diff --check"
+  ],
+  "Playtest": "Native32-case current-source qualification and fresh gameplay media pending Mac execution. Linux Java tests use isolated synthetic fixtures; no browser workflow applies.",
+  "limits": [
+    "No physical iPhone qualification.",
+    "Full engine parity, live VPS and signed installation delivery remain open."
+  ]
+}

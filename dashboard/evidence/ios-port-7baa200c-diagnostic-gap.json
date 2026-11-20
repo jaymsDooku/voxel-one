@@ -1,0 +1,14 @@
+{
+  "sourceHead": "7baa200c2463e7f40f095226fe103866830c3472",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44537022192",
+  "status": "native_failure_diagnostics_missing",
+  "observed": {
+    "exitCode": 65,
+    "nativeTestsLogPresent": true,
+    "sanitizedDiagnosticLineCount": 0,
+    "diagnosticsTruncated": true,
+    "clientChecked": false
+  },
+  "next": "Internal recovery of bounded failed test identifiers and sanitized assertions/crash category for this exact run; no raw runtime logs or profiles.",
+  "Playtest": "No passing native qualification or gameplay media supplied. No new tests executed."
+}

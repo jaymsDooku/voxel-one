@@ -66,3 +66,35 @@ The artifact includes reserved, verifier-written `client-diagnostics.json` and `
 Reads are capped at 128 KiB per log, using head/tail windows for larger files; each log exports at most eight unique lines of at most 320 UTF-8 bytes. Each summary artifact is capped at 16 KiB. Truncation and read/missing/unsafe source status are explicit. Raw logs, full command streams and environment values are never uploaded. Successful client runs and preflight failures do not collect these diagnostic logs. The Linux security tests use synthetic compiler errors and secret markers; an actual Mac client failure still needs a hosted rerun to produce its actionable diagnostics.
 
 References: [GitHub-hosted runner choices](https://docs.github.com/en/actions/how-tos/write-workflows/choose-where-workflows-run/choose-the-runner-for-a-job), [workflow dispatch syntax](https://docs.github.com/en/actions/reference/workflows-and-actions/workflow-syntax#onworkflow_dispatchinputs), [Mac runner image inventory](https://github.com/actions/runner-images/blob/main/images/macos/macos-15-Readme.md), and [Apple simulator guidance](https://developer.apple.com/documentation/xcode/running-your-app-on-simulated-or-physical-devices). The actual job's SDK/runtime report is authoritative for that run.
+
+Native client receipts allow at most64 passed test entries. This is a bounded payload capacity, not a required-case count: the client script must still execute every required native case. Exact source/device, installed native app, passed status and media checks remain mandatory. The trusted workflow checkout must contain this capacity update before validating clients whose suites exceed the former30-entry limit.
+
+
+Bounded full-suite execution budget (proposal awaiting trusted-source review)
+The native suite now requires47 cases. Three900-second native runs reached the
+wall-time limit with0 recorded case failures before completion. The assigned
+feature proposes1500 seconds for native XCTest,1800 seconds for the trusted
+client-script subprocess and40 minutes for the overall job. These are finite
+execution allowances, not game-frame or physical-device performance targets.
+All required cases, exact-source/native-app/media checks, fail-fast behavior,
+owned-child termination/reaping and timeout cleanup remain required. An expired
+budget remains failed with clientChecked=false.
+
+The source-native runner change stays on its assigned feature. Independently
+review only the verifier timeout/timeout-cleanup test hunks and workflow job
+bound for trusted-source integration. Feature edits cannot change the separately
+checked-out verifier used by a dispatch. Confirm the actual trusted checkout
+contains the new1800-second cap before requesting the new1500-second native run.
+Do not merge the full engine port to apply this bounded execution repair.
+
+
+Bounded cold screenshot capture
+Preflight and final native-client captures use only the assigned Simulator and
+fixed request-owned filename. A command timeout may retry once after5 seconds,
+with60 seconds per attempt and125 seconds total. The second command uses only
+the remaining total budget. Only the timed-out attempt's incomplete PNG is
+removed. Other errors are not retried. Repeated timeout/budget exhaustion stays
+failed and cleans up the assigned device; no client/preflight pass or substitute
+image is invented. Existing real-image/source/native-app/receipt checks remain.
+Reports record preflightScreenshotAttempts and clientScreenshotAttempts when
+those stages execute. Trusted-source changes still require independent review.

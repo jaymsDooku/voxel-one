@@ -1,0 +1,75 @@
+{
+  "sourceHead": "b22dadbbcf0401a865a5a5d565ea79f04ccafefe",
+  "requestId": "a84f8e89-e65a-4bc8-846f-751495d2de43",
+  "status": "passed",
+  "clientChecked": true,
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "client": {
+    "bundleId": "dev.jayms.voxelone.ios",
+    "tests": [
+      {
+        "name": "testFullInventoryBreakIsAtomic",
+        "status": "passed"
+      },
+      {
+        "name": "testHeldJumpCancelsOnBackgroundAndPause",
+        "status": "passed"
+      },
+      {
+        "name": "testOfflineTouchBuildSavePauseAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testOnlineLoginCityPlanningAndReconnect",
+        "status": "passed"
+      },
+      {
+        "name": "testCollisionJumpRayAndEditRules",
+        "status": "passed"
+      },
+      {
+        "name": "testSnapshotValidationAndSaveRoundTrip",
+        "status": "passed"
+      },
+      {
+        "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+        "status": "passed"
+      },
+      {
+        "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+        "status": "passed"
+      },
+      {
+        "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeGraphicsValidationMigrationAndPresets",
+        "status": "passed"
+      }
+    ]
+  },
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/43660827057",
+  "limits": [
+    "Simulator only; no physical iPhone qualification.",
+    "Inspected screenshot shows native Graphics; gameplay media still needed.",
+    "Crafting increment is newer than this receipt and remains unvalidated on Mac."
+  ]
+}

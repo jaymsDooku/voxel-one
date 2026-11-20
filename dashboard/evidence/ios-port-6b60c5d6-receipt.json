@@ -1,0 +1,148 @@
+{
+  "sourceHead": "6b60c5d6388bc3fc8f91b57087896f6a3a67ff34",
+  "status": "passed",
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "runtime": "18.5",
+  "tests": [
+    {
+      "name": "testBatchCraftingBoundsStorageAndRollback",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeBatchCraftingSaveAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testFractionalRecipeConservationAndMetadata",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeRecipeSearchFractionalJoinAndBackground",
+      "status": "passed"
+    },
+    {
+      "name": "testFineRegionTransactionsMergeBoundsAndInventory",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeFineGridCollectFillAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testBoundedMeshPagingCancellationAndGeometry",
+      "status": "passed"
+    },
+    {
+      "name": "testIncrementalMeshEditsBackgroundAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineLoaderBoundsCancellationMigrationAndFailure",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineLoadCancelRetryAndColdRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testBoundedSaveQueueIsolationAndAtomicFailure",
+      "status": "passed"
+    },
+    {
+      "name": "testSaveMenuBarrierBackgroundAndColdRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testDetailContractGeometryCollisionPickingAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeModelAndFractionalPlacementSaveRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testSharedCameraRayBoundsAndSweptLensCollision",
+      "status": "passed"
+    },
+    {
+      "name": "testSandboxCameraModesAimReachAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testFlightCollisionBoundsHoverAndWalkRecovery",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineFlightTouchPauseBackgroundAndWalking",
+      "status": "passed"
+    },
+    {
+      "name": "testZZFinalTerrainGameplayEvidence",
+      "status": "passed"
+    },
+    {
+      "name": "testCraftingTransactionBoundsAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeCraftingMissingIngredientsAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testFullInventoryBreakIsAtomic",
+      "status": "passed"
+    },
+    {
+      "name": "testHeldJumpCancelsOnBackgroundAndPause",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+      "status": "passed"
+    },
+    {
+      "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeGraphicsValidationMigrationAndPresets",
+      "status": "passed"
+    }
+  ],
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44628077255",
+  "imageSha256": "1a74675e9ab212f7599295ea02fa2dbf28b07e2c6f92eb05f651f442a0744f44",
+  "Playtest": "All32 native cases passed, including batch crafting, empty search, model/fraction edits, save/restart, memory-warning and City/graphics regressions. Saved model screenshot inspected.",
+  "limits": [
+    "Simulator, not physical iPhone qualification.",
+    "Full port, live VPS and signed installation remain open."
+  ]
+}

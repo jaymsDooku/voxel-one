@@ -1,0 +1,39 @@
+{
+  "sourceHead": "60deab7026332972448f1cf7ce074eff27925593",
+  "status": "passed",
+  "nativeCases": 45,
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44683138384",
+  "trustedVerifierHead": "30a0687254a6afd731686402823952599d798a69",
+  "platform": "macOS15.8.2/Xcode16.4/iPhone SE3 Simulator/iOS18.5",
+  "files": [
+    {
+      "file": "ios-port-60deab70-preflight-only.png",
+      "bytes": 924991,
+      "sha256": "b58d4193a6368a2fa0f9d4020dd99ce8b7d1afb7466220ee26723d18d92bd365"
+    },
+    {
+      "file": "ios-port-60deab70-native-model.png",
+      "bytes": 130433,
+      "sha256": "32ef85663531639c9452f51913a3529afa9f890701c3aa5ea100dbfd87627ab7"
+    },
+    {
+      "file": "ios-port-60deab70-world-time.mp4",
+      "bytes": 4720719,
+      "sha256": "0238bf9e613ebd269c9c2cde5dffa6be2c18ed6fce4b649d44bf0dcfed7c4756"
+    }
+  ],
+  "Playtest": "Inspected actual model screenshot and decoded video samples every4s. Video shows native Night; save/terminate/relaunch with Night retained; movement position changes; Daylight; Run/Freeze time sheet; paused/background/resume recovery. All45 native rules/UI cases passed. Video includes a brief white launch interval. No physical iPhone or live VPS claim.",
+  "videoMeasured": {
+    "width": 360,
+    "height": 640,
+    "seconds": 32.53,
+    "bytes": 4720719,
+    "presentationRate": "Not game FPS"
+  },
+  "limits": [
+    "Flat starting terrain is not full landscape-parity proof",
+    "New controls increment requires fresh exact-source native validation",
+    "Signing/install, live VPS and physical-device budgets remain pending"
+  ],
+  "publication": "pending controller publication"
+}

@@ -4,7 +4,10 @@ import SceneKit
 @MainActor
 final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecognizerDelegate {
     private let renderer=VoxelRenderer()
+    private var controls=NativeControls.load()
     private var world:VoxelWorld?
+    private let terrainStreamer=NativeTerrainStreamer()
+    private var terrainRetryAfter:CFTimeInterval=0
     private var gateway:Gateway?
     private var displayLink:CADisplayLink?
     private var lastTime:CFTimeInterval=0,lastPoll:CFTimeInterval=0,lastSave:CFTimeInterval=0,lastMove:CFTimeInterval=0
@@ -14,11 +17,39 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
     private var sessionID=UUID()
     private var queuedAction:([String:Any],String)?
     private var busy=false,paused=false,inMenu=true,active=true
+    #if targetEnvironment(simulator)
+    private var loadTestGate:DispatchSemaphore?
+    private var loadTestGateUsed=false
+    private var meshMemoryWarningUsed=false
+    #endif
+    private var loadingOffline=false
+    private var pendingOfflineFresh:Bool?
+    private var requestedSeed:Int64=748291
+    private weak var seedPrompt:UIAlertController?
+    private weak var seedCreateAction:UIAlertAction?
+    private var seedPromptMessage=""
+    private var loadingOverlay:UIView?
+    private var closingMenu=false
+    private var backgroundSave:UIBackgroundTaskIdentifier = .invalid
+    private struct HUDState:Equatable {
+        var status:String;var position:String;var city:String;var inventory:[[Int]]
+        var slot:Int;var revision:Int;var planning:Bool;var paused:Bool;var flying:Bool
+        var camera:String;var depth:Int;var size:CGSize
+    }
+    private var lastHUDState:HUDState?
     private var graphicsOpen=false
+    private weak var craftingScreen:NativeCraftingScreen?
+    private var craftSaving=false
     private var movement:Set<String>=[]
+    private var hudLandscape:Bool?
     private var top:UIStackView?,bottom:UIStackView?,menu:UIView?
     private var status=UILabel(),positionLabel=UILabel(),cityLabel=UILabel(),crosshair=UILabel()
     private var slotButtons:[UIButton]=[]
+    private var aimPoint:CGPoint?
+    private var cameraButton:UIButton?
+    private var gridButton:UIButton?;private var breakDepth=0
+    private var isometric:Bool {world?.snapshot.city==nil && renderer.sandboxCamera == .isometric}
+    private var flyButton:UIButton?,descendButton:UIButton?
     private var planButton:UIButton?,confirmButton:UIButton?,pauseButton:UIButton?
     private var points:[[Float]]=[];private var tool=0
     private var message="";private var messageTime:CFTimeInterval=0;private var messagePinned=false
@@ -34,18 +65,41 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         addWorldGesture(UITapGestureRecognizer(target:self,action:#selector(tapWorld(_:))))
         addWorldGesture(UIPinchGestureRecognizer(target:self,action:#selector(pinch(_:))))
         displayLink=CADisplayLink(target:self,selector:#selector(frame(_:)));displayLink?.preferredFramesPerSecond=renderer.graphics.effective().frames;displayLink?.add(to:.main,forMode:.common)
-        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {
-            do {try startOffline(OfflineSave.load())}catch{showMenu();notify(error.localizedDescription)}
-        } else {showMenu()}
+        OfflineSave.writer.onIdle={[weak self] in self?.beginPendingOfflineLoad()}
+        OfflineSave.loader.onIdle={[weak self] in self?.beginPendingOfflineLoad()}
+        showMenu()
+        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {loadOffline(fresh:false)}
     }
     override func viewDidAppear(_ animated:Bool) {
         super.viewDidAppear(animated)
         #if targetEnvironment(simulator)
         // Scoped simulator evidence uses the same actual Graphics route as the toolbar.
-        if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && !graphicsOpen {
+        if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && world != nil && !graphicsOpen {
             openGraphics()
         }
         #endif
+    }
+    override func viewWillTransition(to size:CGSize,with coordinator:UIViewControllerTransitionCoordinator){
+        movement.removeAll();resetAim();applyHUDLayout(size);super.viewWillTransition(to:size,with:coordinator)
+        coordinator.animate(alongsideTransition:nil){[weak self] _ in
+            guard let self=self else{return};self.applyHUDLayout(self.view.bounds.size);self.view.layoutIfNeeded()
+        }
+    }
+    override func viewDidLayoutSubviews(){
+        super.viewDidLayoutSubviews();applyHUDLayout(view.bounds.size)
+    }
+    private func applyHUDLayout(_ size:CGSize){
+        guard !inMenu else{return};let landscape=size.width>size.height
+        guard hudLandscape != landscape else{return};hudLandscape=landscape
+        positionLabel.isHidden=landscape;status.numberOfLines=landscape ? 1:2;cityLabel.numberOfLines=landscape ? 1:2
+        cityLabel.isHidden=world?.snapshot.city==nil && landscape
+    }
+    override func didReceiveMemoryWarning(){
+        super.didReceiveMemoryWarning();movement.removeAll();terrainStreamer.cancel()
+        if !inMenu,let world=world {
+            renderer.trimMeshes(around:world);paused=true;pauseButton?.setTitle("Resume",for:.normal)
+            notify("Memory low. Paused. Resume to rebuild terrain.");saveOffline()
+        } else {renderer.cancelMeshing()}
     }
     // HUD labels and empty stack space share world gestures. Controls keep their
     // own touches, including movement buttons and the scrolling hotbar.
@@ -78,11 +132,14 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         else {stack.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-6).isActive=true}
     }
     private func startOffline(_ snapshot:Snapshot)throws {
+        terrainStreamer.cancel();terrainRetryAfter=0
         sessionID=UUID();busy=false;moveBusy=false;queuedAction=nil;world=try VoxelWorld(snapshot);gateway=nil;renderer.planning=false;renderer.focus=world!.position;points.removeAll();renderer.rebuild(world!);renderer.mark(points,world:world!)
-        try OfflineSave.write(world!);showGame()
+        showGame();saveOffline()
     }
     private func showGame() {
+        lastHUDState=nil
         menu?.removeFromSuperview();menu=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview()
+        aimPoint=nil;hudLandscape=nil;breakDepth=0
         inMenu=false;paused=false;networkFailureText=nil;jumpOrigin=nil;jumpRose=false;movement.removeAll();lastTime=0;message="";messagePinned=false
         status=label("",id:"gameStatus");positionLabel=label("",size:11,id:"playerPosition");cityLabel=label("",size:12,id:"cityStatus")
         let menuButton=button("Menu","menuButton",#selector(openMenu))
@@ -91,7 +148,10 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let sky=button("Sky","atmosphereToggle",#selector(toggleAtmosphere(_:)))
         sky.accessibilityValue=renderer.atmospherePreview ? "On":"Off"
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
-        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics))])
+        let fly=button("Fly","flyButton",#selector(toggleFly));flyButton=fly;fly.isHidden=gateway != nil
+        let camera=button("Camera","cameraButton",#selector(chooseCamera));cameraButton=camera;camera.isHidden=world?.snapshot.city != nil
+        let time=button("Time","worldTimeButton",#selector(worldTime));time.isHidden=gateway != nil
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly,camera,time])
         let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -100,9 +160,13 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let hotbarScroll=UIScrollView();hotbarScroll.accessibilityIdentifier="hotbarScroll";hotbarScroll.showsHorizontalScrollIndicator=true;hotbarScroll.addSubview(hotbar);hotbarScroll.heightAnchor.constraint(equalToConstant:44).isActive=true
         NSLayoutConstraint.activate([hotbar.leadingAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.leadingAnchor),hotbar.trailingAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.trailingAnchor),hotbar.topAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.topAnchor),hotbar.bottomAnchor.constraint(equalTo:hotbarScroll.contentLayoutGuide.bottomAnchor),hotbar.heightAnchor.constraint(equalTo:hotbarScroll.frameLayoutGuide.heightAnchor),hotbar.widthAnchor.constraint(greaterThanOrEqualToConstant:444)])
         for b in slotButtons {b.widthAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true}
-        let left=directionButton("◀","moveLeft"),forward=directionButton("▲","moveForward"),back=directionButton("▼","moveBack"),right=directionButton("▶","moveRight")
-        let directions=row([left,forward,back,right])
-        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),button("Jump","jumpButton",#selector(jump))])
+        let directions=row(controls.bindings.map{action in
+            directionButton(NativeControls.arrows[NativeControls.actions.firstIndex(of:action)!],action)
+        })
+        let down=directionButton("Down","flyDown");descendButton=down;down.isHidden=true
+        let grid=button("Grid","gridButton",#selector(chooseGrid));gridButton=grid
+        grid.isHidden=world?.snapshot.contract==nil || (gateway != nil && world?.snapshot.contract?.fineEdits != true)
+        let actions=row([button("Break","breakButton",#selector(breakBlock)),button("Place","placeButton",#selector(placeBlock)),directionButton("Jump","jumpButton"),down,grid])
         let planning=row([button("Tool","toolButton",#selector(chooseTool)),button("Point","pointCoordinateButton",#selector(addCoordinatePoint)),button("Undo","undoPoint",#selector(undoPoint)),button("Confirm","confirmPlan",#selector(confirmPlan))]);confirmButton=planning.arrangedSubviews.last as? UIButton
         planning.accessibilityIdentifier="planningControls";planning.isHidden=true
         let b=UIStackView(arrangedSubviews:[hotbarScroll,planning,actions,directions]);b.axis = .vertical;b.spacing=5;bottom=b;overlay(b,atTop:false)
@@ -114,15 +178,38 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         b.addTarget(self,action:#selector(stopMove(_:)),for:[.touchUpInside,.touchUpOutside,.touchCancel,.touchDragExit])
         b.isMultipleTouchEnabled=true;return b
     }
-    @objc private func startMove(_ sender:UIButton){if !paused {movement.insert(sender.accessibilityIdentifier ?? "")}}
+    @objc private func startMove(_ sender:UIButton){
+        guard !paused,active,!inMenu,!graphicsOpen,!closingMenu,!renderer.planning else{return}
+        let id=sender.accessibilityIdentifier ?? "";movement.insert(id)
+        if id=="jumpButton" {jump()}
+    }
     @objc private func stopMove(_ sender:UIButton){movement.remove(sender.accessibilityIdentifier ?? "")}
     @objc private func selectSlot(_ sender:UIButton){world?.slot=sender.tag;refreshHUD()}
     @objc private func jump(){
-        if !paused && !renderer.planning,let world=world,world.grounded {
+        if !paused && !renderer.planning,let world=world,world.grounded,!world.flying {
             jumpOrigin=world.position.y;jumpRose=false;world.jump()
         }
     }
-    @objc private func togglePause(){paused.toggle();movement.removeAll();pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
+    private func resetAim(){aimPoint=nil;crosshair.transform = .identity}
+    @objc private func chooseCamera(){
+        guard !paused,let world=world,world.snapshot.city==nil else{return};movement.removeAll()
+        let alert=UIAlertController(title:"Camera",message:"Drag to look. In Isometric, use two fingers to pan and pinch to zoom. Tap terrain to aim; edits still need player reach.",preferredStyle:.actionSheet)
+        for mode in NativeCameraMode.allCases {
+            alert.addAction(UIAlertAction(title:mode.title,style:.default){[weak self] _ in
+                guard let self=self else{return}
+                self.renderer.sandboxCamera=mode;UserDefaults.standard.set(mode.rawValue,forKey:"sandboxCameraMode")
+                self.renderer.focus=world.position;self.resetAim();self.renderer.updateCamera(world)
+                self.notify("\(mode.title) camera.");self.refreshHUD()
+            })
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+    }
+    @objc private func toggleFly(){
+        guard gateway==nil,!paused,let world=world else{return}
+        movement.removeAll();jumpOrigin=nil;jumpRose=false;world.setFlying(!world.flying)
+        notify(world.flying ? "Flying. Hold Jump to rise; Down to descend.":"Walking. Gravity on.");refreshHUD()
+    }
+    @objc private func togglePause(){guard !closingMenu else{return};paused.toggle();movement.removeAll();if !paused,let world=world {renderer.rebuild(world)};pauseButton?.setTitle(paused ? "Resume":"Pause",for:.normal);notify(paused ? "Paused. The online city keeps running.":"Resumed.");saveOffline()}
     @objc private func togglePlan(){guard let world=world,world.snapshot.city != nil else{return};renderer.planning.toggle();lastPoll=0;renderer.focus=world.position;points.removeAll();renderer.mark(points,world:world);movement.removeAll();refreshHUD()}
     @objc private func openGraphics(){
         movement.removeAll();graphicsOpen=true
@@ -136,6 +223,26 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         present(screen,animated:true)
     }
     @objc private func toggleAtmosphere(_ sender:UIButton){var p=renderer.graphics;p.atmosphere = !renderer.atmospherePreview;p.preset="Custom";do{try p.save();renderer.applyGraphics(p)}catch{notify("Could not save graphics. Kept the current sky.");return};sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
+    @objc private func worldTime(){
+        guard gateway==nil,!closingMenu,let world=world else{return}
+        movement.removeAll();graphicsOpen=true
+        let current=world.snapshot.worldTime ?? NativeWorldTime.preserving(world.snapshot.sun),id=sessionID
+        let sheet=UIAlertController(title:current.label,message:current.cycling ? "Day/night runs while you play.":"Time is frozen. Day/night can run while you play.",preferredStyle:.actionSheet)
+        func choose(_ title:String,_ value:NativeWorldTime){
+            sheet.addAction(UIAlertAction(title:title,style:.default){[weak self,weak world] _ in
+                guard let self=self else{return};self.graphicsOpen=false;self.lastTime=0
+                guard let world=world,self.sessionID==id,self.gateway==nil else{return}
+                do {try world.setTime(value);self.renderer.updateCamera(world);self.saveOffline();self.notify("World time: \(value.label) · \(value.cycling ? "Cycling":"Frozen").");self.refreshHUD()}
+                catch{self.notify("Could not change world time.")}
+            })
+        }
+        var toggled=current;toggled.cycling.toggle();choose(current.cycling ? "Freeze time":"Run day/night",toggled)
+        for (title,hour) in [("Dawn (06:00)",6.0),("Daylight (10:00)",10.0),("Sunset (18:00)",18.0),("Midnight (00:00)",0.0)] {
+            var value=current;value.hour=hour;value.cycling=false;choose(title,value)
+        }
+        sheet.addAction(UIAlertAction(title:"Cancel",style:.cancel){[weak self] _ in self?.graphicsOpen=false;self?.lastTime=0})
+        anchor(sheet);present(sheet,animated:true)
+    }
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}
@@ -161,29 +268,62 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         points.removeAll();if let world=world{renderer.mark(points,world:world)}
     }
     @objc private func tapWorld(_ gesture:UITapGestureRecognizer){
-        guard !inMenu,!paused,renderer.planning,let world=world,let point=renderer.point(at:gesture.location(in:renderer.view)) else{return}
+        guard !inMenu,!paused,let world=world else{return}
+        if !renderer.planning && world.snapshot.city==nil && renderer.sandboxCamera != .first {
+            movement.removeAll();let point=gesture.location(in:renderer.view);aimPoint=point
+            crosshair.transform=CGAffineTransform(translationX:point.x-view.bounds.midX,y:point.y-view.bounds.midY)
+            notify("Target set. Break or Place within five blocks.");return
+        }
+        guard renderer.planning,let point=renderer.point(at:gesture.location(in:renderer.view),world:world) else{return}
         if tool==0 {
             let c=world.snapshot.city?.citizens.min{hypot($0.x-point.x,$0.z-point.z)<hypot($1.x-point.x,$1.z-point.z)}
             if let c=c,hypot(c.x-point.x,c.z-point.z)<4 {notify("\(c.name): \(c.activity), $\(Int(c.money)), hunger \(Int(c.hunger))")}
             else {notify("Ground \(Int(floor(point.x))), \(Int(floor(point.z))).")}
         } else if points.count<32 {points.append([Float(floor(point.x)),Float(floor(point.z))]);renderer.mark(points,world:world);notify("\(points.count) plan points.")}
     }
-    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,!renderer.planning else{return};let d=gesture.translation(in:renderer.view);world?.look(dx:Float(d.x),dy:Float(d.y));gesture.setTranslation(.zero,in:renderer.view)}
-    @objc private func panPlanning(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,renderer.planning else{return};let d=gesture.translation(in:renderer.view)
+    @objc private func pan(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,active,!graphicsOpen,!renderer.planning,!isometric else{return};resetAim();let d=gesture.translation(in:renderer.view),look=controls.lookDelta(dx:Float(d.x),dy:Float(d.y));world?.look(dx:look.x,dy:look.y);gesture.setTranslation(.zero,in:renderer.view)}
+    @objc private func panPlanning(_ gesture:UIPanGestureRecognizer){guard !inMenu,!paused,(renderer.planning || isometric) else{return};resetAim();let d=gesture.translation(in:renderer.view)
         renderer.focus.x-=Float(d.x+d.y)*renderer.distance/500;renderer.focus.z+=Float(d.x-d.y)*renderer.distance/500
-        renderer.focus.x=min(999_970,max(-999_970,renderer.focus.x));renderer.focus.z=min(999_970,max(-999_970,renderer.focus.z));gesture.setTranslation(.zero,in:renderer.view)
+        if isometric,let world=world {
+            let b=world.snapshot.bounds;renderer.focus.x=min(Float(b[1]),max(Float(b[0]),renderer.focus.x));renderer.focus.z=min(Float(b[5]),max(Float(b[4]),renderer.focus.z))
+        } else {renderer.focus.x=min(999_970,max(-999_970,renderer.focus.x));renderer.focus.z=min(999_970,max(-999_970,renderer.focus.z))}
+        gesture.setTranslation(.zero,in:renderer.view)
     }
-    @objc private func pinch(_ gesture:UIPinchGestureRecognizer){if renderer.planning {renderer.distance=min(80,max(12,renderer.distance/Float(gesture.scale)));gesture.scale=1}}
+    @objc private func pinch(_ gesture:UIPinchGestureRecognizer){if !inMenu,!paused,(renderer.planning || isometric) {resetAim();renderer.distance=min(80,max(12,renderer.distance/Float(gesture.scale)));gesture.scale=1}}
+    @objc private func chooseGrid(){
+        guard !paused,!renderer.planning else{return};movement.removeAll()
+        let alert=UIAlertController(title:"Break grid",message:"Choose the cube size to collect. Placement uses the selected item's size. Models use Whole.",preferredStyle:.actionSheet)
+        for depth in 0...4 {
+            alert.addAction(UIAlertAction(title:depth==0 ? "Whole / hit piece":"1/\(1<<depth)",style:.default){[weak self] _ in
+                self?.breakDepth=depth;self?.notify(depth==0 ? "Whole-block or hit-piece grid.":"Break grid 1/\(1<<depth).");self?.refreshHUD()
+            })
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
+    }
     @objc private func breakBlock(){edit(place:false)}
     @objc private func placeBlock(){edit(place:true)}
     private func edit(place:Bool){
         guard !paused,!renderer.planning,let world=world else{return}
         let type=place ? world.snapshot.inventory[world.slot][0]:0
         if place && type==0 {notify("This hotbar slot is empty.");return}
-        guard let target=world.target() else{notify("Aim at a block within five blocks.");return}
-        let key=place ? target.previous:target.hit
-        if gateway != nil { action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot],success:place ? "Placement checked by server.":"Break checked by server.") }
-        else {do {try world.offlineEdit(at:key,type:type);renderer.rebuild(world);renderer.mark(points,world:world);try OfflineSave.write(world);notify(place ? "Placed \(VoxelWorld.name(type)).":"Block collected.");refreshHUD()}catch{notify(error.localizedDescription)}}
+        if place && !world.itemPlaceable(type) {notify("This item cannot be placed.");return}
+        let target:VoxelHit?
+        if world.snapshot.city==nil && renderer.sandboxCamera != .first {
+            renderer.updateCamera(world)
+            target=renderer.target(at:aimPoint ?? CGPoint(x:renderer.view.bounds.midX,y:renderer.view.bounds.midY),world:world)
+        } else {target=world.detailedTarget()}
+        guard let target=target else{notify("Aim at a visible block within five blocks of your player.");return}
+        do {
+            let address=try world.editAddress(target,place:place,breakDepth:breakDepth),key=address.cell
+            if gateway != nil {
+                guard address.depth==0 || world.snapshot.contract?.fineEdits==true else{notify("This gateway needs an update before fine edits.");return}
+                action(["kind":"edit","blockX":key.x,"blockY":key.y,"blockZ":key.z,"type":type,"slot":world.slot,"depth":address.depth,"ix":address.ix,"iy":address.iy,"iz":address.iz],success:place ? "Placement checked by server.":"Break checked by server.")
+            } else {
+                try world.offlineRegionEdit(address,type:type);renderer.rebuild(world);renderer.mark(points,world:world)
+                let text=place ? "Placed \(world.itemName(type)).":"Block collected."
+                saveOffline{[weak self] result in if result == .saved {self?.notify(text)}};refreshHUD()
+            }
+        }catch{notify(error.localizedDescription)}
     }
     private func action(_ request:[String:Any],success:String){
         guard let gateway=gateway,let world=world else{return}
@@ -205,7 +345,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard let world=world else{return};movement.removeAll()
         let alert=UIAlertController(title:"Inventory",message:"Choose a stack to swap into hotbar slot \(world.slot+1).",preferredStyle:.actionSheet)
         for i in 0..<36 where world.snapshot.inventory[i][1]>0 {
-            let item=world.snapshot.inventory[i];alert.addAction(UIAlertAction(title:"\(i+1): \(VoxelWorld.name(item[0])) ×\(item[1])",style:.default){[weak self] _ in
+            let item=world.snapshot.inventory[i];alert.addAction(UIAlertAction(title:"\(i+1): \(world.itemName(item[0])) ×\(item[1])",style:.default){[weak self] _ in
                 guard let self=self else{return}
                 if self.gateway != nil {self.action(["kind":"swap","a":i,"b":world.slot],success:"Inventory updated.")}
                 else {world.snapshot.inventory.swapAt(i,world.slot);self.saveOffline();self.refreshHUD()}
@@ -213,14 +353,55 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         }
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));anchor(alert);present(alert,animated:true)
     }
+    @objc private func crafting(){
+        guard !paused,!graphicsOpen,let world=world else{return};movement.removeAll()
+        do {
+            // Offline saves may contain an older catalog. Current app data is authoritative offline.
+            let recipes:[NativeRecipe]
+            if gateway==nil {recipes=try NativeRecipe.bundled()}
+            else if let supplied=world.snapshot.recipes {recipes=supplied}
+            else {recipes=try NativeRecipe.bundled()}
+            let screen=NativeCraftingScreen(recipes:recipes,maximumBatch:gateway==nil || world.snapshot.contract?.batchCrafting==true ? 64:1,name:{world.itemName($0)})
+            let session=sessionID;graphicsOpen=true;craftingScreen=screen
+            screen.modalPresentationStyle = .fullScreen
+            screen.onClose={[weak self] in self?.graphicsOpen=false;self?.lastTime=0;self?.movement.removeAll();self?.craftingScreen=nil}
+            screen.onCraft={[weak self] recipe,quantity in
+                guard let self=self,self.sessionID==session,!self.craftSaving,!self.busy,self.active,!self.paused else{return}
+                if self.gateway != nil {self.action(["kind":"craft","recipe":recipe.id,"quantity":quantity],success:"Craft checked by server.")}
+                else {do {
+                    try world.offlineCraft(recipe,quantity:quantity);self.craftSaving=true;self.notify("Saving crafted items…",persistent:true)
+                    let text="Crafted \(recipe.count*quantity) \(world.itemName(recipe.output))."
+                    self.saveOffline{[weak self] result in
+                        guard let self=self,self.sessionID==session else{return};self.craftSaving=false
+                        if result == .saved {self.notify(text)}
+                        self.refreshHUD()
+                    }
+                }catch{self.notify(error.localizedDescription)}}
+                self.refreshHUD()
+            }
+            screen.update(inventory:world.snapshot.inventory,message:"Choose a recipe. Ingredients come from your bag.",pending:busy || craftSaving)
+            present(screen,animated:true)
+        }catch{notify("Crafting catalog could not be read safely.")}
+    }
     private func anchor(_ alert:UIAlertController){alert.popoverPresentationController?.sourceView=view;alert.popoverPresentationController?.sourceRect=CGRect(x:view.bounds.midX,y:view.bounds.midY,width:1,height:1)}
     @objc private func frame(_ link:CADisplayLink){
         guard !inMenu,active,let world=world else{lastTime=0;return}
+        renderer.advanceMeshing()
+        #if targetEnvironment(simulator)
+        // Exercise the actual memory-warning handler; this is not a hardware pressure measurement.
+        if !meshMemoryWarningUsed && ProcessInfo.processInfo.arguments.contains("--mesh-memory-warning-test") && renderer.view.accessibilityValue=="Terrain ready" {
+            meshMemoryWarningUsed=true;didReceiveMemoryWarning()
+        }
+        #endif
         let dt=lastTime==0 ? Float(1.0/30):Float(link.timestamp-lastTime);lastTime=link.timestamp
         if !paused && !graphicsOpen && !renderer.planning {
+            if gateway==nil {world.advanceTime(seconds:Double(dt))}
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
-            world.step(forward:forward,strafe:side,dt:dt)
+            if movement.contains("jumpButton") {jump()}
+            let climb:Float=(movement.contains("jumpButton") ? 1:0)-(movement.contains("flyDown") ? 1:0)
+            world.step(forward:forward,strafe:side,dt:dt,climb:climb)
+            if isometric && (forward != 0 || side != 0 || climb != 0) {renderer.focus=world.position;resetAim()}
             if let origin=jumpOrigin {
                 if world.position.y>origin+0.2 {jumpRose=true}
                 if world.grounded {
@@ -230,6 +411,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             }
         }
         renderer.updateCamera(world)
+        streamTerrainIfNeeded(world,now:link.timestamp)
         if let gateway=gateway,!moveBusy,!paused,link.timestamp-lastMove>0.1 {
             lastMove=link.timestamp;moveBusy=true;let id=sessionID
             Task {do {try await gateway.move(world)}catch {if id==sessionID && !paused {failNetwork(error.localizedDescription)}};if id==sessionID {moveBusy=false}}
@@ -244,18 +426,43 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         if gateway==nil,link.timestamp-lastSave>5 {lastSave=link.timestamp;saveOffline()}
         refreshHUD()
     }
+    private func streamTerrainIfNeeded(_ world:VoxelWorld,now:CFTimeInterval){
+        guard gateway==nil,world.streamsTerrain,!paused,!graphicsOpen,!closingMenu,!terrainStreamer.isBusy,now>=terrainRetryAfter,
+              let target=NativeTerrainTarget.needed(bounds:world.snapshot.bounds,x:world.position.x,y:world.position.y,z:world.position.z) else{return}
+        let id=sessionID,revision=world.geometryRevision
+        terrainStreamer.request(payload:world.savePayload(),target:target){[weak self,weak world] result in
+            guard let self=self,let world=world,id==self.sessionID,self.world === world,self.active,!self.inMenu,!self.paused,!self.closingMenu else{return}
+            switch result {
+            case .prepared(let region):
+                if world.installTerrain(region,expectedGeometryRevision:revision) {self.renderer.rebuild(world);self.saveOffline();self.refreshHUD()}
+                // An edit or a fast-moving player can make this region stale. Next frame retries current state.
+            case .failed:
+                self.terrainRetryAfter=CACurrentMediaTime()+5
+                self.notify("Terrain could not load. Existing edits are safe; retrying in 5 seconds.")
+            case .cancelled:break
+            }
+        }
+    }
     private func refreshHUD(){guard let world=world,!inMenu else{return}
         if inMenu {return}
         let mode=gateway==nil ? "Offline sandbox":"Online \(world.snapshot.game)"
-        if paused || messagePinned || CACurrentMediaTime()-messageTime<7 {status.text=message}
-        else {status.text="\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"}
-        positionLabel.isHidden=view.bounds.width>view.bounds.height
-        status.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
-        cityLabel.numberOfLines=view.bounds.width>view.bounds.height ? 1:2
-        positionLabel.text=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.grounded ? " · Ground":" · Air")
-        cityLabel.text=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? "49×49 local terrain · edits save on this phone"
-        cityLabel.isHidden=world.snapshot.city==nil && view.bounds.width>view.bounds.height
-        for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(VoxelWorld.name(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(VoxelWorld.name(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
+        let defaultStatus=renderer.planning && !points.isEmpty ? "\(points.count) plan points.":"\(mode) · HP \(world.snapshot.health) · \(renderer.planning ? "Two fingers pan; pinch zoom":"Drag world to look")"
+        let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:defaultStatus
+        let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
+        let localDescription=gateway != nil ? "Sandbox · Seed \(world.snapshot.seed)":world.streamsTerrain ? "Seed \(world.snapshot.seed) · Sandbox · \(world.snapshot.terrainEdits?.count ?? 0)/8192 edited cells":"Local Sandbox · edits save on this phone"
+        let clock=world.snapshot.worldTime.map{" · Day \($0.day) · \($0.period)"} ?? ""
+        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? localDescription+clock
+        craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
+        applyHUDLayout(view.bounds.size)
+        let next=HUDState(status:statusText,position:positionText,city:cityText,inventory:world.snapshot.inventory,slot:world.slot,revision:world.revision,planning:renderer.planning,paused:paused,flying:world.flying,camera:renderer.sandboxCamera.title,depth:breakDepth,size:view.bounds.size)
+        guard next != lastHUDState else{return};lastHUDState=next
+        status.text=statusText;positionLabel.text=positionText;cityLabel.text=cityText
+        gridButton?.setTitle(breakDepth==0 ? "Grid":"1/\(1<<breakDepth)",for:.normal)
+        cameraButton?.accessibilityValue=renderer.sandboxCamera.title
+        flyButton?.setTitle(world.flying ? "Walk":"Fly",for:.normal)
+        flyButton?.accessibilityValue=world.flying ? "On":"Off"
+        descendButton?.isHidden = !world.flying
+        for (i,b) in slotButtons.enumerated(){let item=world.snapshot.inventory[i];b.setTitle(item[0]==0 ? "—":"\(String(world.itemName(item[0]).prefix(3)))\n\(item[1])",for:.normal);b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.accessibilityLabel="\(world.itemName(item[0])) slot \(i+1), \(item[1]) blocks";b.layer.borderWidth=i==world.slot ? 2:0;b.layer.borderColor=UIColor.systemYellow.cgColor}
         if let rows=bottom?.arrangedSubviews,rows.count>=4 {rows[1].isHidden = !renderer.planning;rows[2].isHidden=renderer.planning;rows[3].isHidden=renderer.planning}
         if let controls=bottom?.arrangedSubviews[1] as? UIStackView {
             for case let control as UIButton in controls.arrangedSubviews {control.isEnabled = !paused}
@@ -272,10 +479,54 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         guard networkFailureText==nil else{return}
         message=text;messagePinned=persistent;messageTime=CACurrentMediaTime();if !inMenu {status.text=text}
     }
-    func suspend(){active=false;movement.removeAll();saveOffline()}
-    func becameActive(){active=true;lastTime=0}
-    func saveOffline(){guard gateway==nil,let world=world else{return};do {try OfflineSave.write(world)}catch{notify("Save failed. Keep this session open and try again.")}}
-    @objc private func openMenu(){saveOffline();movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil;Task{await previous?.logout()};showMenu()}
+    func suspend(){active=false;movement.removeAll();terrainStreamer.cancel();renderer.cancelMeshing();saveOffline()}
+    func becameActive(){active=true;lastTime=0;if let world=world {renderer.rebuild(world)}}
+    private func endBackgroundSave(){
+        if backgroundSave != .invalid {UIApplication.shared.endBackgroundTask(backgroundSave);backgroundSave = .invalid}
+    }
+    func saveOffline(completion:((NativeSaveResult)->Void)?=nil){
+        guard gateway==nil,let world=world else{return}
+        if !active && backgroundSave == .invalid {
+            backgroundSave=UIApplication.shared.beginBackgroundTask(withName:"Save Sandbox"){[weak self] in self?.endBackgroundSave()}
+        }
+        let payload=world.savePayload(),id=sessionID
+        OfflineSave.writer.submit(payload,important:completion != nil){[weak self] result in
+            guard let self=self else{return}
+            if result == .failed && id==self.sessionID {self.notify("Save failed. Keep this session open and try again.")}
+            if OfflineSave.writer.isIdle {self.endBackgroundSave()}
+            if id==self.sessionID {completion?(result)}
+        }
+    }
+    @objc private func openMenu(){
+        guard !closingMenu else{return};movement.removeAll()
+        if gateway==nil,world != nil {
+            let wasPaused=paused;closingMenu=true;paused=true
+            saveOffline{[weak self] result in
+                guard let self=self,result != .superseded else{return}
+                if result == .saved {self.finishOpenMenu()}
+                else {self.closingMenu=false;self.paused=wasPaused}
+            }
+        } else {finishOpenMenu()}
+    }
+    private func finishOpenMenu(){
+        terrainStreamer.cancel()
+        renderer.cancelMeshing();closingMenu=false;movement.removeAll();let previous=gateway;sessionID=UUID();queuedAction=nil;busy=false;moveBusy=false;gateway=nil;world=nil
+        Task{await previous?.logout()};showMenu()
+    }
+    @objc private func openControls(){
+        guard inMenu,!loadingOffline,!closingMenu,!graphicsOpen else{return}
+        movement.removeAll();resetAim();graphicsOpen=true;view.endEditing(true)
+        // Cancel recognizers as well as held buttons. A resumed finger starts a
+        // new translation after the modal, rather than replaying an old drag.
+        for gesture in view.gestureRecognizers ?? [] {gesture.isEnabled=false;gesture.isEnabled=true}
+        let screen=NativeControlsScreen(controls){[weak self] value in
+            guard let self=self else{return}
+            try value.save();self.controls=value;self.movement.removeAll();self.lastTime=0
+        }
+        screen.modalPresentationStyle = .fullScreen
+        screen.onClose={[weak self] in self?.graphicsOpen=false;self?.movement.removeAll();self?.lastTime=0}
+        present(screen,animated:true)
+    }
     private func showMenu(){
         inMenu=true;paused=false;networkFailureText=nil;top?.removeFromSuperview();bottom?.removeFromSuperview();crosshair.removeFromSuperview();menu?.removeFromSuperview();movement.removeAll()
         let scroll=UIScrollView();scroll.translatesAutoresizingMaskIntoConstraints=false;scroll.backgroundColor=UIColor(red:0.035,green:0.075,blue:0.1,alpha:0.98);view.addSubview(scroll);menu=scroll
@@ -286,19 +537,105 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         for field in [address,username,password] {field.delegate=self;field.returnKeyType = .done;field.borderStyle = .roundedRect;field.backgroundColor = .white;field.textColor = .black;field.heightAnchor.constraint(equalToConstant:44).isActive=true}
         game.selectedSegmentIndex=0;game.accessibilityIdentifier="gameChoice";game.backgroundColor = .systemGray5
         let title=label("VOXEL ONE",size:30,id:"mainTitle")
-        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline sandbox is a saved local patch of Voxel One terrain. The desktop editor and fractional blocks are not available in this first phone client.",size:13)])
+        let stack=UIStackView(arrangedSubviews:[title,label("Native iPhone · explore, build and plan",size:15),button("Continue offline sandbox","offlineResumeButton",#selector(resumeOffline)),button("New offline sandbox","offlineNewButton",#selector(newOffline)),button("Touch controls","controlsButton",#selector(openControls)),label("Online games",size:20),game,address,username,password,row([button("Sign in","signInButton",#selector(signIn)),button("Create account","registerButton",#selector(register))]),label("Online play needs the Voxel One HTTPS mobile gateway. City planning, citizens and economy run on the same game server.\n\nOffline builds save on this iPhone. Flower pots and fractional pieces are supported; the full desktop editor is still being ported.",size:13)])
         stack.axis = .vertical;stack.spacing=12;stack.translatesAutoresizingMaskIntoConstraints=false;scroll.addSubview(stack)
         NSLayoutConstraint.activate([stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:24),stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-24),stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:24),stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-24),stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-48)])
     }
-    @objc private func resumeOffline(){do {try startOffline(OfflineSave.load())}catch{showError(error.localizedDescription)}}
-    @objc private func newOffline(){
-        if FileManager.default.fileExists(atPath:OfflineSave.url.path) {let alert=UIAlertController(title:"Replace offline sandbox?",message:"This deletes the local sandbox edits. Online worlds stay on their server.",preferredStyle:.alert);alert.addAction(UIAlertAction(title:"Cancel",style:.cancel));alert.addAction(UIAlertAction(title:"New world",style:.destructive){[weak self] _ in self?.createOffline()});present(alert,animated:true)}else{createOffline()}
+    @objc private func resumeOffline(){loadOffline(fresh:false)}
+    private func finishOfflineLoad(){
+        loadingOffline=false;pendingOfflineFresh=nil;loadingOverlay?.removeFromSuperview();loadingOverlay=nil;menu?.isUserInteractionEnabled=true
     }
-    private func createOffline(){do {try startOffline(OfflineSave.fresh())}catch{showError(error.localizedDescription)}}
+    @objc private func cancelOfflineLoad(){
+        guard loadingOffline else{return};sessionID=UUID();OfflineSave.loader.cancel()
+        #if targetEnvironment(simulator)
+        loadTestGate?.signal();loadTestGate=nil
+        #endif
+        finishOfflineLoad()
+    }
+    private func loadOffline(fresh:Bool){
+        guard inMenu,!busy,!loadingOffline else{return}
+        movement.removeAll();view.endEditing(true);sessionID=UUID();loadingOffline=true;pendingOfflineFresh=fresh
+        menu?.isUserInteractionEnabled=false
+        let panel=UIStackView(arrangedSubviews:[label(fresh ? "Creating Sandbox…":"Loading Sandbox…",size:18,id:"offlineLoadStatus"),button("Cancel","cancelOfflineLoad",#selector(cancelOfflineLoad))])
+        panel.axis = .vertical;panel.spacing=12;panel.backgroundColor=UIColor(red:0.05,green:0.12,blue:0.16,alpha:1)
+        panel.layer.cornerRadius=16;panel.isLayoutMarginsRelativeArrangement=true;panel.layoutMargins=UIEdgeInsets(top:20,left:20,bottom:20,right:20)
+        panel.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(panel);loadingOverlay=panel
+        NSLayoutConstraint.activate([panel.centerXAnchor.constraint(equalTo:view.safeAreaLayoutGuide.centerXAnchor),panel.centerYAnchor.constraint(equalTo:view.safeAreaLayoutGuide.centerYAnchor),panel.widthAnchor.constraint(equalTo:view.safeAreaLayoutGuide.widthAnchor,multiplier:0.85)])
+        beginPendingOfflineLoad()
+    }
+    private func beginPendingOfflineLoad(){
+        guard loadingOffline,let fresh=pendingOfflineFresh,OfflineSave.writer.isIdle,!OfflineSave.loader.isBusy else{return}
+        pendingOfflineFresh=nil;let id=sessionID,seed=requestedSeed
+        #if targetEnvironment(simulator)
+        // One-shot fault injection keeps the real loading UI stable until normal Cancel.
+        let gate:DispatchSemaphore?
+        if ProcessInfo.processInfo.arguments.contains("--offline-load-cancel-test") && !loadTestGateUsed {
+            gate=DispatchSemaphore(value:0);loadTestGate=gate;loadTestGateUsed=true
+        } else {gate=nil}
+        #else
+        let gate:DispatchSemaphore?=nil
+        #endif
+        OfflineSave.loader.load(operation:{
+            if let gate=gate,gate.wait(timeout:.now()+30) != .success {throw GameError.invalidWorld}
+            if fresh {return try OfflineSave.fresh(seed:seed)}
+            return try OfflineSave.load()
+        }){[weak self] result in
+            guard let self=self,self.loadingOffline,id==self.sessionID else{return}
+            #if targetEnvironment(simulator)
+            self.loadTestGate=nil
+            #endif
+            self.finishOfflineLoad()
+            switch result {
+            case .loaded(let value):
+                do {try self.startOffline(value)
+                    #if targetEnvironment(simulator)
+                    if ProcessInfo.processInfo.arguments.contains("--graphics-evidence") && !self.graphicsOpen {self.openGraphics()}
+                    #endif
+                }catch{self.showError("This sandbox could not be opened safely.")}
+            case .failed:self.showError("Could not load this sandbox. Try again or create a new world.")
+            case .cancelled:break
+            }
+        }
+    }
+    @objc private func newOffline(){presentNewOffline(editSeed:false)}
+    private func presentNewOffline(editSeed:Bool){
+        guard !busy,!loadingOffline else{return}
+        let replacing=FileManager.default.fileExists(atPath:OfflineSave.url.path)
+        seedPromptMessage=replacing ? "Replace the saved Sandbox after the new world loads.":"Create a new Sandbox."
+        if editSeed {seedPromptMessage += " Choose a seed."}
+        else {seedPromptMessage += " Seed: 748291. Choose Change seed to use another world."}
+        let alert=UIAlertController(title:replacing ? "Replace offline sandbox?":"New Sandbox",message:seedPromptMessage,preferredStyle:.alert)
+        // UIKit focuses alert text fields automatically. Keep the normal default
+        // path free of keyboard transitions; seed editing remains an explicit route.
+        if editSeed {
+            alert.addTextField {field in
+                field.text="748291";field.placeholder="World seed";field.accessibilityIdentifier="worldSeed"
+                field.keyboardType = .numbersAndPunctuation;field.autocorrectionType = .no
+                field.addTarget(self,action:#selector(self.seedChanged(_:)),for:.editingChanged)
+            }
+        }else{
+            alert.addAction(UIAlertAction(title:"Change seed",style:.default){[weak self,weak alert] _ in
+                alert?.dismiss(animated:true){[weak self] in self?.presentNewOffline(editSeed:true)}
+            })
+        }
+        alert.addAction(UIAlertAction(title:"Cancel",style:.cancel))
+        let create=UIAlertAction(title:"New world",style:replacing ? .destructive:.default){[weak self,weak alert] _ in
+            let text=editSeed ? alert?.textFields?.first?.text ?? "":"748291"
+            guard let seed=Int64(text) else{return}
+            self?.requestedSeed=seed;self?.loadOffline(fresh:true)
+        }
+        alert.addAction(create);seedCreateAction=create;seedPrompt=alert;present(alert,animated:true)
+    }
+    @objc private func seedChanged(_ field:UITextField){
+        let valid=Int64(field.text ?? "") != nil
+        seedCreateAction?.isEnabled=valid;field.textColor=valid ? .label:.systemRed
+        let message=valid ? seedPromptMessage:"Enter a whole number from -9223372036854775808 to 9223372036854775807."
+        if seedPrompt?.message != message {seedPrompt?.message=message}
+    }
     @objc private func signIn(){connect(register:false)}
     @objc private func register(){connect(register:true)}
     private func connect(register:Bool){
-        guard !busy else{return}
+        guard !busy,!loadingOffline else{return}
         do {
             let service=try Gateway(address:address.text ?? ""),name=username.text ?? "",secret=password.text ?? "",selected=game.selectedSegmentIndex==1 ? "city":"sandbox"
             guard name.range(of:"^[A-Za-z0-9_]{3,16}$",options:.regularExpression) != nil, secret.count>=10,secret.count<=128 else{throw GameError.message("Use a 3–16 character username and a 10–128 character password.")}

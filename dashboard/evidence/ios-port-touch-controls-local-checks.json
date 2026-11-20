@@ -1,0 +1,73 @@
+{
+  "sourceBase": "60deab7026332972448f1cf7ce074eff27925593",
+  "sourceState": "uncommitted touch-settings increment; exact-head Mac execution pending",
+  "reviewBase": "30a0687254a6afd731686402823952599d798a69",
+  "implementation": "Menu Touch controls with saved0.5x/1x/2x sensitivity, invertY and four movement-button bindings; swap guarantees unique actions; Apply saves atomically before install; Cancel keeps active settings; Reset is a draft; default behavior retained; settings clears held input and old gestures.",
+  "bounds": {
+    "preferenceBytes": 4096,
+    "movementSlots": 4,
+    "lookAxisPointsPerEvent": 4096,
+    "nativeRequiredCases": 47,
+    "testDeadlineSeconds": 900,
+    "outerDeadlineSeconds": 1200,
+    "videoMaxSeconds": 40,
+    "videoPublicationBytes": "strictly below6000000"
+  },
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "87 passed in10.614s; synthetic/mock harness tests only"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed; Controls.swift included in app and native test targets"
+    },
+    {
+      "command": "python3 -m py_compile ios/check-results.py ios/native-test-runner.py ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "AST required-method inventory and review-base source audit",
+      "result": "all47 cases required, all prior45 retained;112 unrelated progress entries unchanged;zero file deletions"
+    },
+    {
+      "command": "filtered GitHub workflow metadata and git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b 30a0687254a6afd731686402823952599d798a69",
+      "result": "observed successful45-case run used trusted verifier30a06872 containing reviewed capacity fix"
+    }
+  ],
+  "Playtest": {
+    "observed": "Prior exact-source60deab70 passed45 native cases on iPhone SE3 Simulator/iOS18.5/Xcode16.4/macOS15.8.2. Inspected actual model screenshot and32.53-second360x640 video showing night/day, restart persistence, cycle/freeze and pause recovery. Media copied with verified SHA256 receipts.",
+    "current": "New native touch workflow remains unexecuted. Required47-case Mac run must exercise draft Cancel, Apply, binding swap, inverted look and movement, terminate/relaunch persistence, landscape Reset draft, restored normal look and pause. Video anchors only after reopened persisted custom settings; browser playtesting does not apply to this native UIKit/SceneKit client."
+  },
+  "scope": "Movement bindings cover Left/Forward/Back/Right; Jump, Down, Break and Place remain dedicated. Isometric/City pan and server movement protocol/rules remain unchanged. No new desktop save-file migration or signing claim.",
+  "intendedDeletions": "No file deletions. Hardcoded movement order and fixed look scale replaced with validated per-device preferences; video anchor changed from clock workflow to touch workflow while retaining prior clock tests.",
+  "qualificationPending": [
+    "New Swift compilation/all47 native cases and actual touch media",
+    "Remaining engine/tool/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed iPhone install/update artifact",
+    "Physical iPhone performance/thermal/battery measurements",
+    "Independent exact-head native review and published-media verification"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/Controls.swift": "963313b30b74c3a013470425953287ad04b88ad890a28648cbdcc3ca321d7d56",
+    "ios/VoxelOne/GameController.swift": "17a6b6e2b55aebe6dd2333de73b547e9aa94195c87fd187502bb0b579bc6024e",
+    "ios/VoxelOneUITests/GraphicsRulesTests.swift": "753b0468435e8670db35b4f61048b2c30054f07d09798c64491634f360822c8a",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "e27af1e92547fb46fb355904ec90379f9e0cec934e9ddf5cb1dc44871bd0357f",
+    "ios/make-project.py": "db53c17fbf6d98542586b151894ce696fe075334fa7f1d30a103b54771b44286",
+    "ios/check-results.py": "99039dbc2014fa7464515c41fa2176a640ef9f45445a825e1d016280bf7d4ff9",
+    "ios/check-simulator.sh": "dfefad711b65fa50cffcdf3e94064966d7e83b7275a4baef7f742e8537a9cfc6",
+    "ios/native-test-runner.py": "01a6f3cb667e84263b78cb4d90f165c80b5fcb1039dff363529b8cf1572415d9",
+    "ios/export-playtest.swift": "7133384a177905c762fcef9d1f4cf34eb6f95a793fb813cf27736b1e09cefff4",
+    "tools/ios/test_native_deadline.py": "21efeb0fdb021acfaa1927f3798fd40fd284e625891ebd667c93d5f3002820b6"
+  }
+}

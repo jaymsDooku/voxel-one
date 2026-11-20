@@ -1,0 +1,45 @@
+{
+  "sourceHead": "a77e0e4b7bb70e5c59b5d62d2add0abdc7160934",
+  "status": "passed",
+  "nativeCases": 43,
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44676749164",
+  "trustedVerifierHead": "30a0687254a6afd731686402823952599d798a69",
+  "platform": "iPhone SE (3rd generation) Simulator/iOS18.5, Xcode16.4, macOS15.8.2",
+  "files": [
+    {
+      "filename": "ios-port-a77e0e4b-preflight-only.png",
+      "kind": "image",
+      "bytes": 905330,
+      "sha256": "dd548b42670fe44760d550682457a4bf2bcfcd0e0d6578fd001fbf2404dc81ba"
+    },
+    {
+      "filename": "ios-port-a77e0e4b-native-model.png",
+      "kind": "image",
+      "bytes": 128836,
+      "sha256": "4db734b5a6108ba85a1cb0a82c41678cde4f5e39f27cf6b55af24dd09e041d74"
+    },
+    {
+      "filename": "ios-port-a77e0e4b-distant-option.mp4",
+      "kind": "video",
+      "bytes": 4988177,
+      "sha256": "c091d5449dc2b7062145d6eb36e01a4059253902febce01510236d9ad4158308"
+    }
+  ],
+  "Playtest": "All43 required native cases passed, including public distant option, horizon/reach/detail/memory behavior, cache/geometry bounds, streaming/edit/save/touch/crafting and City/graphics regressions. Actual screenshot inspected: native exact flower-pot model/HUD. Video decoded and sampled every4 seconds: Graphics toggle/detail controls, native world and cold reload; imagery is mostly controls/flat starting terrain, not a device-performance or broad landscape-parity demonstration.",
+  "videoMeasured": {
+    "width": 360,
+    "height": 640,
+    "durationSeconds": 39.15,
+    "bytes": 4988177
+  },
+  "limits": "Video presentation rate is not game FPS. Simulator success does not prove physical GPU/memory/thermal/battery, signing, installation, live VPS or independent review. Preflight image is only the home screen.",
+  "qualificationPending": [
+    "Current new offline time/daylight increment",
+    "Additional Simulator size",
+    "Remaining engine parity",
+    "Live VPS service qualification",
+    "Signed iPhone installation and physical-device measurements",
+    "Independent exact-head native review"
+  ],
+  "publication": "Pending controller publication"
+}

@@ -1,0 +1,54 @@
+{
+  "sourceBase": "b25184722108b4ff9514ec92e3162f44024820ee",
+  "sourceState": "Uncommitted streaming increment; pending controller commit and exact-source Mac validation",
+  "reviewBase": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "environment": "Linux developer worktree; no Xcode or Swift execution",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" '-Dtest=NativeTerrainFixtureTest,MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest' test",
+    "python3 -m py_compile ios/make-project.py ios/check-results.py ios/native-test-runner.py",
+    "bash -n ios/check-simulator.sh",
+    "python3 ios/make-project.py",
+    "git diff --check"
+  ],
+  "results": [
+    "82 Linux harness tests passed; Apple commands and binary fixtures are mocked. New media timing tests exercised actual isolated Python child processes.",
+    "14 focused Java tests passed: 1 NativeTerrainFixtureTest, 6 MobileGatewayTest, 7 FractionalWorldTest; zero failures/errors/skips.",
+    "Python compilation, shell syntax, project generation and diff whitespace checks passed.",
+    "All40 declared native XCTest methods are required; none omitted.",
+    "110 unrelated progress entries match review base; no deleted files."
+  ],
+  "Playtest": "Observed prior exact-source b2518472 Mac run passed36 actual native tests; client screenshot inspected and copied separately. Current streaming and video-export workflows are UNEXECUTED on Mac and require40-case exact-source controller build/playtest. Browser playtesting does not apply to UIKit/SceneKit or this native harness.",
+  "newNativeSteps": [
+    "Cold boot and normal touch controls; create seeded Sandbox; collect/place block; fly beyond x=24; wait for new terrain; save/menu; terminate/relaunch; return to origin; background/resume and pause cancellation.",
+    "Evict model, partial voxel and explicit air; JSON restart then return; verify geometry and inventory conservation.",
+    "Legacy versioned migration and oversized finite fallback; journal-capacity atomic rejection; stale worker/install fences; single-flight cancellation and failure.",
+    "Export at most40 seconds from the passing offline streaming case using macOS15+ AVFoundation; inspect returned screenshot/video."
+  ],
+  "expectedNewBehavior": "New terrain loads while prior terrain stays usable; evicted edits survive restart; stale regions never overwrite current edits/inventory/pose; missing video or export failure cannot pass the script.",
+  "observedNewBehavior": "Native workflow and AVFoundation export pending. Linux checks establish only their listed contract/integration scope.",
+  "intendedRemovals": "No files deleted. Old synchronous offline save/load and whole-cube/main-thread mesh paths are replaced by bounded workers and exact leaf/model paths. Existing City, graphics, server and TLS behavior is retained; prior exact-source Simulator and focused Java regressions passed.",
+  "qualificationPending": [
+    "Current40-case exact-source native run and media inspection",
+    "Another iPhone Simulator size",
+    "Distant terrain and remaining engine parity",
+    "Live VPS multiplayer and HTTPS reverse-proxy qualification",
+    "Signed iPhone artifact/install and protected signing prerequisites",
+    "Physical-device frame times/stalls/memory/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/World.swift": "03bcabb92152285c21cad816e88a9b2402c9157f27efdc718ab37a6ce438f51d",
+    "ios/VoxelOne/Terrain.swift": "8d5ab4a1f440a046a3aad16d828bccd474a987fdb94e2fc3a9940416458648de",
+    "ios/VoxelOne/Streaming.swift": "cb99ded758efc072e42b9c10935735ee9570533e826b33a2be673ad63da63b55",
+    "ios/VoxelOne/GameController.swift": "9620241a116c0e632eb519a94a0c75f83e3730a67ff4fe39feb983ed40bb0373",
+    "ios/VoxelOneUITests/WorldRulesTests.swift": "37066b58c125b92f1e4119e3163b303f0328135160fe8022b4e3df0bd7467410",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "c7703eb20d4cec05ff2ac87bbe81ff88b60c99a5b55137ce21638e935150c35f",
+    "ios/check-simulator.sh": "355ca0c30bacdf34e59db3f8a5500fa2a02eef14b41bbd583a70b3b3c9f642ae",
+    "ios/check-results.py": "9964944d649af7e352b9b996c3c673525acd64dc2c802eededc8bc5db7146a54",
+    "ios/native-test-runner.py": "71915bd8676118a5f77a582edcd9efa8a766c8cb00c53ed97f3b565ed01b959c",
+    "ios/export-playtest.swift": "447a92718af781ba410e88ea7873fca7cf9f429e97f2886e01372927986a8a77",
+    "ios/make-project.py": "3a27d03ae1db85da1e75a93d7222e052ce470bf3b959b6c7eefc74ead6f83fa7"
+  },
+  "publication": "Pending controller publication"
+}

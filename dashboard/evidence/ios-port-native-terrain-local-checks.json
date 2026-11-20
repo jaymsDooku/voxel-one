@@ -1,0 +1,93 @@
+{
+  "baseHead": "a37f44eb612a8473d6d2d1855c19e40aa00dab2b",
+  "sourceState": "Uncommitted native seeded-generation milestone; exact committed head assigned by controller before Mac execution.",
+  "environment": "Linux VPS; no native iOS execution for these edits.",
+  "commands": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DskipTests compile",
+      "result": "passed"
+    },
+    {
+      "command": "java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/Resources/terrain-fixtures.json",
+      "result": "generated canonical Java fixture"
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" '-Dtest=NativeTerrainFixtureTest,MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest' test",
+      "result": "14 tests passed; zero failures, errors or skips",
+      "suites": [
+        {
+          "name": "dev.jayms.NativeTerrainFixtureTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MobileGatewayTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.FractionalWorldTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "74 passed; Linux mock/harness tests only"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/make-project.py ios/check-results.py ios/native-test-runner.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh ios/archive-device.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "fixture": {
+    "samples": 10080,
+    "bytes": 945427,
+    "sha256": "50a1fd07e46b3bb88060df4797f2b3b7f7cde050d1156c36de21d0c183a43184",
+    "window": {
+      "bounds": [
+        -24,
+        24,
+        19,
+        63,
+        -24,
+        24
+      ],
+      "cellCount": 17380,
+      "eyeY": 27,
+      "generatorVersion": 3,
+      "seed": "748291",
+      "sha256": "a01c47fcee1ac04580bb3123ce547220371bfbdbafa850b1e001d51c40f9c272"
+    }
+  },
+  "Playtest": "Prior exact source a37f44eb passed all 34 native cases on iPhone SE (3rd generation), iOS 18.5 Simulator. Actual saved-model image inspected and retained. New 36-case Swift parity and seed validation -> cancel -> create seed -42 -> break/place -> save -> terminate/relaunch workflow remains pending Mac execution. Browser playtesting does not apply to the native app or Java fixture CLI.",
+  "limits": [
+    "Fresh terrain generation remains a bounded 49x49 window with at most 45 vertical layers.",
+    "True moving chunk streaming, distant terrain and full reusable engine parity remain open.",
+    "Live VPS qualification, signed installation, physical iPhone gameplay and measured device performance remain pending."
+  ],
+  "diffAudit": {
+    "reviewBase": "8a53afce99e735a7574bffab70558252577b387b",
+    "deletedFiles": [],
+    "intendedDeletions": "No files deleted. Prior implementation replacements remain scoped to native iOS gameplay, shared mobile contracts and their checks."
+  }
+}

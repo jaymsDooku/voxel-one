@@ -1,0 +1,29 @@
+{
+  "sourceHead": "45d453902489458058ee6c85c52136acb5c12a1b",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44625107201",
+  "observedEvents": {
+    "started": 32,
+    "passed": 30,
+    "failed": 2,
+    "unfinished": 0
+  },
+  "failedTests": [
+    "testOnlineLoginCityPlanningAndReconnect",
+    "testGraphicsDraftApplyPersistenceAndLandscape"
+  ],
+  "changes": [
+    "City planning picks world geometry while meshes install",
+    "Persistent planning-point count",
+    "Terrain readiness before City touch test",
+    "Fixed graphics failure stages without altering graphics assertions"
+  ],
+  "localChecks": {
+    "linuxHarnessTests": 74,
+    "failures": 0,
+    "projectGeneration": "passed",
+    "pythonCompilation": "passed",
+    "shellSyntax": "passed",
+    "diffCheck": "passed"
+  },
+  "Playtest": "City repair and graphics regression pending native verification; no current gameplay media returned."
+}

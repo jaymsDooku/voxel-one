@@ -1,0 +1,155 @@
+{
+  "sourceHead": "a37f44eb612a8473d6d2d1855c19e40aa00dab2b",
+  "status": "passed",
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "device": "iPhone SE (3rd generation)",
+  "runtime": "18.5",
+  "tests": [
+    {
+      "name": "testSharedItemLimitsToolCraftingAndLegacyMigration",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeToolCraftingPlacementGuardAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testBatchCraftingBoundsStorageAndRollback",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeBatchCraftingSaveAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testFractionalRecipeConservationAndMetadata",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeRecipeSearchFractionalJoinAndBackground",
+      "status": "passed"
+    },
+    {
+      "name": "testFineRegionTransactionsMergeBoundsAndInventory",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeFineGridCollectFillAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testBoundedMeshPagingCancellationAndGeometry",
+      "status": "passed"
+    },
+    {
+      "name": "testIncrementalMeshEditsBackgroundAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineLoaderBoundsCancellationMigrationAndFailure",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineLoadCancelRetryAndColdRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testBoundedSaveQueueIsolationAndAtomicFailure",
+      "status": "passed"
+    },
+    {
+      "name": "testSaveMenuBarrierBackgroundAndColdRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testDetailContractGeometryCollisionPickingAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeModelAndFractionalPlacementSaveRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testSharedCameraRayBoundsAndSweptLensCollision",
+      "status": "passed"
+    },
+    {
+      "name": "testSandboxCameraModesAimReachAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testFlightCollisionBoundsHoverAndWalkRecovery",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineFlightTouchPauseBackgroundAndWalking",
+      "status": "passed"
+    },
+    {
+      "name": "testZZFinalTerrainGameplayEvidence",
+      "status": "passed"
+    },
+    {
+      "name": "testCraftingTransactionBoundsAndPersistence",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeCraftingMissingIngredientsAndRestart",
+      "status": "passed"
+    },
+    {
+      "name": "testFullInventoryBreakIsAtomic",
+      "status": "passed"
+    },
+    {
+      "name": "testHeldJumpCancelsOnBackgroundAndPause",
+      "status": "passed"
+    },
+    {
+      "name": "testOfflineTouchBuildSavePauseAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testOnlineLoginCityPlanningAndReconnect",
+      "status": "passed"
+    },
+    {
+      "name": "testCollisionJumpRayAndEditRules",
+      "status": "passed"
+    },
+    {
+      "name": "testSnapshotValidationAndSaveRoundTrip",
+      "status": "passed"
+    },
+    {
+      "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+      "status": "passed"
+    },
+    {
+      "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+      "status": "passed"
+    },
+    {
+      "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+      "status": "passed"
+    },
+    {
+      "name": "testNativeGraphicsValidationMigrationAndPresets",
+      "status": "passed"
+    }
+  ],
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44632685028",
+  "imageSha256": "c0c914dd5bdc7d0cf089b72de27a724ba14947d4d0c1e76a0f26cdaf28502ae9",
+  "Playtest": "All34 native tests passed including tool crafting, nonplacement, one-item stack limits, legacy save merge and all prior gameplay/City/graphics regressions. Saved model screenshot inspected.",
+  "limits": [
+    "Simulator milestone only; physical iPhone/signing/full engine parity remain open."
+  ]
+}

@@ -1,0 +1,14 @@
+{
+  "sourceHead": "4a3bf55b3ae80830ed78ffdda501470418d3a50f",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44535250965",
+  "status": "build_failed",
+  "diagnosis": "NativeWorkflowTests.swift:193 missing required argument #2 in waitHittable call",
+  "repair": "Added landscape Craft Done diagnostic label. Timeout and assertions unchanged.",
+  "localChecks": [
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/make-project.py ios/check-results.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "Playtest": "Native tests unexecuted in failed run; all30 cases pending after repair. No gameplay media available."
+}

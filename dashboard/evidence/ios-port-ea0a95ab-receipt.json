@@ -1,0 +1,39 @@
+{
+  "sourceHead": "ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913",
+  "status": "passed",
+  "nativeCases": 40,
+  "trustedVerifierHead": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44663550947",
+  "platform": "iPhone SE (3rd generation) Simulator, iOS18.5, Xcode16.4, macOS15.8.2",
+  "files": [
+    {
+      "filename": "ios-port-ea0a95ab-preflight-only.png",
+      "kind": "image",
+      "sha256": "6d2f20e54b5bb659d2755be1f546fbe7526519fed08e455a5e4770f8bd155ef8",
+      "bytes": 177292
+    },
+    {
+      "filename": "ios-port-ea0a95ab-native-model.png",
+      "kind": "image",
+      "sha256": "a7178611452aac2603fb77e1e579ffc038fd5f3afac85fedab0678250bc10132",
+      "bytes": 128995
+    },
+    {
+      "filename": "ios-port-ea0a95ab-streaming.mp4",
+      "kind": "video",
+      "sha256": "dc497ee95010680a634ab35a9c71ef88b8ebe25e9fcfb4f60d0242983fc78270",
+      "bytes": 381450
+    }
+  ],
+  "Playtest": "Controller executed all40 required native XCTest cases, including moving-window flight beyond x=24, restart/return, durable evicted model/fractional/air edits, migration/capacity/fences, City and prior touch/crafting/graphics regressions. Actual screenshot inspected: native exact flower-pot mesh and HUD. Video decoded and sampled every4 seconds: menu with blank account fields, native edit, flight, terrain return. Clip40.00seconds/15fps/108x192 is too small for readable HUD; current source will raise export resolution. Preflight is home-screen evidence only.",
+  "qualificationPending": [
+    "New distant terrain and higher-resolution export changes",
+    "Additional Simulator size",
+    "Remaining engine parity",
+    "Live VPS service playtest",
+    "Signed iPhone artifact/install",
+    "Physical iPhone frame time/stalls/memory/thermal/battery",
+    "Independent exact-head native review"
+  ],
+  "publication": "Pending controller publication"
+}

@@ -1,0 +1,60 @@
+{
+  "sourceHead": "fc51743d51b5ac33314665406c4a1e86e7380883",
+  "reviewBase": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44649067654",
+  "observedResult": {
+    "status": "failed",
+    "exitCode": 124,
+    "started": 17,
+    "passed": 15,
+    "failed": 1,
+    "unfinished": 1,
+    "required": 36,
+    "deadlineSeconds": 900,
+    "failedCase": "testNativeBatchCraftingSaveAndRestart",
+    "failedCaseObserverSeconds": 110,
+    "openCase": "testSandboxCameraModesAimReachAndPersistence"
+  },
+  "trustedVerifierHead": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+  "changes": [
+    "Craft Search and batch changes dismiss keyboard; native tests use real Search action.",
+    "Source-only XCTest issue metadata, fixed batch steps and bounded observer binding.",
+    "Stop only owned child group after observed failed case (exit65). All36-case success,900-second cap and independent qualification gates retained."
+  ],
+  "executedChecks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" '-Dtest=NativeTerrainFixtureTest,MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest' test",
+      "result": "14 passed; zero failures/errors/skips"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "80 passed; Linux mocks/harness only"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/make-project.py ios/native-test-runner.py ios/check-results.py tools/ios/test_native_deadline.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh ios/archive-device.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "Playtest": "Exact sourcefc51743d reached native execution but batch crafting failed before the aggregate deadline. Updated native Search/batch/save/restart flow and all36 cases remain pending exact-source Mac execution. No gameplay image/video was returned; preflight is not game evidence. Browser playtesting does not apply to native app and CLI integration.",
+  "diffAudit": {
+    "deletedFiles": [],
+    "unrelatedMasterProgressPreserved": true,
+    "intendedReplacements": "Native whole-block geometry/editing and fixed recipe UI replaced by exact detail handling, bounded workers and shared recipe controls; mobile contract/check updates scoped to this port."
+  },
+  "limits": [
+    "Precise prior failed assertion was not available; repair remains unqualified.",
+    "Full streaming/parity, live VPS, signed installation, independent review and physical iPhone performance qualification remain open."
+  ]
+}

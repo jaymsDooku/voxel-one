@@ -1,0 +1,28 @@
+{
+  "source": "working fine-edit increment after9b571995cf3fdbad6a9945be4f8502022f30926a; exact source pending controller publication",
+  "status": "passed",
+  "suites": [
+    {
+      "name": "dev.jayms.MobileGatewayTest",
+      "tests": "4",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "12.516"
+    },
+    {
+      "name": "dev.jayms.FractionalWorldTest",
+      "tests": "7",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0",
+      "time": "0.178"
+    }
+  ],
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+  "playtest": "Actual isolated Java sandbox/mobile gateway and desktop-protocol observer: authenticated fractional cut preserved depth/indices, authoritative piece inventory arrived, invalid depth rejected, fractional fill restored the full cell. Whole edit/login/reach/logout regressions passed. Browser playtesting does not apply to this native/server integration.",
+  "limits": [
+    "Synthetic profiles only; no live VPS qualification.",
+    "New native28-case UI/rule suite remains unexecuted pending Mac; no physical-device performance or signing claim."
+  ]
+}

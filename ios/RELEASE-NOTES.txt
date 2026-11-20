@@ -1,0 +1,27 @@
+Voxel One native iPhone candidate
+
+Release status: not released or installable through this work item yet.
+The exact source/version/build and artifact checksum are assigned and verified
+by device-delivery.py when the real Mac device build runs. No signing access,
+TestFlight upload or physical-device pass is implied by this file.
+
+Implemented Sandbox work includes seeded bounded terrain streaming, fractional
+voxels and flower-pot models, collision/picking, nine hotbar slots,36 inventory
+slots, crafting, camera/fly controls, atomic persistence, graphics settings,
+offline time/daylight and saved touch sensitivity/inversion/movement bindings.
+The Java gateway retains authoritative online rules and existing City behavior.
+The native gateway now refuses HTTP redirects so credentials/bearers remain tied
+to the configured origin; normal system TLS trust is unchanged. Current48-case
+native qualification and actual controls/network media remain pending.
+
+New delivery tooling supplies an explicit Release arm64 iPhoneOS archive/export
+path with version/build/source binding and SHA256 receipts. Unsigned archives
+are marked not installable; signed exports require existing protected signing
+inputs and never upload or install automatically. See DEVICE-INSTALL.txt.
+
+Remaining limits include native qualification on the latest source, another
+Simulator size, remaining engine/landscape-first polish, actual live-service
+multiplayer, signing/install access, owner iPhone gameplay/performance/thermal/
+battery measurements and independent exact-head review. Native offline saves
+remain separate from desktop save files. Heavy graphics and distant landscape
+remain opt-in until actual device budgets are measured.

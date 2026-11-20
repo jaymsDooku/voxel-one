@@ -1,0 +1,80 @@
+{
+  "sourceHead": "fb4dfc47cd57a40f136664117bb9e490b6d983aa",
+  "status": "passed",
+  "clientChecked": true,
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": {
+    "identifier": "com.apple.CoreSimulator.SimRuntime.iOS-18-5",
+    "name": "iOS 18.5",
+    "version": "18.5"
+  },
+  "deviceType": {
+    "identifier": "com.apple.CoreSimulator.SimDeviceType.iPhone-SE-3rd-generation",
+    "name": "iPhone SE (3rd generation)"
+  },
+  "client": {
+    "bundleId": "dev.jayms.voxelone.ios",
+    "tests": [
+      {
+        "name": "testCraftingTransactionBoundsAndPersistence",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeCraftingMissingIngredientsAndRestart",
+        "status": "passed"
+      },
+      {
+        "name": "testFullInventoryBreakIsAtomic",
+        "status": "passed"
+      },
+      {
+        "name": "testHeldJumpCancelsOnBackgroundAndPause",
+        "status": "passed"
+      },
+      {
+        "name": "testOfflineTouchBuildSavePauseAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testOnlineLoginCityPlanningAndReconnect",
+        "status": "passed"
+      },
+      {
+        "name": "testCollisionJumpRayAndEditRules",
+        "status": "passed"
+      },
+      {
+        "name": "testSnapshotValidationAndSaveRoundTrip",
+        "status": "passed"
+      },
+      {
+        "name": "testAtmosphereProfileMigrationAndNumericalBounds",
+        "status": "passed"
+      },
+      {
+        "name": "testPlanetAtmosphereNativeToggleAndLegacyWorld",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows",
+        "status": "passed"
+      },
+      {
+        "name": "testGraphicsDraftApplyPersistenceAndLandscape",
+        "status": "passed"
+      },
+      {
+        "name": "testNativeGraphicsValidationMigrationAndPresets",
+        "status": "passed"
+      }
+    ]
+  },
+  "limits": [
+    "Simulator only, not physical iPhone.",
+    "Inspected image shows native controls aimed upward at sky; terrain gameplay media remains insufficient."
+  ]
+}

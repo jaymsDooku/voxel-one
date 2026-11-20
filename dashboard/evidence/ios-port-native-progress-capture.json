@@ -1,0 +1,29 @@
+{
+  "baseHead": "d5f4d809f8e424dd4ade12c1d4f240cdcbef1cd2",
+  "scope": "Bounded native test progress at nonzero exit/deadline",
+  "bounds": {
+    "readBytes": 4096,
+    "lineBytes": 1024,
+    "testDeadlineSeconds": 900,
+    "observerJoinSeconds": 5,
+    "unfinishedIds": 3,
+    "failedIds": 3
+  },
+  "localChecks": {
+    "linuxHarnessTests": 63,
+    "failures": 0,
+    "focusedDeadlineTests": "passed after final process/observer ordering adjustment"
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/ios -p 'test_native_deadline.py'",
+    "python3 -m py_compile ios/native-test-runner.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "Playtest": "Synthetic child-process tests only. Native30-case execution and actual game media pending.",
+  "limits": [
+    "All native result gates retained.",
+    "No physical iPhone or signed installation qualification."
+  ]
+}

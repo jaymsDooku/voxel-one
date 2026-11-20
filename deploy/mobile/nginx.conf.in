@@ -1,0 +1,65 @@
+# Include once inside nginx's http block. Render with render_proxy.py.
+# No access/error request logs: passwords and bearers must never be recorded.
+limit_conn_zone $binary_remote_addr zone=voxel_mobile_peer:1m;
+limit_conn_zone $server_name zone=voxel_mobile_total:1m;
+server {
+    listen @@LISTEN@@ ssl;
+    server_name @@HOST@@;
+    ssl_certificate "@@CERTIFICATE@@";
+    ssl_certificate_key "@@PRIVATE_KEY@@";
+    ssl_protocols TLSv1.2 TLSv1.3;
+    ssl_session_tickets off;
+    server_tokens off;
+    access_log off;
+    error_log /dev/null;
+    client_max_body_size 8k;
+    client_body_buffer_size 8k;
+    client_header_timeout 10s;
+    client_body_timeout 15s;
+    keepalive_timeout 15s;
+    send_timeout 15s;
+    limit_conn voxel_mobile_peer 16;
+    limit_conn voxel_mobile_total 64;
+    limit_conn_status 503;
+    gzip off;
+
+    # Raw URI check also rejects queries, escaping, doubled slashes and aliases.
+    if ($host != "@@HOST@@") { return 421; }
+    if ($request_uri !~ "^/mobile/v1/(health|login|state|move|action|logout)$") { return 404; }
+    if ($http_origin != "") { return 403; }
+
+    proxy_http_version 1.1;
+    proxy_set_header Host "127.0.0.1";
+    proxy_set_header Connection "";
+    proxy_set_header Authorization $http_authorization;
+    # Never turn a caller-supplied address into trusted backend identity.
+    proxy_set_header Forwarded "";
+    proxy_set_header X-Forwarded-For "";
+    proxy_set_header X-Forwarded-Proto "";
+    proxy_set_header X-Real-IP "";
+    # Other headers, including Origin, still reach Java's native-client guard.
+    proxy_buffering off;
+    proxy_request_buffering off;
+    proxy_max_temp_file_size 0;
+    proxy_cache off;
+    proxy_store off;
+    # An ambiguous action is never automatically replayed by the proxy.
+    proxy_next_upstream off;
+    proxy_connect_timeout 3s;
+    proxy_send_timeout 15s;
+    proxy_read_timeout 95s;
+    proxy_hide_header Cache-Control;
+    proxy_hide_header X-Content-Type-Options;
+    add_header Cache-Control "no-store" always;
+    add_header X-Content-Type-Options "nosniff" always;
+
+    location = /mobile/v1/health {
+        if ($request_method != GET) { return 405; }
+        proxy_pass http://127.0.0.1:@@GATEWAY_PORT@@;
+    }
+    location ~ ^/mobile/v1/(login|state|move|action|logout)$ {
+        if ($request_method != POST) { return 405; }
+        proxy_pass http://127.0.0.1:@@GATEWAY_PORT@@;
+    }
+    location / { return 404; }
+}

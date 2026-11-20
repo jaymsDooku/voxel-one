@@ -1,0 +1,11 @@
+{
+  "sourceHead": "6662a4d4f14c7e5aef1f52072aa2c638ad7f6169",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44527341466",
+  "jobId": 135571297762,
+  "jobConclusion": "cancelled",
+  "artifactName": "ios-evidence",
+  "artifactCount": 0,
+  "qualification": "No exact-source native result or game media available;28-case validation remains pending. No source defect inferred from cancellation.",
+  "inspection": "Read GitHub job/artifact summaries only; did not fetch runtime logs.",
+  "nextStep": "Fresh scoped controller Mac run for the assigned feature source."
+}

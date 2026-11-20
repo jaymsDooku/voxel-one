@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:22:08+00:00",
+  "updatedAt": "2026-11-20T12:55:36+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -223,6 +223,15 @@
       "status": "in_progress",
       "note": "Implementation and local validation complete: full Java 17 Maven verify passed (779 tests, 0 failures/errors, 1 opt-in browser skip); 28 combat and 67 direct regression tests passed. Live CLI playtest/media and synthetic capacity probe passed. Controller synchronization, publication and exact-head hosted CI remain pending before independent review.",
       "updatedAt": "2026-11-19T23:55:19+00:00"
+    },
+    {
+      "id": "ios-engine-port",
+      "title": "Native iOS engine port",
+      "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "33b474f2 Linux hosted Maven failed before compilation/tests resolving unchanged pinned LWJGL3.4.1 BOM;summary has0 suites. Official artifact now available. Added-U missing-release recheck to desktop verify/native bootstrap. Actual isolated cached404 fixture reproduced failure and-U recovery;project validate/compile and syntax/diff/POM audits passed. Fresh hosted builds and full48-case native/media remain pending;no physical/signing/live qualification inferred.",
+      "updatedAt": "2026-11-20T12:55:36+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

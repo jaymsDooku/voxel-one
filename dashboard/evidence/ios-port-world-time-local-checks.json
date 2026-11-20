@@ -1,0 +1,80 @@
+{
+  "sourceBase": "a77e0e4b7bb70e5c59b5d62d2add0abdc7160934",
+  "sourceState": "uncommitted world-time increment; controller exact-head native validation required",
+  "reviewBase": "30a0687254a6afd731686402823952599d798a69",
+  "implementation": "Optional persisted offline world clock; fixed10:00/1200-second-day Sandbox default; Run/Freeze and four time presets; foreground-only bounded advancement; sun-aware basic native lighting; authoritative Java sun fixtures.",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "87 passed; mocked Linux harness checks, not native execution"
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DskipTests compile",
+      "result": "passed"
+    },
+    {
+      "command": "java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/Resources/terrain-fixtures.json",
+      "result": "regenerated six Java sun vectors; existing terrain cases/window retained"
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=NativeTerrainFixtureTest,MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+      "result": "14 passed: NativeTerrainFixtureTest1, MobileGatewayTest6, FractionalWorldTest7; zero failures/errors/skips"
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed; new WorldTime.swift included in app and native test sources"
+    },
+    {
+      "command": "python3 -m py_compile ios/check-results.py ios/native-test-runner.py ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "AST required-case inventory and Swift test-method comparison",
+      "result": "all45 source methods required, none removed or omitted"
+    },
+    {
+      "command": "review-base deletion/progress audit and validator ancestor check",
+      "result": "zero file deletions;112 unrelated progress entries preserved;8a53afce is ancestor of trusted verifier30a06872"
+    }
+  ],
+  "Playtest": {
+    "observed": "Prior exact-source a77e0e4b native run passed43 cases on iPhone SE3 Simulator/iOS18.5, Xcode16.4/macOS15.8.2. Actual model screenshot and sampled39.15-second360x640 native video inspected. Copied artifacts remain pending controller publication.",
+    "pending": "New45-case native run must exercise Midnight -> movement -> save/terminate/relaunch -> persisted Night -> Daylight -> Run/Freeze/Cancel -> pause/background/resume, plus all prior43 cases. Inspect actual night/day media. Browser playtesting does not apply to this UIKit/SceneKit client."
+  },
+  "audit": "No file deletions intended. Existing fixed fallback light is replaced by sun-aware basic light. Java sun calculation is extracted into a shared helper without changing valid snapshot behavior. All unrelated merged source retained.",
+  "qualificationPending": [
+    "Current Swift build and45-case native execution",
+    "Another iPhone Simulator size",
+    "Full remaining engine parity",
+    "Live secure VPS multiplayer qualification",
+    "Signed installable versioned iPhone artifact and protected signing access",
+    "Physical iPhone frame/memory/thermal/battery qualification",
+    "Independent exact-head reviewer native run and published-media inspection"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/WorldTime.swift": "75a9e0141fa1eb71b3a7f0a136a683a8a1a4ef7dc7e82c89a7fd68f976e1bcba",
+    "ios/VoxelOne/World.swift": "d0c677fb7553162f96f693a028778473f1cb82a57e39cadc26fddff895b95f7f",
+    "ios/VoxelOne/GameController.swift": "6069152023b4b54699ec8d92a6a615f6d75f7213ef14b85555ccdaf8f4dd3712",
+    "ios/VoxelOne/Renderer.swift": "ee7bffa80fc1e7dcfbe30b4a2d4f26925b6e80f3d58bbfb0c24b8d1c22f8ccea",
+    "ios/VoxelOneUITests/WorldRulesTests.swift": "77071e2ce94193f363ca16b00c570f32d039ec5ff2457216370a1cbb7daab675",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "0051a1b406be7ab0fe77c8d6c01a9ab82ea6554d4eed065c678e5e4a5587a0fc",
+    "ios/make-project.py": "79b9e852ee550d29f89dcd1267208f933e5cdb3f3d7c2e60dd0f888de3eddd11",
+    "ios/check-results.py": "e3b3797419a4e14b80650664ce09c7791eb75dff23a629b97e75ff01ffc0afb1",
+    "ios/check-simulator.sh": "c99d5ef31e7f76fe449aaaca3fc7083ef270c5115a8c250f70c557e94a18c04e",
+    "ios/native-test-runner.py": "09255981aa02ab08dc8c65537e78860d5ae2ddcc8098e3085774d94d1891b0c3",
+    "ios/export-playtest.swift": "5b9b5588cfb7c28b3aee2e3bc1ec8a929b06355a17f08ac498d543ea70cb0094",
+    "src/main/java/dev/jayms/net/mobile/MobileSnapshot.java": "74af62170b61b46efc876aa9ba427659452fd49dbb83432278c781c21247c6da",
+    "src/main/java/dev/jayms/net/mobile/NativeTerrainFixtures.java": "237a85ba5681e3e4df0c458e4b4638069c6dbbacdc76f70070d08abc2c33944e",
+    "src/test/java/dev/jayms/NativeTerrainFixtureTest.java": "02b9e169a9ef1f71f5a9f0ae1018ab165c0b3e78473587da23ac2b663c708763",
+    "ios/Resources/terrain-fixtures.json": "f669e9bb6c6827b7f88ec4c163bd78205c80def1865ff6cfadee14bc78e93b6a",
+    "tools/ios/test_native_deadline.py": "51ff8d00dfd450560a6727523dfdcd1acc74b555446732545a22a30a47d63979"
+  }
+}

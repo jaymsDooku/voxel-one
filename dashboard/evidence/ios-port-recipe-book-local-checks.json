@@ -1,0 +1,25 @@
+{
+  "baseHead": "ed9d59ad933e79b754afdaefdb49341a04a617df",
+  "scope": "Working edits: searchable 95 block-recipe book; native validation pending",
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DskipTests compile",
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/make-project.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "observed": {
+    "javaTests": 11,
+    "javaFailures": 0,
+    "linuxHarnessTests": 56,
+    "linuxHarnessFailures": 0,
+    "recipeCount": 95
+  },
+  "Playtest": "New UIKit book and new30-case suite pending exact-source Mac execution. Prior28-case source is separately receipted.",
+  "limits": [
+    "No physical iPhone or live VPS qualification.",
+    "Signing and installation delivery remain open."
+  ]
+}

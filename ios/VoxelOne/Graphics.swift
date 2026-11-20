@@ -12,8 +12,9 @@ struct NativeGraphics:Codable,Equatable {
     var detail=180
     var bloom=false
     var atmosphere=false
+    var distant=false
     init() {}
-    private enum CodingKeys:String,CodingKey {case version,preset,samples,frames,detail,bloom,atmosphere}
+    private enum CodingKeys:String,CodingKey {case version,preset,samples,frames,detail,bloom,atmosphere,distant}
     init(from decoder:Decoder)throws {
         let c=try decoder.container(keyedBy:CodingKeys.self)
         version=try c.decodeIfPresent(Int.self,forKey:.version) ?? 1
@@ -23,6 +24,7 @@ struct NativeGraphics:Codable,Equatable {
         detail=try c.decodeIfPresent(Int.self,forKey:.detail) ?? 180
         bloom=try c.decodeIfPresent(Bool.self,forKey:.bloom) ?? false
         atmosphere=try c.decodeIfPresent(Bool.self,forKey:.atmosphere) ?? false
+        distant=try c.decodeIfPresent(Bool.self,forKey:.distant) ?? false
     }
     static var url:URL {FileManager.default.urls(for:.applicationSupportDirectory,in:.userDomainMask)[0].appendingPathComponent("voxel-one-graphics.json")}
     func validated()->NativeGraphics {
@@ -44,7 +46,7 @@ struct NativeGraphics:Codable,Equatable {
         var p=NativeGraphics();p.preset=name
         if name=="Low" {p.samples=0}
         if name=="High" {p.samples=4;p.frames=60;p.bloom=true}
-        // Atmosphere stays opt-in at all presets until a physical-device budget exists.
+        // Heavy optional visuals stay opt-in until a physical-device budget exists.
         return p
     }
     func effective()->NativeGraphics {
@@ -83,6 +85,8 @@ final class NativeGraphicsScreen:UIViewController {
         choices("Anti-aliasing","graphicsAA",["Off","2x","4x"],[0,2,4].firstIndex(of:draft.samples) ?? 1,#selector(aaChanged(_:)))
         choices("Frame-rate cap","graphicsFrames",["30 FPS","60 FPS"],draft.frames==60 ? 1:0,#selector(framesChanged(_:)))
         choices("Detail distance (blocks)","graphicsDetail",["32","64","128","180"],[32,64,128,180].firstIndex(of:draft.detail) ?? 3,#selector(detailChanged(_:)))
+        toggle("Distant landscape (experimental)","graphicsDistant",draft.distant,#selector(distantChanged(_:)))
+        stack.addArrangedSubview(label("Optional scenery beyond nearby voxels. Uses more memory and frame time; device budget pending."))
         toggle("Bloom","graphicsBloom",draft.bloom,#selector(bloomChanged(_:)))
         toggle("Experimental planet atmosphere (device budget pending)","graphicsAtmosphere",draft.atmosphere,#selector(atmosphereChanged(_:)))
         stack.addArrangedSubview(label("Desktop shadows, screen GI, dynamic resolution, texture filtering and display modes are unavailable in this renderer. Solid walls still block native sky light. No simulator FPS claim applies to a physical iPhone."))
@@ -96,6 +100,7 @@ final class NativeGraphicsScreen:UIViewController {
     @objc private func detailChanged(_ c:UISegmentedControl){draft.detail=[32,64,128,180][c.selectedSegmentIndex];edited()}
     @objc private func bloomChanged(_ c:UISwitch){draft.bloom=c.isOn;edited()}
     @objc private func atmosphereChanged(_ c:UISwitch){draft.atmosphere=c.isOn;edited()}
+    @objc private func distantChanged(_ c:UISwitch){draft.distant=c.isOn;edited()}
     @objc private func reset(){draft=NativeGraphics();refresh()}
     @objc private func apply(){do{try applyProfile(draft.validated());dismiss(animated:true){self.onClose?()}}catch{status.text="Graphics apply failed. Kept the current settings."}}
     @objc private func cancel(){dismiss(animated:true){self.onClose?()}}

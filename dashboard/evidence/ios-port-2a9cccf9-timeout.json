@@ -1,0 +1,12 @@
+{
+  "sourceHead": "2a9cccf926f05d82bdf9378ed7799e7411cfa7b3",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44516014231",
+  "status": "failed",
+  "clientChecked": false,
+  "timedOut": true,
+  "returnedDiagnosticLines": 0,
+  "diagnosticsTruncated": true,
+  "inspection": "1200-second client timeout. No compiler/assertion lines returned from bounded diagnostic windows; stall location and root cause are not proven. No game media returned.",
+  "followUp": "Bound owned native-test child to900 seconds, append only allowlisted XCTest progress from64KiB tail and short identifier on actual deadline failure, cancel mesh test worker in defer. All26 native cases remain required.",
+  "localValidation": "56 Linux checks passed including actual synthetic child success/nonzero exit/timeout and bounded progress privacy checks. Native app and Xcode not executed locally."
+}

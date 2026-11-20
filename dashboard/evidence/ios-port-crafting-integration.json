@@ -1,0 +1,33 @@
+{
+  "status": "passed",
+  "source": "working edits after b22dadbbcf0401a865a5a5d565ea79f04ccafefe; controller exact head pending",
+  "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+  "suite": {
+    "name": "dev.jayms.MobileGatewayTest",
+    "tests": "13",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "181.623"
+  },
+  "tests": [
+    "receiptTimeoutReportsOnlyFixedSyntheticStage",
+    "phonePoseStreamSurvivesStalledCityReader",
+    "slowCityReceiptStillConfirmsWithoutRetry",
+    "modalIdleKeepsGameConnectionButLogoutStillRevokesSession",
+    "slowCityLoginIsNotAnAuthenticationFailure",
+    "codecAndTransportRejectMalformedOrBrowserRequests",
+    "nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset",
+    "invalidPoseIsRejectedWithoutClosingSession",
+    "slowSnapshotDoesNotBlockTransportHeartbeat",
+    "cityCommandsAndEconomyAreServerOwned",
+    "syntheticServerCloseReasonIsFixedAndContainsNoAccountData",
+    "loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer",
+    "closedGameReturnsFixedTransportReasonBeforeTokenRevocation"
+  ],
+  "playtest": "Actual isolated Java sandbox/city servers and mobile gateway: login, voxel edits observed through desktop protocol, reach rejection, token revocation/reconnect, transport stall/timeout, city commands. New recipe catalog/asset parity test passed. Browser playtesting does not apply to this native/server integration. New native crafting touch checks await Mac.",
+  "limits": [
+    "Synthetic accounts/worlds only; no production VPS test.",
+    "No physical iPhone or new native crafting test pass claimed."
+  ]
+}

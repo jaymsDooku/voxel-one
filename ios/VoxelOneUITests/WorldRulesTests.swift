@@ -1,7 +1,261 @@
 import XCTest
 import SceneKit
+import CryptoKit
 
-final class WorldRulesTests:XCTestCase {
+/// Capture only allowlisted source metadata. All assertions still reach XCTest.
+class NativeEvidenceTestCase:XCTestCase {
+    override func record(_ issue:XCTIssue){
+        // Descriptions, associated errors, attachments and stacks stay private.
+        if let location=issue.sourceCodeContext.location,
+           ["NativeWorkflowTests.swift","WorldRulesTests.swift","GraphicsRulesTests.swift"].contains(location.fileURL.lastPathComponent),
+           location.lineNumber>0,location.lineNumber<=99999 {
+            let code=issue.type == .assertionFailure ? "assertion":"execution"
+            print("native_workflow_issue source=\(location.fileURL.lastPathComponent) line=\(location.lineNumber) code=\(code)")
+        }
+        super.record(issue)
+    }
+}
+
+/// The worker probe synchronizes every access; no actor-isolated test state enters the worker.
+private final class SaveWorkerProbe:@unchecked Sendable {
+    private let lock=NSLock();private var values:[Int]=[]
+    func record(_ value:Int){lock.lock();defer{lock.unlock()};values.append(value)}
+    var counts:[Int] {lock.lock();defer{lock.unlock()};return values}
+}
+
+final class WorldRulesTests:NativeEvidenceTestCase {
+    func testWorldTimeValidationCycleLightingAndPersistence()throws {
+        let fixed=NativeWorldTime();try fixed.validate();XCTAssertEqual(fixed.hour,10);XCTAssertEqual(fixed.daySeconds,1200);XCTAssertFalse(fixed.cycling)
+        var clock=fixed;clock.advance(seconds:1);XCTAssertEqual(clock,fixed)
+        clock.hour=23.9;clock.daySeconds=60;clock.cycling=true;clock.advance(seconds:1)
+        XCTAssertEqual(clock.day,2);XCTAssertEqual(clock.hour,0.3,accuracy:0.000001)
+        let after=clock;clock.advance(seconds:Double.nan);clock.advance(seconds:-1);XCTAssertEqual(clock,after)
+        clock.advance(seconds:3600);XCTAssertEqual(clock.hour,0.7,accuracy:0.000001,"Background/stall gaps never catch up hours")
+        clock.day=1_000_000_000;clock.hour=23.9;clock.advance(seconds:1);XCTAssertFalse(clock.cycling);try clock.validate()
+        var invalid=fixed;invalid.version=2;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.hour=24;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.day=0;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.daySeconds=59;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.hour=Double.infinity;XCTAssertThrowsError(try invalid.validate())
+        struct ClockCase:Decodable {var hour:Double;var sun:[Double]}
+        struct ClockFixture:Decodable {var clock:[ClockCase]}
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"terrain-fixtures",withExtension:"json"))
+        let fixture=try JSONDecoder().decode(ClockFixture.self,from:Data(contentsOf:url));XCTAssertEqual(fixture.clock.count,6)
+        for sample in fixture.clock {
+            var time=fixed;time.hour=sample.hour
+            for axis in 0..<3 {XCTAssertEqual(time.sun[axis],sample.sun[axis],accuracy:1e-12,"Native light must match the Java gateway fixture")}
+            XCTAssertEqual(NativeWorldTime.preserving(time.sun).hour,sample.hour,accuracy:1e-10)
+        }
+        let night=NativeDaylight(height:-1),day=NativeDaylight(height:1)
+        XCTAssertEqual(night.direct,0);XCTAssertEqual(night.ambient,75);XCTAssertEqual(day.direct,950);XCTAssertEqual(day.ambient,650)
+        XCTAssertLessThan(night.sky.reduce(0,+),day.sky.reduce(0,+))
+        XCTAssertTrue(NativeDaylight(height:Double.nan).sky.allSatisfy{$0.isFinite})
+        let world=try VoxelWorld(terrainFixture()),geometry=world.geometryRevision
+        XCTAssertNil(world.snapshot.worldTime,"Legacy saves do not acquire a new clock implicitly")
+        var selected=fixed;selected.hour=0;try world.setTime(selected)
+        XCTAssertEqual(world.geometryRevision,geometry,"Lighting changes never remesh terrain")
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.snapshot.worldTime,selected);XCTAssertEqual(restored.snapshot.sun,selected.sun)
+        selected.cycling=true;try world.setTime(selected)
+        let region=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:8,y:27,z:0))
+        world.advanceTime(seconds:1);let live=world.snapshot.worldTime
+        XCTAssertTrue(world.installTerrain(region,expectedGeometryRevision:geometry));XCTAssertEqual(world.snapshot.worldTime,live,"Stale region preparation cannot rewind time")
+        var mismatch=world.savedSnapshot();mismatch.sun=fixed.sun;XCTAssertThrowsError(try mismatch.validate())
+    }
+    func testDistantCacheReusesNearEditsInvalidatesAndEvicts()throws {
+        let world=try VoxelWorld(terrainFixture()),cache=NativeDistantCache()
+        let started=ProcessInfo.processInfo.systemUptime
+        let first=try XCTUnwrap(cache.prepare(world.savedSnapshot(),radius:32,cancelled:{false}))
+        let built=ProcessInfo.processInfo.systemUptime
+        XCTAssertFalse(first.reused);XCTAssertFalse(first.pages.isEmpty);XCTAssertLessThanOrEqual(first.pages.count,16)
+        world.position.x=1.5;world.snapshot.inventory[3]=[165,9]
+        try world.offlineEdit(at:GridKey(2,60,2),type:2)
+        let warm=try XCTUnwrap(cache.prepare(world.savedSnapshot(),radius:32,cancelled:{false}))
+        let reused=ProcessInfo.processInfo.systemUptime
+        XCTAssertTrue(warm.reused,"Nearby edits, inventory and pose must not regenerate unchanged far geometry")
+        XCTAssertEqual(warm.pages.flatMap{$0.positions},first.pages.flatMap{$0.positions})
+        var changed=world.savedSnapshot()
+        changed.terrainEdits?.append(NativeTerrainEdit(cell:GridKey(29,90,-3),type:3,color:0x8c949e))
+        let edited=try XCTUnwrap(cache.prepare(changed,radius:32,cancelled:{false}))
+        XCTAssertFalse(edited.reused);XCTAssertNotEqual(edited.pages.flatMap{$0.positions},first.pages.flatMap{$0.positions})
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(changed,radius:64,cancelled:{false})).reused)
+        let moved=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:8,y:27,z:0))
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:32,cancelled:{false})).reused)
+        cache.clear()
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:32,cancelled:{false})).reused,"Memory eviction forces a clean rebuild")
+        XCTAssertNil(try cache.prepare(moved.snapshot,radius:32,cancelled:{true}))
+        var calls=0
+        XCTAssertNil(try cache.prepare(moved.snapshot,radius:64,cancelled:{
+            calls+=1;if calls==3 {cache.clear()};return false
+        }),"Eviction during generation fences its late cache publication")
+        XCTAssertFalse(try XCTUnwrap(cache.prepare(moved.snapshot,radius:64,cancelled:{false})).reused)
+        print("native_distant_cache first_ms=\(Int((built-started)*1000)) warm_with_edit_ms=\(Int((reused-built)*1000))")
+    }
+    func testDistantTerrainBoundsJournalModelsAndCancellation()throws {
+        var value=try terrainFixture()
+        func pages(_ value:Snapshot)throws->[NativeMeshBuffer] {
+            var result:[NativeMeshBuffer]=[]
+            XCTAssertTrue(try NativeDistantMesher.build(value,radius:96,cancelled:{false}){result.append($0);return true})
+            return result
+        }
+        let result=try pages(value)
+        XCTAssertFalse(result.isEmpty)
+        var quads=0
+        for page in result {
+            XCTAssertLessThanOrEqual(page.positions.count/3,4096)
+            XCTAssertEqual(page.normals.count,page.positions.count);XCTAssertEqual(page.colors.count/4,page.positions.count/3)
+            XCTAssertTrue(page.positions.allSatisfy{$0.isFinite});quads+=page.positions.count/12
+            for offset in stride(from:0,to:page.positions.count,by:12) where page.normals[offset+1]==1 {
+                let xs=(0..<4).map{page.positions[offset+$0*3]},zs=(0..<4).map{page.positions[offset+$0*3+2]}
+                let x=(xs.min()!+xs.max()!)/2,z=(zs.min()!+zs.max()!)/2
+                XCTAssertFalse(x>=(-24) && x<25 && z>=(-24) && z<25,"Distant tops never cover resident cells")
+                XCTAssertTrue(xs.allSatisfy{abs($0)<=96});XCTAssertTrue(zs.allSatisfy{abs($0)<=96})
+            }
+        }
+        XCTAssertLessThanOrEqual(quads,NativeDistantMesher.maximumQuads)
+        func sampledHeight(_ pages:[NativeMeshBuffer])->Float? {
+            for page in pages {for offset in stride(from:0,to:page.positions.count,by:12) {
+                if page.normals[offset+1]==1 && page.positions[offset]==48 && page.positions[offset+2]==0 {return page.positions[offset+1]}
+            }};return nil
+        }
+        let baseline=try XCTUnwrap(sampledHeight(result))
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:8,color:0)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),baseline,"Tiny models are omitted, never shown as coarse cubes")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:3,color:0x8c949e)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),91,"Known column edits affect distant surface height")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:141,color:0)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),90.5,"Fractional item height must not become a whole cube")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:255,color:0,geometry:NativeGeometry(resolution:16,leaves:[[0,0,0,8,2,0x7a4d2b]]))]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),90.5,"Partial leaves retain their maximum height in the coarse surface")
+        var emitted=false
+        XCTAssertFalse(try NativeDistantMesher.build(value,radius:96,cancelled:{true}){_ in emitted=true;return true});XCTAssertFalse(emitted)
+        XCTAssertFalse(try NativeDistantMesher.build(value,radius:96,cancelled:{false}){_ in false},"Consumer cancellation stops page production")
+        XCTAssertThrowsError(try NativeDistantMesher.build(value,radius:100,cancelled:{false}){_ in true})
+        var finite=value;finite.generatorVersion=nil;finite.terrainEdits=nil
+        XCTAssertThrowsError(try NativeDistantMesher.build(finite,radius:96,cancelled:{false}){_ in true})
+    }
+    private func terrainFixture()throws->Snapshot {
+        let bundle=Bundle(for:WorldRulesTests.self)
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:XCTUnwrap(bundle.url(forResource:"contract",withExtension:"json"))))
+        let generator=try NativeTerrain(seed:748291,version:3),height=generator.surfaceHeight(0,0)+1
+        let generated=try generator.window(cx:0,cz:0,eyeY:height,radius:24,colors:Dictionary(uniqueKeysWithValues:contract.materials.map{($0.id,$0.color)}))
+        var value=fixture();value.schema=2;value.contract=contract;value.details=[];value.generatorVersion=3;value.terrainEdits=[]
+        value.bounds=generated.bounds;value.cells=generated.cells;value.pose=[0.5,Float(height),0.5,0,0]
+        value.inventory=Array(repeating:[0,0],count:36);value.inventory[0]=[2,32];value.inventory[1]=[8,2];value.inventory[2]=[141,8]
+        try value.validate();return value
+    }
+    func testTerrainJournalEvictionMigrationAndAtomicCapacity()throws {
+        let world=try VoxelWorld(terrainFixture()),generator=try NativeTerrain(seed:748291,version:3)
+        let hole=GridKey(2,generator.surfaceHeight(2,2),2),pot=GridKey(3,60,3),half=GridKey(4,60,3)
+        try world.offlineEdit(at:hole,type:0)
+        world.slot=1;try world.offlineEdit(at:pot,type:8)
+        world.slot=2;try world.offlineRegionEdit(NativeVoxelAddress(cell:half,depth:1,ix:1,iy:0,iz:0),type:141)
+        let boxes=world.boxes(half),inventory=world.snapshot.inventory
+        let outbound=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:64,y:27,z:0))
+        world.position=SCNVector3(64.5,40,0.5)
+        XCTAssertTrue(world.installTerrain(outbound,expectedGeometryRevision:world.geometryRevision))
+        XCTAssertEqual(world.type(pot),0,"Evicted cells must leave resident maps")
+        XCTAssertEqual(world.snapshot.terrainEdits?.count,3);XCTAssertLessThanOrEqual(world.types.count,120000)
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        let inbound=try NativeTerrainRegion.build(restored.savePayload(),target:NativeTerrainTarget(x:0,y:27,z:0))
+        restored.position=SCNVector3(0.5,27,0.5)
+        XCTAssertTrue(restored.installTerrain(inbound,expectedGeometryRevision:restored.geometryRevision))
+        XCTAssertEqual(restored.type(hole),0,"Explicit air survives eviction and restart")
+        XCTAssertEqual(restored.type(pot),8);XCTAssertEqual(restored.boxes(half),boxes)
+        XCTAssertEqual(restored.snapshot.inventory,inventory,"Streaming neither consumes nor duplicates items")
+        var old=restored.savedSnapshot();old.terrainEdits=nil
+        let migrated=try NativeTerrainRegion.migrateJournal(old)
+        XCTAssertEqual(migrated.terrainEdits?.count,3);XCTAssertTrue(try VoxelWorld(migrated).streamsTerrain)
+        var finite=fixture();finite=try NativeTerrainRegion.migrateJournal(finite)
+        XCTAssertNil(finite.generatorVersion);XCTAssertNil(finite.terrainEdits)
+        var dense=try terrainFixture();dense.terrainEdits=nil
+        for index in 0...NativeTerrainEdit.maximumCells {
+            dense.cells[index][3]=dense.cells[index][3]==2 ? 3:2
+            dense.cells[index][4]=0x123456
+        }
+        let kept=try NativeTerrainRegion.migrateJournal(dense)
+        XCTAssertNil(kept.generatorVersion,"An oversized migration keeps a finite world")
+        XCTAssertNil(kept.terrainEdits);XCTAssertEqual(kept.cells,dense.cells,"Migration must never drop unique old edits")
+        // Capacity must be reserved before picking up a block or consuming inventory.
+        restored.snapshot.terrainEdits=(0..<NativeTerrainEdit.maximumCells).map{NativeTerrainEdit(cell:GridKey(1000+$0,0,0),type:0,color:0)}
+        let revision=restored.geometryRevision,bag=restored.snapshot.inventory,oldType=restored.type(GridKey(0,26,0))
+        XCTAssertThrowsError(try restored.offlineEdit(at:GridKey(0,26,0),type:0))
+        XCTAssertEqual(restored.type(GridKey(0,26,0)),oldType);XCTAssertEqual(restored.snapshot.inventory,bag);XCTAssertEqual(restored.geometryRevision,revision)
+        var invalid=restored.savedSnapshot();invalid.terrainEdits?.append(NativeTerrainEdit(cell:GridKey(0,0,0),type:0,color:0))
+        XCTAssertThrowsError(try invalid.validate())
+        invalid=restored.savedSnapshot();invalid.terrainEdits=[NativeTerrainEdit(cell:pot,type:0,color:0)]
+        XCTAssertThrowsError(try invalid.validate(),"A journal cannot contradict resident terrain")
+    }
+    func testTerrainInstallFencesEditsPreservesPoseAndInventory()throws {
+        let world=try VoxelWorld(terrainFixture()),target=NativeTerrainTarget(x:8,y:27,z:0),revision=world.geometryRevision
+        let region=try NativeTerrainRegion.build(world.savePayload(),target:target)
+        world.position=SCNVector3(12.5,30,0.5);world.yaw=1;world.snapshot.inventory[3]=[165,9]
+        XCTAssertTrue(world.installTerrain(region,expectedGeometryRevision:revision))
+        XCTAssertEqual(world.position.x,12.5);XCTAssertEqual(world.yaw,1);XCTAssertEqual(world.snapshot.inventory[3],[165,9])
+        let before=world.geometryRevision,stale=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:16,y:30,z:0))
+        try world.offlineEdit(at:GridKey(2,60,2),type:2)
+        XCTAssertFalse(world.installTerrain(stale,expectedGeometryRevision:before));XCTAssertEqual(world.type(GridKey(2,60,2)),2)
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:0.5,y:27,z:0.5))
+        XCTAssertEqual(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:12.5,y:27,z:0.5)?.x,8)
+        XCTAssertEqual(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:-12.5,y:27,z:0.5)?.x,-16)
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[-24,24,19,63,-24,24],x:Float.infinity,y:27,z:0))
+        XCTAssertNil(NativeTerrainTarget.needed(bounds:[999952,1000000,19,63,-24,24],x:999999,y:27,z:0))
+    }
+    func testTerrainWorkerSingleFlightCancellationAndFailure()throws {
+        let payload=try VoxelWorld(terrainFixture()).savePayload(),gate=DispatchSemaphore(value:0),started=expectation(description:"worker started"),done=expectation(description:"cancelled then retried")
+        DispatchQueue.main.async {
+            let worker=NativeTerrainStreamer(),target=NativeTerrainTarget(x:8,y:27,z:0)
+            XCTAssertTrue(worker.request(payload:payload,target:target,operation:{payload,target in
+                XCTAssertFalse(Thread.isMainThread);started.fulfill();gate.wait()
+                return try NativeTerrainRegion.build(payload,target:target)
+            }){result in
+                XCTAssertTrue(Thread.isMainThread)
+                if case .cancelled=result {}else{XCTFail("Cancelled region must never install")}
+                XCTAssertFalse(worker.isBusy)
+                XCTAssertTrue(worker.request(payload:payload,target:target,operation:{_,_ in throw GameError.invalidWorld}){result in
+                    if case .failed=result {}else{XCTFail("Generation failure must remain a failure")};done.fulfill()
+                })
+            })
+            XCTAssertFalse(worker.request(payload:payload,target:target){_ in XCTFail("A second worker must not be queued")})
+            worker.cancel();gate.signal()
+        }
+        wait(for:[started,done],timeout:20)
+    }
+    func testNativeTerrainMatchesSharedJavaFixture()throws {
+        struct Sample:Decodable {var seed:String;var version:Int;var x:Int;var y:Int;var z:Int;var block:Int;var surface:Int;var ocean:Bool}
+        struct Window:Decodable {var seed:String;var generatorVersion:Int;var eyeY:Int;var bounds:[Int];var cellCount:Int;var sha256:String}
+        struct Fixture:Decodable {var version:Int;var cases:[Sample];var window:Window}
+        let bundle=Bundle(for:WorldRulesTests.self)
+        let data=try Data(contentsOf:XCTUnwrap(bundle.url(forResource:"terrain-fixtures",withExtension:"json")))
+        XCTAssertLessThan(data.count,2_000_000)
+        let fixture=try JSONDecoder().decode(Fixture.self,from:data);XCTAssertEqual(fixture.version,1)
+        XCTAssertTrue(fixture.cases.count>1000 && fixture.cases.count<=12000)
+        var generators:[String:NativeTerrain]=[:]
+        for sample in fixture.cases {
+            let key="\(sample.seed):\(sample.version)"
+            if generators[key]==nil {generators[key]=try NativeTerrain(seed:XCTUnwrap(Int64(sample.seed)),version:sample.version)}
+            let terrain=try XCTUnwrap(generators[key])
+            XCTAssertEqual(terrain.block(sample.x,sample.y,sample.z),sample.block,"Shared generator \(key) at \(sample.x),\(sample.y),\(sample.z)")
+            XCTAssertEqual(terrain.surfaceHeight(sample.x,sample.z),sample.surface)
+            XCTAssertEqual(terrain.ocean(sample.x,sample.z),sample.ocean)
+        }
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:XCTUnwrap(bundle.url(forResource:"contract",withExtension:"json"))))
+        let terrain=try NativeTerrain(seed:XCTUnwrap(Int64(fixture.window.seed)),version:fixture.window.generatorVersion)
+        let colors=Dictionary(uniqueKeysWithValues:contract.materials.map{($0.id,$0.color)})
+        let window=try terrain.window(cx:0,cz:0,eyeY:fixture.window.eyeY,radius:24,colors:colors)
+        XCTAssertEqual(window.bounds,fixture.window.bounds);XCTAssertEqual(window.cells.count,fixture.window.cellCount)
+        var bytes=Data();bytes.reserveCapacity(window.cells.count*20)
+        for row in window.cells {for number in row {var encoded=Int32(truncatingIfNeeded:number).bigEndian;withUnsafeBytes(of:&encoded){bytes.append(contentsOf:$0)}}}
+        XCTAssertEqual(SHA256.hash(data:bytes).map{String(format:"%02x",$0)}.joined(),fixture.window.sha256)
+        let legacy=try NativeTerrain(seed:748291,version:1),height=try NativeTerrain(seed:748291,version:1).surfaceHeight(0,0)
+        for x in 0..<8300 {_=legacy.surfaceHeight(x,99)}
+        XCTAssertLessThanOrEqual(legacy.cachedColumnCount,8192);XCTAssertEqual(legacy.cachedFieldCount,0)
+        XCTAssertEqual(legacy.surfaceHeight(0,0),height,"Cache eviction cannot change seeded terrain")
+        XCTAssertEqual(terrain.block(Int.min,0,Int.max),0)
+        XCTAssertThrowsError(try NativeTerrain(seed:0,version:4))
+        XCTAssertThrowsError(try terrain.window(cx:Int.min,cz:0,eyeY:27,radius:24,colors:colors))
+        XCTAssertThrowsError(try terrain.window(cx:0,cz:0,eyeY:27,radius:25,colors:colors))
+    }
     func testNativeSkyVisibilityBlocksRoofsAndTransmitsWindows()throws {
         var enclosed=fixture()
         for x in 1...7 {for y in 1...7 {for z in 1...7 {
@@ -72,6 +326,316 @@ final class WorldRulesTests:XCTestCase {
         XCTAssertThrowsError(try world.offlineEdit(at:GridKey(0,1,0),type:2),"Cannot build inside player")
         XCTAssertEqual(world.type(GridKey(0,1,0)),0)
         XCTAssertFalse(world.within(SCNVector3(8.9,1,0)))
+    }
+    func testFullInventoryBreakIsAtomic()throws {
+        var value=fixture();value.inventory=Array(repeating:[2,64],count:36)
+        let world=try VoxelWorld(value),key=GridKey(0,1,-2),revision=world.revision
+        XCTAssertThrowsError(try world.offlineEdit(at:key,type:0))
+        XCTAssertEqual(world.type(key),3);XCTAssertEqual(world.revision,revision)
+        XCTAssertEqual(world.snapshot.inventory,value.inventory)
+        world.snapshot.inventory[35]=[3,63]
+        try world.offlineEdit(at:key,type:0)
+        XCTAssertEqual(world.snapshot.inventory[35],[3,64]);XCTAssertEqual(world.type(key),0)
+        world.snapshot.inventory[35]=[0,0]
+        try world.offlineEdit(at:GridKey(1,0,1),type:0)
+        XCTAssertEqual(world.snapshot.inventory[35],[1,1])
+    }
+    func testCraftingTransactionBoundsAndPersistence()throws {
+        let recipe=NativeRecipe(id:89,name:"Make bricks",inputs:[[3,4]],output:166,count:4)
+        var value=fixture();value.inventory[0]=[3,2];value.inventory[1]=[3,3];value.inventory[2]=[166,63]
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe)
+        XCTAssertEqual(world.snapshot.inventory[0],[166,3]);XCTAssertEqual(world.snapshot.inventory[1],[3,1])
+        XCTAssertEqual(world.snapshot.inventory[2],[166,64])
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.snapshot.inventory,world.snapshot.inventory)
+        let before=world.snapshot.inventory,revision=world.revision
+        XCTAssertThrowsError(try world.offlineCraft(recipe));XCTAssertEqual(world.snapshot.inventory,before)
+        XCTAssertEqual(world.revision,revision)
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[3,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe))
+        XCTAssertEqual(full.snapshot.inventory,value.inventory)
+        var invalid=recipe;invalid.inputs=[[3,2],[3,2]];XCTAssertThrowsError(try invalid.validate())
+        invalid=recipe;invalid.count=65;XCTAssertThrowsError(try invalid.validate())
+        value=fixture();value.recipes=[recipe,recipe];XCTAssertThrowsError(try value.validate())
+    }
+    func testSharedItemLimitsToolCraftingAndLegacyMigration()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try contract.validate()
+        var value=fixture();value.schema=2;value.contract=contract;value.details=[]
+        value.inventory[0]=[165,64];value.inventory[1]=[190,64]
+        let recipe=NativeRecipe(id:96,name:"Wooden pickaxe",inputs:[[165,3],[190,2]],output:191,count:1,category:"Tools")
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe,quantity:2)
+        XCTAssertEqual(world.snapshot.inventory[2],[191,1]);XCTAssertEqual(world.snapshot.inventory[3],[191,1])
+        XCTAssertEqual(world.snapshot.inventory[0],[165,58]);XCTAssertEqual(world.snapshot.inventory[1],[190,60])
+        world.slot=2;XCTAssertThrowsError(try world.offlineEdit(at:GridKey(2,1,2),type:191));XCTAssertEqual(world.type(GridKey(2,1,2)),0)
+        XCTAssertFalse(world.itemPlaceable(191));XCTAssertFalse(world.itemPlaceable(190));XCTAssertTrue(world.itemPlaceable(165))
+        var invalid=world.savedSnapshot();invalid.inventory[2]=[191,2];XCTAssertThrowsError(try invalid.validate())
+        invalid=world.savedSnapshot();invalid.contract?.items=nil;invalid.contract?.itemsVersion=nil;XCTAssertThrowsError(try invalid.validate())
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[165,64];value.inventory[1]=[190,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe,quantity:2));XCTAssertEqual(full.snapshot.inventory,value.inventory)
+        var legacy=fixture();legacy.schema=2;legacy.contract=contract;legacy.details=[]
+        legacy.contract?.items=nil;legacy.contract?.itemsVersion=nil;legacy.contract?.materials[1].name="Saved earth"
+        let upgraded=try OfflineSave.migrate(legacy,contract:contract)
+        XCTAssertEqual(upgraded.contract?.items?.count,199);XCTAssertEqual(upgraded.contract?.itemsVersion,1)
+        XCTAssertEqual(upgraded.contract?.items?.first{$0.id==2}?.name,"Saved earth")
+        XCTAssertEqual(upgraded.contract?.models.map{$0.fingerprint},legacy.contract?.models.map{$0.fingerprint})
+    }
+    func testBatchCraftingBoundsStorageAndRollback()throws {
+        var value=fixture();value.inventory[0]=[6,64];value.inventory[1]=[165,63]
+        let recipe=NativeRecipe(id:88,name:"Saw planks",inputs:[[6,1]],output:165,count:4)
+        let world=try VoxelWorld(value);try world.offlineCraft(recipe,quantity:64)
+        XCTAssertEqual(world.snapshot.inventory.filter{$0[0]==165}.reduce(0){$0+$1[1]},319)
+        XCTAssertFalse(world.snapshot.inventory.contains{$0[0]==6})
+        XCTAssertTrue(world.snapshot.inventory.allSatisfy{$0[1]<=64})
+        let before=world.snapshot.inventory,revision=world.revision
+        for invalid in [0,65,Int.max] {XCTAssertThrowsError(try world.offlineCraft(recipe,quantity:invalid))}
+        XCTAssertThrowsError(try world.offlineCraft(recipe,quantity:2))
+        XCTAssertEqual(world.snapshot.inventory,before);XCTAssertEqual(world.revision,revision)
+        value.inventory=Array(repeating:[2,64],count:36);value.inventory[0]=[6,64]
+        let full=try VoxelWorld(value);XCTAssertThrowsError(try full.offlineCraft(recipe,quantity:2))
+        XCTAssertEqual(full.snapshot.inventory,value.inventory)
+    }
+    func testFractionalRecipeConservationAndMetadata()throws {
+        var value=fixture();value.inventory[0]=[2,1]
+        let world=try VoxelWorld(value)
+        let cut=NativeRecipe(id:8,name:"Cut Dirt",inputs:[[2,1]],output:141,count:8,category:"Building")
+        let join=NativeRecipe(id:9,name:"Join Dirt",inputs:[[141,8]],output:2,count:1,category:"Building")
+        try world.offlineCraft(cut);XCTAssertEqual(world.snapshot.inventory[0],[141,8])
+        try world.offlineCraft(join);XCTAssertEqual(world.snapshot.inventory,value.inventory)
+        let before=world.snapshot.inventory;XCTAssertThrowsError(try world.offlineCraft(join));XCTAssertEqual(world.snapshot.inventory,before)
+        var invalid=cut;invalid.category="unknown";XCTAssertThrowsError(try invalid.validate())
+        let old=try JSONDecoder().decode(NativeRecipe.self,from:Data("{\"id\":8,\"name\":\"Cut Dirt\",\"inputs\":[[2,1]],\"output\":141,\"count\":8}".utf8))
+        try old.validate();XCTAssertNil(old.category)
+    }
+    func testFlightCollisionBoundsHoverAndWalkRecovery()throws {
+        var value=fixture();value.cells.append([0,4,0,3,0x8c949e])
+        let world=try VoxelWorld(value);world.setFlying(true)
+        for _ in 0..<60 {world.step(forward:0,strafe:0,dt:1.0/30,climb:1)}
+        XCTAssertLessThanOrEqual(world.position.y,2.21,"Head must stop at roof")
+        XCTAssertGreaterThan(world.position.y,1)
+        let hovering=world.position.y
+        for _ in 0..<60 {world.step(forward:0,strafe:0,dt:1.0/30)}
+        XCTAssertEqual(world.position.y,hovering,"Released flight input must hover")
+        world.position=SCNVector3(4.5,2,4.5)
+        let start=world.position
+        world.step(forward:1,strafe:1,dt:1,climb:1)
+        let delta=SCNVector3(world.position.x-start.x,world.position.y-start.y,world.position.z-start.z)
+        XCTAssertEqual(sqrt(delta.x*delta.x+delta.y*delta.y+delta.z*delta.z),4.2*0.04,accuracy:0.0001,"Normalize flight diagonals and cap stalled frames")
+        for _ in 0..<300 {world.step(forward:0,strafe:0,dt:1.0/30,climb:1)}
+        XCTAssertLessThanOrEqual(world.position.y+1.8,Float(value.bounds[3]+1))
+        for _ in 0..<300 {world.step(forward:0,strafe:0,dt:1.0/30,climb: -1)}
+        XCTAssertGreaterThanOrEqual(world.position.y,1,"Flight cannot cross floor")
+        world.position=SCNVector3(0.5,1,0.5)
+        for _ in 0..<60 {world.step(forward:1,strafe:0,dt:1.0/30)}
+        XCTAssertGreaterThan(world.position.z,Float(-0.7),"Flight still collides with walls")
+        world.position=SCNVector3(4.5,3,4.5);world.setFlying(false)
+        for _ in 0..<120 {world.step(forward:0,strafe:0,dt:1.0/30)}
+        XCTAssertTrue(world.grounded);world.jump();XCTAssertGreaterThan(world.verticalSpeed,0)
+        let restored=try VoxelWorld(world.savedSnapshot());XCTAssertFalse(restored.flying,"Flight is a transient local mode")
+    }
+    func testSharedCameraRayBoundsAndSweptLensCollision()throws {
+        var value=fixture();value.cells.append([0,2,2,3,0x8c949e]);value.cells.append([0,3,2,3,0x8c949e])
+        let world=try VoxelWorld(value)
+        let hit=try XCTUnwrap(world.raycast(origin:SCNVector3(0.5,1.5,0.5),direction:SCNVector3(0,0,-1),reach:5))
+        XCTAssertEqual(hit.hit,GridKey(0,1,-2));XCTAssertEqual(hit.previous,GridKey(0,1,-1))
+        XCTAssertEqual(hit.distance,1.5,accuracy:0.001)
+        XCTAssertNil(world.raycast(origin:SCNVector3(0.5,1.5,0.5),direction:SCNVector3(0,0,-1),reach:1))
+        XCTAssertNil(world.raycast(origin:world.eye,direction:SCNVector3Zero,reach:5))
+        XCTAssertNil(world.raycast(origin:SCNVector3(Float.infinity,1,0),direction:SCNVector3(0,0,-1),reach:5))
+        let lens=world.cameraPosition(toward:SCNVector3(0.5,world.eye.y,4.5))
+        XCTAssertGreaterThan(lens.z,world.eye.z);XCTAssertLessThan(lens.z,1.86,"Swept lens stays in front of wall")
+        XCTAssertEqual(world.cameraPosition(toward:SCNVector3(0.5,world.eye.y,50)).z,world.eye.z,"Bound camera work")
+        XCTAssertNil(NativeCameraMode(rawValue:"unknown"));XCTAssertEqual(NativeCameraMode.allCases.count,3)
+    }
+    func testDetailContractGeometryCollisionPickingAndPersistence()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));try contract.validate()
+        var value=fixture();value.schema=2;value.contract=contract
+        let geometry=NativeGeometry(resolution:16,leaves:[[0,0,0,8,3,0x8c949e]])
+        value.cells.removeAll{$0[0]==0 && $0[1]==1 && $0[2] == -2}
+        value.cells.append([0,1,-2,255,0]);value.details=[NativeDetail(cell:[0,1,-2],geometry:geometry)]
+        let world=try VoxelWorld(value)
+        XCTAssertEqual(world.material(at:SCNVector3(0.25,1.25,-1.75)),3)
+        XCTAssertEqual(world.material(at:SCNVector3(0.75,1.25,-1.75)),0,"Fractional empty corner remains air")
+        XCTAssertNil(world.raycast(origin:SCNVector3(0.75,1.25,0.5),direction:SCNVector3(0,0,-1),reach:5))
+        XCTAssertEqual(world.raycast(origin:SCNVector3(0.25,1.25,0.5),direction:SCNVector3(0,0,-1),reach:5)?.hit,GridKey(0,1,-2))
+        XCTAssertFalse(world.collides(SCNVector3(0.82,1,-1.7)),"Empty side is passable")
+        XCTAssertTrue(world.collides(SCNVector3(0.25,1,-1.7)))
+        var overlap=geometry;overlap.leaves.append(overlap.leaves[0]);XCTAssertThrowsError(try overlap.validate())
+        var broken=value;broken.details=[];XCTAssertThrowsError(try broken.validate())
+        broken=value;broken.contract=nil;XCTAssertThrowsError(try broken.validate())
+        broken=value
+        for i in 0..<27 {broken.cells.append([i%9-4,3,i/9+3,8,0])}
+        XCTAssertThrowsError(try broken.validate(),"Expanded model instances must fit the leaf cap")
+        var invalid=geometry;invalid.leaves=[[Int.max,0,0,8,3,0]]
+        XCTAssertThrowsError(try invalid.validate(),"Huge coordinates reject without integer overflow")
+        world.snapshot.inventory[0]=[8,2];try world.offlineEdit(at:GridKey(2,1,-2),type:8)
+        XCTAssertGreaterThan(world.boxes(GridKey(2,1,-2)).count,1,"Model is not a full cube")
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.boxes(GridKey(2,1,-2)).count,world.boxes(GridKey(2,1,-2)).count)
+        XCTAssertEqual(restored.type(GridKey(0,1,-2)),255)
+        try restored.offlineEdit(at:GridKey(0,1,-2),type:0)
+        XCTAssertEqual(restored.type(GridKey(0,1,-2)),0,"Single fractional leaf collects without losing detail")
+        try restored.savedSnapshot().validate()
+    }
+    func testBoundedSaveQueueIsolationAndAtomicFailure()throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("voxel-save-test-"+UUID().uuidString)
+        defer {try? FileManager.default.removeItem(at:root)}
+        let url=root.appendingPathComponent("world.json"),finished=expectation(description:"all save phases finished")
+        DispatchQueue.main.async {
+            do {
+                let world=try VoxelWorld(self.fixture()),first=world.savePayload()
+                let gate=DispatchSemaphore(value:0),probe=SaveWorkerProbe()
+                let writer=NativeSaveWriter(destination:url){payload,destination in
+                    XCTAssertFalse(Thread.isMainThread,"Validation, encoding and IO must run off main")
+                    if probe.counts.isEmpty {guard gate.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
+                    probe.record(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
+                }
+                var acknowledged=false
+                writer.onIdle={
+                    do {
+                        XCTAssertTrue(acknowledged);XCTAssertEqual(probe.counts,[4,2],"Only active and latest payloads may be written")
+                        let saved=try Data(contentsOf:url),decoded=try JSONDecoder().decode(Snapshot.self,from:saved)
+                        XCTAssertTrue(decoded.cells.contains{$0[0]==3 && $0[1]==1 && $0[2]==3})
+                        writer.onIdle=nil;var invalid=world.savePayload();invalid.snapshot.health=21
+                        writer.submit(invalid){result in
+                            XCTAssertEqual(result,.failed)
+                            do {XCTAssertEqual(try Data(contentsOf:url),saved,"Invalid save preserves the atomic file")}catch{XCTFail("Saved fixture unavailable")}
+                            let secondGate=DispatchSemaphore(value:0),secondProbe=SaveWorkerProbe()
+                            let reentrant=NativeSaveWriter(destination:url){payload,destination in
+                                if secondProbe.counts.isEmpty {guard secondGate.wait(timeout:.now()+10) == .success else {throw GameError.invalidWorld}}
+                                secondProbe.record(payload.snapshot.inventory[0][1]);try payload.persist(to:destination)
+                            }
+                            reentrant.onIdle={XCTAssertEqual(secondProbe.counts,[4,1],"Reentrant newer save wins");finished.fulfill()}
+                            reentrant.submit(first)
+                            var newest=world.savePayload();newest.snapshot.inventory[0]=[2,1]
+                            reentrant.submit(world.savePayload(),important:true){result in
+                                if result == .superseded {reentrant.submit(newest,important:true)}
+                            }
+                            reentrant.submit(world.savePayload(),important:true);secondGate.signal()
+                        }
+                    }catch{XCTFail("Save fixture round trip failed");finished.fulfill()}
+                }
+                writer.submit(first)
+                try world.offlineEdit(at:GridKey(2,1,2),type:2)
+                writer.submit(world.savePayload(),important:true){result in XCTAssertEqual(result,.saved);acknowledged=true}
+                try world.offlineEdit(at:GridKey(3,1,3),type:2)
+                writer.submit(world.savePayload())
+                XCTAssertNil(first.types[GridKey(2,1,2)],"Capture is isolated from later edits")
+                gate.signal()
+            }catch{XCTFail("Save fixture setup failed");finished.fulfill()}
+        }
+        wait(for:[finished],timeout:60)
+    }
+    func testOfflineLoaderBoundsCancellationMigrationAndFailure()throws {
+        let root=FileManager.default.temporaryDirectory.appendingPathComponent("voxel-load-test-"+UUID().uuidString)
+        try FileManager.default.createDirectory(at:root,withIntermediateDirectories:true)
+        defer{try? FileManager.default.removeItem(at:root)}
+        let url=root.appendingPathComponent("world.json"),original=try JSONEncoder().encode(fixture())
+        try original.write(to:url)
+        let resource=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:resource))
+        let finished=expectation(description:"load cancellation, retry and malformed source checked")
+        DispatchQueue.main.async {
+            let loader=NativeOfflineLoader(),gate=DispatchSemaphore(value:0)
+            var cancelled=false
+            loader.onIdle={
+                loader.onIdle=nil;XCTAssertTrue(cancelled)
+                XCTAssertTrue(loader.load(operation:{
+                    XCTAssertFalse(Thread.isMainThread)
+                    return try OfflineSave.migrate(OfflineSave.read(at:url),contract:contract)
+                }){result in
+                    switch result {
+                    case .loaded(let value):
+                        XCTAssertEqual(value.schema,2);XCTAssertEqual(value.inventory[0],[2,4])
+                        do {
+                            XCTAssertEqual(try Data(contentsOf:url),original,"Migration must not rewrite the source")
+                            let corrupt=Data([0xff,0x00]);try corrupt.write(to:url)
+                            XCTAssertTrue(loader.load(operation:{try OfflineSave.read(at:url)}){failed in
+                                if case .failed=failed {}else{XCTFail("Malformed save must fail safely")}
+                                do {XCTAssertEqual(try Data(contentsOf:url),corrupt)}catch{XCTFail("Failure changed source")}
+                                finished.fulfill()
+                            })
+                        }catch{XCTFail("Load fixture IO failed");finished.fulfill()}
+                    default:XCTFail("Valid migration did not finish");finished.fulfill()
+                    }
+                })
+            }
+            XCTAssertTrue(loader.load(operation:{
+                XCTAssertFalse(Thread.isMainThread)
+                guard gate.wait(timeout:.now()+10) == .success else{throw GameError.invalidWorld}
+                return try OfflineSave.read(at:url)
+            }){result in if case .cancelled=result {cancelled=true}else{XCTFail("Stale load must be cancelled")}})
+            XCTAssertFalse(loader.load(operation:{try OfflineSave.read(at:url)}){_ in XCTFail("Second worker started")})
+            loader.cancel();gate.signal()
+        }
+        wait(for:[finished],timeout:60)
+        let handle=try FileHandle(forWritingTo:url);try handle.truncate(atOffset:UInt64(OfflineSave.maximumBytes+1));try handle.close()
+        XCTAssertThrowsError(try OfflineSave.read(at:url),"Oversize saves must be rejected before decoding")
+    }
+    func testBoundedMeshPagingCancellationAndGeometry()throws {
+        let worker=NativeMeshWorker(),world=try VoxelWorld(fixture())
+        defer{worker.cancel()}
+        worker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:false,center:[0,1,0]))
+        let full=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in worker.readyCount==NativeMeshWorker.maximumReady},object:nil)
+        XCTAssertEqual(XCTWaiter.wait(for:[full],timeout:10),.completed,"Producer reaches bounded backpressure")
+        XCTAssertLessThanOrEqual(worker.drain().count,2);worker.cancel();XCTAssertEqual(worker.readyCount,0)
+        func prepare(_ value:Snapshot)throws->[NativeMeshResult] {
+            let input=try VoxelWorld(value)
+            let token=worker.submit(NativeMeshRequest(payload:input.savePayload(),atmosphere:false,center:[0,1,0]))
+            var results:[NativeMeshResult]=[]
+            let done=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in
+                let pages=worker.drain();XCTAssertLessThanOrEqual(pages.count,2);results+=pages
+                return results.contains{if case .finished=$0.event {return true};return false}
+            },object:nil)
+            XCTAssertEqual(XCTWaiter.wait(for:[done],timeout:15),.completed)
+            XCTAssertTrue(results.allSatisfy{$0.generation==token},"Cancelled generations cannot leak pages")
+            return results
+        }
+        var value=fixture();value.cells=[[0,1,-2,3,0x8c949e],[1,1,-2,3,0x8c949e]]
+        let pages=try prepare(value).compactMap{event->NativeMeshBuffer? in if case .page(_,_,let buffer)=event.event {return buffer};return nil}
+        XCTAssertEqual(pages.reduce(0){$0+$1.positions.count/3},40,"Adjacent cubes hide their shared faces")
+        XCTAssertTrue(pages.allSatisfy{$0.positions.count/3<=4096 && $0.normals.count==$0.positions.count && $0.colors.count/4==$0.positions.count/3})
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        value.schema=2;value.contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url))
+        value.cells=[[0,1,-2,255,0]];value.details=[NativeDetail(cell:[0,1,-2],geometry:NativeGeometry(resolution:16,leaves:[[0,0,0,8,2,0x7a4d2b]]))]
+        let fine=try prepare(value).compactMap{event->NativeMeshBuffer? in if case .page(_,_,let buffer)=event.event {return buffer};return nil}
+        XCTAssertEqual(fine.reduce(0){$0+$1.positions.count/3},24)
+        let xs=fine.flatMap{$0.positions.enumerated().filter{$0.offset%3==0}.map{$0.element}}
+        XCTAssertEqual(xs.max(),0.5,"Prepared fractional mesh keeps its true dimensions")
+        let revision=world.geometryRevision;try world.replace(world.savedSnapshot())
+        XCTAssertEqual(world.geometryRevision,revision,"Unchanged network snapshots do not invalidate geometry")
+        try world.offlineEdit(at:GridKey(2,1,2),type:2);XCTAssertGreaterThan(world.geometryRevision,revision)
+        worker.cancel()
+    }
+    func testFineRegionTransactionsMergeBoundsAndInventory()throws {
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"contract",withExtension:"json"))
+        var value=fixture();value.schema=2;value.contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:url));value.details=[]
+        value.inventory[0]=[141,8];let world=try VoxelWorld(value),key=GridKey(2,1,2)
+        for x in 0...1 {for y in 0...1 {for z in 0...1 {
+            try world.offlineRegionEdit(NativeVoxelAddress(cell:key,depth:1,ix:x,iy:y,iz:z),type:141)
+        }}}
+        XCTAssertEqual(world.type(key),2);XCTAssertEqual(world.boxes(key).count,1);XCTAssertEqual(world.snapshot.inventory[0],[0,0])
+        let quarter=NativeVoxelAddress(cell:key,depth:2,ix:1,iy:1,iz:1)
+        try world.offlineRegionEdit(quarter,type:0);XCTAssertEqual(world.snapshot.inventory[0],[142,1])
+        XCTAssertEqual(world.material(at:SCNVector3(2.375,1.375,2.375)),0)
+        let boxes=world.boxes(key),inventory=world.snapshot.inventory,revision=world.revision
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:key,depth:1,ix:0,iy:0,iz:0),type:0),"Mixed region must not be destroyed")
+        XCTAssertEqual(world.boxes(key),boxes);XCTAssertEqual(world.snapshot.inventory,inventory);XCTAssertEqual(world.revision,revision)
+        try world.offlineRegionEdit(quarter,type:142);XCTAssertEqual(world.type(key),2)
+        world.snapshot.inventory[0]=[141,1]
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:GridKey(0,1,0),depth:1,ix:0,iy:0,iz:0),type:141))
+        XCTAssertEqual(world.snapshot.inventory[0],[141,1]);XCTAssertEqual(world.type(GridKey(0,1,0)),0)
+        world.snapshot.inventory=Array(repeating:[2,64],count:36)
+        XCTAssertThrowsError(try world.offlineRegionEdit(NativeVoxelAddress(cell:GridKey(0,1,-2),depth:1,ix:0,iy:0,iz:0),type:0))
+        XCTAssertEqual(world.type(GridKey(0,1,-2)),3)
+        world.snapshot.inventory[0]=[141,8]
+        let hit=VoxelHit(hit:GridKey(-1,1,-2),previous:GridKey(-2,1,-2),distance:3,normal:GridKey(1,0,0),point:SCNVector3(-0.5,1.25,-1.75),box:VoxelBox(x:0,y:0,z:0,size:0.5,type:2,color:0x7a4d2b))
+        XCTAssertEqual(try world.editAddress(hit,place:true,breakDepth:0),NativeVoxelAddress(cell:GridKey(-1,1,-2),depth:1,ix:1,iy:0,iz:0))
+        XCTAssertEqual(try world.editAddress(hit,place:false,breakDepth:0).ix,0)
+        var invalid=quarter;invalid.depth=Int.max;XCTAssertThrowsError(try invalid.validate())
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.type(key),2);XCTAssertEqual(restored.boxes(key),world.boxes(key))
     }
     func testSnapshotValidationAndSaveRoundTrip()throws {
         let world=try VoxelWorld(fixture());try world.offlineEdit(at:GridKey(2,1,2),type:2)

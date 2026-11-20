@@ -9,11 +9,24 @@ cd "$repo"
 export IOS_CHECK_STAGE=source
 export IOS_EVIDENCE_DIR="$evidence"
 fixture_pid=""
-video_pid=""
+fixture_running() {
+  local job_pid
+  for job_pid in $(jobs -pr); do
+    if [ "$job_pid" = "$fixture_pid" ]; then return 0; fi
+  done
+  return 1
+}
 cleanup() {
   result=$?
-  if [ -n "$video_pid" ]; then kill -INT "$video_pid" 2>/dev/null || true; wait "$video_pid" 2>/dev/null || true; fi
-  if [ -n "$fixture_pid" ]; then kill "$fixture_pid" 2>/dev/null || true; wait "$fixture_pid" 2>/dev/null || true; fi
+  if [ -n "$fixture_pid" ]; then
+    if fixture_running; then kill "$fixture_pid" 2>/dev/null || true; fi
+    for _ in $(seq 1 50); do
+      if ! fixture_running; then break; fi
+      sleep 0.1
+    done
+    if fixture_running; then kill -KILL "$fixture_pid" 2>/dev/null || true; fi
+    wait "$fixture_pid" 2>/dev/null || true
+  fi
   if [ "$result" -ne 0 ]; then
     python3 ios/check-results.py failure "$repo" "$evidence" "$head" "$udid" || true
   fi
@@ -31,9 +44,18 @@ assert not subprocess.check_output(['git','diff','--name-only'],text=True).strip
 assert not subprocess.check_output(['git','diff','--cached','--name-only'],text=True).strip()
 PY
 mkdir -p ios/build
-export IOS_CHECK_STAGE=java_build
-mvn -q -DskipTests compile > ios/build/java-build.log 2>&1
-export IOS_CHECK_STAGE=synthetic_game_servers
+phase() {
+  export IOS_CHECK_STAGE="$1"
+  # Fixed literals supplied below; no form, command or environment values.
+  printf '\nerror: native_client_phase stage=%s\n' "$1" >> ios/build/native-build.log
+}
+phase java_build
+mvn -q -U -DskipTests compile > ios/build/java-build.log 2>&1
+phase terrain_contract
+java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/build/terrain-fixtures.json
+phase terrain_contract_compare
+cmp ios/Resources/terrain-fixtures.json ios/build/terrain-fixtures.json
+phase synthetic_game_servers
 # The test profile must be new. Secrets generated in this ignored directory never enter evidence.
 profile="$(mktemp -d "$repo/ios/build/fixture-parent.XXXXXX")"
 java -cp target/classes dev.jayms.net.mobile.MobileFixtureHost "$profile/profile" "$profile/ready.json" > ios/build/fixture.log 2>&1 &
@@ -49,39 +71,59 @@ import json,sys
 print(json.load(open(sys.argv[1]))['gateway'])
 PY
 )"
-python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" > ios/build/project-path.txt
-export IOS_CHECK_STAGE=native_build
+redirect_gateway="$(python3 - "$profile/ready.json" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))['redirectGateway'])
+PY
+)"
+python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" --redirect-gateway "$redirect_gateway" > ios/build/project-path.txt
+phase device_archive
+bash ios/archive-device.sh >> ios/build/native-build.log 2>&1
+# Restore the synthetic gateway environment in the generated test scheme.
+python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" --redirect-gateway "$redirect_gateway" > ios/build/project-path.txt
+phase native_build
 xcodebuild build-for-testing -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -sdk iphonesimulator -destination "platform=iOS Simulator,id=$udid" \
   -derivedDataPath ios/build/DerivedData CODE_SIGNING_ALLOWED=NO \
-  > ios/build/native-build.log 2>&1
+  >> ios/build/native-build.log 2>&1
 app="$repo/ios/build/DerivedData/Build/Products/Debug-iphonesimulator/VoxelOne.app"
-export IOS_CHECK_STAGE=install
+phase install
 xcrun simctl install "$udid" "$app"
-# Record only this role's assigned device. Raw video stays in ignored build output.
-if command -v ffmpeg >/dev/null 2>&1; then
-  xcrun simctl io "$udid" recordVideo --codec=h264 "$repo/ios/build/native-workflow.mp4" > ios/build/recorder.log 2>&1 &
-  video_pid=$!
-fi
-export IOS_CHECK_STAGE=native_playtests
-xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
+# The test runner owns/stops/reaps this role's recorder with a bounded deadline.
+phase native_playtests
+python3 ios/native-test-runner.py --timeout 1500 --simulator "$udid" -- xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -destination "platform=iOS Simulator,id=$udid" -derivedDataPath ios/build/DerivedData \
   -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \
-  -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO \
-  > ios/build/native-tests.log 2>&1
-if [ -n "$video_pid" ]; then
-  kill -INT "$video_pid" 2>/dev/null || true; wait "$video_pid" || true;video_pid=""
-fi
-export IOS_CHECK_STAGE=evidence
+  -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO
+phase evidence
 # Export XCTest's actual app screenshots. Do not publish the xcresult or raw logs.
 xcrun xcresulttool export attachments --path ios/build/NativeTests.xcresult --output-path ios/build/attachments > ios/build/export.log 2>&1
 xcrun xcresulttool get test-results summary --path ios/build/NativeTests.xcresult > ios/build/test-summary.json
 python3 ios/check-results.py success "$repo" "$evidence" "$head" "$udid"
-if command -v ffmpeg >/dev/null 2>&1 && [ -s ios/build/native-workflow.mp4 ]; then
-  ffmpeg -hide_banner -loglevel error -y -ss 10 -i ios/build/native-workflow.mp4 -t 40 \
-    -vf 'scale=540:-2' -r 15 -c:v libx264 -preset fast -crf 30 -an -movflags +faststart \
-    "$evidence/client-playtest.mp4" > ios/build/compression.log 2>&1 || true
-fi
+# The fixed, passing touch-settings test supplies only numeric timing. AVFoundation is
+# present on the hosted Mac; lack of an optional ffmpeg install must not omit video.
+phase video_export
+python3 - "$evidence/client-playtest.mp4" <<'PY'
+import os,signal,subprocess,sys
+from pathlib import Path
+root=Path.cwd()
+try:
+ # Compiler errors use the existing bounded, trusted build-diagnostic channel.
+ with (root/'ios/build/native-build.log').open('ab') as output:
+  process=subprocess.Popen(['swift','-swift-version','5','ios/export-playtest.swift',str(root/'ios/build/native-workflow.mp4'),sys.argv[1],str(root/'ios/build/native-video-window.json')],stdout=output,stderr=subprocess.STDOUT,start_new_session=True)
+  try:
+   code=process.wait(timeout=60)
+  except subprocess.TimeoutExpired:
+   # The compiler/interpreter group belongs only to this export request.
+   try:os.killpg(process.pid,signal.SIGKILL)
+   except ProcessLookupError:pass
+   process.wait(timeout=2)
+   raise
+  if code:raise subprocess.CalledProcessError(code,process.args)
+except (subprocess.TimeoutExpired,subprocess.CalledProcessError):
+ with (root/'ios/build/native-build.log').open('a') as output:output.write('\nerror: native_video_export status=failed_or_timed_out\n')
+ raise SystemExit(74)
+PY
 python3 - "$evidence/client-result.json" <<'PY'
 import json,pathlib,sys
 p=pathlib.Path(sys.argv[1]);data=json.loads(p.read_text());video=p.parent/'client-playtest.mp4'
@@ -90,8 +132,8 @@ if video.is_file():
  else:video.unlink()
 p.write_text(json.dumps(data,indent=2)+'\n')
 PY
-# Leave the actual installed client on its Graphics sheet for the independent capture.
+# Leave the actual saved native world visible for the independent capture.
 xcrun simctl terminate "$udid" dev.jayms.voxelone.ios || true
-xcrun simctl launch "$udid" dev.jayms.voxelone.ios --graphics-evidence
+xcrun simctl launch "$udid" dev.jayms.voxelone.ios
 sleep 2
-export IOS_CHECK_STAGE=completed
+phase completed

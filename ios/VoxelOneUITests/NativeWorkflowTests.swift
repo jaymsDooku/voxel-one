@@ -1,12 +1,42 @@
 import XCTest
+import Darwin
+import Foundation
+
+/// Probe holds only fixed counters; no URL, request, credentials or error text.
+private final class RedirectProbeResult:@unchecked Sendable {
+    private let lock=NSLock();private var stored:[String:Int]?
+    func put(_ value:[String:Int]){lock.lock();defer{lock.unlock()};stored=value}
+    var value:[String:Int]? {lock.lock();defer{lock.unlock()};return stored}
+}
 
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
-final class NativeWorkflowTests:XCTestCase {
+final class NativeWorkflowTests:NativeEvidenceTestCase {
     var app:XCUIApplication!
+    private var fixtureLaunchUsed=false
+    private var workflowCheckpoint:String? {
+        didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)");fflush(stdout)}}
+    }
+    override func tearDown(){
+        if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
+        // A running process keeps its launch flags even after launchArguments is
+        // cleared on the proxy. Never carry injected lifecycle flags to a case.
+        if fixtureLaunchUsed {app?.terminate()}
+        super.tearDown()
+    }
     override func setUpWithError()throws {
-        continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
+        workflowCheckpoint=nil;fixtureLaunchUsed=false;continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
         app=XCUIApplication();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? ""
+        // Cases prepare fresh worlds/sign-in through the public menu. Reuse only
+        // a usable foreground HUD/menu; explicit cold-restart checks below still
+        // terminate and relaunch. Modals, interrupted apps and initial boot launch.
+        if app.state == .runningForeground {
+            let game=app.buttons["menuButton"],menu=app.buttons["offlineNewButton"]
+            if (game.exists && game.isHittable) || (menu.exists && menu.isHittable) {return}
+        }
         app.launch()
+    }
+    private func launchFixture(_ arguments:[String]){
+        fixtureLaunchUsed=true;app.terminate();app.launchArguments=arguments;app.launch()
     }
     func wait(_ element:XCUIElement,_ seconds:TimeInterval=20,_ id:String="requested control"){
         guard element.waitForExistence(timeout:seconds) else {
@@ -33,10 +63,22 @@ final class NativeWorkflowTests:XCTestCase {
             XCTFail("Missing \(id); \(category)");return
         }
     }
-    func textContains(_ id:String,_ value:String,timeout:TimeInterval=15){
+    func waitHittable(_ element:XCUIElement,_ id:String){
+        let expectation=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in element.exists && element.isHittable},object:element)
+        XCTAssertEqual(XCTWaiter.wait(for:[expectation],timeout:10),.completed,"Unusable \(id); frame=\(element.frame); viewport=\(app.frame)")
+    }
+    func waitTerrain(checkpoint:String?=nil){
+        let scene=app.otherElements["worldView"]
+        let ready=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in scene.value as? String == "Terrain ready"},object:scene)
+        let result=XCTWaiter.wait(for:[ready],timeout:30)
+        if result != .completed,let checkpoint=checkpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
+        XCTAssertEqual(result,.completed,"Native terrain did not finish: \(String(describing:scene.value))")
+    }
+    func textContains(_ id:String,_ value:String,timeout:TimeInterval=15,checkpoint:String?=nil){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
         if XCTWaiter.wait(for:[expectation],timeout:timeout) != .completed {
+            if let checkpoint=checkpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
             XCTFail("HUD observed: \(app.staticTexts[id].label.prefix(80)); expected: \(value.prefix(25))")
         }
     }
@@ -59,7 +101,7 @@ final class NativeWorkflowTests:XCTestCase {
         }
         capture("offline-horizon")
     }
-    func menu(){if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
+    func menu(){if app.buttons["cancelOfflineLoad"].exists {wait(app.buttons["menuButton"])};if app.buttons["menuButton"].exists {app.buttons["menuButton"].tap()};wait(app.buttons["offlineNewButton"])}
     func aimAtSolarDiscForEvidence(){
         // The synthetic offline world's authoritative fixed hour is 10.
         let targetYaw = -atan2(0.5,0.35),targetPitch=atan2(sqrt(0.75),sqrt(0.25+0.35*0.35))
@@ -99,10 +141,13 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {
+        workflowCheckpoint="sky_create"
         newOffline();wait(app.buttons["atmosphereToggle"])
         if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap()}
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        workflowCheckpoint="sky_horizon"
         aimAtHorizonForEvidence();capture("atmosphere-native-enabled")
+        workflowCheckpoint="sky_sun_first"
         aimAtSolarDiscForEvidence();aimAtHorizonForEvidence()
         XCTAssertTrue(app.buttons["breakButton"].exists,"World controls remain available")
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview off");capture("atmosphere-native-fallback")
@@ -110,10 +155,12 @@ final class NativeWorkflowTests:XCTestCase {
         aimAtHorizonForEvidence()
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
         app.buttons["pauseButton"].tap()
+        workflowCheckpoint="sky_restart"
         app.terminate();app.launch();wait(app.buttons["atmosphereToggle"])
         XCTAssertEqual(app.buttons["atmosphereToggle"].value as? String,"On","Local sky opt-in survives restart")
         XCTAssertTrue(app.buttons["breakButton"].exists,"World remains playable after restart")
         capture("atmosphere-native-enabled-restarted")
+        workflowCheckpoint="sky_sun_restart"
         aimAtSolarDiscForEvidence()
     }
     func testOfflineTouchBuildSavePauseAndLandscape()throws {
@@ -146,7 +193,448 @@ final class NativeWorkflowTests:XCTestCase {
         wait(app.buttons["placeButton"]);XCTAssertTrue(app.buttons["placeButton"].isHittable);capture("offline-landscape")
         XCUIDevice.shared.orientation = .portrait
     }
+    func testHeldJumpCancelsOnBackgroundAndPause()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["jumpButton"].press(forDuration:2.5)
+        textContains("playerPosition","Ground",timeout:5)
+        // A released hold must settle and stay grounded, rather than repeat forever.
+        let settled=app.staticTexts["playerPosition"].label
+        app.buttons["pauseButton"].tap();app.buttons["jumpButton"].press(forDuration:0.5)
+        XCTAssertEqual(settled,app.staticTexts["playerPosition"].label)
+        app.buttons["pauseButton"].tap()
+        XCUIDevice.shared.press(.home);app.activate()
+        textContains("playerPosition","Ground",timeout:5)
+        app.buttons["moveRight"].press(forDuration:0.5)
+        textContains("playerPosition","Ground",timeout:5)
+        capture("offline-hold-jump-resumed")
+    }
+    func testNativeCraftingMissingIngredientsAndRestart()throws {
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks\n")
+        let planks=app.cells["recipe88"];wait(planks);planks.tap();textContains("craftStatus","Crafted 4 Planks")
+        capture("offline-crafted-planks")
+        search.tap();search.buttons["Clear text"].tap();search.typeText("Grow grass\n")
+        let grass=app.cells["recipe91"];wait(grass);grass.tap();textContains("craftStatus","Missing ingredients")
+        app.buttons["craftDone"].tap()
+        app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot2"].label.contains("31 blocks"),"Craft consumed one Wood")
+        XCTAssertTrue(app.buttons["slot3"].label.contains("36 blocks"),"Craft output survives restart")
+        capture("offline-crafting-restarted")
+    }
+    func testNativeSeededWorldValidationEditAndRestart()throws {
+        workflowCheckpoint="terrain_seed"
+        newOffline();menu();app.buttons["offlineNewButton"].tap()
+        XCTAssertFalse(app.alerts.textFields["worldSeed"].exists,"Default creation does not open a seed keyboard")
+        XCTAssertFalse(app.keyboards.element.exists)
+        let change=app.alerts.buttons["Change seed"];wait(change);change.tap()
+        let seed=app.alerts.textFields["worldSeed"];wait(seed);seed.tap()
+        seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"9223372036854775808")
+        let disabled=XCTNSPredicateExpectation(predicate:NSPredicate(format:"isEnabled == NO"),object:app.alerts.buttons["New world"])
+        XCTAssertEqual(XCTWaiter.wait(for:[disabled],timeout:5),.completed)
+        app.alerts.buttons["Cancel"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineNewButton"].tap();wait(change);change.tap();wait(seed);seed.tap()
+        seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"-42")
+        app.alerts.buttons["New world"].tap();wait(app.buttons["breakButton"]);waitTerrain()
+        textContains("cityStatus","Seed -42")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.60)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        waitTerrain();capture("native-seeded-procedural-world-edited")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        textContains("cityStatus","Seed -42");XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
+        capture("native-seeded-world-restarted")
+    }
+    func testNativeTerrainStreamingBeyondInitialBoundaryAndRestart()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        app.buttons["cameraButton"].tap();app.buttons["First person"].tap()
+        textContains("cityStatus","Seed 748291")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        let editStatus=app.staticTexts["cityStatus"].label
+        func x()->Float {
+            let first=app.staticTexts["playerPosition"].label.components(separatedBy:", ").first ?? ""
+            return Float(first.replacingOccurrences(of:"Position ",with:"")) ?? -999
+        }
+        app.buttons["flyButton"].tap();app.buttons["jumpButton"].press(forDuration:2)
+        for _ in 0..<4 {if x()>32 {break};app.buttons["moveRight"].press(forDuration:3)}
+        XCTAssertGreaterThan(x(),32,"Touch flight must cross the old x=24 world boundary")
+        waitTerrain();capture("native-streamed-beyond-original-boundary")
+        let farX=x()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        XCTAssertEqual(x(),farX,"Horizontal pose persists; transient flight ends on restart")
+        XCTAssertEqual(app.staticTexts["cityStatus"].label,editStatus,"Evicted world edits persist on restart")
+        XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"))
+        app.buttons["flyButton"].tap();app.buttons["jumpButton"].press(forDuration:2)
+        for _ in 0..<4 {if x()<8 {break};app.buttons["moveLeft"].press(forDuration:3)}
+        XCTAssertLessThan(x(),8);waitTerrain()
+        XCTAssertTrue(app.buttons["slot0"].label.contains("31 blocks"),"Returning terrain must not duplicate collected items")
+        capture("native-streamed-return-with-edits")
+        // Held input must cancel when the app backgrounds after streaming.
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["moveRight"])
+        let stopped=x();app.buttons["pauseButton"].tap()
+        app.buttons["moveRight"].press(forDuration:0.4);XCTAssertEqual(x(),stopped)
+    }
+    func testNativeDistantLandscapeGraphicsMemoryAndReach()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        XCTAssertFalse(scene.label.contains("distant landscape prepared"),"Public default uses the bounded nearby renderer")
+        func applyGraphics(){
+            app.scrollViews["graphicsScroll"].swipeUp();waitHittable(app.buttons["graphicsApply"],"Graphics Apply")
+            app.buttons["graphicsApply"].tap();waitTerrain()
+        }
+        func landscape(_ enabled:Bool){
+            app.buttons["graphicsButton"].tap();let setting=app.switches["graphicsDistant"];wait(setting)
+            if !setting.isHittable {app.scrollViews["graphicsScroll"].swipeUp()}
+            waitHittable(setting,"Distant landscape setting")
+            if (setting.value as? String == "1") != enabled {setting.tap()}
+            applyGraphics()
+        }
+        landscape(true)
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        app.buttons["cameraButton"].tap();app.buttons["First person"].tap()
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"))
+        workflowCheckpoint="distant_ready"
+        aimAtHorizonForEvidence();capture("native-distant-landscape-horizon")
+        let inventory=app.buttons["slot0"].label
+        app.buttons["breakButton"].tap();textContains("gameStatus","within five blocks")
+        XCTAssertEqual(app.buttons["slot0"].label,inventory,"Far preview cannot grant remote edit reach")
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsDetail"])
+        app.segmentedControls["graphicsDetail"].buttons["32"].tap();applyGraphics()
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"))
+        capture("native-distant-low-distance")
+        launchFixture(["--mesh-memory-warning-test"])
+        wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
+        app.buttons["pauseButton"].tap();waitTerrain()
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"));capture("native-distant-memory-recovery")
+        app.launchArguments=[]
+        landscape(false)
+        XCTAssertFalse(scene.label.contains("distant landscape prepared"),"Disabling releases distant nodes and cache")
+        app.buttons["graphicsButton"].tap();app.scrollViews["graphicsScroll"].swipeUp();wait(app.buttons["graphicsReset"])
+        app.buttons["graphicsReset"].tap();applyGraphics()
+    }
+    func testNativeTouchSettingsDraftBindingsLookAndRestart()throws {
+        menu()
+        func open(){app.buttons["controlsButton"].tap();wait(app.segmentedControls["controlsSensitivity"])}
+        func reveal(_ element:XCUIElement,up:Bool=true){
+            for _ in 0..<6 {if element.isHittable {break};if up {app.scrollViews["controlsScroll"].swipeUp()}else{app.scrollViews["controlsScroll"].swipeDown()}}
+            waitHittable(element,"touch settings control")
+        }
+        func edit(){
+            app.segmentedControls["controlsSensitivity"].buttons["2x"].tap();app.switches["controlsInvertY"].tap()
+            reveal(app.segmentedControls["controlsBinding0"])
+            app.segmentedControls["controlsBinding0"].buttons["Forward"].tap()
+            XCTAssertTrue(app.segmentedControls["controlsBinding1"].buttons["Left"].isSelected,"Remapping swaps the old binding")
+        }
+        func pitch()->Double {
+            let tail=app.staticTexts["playerPosition"].label.components(separatedBy:" · Aim ").last ?? ""
+            let parts=tail.components(separatedBy:" · ").first?.components(separatedBy:", ") ?? []
+            guard parts.count==2,let value=Double(parts[1]) else{XCTFail("Missing look pose");return 0};return value
+        }
+        func dragDown(){let scene=app.otherElements["worldView"],start=app.otherElements["worldView"].coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5));start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:0,dy:min(25,scene.frame.height*0.05))))}
+        open();edit();let cancel=app.buttons["controlsCancel"];waitHittable(cancel,"fixed Cancel");cancel.tap()
+        open();XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["1x"].isSelected);XCTAssertEqual(app.switches["controlsInvertY"].value as? String,"0")
+        XCTAssertTrue(app.segmentedControls["controlsBinding0"].buttons["Left"].isSelected)
+        edit();let apply=app.buttons["controlsApply"];waitHittable(apply,"fixed Apply");apply.tap()
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        XCTAssertLessThan(app.buttons["moveForward"].frame.minX,app.buttons["moveLeft"].frame.minX)
+        let before=pitch();dragDown();XCTAssertGreaterThan(pitch(),before,"Saved inverted look must affect the camera")
+        let position=app.staticTexts["playerPosition"].label;app.buttons["moveRight"].press(forDuration:0.3)
+        XCTAssertNotEqual(position,app.staticTexts["playerPosition"].label)
+        menu();app.terminate();app.launch();wait(app.buttons["moveForward"])
+        XCTAssertLessThan(app.buttons["moveForward"].frame.minX,app.buttons["moveLeft"].frame.minX)
+        menu();open();XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["2x"].isSelected);XCTAssertEqual(app.switches["controlsInvertY"].value as? String,"1")
+        workflowCheckpoint="controls_ready";capture("native-touch-settings-persisted")
+        XCUIDevice.shared.orientation = .landscapeLeft
+        for id in ["controlsApply","controlsCancel","controlsReset"] {waitHittable(app.buttons[id],"landscape footer");XCTAssertGreaterThanOrEqual(app.buttons[id].frame.width,44);XCTAssertGreaterThanOrEqual(app.buttons[id].frame.height,44)}
+        reveal(app.segmentedControls["controlsBinding3"])
+        app.buttons["controlsReset"].tap();textContains("controlsStatus","1.0x")
+        XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["1x"].isSelected);capture("native-touch-settings-landscape-reset-draft")
+        waitHittable(apply,"fixed Apply after scroll");apply.tap();XCUIDevice.shared.orientation = .portrait
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["moveForward"]);waitTerrain()
+        XCTAssertLessThan(app.buttons["moveLeft"].frame.minX,app.buttons["moveForward"].frame.minX)
+        let normal=pitch();dragDown();XCTAssertLessThan(pitch(),normal,"Reset restores normal vertical look")
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap();textContains("gameStatus","Resumed")
+        capture("native-touch-settings-gameplay-restored")
+    }
+    func testNativeWorldTimeCycleFreezeAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        func choose(_ title:String){app.buttons["worldTimeButton"].tap();wait(app.buttons[title]);app.buttons[title].tap()}
+        workflowCheckpoint="clock_ready"
+        choose("Midnight (00:00)");textContains("cityStatus","Night");capture("native-world-time-night")
+        let before=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.4)
+        XCTAssertNotEqual(before,app.staticTexts["playerPosition"].label,"Night remains playable")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["worldTimeButton"]);textContains("cityStatus","Night")
+        capture("native-world-time-night-restarted")
+        choose("Daylight (10:00)");textContains("cityStatus","Daylight");capture("native-world-time-daylight")
+        choose("Run day/night");textContains("gameStatus","Cycling")
+        choose("Freeze time");textContains("gameStatus","Frozen")
+        choose("Cancel");textContains("cityStatus","Daylight")
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["pauseButton"])
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Resumed")
+    }
+    func testNativeToolCraftingPlacementGuardAndRestart()throws {
+        workflowCheckpoint="tools_sticks"
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Make sticks")
+        let sticks=app.cells["recipe95"];wait(sticks);sticks.tap();textContains("craftStatus","Crafted 4 Sticks")
+        workflowCheckpoint="tools_craft"
+        search.tap();search.buttons["Clear text"].tap();search.typeText("Wooden pickaxe")
+        app.segmentedControls["craftCategory"].buttons["Tools"].tap()
+        let pick=app.cells["recipe96"];wait(pick);pick.tap();textContains("craftStatus","Crafted 1 Wooden pickaxe")
+        capture("native-tool-recipe-crafted")
+        app.buttons["craftDone"].tap();workflowCheckpoint="tools_place"
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot8"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","cannot be placed")
+        XCTAssertTrue(app.buttons["slot8"].label.contains("1 blocks"))
+        workflowCheckpoint="tools_restart"
+        app.terminate();app.launch();wait(app.buttons["placeButton"])
+        app.scrollViews["hotbarScroll"].swipeLeft()
+        XCTAssertTrue(app.buttons["slot8"].label.contains("Wooden pickaxe"))
+        XCTAssertTrue(app.buttons["slot8"].label.contains("1 blocks"))
+        XCTAssertTrue(app.buttons["slot7"].label.contains("2 blocks"))
+        capture("native-tool-inventory-restarted")
+    }
+    func testNativeBatchCraftingSaveAndRestart()throws {
+        workflowCheckpoint="batch_open"
+        newOffline();app.buttons["craftButton"].tap()
+        workflowCheckpoint="batch_query"
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks\n")
+        workflowCheckpoint="batch_quantity"
+        let stepper=app.steppers["craftQuantity"];wait(stepper)
+        stepper.buttons["Increment"].tap();stepper.buttons["Increment"].tap()
+        textContains("craftQuantityLabel","Batch: 3")
+        XCTAssertFalse(app.keyboards.element.exists,"Search/batch controls release the keyboard before recipe selection")
+        workflowCheckpoint="batch_craft"
+        app.cells["recipe88"].tap();textContains("craftStatus","Crafted 12 Planks")
+        capture("native-batch-crafted-planks")
+        workflowCheckpoint="batch_restart"
+        app.buttons["craftDone"].tap();app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot2"].label.contains("29 blocks"))
+        XCTAssertTrue(app.buttons["slot3"].label.contains("44 blocks"))
+    }
+    func testNativeRecipeSearchFractionalJoinAndBackground()throws {
+        newOffline();app.buttons["craftButton"].tap()
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Join Dirt")
+        let join=app.cells["recipe9"];wait(join);join.tap();textContains("craftStatus","Crafted 1 Dirt")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["craftDone"])
+        search.tap();search.buttons["Clear text"].tap();search.typeText("no matching recipe xyz")
+        let entered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","no matching recipe xyz"),object:search)
+        XCTAssertEqual(XCTWaiter.wait(for:[entered],timeout:10),.completed,"craft_book_query_entered")
+        let filtered=XCTNSPredicateExpectation(predicate:NSPredicate(format:"value == %@","0 recipes"),object:app.staticTexts["craftEmptyState"])
+        XCTAssertEqual(XCTWaiter.wait(for:[filtered],timeout:10),.completed,"craft_book_filtered_count")
+        let emptyResults=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in
+            self.app.cells.matching(NSPredicate(format:"identifier BEGINSWITH %@","recipe")).count==0
+        },object:nil)
+        XCTAssertEqual(XCTWaiter.wait(for:[emptyResults],timeout:10),.completed,"craft_book_empty_rows")
+        XCTAssertTrue(app.staticTexts["craftEmptyState"].exists,"craft_book_empty_message")
+        XCUIDevice.shared.orientation = .landscapeLeft;waitHittable(app.buttons["craftDone"],"landscape Craft Done")
+        capture("native-recipe-search-empty-landscape")
+        XCUIDevice.shared.orientation = .portrait
+        search.tap();search.buttons["Clear text"].tap();wait(app.cells["recipe96"],20,"recipes restored after clearing query")
+        app.buttons["craftDone"].tap();wait(app.buttons["craftButton"])
+        app.terminate();app.launch();wait(app.buttons["craftButton"])
+        XCTAssertTrue(app.buttons["slot0"].label.contains("33 blocks"),"craft_join_saved_count")
+        XCTAssertFalse(app.buttons["slot6"].label.contains("8 blocks"),"craft_join_half_consumed")
+    }
+    func testOfflineFlightTouchPauseBackgroundAndWalking()throws {
+        newOffline();textContains("playerPosition","Ground")
+        func height()->Double {
+            let text=app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0]
+            return Double(text.components(separatedBy:", ")[1]) ?? -1000
+        }
+        let ground=height();app.buttons["flyButton"].tap();textContains("playerPosition","Flying")
+        app.buttons["jumpButton"].press(forDuration:0.7)
+        XCTAssertGreaterThan(height(),ground+1)
+        capture("offline-flying-terrain")
+        app.buttons["pauseButton"].tap();let before=height()
+        app.buttons["jumpButton"].press(forDuration:0.5);XCTAssertEqual(height(),before)
+        app.buttons["pauseButton"].tap();XCUIDevice.shared.press(.home);app.activate()
+        wait(app.buttons["flyButton"]);XCTAssertEqual(height(),before,"Released input must not rise after background")
+        app.buttons["flyDown"].press(forDuration:1.5)
+        XCTAssertLessThan(height(),before)
+        app.buttons["flyButton"].tap();textContains("playerPosition","Ground",timeout:5)
+        XCTAssertFalse(app.buttons["flyDown"].isHittable)
+        app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
+        capture("offline-flight-walk-recovered")
+    }
+    // Leave a useful real world view for the verifier's independent cold launch.
+    func testZZFinalTerrainGameplayEvidence()throws {
+        newOffline();textContains("playerPosition","Ground")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt")
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot5"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        waitTerrain();capture("final-native-terrain-edited")
+    }
+    func testSandboxCameraModesAimReachAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain(checkpoint:"camera_terrain")
+        func choose(_ name:String){app.buttons["cameraButton"].tap();wait(app.buttons[name]);app.buttons[name].tap();textContains("gameStatus",name+" camera")}
+        choose("Third person");capture("sandbox-third-person")
+        app.terminate();app.launch();wait(app.buttons["cameraButton"])
+        XCTAssertEqual(app.buttons["cameraButton"].value as? String,"Third person")
+        choose("Isometric");capture("sandbox-isometric")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5)).tap()
+        textContains("gameStatus","Target set")
+        // A far corner in the overview must not grant remote edit reach.
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.1,dy:0.35)).tap()
+        app.buttons["breakButton"].tap();textContains("gameStatus","within five blocks")
+        scene.pinch(withScale:1.5,velocity:1)
+        app.buttons["moveRight"].press(forDuration:0.5)
+        capture("sandbox-isometric-zoom-moved")
+        XCUIDevice.shared.orientation = .landscapeLeft
+        waitHittable(app.buttons["cameraButton"],"landscape Camera")
+        choose("First person");capture("sandbox-camera-landscape")
+        XCUIDevice.shared.orientation = .portrait
+        waitHittable(app.buttons["cameraButton"],"portrait Camera")
+        choose("Third person");choose("First person")
+        app.buttons["jumpButton"].tap();textContains("gameStatus","Jumped and landed",timeout:5)
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+    }
+    func testNativeModelAndFractionalPlacementSaveRestart()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain(checkpoint:"model_terrain")
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot5"].tap()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Flower pot",checkpoint:"model_place")
+        capture("native-flower-pot-placed")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected",checkpoint:"model_collect")
+        app.buttons["slot6"].tap();app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt 1/2 cube",checkpoint:"model_half_place")
+        XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"));capture("native-fractional-half-placed")
+        app.terminate();app.launch();wait(app.buttons["placeButton"])
+        app.scrollViews["hotbarScroll"].swipeLeft();XCTAssertTrue(app.buttons["slot6"].label.contains("7 blocks"))
+        capture("native-fractional-save-restarted")
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected",checkpoint:"model_collect")
+        XCTAssertTrue(app.buttons["slot6"].label.contains("8 blocks"))
+    }
+    func testSaveMenuBarrierBackgroundAndColdRestart()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["moveRight"].press(forDuration:0.5)
+        let position=app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0]
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+        XCTAssertEqual(app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0],position)
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["breakButton"])
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"])
+        XCTAssertEqual(app.staticTexts["playerPosition"].label.components(separatedBy:" · ")[0],position)
+        capture("native-save-barrier-cold-restart")
+    }
+    func testOfflineLoadCancelRetryAndColdRestart()throws {
+        newOffline();textContains("playerPosition","Ground")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu before cancellation")
+        launchFixture(["--offline-load-cancel-test"])
+        wait(app.buttons["cancelOfflineLoad"],20,"cancel control during gated load")
+        capture("native-offline-load-cancellable")
+        app.buttons["cancelOfflineLoad"].tap()
+        wait(app.buttons["offlineResumeButton"],20,"menu after cancellation")
+        XCTAssertTrue(app.buttons["offlineResumeButton"].isHittable)
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"],20,"world after cancelled-load retry")
+        textContains("playerPosition","Ground");capture("native-offline-load-cancel-retried")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu after retry")
+        app.terminate();app.launchArguments=[];app.launch();wait(app.buttons["breakButton"],20,"cold restart after retry")
+        XCTAssertTrue(app.buttons["craftButton"].isHittable);capture("native-offline-async-cold-load")
+    }
+    func testIncrementalMeshEditsBackgroundAndRestart()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected");waitTerrain()
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Dirt");waitTerrain()
+        capture("native-incremental-mesh-edited")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["breakButton"]);waitTerrain()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
+        capture("native-mesh-cold-restart")
+        launchFixture(["--mesh-memory-warning-test"])
+        wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
+        let before=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.5);XCTAssertEqual(app.staticTexts["playerPosition"].label,before)
+        app.buttons["pauseButton"].tap();waitTerrain();capture("native-simulated-memory-warning-recovered")
+        app.launchArguments=[]
+    }
+    func testNativeFineGridCollectFillAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["gridButton"].tap();wait(app.buttons["1/2"]);app.buttons["1/2"].tap()
+        app.buttons["breakButton"].tap();textContains("gameStatus","Block collected");waitTerrain()
+        app.scrollViews["hotbarScroll"].swipeLeft();app.buttons["slot7"].tap()
+        XCTAssertTrue(app.buttons["slot7"].label.contains("Grass 1/2 cube"));capture("native-fine-grid-collected")
+        app.buttons["placeButton"].tap();textContains("gameStatus","Placed Grass 1/2 cube");waitTerrain()
+        XCTAssertTrue(app.buttons["slot7"].label.contains("0 blocks"))
+        app.buttons["gridButton"].tap();wait(app.buttons["Whole / hit piece"]);app.buttons["Whole / hit piece"].tap()
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain();capture("native-fine-grid-filled-restarted")
+    }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
+    private func redirectProbe(_ origin:URL)throws->[String:Int]{
+        let result=RedirectProbeResult(),done=expectation(description:"Fixed redirect counters")
+        var request=URLRequest(url:origin.appendingPathComponent("probe"));request.timeoutInterval=5
+        let task=URLSession.shared.dataTask(with:request){data,response,_ in
+            if let response=response as? HTTPURLResponse,response.statusCode==200,let data=data,data.count<=1024,
+               let value=(try? JSONSerialization.jsonObject(with:data)) as? [String:Int] {result.put(value)}
+            done.fulfill()
+        }
+        task.resume();wait(for:[done],timeout:10);task.cancel()
+        return try XCTUnwrap(result.value,"Fixed redirect counters unavailable")
+    }
+    func testOnlineSandboxRedirectPrivacyEditAndReconnect()throws {
+        let normal=try XCTUnwrap(ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"],"Synthetic gateway missing")
+        let redirect=try XCTUnwrap(ProcessInfo.processInfo.environment["VOXEL_TEST_REDIRECT_GATEWAY"].flatMap(URL.init(string:)),"Synthetic redirect gateway missing")
+        let before=try redirectProbe(redirect)
+        fixtureLaunchUsed=true
+        defer {app.launchEnvironment["VOXEL_TEST_GATEWAY"]=normal;app.terminate()}
+        // Use a fresh app/form for each origin. Do not capture forms or credentials.
+        app.terminate();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=redirect.absoluteString;app.launch();menu()
+        fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
+        app.buttons["signInButton"].tap();wait(app.alerts["Voxel One"],30,"redirect refusal")
+        let refused=app.alerts["Voxel One"].staticTexts["Game gateway redirects are not allowed. Check its HTTPS address."].exists
+        app.terminate();XCTAssertTrue(refused,"Redirect must fail with a fixed public message")
+        let after=try redirectProbe(redirect)
+        XCTAssertGreaterThan(after["redirects"] ?? -1,before["redirects"] ?? 0)
+        XCTAssertEqual(after["forwards"],before["forwards"],"Login and logout must not follow redirects")
+
+        app.launchEnvironment["VOXEL_TEST_GATEWAY"]=normal;app.launch();menu()
+        fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
+        app.segmentedControls["gameChoice"].buttons["Sandbox"].tap();app.buttons["signInButton"].tap()
+        wait(app.buttons["breakButton"],80,"online Sandbox login");textContains("playerPosition","Ground",timeout:30)
+        XCTAssertFalse(app.buttons["flyButton"].isHittable,"Online flight remains server controlled")
+        app.buttons["cameraButton"].tap();wait(app.buttons["First person"]);app.buttons["First person"].tap()
+        let position=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.5)
+        XCTAssertNotEqual(position,app.staticTexts["playerPosition"].label,"Online movement remains playable")
+        textContains("playerPosition","Ground",timeout:30)
+        let initialBag=(0..<9).map{app.buttons["slot\($0)"].label}
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Break checked by server",timeout:30)
+        let bag=(0..<9).map{app.buttons["slot\($0)"].label}
+        XCTAssertNotEqual(bag,initialBag,"Confirmed collection must change authoritative inventory")
+        capture("native-online-sandbox-authoritative-edit")
+        app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
+        fill("password","fixture-password-123",secure:true);app.buttons["signInButton"].tap()
+        wait(app.buttons["breakButton"],80,"reconnected Sandbox login")
+        XCTAssertEqual((0..<9).map{app.buttons["slot\($0)"].label},bag,"Authoritative inventory survives reconnect")
+        capture("native-online-sandbox-reconnected")
+        // Restore the ordinary saved offline world; later cases still start normally.
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+    }
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()
         let address=app.textFields["gatewayAddress"];wait(address);XCTAssertFalse(address.value as? String == "")
@@ -157,7 +645,7 @@ final class NativeWorkflowTests:XCTestCase {
         if app.buttons["planToggle"].label=="Plan" {app.buttons["planToggle"].tap()}
         app.buttons["toolButton"].tap();app.buttons["Dirt road"].tap()
         app.buttons["confirmPlan"].tap();textContains("gameStatus","two points")
-        let scene=app.otherElements["worldView"];wait(scene)
+        let scene=app.otherElements["worldView"];wait(scene);waitTerrain()
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.40,dy:0.46)).tap()
         scene.coordinate(withNormalizedOffset:CGVector(dx:0.62,dy:0.48)).tap()
         textContains("gameStatus","2 plan points")
@@ -193,26 +681,32 @@ final class NativeWorkflowTests:XCTestCase {
     }
 
     func testGraphicsDraftApplyPersistenceAndLandscape(){
+        workflowCheckpoint="graphics_open"
         newOffline();app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         app.segmentedControls["graphicsAA"].buttons["Off"].tap()
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        workflowCheckpoint="graphics_draft"
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
         app.segmentedControls["graphicsPreset"].buttons["Low"].tap()
         app.segmentedControls["graphicsFrames"].buttons["60 FPS"].tap()
         app.segmentedControls["graphicsDetail"].buttons["64"].tap();capture("graphics-native-draft")
         app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap();wait(app.buttons["breakButton"])
+        workflowCheckpoint="graphics_saved"
         app.terminate();app.launch();wait(app.buttons["graphicsButton"])
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected)
         XCTAssertTrue(app.segmentedControls["graphicsFrames"].buttons["60 FPS"].isSelected)
         XCTAssertTrue(app.segmentedControls["graphicsDetail"].buttons["64"].isSelected)
+        workflowCheckpoint="graphics_landscape"
         XCUIDevice.shared.orientation = .landscapeLeft;capture("graphics-native-landscape")
         app.swipeUp();wait(app.buttons["graphicsReset"]);app.buttons["graphicsReset"].tap()
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
+        workflowCheckpoint="graphics_reset_cancel"
         XCUIDevice.shared.orientation = .portrait;app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsAA"])
         XCTAssertTrue(app.segmentedControls["graphicsAA"].buttons["Off"].isSelected,"Reset is only a draft until Apply")
         app.swipeUp();wait(app.buttons["graphicsCancel"]);app.buttons["graphicsCancel"].tap()
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused");app.buttons["pauseButton"].tap()
+        workflowCheckpoint="graphics_high"
         // Exercise the high requested AA path; effective samples remain device limited.
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsPreset"])
         app.segmentedControls["graphicsPreset"].buttons["High"].tap();app.swipeUp();wait(app.buttons["graphicsApply"]);app.buttons["graphicsApply"].tap()
