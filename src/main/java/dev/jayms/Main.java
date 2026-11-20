@@ -427,6 +427,7 @@ public class Main {
                         spawn.yaw(),
                         spawn.pitch(),
                         camera);
+        if (buildingPreview != null && wideBuildingPreview() && !player.flying()) player.toggleFlight();
         awaitInitialTerrain(spawn.x(),spawn.y(),spawn.z());
         if (network == null && buildingPreview == null) {
             int surface = Terrain.MAX_Y;
@@ -508,8 +509,19 @@ public class Main {
 
     private Protocol.Pose buildingPreviewSpawn() {
         float width = buildingPreview.width()/(float)buildingPreview.unitsPerBlock();
+        if (wideBuildingPreview()) {
+            float height = buildingPreview.height()/(float)buildingPreview.unitsPerBlock();
+            float aspect = framebufferWidth/(float)Math.max(1,framebufferHeight);
+            double halfFov = Math.tan(Math.toRadians(35));
+            float distance = (float)(.58*Math.max(width/Math.max(.25f,aspect),height)/halfFov);
+            return new Protocol.Pose(0,width*.5f,buildingPreviewGrade()+height*.8f,-distance,90,-10);
+        }
         float setback = width <= 64 ? 14 : Math.min(47,width*.4f);
         return new Protocol.Pose(0,width*.5f,buildingPreviewGrade()+1.01f,-setback,90,width <= 64 ? 0 : 11);
+    }
+
+    private boolean wideBuildingPreview() {
+        return Math.max(buildingPreview.width(),buildingPreview.depth())>64*buildingPreview.unitsPerBlock();
     }
 
     private int buildingPreviewGrade() {
@@ -523,15 +535,17 @@ public class Main {
         int grid = buildingPreview.unitsPerBlock();
         int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
         var spawn = buildingPreviewSpawn();
-        int spawnColumnX = Math.floorDiv((int)spawn.x(),16);
-        int spawnColumnZ = Math.floorDiv((int)Math.floor(spawn.z()),16);
-        int front = (int)Math.floor(spawn.z())-5;
+        int front = -19;
         // Prepare the spawn before adding any exterior detail columns.
         world.stream(spawn.x(),spawn.z(),9);
-        // Load the part of the footprint that the normal streamer can retain at spawn.
-        // Farther edits remain in world history and stream in as the player approaches.
+        // Keep only columns containing the asset resident, so camera travel can
+        // stream surrounding terrain without replacing the landmark with terrain LOD.
+        int columns=(width+15)/16;
+        BitSet footprint=new BitSet();
+        for (var edit:buildingPreview.edits()) footprint.set((edit.z()/16)*columns+edit.x()/16);
         for (int cz=0; cz<=(depth-1)/16; cz++) for (int cx=0; cx<=(width-1)/16; cx++) {
-            if (Math.abs(cx-spawnColumnX)>6 || Math.abs(cz-spawnColumnZ)>6) continue;
+            if (!footprint.get(cz*columns+cx)) continue;
+            world.retainPreviewColumn(cx,cz);
             for (int cy=-2; cy<=7; cy++) {
                 var position = new ChunkPos(cx,cy,cz);
                 if (!world.getLoadedChunks().containsKey(position))
@@ -1345,6 +1359,8 @@ public class Main {
         // Build complete nearby columns first, including their offscreen chunks, before replacing
         // the background approximation. Air chunks consume neither GPU buffers nor mesh budget.
         int detailBlocks=graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL);
+        if (buildingPreview!=null && wideBuildingPreview())
+            detailBlocks=Math.max(detailBlocks,2*Math.max(buildingPreview.width(),buildingPreview.depth())/buildingPreview.unitsPerBlock());
         int passBlocks=Math.max(detailBlocks,Math.max(rendering.settings.shadows?rendering.settings.shadowDistance:0,rendering.settings.reflections?112:0));
         rendering.prepareFocus(world,location.x,location.z);
         detailedMeshes.update(world,location.x,location.z,frustum,detailBlocks,passBlocks,Math.max(0,1_000_000L-streamNanos),2*1024*1024);
@@ -1365,7 +1381,7 @@ public class Main {
                 (isometric ? overview.camera() : camera).position(),
                 isometric,
                 shader);
-        var detailed=world.renderedColumns(location.x,location.z,graphics.transaction.effective().integer(GraphicsProfile.Key.DETAIL));
+        var detailed=world.renderedColumns(location.x,location.z,detailBlocks);
         rendering.distant(distant, frustum, detailed, shader);
         for (var entry : world.getLoadedChunks().entrySet()) {
             ChunkPos p = entry.getKey();

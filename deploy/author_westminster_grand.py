@@ -36,6 +36,77 @@ def wall_details(part, words):
     return []
 
 
+def roof_details():
+    result=[]
+
+    def box(material,*bounds):
+        result.append("box "+material+" "+units(*bounds))
+
+    def row(count,stride):
+        result.append("row "+str(count)+" "+units(stride,0,0))
+
+    # Both pitches meet at Z=53. Half-block rises preserve the slope at
+    # pedestrian distance, while continuous eaves and the crest read from afar.
+    result.append("part river-roof "+units(35,31,33,273,49,73))
+    for step in range(20):
+        left, right, y = 33+step, 73-step, 32+step*.5
+        for z in (left,right-1):
+            box("STONE",36,y,z,272,y+1,z+1)
+            row(29,8)
+            box("STONE",38,y+1,z,38.25,y+1.25,z+1)
+            result.append("endrow")
+    for z in (33,72):
+        box("STONE",35.5,31.5,z,272.5,32.5,z+1)
+    box("STONE",36,42.5,52.5,272,43,53.5)
+    # Low open ridge rail with a taller spear and two shoulders every four blocks.
+    box("WOOD",36,44,52.75,272,44.25,53.25)
+    row(59,4)
+    box("WOOD",36,43,52.75,36.5,45,53.25)
+    box("SAND",36.125,45,52.875,36.375,45.75,53.125)
+    box("WOOD",37.5,43,52.75,38,44,53.25)
+    result.extend(["endrow","end"])
+
+    result.append("part hall-roof "+units(7,19,113,83,40,137))
+    for step in range(22):
+        z=114+step*.5
+        y=21+step*.5
+        for face in (z,250-z-.5):
+            box("STONE",8,y,face,82,y+1,face+.5)
+            row(12,6)
+            box("STONE",10,y+1,face,10.25,y+1.25,face+.5)
+            result.append("endrow")
+    box("STONE",7.75,32,124.5,82.25,33,125.5)
+    # Two louvred ridge lanterns, with lead hips and a small gilded finial.
+    for x in (30,60):
+        box("STONE",x-3,31,122,x+4,32,128)
+        box("WOOD",x-2,32,123,x+3,35,127)
+        for y in (32.5,33.5,34.5):
+            box("SAND",x-2.25,y,122.75,x+3.25,y+.25,127.25)
+        for level in range(4):
+            inset=level*.5
+            box("STONE",x-3+inset,35+level*.5,122+inset,x+4-inset,35.5+level*.5,128-inset)
+        box("SAND",x+.25,37,124.75,x+.75,39,125.25)
+    result.append("end")
+    # Shorter hipped ranges enclose the courts on the landward side.
+    result.append("part courtyard-roofs "+units(54,30,72,270,42,114))
+    for x0,z0,x1,z1 in ((56,106,270,114),(54,72,64,106),(136,72,158,106),(224,72,238,106)):
+        courses=min(x1-x0,z1-z0)//2
+        for inset in range(courses):
+            box("STONE",x0+inset,30+inset*.5,z0+inset,
+                x1-inset,30.5+inset*.5,z1-inset)
+        top=30+courses*.5
+        if x1-x0>z1-z0:
+            box("STONE",x0+courses,top,(z0+z1)/2-.5,x1-courses,top+.5,(z0+z1)/2+.5)
+        else:
+            box("STONE",(x0+x1)/2-.5,top,z0+courses,(x0+x1)/2+.5,top+.5,z1-courses)
+    for x in range(72,253,24):
+        box("BRICKS",x,31,109,x+2,35,111)
+        box("STONE",x-.25,35,108.75,x+2.25,35.5,111.25)
+        box("WOOD",x+.5,35.5,109.5,x+1.5,36,110.5)
+    result.append("end")
+    return result
+
+
 def recipe():
     result=["building westminster-grand 4800 1632 2432 grid16 monument",
             "# Approximately one metre per block. Stone faces and carvings use grid16."]
@@ -49,6 +120,10 @@ def recipe():
             continue
         if words[0]=="part":
             part=words[1]
+        if part=="thames-range" and words[:2]==["box","STONE"]:
+            x,y,z,end,top,back=(int(v)/16 for v in words[2:])
+            if x==18 and end==136 and 16<=y<20 and z==17+2*(y-16):
+                continue
         result.append(" ".join(words[:2]+[str(2*int(v)) for v in words[2:]]))
         result.extend(wall_details(part,words))
     # A pierced quatrefoil frieze in two lengths between the projecting pavilions.
@@ -85,6 +160,7 @@ def recipe():
             mould(3.75-offset,bottom,4.5-offset,bottom+.5,31.25)
         mould(1.75,24,2.25,24.5,31)
         result.extend(["endrow","end"])
+    result.extend(roof_details())
     return "\n".join(result)+"\n"
 
 

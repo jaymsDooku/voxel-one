@@ -160,6 +160,9 @@ class OctreeBuildingTest {
         assertEquals(Blocks.SAND,materialAt(building,60*16,4*16,32*16));
         assertEquals(Blocks.AIR,materialAt(building,60*16,4*16+15,32*16));
         assertEquals(Blocks.SAND,materialAt(building,60*16,4*16+15,32*16+4));
+        assertEquals(Blocks.WOOD,materialAt(building,36*16,44*16,53*16));
+        assertEquals(Blocks.SAND,materialAt(building,30*16+6,38*16,125*16));
+        assertEquals(Blocks.STONE,materialAt(building,100*16,32*16,110*16));
         assertTrue(building.edits().stream().anyMatch(edit->edit.depth()==4));
     }
 

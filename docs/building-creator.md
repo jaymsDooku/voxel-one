@@ -90,6 +90,8 @@ The [full-scale Palace recipe](../assets/buildings/westminster-grand.vbuild) dou
 java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/buildings/westminster-grand.vbuild
 ```
 
+Large previews open in flight with the camera framing the building. For the full-scale Palace, the preview draws detailed geometry out to 600 blocks and keeps the occupied building columns loaded as you move. Fly above the Thames range to see the standing seams and open ridge cresting, or across the courts for the two louvred lanterns over Westminster Hall. Press **F** to switch between flying and walking.
+
 The opt-in JSON result has `schemaVersion: 2`, `unitsPerBlock: 16`, and an `editsByDepth` array ordered from whole blocks to sixteenths. Dimensions and `occupied` are in recipe units. Existing half-block recipes still return v1 JSON and the same canonical edit stream.
 
 **Cedar Court Entry** is an original detail study informed by the Gamble House in Pasadena. The [Historic American Buildings Survey](https://www.loc.gov/resource/hhh.ca0279.sheet?st=gallery) lists 11 measured drawings. The [Gamble House Conservancy research guide](https://gamblehouse.org/learn/) identifies floor plans, elevations, and a site plan. Its [joinery notes](https://gamblehouse.org/design-without-compromise/) document proud pegs, inlay, and stepped wood profiles. The sample uses deep eaves, layered brackets, round pegs, narrow glazing bars, and patterned flooring to exercise all five edit depths. The colored points behind the sidelights use the engine's LED material.

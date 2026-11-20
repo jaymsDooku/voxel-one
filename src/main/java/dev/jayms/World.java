@@ -7,6 +7,16 @@ import java.util.*;
 
 public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
+    private final Set<ChunkPos> previewColumns = new HashSet<>();
+
+    void retainPreviewColumn(int x,int z) {
+        previewColumns.add(new ChunkPos(x,0,z));
+    }
+
+    private boolean outsideStream(ChunkPos p,int x,int z) {
+        return (Math.abs(p.chunkX()-x)>6 || Math.abs(p.chunkZ()-z)>6)
+                && (previewColumns.isEmpty() || !previewColumns.contains(column(p)));
+    }
     private final Map<ChunkPos,Chunk> dirtyMeshes=new java.util.concurrent.ConcurrentHashMap<>();
     private final Map<ChunkPos,Set<ChunkPos>> columnMembers=new HashMap<>();
     private final Set<ChunkPos> dirtyColumns=new HashSet<>(),completeColumns=new HashSet<>();
@@ -286,7 +296,7 @@ public class World implements AutoCloseable {
                 cz = Math.floorDiv((int) Math.floor(z), 16);
         var distant=new ArrayList<ChunkPos>();
         for(var position:loadedChunks.keySet())
-            if(Math.abs(position.chunkX()-cx)>6||Math.abs(position.chunkZ()-cz)>6)distant.add(position);
+            if(outsideStream(position,cx,cz))distant.add(position);
         for(var position:distant)unloadChunk(position);
         int generated = 0;
         for (int ring = 0; ring <= 4; ring++)
@@ -341,7 +351,7 @@ public class World implements AutoCloseable {
             while(replay.hasNext()&&System.nanoTime()<deadline)preparing.chunk().apply(replay.next());
             streamReplayNanos+=System.nanoTime()-stage;
             if(replay.hasNext()||System.nanoTime()>=deadline)break;
-            if(loadedChunks.size()>=1690)break;
+            if(loadedChunks.size()>=1690+10*previewColumns.size())break;
             preparing.chunk().terrainEquivalent=true;
             stage=System.nanoTime();attachChunk(p,preparing.chunk(),false);streamAttachNanos+=System.nanoTime()-stage;
             streamAttached++;preparing=null;replay=null;
@@ -351,7 +361,7 @@ public class World implements AutoCloseable {
         long disposalDeadline=Math.min(deadline,System.nanoTime()+Math.max(1,budgetNanos/4));
         stage=System.nanoTime();
         while(streamUnloaded<TerrainScheduler.CAPACITY&&System.nanoTime()<disposalDeadline){
-            ChunkPos remove=null;for(var p:loadedChunks.keySet())if(Math.abs(p.chunkX()-cx)>6||Math.abs(p.chunkZ()-cz)>6){remove=p;break;}
+            ChunkPos remove=null;for(var p:loadedChunks.keySet())if(outsideStream(p,cx,cz)){remove=p;break;}
             if(remove==null)break;unloadChunk(remove);streamUnloaded++;
         }
         streamDisposeNanos=System.nanoTime()-stage;
@@ -393,7 +403,7 @@ public class World implements AutoCloseable {
         closed=true;skyStamp++;Arrays.fill(skyChanges,null);
         var cleanup=new CloseSequence();
         cleanup.run(()->{if(terrainScheduler!=null)terrainScheduler.close();});
-        preparing=null;replay=null;streamingColumns.clear();skyEditChunks.clear();skyEditVersions.clear();skyPositions.clear();
+        preparing=null;replay=null;streamingColumns.clear();previewColumns.clear();skyEditChunks.clear();skyEditVersions.clear();skyPositions.clear();
         for (Chunk c : loadedChunks.values()) cleanup.run(c::close);
         edits.clear();editedCells.clear();editedCeilings.clear();columnGeometryVersions.clear();voxels.clear();
         cleanup.run(terrain::clearCaches);

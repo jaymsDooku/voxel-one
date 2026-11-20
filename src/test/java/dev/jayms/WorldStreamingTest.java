@@ -7,6 +7,21 @@ import java.util.concurrent.TimeUnit;
 import static org.junit.jupiter.api.Assertions.*;
 
 class WorldStreamingTest {
+    @Test void previewLandmarkStaysResidentWhileTerrainAroundCameraStreams() throws Exception {
+        try(var world=new World(42)) {
+            var landmark=new ChunkPos(0,4,0);
+            var ordinary=new ChunkPos(1,4,0);
+            world.addChunk(landmark,new Chunk());
+            world.addChunk(ordinary,new Chunk());
+            world.retainPreviewColumn(0,0);
+            resident(world,new ChunkPos(25,4,0),408,65,8);
+            assertTrue(world.getLoadedChunks().containsKey(landmark));
+            assertFalse(world.getLoadedChunks().containsKey(ordinary));
+            assertTrue(world.renderedColumns(408,8,600).contains(new ChunkPos(0,0,0)));
+            world.stream(-408,8,1);
+            assertTrue(world.getLoadedChunks().containsKey(landmark));
+        }
+    }
     static void resident(World w,ChunkPos p,float x,float y,float z)throws Exception {
         long end=System.nanoTime()+TimeUnit.SECONDS.toNanos(20);
         while(!w.getLoadedChunks().containsKey(p)&&System.nanoTime()<end){w.streamAsync(x,y,z,2_000_000);assertTrue(w.terrainPending()<=TerrainScheduler.CAPACITY+1);Thread.sleep(1);}
