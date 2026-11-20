@@ -1,0 +1,34 @@
+Westminster rendering stability
+Windows / NVIDIA GeForce RTX 3060. Fixed daylight; 800 x 480 output.
+Parent 62a39cc1. Tested fix bfcda4aa.
+31 consecutive frame pairs per view. Deltas are in 8-bit luma units. The slow yaw pan reprojects the previous frame before comparison.
+
+Original, fixed scale and TAA enabled:
+overview: mean_luma_delta=27.957 worst_frame_mean=35.384 changed_by_8_pct=55.292 pairs=31
+clock: mean_luma_delta=14.218 worst_frame_mean=19.027 changed_by_8_pct=46.063 pairs=31
+pan: mean_luma_delta=12.685 worst_frame_mean=16.666 changed_by_8_pct=44.066 pairs=31
+
+Fixed, same scale and TAA enabled:
+overview: mean_luma_delta=0.984 worst_frame_mean=1.252 changed_by_8_pct=2.164 pairs=31
+clock: mean_luma_delta=0.943 worst_frame_mean=11.558 changed_by_8_pct=2.666 pairs=31
+pan: mean_luma_delta=0.954 worst_frame_mean=1.230 changed_by_8_pct=1.300 pairs=31
+
+Fixed, default graphics:
+overview: mean_luma_delta=0.984 worst_frame_mean=1.255 changed_by_8_pct=2.165 pairs=31
+clock: mean_luma_delta=0.563 worst_frame_mean=0.712 changed_by_8_pct=0.790 pairs=31
+pan: mean_luma_delta=1.374 worst_frame_mean=10.727 changed_by_8_pct=3.185 pairs=31
+
+Median displayed luminance (0-255)
+Victoria shaft / buttress: 135 / 143
+Elizabeth shaft / band: 132 / 125
+Elizabeth close-up, shaded / sunlit shaft: 83 / 169
+
+32 stationary and panning frames; maximum HDR sample error=0.0
+48 settled silhouette frames; largest HDR step=0.020996094
+
+Far paving, original then fixed:
+NVIDIA GeForce RTX 3060/PCIe/SSE2: no detailed owner=7680, Palace column owns surface=7680, adjacent column owns its surface=7680
+NVIDIA GeForce RTX 3060/PCIe/SSE2: no detailed owner=7680, Palace column owns surface=0, adjacent column owns its surface=7680
+
+Maven verify: 45 targeted tests passed. The broader RenderingSmoke stopped at model shadow draw count with GL error 1286 in both the parent and fixed builds.
+Native uniform readback during streaming: original history disabled on 64/64 stationary sampled frames, fixed history enabled on 64/64.
