@@ -261,6 +261,19 @@ public class StructurePlaytest {
                 require(menu().selected==original&&!Files.exists(Controls.directory().resolve("structures/Cancel staging.vstr")),"Cancelled decode leaves selection/library unchanged");
                 require(local().edits.size()==beforeCancel&&local().models.entries().size()==modelsBeforeCancel,"Cancelled import leaves world/dependencies unchanged");
                 capture(window,output.resolve("structure-import-cancelled.png"));
+                stage("placement-chunk-admission");
+                var limitTree=new SparseVoxelOctree(16);limitTree.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.BRICKS));
+                var limitCells=new ArrayList<Cell>();
+                for(int z=0;z<17&&limitCells.size()<257;z++)for(int x=0;x<17&&limitCells.size()<257;x++)limitCells.add(new Cell(new Position(x*16,0,z*16),limitTree,-1));
+                var limitAsset=new StructurePackage("Chunk limit fixture",new Bounds(272,1,272,0,0,0),original.models,limitCells);
+                Path limitFile=Path.of("target/structure-native/chunk-limit.vstr");limitAsset.save(limitFile);command("import "+limitFile);
+                require(menu().selected.name.equals(limitAsset.name),"Oversized destination package imports without world mutation");
+                int limitEdits=local().edits.size(),limitModels=local().models.entries().size();long limitVersion=world().editsVersion();
+                var limitLibrary=local().models;byte[] limitSave=Files.readAllBytes(Path.of("target/structure-native/world.dat"));
+                command("place");require(menu().message.contains("256 affected chunks"),"Explicit occupied-chunk admission error: "+menu().message);
+                require(local().edits.size()==limitEdits&&world().editsVersion()==limitVersion&&local().models==limitLibrary&&local().models.entries().size()==limitModels,"Chunk admission leaves geometry/dependencies unchanged");
+                require(Arrays.equals(limitSave,Files.readAllBytes(Path.of("target/structure-native/world.dat"))),"Chunk admission leaves durable save unchanged");
+                capture(window,output.resolve("structure-placement-limit.png"));onFrame(()->{menu().selected=original;return null;});
                 Files.writeString(Path.of("target/structure-native/bad.vstr"),"not a package");int edits=local().edits.size();command("import target/structure-native/bad.vstr");require(local().edits.size()==edits,"Malformed import leaves world unchanged");
                 command("place");require(menu().message.startsWith("Placed and saved"),"Repeated placement after cancel/import failure");command("preview");capture(window,output.resolve("structure-placed.png"));
                 stage("restart-recovery");onFrame(()->{local().save();return null;});var loaded=new LocalGame(Path.of("target/structure-native/world.dat"),0);require(loaded.models.hasStructureModels(),"Versioned dependency restart recovery");
@@ -268,7 +281,7 @@ public class StructurePlaytest {
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
                 capture(window,output.resolve("structure-component-closeup.png"));stage("inventory-editor-regression");x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                stage("workflow-passed");Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                stage("workflow-passed");Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
             }catch(Throwable problem){failure=problem;try{stage("workflow-failed");}catch(Exception ignored){}try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();

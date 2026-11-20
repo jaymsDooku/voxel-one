@@ -100,6 +100,15 @@ constructor inputs are copied before freezing. Both paths enforce all package
 checks. Sorting still creates final storage separately, and placement staging
 needs further memory work.
 
+Placement checks the exact rotated occupied-cell chunk count and destination
+coordinates before offline snapshot capture, network encoding or server snapshot
+capture. This position-only check avoids decoding geometry or staging
+dependencies for a destination over the provisional 256-chunk cap. Empty
+bounding space does not consume that budget; unaligned anchors can increase it.
+The engine repeats admission for direct callers, and occupancy/source/authority
+checks still run before commit. This does not increase any cap or qualify city
+placement.
+
 Placement staging retains mixed 16-resolution cells as immutable packed wire
 images rather than retaining their child-node graphs. Each cell image is at most
 64 KiB. Its wrapper identity stays stable for map lookups and undo; uniform cells

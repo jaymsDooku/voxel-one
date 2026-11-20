@@ -142,10 +142,10 @@ public final class StructureMenu implements AutoCloseable {
             if(verb.equals("place")) {
                 var point=target;int orientation=rotation;
                 if(network!=null) {
-                    start("Preparing structure upload...",cancel->{byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
+                    start("Preparing structure upload...",cancel->{StructureEngine.admittedFootprint(asset,point,orientation,cancel::get);byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
                 }
                 start("Staging placement; world unchanged...",cancel->{
-                    var box=StructureEngine.footprint(asset,point,orientation);
+                    var box=StructureEngine.admittedFootprint(asset,point,orientation,cancel::get);
                     var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/10);
                     var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=10+p*40/100);
                     try {

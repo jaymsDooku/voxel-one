@@ -13,6 +13,8 @@ import static dev.jayms.net.structure.StructurePackage.*;
 
 /** Shared offline/server validation and staging. Only Authority.commit may publish. */
 public final class StructureEngine {
+    /** Provisional development cap; not supported-city qualification. */
+    public static final int MAX_AFFECTED_CHUNKS=256;
     public interface Authority extends Source {
         Object lock();
         /** Owner-thread atomic replacement, including durable world state; rollback on IOException. */
@@ -66,6 +68,30 @@ public final class StructureEngine {
     }
     public static SparseVoxelOctree rotate(SparseVoxelOctree source,int rotation) {
         checkRotation(rotation);return source.rotatedY(rotation);
+    }
+    private static Position destination(Position source,StructurePackage asset,Footprint box) throws IOException {
+        var relative=rotate(source,asset.bounds.x(),asset.bounds.z(),box.rotation());
+        long x=(long)box.minX()+relative.x(),y=(long)box.minY()+relative.y(),z=(long)box.minZ()+relative.z();
+        if(x<Integer.MIN_VALUE||x>Integer.MAX_VALUE||y<Integer.MIN_VALUE||y>Integer.MAX_VALUE||z<Integer.MIN_VALUE||z>Integer.MAX_VALUE
+                ||!new Protocol.Edit((int)x,(int)y,(int)z,0).valid())throw new IOException("Destination outside world");
+        return new Position((int)x,(int)y,(int)z);
+    }
+    /** Position-only admission precedes dependency staging, geometry decoding
+     * and destination reads. Count occupied destination chunks, not the bounding
+     * box, including unaligned anchors and quarter-turn rotations. */
+    private static int admitChunks(StructurePackage asset,Footprint box,BooleanSupplier cancel)throws IOException {
+        var chunks=new HashSet<ChunkPos>();
+        for(var position:asset.occupiedPositions()) {
+            cancelled(cancel);var p=destination(position,asset,box);
+            chunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
+            if(chunks.size()>MAX_AFFECTED_CHUNKS)throw new IOException("Experimental placement exceeds 256 affected chunks");
+        }
+        cancelled(cancel);return chunks.size();
+    }
+    /** Worker-side preflight before snapshot capture or upload. This proves only
+     * bounded destination coordinates/chunk count, never occupancy or authority. */
+    public static Footprint admittedFootprint(StructurePackage asset,Position anchor,int rotation,BooleanSupplier cancel)throws IOException {
+        cancelled(cancel);var box=footprint(asset,anchor,rotation);admitChunks(asset,box,cancel);return box;
     }
     public final class Prepared implements AutoCloseable {
         private final Map<Position,SparseVoxelOctree> before,after;
@@ -147,23 +173,19 @@ public final class StructureEngine {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
         boolean complete=false;
         try {
-            var box=footprint(asset,anchor,rotation);long revision=snapshot.models().revision();var staged=snapshot.models().copy();
+            var box=footprint(asset,anchor,rotation);int affectedChunks=admitChunks(asset,box,cancel);
+            long revision=snapshot.models().revision();var staged=snapshot.models().copy();
             var modelIds=new int[asset.models.size()];
             for(int i=0;i<modelIds.length;i++) {
                 cancelled(cancel);var def=asset.models.get(i);
                 modelIds[i]=staged.stageStructureModel(new ModelDefinition(def.name(),rotate(def.voxels(),rotation))).id();
             }
             var cells=new StructurePlacementCells.Builder(box,asset.cells.size());int count=0;
-            var affectedChunks=new HashSet<ChunkPos>();
             var empty=new SparseVoxelOctree(16).freeze();
             var uniformGeometry=new StructureUniformCells(asset.cells.size()-asset.instanceCount,cancel);
             var instances=new HashMap<Integer,SparseVoxelOctree>();
             for(var cell:asset.cells) {
-                cancelled(cancel);var relative=rotate(cell.position(),asset.bounds.x(),asset.bounds.z(),rotation);
-                long x=(long)box.minX+relative.x(),y=(long)box.minY+relative.y(),z=(long)box.minZ+relative.z();
-                if(x<Integer.MIN_VALUE||x>Integer.MAX_VALUE||y<Integer.MIN_VALUE||y>Integer.MAX_VALUE||z<Integer.MIN_VALUE||z>Integer.MAX_VALUE
-                        ||!new Protocol.Edit((int)x,(int)y,(int)z,0).valid())throw new IOException("Destination outside world");
-                var p=new Position((int)x,(int)y,(int)z);var old=snapshot.cell(p.x(),p.y(),p.z());
+                cancelled(cancel);var p=destination(cell.position(),asset,box);var old=snapshot.cell(p.x(),p.y(),p.z());
                 if(old.occupied()!=0)throw new IOException("Occupied destination cell; empty source space is preserved");
                 SparseVoxelOctree next;
                 if(cell.model()>=0) {
@@ -174,13 +196,11 @@ public final class StructureEngine {
                     if(uniform==-1)next=rotate(cell.geometry(),rotation).packedCellCopy();
                     else {next=uniformGeometry.get(uniform);if(next==null){next=rotate(cell.geometry(),rotation);uniformGeometry.put(uniform,next);}}
                 }
-                affectedChunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
-                if(affectedChunks.size()>256)throw new IOException("Experimental placement exceeds 256 affected chunks");
                 cells.add(p,next);if((++count&127)==0)progress.accept(count*100/asset.cells.size());
             }
             var after=cells.build(cancel);
             var validated=validateChunks(after,snapshot,staged,cancel,Map.of());
-            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated,affectedChunks.size());complete=true;return result;
+            cancelled(cancel);progress.accept(100);var result=new Prepared(after,staged,revision,cancel,empty,validated,affectedChunks);complete=true;return result;
         } finally {if(!complete)busy.set(false);}
     }
     /** Detached CPU meshes conservatively count exposed chunk edges. Never touches GPU state. */
@@ -188,7 +208,7 @@ public final class StructureEngine {
         var chunks=new HashSet<ChunkPos>();
         for(var p:after.keySet()) {
             chunks.add(ChunkPos.fromBlock(p.x(),p.y(),p.z()));
-            if(chunks.size()>256)throw new IOException("Experimental placement exceeds 256 affected chunks");
+            if(chunks.size()>MAX_AFFECTED_CHUNKS)throw new IOException("Experimental placement exceeds 256 affected chunks");
         }
         var modelQuads=new HashMap<Integer,Integer>();var validated=new HashMap<ChunkPos,Object>();
         for(var position:chunks) {

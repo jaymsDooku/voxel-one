@@ -55,6 +55,16 @@ class StructureMultiplayerTest {
                     for(var view:views)view.client.move(view.client.spawn);
                 }
                 var player=views.get(0).client;
+                // Unsupported sparse placement rejects before destination/model staging.
+                // A following ordinary placement proves the server reservation released.
+                var limitGeometry=new SparseVoxelOctree(16);limitGeometry.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.BRICKS));
+                var limitCells=new ArrayList<Cell>();
+                for(int z=0;z<17&&limitCells.size()<257;z++)for(int x=0;x<17&&limitCells.size()<257;x++)limitCells.add(new Cell(new Position(x*16,0,z*16),limitGeometry,-1));
+                var limit=new StructurePackage("Chunk limit",new Bounds(272,1,272,0,0,0),definitions,limitCells);
+                int initialModels=player.models.entries().size();
+                assertTrue(player.placeStructure(limit.encode(),new Position(15000,128,2000),1));
+                waitFor(views,()->!player.structurePending());assertTrue(player.structureMessage.contains("256 affected chunks"),player.structureMessage);
+                for(var view:views){assertEquals(initialModels,view.client.models.entries().size());assertEquals(0,view.geometry.cell(15000,128,2000).occupied());}
                 for(int r=0;r<4;r++) {
                     var target=new Position(2000+r*2000,128,2000);
                     long placementStarted=System.nanoTime();
