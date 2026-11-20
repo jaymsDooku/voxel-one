@@ -12,10 +12,25 @@ final class RegionReplayJournal {
     private final Thread owner=Thread.currentThread();
     private final ArrayList<Protocol.Edit> rows=new ArrayList<>();
     private long epoch;
-    private boolean busy,failed;
+    private boolean busy,failed,readOnly;
     @FunctionalInterface interface Guard {void validate()throws IOException;}
     private Guard guard;
     private World boundWorld;
+    /** Exact unsaved source overlay for a fresh read-only paging World. This
+     * supports capture/acknowledgement, never adding geometry or edit authority. */
+    static RegionReplayJournal readOnlySource(World world,RegionReplayOverlay pending)throws IOException {
+        Objects.requireNonNull(world);Objects.requireNonNull(pending);
+        if(!world.hasReplayReadView())throw new IOException("Source journal requires a read-only replay World");
+        final World.ReplayFence fence;
+        try{fence=world.beginReplayFence();}
+        catch(IllegalStateException|ConcurrentModificationException failure){throw new IOException("Source journal World unavailable",failure);}
+        var journal=new RegionReplayJournal();journal.append(pending.rows(),()->false);
+        journal.bind(world,()->{
+            try{fence.validate(world);}
+            catch(IllegalStateException|ConcurrentModificationException failure){journal.invalidate();throw new IOException("Source journal World changed",failure);}
+        });
+        journal.readOnly=true;return journal;
+    }
     void bind(World world,Guard guard)throws IOException {
         Objects.requireNonNull(world);Objects.requireNonNull(guard);enter();
         try{if(this.guard!=null)throw new IOException("Replay journal already bound");this.guard=guard;boundWorld=world;}finally{busy=false;}
@@ -46,6 +61,7 @@ final class RegionReplayJournal {
     Reservation reserve(List<Protocol.Edit> edits,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(edits);Objects.requireNonNull(cancel);enter();
         try {
+            if(readOnly)throw new IOException("Read-only replay journal cannot add geometry");
             StructurePackage.cancelled(cancel);
             if(edits.size()>RegionReplayOverlay.MAX_ROWS-rows.size())throw new IOException("Replay journal row budget");
             var added=RegionReplayOverlay.capture(edits,cancel);rows.ensureCapacity(rows.size()+added.rows().size());

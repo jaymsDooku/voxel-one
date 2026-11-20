@@ -269,8 +269,9 @@ final class RegionReplayWorker implements AutoCloseable {
     }
     /** Fresh private scene and metadata transfer as one owner result. The caller
      * owns this World/scene; the worker remains separately owned. No Main,
-     * editing, complete coverage or writable partial-save authority is granted. */
-    record PagingSession(LocalGame local,World world,Binding binding,RegionReplayScene scene) implements AutoCloseable {
+     * editing, complete coverage or LocalGame.save promotion is granted. The
+     * source-only journal still requires the full worker snapshot/save checks. */
+    record PagingSession(LocalGame local,World world,Binding binding,RegionReplayScene scene,RegionReplayJournal journal) implements AutoCloseable {
         @Override public void close()throws Exception {world.close();}
     }
     @FunctionalInterface interface OwnerGuard {void validate()throws IOException;}
@@ -292,7 +293,8 @@ final class RegionReplayWorker implements AutoCloseable {
                 var pump=binding.new ChunkPump(sceneCapacity,maxCellLeaves);binding.chunkPump=pump;
                 var scene=new RegionReplayScene(binding,pump,world,sceneCapacity);
                 world.attachReplayReadView(scene.readView());binding.baseline=world.beginReplayFence();
-                var session=new PagingSession(local,world,binding,scene);var models=local.models;long modelRevision=models.revision();
+                var journal=RegionReplayJournal.readOnlySource(world,pending);
+                var session=new PagingSession(local,world,binding,scene,journal);var models=local.models;long modelRevision=models.revision();
                 guard.validate();binding.baseline.validate(world);
                 if(stopping.get()||status.state()!=State.RUNNING||metadata!=capturedMetadata||targetBinding!=null)
                     throw new IOException("Replay scene source changed during preparation");
