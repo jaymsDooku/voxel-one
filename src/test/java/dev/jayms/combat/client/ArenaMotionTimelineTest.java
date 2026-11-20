@@ -176,7 +176,7 @@ class ArenaMotionTimelineTest {
 
     private static Fighter fighter(float x, float y, float z, float yaw, float vx, float health, long hurt, long epoch) {
         return new Fighter(1, "Fighter", x, y, z, yaw, 0, health, vx != 0, false, false, Item.SWORD,
-                0, 0, 0, 0, -1, "", vx, 0, 0, hurt, epoch);
+                0, 0, 0, 0, -1, "", vx, 0, 0, hurt, epoch, -1);
     }
 
     private static ArenaMotionTimeline.Cursor cursor(double tick) { return new ArenaMotionTimeline.Cursor(tick, tick); }

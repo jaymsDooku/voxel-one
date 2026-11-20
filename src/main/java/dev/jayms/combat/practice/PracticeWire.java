@@ -12,7 +12,7 @@ import java.util.List;
 
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
-    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, VERSION = 3;
+    static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3, VERSION = 4;
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
     static final int QUICK_MOVE = 255;
@@ -28,7 +28,7 @@ final class PracticeWire {
         out.writeFloat(i.strafe());
         out.writeByte((i.jump() ? 1 : 0) | (i.sprint() ? 2 : 0) | (i.attack() ? 4 : 0) | (i.use() ? 8 : 0));
         out.writeByte(i.slot());
-        if (version >= VERSION && i.attack()) {
+        if (version >= CLICK_VERSION && i.attack()) {
             AttackView shown = i.attackView();
             out.writeBoolean(shown != null);
             if (shown != null) {
@@ -47,7 +47,7 @@ final class PracticeWire {
                 || Math.abs(strafe) > 1 || flags > 15 || slot > 8) throw new IOException("Invalid combat input");
         boolean attack = (flags & 4) != 0;
         AttackView shown = null;
-        if (version >= VERSION && attack && in.readBoolean()) {
+        if (version >= CLICK_VERSION && attack && in.readBoolean()) {
             try {
                 shown = new AttackView(in.readInt(), readPoseView(in), readPoseView(in));
             } catch (IllegalArgumentException invalid) {
@@ -103,6 +103,7 @@ final class PracticeWire {
                 out.writeLong(f.hurtTick());
                 out.writeLong(f.motionEpoch());
             }
+            if (version >= VERSION) out.writeLong(f.lastHorizontalWallTick());
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
@@ -162,8 +163,11 @@ final class PracticeWire {
                 if (hurtTick < -1 || hurtTick > tick || motionEpoch < 0)
                     throw new IOException("Invalid fighter timing");
             }
+            long lastHorizontalWallTick = version >= VERSION ? in.readLong() : -1;
+            if (lastHorizontalWallTick < -1 || lastHorizontalWallTick > tick)
+                throw new IOException("Invalid fighter collision timing");
             fighters.add(new Fighter(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready,
-                    held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch));
+                    held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch, lastHorizontalWallTick));
         }
         count = count(in, 36);
         if (count != 0 && count != 36) throw new IOException("Invalid practice inventory");

@@ -94,7 +94,8 @@ public final class CombatEngine {
     public record PlayerState(int id, Vec3 feet, Vec3 velocity, float yaw, float pitch, boolean grounded,
                               boolean sprinting, double health, int food, int slot, List<Stack> inventory,
                               List<Integer> durability, Map<Effect, Integer> effects, int pearlCooldownTicks,
-                              Stats stats, int killerId, long sequence, long hurtTick, long motionEpoch) {}
+                              Stats stats, int killerId, long sequence, long hurtTick, long motionEpoch,
+                              long lastHorizontalWallTick) {}
 
     private static final Stack EMPTY = new Stack(Item.EMPTY, 0);
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
@@ -418,7 +419,7 @@ public final class CombatEngine {
         actor.useHeld = fresh && intent.use();
         Item selected = actor.selected();
         boolean using = actor.useHeld && (selected == Item.SWORD || actor.useItem == selected && selected != Item.EMPTY
-                || actor.usePressed && startsTimedUse(actor, selected));
+                || actor.usePressed && startsTimedUse(selected, actor.food));
         actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using;
         double speedMultiplier = 1;
         if (actor.has(Effect.SPEED)) speedMultiplier *= 1.35;
@@ -438,7 +439,10 @@ public final class CombatEngine {
         if (step.jumped()) actor.exhaustion += actor.sprinting ? .2 : .05;
         if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
         actor.hitHorizontalWall = step.hitHorizontalWall();
-        if (actor.hitHorizontalWall) actor.sprinting = false;
+        if (actor.hitHorizontalWall) {
+            actor.sprinting = false;
+            actor.lastHorizontalWallTick = arenaTick;
+        }
         if (actor.velocity.y < 0) actor.fallDistance -= actor.velocity.y;
         if (actor.grounded) {
             if (actor.fallDistance > 3.5) applyDamage(actor, 0, Math.floor(actor.fallDistance - 3));
@@ -495,7 +499,7 @@ public final class CombatEngine {
         }
         if (target == null || shown != null && (target.id != shown.targetId()
                 || target.feet.minus(attacker.feet).length() > rules.reach() + 1)) return;
-        boolean startingUse = input.use() && startsTimedUse(attacker, selected);
+        boolean startingUse = input.use() && startsTimedUse(selected, attacker.food);
         boolean sprinting = input.sprint() && input.forward() > 0 && attacker.food > 6
                 && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
@@ -600,7 +604,7 @@ public final class CombatEngine {
                 actor.consume(actor.slot);
                 actor.pearlCooldown = rules.pearlCooldown();
                 launch(actor, selected, 1.2, .01);
-            } else if (actor.useHeld && startsTimedUse(actor, selected)) {
+            } else if (actor.useHeld && startsTimedUse(selected, actor.food)) {
                 actor.useItem = selected;
                 actor.useTicks = 0;
             }
@@ -611,9 +615,9 @@ public final class CombatEngine {
         }
     }
 
-    private static boolean startsTimedUse(Actor actor, Item item) {
+    public static boolean startsTimedUse(Item item, int food) {
         return item == Item.SPEED || item == Item.FIRE_RESISTANCE || item == Item.BOW
-                || item == Item.FOOD && actor.food < 20;
+                || item == Item.FOOD && food < 20;
     }
 
     private void finishConsumable(Actor actor, Item item) {
@@ -727,6 +731,8 @@ public final class CombatEngine {
                 owner.fallDistance = 0;
                 owner.grounded = true;
                 owner.landedLastStep = false;
+                owner.hitHorizontalWall = false;
+                owner.lastHorizontalWallTick = -1;
                 owner.jumpCooldown = 0;
                 owner.pendingKnockback = null;
                 owner.pendingSprintPush = ZERO;
@@ -773,7 +779,7 @@ public final class CombatEngine {
         Click attack;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
-        long lastSprintReleaseSequence = -1;
+        long lastSprintReleaseSequence = -1, lastHorizontalWallTick = -1;
         float yaw, pitch;
         boolean grounded, sprinting, sprintKnockbackReady = true, sprintReleased, slowAfterSprintHit, hitHorizontalWall;
         boolean landedLastStep;
@@ -807,7 +813,7 @@ public final class CombatEngine {
             return new PlayerState(id, feet, velocity, yaw, pitch, grounded, sprinting, health, food, slot,
                     List.copyOf(inventory), List.of(armor[0], armor[1], armor[2], armor[3]), Map.copyOf(effects),
                     pearlCooldown, new Stats(hits, longestCombo, potsUsed, potsRemaining), killerId, sequence,
-                    hurtTick, motionEpoch);
+                    hurtTick, motionEpoch, lastHorizontalWallTick);
         }
     }
 

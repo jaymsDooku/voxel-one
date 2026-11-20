@@ -20,7 +20,7 @@ public final class PracticeMatch implements ArenaMatch {
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
                           int hits, int combo, int used, int remaining, int side, String role,
-                          float vx, float vy, float vz, long hurtTick, long motionEpoch) {
+                          float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick) {
         public static Fighter fromCombat(PlayerState state, String name, boolean swinging,
                                          boolean ready, int side, String role,
                                          long simulationTick, long matchTickAtSimulationTick) {
@@ -32,7 +32,7 @@ public final class PracticeMatch implements ArenaMatch {
                     state.pitch(), (float) state.health(), Math.hypot(v.x(), v.z()) > .12, swinging, ready,
                     state.inventory().get(state.slot()).item(), stats.hits(), stats.longestCombo(),
                     stats.potsUsed(), stats.potsRemaining(), side, role,
-                    (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch());
+                    (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch(), state.lastHorizontalWallTick());
         }
     }
     public record Missile(long id, Item item, float x, float y, float z) { }

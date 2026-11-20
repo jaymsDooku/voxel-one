@@ -171,6 +171,20 @@ class CombatEngineTest {
         assertEquals(.35, engine.snapshot(2).velocity().x(), .00001);
     }
 
+    @Test void aWallScrapeReportsHorizontalCollisionEvenWhileTheFighterSlides() {
+        var engine = new CombatEngine(CombatRules.NO_DEBUFF, field(true, true));
+        assertTrue(engine.join(1, new Vec3(.68, 1, -.5), 70));
+        assertTrue(input(engine, 1, 0, 70, 0, 1, true, false, false, 0));
+        tick(engine, 3);
+        var actor = engine.snapshot(1);
+        assertTrue(actor.velocity().z() > .12);
+        assertEquals(engine.currentTick(), actor.lastHorizontalWallTick());
+        assertFalse(actor.sprinting());
+        assertTrue(input(engine, 1, 1, 90, 0, 1, true, false, false, 0));
+        engine.tick();
+        assertEquals(engine.currentTick() - 1, engine.snapshot(1).lastHorizontalWallTick());
+    }
+
     @Test void sprintResetRearmsBoostWhileHoldingSprintAfterAHitDoesNot() {
         for (boolean release : List.of(false, true)) {
             var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.2);

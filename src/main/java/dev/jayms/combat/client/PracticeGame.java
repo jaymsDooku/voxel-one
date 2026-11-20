@@ -5,6 +5,7 @@ import dev.jayms.Chunk;
 import dev.jayms.ShaderProgram;
 import dev.jayms.VoxelModelRenderer;
 import dev.jayms.World;
+import dev.jayms.combat.CombatEngine;
 import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
@@ -69,6 +70,7 @@ public final class PracticeGame {
     private final int id;
     private final Camera camera = new Camera();
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
+    private final ArenaSprintToggle sprintToggle = new ArenaSprintToggle();
     private final ArenaMotionTimeline motion = new ArenaMotionTimeline();
     private final String[] hotbarLabels = new String[SLOTS.length];
     private final Matrix4f projection = new Matrix4f();
@@ -265,13 +267,14 @@ public final class PracticeGame {
             if (!focused) {
                 usePressed = sprintReleased = false;
                 pendingClick = null;
+                sprintToggle.suspend();
             }
         });
         glfwSetScrollCallback(handle, (w, x, y) -> {
             if (!inventory && y != 0) selectSlot(Math.floorMod(slot - (y > 0 ? 1 : -1), 9), System.nanoTime());
         });
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
-            if (action == GLFW_RELEASE) latchSprintRelease(-button - 1);
+            sprintInput(w, -button - 1, action);
             if (action != GLFW_PRESS) return;
             if (inventory) {
                 if (button == GLFW_MOUSE_BUTTON_LEFT && (mods & GLFW_MOD_SHIFT) != 0) {
@@ -282,7 +285,7 @@ public final class PracticeGame {
             } else combatPress(-button - 1);
         });
         glfwSetKeyCallback(handle, (w, key, scan, action, mods) -> {
-            if (action == GLFW_RELEASE) latchSprintRelease(key);
+            sprintInput(w, key, action);
             if (action != GLFW_PRESS) return;
             if (key == GLFW_KEY_ESCAPE) {
                 if (inventory) setInventory(false);
@@ -307,10 +310,39 @@ public final class PracticeGame {
         });
     }
 
-    private void latchSprintRelease(int code) {
-        if (!inventory && (controls.matches(FORWARD, code) || controls.matches(SPRINT, code))
-                && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE && canAnimateCombat())
+    private void sprintInput(long handle, int code, int action) {
+        if (inventory || glfwGetWindowAttrib(handle, GLFW_FOCUSED) != GLFW_TRUE) return;
+        if (controls.matches(SPRINT, code)) {
+            boolean before = sprintToggle.requested();
+            long now = System.nanoTime();
+            if (action == GLFW_PRESS && view != null && view.food() > 6) sprintToggle.press(now);
+            if (action == GLFW_RELEASE)
+                sprintToggle.release(now, canContinueSprint(axis(handle, FORWARD, BACKWARD)), lastHorizontalWallTick());
+            if (before && !sprintToggle.requested() && canAnimateCombat()) sprintReleased = true;
+        } else if (action == GLFW_RELEASE && controls.matches(FORWARD, code)) {
+            sprintToggle.stopRun();
+            if (canAnimateCombat()) sprintReleased = true;
+        }
+    }
+
+    private boolean canContinueSprint(float forward) {
+        if (forward <= 0 || view == null || view.food() <= 6) return false;
+        Item item = selectedItem();
+        if (useHeld() && (item == Item.SWORD || CombatEngine.startsTimedUse(item, view.food()))) return false;
+        var fighter = self();
+        return fighter != null && fighter.health() > 0 && fighter.moving()
+                && fighter.lastHorizontalWallTick() != view.tick();
+    }
+
+    private long lastHorizontalWallTick() {
+        Fighter fighter = view == null ? null : self();
+        return fighter == null ? -1 : fighter.lastHorizontalWallTick();
+    }
+
+    private boolean sprintRequested(float forward) {
+        if (sprintToggle.continuingRun() && sprintToggle.updateRun(canContinueSprint(forward), lastHorizontalWallTick()))
             sprintReleased = true;
+        return sprintToggle.requested();
     }
 
     private int hotbarSlot(int key) {
@@ -341,7 +373,7 @@ public final class PracticeGame {
     private void captureClick() {
         long handle = window.getHandle();
         float forward = axis(handle, FORWARD, BACKWARD), strafe = axis(handle, RIGHT, LEFT);
-        boolean sprint = controls.down(handle, SPRINT);
+        boolean sprint = sprintRequested(forward);
         pendingClick = new Intent(0, camera.yaw(), camera.pitch(), forward, strafe, controls.down(handle, JUMP),
                 sprint, true, usePressed || useHeld(), slot, displayedTarget());
         pendingClickRearm = sprintReleased && sprint && forward > 0;
@@ -422,6 +454,7 @@ public final class PracticeGame {
         if (inventory == open) return;
         inventory = open; source = -1; firstMouse = true; usePressed = sprintReleased = false;
         pendingClick = null;
+        if (open) sprintToggle.suspend();
         glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
@@ -465,7 +498,7 @@ public final class PracticeGame {
         float forward = enabled ? axis(w, FORWARD, BACKWARD) : 0;
         float strafe = enabled ? axis(w, RIGHT, LEFT) : 0;
         boolean jump = enabled && controls.down(w, JUMP);
-        boolean sprint = enabled && controls.down(w, SPRINT);
+        boolean sprint = enabled && sprintRequested(forward);
         boolean use = enabled && (usePressed || controls.down(w, PLACE));
         if (!enabled || !canAnimateCombat()) {
             sprintReleased = false;
@@ -713,7 +746,9 @@ public final class PracticeGame {
             drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
         String held = PracticeItemIcons.name(selectedItem());
-        String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor
+        String sprintStatus = sprintToggle.status();
+        String timers = (held.isEmpty() ? "" : held + "   ")
+                + (sprintStatus.isEmpty() ? "" : sprintStatus + "   ") + "Armor " + armor
                 + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";
         float timerScale = Math.min(1.02f, 532f / Math.max(1, ui.textWidth(timers, 1f)));

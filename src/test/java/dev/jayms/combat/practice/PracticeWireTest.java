@@ -31,7 +31,12 @@ class PracticeWireTest {
     @Test void newestSnapshotsCarryVelocityDamageAndTeleportMetadata() throws Exception {
         var view = fixture();
         assertEquals(view, roundTrip(view, PracticeWire.VERSION));
-        assertEquals(view, roundTrip(view, PracticeWire.POSE_VERSION));
+        for (int version : List.of(PracticeWire.POSE_VERSION, PracticeWire.CLICK_VERSION)) {
+            var previous = roundTrip(view, version).fighters().get(0);
+            assertEquals(view.fighters().get(0).vx(), previous.vx());
+            assertEquals(view.fighters().get(0).hurtTick(), previous.hurtTick());
+            assertEquals(-1, previous.lastHorizontalWallTick());
+        }
         var fighter = roundTrip(view, PracticeWire.LEGACY_VERSION).fighters().get(0);
         assertEquals(view.fighters().get(0).health(), fighter.health());
         assertEquals(0, fighter.vx());
@@ -53,7 +58,7 @@ class PracticeWireTest {
                 var decoded = PracticeWire.readIntent(in, version);
                 assertEquals(click.yaw(), decoded.yaw());
                 assertTrue(decoded.sprint() && decoded.attack());
-                assertEquals(version == PracticeWire.VERSION ? click.attackView() : null, decoded.attackView());
+                assertEquals(version >= PracticeWire.CLICK_VERSION ? click.attackView() : null, decoded.attackView());
                 assertEquals(PracticeWire.CONTROL, in.readUnsignedByte());
                 assertEquals(move, PracticeWire.readIntent(in, version));
                 assertEquals(-1, in.read());
@@ -136,7 +141,7 @@ class PracticeWireTest {
 
     private static View fixture() {
         var fighter = new Fighter(1, "Aster", 1, 73, 2, -90, 0, 16, true, false, false, Item.SWORD,
-                2, 2, 0, 31, -1, "", .4f, .22f, -.12f, 42, 3);
+                2, 2, 0, 31, -1, "", .4f, .22f, -.12f, 42, 3, 43);
         return new View(Phase.FIGHT, Kit.NO_DEBUFF, Result.NONE, 0, 140, 0, 44,
                 List.of(fighter), List.of(), 20, 0, Map.of(), List.of(), List.of(), 42, -1, List.of());
     }
