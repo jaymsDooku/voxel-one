@@ -4,17 +4,31 @@ import Darwin
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
 final class NativeWorkflowTests:NativeEvidenceTestCase {
     var app:XCUIApplication!
+    private var fixtureLaunchUsed=false
     private var workflowCheckpoint:String? {
         didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)");fflush(stdout)}}
     }
     override func tearDown(){
         if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
+        // A running process keeps its launch flags even after launchArguments is
+        // cleared on the proxy. Never carry injected lifecycle flags to a case.
+        if fixtureLaunchUsed {app?.terminate()}
         super.tearDown()
     }
     override func setUpWithError()throws {
-        workflowCheckpoint=nil;continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
+        workflowCheckpoint=nil;fixtureLaunchUsed=false;continueAfterFailure=false;XCUIDevice.shared.orientation = .portrait
         app=XCUIApplication();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"] ?? ""
+        // Cases prepare fresh worlds/sign-in through the public menu. Reuse only
+        // a usable foreground HUD/menu; explicit cold-restart checks below still
+        // terminate and relaunch. Modals, interrupted apps and initial boot launch.
+        if app.state == .runningForeground {
+            let game=app.buttons["menuButton"],menu=app.buttons["offlineNewButton"]
+            if (game.exists && game.isHittable) || (menu.exists && menu.isHittable) {return}
+        }
         app.launch()
+    }
+    private func launchFixture(_ arguments:[String]){
+        fixtureLaunchUsed=true;app.terminate();app.launchArguments=arguments;app.launch()
     }
     func wait(_ element:XCUIElement,_ seconds:TimeInterval=20,_ id:String="requested control"){
         guard element.waitForExistence(timeout:seconds) else {
@@ -286,7 +300,7 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.segmentedControls["graphicsDetail"].buttons["32"].tap();applyGraphics()
         XCTAssertTrue(scene.label.contains("distant landscape prepared"))
         capture("native-distant-low-distance")
-        app.terminate();app.launchArguments=["--mesh-memory-warning-test"];app.launch()
+        launchFixture(["--mesh-memory-warning-test"])
         wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
         app.buttons["pauseButton"].tap();waitTerrain()
         XCTAssertTrue(scene.label.contains("distant landscape prepared"));capture("native-distant-memory-recovery")
@@ -515,7 +529,7 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
     func testOfflineLoadCancelRetryAndColdRestart()throws {
         newOffline();textContains("playerPosition","Ground")
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"],20,"menu before cancellation")
-        app.terminate();app.launchArguments=["--offline-load-cancel-test"];app.launch()
+        launchFixture(["--offline-load-cancel-test"])
         wait(app.buttons["cancelOfflineLoad"],20,"cancel control during gated load")
         capture("native-offline-load-cancellable")
         app.buttons["cancelOfflineLoad"].tap()
@@ -538,7 +552,7 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
         app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain()
         capture("native-mesh-cold-restart")
-        app.terminate();app.launchArguments=["--mesh-memory-warning-test"];app.launch()
+        launchFixture(["--mesh-memory-warning-test"])
         wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
         let before=app.staticTexts["playerPosition"].label
         app.buttons["moveRight"].press(forDuration:0.5);XCTAssertEqual(app.staticTexts["playerPosition"].label,before)

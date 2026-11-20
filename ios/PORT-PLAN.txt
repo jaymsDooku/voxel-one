@@ -1406,3 +1406,35 @@ placement is replaced by a footer while preserving actions and save behavior.
 Playtest: revised native controls and all47 cases need fresh exact-source Mac
 execution and actual media inspection. Full parity, second Simulator size, live
 VPS, signing/install, physical iPhone and independent review remain pending.
+
+
+UI-case launch reuse after aeec7ecf deadline
+Exact sourceaeec7ecf0d30cd0dce49c68b0af129ac7b7987ac failed run44691821274.
+Native build/install succeeded. Latest returned live counter at874seconds had
+20 started,19 passed,0 failed,47 expected. Deadline900s occurred with
+testPlanetAtmosphereNativeToggleAndLegacyWorld open. Final counts were not
+returned by the bounded collector. This is not a full pass. Cleanup passed; only
+preflight media was returned. Inspected/copy-verified image proves no gameplay.
+Trusted verifiera9e8eed8 contains reviewed capacity fix8a53afce.
+
+UI setup now reuses an existing app only when already foreground with a hittable
+normal game Menu or main-menu New world button. First launch, background/terminated
+apps, obstructing modals and unusable entries still launch normally. Each case
+retains its public-control fresh-world or sign-in setup. Every explicit cold
+restart/save persistence assertion inside the cases remains. Simulator-only
+memory/cancel launches use a helper that marks the case for process termination
+at teardown. Clearing launchArguments on the proxy cannot accidentally carry
+those runtime flags into a later reused case. The initial cold launch and the
+actual cold/relaunch acceptance routes are retained; per-case process reuse is
+limited to normal usable foreground state. Runtime savings/isolation need Mac
+qualification. No hidden app state, animation bypass or assertion skipping.
+
+87 Linux mock harness tests passed; project generation, Python/shell syntax and
+diff checks passed. All47 native methods remain required, all3 injected launch
+sites are fenced,113 unrelated progress entries preserved, no file deletions.
+No900/1200-second budget, clean-source, media or qualification gate changes.
+Playtest: revised setup and complete47-case native run need exact-source Mac
+execution and actual controls media inspection. Full port, another Simulator
+size, live service, signed delivery, physical iPhone and independent review stay
+pending. No deletions intended; unconditional launches are replaced with normal
+foreground reuse while all explicit cold-restart checks remain.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T07:00:22+00:00",
+  "updatedAt": "2026-11-20T07:37:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rebased aad67cd6 built/installed native app but hit900s at21/47 passes,0 failures; only preflight media returned. Moved touch Apply/Cancel/Reset to fixed safe-area footer and removed redundant test scrolling/load.87 Linux harness and15 Java tests passed; all47 cases and deadlines retained. Fresh Mac layout/gameplay/media qualification pending; signing/physical/live VPS gates stay open.",
-      "updatedAt": "2026-11-20T07:00:22+00:00"
+      "note": "aeec7ecf built/installed but hit900s again; latest returned counter19/47 passes,0 failures. Reuse only usable normal foreground app entries between UI cases; retain explicit cold restarts and terminate after all3 fixture-flag cases.87 Linux harness tests passed; all47 cases/deadlines/source/media gates retained. Fresh Mac isolation/full-suite/media qualification pending; live/signing/physical gates open.",
+      "updatedAt": "2026-11-20T07:37:49+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
