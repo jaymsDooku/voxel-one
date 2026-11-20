@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Rejected staged saves can now transfer temporary cleanup back to the exact producer queue. 156 tests and native regressions pass; fresh media captured. Main/source installation and full qualification remain pending.",
-      "updatedAt": "2026-11-19T21:36:00+00:00"
+      "note": "Post-rebase validation: 219 Java tests, 39 Python tests, shipped CBR/VBR decode and source-pinned replay checks passed. Full Main rerun passed in 628.174 s with fresh media. Added bounded functional timeout option; restored four unrelated screenshots. Hosted CI, visible model lighting, city/maximum admission and physical-GPU/32-player qualification remain pending.",
+      "updatedAt": "2026-11-20T00:24:51+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

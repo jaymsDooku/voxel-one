@@ -12,7 +12,11 @@ import datetime
 import signal
 import time
 
-parser=argparse.ArgumentParser();parser.add_argument('--display',required=True);parser.add_argument('--evidence-prefix');args=parser.parse_args()
+parser=argparse.ArgumentParser();parser.add_argument('--display',required=True);parser.add_argument('--evidence-prefix')
+parser.add_argument('--timeout-seconds',type=int,default=600,help='Functional harness deadline (60–1200 s); does not change qualification budgets')
+args=parser.parse_args()
+if not 60<=args.timeout_seconds<=1200:
+    parser.error('Timeout must be 60–1200 seconds')
 if args.evidence_prefix is not None and not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.evidence_prefix):
     parser.error('Evidence prefix must be 1–64 lowercase letters, digits or hyphens, starting with a letter or digit')
 root=Path(__file__).resolve().parents[1]
@@ -47,7 +51,7 @@ execution=output/'structure-native-execution.json'
 started=time.monotonic();process=None
 
 def execution_receipt(state,code=None):
-    data=dict(schema=1,state=state,return_code=code,elapsed_ms=round((time.monotonic()-started)*1000),timeout_seconds=600)
+    data=dict(schema=1,state=state,return_code=code,elapsed_ms=round((time.monotonic()-started)*1000),timeout_seconds=args.timeout_seconds)
     temp=execution.with_suffix('.tmp');temp.write_text(json.dumps(data)+'\n');temp.replace(execution)
 
 def interrupted(number,frame):
@@ -60,7 +64,7 @@ try:
     with (folder/'runtime-private.txt').open('w') as log:
         process=subprocess.Popen(command,cwd=root,env=env,stdout=log,stderr=log)
         try:
-            code=process.wait(timeout=600)
+            code=process.wait(timeout=args.timeout_seconds)
             execution_receipt('completed',code)
         except subprocess.TimeoutExpired:
             process.kill();process.wait(timeout=5);execution_receipt('timed-out',124)
@@ -85,7 +89,7 @@ report_path=output/'structure-native-result.json'
 report=json.loads(report_path.read_text())
 report['source_manifest']=(args.evidence_prefix+'-' if args.evidence_prefix else '')+'structure-native-source.json'
 report['source_manifest_sha256']=hashlib.sha256(json.dumps(source_hashes,sort_keys=True).encode()).hexdigest()
-report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')
+report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')+' --timeout-seconds '+str(args.timeout_seconds)
 report['profile']='Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF'
 report['publication']='Local evidence pending controller publication'
 report_path.write_text(json.dumps(report,indent=2)+'\n')
