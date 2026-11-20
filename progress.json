@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:15:38+00:00",
+  "updatedAt": "2026-11-20T23:22:14+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4463,10 +4463,31 @@
       "id": "voxel-roof-lighting",
       "title": "Westminster rooftop lighting artifacts",
       "description": "Reproduced rooftop striping in a fixed-daylight Windows GPU capture. Comparing shadow and material paths independently.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Lighting fix PR 94",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/94"
+        },
+        {
+          "kind": "image",
+          "label": "westminster roof shadow comparison.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-roof-shadow-comparison.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster roof shadow flight.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-roof-shadow-flight.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster roof shadow results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-roof-shadow-results.txt"
+        }
+      ],
       "status": "in_progress",
-      "note": "Reproduced rooftop striping in a fixed-daylight Windows GPU capture. Comparing shadow and material paths independently.",
-      "updatedAt": "2026-11-20T23:15:38+00:00"
+      "note": "Fixed and verified on Windows RTX 3060. Striping reduced 91% on the spire and 81% on the dormer cap. Submitted PR 94 for repository review.",
+      "updatedAt": "2026-11-20T23:22:14+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
