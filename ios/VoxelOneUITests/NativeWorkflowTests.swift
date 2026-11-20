@@ -1,10 +1,11 @@
 import XCTest
+import Darwin
 
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
 final class NativeWorkflowTests:NativeEvidenceTestCase {
     var app:XCUIApplication!
     private var workflowCheckpoint:String? {
-        didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}}
+        didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)");fflush(stdout)}}
     }
     override func tearDown(){
         if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
@@ -259,16 +260,30 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
     }
     func testNativeDistantLandscapeGraphicsMemoryAndReach()throws {
         newOffline();textContains("playerPosition","Ground");waitTerrain()
+        let scene=app.otherElements["worldView"]
+        XCTAssertFalse(scene.label.contains("distant landscape prepared"),"Public default uses the bounded nearby renderer")
+        func applyGraphics(){
+            app.scrollViews["graphicsScroll"].swipeUp();waitHittable(app.buttons["graphicsApply"],"Graphics Apply")
+            app.buttons["graphicsApply"].tap();waitTerrain()
+        }
+        func landscape(_ enabled:Bool){
+            app.buttons["graphicsButton"].tap();let setting=app.switches["graphicsDistant"];wait(setting)
+            if !setting.isHittable {app.scrollViews["graphicsScroll"].swipeUp()}
+            waitHittable(setting,"Distant landscape setting")
+            if (setting.value as? String == "1") != enabled {setting.tap()}
+            applyGraphics()
+        }
+        landscape(true)
         if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
         app.buttons["cameraButton"].tap();app.buttons["First person"].tap()
-        let scene=app.otherElements["worldView"]
         XCTAssertTrue(scene.label.contains("distant landscape prepared"))
+        workflowCheckpoint="distant_ready"
         aimAtHorizonForEvidence();capture("native-distant-landscape-horizon")
         let inventory=app.buttons["slot0"].label
         app.buttons["breakButton"].tap();textContains("gameStatus","within five blocks")
         XCTAssertEqual(app.buttons["slot0"].label,inventory,"Far preview cannot grant remote edit reach")
         app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsDetail"])
-        app.segmentedControls["graphicsDetail"].buttons["32"].tap();app.buttons["graphicsApply"].tap();waitTerrain()
+        app.segmentedControls["graphicsDetail"].buttons["32"].tap();applyGraphics()
         XCTAssertTrue(scene.label.contains("distant landscape prepared"))
         capture("native-distant-low-distance")
         app.terminate();app.launchArguments=["--mesh-memory-warning-test"];app.launch()
@@ -276,8 +291,10 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.buttons["pauseButton"].tap();waitTerrain()
         XCTAssertTrue(scene.label.contains("distant landscape prepared"));capture("native-distant-memory-recovery")
         app.launchArguments=[]
-        app.buttons["graphicsButton"].tap();wait(app.buttons["graphicsReset"])
-        app.buttons["graphicsReset"].tap();app.buttons["graphicsApply"].tap();waitTerrain()
+        landscape(false)
+        XCTAssertFalse(scene.label.contains("distant landscape prepared"),"Disabling releases distant nodes and cache")
+        app.buttons["graphicsButton"].tap();app.scrollViews["graphicsScroll"].swipeUp();wait(app.buttons["graphicsReset"])
+        app.buttons["graphicsReset"].tap();applyGraphics()
     }
     func testNativeToolCraftingPlacementGuardAndRestart()throws {
         workflowCheckpoint="tools_sticks"

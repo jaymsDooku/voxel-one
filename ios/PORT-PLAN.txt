@@ -2,7 +2,8 @@ Native engine port: milestone 1 / early Sandbox slice
 
 Status: implementation in progress. Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913
 passed all40 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-Distant landscape run989ec634 timed out; cache repair needs a fresh43-case run.
+Distant runs989ec634 and ea7debd0 timed out. Public opt-in control and explicit
+enabled-feature capture require a fresh43-case run.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -1205,3 +1206,44 @@ Playtest: current cache and SceneKit reuse are unexecuted until a fresh exact-
 source Mac run. Linux harness/process integration does not qualify gameplay.
 No file deletions are intended; the old unconditional far generation is replaced
 by keyed value reuse, while exact close rebuilds and all regressions remain.
+
+
+Distant graphics option and explicit enabled-feature qualification
+Source ea7debd0cfbfc39a0f8d0aa8a03d7b78130c366e did not qualify.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44672049502
+Sanitized phases reached native_playtests. Latest live counters at844 seconds:
+17 started,16 passed,0 failed,43 expected; outer1200-second timeout reported.
+No completed43-case proof, gameplay screenshot or video returned. No measured
+cache speedup follows this run. Trusted verifier used master f446ad3f, which
+contains reviewed cap fix8a53afce. Preflight image is home screen only.
+
+Distant landscape is now a public Graphics option, off by default in every
+preset and legacy profile. This is an explicit production engineering default
+while its physical-device budget remains unqualified, matching the existing
+opt-in treatment of costly atmosphere visuals. It is not a hidden test flag.
+Users can enable it through normal Graphics -> Distant landscape -> Apply.
+The setting persists in the existing version2 graphics file. Cancel retains the
+working renderer. Disabling cancels queued far work and releases far nodes and
+the value cache. Native near chunks still stream with exact model/fractional
+geometry. Radius/detail choices continue to bound the enabled far preview.
+
+All43 cases remain required. testNativeDistantLandscapeGraphicsMemoryAndReach
+now explicitly enables the public switch, checks horizon/reach/detail32, cold
+restart with the setting persisted, memory-warning/resume, then disables it and
+checks node release. Migration/preset/round-trip rules assert the new preference.
+Other regression cases exercise the actual public default renderer. Far geometry
+and cache behavior are also still covered by their required native rules cases.
+No gate, timeout or required case was removed to obtain a pass.
+
+Video selection now targets that enabled distant-landscape workflow. A flushed
+fixed distant_ready checkpoint is emitted after native terrain is prepared;
+only that checkpoint inside the declared NativeWorkflowTests case starts the
+numeric export window. A missing checkpoint, wrong class, unfinished/failed case
+or failed export cannot qualify media. Capturing starts in the world after the
+setting is applied. Maximum40 seconds,640x480 preset,5,500,000-byte target and
+strict below6MB publication gate stay in place. Larger output remains unmeasured.
+Playtest: Linux process/harness checks only; current native option, persistence,
+release behavior and enabled-feature media need a fresh exact-source Mac run.
+No physical-device or full-port completion claim follows these local checks.
+No file deletions are intended. The automatic far-radius decision is replaced by
+a saved public graphics choice, with the same enabled distant implementation.

@@ -13,7 +13,7 @@ import time
 import uuid
 
 TAIL_BYTES = 65536
-_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart"}
+_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart", "distant_ready"}
 _CHECKPOINT = re.compile(r"(?:error: )?native_workflow_checkpoint code=([a-z_]{1,32})$")
 _ISSUE = re.compile(r"native_workflow_issue source=((?:NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift) line=([0-9]{1,5}) code=(assertion|execution)$")
 _TEST = re.compile(
@@ -48,6 +48,7 @@ class TestProgress:
         self.opened = {}
         self.durations = {}
         self.active = None
+        self.active_class = None
         self.issues = {}
         self.failure_steps = {}
         self.started_at = time.monotonic()
@@ -82,6 +83,11 @@ class TestProgress:
                                 with self.lock:
                                     self.checkpoints.add(checkpoint[1])
                                     self.last_checkpoint = checkpoint[1]
+                                    if (checkpoint[1] == 'distant_ready' and
+                                            self.active_class == 'NativeWorkflowTests' and
+                                            self.active == 'testNativeDistantLandscapeGraphicsMemoryAndReach' and
+                                            self.video_started is None):
+                                        self.video_started = time.monotonic()
                             issue=_ISSUE.search(line)
                             if issue and 1<=int(issue[2])<=99999:
                                 with self.lock:
@@ -93,9 +99,9 @@ class TestProgress:
                                 with self.lock:
                                     self.states[name] = state
                                     now = time.monotonic()
-                                    if match[1] == 'NativeWorkflowTests' and name == 'testNativeTerrainStreamingBeyondInitialBoundaryAndRestart':
+                                    if match[1] == 'NativeWorkflowTests' and name == 'testNativeDistantLandscapeGraphicsMemoryAndReach':
                                         if state == 'started':
-                                            self.video_started = now
+                                            self.video_started = None
                                             self.video_ended = None
                                         elif state == 'passed':
                                             self.video_ended = now
@@ -104,6 +110,7 @@ class TestProgress:
                                     if state == 'started':
                                         self.last_checkpoint = None
                                         self.active = name
+                                        self.active_class = match[1]
                                         self.opened[name] = now
                                     elif name in self.opened:
                                         self.durations[name] = min(900, max(0, now - self.opened.pop(name)))
@@ -111,6 +118,7 @@ class TestProgress:
                                         self.failure_steps[name]=self.last_checkpoint
                                     if state != 'started':
                                         self.active = None
+                                        self.active_class = None
                                     {'started': self.started, 'passed': self.passed, 'failed': self.failed}[state].add(name)
                         pending, discard = b'', False
 

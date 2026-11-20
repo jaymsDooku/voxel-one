@@ -94,7 +94,7 @@ phase evidence
 xcrun xcresulttool export attachments --path ios/build/NativeTests.xcresult --output-path ios/build/attachments > ios/build/export.log 2>&1
 xcrun xcresulttool get test-results summary --path ios/build/NativeTests.xcresult > ios/build/test-summary.json
 python3 ios/check-results.py success "$repo" "$evidence" "$head" "$udid"
-# The fixed, passing offline test supplies only numeric timing. AVFoundation is
+# The fixed, passing distant-landscape test supplies only numeric timing. AVFoundation is
 # present on the hosted Mac; lack of an optional ffmpeg install must not omit video.
 phase video_export
 python3 - "$evidence/client-playtest.mp4" <<'PY'

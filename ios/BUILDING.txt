@@ -331,3 +331,18 @@ fences late results. Far preview nodes do not cast coarse shadows; close geometr
 keeps its existing lights/shadows. One cache holds at most16 pages. Resource caps
 are engineering choices, not measured physical-device memory or speed claims.
 All43 native cases, actual gameplay media and independent review remain required.
+
+
+Distant landscape graphics option (native qualification pending)
+Graphics -> Distant landscape (experimental) -> Apply enables the coarse far
+preview. It is off by default in every preset and older graphics profile until
+its device budget is qualified. The setting persists across app restart. Cancel
+keeps the working profile; disabling releases far nodes/cache and pending work.
+Nearby chunks still stream with exact voxel/model collision and editing.
+
+All43 native cases remain required. The distant workflow explicitly enables
+the option and exercises horizon/reach, detail32, persistence, memory recovery
+and disabling. The video window begins at the prepared-world checkpoint in that
+passing case, not at a menu. Missing checkpoint or incomplete case fails media
+qualification. Source ea7debd0 timed out with only partial progress; this control
+and capture change need a new exact-source Mac run and actual media inspection.

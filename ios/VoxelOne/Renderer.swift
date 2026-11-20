@@ -108,7 +108,8 @@ import simd
     }
     func rebuild(_ world:VoxelWorld) {
         let identity=ObjectIdentifier(world),outdoor=atmospherePreview
-        let radius=world.streamsTerrain ? min(NativeDistantMesher.maximumRadius,graphics.detail):0
+        let radius=world.streamsTerrain && graphics.distant ? min(NativeDistantMesher.maximumRadius,graphics.detail):0
+        if radius==0 && distantRadius>0 {meshWorker.cancel()}
         if meshWorld != identity || distantBounds != world.snapshot.bounds || distantRadius != radius {clearDistant()}
         distantBounds=world.snapshot.bounds
         if meshWorld != identity || meshRevision != world.geometryRevision || meshOutdoor != outdoor || distantRadius != radius {

@@ -1,0 +1,50 @@
+{
+  "failedSource": "ea7debd0cfbfc39a0f8d0aa8a03d7b78130c366e",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44672049502",
+  "trustedVerifierHead": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "trustedVerifierIncludes": "8a53afce99e735a7574bffab70558252577b387b",
+  "observedResult": "Failed timeout, clientChecked=false; latest live counters at844seconds:17 started/16 passed/0 failed/43 expected. No full qualification or measured cache speedup.",
+  "preflightImage": "ios-port-ea7debd0-preflight-only.png",
+  "preflightSha256": "0919e440ec31bc6772c5b03969cc1a85e623c56d72aeb79470e1dc83c76af8c0",
+  "mediaScope": "Fresh Simulator home screen only, inspected; not game-client or gameplay evidence.",
+  "sourceState": "Uncommitted public graphics option and enabled-feature capture; pending controller commit and exact-source validation",
+  "userImpact": "Graphics -> Distant landscape -> Apply explicitly enables the far preview. Every preset and old profile defaults to nearby streaming/exact voxel rendering while physical-device budgets remain unqualified. This is the production default, not a hidden test override. Enabling persists; disabling releases far nodes/cache/pending work.",
+  "qualification": "All43 native cases and900/1200-second caps remain. The required distant workflow explicitly enables the setting and exercises horizon, five-block reach,32-block detail, cold restart/persistence, memory recovery and disabling. Distant geometry/cache tests remain required. Other regressions use actual public defaults.",
+  "capture": "Only the fixed distant_ready checkpoint inside the declared native distant-workflow case starts the numeric export window. The checkpoint follows prepared terrain and is flushed. Wrong class/missing checkpoint/unfinished or failed case cannot qualify video.40-second cap,640x480 preset,5,500,000-byte target and below6MB gate remain.",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/native-test-runner.py ios/check-results.py ios/make-project.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check",
+    "git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b f446ad3f0c8332aa1002885468e1a20fa271018e"
+  ],
+  "localResults": [
+    "87 Linux harness tests passed. Apple tools/media fixtures are mocked; supervision/timing tests use actual isolated child processes.",
+    "Project generation, Python compilation,4 embedded Python blocks, shell syntax and diff checks passed.",
+    "43 declared native methods remain required; zero omitted cases.",
+    "110 unrelated progress entries preserved; zero deleted files."
+  ],
+  "Playtest": "Current native graphics option/persistence/release and prepared-world video window await exact-source Mac execution. Linux timing integration exercised a passing ready-marked case, wrong class, missing checkpoint and unfinished case. Browser playtesting does not apply to UIKit/SceneKit. No current native or physical-device pass claimed.",
+  "intendedRemovals": "No file deletions. Automatic far rendering is replaced by a persisted public graphics option with the same enabled implementation. Capture moves from the streaming-case menu start to prepared enabled distant gameplay.",
+  "qualificationPending": [
+    "Current43-case exact-source native suite and actual gameplay media",
+    "Additional Simulator size",
+    "Remaining engine parity",
+    "Live VPS service playtest",
+    "Signed iPhone installation and physical-device measurements",
+    "Independent exact-head native review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/Graphics.swift": "7eacf7d165aa531d1701e9f6b4abd7a8831ccc83fc68c921958504c1d5b9218a",
+    "ios/VoxelOne/Renderer.swift": "26c4fb0732a0fa497d3170d8dc5131508f0ec2ebbd3168ff5129b222cb6cbcf7",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "780ad33dca630cd3a2b21ec4f91dbbd929fd4faed390ae635edc00661f7cc202",
+    "ios/VoxelOneUITests/GraphicsRulesTests.swift": "12c5e1fb9c6a0a2d0d200fe6d7d0ee217ccebe8e62a3a586a43ddcd66fee47a0",
+    "ios/native-test-runner.py": "f9b78c56094abfbe7381aed04983dc0b667392de71e936dd57f1bb558b431e1a",
+    "ios/check-simulator.sh": "bfdc75c085e2e015fb3a83d0b0abe98e51c2dc57a1f7447076797432cb913093",
+    "ios/check-results.py": "fbd687e694c0371ddb061294000a31ab99181e20f988954c91e22a4274e5fce5",
+    "ios/export-playtest.swift": "6a6c8fe23eecf0735f4a72327676753c44bb5380dd5f777602f0919988b8e229",
+    "tools/ios/test_native_deadline.py": "735ebee714748eaad0917ab008e8ace2d9b67785f135e6c2bd0b2158b02170fa"
+  },
+  "publication": "Pending controller publication"
+}

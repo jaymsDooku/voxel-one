@@ -1,4 +1,4 @@
-// Host-side macOS utility. Export only the passing offline streaming test's clip.
+// Host-side macOS utility. Export only the passing offline distant-landscape test's clip.
 // Raw suite video and timing stay in ignored ios/build; no external encoder needed.
 import Foundation
 import AVFoundation
