@@ -653,7 +653,9 @@ public final class PracticeGame {
                 ui.line(x + 10, y + 10, x + 5, y + 5, 2, 1, .45f, .20f, 1);
             }
         }
-        if (view.lastHit() >= 0 && view.tick() - view.lastHit() < 5) {
+        // Version 1 snapshots only carry the last-hit timestamp for the local fighter.
+        long hurtAt = actor != null && actor.hurtTick() >= 0 ? actor.hurtTick() : view.lastHit();
+        if (hurtAt >= 0 && view.tick() - hurtAt < 5) {
             ui.rectangle(0, 0, width, 8, 1, .16f, .12f, .75f);
             ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, .75f);
         }

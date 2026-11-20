@@ -22,7 +22,7 @@ public final class CombatEngine {
     private static final int MAX_REWIND_TICKS = 6;
     private static final int ARMOR_DURABILITY = 200;
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
-    private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6;
+    private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6, SPRINT_HIT_LIFT = .10;
     private static final double USE_MOVEMENT_SCALE = .2;
 
     public interface Arena {
@@ -165,12 +165,9 @@ public final class CombatEngine {
         actor.sequence = intent.sequence();
         actor.lastInputTick = currentTick;
         actor.intent = intent;
-        if (!intent.sprint() || intent.forward() <= 0) {
-            actor.sprintReleased = true;
-            actor.lastSprintReleaseSequence = intent.sequence();
-        }
+        if (!intent.sprint() || intent.forward() <= 0) actor.lastSprintReleaseSequence = intent.sequence();
         if (intent.attack() && actor.attack == null)
-            actor.attack = new Click(intent, actor.sprintKnockbackReady || actor.sprintReleased);
+            actor.attack = new Click(intent, actor.sprintReady());
         if (intent.use() && !actor.submittedUse) actor.usePressed = true;
         if (!intent.use() && actor.submittedUse) actor.useReleased = true;
         actor.submittedUse = intent.use();
@@ -418,8 +415,6 @@ public final class CombatEngine {
             actor.cancelUse();
             actor.slot = slot;
         }
-        if (!fresh || actor.sprintReleased) actor.sprintKnockbackReady = true;
-        actor.sprintReleased = false;
         if (fresh) {
             actor.yaw = intent.yaw() % 360;
             actor.pitch = Math.max(-89, Math.min(89, intent.pitch()));
@@ -431,19 +426,16 @@ public final class CombatEngine {
         Item selected = actor.selected();
         boolean using = actor.useHeld && (selected == Item.SWORD || actor.useItem == selected && selected != Item.EMPTY
                 || actor.usePressed && startsTimedUse(selected, actor.food));
-        actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using;
+        actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using && actor.sprintReady();
         double speedMultiplier = 1;
         if (actor.has(Effect.SPEED)) speedMultiplier *= 1.35;
         if (actor.has(Effect.SLOWNESS)) speedMultiplier *= .72;
-        // Carry through takeoff and the first step after landing during a hit's hurt window.
-        boolean knockbackTransition = actor.hurtTicks > 0 && (actor.motion.y > 0 || actor.landedLastStep);
         var input = new CombatMovement.Input(actor.yaw, forward, strafe, fresh && intent.jump(),
-                actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1, knockbackTransition);
+                actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1);
         var state = new CombatMovement.State(actor.feet, actor.motion, actor.grounded, actor.jumpCooldown);
         var step = CombatMovement.step(arena, actor.id, state, input);
         actor.feet = step.state().feet();
         actor.motion = step.state().motion();
-        actor.landedLastStep = !actor.grounded && step.state().grounded();
         actor.grounded = step.state().grounded();
         actor.jumpCooldown = step.state().jumpCooldown();
         actor.velocity = step.displacement();
@@ -478,7 +470,10 @@ public final class CombatEngine {
             motion = motion.scale(HIT_MOTION_RETENTION).add(incoming);
             motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z);
         }
-        actor.motion = motion.add(sprintPush);
+        // Apply the sprint impulse after base knockback. Limit added lift for PotPvP,
+        // while preserving a jump already moving upward faster than the hit cap.
+        double lift = Math.max(motion.y, Math.min(rules.lift(), motion.y + sprintPush.y));
+        actor.motion = new Vec3(motion.x + sprintPush.x, lift, motion.z + sprintPush.z);
     }
 
     private void melee(Actor attacker, Click click) {
@@ -515,11 +510,11 @@ public final class CombatEngine {
                 && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
         if (attacker.has(Effect.STRENGTH)) damage *= 1.28;
-        if (!attacker.grounded && attacker.velocity.y < -.025 && !sprinting) damage *= 1.5;
+        if (!attacker.grounded && attacker.fallDistance > 0) damage *= 1.5;
         boolean sprintHit = sprinting && click.sprintReady();
-        Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()) : ZERO;
+        Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()).add(0, SPRINT_HIT_LIFT, 0) : ZERO;
         if (strike(attacker, target, damage, sprintPush, weapon) && sprintHit) {
-            attacker.sprintKnockbackReady = attacker.lastSprintReleaseSequence > input.sequence();
+            attacker.lastSprintHitSequence = input.sequence();
             attacker.slowAfterSprintHit = true;
         }
     }
@@ -541,20 +536,21 @@ public final class CombatEngine {
 
     private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
-        Vec3 away = knockbackDirection(attacker, target);
+        // Only a larger raw strike gets through during Paper's protected half of the hurt window.
+        boolean fullHit = target.hurtTicks == 0;
+        double acceptedDamage = fullHit ? rawDamage : rawDamage - target.lastDamage;
+        if (acceptedDamage <= 0) return false;
+        target.lastDamage = rawDamage;
+
+        double armorDamage = target.useHeld && target.selected() == Item.SWORD
+                ? (acceptedDamage + 1) * .5 : acceptedDamage;
         double mitigation = java.util.Arrays.stream(target.armor).filter(value -> value > 0).count()
                 * target.armorReduction / target.armor.length;
-        double damage = rawDamage * (1 - mitigation);
-        if (target.has(Effect.RESISTANCE)) damage *= .8;
-        if (target.has(Effect.MARK)) damage *= 1.12;
-        Vec3 targetFacing = direction(target.yaw, 0);
-        if (target.useHeld && target.selected() == Item.SWORD
-                && targetFacing.x * away.x + targetFacing.z * away.z < -.35) damage *= .55;
-        boolean fullHit = target.hurtTicks == 0;
-        double dealt = fullHit ? damage : Math.max(0, damage - target.lastDamage);
-        if (dealt <= 0) return false;
-        target.lastDamage = damage;
-        if (fullHit) beginHitMotion(target, away);
+        double dealt = armorDamage * (1 - mitigation);
+        if (target.has(Effect.RESISTANCE)) dealt *= .8;
+        if (target.has(Effect.MARK)) dealt *= 1.12;
+
+        if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target));
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
         target.pendingSprintPush = target.pendingSprintPush.add(sprintPush);
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
@@ -564,13 +560,14 @@ public final class CombatEngine {
         attacker.hits++;
         target.combo = 0;
         attacker.exhaustion += .13;
+        int armorWear = Math.max(1, (int) (armorDamage / 4));
         for (int i = 0; i < target.armor.length; i++) {
             if (target.armor[i] <= 0) continue;
-            target.armor[i] = Math.max(0, target.armor[i] - Math.max(1, (int) (rawDamage / 3)));
+            target.armor[i] = Math.max(0, target.armor[i] - armorWear);
             if (target.armor[i] == 0) emit(EventType.ARMOR_BREAK, target.id, 0, Item.EMPTY, target.feet, i);
         }
         emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
-        applyDamage(target, attacker.id, dealt);
+        applyDamage(target, attacker.id, dealt, fullHit);
         return true;
     }
 
@@ -587,11 +584,15 @@ public final class CombatEngine {
     }
 
     private void applyDamage(Actor target, int sourceId, double amount) {
+        applyDamage(target, sourceId, amount, true);
+    }
+
+    private void applyDamage(Actor target, int sourceId, double amount, boolean showHurt) {
         if (!target.alive() || amount <= 0) return;
         double health = Math.max(0, target.health - amount);
         if (health == target.health) return;
         target.health = health;
-        target.hurtTick = currentTick;
+        if (showHurt) target.hurtTick = currentTick;
         if (sourceId > 0 && sourceId != target.id) {
             target.recentAttacker = sourceId;
             target.lastDamageTick = currentTick;
@@ -777,7 +778,6 @@ public final class CombatEngine {
         owner.velocity = ZERO;
         owner.fallDistance = 0;
         owner.grounded = supported(arena, feet);
-        owner.landedLastStep = false;
         owner.hitHorizontalWall = false;
         owner.lastHorizontalWallTick = -1;
         owner.jumpCooldown = 0;
@@ -837,10 +837,9 @@ public final class CombatEngine {
         Click attack;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
-        long lastSprintReleaseSequence = -1, lastHorizontalWallTick = -1;
+        long lastSprintReleaseSequence = -1, lastSprintHitSequence = -1, lastHorizontalWallTick = -1;
         float yaw, pitch;
-        boolean grounded, sprinting, sprintKnockbackReady = true, sprintReleased, slowAfterSprintHit, hitHorizontalWall;
-        boolean landedLastStep;
+        boolean grounded, sprinting, slowAfterSprintHit, hitHorizontalWall;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
         int hits, combo, longestCombo, lastComboTarget, potsUsed, jumpCooldown;
@@ -857,6 +856,7 @@ public final class CombatEngine {
         }
 
         boolean alive() { return health > 0; }
+        boolean sprintReady() { return lastSprintHitSequence < 0 || lastSprintReleaseSequence > lastSprintHitSequence; }
         boolean has(Effect effect) { return effects.containsKey(effect); }
         Item selected() { return inventory.get(slot).item(); }
         void cancelUse() { useItem = Item.EMPTY; useTicks = 0; }

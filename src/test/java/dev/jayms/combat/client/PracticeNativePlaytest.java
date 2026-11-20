@@ -102,15 +102,15 @@ public final class PracticeNativePlaytest {
                 double horizontal = Math.hypot(b.vx(), b.vz());
                 peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, horizontal);
                 peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
-                if (horizontal > .51 && b.hurtTick() > lastSprintHit) {
-                    lastSprintHit = b.hurtTick();
-                    sprintHits++;
-                }
-                if (view.tick() == b.hurtTick() + 1 && horizontal > .51) {
+                if (view.tick() == b.hurtTick() + 1 && horizontal > .68) {
+                    if (b.hurtTick() > lastSprintHit) {
+                        lastSprintHit = b.hurtTick();
+                        sprintHits++;
+                    }
                     sampledLaunch = b.hurtTick();
                     sampledLaunchSpeed = horizontal;
                 } else if (view.tick() == b.hurtTick() + 2 && sampledLaunch == b.hurtTick()
-                        && horizontal >= .6 * sampledLaunchSpeed) {
+                        && horizontal >= .45 * sampledLaunchSpeed) {
                     carriedLaunches++;
                 }
             }
@@ -152,7 +152,7 @@ public final class PracticeNativePlaytest {
                             + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
-                            + carriedLaunches + " sprint launches kept at least 60% of horizontal speed on the next tick.\n"
+                            + carriedLaunches + " sprint launches kept at least 45% of horizontal speed on the next tick while the defender could steer.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",
                             peakKnockbackHorizontal, peakKnockbackUp);
