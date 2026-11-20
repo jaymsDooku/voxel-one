@@ -27,7 +27,12 @@ public final class DuelSession {
     }
     public record Score(int hits,int longestCombo,int potsUsed,int potsRemaining,double health) {}
     public record Fighter(String id,CombatSimulation.Snapshot body,double yaw,double pitch,boolean connected,
-                          boolean ready,long lastFrame,long lastInputSequence,Score score) {}
+                          boolean ready,long lastFrame,long lastInputSequence,Score score,List<Stack> nextKit) {
+        public Fighter {
+            nextKit=List.copyOf(nextKit);
+            if(nextKit.size()!=36) throw new IllegalArgumentException("Next kit size");
+        }
+    }
     public record State(long epoch,long tick,long combatTick,Phase phase,Profile profile,int remainingTicks,String result,
                         List<Fighter> fighters,List<CombatSimulation.ProjectileView> projectiles,List<CombatEvent> events) {}
     private static final String[] IDS={"A","B"};
@@ -163,9 +168,10 @@ public final class DuelSession {
         var body=sim.snapshot(IDS[side]);if(!body.alive()) return;
         Command c=input[side];boolean fresh=c!=null && connected[side] && tick-inputAt[side]<=5;
         boolean sprint=fresh && c.sprint() && c.forward()>0;
-        // Submit transitions only; an attack stopping sprint requires a real release/repress.
+        // Latch activation only once movement starts; a sprint hit still requires release/repress.
         boolean requested=fresh && c.sprint();
-        if(requested!=sprintHeld[side]) {intent(side,new CombatIntent.Sprint(sprint));sprintHeld[side]=requested;}
+        if(!requested && sprintHeld[side]) {intent(side,new CombatIntent.Sprint(false));sprintHeld[side]=false;}
+        else if(sprint && !sprintHeld[side]) {intent(side,new CombatIntent.Sprint(true));sprintHeld[side]=true;}
         if(!fresh) return;
         double f=c.forward(),s=c.strafe(),length=Math.hypot(f,s);if(length>1){f/=length;s/=length;}
         double angle=Math.toRadians(c.yaw()),speed=(body.sprinting() && sprint?.28:.215)*body.movementMultiplier();
@@ -185,7 +191,7 @@ public final class DuelSession {
         for(int i=0;i<2;i++) {
             var body=sim==null || phase==Phase.READY || phase==Phase.QUEUE || phase==Phase.WARMUP ? preview(i) : sim.snapshot(IDS[i]);
             int remaining=body.inventory().stream().filter(s->s.item().name().endsWith("SPLASH")).mapToInt(Stack::count).sum();
-            fighters.add(new Fighter(IDS[i],body,yaw[i],pitch[i],connected[i],ready[i],frames[i],sequence[i],new Score(hits[i],longest[i],pots[i],remaining,body.health())));
+            fighters.add(new Fighter(IDS[i],body,yaw[i],pitch[i],connected[i],ready[i],frames[i],sequence[i],new Score(hits[i],longest[i],pots[i],remaining,body.health()),kits[i].slots()));
         }
         int remain=phase==Phase.WARMUP?Math.max(0,warmupTicks-(int)(tick-phaseAt)):phase==Phase.LIVE?Math.max(0,roundTicks-(int)(tick-phaseAt)):0;
         return new State(epoch,tick,sim==null?0:sim.tick(),phase,profile,remain,result,List.copyOf(fighters),

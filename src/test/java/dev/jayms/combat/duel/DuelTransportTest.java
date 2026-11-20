@@ -22,7 +22,7 @@ class DuelTransportTest {
         var command=DuelSession.Command.operation(1,1,DuelSession.Op.READY,0,0);byte[] frame=DuelWire.command(command);
         var in=new DataInputStream(new ByteArrayInputStream(frame));assertEquals(DuelWire.COMMAND,in.readUnsignedByte());assertEquals(command,DuelWire.command(in));DuelWire.end(in);
         frame[25]=(byte)255;var invalid=new DataInputStream(new ByteArrayInputStream(frame));invalid.readUnsignedByte();assertThrows(IOException.class,()->DuelWire.command(invalid));
-        var hello=DuelWire.hello(new DuelWire.Hello(DuelSession.Profile.NO_DEBUFF,false,"",""));hello[8]=2;
+        var hello=DuelWire.hello(new DuelWire.Hello(DuelSession.Profile.NO_DEBUFF,false,"",""));hello[8]=(byte)(DuelWire.VERSION+1);
         var h=new DataInputStream(new ByteArrayInputStream(hello));h.readUnsignedByte();assertThrows(IOException.class,()->DuelWire.hello(h));
         assertThrows(IOException.class,()->DuelWire.end(new DataInputStream(new ByteArrayInputStream(new byte[]{1}))));
     }
@@ -55,9 +55,17 @@ class DuelTransportTest {
             b.interruptConnection();Thread.sleep(200);b.reconnect();waitFor(()->b.connected() && b.state().phase()==DuelSession.Phase.LIVE,3000);
             assertEquals(DuelSession.Phase.LIVE,a.state().phase());
             a.operation(DuelSession.Op.FORFEIT,0,0);waitFor(()->b.state().phase()==DuelSession.Phase.RESULT,2000);
+            waitFor(()->a.state().phase()==DuelSession.Phase.RESULT,2000);
+            var finished=a.state().fighters().get(0);
+            a.operation(DuelSession.Op.SWAP,1,2);
+            waitFor(()->a.state().fighters().get(0).nextKit().get(1).item()==dev.jayms.combat.KitProfile.Item.PEARL
+                    && b.state().fighters().get(0).nextKit().get(1).item()==dev.jayms.combat.KitProfile.Item.PEARL,2000);
+            assertEquals(finished.body(),a.state().fighters().get(0).body());assertEquals(finished.score(),a.state().fighters().get(0).score());
+            assertEquals(a.state().fighters().get(0).nextKit(),b.state().fighters().get(0).nextKit());
             long oldEpoch=b.state().epoch();a.operation(DuelSession.Op.READY,0,0);b.operation(DuelSession.Op.READY,0,0);
             waitFor(()->a.state().phase()==DuelSession.Phase.LIVE && a.state().epoch()>oldEpoch,5000);
             assertEquals(20,a.state().fighters().get(0).body().health());assertTrue(a.state().fighters().get(0).body().effects().isEmpty());
+            assertEquals(dev.jayms.combat.KitProfile.Item.PEARL,a.state().fighters().get(0).body().inventory().get(1).item());
             a.operation(DuelSession.Op.FORFEIT,0,0);waitFor(()->b.state().phase()==DuelSession.Phase.RESULT,2000);
             String old=a.match();a.operation(DuelSession.Op.QUEUE,0,0);waitFor(()->!a.match().equals(old),3000);assertTrue(server.healthy());
         }

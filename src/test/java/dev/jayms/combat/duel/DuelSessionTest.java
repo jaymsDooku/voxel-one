@@ -45,6 +45,37 @@ class DuelSessionTest {
         assertEquals(30.7,body(0).pose().feet().x(),.0001);assertEquals(1,body(0).pose().feet().y(),.0001);
         assertThrows(IllegalArgumentException.class,()->new DuelSession.Command(1,1,0,DuelSession.Op.INPUT,Double.NaN,0,0,0,false,false,false,false,false,0,0));
     }
+    @Test void shiftBeforeForwardStartsSprintAndReleasingWhileStoppedResetsIt(){
+        start();input(0,0,90,0,false,true,false,false,0);session.step();
+        assertFalse(body(0).sprinting());
+        input(0,1,90,0,false,true,false,false,0);session.step();assertTrue(body(0).sprinting());
+        double z=body(0).pose().feet().z();session.step();assertEquals(.28,body(0).pose().feet().z()-z,1e-9);
+        input(0,0,90,0,false,false,false,false,0);session.step();assertFalse(body(0).sprinting());
+        input(0,0,90,0,false,true,false,false,0);session.step();assertFalse(body(0).sprinting());
+        input(0,1,90,0,false,true,false,false,0);session.step();assertTrue(body(0).sprinting());
+    }
+    @Test void sprintHitCannotRearmUntilReleaseAndForwardRepress(){
+        start();for(int i=0;i<124;i++){input(0,1,90,0,false,false,false,false,0);input(1,1,-90,0,false,false,false,false,0);session.step();}
+        input(0,1,90,0,false,true,false,false,0);input(1,0,-90,0,false,false,false,false,0);session.step();assertTrue(body(0).sprinting());
+        input(0,0,90,0,false,true,true,false,0);session.step();
+        assertEquals(1,session.state().fighters().get(0).score().hits());assertFalse(body(0).sprinting());
+        input(0,1,90,0,false,true,false,false,0);session.step();assertFalse(body(0).sprinting());
+        input(0,0,90,0,false,false,false,false,0);session.step();
+        input(0,0,90,0,false,true,false,false,0);session.step();assertFalse(body(0).sprinting());
+        input(0,1,90,0,false,true,false,false,0);session.step();assertTrue(body(0).sprinting());
+    }
+    @Test void resultEditsNextKitImmediatelyWithoutChangingFinishedInventoryOrScores(){
+        start();input(0,0,90,-89,false,false,false,true,1);session.step();
+        assertTrue(op(0,DuelSession.Op.FORFEIT,0,0));
+        var finished=session.state().fighters().get(0);assertEquals(1,finished.score().potsUsed());
+        assertEquals(0,finished.body().inventory().get(1).count());
+        assertTrue(op(0,DuelSession.Op.SWAP,1,2));var edited=session.state().fighters().get(0);
+        assertEquals(KitProfile.Item.PEARL,edited.nextKit().get(1).item());assertEquals(4,edited.nextKit().get(1).count());
+        assertEquals(KitProfile.Item.HEAL_SPLASH,edited.nextKit().get(2).item());
+        assertEquals(finished.body(),edited.body());assertEquals(finished.score(),edited.score());
+        assertThrows(UnsupportedOperationException.class,()->edited.nextKit().clear());
+        start();assertEquals(edited.nextKit(),body(0).inventory());assertEquals(0,session.state().fighters().get(0).score().potsUsed());
+    }
     @Test void realSpacingSprintImpulseCounterAndResults(){
         start();for(int i=0;i<124;i++){input(0,1,90,0,false,false,false,false,0);input(1,1,-90,0,false,false,false,false,0);session.step();}
         double before=body(1).health();input(0,0,90,0,false,true,false,false,0);session.step();

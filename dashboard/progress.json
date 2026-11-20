@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T03:13:55+00:00",
+  "updatedAt": "2026-11-20T03:59:57+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -41,33 +41,88 @@
         },
         {
           "kind": "video",
-          "label": "Revised real duel; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-duel.mp4"
+          "label": "Historical c1961fe3: Revised real duel",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/c1961fe3d6bc44acc2f4e4eb305fd3e14fa0da01/dashboard/evidence/practice-lifecycle-duel.mp4"
         },
         {
           "kind": "video",
-          "label": "READY recovery with actual F10; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-recovery.mp4"
+          "label": "Historical c1961fe3: READY recovery with actual F10",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/c1961fe3d6bc44acc2f4e4eb305fd3e14fa0da01/dashboard/evidence/practice-lifecycle-recovery.mp4"
         },
         {
           "kind": "image",
-          "label": "Recovered replacement duel; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-recovered-live.png"
+          "label": "Historical c1961fe3: Recovered replacement duel",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/c1961fe3d6bc44acc2f4e4eb305fd3e14fa0da01/dashboard/evidence/practice-lifecycle-recovered-live.png"
         },
         {
           "kind": "image",
-          "label": "Revised 150 ms Debuff result; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-lifecycle-150ms-result.png"
+          "label": "Historical c1961fe3: Revised 150 ms Debuff result",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/c1961fe3d6bc44acc2f4e4eb305fd3e14fa0da01/dashboard/evidence/practice-lifecycle-150ms-result.png"
         },
         {
           "kind": "report",
-          "label": "Lifecycle fixes and validation; pending controller publication",
-          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/docs/practice-duels-lifecycle-validation.md"
+          "label": "Historical c1961fe3: Lifecycle fixes and validation",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/c1961fe3d6bc44acc2f4e4eb305fd3e14fa0da01/docs/practice-duels-lifecycle-validation.md"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-0ms-result.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-0ms-result.png"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-150ms-result.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-150ms-result.png"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-80ms-result.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-80ms-result.png"
+        },
+        {
+          "kind": "video",
+          "label": "practice-input-kit-duel.mp4; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-duel.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-edited.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-edited.png"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-frozen-result.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-frozen-result.png"
+        },
+        {
+          "kind": "video",
+          "label": "practice-input-kit-keyboard.mp4; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-keyboard.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-rematch.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-rematch.png"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-result.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-result.png"
+        },
+        {
+          "kind": "image",
+          "label": "practice-input-kit-sprint.png; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/dashboard/evidence/practice-input-kit-sprint.png"
+        },
+        {
+          "kind": "report",
+          "label": "Sprint and RESULT kit validation; pending controller publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64656434643335332d356565332d343762642d396334362d303462336565376635336439/docs/practice-duels-input-kit-validation.md"
         }
       ],
       "status": "in_progress",
-      "note": "Fixed both reviewed lifecycle bugs: matchmaking requires a live waiter; READY supports immediate N requeue and cancels on existing reconnect-grace expiry without a combat win. Three real-TLS regressions failed before the fix. Revised verification passed 105 tests, packaging and native normal/80/150 ms workflows (1696/1654/1663 matching ticks). Production R/N/R and actual F10 recovery passed; fresh clips are below 6 MB and fully decoded. Revised-source publication, hosted CI and independent review/150 ms repeat remain pending. Physical-GPU qualification still gates stable rollout.",
-      "updatedAt": "2026-11-20T03:13:55+00:00"
+      "note": "Fixed both new P2 findings: Shift-before-W starts sprint on movement while sprint hits still require release/repress; RESULT edits a separate visible next-round kit and preserves finished stats. Java 17 verify passed 108 tests and packaging. Production keys/F10 and normal/80/150 ms two-client workflows passed (1699/1645/1687 matching ticks). Two fresh decoded MP4s are below 6 MB. Controller publication, new CI and independent re-review remain pending. Physical-GPU qualification still gates stable rollout.",
+      "updatedAt": "2026-11-20T03:59:57+00:00"
     },
     {
       "id": "hcf-potpvp-1b-basalt-courtyard",

@@ -8,7 +8,7 @@ import java.util.*;
 
 /** Separate opt-in wire identity. Existing Protocol.VERSION and save schemas are unchanged. */
 public final class DuelWire {
-    public static final int MAGIC=0x56504431,VERSION=1,PORT=25567,MAX_FRAME=65536;
+    public static final int MAGIC=0x56504431,VERSION=2,PORT=25567,MAX_FRAME=65536;
     public static final int HELLO=1,WELCOME=2,COMMAND=3,STATE=4,ERROR=5;
     public record Hello(DuelSession.Profile profile,boolean spectator,String match,String resume) {}
     public record Welcome(String match,int side,String resume,long nextSequence) {}
@@ -63,18 +63,27 @@ public final class DuelWire {
     private static void vector(DataOutputStream out,Vec3 v) throws IOException {out.writeDouble(v.x());out.writeDouble(v.y());out.writeDouble(v.z());}
     private static Vec3 vector(DataInputStream in) throws IOException {return new Vec3(in.readDouble(),in.readDouble(),in.readDouble());}
     private static int count(DataInputStream in,int max) throws IOException {int n=in.readUnsignedShort();if(n>max) throw new IOException("Duel list bound");return n;}
+    private static void stacks(DataOutputStream out,List<Stack> stacks) throws IOException {
+        out.writeShort(stacks.size());for(var stack:stacks){out.writeByte(stack.item().ordinal());out.writeByte(stack.count());}
+    }
+    private static List<Stack> stacks(DataInputStream in) throws IOException {
+        var stacks=new ArrayList<Stack>();int n=count(in,36);
+        if(n!=36) throw new IOException("Duel inventory size");
+        for(int k=0;k<n;k++) stacks.add(new Stack(value(Item.values(),in.readUnsignedByte()),in.readUnsignedByte()));
+        return List.copyOf(stacks);
+    }
     public static byte[] state(DuelSession.State s) throws IOException {
         return frame(STATE,o->{
             o.writeLong(s.epoch());o.writeLong(s.tick());o.writeLong(s.combatTick());o.writeByte(s.phase().ordinal());o.writeByte(s.profile().ordinal());o.writeInt(s.remainingTicks());text(o,s.result());
             for(var f:s.fighters()) {
                 text(o,f.id());var b=f.body();vector(o,b.pose().feet());vector(o,b.pose().velocity());o.writeBoolean(b.pose().grounded());
                 o.writeDouble(b.health());o.writeBoolean(b.alive());o.writeDouble(b.hunger());o.writeDouble(b.saturation());o.writeInt(b.selectedSlot());
-                o.writeShort(b.inventory().size());for(var stack:b.inventory()){o.writeByte(stack.item().ordinal());o.writeByte(stack.count());}
+                stacks(o,b.inventory());
                 o.writeShort(b.armor().size());for(var a:b.armor()){o.writeByte(a.slot().ordinal());o.writeDouble(a.protection());o.writeInt(a.durability());}
                 o.writeShort(b.effects().size());for(var e:b.effects()){o.writeByte(e.effect().ordinal());o.writeLong(e.expiresAt());text(o,e.source());}
                 o.writeBoolean(b.sprinting());o.writeBoolean(b.guarding());o.writeBoolean(b.using());o.writeDouble(b.movementMultiplier());o.writeLong(b.pearlReadyAt());o.writeLong(b.lastSequence());o.writeInt(b.life());
                 o.writeDouble(f.yaw());o.writeDouble(f.pitch());o.writeBoolean(f.connected());o.writeBoolean(f.ready());o.writeLong(f.lastFrame());o.writeLong(f.lastInputSequence());
-                var score=f.score();o.writeInt(score.hits());o.writeInt(score.longestCombo());o.writeInt(score.potsUsed());o.writeInt(score.potsRemaining());o.writeDouble(score.health());
+                var score=f.score();o.writeInt(score.hits());o.writeInt(score.longestCombo());o.writeInt(score.potsUsed());o.writeInt(score.potsRemaining());o.writeDouble(score.health());stacks(o,f.nextKit());
             }
             o.writeShort(s.projectiles().size());for(var p:s.projectiles()){o.writeLong(p.id());o.writeByte(p.item().ordinal());text(o,p.source());vector(o,p.position());}
             o.writeShort(s.events().size());for(var e:s.events()){o.writeLong(e.id());o.writeLong(e.tick());o.writeByte(e.type().ordinal());text(o,e.actor());text(o,e.target());vector(o,e.position());o.writeDouble(e.amount());text(o,e.detail());}
@@ -87,13 +96,13 @@ public final class DuelWire {
             for(int i=0;i<2;i++) {
                 String id=string(in,64);var pose=new CombatSimulation.Pose(vector(in),vector(in),in.readBoolean());
                 double health=in.readDouble();boolean alive=in.readBoolean();double hunger=in.readDouble(),sat=in.readDouble();int slot=in.readInt();
-                var stacks=new ArrayList<Stack>();int n=count(in,36);for(int k=0;k<n;k++) stacks.add(new Stack(value(Item.values(),in.readUnsignedByte()),in.readUnsignedByte()));
+                var stacks=stacks(in);int n;
                 var armor=new ArrayList<Armor>();n=count(in,4);for(int k=0;k<n;k++) armor.add(new Armor(value(ArmorSlot.values(),in.readUnsignedByte()),in.readDouble(),in.readInt()));
                 var effects=new ArrayList<CombatSimulation.EffectView>();n=count(in,4);for(int k=0;k<n;k++) effects.add(new CombatSimulation.EffectView(value(CombatEvent.Effect.values(),in.readUnsignedByte()),in.readLong(),nullable(in)));
                 var body=new CombatSimulation.Snapshot(id,pose,health,alive,hunger,sat,slot,List.copyOf(stacks),List.copyOf(armor),List.copyOf(effects),in.readBoolean(),in.readBoolean(),in.readBoolean(),in.readDouble(),in.readLong(),in.readLong(),in.readInt());
                 double yaw=in.readDouble(),pitch=in.readDouble();boolean connected=in.readBoolean(),ready=in.readBoolean();long frame=in.readLong(),sequence=in.readLong();
                 var score=new DuelSession.Score(in.readInt(),in.readInt(),in.readInt(),in.readInt(),in.readDouble());
-                fighters.add(new DuelSession.Fighter(id,body,yaw,pitch,connected,ready,frame,sequence,score));
+                fighters.add(new DuelSession.Fighter(id,body,yaw,pitch,connected,ready,frame,sequence,score,stacks(in)));
             }
             var projectiles=new ArrayList<CombatSimulation.ProjectileView>();int n=count(in,512);
             for(int k=0;k<n;k++) projectiles.add(new CombatSimulation.ProjectileView(in.readLong(),value(Item.values(),in.readUnsignedByte()),string(in,64),vector(in)));

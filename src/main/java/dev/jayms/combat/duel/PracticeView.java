@@ -116,8 +116,8 @@ public final class PracticeView implements AutoCloseable {
         if(inventory) {
             float left=width/2f-300,top=height/2f-160;
             overlay.rectangle(left-12,top-38,624,248,.02f,.04f,.08f,.99f);
-            text("KIT: arrows choose slot; Enter marks then swaps. E closes.",left,top-26,1.1f);
-            for(int i=0;i<36;i++) {var stack=b.inventory().get(i);float x=left+(i%9)*67,y=top+(i/9)*48;
+            text("NEXT ROUND KIT: arrows select; Enter marks / swaps; E closes.",left,top-26,1.1f);
+            for(int i=0;i<36;i++) {var stack=self.nextKit().get(i);float x=left+(i%9)*67,y=top+(i/9)*48;
                 overlay.rectangle(x,y,64,44,i==second?.35f:.08f,i==first?.4f:.15f,.25f,1);
                 text((i+1)+" "+item(stack.item()),x+3,y+7,1);text("x"+stack.count(),x+3,y+25,1);
             }
