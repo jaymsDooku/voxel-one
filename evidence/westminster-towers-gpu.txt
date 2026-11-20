@@ -1,0 +1,15 @@
+Windows 11 / NVIDIA GeForce RTX 3060/PCIe/SSE2
+Open side beneath relief vertical=0.0 near=1.0 exterior=1.0
+Fractional intervening wall vertical=0.0 near=0.0 exterior=0.0
+East shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+West shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+North shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+South shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+Sky above distant east wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant west wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant north wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant south wing vertical=0.0 near=0.0 exterior=1.0
+East cornice face vertical=1.0 near=1.0 exterior=1.0
+Shaft behind thin stone screen vertical=0.0 near=0.0 exterior=0.0
+Shaft behind glass screen vertical=0.0 near=0.0 exterior=1.0
+Inside sealed shaft vertical=0.0 near=0.0 exterior=0.0
