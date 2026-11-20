@@ -16,6 +16,12 @@ runner = importlib.util.module_from_spec(spec)
 spec.loader.exec_module(runner)
 
 
+def setUpModule():
+    # Every class needs this ignored parent, including classes ordered before
+    # NativeDeadlineTests on a fresh checkout with no prior Maven/test output.
+    (ROOT / 'target').mkdir(exist_ok=True)
+
+
 class NativeDeadlineTests(unittest.TestCase):
     def test_cli_bounded_budget_accepts_endpoints_and_rejects_overrun(self):
         base=['native-test-runner.py','--simulator','C6832151-D858-43BF-B90D-05F63089554B']
@@ -32,7 +38,6 @@ class NativeDeadlineTests(unittest.TestCase):
             self.assertEqual(runner.main(),0);self.assertEqual(child.call_args.args[2],1500)
 
     def setUp(self):
-        (ROOT / 'target').mkdir(exist_ok=True)
         self.scratch = tempfile.TemporaryDirectory(dir=ROOT / 'target')
         self.addCleanup(self.scratch.cleanup)
         self.log = Path(self.scratch.name) / 'test.log'

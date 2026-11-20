@@ -1467,3 +1467,24 @@ then resume exact-source47-case testing and inspect actual controls media. No
 owner answer is needed for this execution repair. Full parity, another Simulator
 size, live VPS, signing/install, physical iPhone and independent review stay open.
 Playtest: current proposed resource change has no Mac/native execution yet.
+
+
+PR88 fresh-checkout harness repair
+Hosted source5a6a97d29e1a3d194a2a38f7070b2aa7d364ee2f failed run44701160338
+in Verify exact checkout and tooling contracts. Simulator boot/evidence steps
+were skipped, so no game-client or media qualification exists for this check.
+Bounded tooling diagnostics identify FileNotFoundError in the diagnostic
+integration test because target/ did not exist. Its class runs before the class
+whose setup previously created that parent; local Maven output hid the issue.
+
+Moved ignored target/ parent initialization into unittest setUpModule, preserving
+all existing scratch, source/cleanliness rules, assertions and47 required native
+cases. Reproduced the exact old failure in fresh copied tooling with target/
+absent:24 tests,1 error. Fresh post-fix run passes24 tests; full Linux harness
+passes89 tests. Python/shell syntax and diff checks pass.113 unrelated progress
+entries retained; no file deletions intended. Only directory initialization
+placement changes. No new ignore rule, test skip or gate reduction.
+Playtest: actual affected noninteractive unittest CLI exercised before/after.
+Browser playtesting does not apply. Fresh hosted checks and full native game
+run/media remain pending, along with trusted-master budget repair, physical
+iPhone/signing, live service, remaining parity and independent review.

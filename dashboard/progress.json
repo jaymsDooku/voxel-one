@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T08:14:36+00:00",
+  "updatedAt": "2026-11-20T08:21:59+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "462e20a5 built/installed but hit900s with20/47 passes,0 failures. Three runs show the suite exceeds the old execution budget. Prepared bounded1500s native/1800s verifier/40min job proposal;89 Linux harness tests passed including cap/timeout cleanup. Internal trusted-source review/repair required before another exact-source run. All47/native/media/physical/signing gates stay open.",
-      "updatedAt": "2026-11-20T08:14:36+00:00"
+      "note": "PR88 simulator check failed before boot: diagnostic test lacked target/ in a clean checkout. Reproduced exact failure, moved scratch-parent creation to module setup, then24 fresh-checkout and89 full Linux harness tests passed. All47 native cases retained. Fresh hosted checks and trusted-budget/native/media/signing/physical qualification remain pending.",
+      "updatedAt": "2026-11-20T08:21:59+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

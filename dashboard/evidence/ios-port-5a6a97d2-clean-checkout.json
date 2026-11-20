@@ -1,0 +1,55 @@
+{
+  "sourceBase": "5a6a97d29e1a3d194a2a38f7070b2aa7d364ee2f",
+  "sourceState": "uncommitted fresh-checkout harness initialization fix",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44701160338",
+  "observedFailure": {
+    "job": "simulator",
+    "step": "Verify exact checkout and tooling contracts",
+    "nativeSimulatorBoot": "skipped",
+    "error": "FileNotFoundError",
+    "test": "NativeDeadlineDiagnosticIntegrationTests.test_routine_steps_do_not_displace_deadline_and_timing_diagnostics",
+    "source": "tools/ios/test_native_deadline.py:283",
+    "cause": "target/ parent did not exist before this alphabetically earlier class ran"
+  },
+  "diagnostics": "Inspected job step status/check annotations and bounded CI tooling test output only; no native game/runtime log or account/config data read. No Simulator/client media exists for this pre-boot tooling failure.",
+  "repair": "Initialize the existing ignored target/ scratch parent in setUpModule before any test class, rather than in NativeDeadlineTests.setUp. Existing scratch/results preserved; no ignore rule, source-cleanliness check, test assertion or acceptance case changed.",
+  "checks": [
+    {
+      "command": "Fresh copied tooling; python3 -m unittest discover -s tools/ios -p test_native_deadline.py before fix with target/ absent",
+      "result": "Reproduced exact FileNotFoundError in diagnostic integration case;24 tests,1 error,8.373s"
+    },
+    {
+      "command": "Fresh copied tooling; python3 -m unittest discover -s tools/ios -p test_native_deadline.py after fix with target/ absent",
+      "result": "24 passed in9.468s"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "89 passed in10.798s; Linux synthetic harness, not Mac/client qualification"
+    },
+    {
+      "command": "python3 -m py_compile tools/ios/test_native_deadline.py ios/native-test-runner.py tools/ios/simulator_checks.py; bash -n ios/check-simulator.sh; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "git check-ignore target/test-scratch; AST native-case/review-base audit",
+      "result": "scratch ignored;47 required native cases unchanged;113 unrelated progress entries retained;zero file deletions"
+    }
+  ],
+  "Playtest": "Exercised affected noninteractive unittest CLI in fresh copied source: expected old missing-directory failure reproduced, then24 tests passed after module initialization. Browser playtesting does not apply to harness initialization. Native47-case game workflow, actual controls media, physical-device and signing qualification remain pending.",
+  "qualificationPending": [
+    "Fresh exact-head hosted checks",
+    "Trusted master1800-second verifier budget review/integration before1500-second native dispatch",
+    "Full47-case native build/playtest/media",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed iPhone install/update artifact",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "intendedDeletions": "No file deletions. Directory creation moved from one class setup to module setup so every class has its scratch parent.",
+  "sourceSha256": {
+    "tools/ios/test_native_deadline.py": "47ff097b455a4439b4b69539aabc5ac42af8f60d6dc1637b38c0292386fa6646"
+  }
+}
