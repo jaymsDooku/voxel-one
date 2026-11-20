@@ -66,6 +66,9 @@ public final class LocalGame {
         }
         long sourceModelsRevision(){return sourceModels.revision();}
         ModelLibrary sourceModelSnapshot(){return sourceModels.copy();}
+        void validateModelBindings(ModelLibrary target)throws IOException {
+            if(!target.preservesBindings(sourceModels))throw new IOException("Replay source model bindings changed");
+        }
         boolean matchesTerrain(Terrain terrain){return terrain.seed==seed&&terrain.version==generator&&terrain.stressGrid()==null&&terrain.geometryRevision()==0;}
         /** Caller supplies already validated, independent tail copies. Only the
          * private publication owner may reconcile a newly reopened source. */
@@ -77,15 +80,19 @@ public final class LocalGame {
         synchronized PreparedTail prepareCurrentTail(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
             if(current.replayComplete||current.city!=null||current.seed!=seed||current.generatorVersion!=generator)throw new IOException("Replay baseline owner mismatch");
+            validateModelBindings(current.models);
             return new PreparedTail(new LocalGame(this,current,inventory,drops,health));
         }
-        /** A replacement scene owns independent model maps. IDs, revision and
+        /** A replacement scene owns independent model maps. IDs and
          * frozen definitions survive unchanged; later changes in the retired
-         * World cannot change or invalidate this candidate. Copy before World
+         * World cannot change or invalidate this candidate. Rebase the new
+         * map's revision to its exact parsed source after comparing bindings;
+         * equal maps can have different owner-local counters. Copy before World
          * allocation and the caller's final source guard, never after commit. */
         synchronized PreparedTail prepareCurrentScene(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
             var prepared=prepareCurrentTail(current,inventory,drops,health);
-            prepared.local.models=prepared.local.models.copy();
+            if(!models.sameBindings(current.models))throw new IOException("Replay scene model bindings changed");
+            prepared.local.models=current.models.copyForSource(models);
             return prepared;
         }
         final class PreparedTail {

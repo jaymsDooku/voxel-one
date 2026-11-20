@@ -88,6 +88,7 @@ final class ReadbackSaveSnapshot {
         if(source.metadata()==null||source.metadata().generation()!=generation||!fingerprint.equals(source.fingerprint())
                 ||source.terrain().seed!=seed||source.terrain().version!=generator||!source.metadata().matchesTerrain(source.terrain()))
             throw new IOException("Readback save staging source changed");
+        source.metadata().validateModelBindings(models);StructurePackage.cancelled(cancel);
         var pending=source.overlay().rows();
         if(pending.size()>overlay.rows().size())throw new IOException("Readback save must retain pending source overlay");
         for(int i=0;i<pending.size();i++){StructurePackage.cancelled(cancel);if(!pending.get(i).equals(overlay.rows().get(i)))throw new IOException("Readback save pending overlay prefix changed");}

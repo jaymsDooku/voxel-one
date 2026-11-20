@@ -2194,3 +2194,33 @@ read-only scene residency remains one or two chunks. These are diagnostic caps,
 not supported city limits. Main source installation, old World reconciliation,
 editable paging, model-ID rebasing, city/maximum operation budgets, physical-GPU
 rendering and shaped synchronization to 32 clients remain unfinished or pending.
+
+
+### Saved-scene model bindings and revision rebasing
+
+Stored model bindings compare exact IDs, authors and definition fingerprints,
+independently of local library revision counters. Each fingerprint is already
+computed when a frozen definition enters the library; a second ID-keyed index
+reuses that same hash. Copies and prepared-map replacement retain both indexes.
+Binding checks do not serialize model geometry or grant source/save authority.
+
+Source-backed save staging now requires its captured model library to preserve
+every source binding before creating a save prefix. Additions remain allowed;
+missing, moved, rebound, renamed or reauthored source bindings reject. Metadata
+tail preparation checks the same preserved bindings. A replacement scene further
+requires exact equality, including no extra bindings absent from its source.
+
+A multi-model `replaceWith` advances the live counter once, while reading the
+saved entries advances a fresh counter per entry. The same bindings can therefore
+have different counters. After exact comparison, the new scene receives independent
+maps with its existing frozen definition references and its worker source's
+counter. The retired map and counter stay unchanged. This aligns source sky
+receipts without remapping IDs or reinterpreting saved cells. The metadata-only
+tail API retains its live map/counter; normalization applies to coherent scene
+creation and does not promote metadata-only transfer to rendering readiness. Full source,
+World, terrain, journal, cancellation and one-shot metadata checks remain.
+
+This is private read-only paging integration. Main installation, old World
+reconciliation, editable paging and true model-ID remapping remain unfinished.
+No supported city, physical-GPU, frame-time or shaped-32-client qualification is
+claimed, and existing per-model/world/package/placement limits remain enforced.

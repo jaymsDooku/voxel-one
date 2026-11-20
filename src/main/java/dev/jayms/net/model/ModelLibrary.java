@@ -30,6 +30,9 @@ public final class ModelLibrary {
     public long revision(){return revision;}
     private Map<Integer, Entry> entries = new LinkedHashMap<>();
     private Map<String, Integer> fingerprints = new HashMap<>();
+    // Stored definitions are frozen. Share the hash already computed on
+    // admission instead of serializing models during source-binding checks.
+    private Map<Integer, String> identities = new HashMap<>();
 
     public ModelLibrary() {
         var pot = POT;
@@ -105,13 +108,37 @@ public final class ModelLibrary {
     }
 
     private void putUnchecked(Entry entry) {
+        String fingerprint=entry.definition.fingerprint();
         revision++;
         entries.put(entry.id, entry);
-        fingerprints.put(entry.definition.fingerprint(), entry.id);
+        fingerprints.put(fingerprint, entry.id);identities.put(entry.id,fingerprint);
+    }
+
+    /** Stable stored IDs/authors/definitions, independent of local revision counters.
+     * Additional bindings are allowed. This grants no source or save authority. */
+    public boolean preservesBindings(ModelLibrary source) {
+        Objects.requireNonNull(source);
+        if(entries.size()<source.entries.size())return false;
+        for(var original:source.entries.values()) {
+            var current=entries.get(original.id);String identity=identities.get(original.id);
+            if(current==null||!Objects.equals(current.author,original.author)||identity==null
+                    ||!identity.equals(source.identities.get(original.id)))return false;
+        }
+        return true;
+    }
+    public boolean sameBindings(ModelLibrary other) {
+        Objects.requireNonNull(other);return entries.size()==other.entries.size()&&preservesBindings(other);
     }
 
     public ModelLibrary copy() {
         return new ModelLibrary(this);
+    }
+
+    /** Independent maps with the same frozen definition references, rebased to
+     * an exactly matching source's local counter. No live mutation or authority. */
+    public ModelLibrary copyForSource(ModelLibrary source) {
+        if(!sameBindings(source))throw new IllegalArgumentException("Model source bindings differ");
+        var result=copy();result.revision=source.revision;return result;
     }
 
     private ModelLibrary(ModelLibrary source) {
@@ -119,6 +146,7 @@ public final class ModelLibrary {
         // but must not validate and serialize every immutable model again.
         entries.putAll(source.entries);
         fingerprints.putAll(source.fingerprints);
+        identities.putAll(source.identities);
         revision = source.revision;
         structureBytes=source.structureBytes;structureCount=source.structureCount;
     }
@@ -154,7 +182,7 @@ public final class ModelLibrary {
     /** Publish a fully prepared private copy on the authoritative owner thread. */
     public void replaceWith(ModelLibrary prepared) {
         if(entries.equals(prepared.entries))return;
-        entries=new LinkedHashMap<>(prepared.entries);fingerprints=new HashMap<>(prepared.fingerprints);revision++;
+        entries=new LinkedHashMap<>(prepared.entries);fingerprints=new HashMap<>(prepared.fingerprints);identities=new HashMap<>(prepared.identities);revision++;
         structureBytes=prepared.structureBytes;structureCount=prepared.structureCount;
     }
 

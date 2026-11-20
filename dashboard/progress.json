@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T12:42:44+00:00",
+  "updatedAt": "2026-11-20T13:34:40+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded saved-source replacement now retains geometry edited while a paging candidate opens: one candidate, three attempts, cleanup before retry and full final adoption guards. Passed 601 Java tests, 40 Python checks, packaging/MP3 smoke and native replacement/save/reopen/render plus lighting/sky/model/water regressions. Five fresh images and sanitized reports await controller publication and exact-source CI. Main installation, editable paging/model-ID rebasing, city/maximum, physical-GPU and 32-client qualification remain unfinished and gated.",
-      "updatedAt": "2026-11-20T12:42:44+00:00"
+      "note": "Fixed saved-scene model counter mismatch with exact ID/author/fingerprint binding checks and a revision-rebased independent map retaining frozen definitions. Parent probe rejected valid sky at counters 4/4/5; fixed probe accepts 4/5/5 with identical saved bytes. Passed 610 Java tests, 40 Python checks, packaging/MP3, full Main workflow and saved-scene sky/retry/save/reload/render checks. Fresh video/images/reports await publication and exact-source CI. Main paging installation, editable paging/true ID remapping, city/maximum, physical-GPU and 32-client qualification remain unfinished.",
+      "updatedAt": "2026-11-20T13:34:40+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

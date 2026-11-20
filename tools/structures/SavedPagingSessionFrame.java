@@ -35,7 +35,8 @@ final class SavedPagingSessionFrame {
     static void capture(Path root,Path image)throws Exception {
         long baseline=Mesh.estimatedResidentBytes();var tests=new ReadbackSaveSnapshotTest();tests.folder=Files.createDirectories(root.resolve("contexts"));
         try(var c=tests.new Context("frame")) {
-            var editor=new RegionReplayEditor(c.world,new RegionReplayJournal());editor.apply(new Protocol.Edit(2,160,2,Blocks.STONE),()->false);
+            int[] added=SavedPagingModelBindingTest.addModelsInOneRevision(c.local.models);
+            var editor=new RegionReplayEditor(c.world,new RegionReplayJournal());editor.apply(new Protocol.Edit(2,160,2,Blocks.STONE),()->false);editor.apply(new Protocol.Edit(8,160,0,added[0]),()->false);
             var snapshot=ReadbackSaveSnapshot.captureJournal(c.local,c.world,editor.capture(()->false),()->false);var old=c.fixture.worker(c.path);ReadbackMetadataTest.ready(old);RegionReplayWorkerTest.closed(old);
             try(var prepared=c.stage(snapshot)) {
                 var publication=prepared.authorize(()->false);editor.apply(PendingReplayOverlayTest.fraction(),()->false);
@@ -53,6 +54,9 @@ final class SavedPagingSessionFrame {
                     try(transfer) {
                         var session=transfer.session();
                         assertNotSame(c.local.models,session.local().models);
+                        assertNotEquals(c.local.models.revision(),session.local().models.revision());assertTrue(session.local().models.sameBindings(c.local.models));
+                        var sky=session.binding().submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,session.world());RegionReplayWorkerTest.done(sky);
+                        assertEquals(session.local().models.revision(),session.binding().skyResult(sky,session.world()).modelRevision());
                         var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
                         int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
                         assertFalse(session.local().models.has(retiredId));
