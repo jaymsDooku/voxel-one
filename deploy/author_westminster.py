@@ -1,5 +1,6 @@
 """Write the plan-led Palace of Westminster recipe in grid16 coordinates."""
 from contextlib import contextmanager
+from math import cos, pi, sin, sqrt
 from pathlib import Path
 
 WIDTH, HEIGHT, DEPTH = 150, 51, 76
@@ -37,15 +38,23 @@ def front_lancet(x, y, z):
     box("WOOD", x+.5, y+3, z+.5, x+1.5, y+4, z+1)
     box("SAND", x+.875, y, z+.375, x+1.125, y+3.5, z+.625)
     box("STONE", x-.25, y-.5, z-.5, x+2.25, y, z+1)
+    box("SAND", x, y+1.75, z+.25, x+2, y+2, z+.5)
+    for step in range(3):
+        offset = step*.25
+        box("SAND", x+offset, y+2.5+offset, z+.25, x+.25+offset, y+2.75+offset, z+.5)
+        box("SAND", x+1.75-offset, y+2.5+offset, z+.25, x+2-offset, y+2.75+offset, z+.5)
 
 
-with part("river-terrace", 3, 0, 8, 147, 2, 16):
+with part("river-terrace", 3, 0, 8, 147, 3, 16):
     box("STONE", 3, 0, 8, 147, 1, 16)
     box("SAND", 3, 1, 8, 147, 1.5, 9)
     for x in range(8, 147, 4):
         box("SAND", x, 1.5, 8, x+.5, 2, 9)
+    for x in range(4, 146, 2):
+        box("SAND", x, 1.5, 8, x+.5, 2.5, 8.5)
+    box("SAND", 3, 2.5, 8, 147, 2.75, 8.5)
 
-with part("thames-range", 17, 0, 15, 137, 23, 37):
+with part("thames-range", 16, 0, 12, 137, 25, 37):
     box("STONE", 18, 0, 16, 136, 2, 37)
     box("SAND", 18, 2, 16, 136, 16, 18)
     box("SAND", 18, 2, 35, 136, 16, 37)
@@ -65,6 +74,30 @@ with part("thames-range", 17, 0, 15, 137, 23, 37):
     for x in (19, 42, 65, 88, 111, 134):
         box("SAND", x-1, 15, 16, x+2, 19, 20)
         lantern(x, 19, 18)
+    # Three projecting pavilions interrupt the long run of recessed window bays.
+    for x in (22, 77, 132):
+        box("SAND", x-4, 1, 13, x+4, 17, 17)
+        for y in (3, 9):
+            for jamb in (x-3, x+.5):
+                front_lancet(jamb, y, 13)
+        for step in range(7):
+            inset = step*.5
+            box("STONE", x-4+inset, 17+step, 13, x+4-inset, 18+step, 22)
+            box("SAND", x-4+inset, 17+step, 12.75, x+4-inset, 18+step, 13.5)
+        front_lancet(x-1, 17, 13)
+        # Recess through the projecting gable edging, revealing the tracery.
+        box("AIR", x-1, 17, 12.75, x+1, 20, 13)
+        for pier in (x-4, x+3):
+            box("SAND", pier, 1, 12, pier+1, 20, 14)
+            lantern(pier+1, 20, 14)
+    for x in range(29, 129, 10):
+        box("SAND", x, 17, 18, x+3, 20, 21)
+        box("WOOD", x+1, 18, 17.75, x+2, 19.5, 18)
+        box("STONE", x-.5, 20, 17.5, x+3.5, 20.5, 21.5)
+        box("STONE", x+.5, 20.5, 18, x+2.5, 21.5, 21)
+        for flue in (x, x+2):
+            box("BRICKS", flue, 18, 29, flue+1, 22, 30)
+            box("STONE", flue-.25, 22, 28.75, flue+1.25, 22.5, 30.25)
 
 with part("landward-and-cross-wings", 12, 0, 22, 144, 18, 58):
     for x0, z0, x1, z1 in ((28,53,135,57), (27,36,32,53), (68,36,79,53),
@@ -83,6 +116,22 @@ with part("commons-and-royal-courts", 32, 0, 37, 112, 1, 53):
     box("STONE", 79, 0, 37, 112, .5, 53)
     for x in (33, 64, 80, 108):
         box("SAND", x, .5, 38, x+2, 1, 40)
+
+# Shallow vaulted walks face the open courts. Build the arch heads in silhouette
+# under a continuous gallery and carry the spring line across the pier capitals.
+with part("court-galleries", 32, 0, 49, 112, 10, 53):
+    for start, end in ((32, 68), (79, 112)):
+        box("STONE", start, 8, 49, end, 9, 53)
+        box("SAND", start, 7, 49, end, 8, 50)
+        for x in range(start, end-3, 4):
+            box("SAND", x, .5, 49, x+1, 6, 50)
+            box("STONE", x, .5, 49, x+1.5, 1, 50.5)
+            box("SAND", x, 5.5, 49, x+1.5, 6, 50.5)
+            for rise in range(3):
+                span = .5+rise*.5
+                bottom = 6+rise*.5
+                box("SAND", x, bottom, 49, x+span, bottom+.5, 50)
+                box("SAND", x+4-span, bottom, 49, x+4, bottom+.5, 50)
 
 with part("westminster-hall", 3, 0, 56, 42, 18, 69):
     box("STONE", 4, 0, 57, 41, 1, 68)
@@ -124,6 +173,19 @@ with part("victoria-tower", 133, 0, 43, 150, 49, 60):
     for x in (136, 140, 144):
         for y in (17, 27, 36):
             front_lancet(x, y, 44)
+    # Galleries repeat on both side elevations and the landward face.
+    for bottom in (16, 26, 36):
+        for z in (46, 50, 54):
+            for face in (134, 149):
+                plane = face-.25 if face == 134 else face
+                box("WOOD", plane, bottom, z, plane+.25, bottom+4, z+2)
+                box("WOOD", plane, bottom+4, z+.5, plane+.25, bottom+5, z+1.5)
+                box("SAND", plane, bottom, z+.75, plane+.25, bottom+4, z+1)
+                box("SAND", plane, bottom+2, z, plane+.25, bottom+2.25, z+2)
+        for x in (136, 140, 144):
+            box("WOOD", x, bottom, 59, x+2, bottom+4, 59.25)
+            box("WOOD", x+.5, bottom+4, 59, x+1.5, bottom+5, 59.25)
+            box("SAND", x+.75, bottom, 59, x+1, bottom+4, 59.25)
     for x in (134, 146):
         for z in (44, 56):
             box("SAND", x, 41, z, x+3, 47, z+3)
@@ -159,20 +221,53 @@ def clock(plane, level, center, outward):
     def panel(material, u0, y0, u1, y1, inset, thickness):
         a = outward + level*inset
         b = a + level*thickness
+        # Local U points right as seen by a viewer standing outside each face.
+        if (plane == "z" and level < 0) or (plane == "x" and level > 0):
+            u0, u1 = -u1, -u0
         if plane == "z":
             box(material, center+u0, y0, min(a,b), center+u1, y1, max(a,b))
         else:
             box(material, min(a,b), y0, center+u0, max(a,b), y1, center+u1)
 
-    panel("WOOD", -2.5, 25, 2.5, 30, 0, .25)
-    for row, half_width in enumerate((1, 1.5, 2, 2, 2, 2, 1.5, 1)):
-        bottom = 25.5+row*.5
-        panel("SAND", -half_width, bottom, half_width, bottom+.5, .25, .25)
-    panel("SNOW", -1.5, 26.5, 1.5, 28.5, .5, .25)
-    panel("SNOW", -1, 26, 1, 29, .5, .25)
-    panel("WOOD", -.125, 27.375, .125, 28.625, .75, .125)
-    panel("WOOD", 0, 27.375, .875, 27.625, .75, .125)
-    panel("WOOD", -.0625, 28.75, .0625, 28.875, .75, .0625)
+    mid = 27.5
+    panel("STONE", -4, mid-4, 4, mid+4, 0, .25)
+    for material, radius, inset in (("SAND", 3.75, .25), ("SNOW", 3.375, .5)):
+        for row in range(round(radius*8)):
+            bottom = row*.25-radius
+            width = round(sqrt(radius**2-(bottom+.125)**2)*8)/8
+            panel(material, -width, mid+bottom, width, mid+bottom+.25, inset, .25)
+    # Each Roman numeral is built from sixteenth-block strokes. Quarter hours
+    # use the same glyphs as the intermediate hours on all four elevations.
+    glyphs = {"I": ("1",)*5, "V": ("101","101","101","101","010"),
+              "X": ("101","101","010","101","101")}
+    for hour, numeral in enumerate(("XII","I","II","III","IV","V","VI","VII","VIII","IX","X","XI")):
+        angle = hour*pi/6
+        label_width = sum(len(glyphs[c][0])+1 for c in numeral)-1
+        left = round(16*2.625*sin(angle)-label_width)
+        top = round(16*(mid+2.625*cos(angle)))+5
+        for char in numeral:
+            for row, pixels in enumerate(glyphs[char]):
+                for col, pixel in enumerate(pixels):
+                    if pixel == "1":
+                        u, y = (left+2*col)/16, (top-2*row)/16
+                        panel("WOOD", u, y-.125, u+.125, y, .75, .0625)
+            left += 2*(len(glyphs[char][0])+1)
+    for minute in range(60):
+        angle = minute*pi/30
+        u, y = round(50*sin(angle))/16, mid+round(50*cos(angle))/16
+        panel("WOOD", u, y, u+.0625, y+.125, .75, .0625)
+    # Set each dial to 10:10. A separate hub covers the junction of the hands.
+    for direction, reach in ((-1, 11), (1, 16)):
+        for step in range(reach):
+            u = direction*step*.125
+            y = mid+round(step*.125*.58*16)/16
+            panel("WOOD", u-.125, y-.0625, u+.125, y+.125, .75, .1875)
+    panel("SAND", -.1875, mid-.1875, .1875, mid+.1875, .9375, .0625)
+    for shield in range(6):
+        u = -3.5+shield*1.25
+        panel("SNOW", u, 31.5, u+.75, 32.25, .25, .25)
+        panel("BRICKS", u+.25, 31.5, u+.5, 32.25, .5, .125)
+        panel("BRICKS", u, 31.875, u+.75, 32, .5, .125)
 
 
 with part("elizabeth-tower", 2, 0, 13, 15, 48, 26):
@@ -194,6 +289,12 @@ with part("elizabeth-tower", 2, 0, 13, 15, 48, 26):
     for level in range(12):
         width = max(.5, 5-level*.5)
         box("STONE", 8.5-width, 34+level, 19.5-width, 8.5+width, 35+level, 19.5+width)
+        for x in (8.5-width, 8+width):
+            for z in (19.5-width, 19+width):
+                box("SAND", x, 34+level, z, x+.5, 35+level, z+.5)
+    box("SAND", 7.5, 42, 18.5, 9.5, 42.5, 20.5)
+    box("SNOW", 8, 42.5, 19, 9, 44, 20)
+    box("STONE", 7.75, 44, 18.75, 9.25, 44.5, 20.25)
     box("SAND", 8.25, 46, 19.25, 8.75, 48, 19.75)
 
 if __name__ == "__main__":

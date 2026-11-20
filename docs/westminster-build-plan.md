@@ -32,6 +32,8 @@ The study covers the exterior complex, selected courtyards and a simplified West
 
 ## Rebuild and preview
 
+The second detail pass gives each clock face a stepped circular rim, twelve Roman hour marks, sixty minute ticks and six cross-bearing shields. Each elevation uses an outward-facing coordinate system so its inscriptions read correctly. Sand, snow, wood and brick stand in for gilding, opal glass, painted metal and enamel in the game's material palette. The shields and pale clock face draw on [Parliament's Elizabeth Tower conservation account](https://www.parliament.uk/about/living-heritage/building/palace/big-ben/elizabeth-tower-and-big-ben-conservation-works-2017-/turning-big-bens-clock-dials-blue/). The three projecting river pavilions, roof dormers and courtyard galleries are interpretations at the study scale.
+
 ```sh
 python deploy/author_westminster.py
 java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-compile assets/buildings/westminster.vbuild
