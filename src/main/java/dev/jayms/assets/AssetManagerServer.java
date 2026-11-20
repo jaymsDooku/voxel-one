@@ -1,6 +1,8 @@
 package dev.jayms.assets;
 
 import com.sun.net.httpserver.*;
+import dev.jayms.building.BuildingApi;
+import dev.jayms.building.BuildingCompiler;
 import java.io.*;
 import java.net.*;
 import java.nio.charset.StandardCharsets;
@@ -51,6 +53,10 @@ public final class AssetManagerServer implements AutoCloseable {
             if (!Objects.equals(exchange.getRequestHeaders().getFirst("Authorization"), "Bearer "+token)) { reply(exchange, 401, "Reopen Asset Manager from the Launcher"); return; }
             String origin = exchange.getRequestHeaders().getFirst("Origin");
             if (origin != null && !origin.equals(origin())) { reply(exchange, 403, "Invalid origin"); return; }
+            if (path.equals("/api/buildings/schema") || path.equals("/api/buildings/compile")) {
+                building(exchange,path);
+                return;
+            }
             try {
                 var query = query(exchange.getRequestURI().getRawQuery());
                 String method = exchange.getRequestMethod();
@@ -79,6 +85,40 @@ public final class AssetManagerServer implements AutoCloseable {
                 reply(exchange, 400, e.getMessage()==null?"Invalid or truncated voxel model":e.getMessage());
             }
         }
+    }
+
+    private static void building(HttpExchange exchange,String path) throws IOException {
+        boolean schema = path.equals("/api/buildings/schema");
+        String method = schema ? "GET" : "POST";
+        if (!exchange.getRequestMethod().equals(method)) {
+            exchange.getResponseHeaders().set("Allow",method);
+            reply(exchange,405,"Use " + method + " for this endpoint");
+            return;
+        }
+        if (schema) {
+            json(exchange,BuildingApi.SCHEMA);
+            return;
+        }
+
+        String type = exchange.getRequestHeaders().getFirst("Content-Type");
+        if (type != null && !type.matches("(?i)text/plain\\s*(?:;\\s*charset\\s*=\\s*(?:utf-8|\"utf-8\")\\s*)?")) {
+            reply(exchange,415,"Use text/plain; charset=utf-8");
+            return;
+        }
+
+        BuildingCompiler.Building result;
+        try {
+            result = BuildingApi.compile(exchange.getRequestBody());
+        } catch (BuildingApi.RecipeTooLarge e) {
+            reply(exchange,413,e.getMessage());
+            return;
+        } catch (IOException | IllegalArgumentException e) {
+            reply(exchange,400,e.getMessage() == null ? "Invalid building recipe" : e.getMessage());
+            return;
+        }
+        exchange.getResponseHeaders().set("Content-Type",BuildingApi.JSON_TYPE);
+        exchange.sendResponseHeaders(200,0);
+        BuildingApi.writeJson(result,exchange.getResponseBody());
     }
     private static Map<String,String> query(String raw) {
         var result = new HashMap<String,String>();

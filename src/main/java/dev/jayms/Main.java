@@ -40,6 +40,8 @@ public class Main {
     private long previousAllocation=-1,previousGcCount,previousGcMillis;
     private final java.util.List<java.lang.management.GarbageCollectorMXBean> gcBeans=java.lang.management.ManagementFactory.getGarbageCollectorMXBeans();
     private boolean renderOnlyReplay;
+    private dev.jayms.building.BuildingCompiler.Building buildingPreview;
+    private static final int PREVIEW_GRADE = 32;
     private PerformanceRecorder.Route performanceRoute=PerformanceRecorder.Route.MANUAL;
     private final dev.jayms.recording.ScreenRecorder recorder =
             new dev.jayms.recording.ScreenRecorder(Controls.directory().resolve("recordings"));
@@ -390,8 +392,10 @@ public class Main {
         farmModels = new FarmModels();
         if (network == null) {
             local = new LocalGame(offlineSave, seed);
-            String assetNotice = dev.jayms.assets.AssetIntake.apply(Controls.directory(), GameIdentity.of(gameConfig.city()), offlineSave, local);
-            if (!assetNotice.isEmpty()) notice = assetNotice;
+            if (buildingPreview == null) {
+                String assetNotice = dev.jayms.assets.AssetIntake.apply(Controls.directory(), GameIdentity.of(gameConfig.city()), offlineSave, local);
+                if (!assetNotice.isEmpty()) notice = assetNotice;
+            }
             seed = local.seed;
         } else seed = network.seed;
         int generatorVersion = network == null ? local.generatorVersion : network.generatorVersion;
@@ -400,12 +404,15 @@ public class Main {
             var saved = CitySimulation.load(CitySaves.sidecar(offlineSave,".city"));
             if (saved != null) world.terrain().stressGrid(saved.stressGrid());
         }
+        if (buildingPreview != null) prepareBuildingPlot();
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
-                network == null
+                buildingPreview != null
+                        ? new Protocol.Pose(0, buildingPreview.width()/4f, PREVIEW_GRADE+1.01f, -14, 90, 0)
+                : network == null
                         ? new Protocol.Pose(
                                 0,
                                 8.5f,
@@ -421,12 +428,12 @@ public class Main {
                         spawn.pitch(),
                         camera);
         awaitInitialTerrain(spawn.x(),spawn.y(),spawn.z());
-        if (network == null) {
+        if (network == null && buildingPreview == null) {
             int surface = Terrain.MAX_Y;
             while (surface > Terrain.MIN_Y && world.sample(8, surface, 24) == 0) surface--;
             player = new Player(new Vector3f(8.5f, surface + 1.01f, 24.5f), -90, -20, camera);
         }
-        if (local != null) {
+        if (local != null && buildingPreview == null) {
             jeep = Jeep.load(jeepSave(), world, player.position(),this::awaitInitialTerrain);
             jeepModel = new JeepModel();
             awaitInitialTerrain(player.position().x,player.position().y,player.position().z);
@@ -497,6 +504,29 @@ public class Main {
         awaitInitialLighting();
         configureInput();
         setCaptured(true);
+    }
+
+    private void prepareBuildingPlot() throws Exception {
+        world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(PREVIEW_GRADE));
+        int width = (buildingPreview.width()+1)/2, depth = (buildingPreview.depth()+1)/2;
+        // Prepare the bounded asset footprint before the preview camera opens.
+        world.stream(width*.5f,depth*.5f,25);
+        for (int z=-19; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {
+            int material = z < -6 ? Blocks.ASPHALT : z <= -4 ? Blocks.SNOW : Blocks.STONE;
+            world.setBlock(x,PREVIEW_GRADE,z,material);
+        }
+        for (var e : buildingPreview.edits()) {
+            world.apply(new Protocol.Edit(e.x(),e.y()+PREVIEW_GRADE+1,e.z(),e.type(),
+                    e.depth(),e.ix(),e.iy(),e.iz(),e.color()));
+        }
+        // A detail column replaces the distant mesh only when all of its chunks
+        // are ready. Finish the asset plot before showing the first preview frame.
+        for (var entry : world.getLoadedChunks().entrySet()) {
+            var pos = entry.getKey();
+            if (pos.chunkX() >= 0 && pos.chunkX() <= (width-1)/16
+                    && pos.chunkZ() >= 0 && pos.chunkZ() <= (depth-1)/16)
+                entry.getValue().checkMesh();
+        }
     }
 
     private void saveCurrentSimulation() throws java.io.IOException {
@@ -1170,7 +1200,7 @@ public class Main {
                     captured && controls.down(window.getHandle(), JUMP),
                     captured && controls.down(window.getHandle(), SPRINT),
                     captured && controls.down(window.getHandle(), DESCEND));
-            if (local != null) {
+            if (local != null && buildingPreview == null) {
                 if (local.tick(
                         player.pose(0),
                         player.grounded(),
@@ -1199,7 +1229,8 @@ public class Main {
             }
             glfwSetWindowTitle(
                     window.getHandle(),
-                    "Voxel One | " + GameIdentity.of(city().config().city()).title + " | "
+                    "Voxel One | " + (buildingPreview == null ? GameIdentity.of(city().config().city()).title
+                            : "Building Preview / " + buildingPreview.name()) + " | "
                             + (network == null ? "Offline" : network.status())
                             + " | "
                             + (isometric
@@ -1807,7 +1838,7 @@ public class Main {
         cleanup.run(() -> { if(graphics!=null)graphics.close(); });
         cleanup.run(() -> { recorder.close(); });
         cleanup.run(() -> { missiles.close(); });
-        cleanup.run(() -> { if (local != null) local.save(); });
+        cleanup.run(() -> { if (local != null && buildingPreview == null) local.save(); });
         cleanup.run(() -> { if (jeep != null) jeep.save(jeepSave()); });
         cleanup.run(() -> { if (network != null) network.close(); });
         cleanup.run(() -> { detailedMeshes.close(); });
@@ -1843,6 +1874,23 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length > 0 && args[0].equals("--building-compile")) {
+            dev.jayms.building.BuildingApi.run(java.util.Arrays.copyOfRange(args,1,args.length));
+            return;
+        }
+        if (args.length > 0 && args[0].equals("--building-preview")) {
+            if (args.length != 2) throw new IllegalArgumentException("Usage: --building-preview RECIPE");
+            Main game = new Main();
+            game.buildingPreview = dev.jayms.building.BuildingCompiler.compile(
+                    dev.jayms.building.BuildingApi.readRecipe(java.nio.file.Path.of(args[1])));
+            game.renderOnlyReplay = true;
+            game.gameConfig = new GameConfig(false,false,1200,16);
+            var preview = java.nio.file.Files.createTempDirectory("voxel-building-preview-");
+            game.offlineSave = preview.resolve("preview.dat");
+            try { game.run(); }
+            finally { java.nio.file.Files.deleteIfExists(preview); }
+            return;
+        }
         if (java.util.Arrays.asList(args).contains("--asset-manager")) {
             dev.jayms.assets.AssetManagerServer.open(Controls.directory());
             return;

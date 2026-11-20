@@ -1,0 +1,287 @@
+# BREAKWATER HOUSE — original waterfront hotel for Voxel One.
+# Reference: Miami Design Preservation League, “1950s ad for The Essex House Hotel”.
+# Half-block coordinates, north is -Z. Shell, interiors, elevations, porch, and tower
+# are separate bounded authoring tasks. Later parts can layer details on the shell.
+building breakwater-house 52 44 38
+
+part quay-and-shell 1 0 0 51 31 37
+box STONE 1 0 0 51 1 37
+box SNOW 12 0 2 49 1 34
+box SNOW 13 1 6 50 29 36
+box SNOW 2 1 16 49 29 36
+cylinder SNOW y 2 1 5 24 29 27
+box STONE 2 1 16 50 2 36
+box STONE 13 1 6 50 2 34
+cylinder STONE y 2 1 5 24 2 27
+box STONE 2 28 16 51 30 37
+box STONE 13 28 6 51 30 37
+cylinder STONE y 1 28 4 25 30 28
+box SNOW 2 30 16 50 31 36
+box SNOW 13 30 6 50 31 36
+cylinder SNOW y 2 30 5 24 31 27
+end
+
+part rooms-and-entry 2 1 5 50 28 36
+box AIR 14 1 8 48 8 34
+box AIR 4 1 17 48 8 34
+cylinder AIR y 4 1 7 22 8 25
+box AIR 14 9 8 48 16 34
+box AIR 4 9 17 48 16 34
+cylinder AIR y 4 9 7 22 16 25
+box AIR 14 17 8 48 24 34
+box AIR 4 17 17 48 24 34
+cylinder AIR y 4 17 7 22 24 25
+box AIR 14 25 8 48 28 34
+box AIR 4 25 17 48 28 34
+cylinder AIR y 4 25 7 22 28 25
+box AIR 31 1 5 37 7 10
+box AIR 2 1 27 6 6 31
+box BRICKS 22 1 19 25 3 26
+box PLANKS 22 3 18 26 4 27
+box STONE 44 1 17 46 3 30
+box PLANKS 42 2 17 46 3 30
+box GLASS 24 4 21 25 6 23
+end
+
+part north-facade 19 1 1 51 29 11
+box SAND 29 1 4 31 8 8
+box SAND 37 1 4 39 8 8
+box PLANKS 30 7 4 38 8 8
+box STONE 21 7 1 47 8 8
+box SNOW 20 8 1 48 9 8
+box LED:3daeb3 21 8 1 47 9 2
+box SAND 23 1 2 25 7 4
+box STONE 23 1 2 25 2 4
+box LED:c3a069 23 5 1 25 6 2
+box SAND 46 1 2 48 7 4
+box STONE 46 1 2 48 2 4
+box LED:c3a069 46 5 1 48 6 2
+box STONE 22 2 5 29 6 8
+box AIR 23 3 5 28 5 6
+box GLASS 23 3 6 28 5 7
+box PLANKS 25 3 6 26 5 7
+box STONE 40 2 5 47 6 8
+box AIR 41 3 5 46 5 6
+box GLASS 41 3 6 46 5 7
+box PLANKS 43 3 6 44 5 7
+box STONE 20 10 5 24 13 8
+box AIR 21 11 5 24 13 6
+box GLASS 21 11 6 24 13 7
+box STONE 29 10 5 33 13 8
+box AIR 30 11 5 33 13 6
+box GLASS 30 11 6 33 13 7
+box STONE 38 10 5 42 13 8
+box AIR 39 11 5 42 13 6
+box GLASS 39 11 6 42 13 7
+box STONE 46 10 5 50 13 8
+box AIR 47 11 5 50 13 6
+box GLASS 47 11 6 50 13 7
+box SNOW 19 13 4 51 14 7
+box LED:276972 21 13 4 49 14 5
+box STONE 20 18 5 24 21 8
+box AIR 21 19 5 24 21 6
+box GLASS 21 19 6 24 21 7
+box STONE 29 18 5 33 21 8
+box AIR 30 19 5 33 21 6
+box GLASS 30 19 6 33 21 7
+box STONE 38 18 5 42 21 8
+box AIR 39 19 5 42 21 6
+box GLASS 39 19 6 42 21 7
+box STONE 46 18 5 50 21 8
+box AIR 47 19 5 50 21 6
+box GLASS 47 19 6 50 21 7
+box SNOW 19 21 4 51 22 7
+box LED:276972 21 21 4 49 22 5
+box STONE 20 25 5 24 28 8
+box AIR 21 26 5 24 28 6
+box GLASS 21 26 6 24 28 7
+box STONE 29 25 5 33 28 8
+box AIR 30 26 5 33 28 6
+box GLASS 30 26 6 33 28 7
+box STONE 38 25 5 42 28 8
+box AIR 39 26 5 42 28 6
+box GLASS 39 26 6 42 28 7
+box STONE 46 25 5 50 28 8
+box AIR 47 26 5 50 28 6
+box GLASS 47 26 6 50 28 7
+box SNOW 19 28 4 51 29 7
+box LED:276972 21 28 4 49 29 5
+end
+
+part west-facade 1 1 15 8 30 36
+box SAND 1 1 15 3 3 36
+box BRICKS 1 1 19 3 7 21
+box LED:3daeb3 1 5 19 2 6 21
+box BRICKS 1 1 33 3 7 35
+box LED:3daeb3 1 5 33 2 6 35
+box SAND 1 6 26 4 8 32
+box SAND 1 1 26 3 6 27
+box SAND 1 1 31 3 6 32
+cylinder STONE x 1 9 17 4 14 22
+cylinder AIR x 1 10 18 2 13 21
+cylinder GLASS x 2 10 18 3 13 21
+cylinder STONE x 1 9 24 4 14 29
+cylinder AIR x 1 10 25 2 13 28
+cylinder GLASS x 2 10 25 3 13 28
+cylinder STONE x 1 9 31 4 14 36
+cylinder AIR x 1 10 32 2 13 35
+cylinder GLASS x 2 10 32 3 13 35
+box SNOW 1 14 15 3 15 36
+box LED:276972 1 14 18 2 15 34
+cylinder STONE x 1 17 17 4 22 22
+cylinder AIR x 1 18 18 2 21 21
+cylinder GLASS x 2 18 18 3 21 21
+cylinder STONE x 1 17 24 4 22 29
+cylinder AIR x 1 18 25 2 21 28
+cylinder GLASS x 2 18 25 3 21 28
+cylinder STONE x 1 17 31 4 22 36
+cylinder AIR x 1 18 32 2 21 35
+cylinder GLASS x 2 18 32 3 21 35
+box SNOW 1 22 15 3 23 36
+box LED:276972 1 22 18 2 23 34
+cylinder STONE x 1 24 17 4 29 22
+cylinder AIR x 1 25 18 2 28 21
+cylinder GLASS x 2 25 18 3 28 21
+cylinder STONE x 1 24 24 4 29 29
+cylinder AIR x 1 25 25 2 28 28
+cylinder GLASS x 2 25 25 3 28 28
+cylinder STONE x 1 24 31 4 29 36
+cylinder AIR x 1 25 32 2 28 35
+cylinder GLASS x 2 25 32 3 28 35
+box SNOW 1 29 15 3 30 36
+box LED:276972 1 29 18 2 30 34
+box AIR 1 1 27 5 6 31
+end
+
+part curved-corner 1 9 3 26 30 29
+cylinder SAND y 1 14 4 25 15 28
+cylinder SNOW y 1 15 3 26 16 29
+cylinder AIR y 4 14 7 22 16 25
+cylinder SAND y 1 22 4 25 23 28
+cylinder SNOW y 1 23 3 26 24 29
+cylinder AIR y 4 22 7 22 24 25
+cylinder STONE z 10 10 4 16 15 8
+cylinder AIR z 11 11 4 15 14 5
+cylinder GLASS z 11 11 5 15 14 6
+cylinder STONE z 10 18 4 16 23 8
+cylinder AIR z 11 19 4 15 22 5
+cylinder GLASS z 11 19 5 15 22 6
+cylinder STONE z 10 25 4 16 30 8
+cylinder AIR z 11 26 4 15 29 5
+cylinder GLASS z 11 26 5 15 29 6
+end
+
+part terrazzo-porch 10 0 0 50 1 28
+box SAND 10 0 0 50 1 5
+box STONE 10 0 0 50 1 1
+box STONE 10 0 4 50 1 5
+box BRICKS 13 0 1 14 1 2
+box SNOW 14 0 2 15 1 3
+box BRICKS 15 0 3 16 1 4
+box BRICKS 17 0 1 18 1 2
+box SNOW 18 0 2 19 1 3
+box BRICKS 19 0 3 20 1 4
+box BRICKS 21 0 1 22 1 2
+box SNOW 22 0 2 23 1 3
+box BRICKS 23 0 3 24 1 4
+box BRICKS 25 0 1 26 1 2
+box SNOW 26 0 2 27 1 3
+box BRICKS 27 0 3 28 1 4
+box BRICKS 29 0 1 30 1 2
+box SNOW 30 0 2 31 1 3
+box BRICKS 31 0 3 32 1 4
+box BRICKS 33 0 1 34 1 2
+box SNOW 34 0 2 35 1 3
+box BRICKS 35 0 3 36 1 4
+box BRICKS 37 0 1 38 1 2
+box SNOW 38 0 2 39 1 3
+box BRICKS 39 0 3 40 1 4
+box BRICKS 41 0 1 42 1 2
+box SNOW 42 0 2 43 1 3
+box BRICKS 43 0 3 44 1 4
+box BRICKS 45 0 1 46 1 2
+box SNOW 46 0 2 47 1 3
+box BRICKS 47 0 3 48 1 4
+box SNOW 31 0 1 37 1 16
+box STONE 31 0 1 32 1 16
+box STONE 36 0 1 37 1 16
+box STONE 34 0 10 35 1 11
+box STONE 34 0 11 35 1 12
+box STONE 34 0 12 35 1 13
+box STONE 34 0 13 35 1 14
+box STONE 33 0 14 36 1 15
+box STONE 32 0 15 37 1 16
+box SAND 33 0 15 36 1 16
+box STONE 31 0 16 38 1 17
+box SAND 32 0 16 37 1 17
+box STONE 30 0 17 39 1 18
+box SAND 31 0 17 38 1 18
+box BRICKS 33 0 17 36 1 18
+box STONE 29 0 18 40 1 19
+box SAND 30 0 18 39 1 19
+box BRICKS 32 0 18 37 1 19
+box STONE 28 0 19 41 1 20
+box SAND 29 0 19 40 1 20
+box BRICKS 31 0 19 38 1 20
+box STONE 29 0 20 40 1 21
+box SAND 30 0 20 39 1 21
+box BRICKS 32 0 20 37 1 21
+box STONE 30 0 21 39 1 22
+box SAND 31 0 21 38 1 22
+box BRICKS 33 0 21 36 1 22
+box STONE 31 0 22 38 1 23
+box SAND 32 0 22 37 1 23
+box STONE 32 0 23 37 1 24
+box SAND 33 0 23 36 1 24
+box STONE 33 0 24 36 1 25
+box STONE 34 0 25 35 1 26
+box STONE 34 0 26 35 1 27
+end
+
+part signal-tower 3 30 4 26 44 26
+cylinder SAND y 3 30 6 24 33 26
+cylinder SNOW y 5 33 8 22 36 24
+cylinder STONE y 7 36 10 20 37 22
+box STONE 7 31 5 22 37 10
+box PLANKS 6 30 5 23 31 11
+box LED:34b3b9 7 31 4 8 37 5
+box LED:34b3b9 21 31 4 22 37 5
+box SNOW 10 36 12 16 41 20
+box STONE 11 41 13 15 42 19
+box LED:db815e 12 42 13 14 44 19
+box LED:db815e 10 38 11 11 41 12
+box LED:db815e 15 38 11 16 41 12
+box LED:61e5d8 19 36 4 20 37 5
+box LED:61e5d8 18 36 4 19 37 5
+box LED:61e5d8 19 35 4 20 36 5
+box LED:61e5d8 17 35 4 18 36 5
+box LED:61e5d8 19 34 4 20 35 5
+box LED:61e5d8 18 34 4 19 35 5
+box LED:61e5d8 19 33 4 20 34 5
+box LED:61e5d8 17 33 4 18 34 5
+box LED:61e5d8 19 32 4 20 33 5
+box LED:61e5d8 18 32 4 19 33 5
+box LED:61e5d8 15 36 4 16 37 5
+box LED:61e5d8 13 36 4 14 37 5
+box LED:61e5d8 15 35 4 16 36 5
+box LED:61e5d8 13 35 4 14 36 5
+box LED:61e5d8 15 34 4 16 35 5
+box LED:61e5d8 14 34 4 15 35 5
+box LED:61e5d8 13 34 4 14 35 5
+box LED:61e5d8 15 33 4 16 34 5
+box LED:61e5d8 14 33 4 15 34 5
+box LED:61e5d8 13 33 4 14 34 5
+box LED:61e5d8 15 32 4 16 33 5
+box LED:61e5d8 13 32 4 14 33 5
+box LED:61e5d8 11 36 4 12 37 5
+box LED:61e5d8 9 36 4 10 37 5
+box LED:61e5d8 11 35 4 12 36 5
+box LED:61e5d8 9 35 4 10 36 5
+box LED:61e5d8 11 34 4 12 35 5
+box LED:61e5d8 10 34 4 11 35 5
+box LED:61e5d8 9 34 4 10 35 5
+box LED:61e5d8 11 33 4 12 34 5
+box LED:61e5d8 9 33 4 10 34 5
+box LED:61e5d8 11 32 4 12 33 5
+box LED:61e5d8 9 32 4 10 33 5
+end

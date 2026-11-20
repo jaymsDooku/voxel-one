@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T20:55:33+00:00",
+  "updatedAt": "2026-11-20T10:53:05+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "voxel-building-creator-api",
+      "title": "Agentic voxel building creator API",
+      "description": "Research and architecture selected. Implementing bounded recipes, authenticated local compile API, offline previews, and Breakwater House.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented and verified locally: 35 targeted tests passed and one optional browser test was skipped. Windows native preview confirmed entrance and lobby walkability and decoded 34 F10 frames. Review handoff prepared locally; GitHub denied branch creation and terminal Git has no write credential.",
+      "updatedAt": "2026-11-20T10:53:05+00:00"
+    },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
       "title": "iOS trusted validator: bounded expanded native test receipts",
