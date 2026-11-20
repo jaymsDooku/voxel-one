@@ -2341,3 +2341,19 @@ coordinator remains separately caller-owned until transfer; closing the slot doe
 not implicitly close a private candidate. Failed active cleanup requires explicit
 close retry. This is internal read-only ownership integration, not Main wiring,
 editable paging, model-ID remapping or city/maximum performance qualification.
+
+### Keep installation mutations owner-fenced
+
+The owner slot no longer returns an internal reservation handle. Its complete
+reserve/take/install/release sequence now stays inside one guarded `installFrom`
+call. Both the slot and source coordinator check the original thread and reentry;
+the coordinator supplies its own publication identity for the exact old local and
+World pair. A caller cannot mix a reservation from one source with another take,
+or use a reservation close method to clear another call's busy flag.
+
+The next view is still allocated before source consumption. Successful source
+take is followed only by fixed field assignments and one active-pointer swap;
+failure releases the busy flag without publishing a partial view. Existing
+immediate/warmed transfer, cancellation, stale-view rejection and explicit
+old-World retirement semantics remain. This private API is not Main wiring or a
+city/performance qualification claim.

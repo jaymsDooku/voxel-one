@@ -138,13 +138,13 @@ final class SavedPagingReplacement implements AutoCloseable {
         }catch(CancellationException stop){cancelled=true;retire(false);throw stop;}
         finally{busy=false;}
     }
-    /** Reserve a matching slot before any source consumption. Once take commits,
-     * install publishes the preallocated coherent bundle without another guard. */
+    boolean matchesOwner(LocalGame local,World world)throws IOException {
+        if(Thread.currentThread()!=owner||busy)throw new IOException("Saved paging replacement owner or reentry mismatch");
+        return publication.matchesOwner(local,world);
+    }
+    /** Guarded owner installation reserves before any source consumption. */
     Transfer takeInto(SavedPagingOwner target,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(target);Objects.requireNonNull(cancel);
-        try(var reservation=target.reserve(publication)) {
-            var result=take(cancel);reservation.install(result);return result;
-        }
+        Objects.requireNonNull(target);Objects.requireNonNull(cancel);return target.installFrom(this,cancel);
     }
     /** Returned ownership includes both scene and worker. Close signals cleanup;
      * callers still observe the worker's terminal cleanup receipt separately.

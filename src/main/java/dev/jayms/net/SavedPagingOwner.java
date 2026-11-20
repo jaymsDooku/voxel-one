@@ -42,21 +42,17 @@ final class SavedPagingOwner implements AutoCloseable {
         World world()throws IOException {owner.current(this);return world;}
         SavedPagingReplacement.Transfer transfer()throws IOException {owner.current(this);return transfer;}
     }
-    /** Internal scope used only by takeInto with the matching publication. */
-    Reservation reserve(ReadbackSaveSnapshot.Publication publication)throws IOException {
-        available();Objects.requireNonNull(publication);
-        if(!publication.matchesOwner(active.local,active.world))throw new IOException("Saved paging slot source mismatch");
-        var next=new View(this);var reservation=new Reservation(next);busy=true;return reservation;
-    }
-    final class Reservation implements AutoCloseable {
-        private final View next;
-        private Reservation(View next){this.next=next;}
-        /** Called only after the reserved coordinator's successful take. No
-         * callback, allocation, cancellation or fallible guard after commit. */
-        void install(SavedPagingReplacement.Transfer transfer) {
-            var session=transfer.session();next.local=session.local();next.world=session.world();next.transfer=transfer;active=next;
-        }
-        @Override public void close(){busy=false;}
+    /** Keep reservation and commit in one guarded owner call. No reservation
+     * handle exposes an unguarded mutation path to another thread or source. */
+    SavedPagingReplacement.Transfer installFrom(SavedPagingReplacement replacement,java.util.function.BooleanSupplier cancel)throws IOException {
+        available();Objects.requireNonNull(replacement);Objects.requireNonNull(cancel);
+        if(!replacement.matchesOwner(active.local,active.world))throw new IOException("Saved paging slot source mismatch");
+        var next=new View(this);busy=true;
+        try {
+            var transfer=replacement.take(cancel);var session=transfer.session();
+            // No callbacks, allocation, cancellation or fallible guard after take.
+            next.local=session.local();next.world=session.world();next.transfer=transfer;active=next;return transfer;
+        }finally{busy=false;}
     }
     /** Close only the currently installed bundle. Failed cleanup remains caller
      * owned for explicit retry; superseded Worlds are retired separately. */

@@ -82,4 +82,25 @@ public class SavedPagingOwnerTest {
             SavedPagingReplacementTest.ready(replacement);var held=owner.view();f.c.world.close();assertThrows(IOException.class,owner::view);assertThrows(IOException.class,held::local);assertThrows(IOException.class,()->replacement.takeInto(owner,()->false));
         }
     }
+    @Test public void directInstallChecksSourceAndThreadBeforeAnyMutation()throws Exception {
+        try(var f=fixture("direct");var other=fixture("direct-other");var replacement=f.open();var foreign=other.open();var owner=new SavedPagingOwner(f.c.local,f.c.world)) {
+            SavedPagingReplacementTest.ready(replacement);SavedPagingReplacementTest.ready(foreign);var old=owner.view();
+            f.c.worker.submit(()->{assertThrows(IOException.class,()->owner.installFrom(replacement,()->false));assertThrows(IOException.class,()->replacement.matchesOwner(f.c.local,f.c.world));return null;}).get(10,TimeUnit.SECONDS);
+            assertThrows(IOException.class,()->owner.installFrom(foreign,()->false));assertSame(old,owner.view());assertEquals(SavedPagingReplacement.State.READY,replacement.status().state());assertEquals(SavedPagingReplacement.State.READY,foreign.status().state());
+            assertEquals(2,f.editor.capture(()->false).overlay().rows().size());assertEquals(2,other.editor.capture(()->false).overlay().rows().size());
+            var transfer=owner.installFrom(replacement,()->{assertThrows(IOException.class,()->owner.installFrom(foreign,()->false));assertThrows(IOException.class,()->replacement.matchesOwner(f.c.local,f.c.world));return false;});
+            assertSame(transfer,owner.view().transfer());assertThrows(IOException.class,old::world);transfer.retirePrevious(f.c.world,()->false);owner.close();RegionReplayWorkerTest.closed(transfer.worker());
+        }
+    }
+    @Test public void failedTakeReleasesSlotWithoutPublishingPartialView()throws Exception {
+        try(var f=fixture("failure");var replacement=f.open();var owner=new SavedPagingOwner(f.c.local,f.c.world)) {
+            SavedPagingReplacementTest.ready(replacement);replacement.prepare(()->false);var old=owner.view();var candidate=replacement.warmingWorld();var disk=Files.readAllBytes(f.c.path);
+            // An unjournaled change cannot be reconciled by this publication.
+            var later=new Protocol.Edit(6,160,2,Blocks.STONE);f.c.world.apply(later);
+            assertThrows(IOException.class,()->owner.installFrom(replacement,()->false));assertSame(old,owner.view());assertSame(f.c.local,old.local());assertSame(f.c.world,old.world());assertFalse(f.c.world.isClosed());
+            assertEquals(WorldVoxels.encode(later),old.world().cell(6,160,2).get(0,0,0));assertArrayEquals(disk,Files.readAllBytes(f.c.path));
+            replacement.close();SavedPagingReplacementTest.stopped(replacement);assertTrue(candidate.isClosed());assertSame(old,owner.view());
+        }
+    }
+
 }

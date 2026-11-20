@@ -1,0 +1,249 @@
+{
+  "schema": 1,
+  "parent_head": "a7cf0907c502a2616354e965410dbb8bac5971b6",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available owner-fenced installation checks passed; full structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "Removed the escaping internal Reservation handle and its unguarded install/close methods. The complete preallocate/reserve/take/install/release sequence now stays in owner-checked SavedPagingOwner.installFrom. The coordinator checks its own thread/reentry state and supplies its stored publication identity for the exact active old local/World pair. After source take succeeds, fixed fields and one active pointer publish the new bundle without callbacks/allocation/cancellation or a new rejection. Failure releases busy with the old view unchanged. takeInto delegates to that same guarded path; existing immediate/warmed transfer, explicit retirement and close semantics remain.",
+  "limits": {
+    "attempts": 3,
+    "scene_chunks": "existing one or two",
+    "scope": "No package, model, scene/cache, geometry/surface/chunk/mesh/persistence or qualification cap raised. Slot install itself is a pointer publication; preceding state capture, source adoption and existing World.close remain linear/unqualified. No 100 ms or frame-time guarantee."
+  },
+  "focused": {
+    "exit_code": 0,
+    "elapsed_seconds": 33.800530683249235,
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=SavedPagingOwnerTest,SavedPagingRetirementTest,SavedPagingWarmupTest,SavedPagingReplacementTest,PreparedPagingSceneTest",
+      "test"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.SavedPagingOwnerTest",
+        "tests": "10",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingRetirementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingWarmupTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.PreparedPagingSceneTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 41
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest",
+      "test"
+    ],
+    "tests": 643,
+    "suites": 136,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 374.3848350830376
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.017712395638227,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 821,
+    "shaders_match": 28,
+    "mp3": "Both original shipped CBR/VBR fixtures decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-paging-owner-guard"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 88.34921558946371,
+      "prefix": "structure-paging-owner-guard"
+    },
+    "receipt": "structure-paging-owner-guard-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12276877167,
+      "planar_lighting_nanos": 1038256001,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 13037099028,
+      "planar_lighting_nanos": 803505988,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true,
+    "owner_result": {
+      "status": "passed",
+      "installed_bundles": 2,
+      "stale_views_rejected": true,
+      "active_model_map_matches_world": true,
+      "new_gpu_entries": 1
+    },
+    "retirement_result": {
+      "status": "passed",
+      "old_root_closed": true,
+      "old_paged_world_closed": true,
+      "new_gpu_entries": 1,
+      "mesh_bytes_before_retirement": 14448,
+      "mesh_bytes_after_retirement": 7224
+    }
+  },
+  "playtest": "Playtest: actual Java/GLFW/OpenGL saved-source integration CLI on inherited DISPLAY with isolated synthetic offline v10 data. Expected guarded source/slot/thread validation for direct and wrapped installation, no partial view on failed take, and two successful coherent bundle installs retaining warm GPU resources. Observed foreign-source/thread and callback-reentry rejection, unchanged old view/local/World/file on unjournaled-geometry failure, preserved cancellation/prefix behavior, two installed bundles with current local/World/session/model-map identities matching, held old views rejecting, and same warm World/scene/binding/GPU entry at transfer. Repeat save/reopen/render retained coloured later geometry/models and latest independent survival state. Exact old-World retirement released old paged Mesh resources while the new installed scene stayed ready; capture preserved saved bytes. Existing prepared-scene, source model-counter/sky, ordinary/pending geometry, lighting/roof-clear sky, planar/model/water and final resource-baseline regressions passed. Browser testing does not apply to this internal native integration. Main was not rerun: the slot remains unwired in Main and full game integration remains unfinished.",
+  "media": {
+    "inspected": [
+      "structure-paging-owner-guard-session.png",
+      "structure-paging-owner-guard-optics.png",
+      "structure-paging-owner-guard-pending-optics.png",
+      "structure-paging-owner-guard-pending.png",
+      "structure-paging-owner-guard-regression.png"
+    ],
+    "scope": "Five fresh implementation-native framebuffers after two coherent owner-slot installs and old-World retirement. Source model/counter/geometry persistence and warm GPU resource retention are asserted. Software rendering only; no physical-GPU or frame-time pass."
+  },
+  "source_files_fixed": 667,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/SavedPagingOwner.java": "db7b4df1ff9a1d607cacbe5d09dcb48db524a516a16628154edd336c7896ea08",
+    "src/main/java/dev/jayms/net/SavedPagingReplacement.java": "b536a61058adfd1c72ac163990db66d6f04688a79eebe1d16c44d72ebb49202b",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "ec17aac5c889a2166b419a327c90ca1607a4ead4c937378ebcee117df0dcbd16",
+    "src/test/java/dev/jayms/net/SavedPagingOwnerTest.java": "5c9b32982097b0b998f572a6b7e0d877de7ac26f36ec7a9e270e5b3103046e5e",
+    "tools/structures/SavedPagingSessionFrame.java": "4ffdba9b8038883b895576185e32bc69926874be634cd4bb9a9f4f3e3fbd6243",
+    "tools/structures/ReplaySkyFrameCheck.java": "32355289e154b9e3e6c42b27b68412b183c5d67c9e71b3e6d3e3848a41488cd5",
+    "tools/structures/run_replay_sky_frame_check.py": "9f93ff033bb3c9c273fc4e7ca3716f4b8d87f750b678a50d0a0ea61f8e3ef2f0"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "a7cf0907c502a2616354e965410dbb8bac5971b6",
+    "run": 44776003456,
+    "builds": {
+      "windows": "success",
+      "mac-arm": "success",
+      "mac-intel": "success",
+      "linux": "success"
+    },
+    "publish": "skipped",
+    "method": "Inspected actual job/step summaries; no runtime logs"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Remove the source Reservation type and its unguarded mutators. Move its complete same-stack flow into guarded installFrom; coordinator matches its own publication and takeInto delegates. Existing assertions remain, with two additional direct-call/failure cases and native invocation/method notes. No tracked class/source file is deleted; obsolete generated bytecode was archived from current classes and is absent from the shipped client. Prior base-diff world/history/render replacements and protocol compatibility adjustments remain documented. No unrelated deletion or removed regression assertion intended."
+  },
+  "remaining": [
+    "Main source installation/wiring and old-owner reconciliation after changes remain unfinished. A private slot now installs coherent source bundles; unchanged old Worlds have separate guarded retirement.",
+    "Editable paging and true model-ID remapping remain unfinished or gated.",
+    "City/maximum still fail placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only runs do not qualify full workflows.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, physical GPU, shaped synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Private owner-fenced source-bundle installation and available CLI/native functional regressions only. No Main wiring, supported-city/limit, stable-rollout, 30-FPS, whole-workflow or physical-GPU/network qualification pass.",
+  "obsolete_generated_class": {
+    "class": "dev/jayms/net/SavedPagingOwner$Reservation.class",
+    "absent_from_current_classes": true,
+    "absent_from_shipped_client": true,
+    "method": "Archived only the obsolete generated class in ignored scratch after incremental compilation; all prior source/reports/media preserved."
+  },
+  "artifacts": {
+    "structure-paging-owner-guard-native.json": "e215c7ec4c2a437cf5dc1ee58608085c1948e9ae4cc19376a2e3a8045a4d61f8",
+    "structure-paging-owner-guard-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-owner-guard-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-owner-guard-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-owner-guard-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-owner-guard-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}
