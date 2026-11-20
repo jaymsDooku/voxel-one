@@ -1375,3 +1375,34 @@ syntax and diff checks passed. New Swift compilation and47-case execution have
 not run. Playtest: current touch workflow and actual media require exact-source
 controller Mac execution. No file deletions intended; hardcoded movement order
 and fixed look scale are replaced by validated per-device preferences.
+
+
+Rebased47-case deadline and touch-footer repair
+Exact sourceaad67cd61106fc34f1058429ae27446e70cfb35c failed run44688351165.
+Trusted verifiera9e8eed8 contains8a53afce. Java/terrain comparison, unsigned device
+archive, native build and install reached native_playtests. At the900-second
+child limit,22 cases had started,21 passed,0 failed,1 open,47 expected. Last open
+case was testSandboxCameraModesAimReachAndPersistence. This is a partial run,
+not a full native pass. Cleanup passed. Only a home-screen preflight image was
+returned and copied with verified SHA256; it proves no client behavior.
+
+Apply, Cancel, Reset defaults and draft/error status now stay in a fixed footer
+inside the safe area. All actions retain44x44-point minimum targets. Four binding
+rows scroll independently; content also respects horizontal safe areas. Test
+checks footer access/targets and the last binding in landscape, then resets and
+applies without scrolling to action buttons. One redundant offline load is
+removed. Cancel, Apply, sensitivity/inversion, binding swap, actual camera/movement,
+termination/relaunch persistence, landscape Reset and pause assertions remain.
+This reduces required UI work, but elapsed savings and the new layout are not
+measured until the next Mac run. All47 cases and900/1200-second deadlines remain.
+No required test, media bound or qualification gate is weakened.
+
+87 Linux harness tests and15 focused Java tests passed after rebase. Project
+generation, Python/shell syntax and diff checks passed.113 unrelated progress
+entries remain unchanged; no file deletions or unmerged paths. Only iOS/mobile
+source, tests, guides and this work's evidence/progress differ from review base
+a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef. No deletions intended; scrolling action
+placement is replaced by a footer while preserving actions and save behavior.
+Playtest: revised native controls and all47 cases need fresh exact-source Mac
+execution and actual media inspection. Full parity, second Simulator size, live
+VPS, signing/install, physical iPhone and independent review remain pending.

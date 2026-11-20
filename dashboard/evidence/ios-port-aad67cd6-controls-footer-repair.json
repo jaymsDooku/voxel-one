@@ -1,0 +1,92 @@
+{
+  "sourceBase": "aad67cd61106fc34f1058429ae27446e70cfb35c",
+  "sourceState": "uncommitted touch footer repair; fresh exact-head native qualification pending",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "failedRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44688351165",
+  "observed": {
+    "sourceMatched": true,
+    "status": "failed",
+    "clientChecked": false,
+    "cleanup": "passed",
+    "exitCode": 124,
+    "started": 22,
+    "passed": 21,
+    "failed": 0,
+    "expected": 47,
+    "timeoutSeconds": 900,
+    "lastOpenTest": "NativeWorkflowTests.testSandboxCameraModesAimReachAndPersistence",
+    "media": "preflight only; no actual client image/video returned"
+  },
+  "repair": "Move Apply/Cancel/Reset and draft/error status outside the scroll area into a fixed safe-area footer. Keep all four binding rows scrollable and all actions at least44x44points. Test reaches last binding in landscape, checks all footer buttons, resets/applies without scrolling to actions; removes one redundant offline load. Draft, restart, swap, actual look/movement and pause assertions remain.",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "87 passed in10.989s; Linux mocks, not native client execution"
+    },
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-repository\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=NativeTerrainFixtureTest,MobileGatewayTest#nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset+snapshotsRetainFractionalLeavesModelsAndVersionedContract+itemCatalogNegotiationPreservesLegacyRecipeViews+authenticatedBatchBoundsAndDefaultQuantity+authenticatedFineEditsKeepSubcellAddressAndAuthoritativeInventory+loginWorldEditsReachAndLogoutUseExistingAuthoritativeServer,FractionalWorldTest test",
+      "result": {
+        "NativeTerrainFixtureTest": {
+          "tests": 2,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "MobileGatewayTest": {
+          "tests": 6,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        },
+        "FractionalWorldTest": {
+          "tests": 7,
+          "failures": 0,
+          "errors": 0,
+          "skipped": 0
+        }
+      }
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/check-results.py ios/native-test-runner.py ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "AST required-source test inventory and review-base audit",
+      "result": "47 unique required cases match all native test methods;113 unrelated progress entries unchanged;zero file deletions/unmerged paths"
+    },
+    {
+      "command": "gh api repos/jaymsDooku/voxel-one/actions/runs/44688351165 --jq {head_sha,event,conclusion}; git merge-base --is-ancestor 8a53afce99e735a7574bffab70558252577b387b a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+      "result": "workflow_dispatch trusted verifiera9e8eed8 contains reviewed capacity fix8a53afce"
+    }
+  ],
+  "unchangedGates": "All47 cases;900s child/1200s outer deadlines;40-second/640x480/<6MB media; exact source; actual native app; physical-device and independent review requirements.",
+  "Playtest": "Failed Mac source built and installed the app, but only21 of47 cases passed before deadline; no full qualification. Inspected and copied the returned Simulator home-screen image, explicitly preflight only. Revised footer, landscape last-binding access, Cancel/Apply/restart/look and complete47-case regression require a fresh exact-source Mac run and actual client media. Browser playtesting does not apply to this native UIKit/SceneKit client.",
+  "media": {
+    "file": "ios-port-aad67cd6-preflight-only.png",
+    "bytes": 925530,
+    "sha256": "24f45cb55d56a55e2e7aa125056bfc2c94f39a8170cfb6c0d4a8363251a13591",
+    "publication": "pending controller publication; preflight only"
+  },
+  "intendedDeletions": "No file deletions. Replaced the scrolling action buttons with the same actions in a fixed footer; removed redundant test scrolling/world load without removing coverage.",
+  "qualificationPending": [
+    "Complete47-case native pass and actual touch media",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed installable iPhone artifact",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head native/media review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/Controls.swift": "8b6da418712d49604f812d114e542a18b730c93b1b88ff654fec0273c513c895",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "8307c30e37b1a1a7de52b36d378dadc56bead129304ee0f14a486f67c895443f"
+  }
+}

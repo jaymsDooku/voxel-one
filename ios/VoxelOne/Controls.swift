@@ -51,12 +51,15 @@ final class NativeControlsScreen:UIViewController {
     override func viewDidLoad(){
         super.viewDidLoad();view.backgroundColor = .systemBackground;isModalInPresentation=true
         let scroll=UIScrollView();scroll.accessibilityIdentifier="controlsScroll";scroll.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(scroll)
+        let actions=UIStackView(arrangedSubviews:[button("Apply","controlsApply",#selector(apply)),button("Cancel","controlsCancel",#selector(cancel)),button("Reset defaults","controlsReset",#selector(reset))]);actions.axis = .horizontal;actions.distribution = .fillEqually;actions.spacing=8
+        status.numberOfLines=0;status.font = .preferredFont(forTextStyle:.footnote);status.adjustsFontForContentSizeCategory=true;status.accessibilityIdentifier="controlsStatus"
+        let footer=UIStackView(arrangedSubviews:[status,actions]);footer.axis = .vertical;footer.spacing=8;footer.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(footer)
         stack.axis = .vertical;stack.spacing=12;stack.translatesAutoresizingMaskIntoConstraints=false;scroll.addSubview(stack)
-        NSLayoutConstraint.activate([scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),scroll.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor),scroll.leadingAnchor.constraint(equalTo:view.leadingAnchor),scroll.trailingAnchor.constraint(equalTo:view.trailingAnchor),stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:20),stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-20),stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:20),stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-20),stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-40)])
+        NSLayoutConstraint.activate([scroll.topAnchor.constraint(equalTo:view.safeAreaLayoutGuide.topAnchor),scroll.bottomAnchor.constraint(equalTo:footer.topAnchor,constant:-12),scroll.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor),scroll.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor),footer.leadingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.leadingAnchor,constant:20),footer.trailingAnchor.constraint(equalTo:view.safeAreaLayoutGuide.trailingAnchor,constant:-20),footer.bottomAnchor.constraint(equalTo:view.safeAreaLayoutGuide.bottomAnchor,constant:-12),stack.topAnchor.constraint(equalTo:scroll.contentLayoutGuide.topAnchor,constant:20),stack.bottomAnchor.constraint(equalTo:scroll.contentLayoutGuide.bottomAnchor,constant:-20),stack.leadingAnchor.constraint(equalTo:scroll.contentLayoutGuide.leadingAnchor,constant:20),stack.trailingAnchor.constraint(equalTo:scroll.contentLayoutGuide.trailingAnchor,constant:-20),stack.widthAnchor.constraint(equalTo:scroll.frameLayoutGuide.widthAnchor,constant:-40)])
         refresh()
     }
     private func label(_ text:String)->UILabel {let l=UILabel();l.text=text;l.numberOfLines=0;l.font = .preferredFont(forTextStyle:.body);l.adjustsFontForContentSizeCategory=true;return l}
-    private func button(_ title:String,_ id:String,_ action:Selector){let b=UIButton(type:.system);b.setTitle(title,for:.normal);b.accessibilityIdentifier=id;b.addTarget(self,action:action,for:.touchUpInside);b.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true;stack.addArrangedSubview(b)}
+    private func button(_ title:String,_ id:String,_ action:Selector)->UIButton {let b=UIButton(type:.system);b.setTitle(title,for:.normal);b.accessibilityIdentifier=id;b.titleLabel?.numberOfLines=2;b.titleLabel?.textAlignment = .center;b.addTarget(self,action:action,for:.touchUpInside);b.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true;b.widthAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true;return b}
     private func refresh(){
         stack.arrangedSubviews.forEach{$0.removeFromSuperview()}
         let title=label("Touch controls");title.font = .preferredFont(forTextStyle:.title1);stack.addArrangedSubview(title)
@@ -69,8 +72,7 @@ final class NativeControlsScreen:UIViewController {
             stack.addArrangedSubview(label("Button \(slot+1)"))
             let binding=UISegmentedControl(items:NativeControls.names);binding.accessibilityIdentifier="controlsBinding\(slot)";binding.tag=slot;binding.selectedSegmentIndex=NativeControls.actions.firstIndex(of:draft.bindings[slot]) ?? slot;binding.heightAnchor.constraint(greaterThanOrEqualToConstant:44).isActive=true;binding.addTarget(self,action:#selector(bindingChanged(_:)),for:.valueChanged);stack.addArrangedSubview(binding)
         }
-        status.numberOfLines=0;status.accessibilityIdentifier="controlsStatus";status.text="Draft · \(draft.sensitivity)x look · \(draft.invertY ? "Inverted":"Normal") vertical. Apply saves on this phone. Cancel keeps current controls.";stack.addArrangedSubview(status)
-        button("Apply","controlsApply",#selector(apply));button("Cancel","controlsCancel",#selector(cancel));button("Reset defaults (draft)","controlsReset",#selector(reset))
+        status.text="Draft · \(draft.sensitivity)x · \(draft.invertY ? "Inverted":"Normal"). Apply saves; Cancel keeps current controls."
     }
     @objc private func sensitivityChanged(_ sender:UISegmentedControl){draft.sensitivity=[0.5,1,2][sender.selectedSegmentIndex];refresh()}
     @objc private func invertChanged(_ sender:UISwitch){draft.invertY=sender.isOn;refresh()}

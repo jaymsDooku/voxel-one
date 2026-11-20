@@ -297,7 +297,7 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.buttons["graphicsReset"].tap();applyGraphics()
     }
     func testNativeTouchSettingsDraftBindingsLookAndRestart()throws {
-        newOffline();textContains("playerPosition","Ground");waitTerrain();menu()
+        menu()
         func open(){app.buttons["controlsButton"].tap();wait(app.segmentedControls["controlsSensitivity"])}
         func reveal(_ element:XCUIElement,up:Bool=true){
             for _ in 0..<6 {if element.isHittable {break};if up {app.scrollViews["controlsScroll"].swipeUp()}else{app.scrollViews["controlsScroll"].swipeDown()}}
@@ -305,6 +305,7 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         }
         func edit(){
             app.segmentedControls["controlsSensitivity"].buttons["2x"].tap();app.switches["controlsInvertY"].tap()
+            reveal(app.segmentedControls["controlsBinding0"])
             app.segmentedControls["controlsBinding0"].buttons["Forward"].tap()
             XCTAssertTrue(app.segmentedControls["controlsBinding1"].buttons["Left"].isSelected,"Remapping swaps the old binding")
         }
@@ -314,11 +315,11 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
             guard parts.count==2,let value=Double(parts[1]) else{XCTFail("Missing look pose");return 0};return value
         }
         func dragDown(){let scene=app.otherElements["worldView"],start=app.otherElements["worldView"].coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.5));start.press(forDuration:0.05,thenDragTo:start.withOffset(CGVector(dx:0,dy:min(25,scene.frame.height*0.05))))}
-        open();edit();let cancel=app.buttons["controlsCancel"];reveal(cancel);cancel.tap()
+        open();edit();let cancel=app.buttons["controlsCancel"];waitHittable(cancel,"fixed Cancel");cancel.tap()
         open();XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["1x"].isSelected);XCTAssertEqual(app.switches["controlsInvertY"].value as? String,"0")
         XCTAssertTrue(app.segmentedControls["controlsBinding0"].buttons["Left"].isSelected)
-        edit();let apply=app.buttons["controlsApply"];reveal(apply);apply.tap()
-        app.buttons["offlineResumeButton"].tap();wait(app.buttons["moveForward"]);waitTerrain()
+        edit();let apply=app.buttons["controlsApply"];waitHittable(apply,"fixed Apply");apply.tap()
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
         XCTAssertLessThan(app.buttons["moveForward"].frame.minX,app.buttons["moveLeft"].frame.minX)
         let before=pitch();dragDown();XCTAssertGreaterThan(pitch(),before,"Saved inverted look must affect the camera")
         let position=app.staticTexts["playerPosition"].label;app.buttons["moveRight"].press(forDuration:0.3)
@@ -328,10 +329,11 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         menu();open();XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["2x"].isSelected);XCTAssertEqual(app.switches["controlsInvertY"].value as? String,"1")
         workflowCheckpoint="controls_ready";capture("native-touch-settings-persisted")
         XCUIDevice.shared.orientation = .landscapeLeft
-        let reset=app.buttons["controlsReset"];reveal(reset);reset.tap()
-        reveal(app.segmentedControls["controlsSensitivity"],up:false)
+        for id in ["controlsApply","controlsCancel","controlsReset"] {waitHittable(app.buttons[id],"landscape footer");XCTAssertGreaterThanOrEqual(app.buttons[id].frame.width,44);XCTAssertGreaterThanOrEqual(app.buttons[id].frame.height,44)}
+        reveal(app.segmentedControls["controlsBinding3"])
+        app.buttons["controlsReset"].tap();textContains("controlsStatus","1.0x")
         XCTAssertTrue(app.segmentedControls["controlsSensitivity"].buttons["1x"].isSelected);capture("native-touch-settings-landscape-reset-draft")
-        reveal(apply);apply.tap();XCUIDevice.shared.orientation = .portrait
+        waitHittable(apply,"fixed Apply after scroll");apply.tap();XCUIDevice.shared.orientation = .portrait
         app.buttons["offlineResumeButton"].tap();wait(app.buttons["moveForward"]);waitTerrain()
         XCTAssertLessThan(app.buttons["moveLeft"].frame.minX,app.buttons["moveForward"].frame.minX)
         let normal=pitch();dragDown();XCTAssertLessThan(pitch(),normal,"Reset restores normal vertical look")
