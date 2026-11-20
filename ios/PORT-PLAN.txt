@@ -1305,3 +1305,24 @@ No file deletions are intended. Fixed fallback illumination is replaced by
 sun-aware lighting; Java sun math is factored into the shared fixture helper.
 Remaining full engine parity, another Simulator size, live VPS, signed delivery,
 physical iPhone qualification and independent review remain open.
+
+
+Portable clock fixture repair after c76b517b
+Run44681419381 failed at terrain_contract before native build/install/playtest.
+Only the Simulator home-screen preflight image exists; it proves no client
+behavior. Source/expected head match c76b517b and cleanup passed. Trusted workflow
+head30a06872 includes reviewed capacity fix8a53afce. No validator-cap regression.
+
+New clock fixtures contain floating-point sun vectors. Platform Math rounding
+is the leading inferred cause of the fixture mismatch; generated Mac values
+were not returned, so the cause and repair still need Mac confirmation. The
+shared sun helper now uses StrictMath.cos/sin/sqrt. Exact fixture cmp remains;
+no tolerance or required-case gate was weakened. A separate terrain_contract_compare
+phase distinguishes generator failure from byte-comparison failure. Existing
+terrain data and Linux-generated clock bytes are unchanged. Java17,21 and25
+regeneration is byte-identical. A compatibility test checks six original sun
+directions and unit normalization within1e-15.15 focused Java tests and87 Linux
+harness tests passed; project/Python/shell/diff checks passed.
+Playtest: no native gameplay executed for this repair. Request all45 native
+cases and actual night/day media again. Keep all full parity/live service/signing/
+physical-device and independent review gates pending. No deletions intended.

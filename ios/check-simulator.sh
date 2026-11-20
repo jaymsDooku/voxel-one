@@ -53,6 +53,7 @@ phase java_build
 mvn -q -DskipTests compile > ios/build/java-build.log 2>&1
 phase terrain_contract
 java -cp target/classes dev.jayms.net.mobile.NativeTerrainFixtures ios/build/terrain-fixtures.json
+phase terrain_contract_compare
 cmp ios/Resources/terrain-fixtures.json ios/build/terrain-fixtures.json
 phase synthetic_game_servers
 # The test profile must be new. Secrets generated in this ignored directory never enter evidence.

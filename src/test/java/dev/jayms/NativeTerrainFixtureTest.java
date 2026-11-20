@@ -7,6 +7,18 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class NativeTerrainFixtureTest {
+    @Test void portableSunContractPreservesDirectionAndNormalization() {
+        for(double hour:new double[]{0,6,10,12,18,23.5}) {
+            double angle=(hour-6)/24*Math.PI*2;
+            double x=Math.cos(angle),y=Math.sin(angle),z=-.35;
+            double length=Math.sqrt(x*x+y*y+z*z);
+            var sun=MobileSnapshot.sunDirection(hour);
+            assertEquals(x/length,sun.get(0),1e-15);
+            assertEquals(y/length,sun.get(1),1e-15);
+            assertEquals(z/length,sun.get(2),1e-15);
+            assertEquals(1,sun.stream().mapToDouble(v->v*v).sum(),1e-15);
+        }
+    }
     @Test void nativeTerrainGoldenAssetMatchesAuthoritativeGenerator()throws Exception {
         var data=NativeTerrainFixtures.data();
         assertEquals(Json.write(data),Files.readString(Path.of("ios/Resources/terrain-fixtures.json")));

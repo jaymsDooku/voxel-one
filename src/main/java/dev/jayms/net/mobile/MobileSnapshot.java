@@ -61,12 +61,13 @@ public final class MobileSnapshot {
         }
         return result;
     }
-    /** Shared clock/light contract used by snapshots and native golden fixtures. */
+    /** Shared clock/light contract used by snapshots and native golden fixtures.
+     * StrictMath keeps the golden JSON identical across Linux and hosted Macs. */
     public static List<Double> sunDirection(double hour) {
         if(!Double.isFinite(hour)||hour<0||hour>=24)throw new IllegalArgumentException("Invalid hour");
         double angle=(hour-6)/24*Math.PI*2;
-        double sx=Math.cos(angle),sy=Math.sin(angle),sz=-.35;
-        double length=Math.sqrt(sx*sx+sy*sy+sz*sz);
+        double sx=StrictMath.cos(angle),sy=StrictMath.sin(angle),sz=-.35;
+        double length=StrictMath.sqrt(sx*sx+sy*sy+sz*sz);
         return List.of(sx/length,sy/length,sz/length);
     }
     public static Map<String,Object> geometry(SparseVoxelOctree tree,boolean model) {
