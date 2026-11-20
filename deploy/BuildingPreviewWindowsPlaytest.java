@@ -23,6 +23,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private long window, since, previous;
     private int stage;
     private boolean cedar, westminster, grand;
+    private boolean clockLighting;
+    private int clockFrames;
     private Vector3f overviewStart;
 
     private BuildingPreviewWindowsPlaytest(Path output) { this.output=output; }
@@ -39,11 +41,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         var probe=new BuildingPreviewWindowsPlaytest(output);
         probe.cedar=building.name().equals("cedar-court-entry");
         probe.grand=building.name().equals("westminster-grand");
+        probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
         if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         Files.writeString(output.resolve("results.txt"),
+                probe.clockLighting ? "Captured two Elizabeth Tower corners and approach under fixed daylight.\n" :
                 probe.grand ? "PASS: Captured the opening Palace overview, river roof and Westminster Hall lanterns in the native client. The plot stayed unsaved.\n" : probe.westminster
                         ? "PASS: Windows client captured the Thames elevation, Elizabeth Tower detail and an aerial view of the courts and hall. The plot stayed unsaved.\n"
                         : "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
@@ -57,7 +61,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (grand) {
+        if (clockLighting) placeFlying(game,49,77,-3,127,0);
+        else if (grand) {
             player=(Player)field("player").get(game);
             overviewStart=new Vector3f(player.position());
         }
@@ -71,7 +76,12 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
-        if (westminster && stage==1) {
+        if (clockLighting) {
+            if (stage==1) {
+                float t=Math.min(1,(now-since)/1_800_000_000f);
+                placeFlying(game,49-9*t,77,-3+12*t,127,0);
+            }
+        } else if (westminster && stage==1) {
             float t=Math.min(1,(now-since)/(grand ? 2_400_000_000f : 3_000_000_000f));
             if (grand) placeFlying(game,overviewStart.x+(110-overviewStart.x)*t,
                     overviewStart.y+(89-overviewStart.y)*t,overviewStart.z+(23-overviewStart.z)*t,
@@ -84,6 +94,24 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (clockLighting) {
+            clockFrames++;
+            if (stage==0 && clockFrames==120) capture(game,"clock-warm.png");
+            if (stage==0 && elapsed>6_000_000_000L && clockFrames>=240) {
+                capture(game,"clock-corner.png");
+                pressRecord();
+            } else if (stage==1 && elapsed>2_800_000_000L) {
+                capture(game,"clock-close.png");
+                placeFlying(game,-17,77,-3,51,0);
+            } else if (stage==2 && elapsed>3_000_000_000L) {
+                capture(game,"clock-opposite.png");
+                pressRecord();
+                glfwSetWindowShouldClose(window,true);
+            } else return;
+            stage++;
+            since=System.nanoTime();
+            return;
+        }
         if (westminster) {
             inspectWestminster(game,elapsed);
             return;

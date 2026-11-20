@@ -50,6 +50,7 @@ float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
     return 1.;
 }
 #include "shaders/irradiance.glsl"
+#include "shaders/preview-wall-sky.glsl"
 float shadow(vec3 N,vec3 L){return shadowAt(vWorldPosition,N,L);}
 vec2 atmosphereVisibility(vec3 point){
     if(uPlanetLighting==0)return vec2(1);
@@ -121,7 +122,7 @@ vec3 probeIrradiance(vec3 p,vec3 N){
 }
 void main(){
     if(vSurface.z==-2.)discard;
-    vec3 N=normalize(vNormal),L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
+    vec3 geometricNormal=normalize(vNormal),N=geometricNormal,L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
     if(uLightingEnabled==0){fragColor=vec4(albedo*(.35+.65*max(dot(N,L),0.)),1.-uTransparency);return;}
     if(uVertexColor==1&&vSurface.z>=0.){
         vec3 weight=pow(abs(N),vec3(4));weight/=max(.0001,weight.x+weight.y+weight.z);
@@ -137,17 +138,19 @@ void main(){
         if(abs(det)>.000001)N=normalize(N-sign(det)*(dFdx(h)*r1+dFdy(h)*r2)*.12/max(abs(det),.000001));
     }
     albedo=pow(max(albedo,vec3(0)),vec3(2.2));
-    vec3 point=uHeld==1?uCameraPosition:vWorldPosition+N*.001;
+    vec3 point=uHeld==1?uCameraPosition:vWorldPosition+geometricNormal*.001;
     vec3 indirect=vec3(.24,.32,.45)*uAmbient;
     float skyVisibility=uPlanetLighting==1&&uHeld==0?0.:1.;
     if(uPlanetLighting==1&&uHeld==0)indirect=vec3(0);
     if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
     if(uPlanetLighting==1&&uHeld==0){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
-        // Keep shadowed façades legible in inspection views beyond the local light volume.
+        // Inspection fill follows the surface consistently as the local volume moves.
         if(uBuildingPreview==1){
-            indirect+=vec3(.24,.23,.21)*(volumeInside(point)?.2:1.);
-            if(skyVisibility==0.&&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
+            indirect+=vec3(.048,.046,.042);
+            skyVisibility=previewWallSky(point,geometricNormal,skyVisibility);
+            if(skyVisibility==0.&&(uHasIrradiance==0||!volumeInside(point))
+                    &&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
         }
         indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
     }

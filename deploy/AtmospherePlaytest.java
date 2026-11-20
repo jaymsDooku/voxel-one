@@ -270,10 +270,76 @@ public class AtmospherePlaytest {
         while(System.nanoTime()<deadline){renderer.update(world,x,z);if((boolean)field(renderer,"hasIrradiance")&&(long)field(field(renderer,"lighting"),"revision")==world.editsVersion())return;Thread.sleep(10);}
         throw new AssertionError("Synthetic voxel lighting accepted within 30 seconds");
     }
+    /** Read back the same bounded wall-sky lookup used for inspection rendering. */
+    private static void previewWallCoverage(Path evidence)throws Exception {
+        var root=new dev.jayms.net.model.SparseVoxelOctree(256);
+        int stone=dev.jayms.net.WorldVoxels.encode(Blocks.STONE);
+        // World-space receivers at x=2.5, looking toward +X. Thin relief above
+        // each one blocks the zenith. Only the second path crosses a small wall.
+        root.fill(40,48,16,42,49,18,stone);
+        root.fill(40,48,32,42,49,34,stone);
+        root.fill(50,32,32,51,33,34,stone);
+        // A closed room with its thinnest wall and ceiling one microvoxel thick.
+        root.fill(80,32,16,96,48,32,stone);
+        root.fill(81,33,17,95,47,31,0);
+        var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(
+                java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(0,0,0),root)),
+                java.util.List.of(),new dev.jayms.net.model.ModelLibrary()));
+        int width=64,height=(sky.data.length+width-1)/width;
+        int atlas=glGenTextures(),fbo=glGenFramebuffers(),pixelTexture=glGenTextures(),vao=glGenVertexArrays();
+        StringBuilder report=new StringBuilder(System.getProperty("os.name")+" / "+glGetString(GL_RENDERER)+"\n");
+        try(var probe=new ShaderProgram("shaders/fullscreen.vert","shaders/atmosphere-visibility-test.frag")){
+            glActiveTexture(GL_TEXTURE0);
+            glBindTexture(GL_TEXTURE_3D,atlas);
+            glTexImage3D(GL_TEXTURE_3D,0,GL_R32I,width,height,1,0,GL_RED_INTEGER,GL_INT,
+                    java.util.Arrays.copyOf(sky.data,width*height));
+            glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+            glBindTexture(GL_TEXTURE_2D,pixelTexture);
+            glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA32F,1,1,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
+            glBindFramebuffer(GL_FRAMEBUFFER,fbo);
+            glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_2D,pixelTexture,0);
+            require(glCheckFramebufferStatus(GL_FRAMEBUFFER)==GL_FRAMEBUFFER_COMPLETE,"Preview wall test framebuffer");
+            glBindVertexArray(vao);
+            glViewport(0,0,1,1);
+            probe.bind();
+            probe.setInt("uFineRoots",0);
+            probe.setInt("uIrradiance",1);
+            probe.setInt("uFineLight",2);
+            probe.setInt("uPlanetLighting",1);
+            probe.setInt("uSkyColumns",sky.columns);
+            probe.setInt("uSkyIndexOrigin",sky.indexOrigin);
+            probe.setInt("uSkyIndexOffset",sky.indexOffset);
+            probe.setInt("uSkyIndexSpan",sky.indexSpan);
+            probe.setVector3("uTestNormal",1,0,0);
+            float[][] cases={{2.51f,2.01f,1.01f,1},{2.51f,2.01f,2.01f,0},{5.5f,2.5f,1.5f,0}};
+            String[] names={"Open side beneath relief","Fractional intervening wall","Sealed interior"};
+            for(int i=0;i<cases.length;i++){
+                float[] point=cases[i],pixel=new float[4];
+                probe.setVector3("uTestPosition",point[0],point[1],point[2]);
+                glDrawArrays(GL_TRIANGLES,0,3);
+                glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
+                require(glGetError()==GL_NO_ERROR,names[i]+" GPU readback");
+                require(pixel[0]<.001&&Math.abs(pixel[1]-point[3])<.001,names[i]+" got "+java.util.Arrays.toString(pixel));
+                report.append(names[i]).append(" vertical=").append(pixel[0]).append(" side=").append(pixel[1]).append('\n');
+            }
+            Files.writeString(evidence.resolve("preview-wall-coverage.txt"),report);
+            System.out.print(report);
+        }finally{
+            glDeleteTextures(atlas);glDeleteTextures(pixelTexture);glDeleteFramebuffers(fbo);glDeleteVertexArrays(vao);
+        }
+    }
+
     public static void main(String[] args)throws Exception {
         Path evidence=Path.of(args[0]);Files.createDirectories(evidence);require(glfwInit(),"GLFW initialized on role display");
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR,3);glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR,3);glfwWindowHint(GLFW_OPENGL_PROFILE,GLFW_OPENGL_CORE_PROFILE);
+        boolean previewWallOnly=Boolean.getBoolean("voxel.previewWallOnly");
+        if(previewWallOnly)glfwWindowHint(GLFW_VISIBLE,GLFW_FALSE);
         long window=glfwCreateWindow(W,H,"Voxel One atmosphere playtest",0,0);require(window!=0,"GL 3.3 window");glfwMakeContextCurrent(window);GL.createCapabilities();
+        if(previewWallOnly){
+            try{previewWallCoverage(evidence);}finally{glfwDestroyWindow(window);glfwTerminate();}
+            return;
+        }
         String driver=glGetString(GL_RENDERER);StringBuilder report=new StringBuilder("Playtest: Voxel One engine GL 3.3 raster atmosphere. Synthetic world/profile; 640x400, one sample, fixed exposure=1, TAA/clouds off. Driver: "+driver+"\n");
         try(var renderer=new RenderPipeline();var shader=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");var world=new World()) {
             models=new VoxelModelRenderer(world.models());
