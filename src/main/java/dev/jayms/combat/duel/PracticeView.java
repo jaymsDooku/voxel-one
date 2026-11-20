@@ -83,6 +83,51 @@ public final class PracticeView implements AutoCloseable {
         }
         hud(client,state,width,height,inventory,firstSlot,secondSlot,message);
     }
+    /** HCF uses the same resident meshes and real renderer; its state and HUD stay separate. */
+    public void renderHcf(dev.jayms.combat.hcf.HcfClient client,int width,int height,String message) {
+        var state=client.state();var self=client.self();
+        glBindFramebuffer(GL_FRAMEBUFFER,0);glViewport(0,0,width,height);glClearColor(.18f,.25f,.32f,1);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+        if(state==null || self==null){overlay.begin(width,height);text("HCF: waiting for server",24,30,2);overlay.end();return;}
+        var feet=self.body().pose().feet();
+        if(epoch!=state.season()){epoch=state.season();camera.setYaw(self.team()==0?90:-90);camera.setPitch(0);}
+        camera.position().set((float)feet.x(),(float)feet.y()+1.62f,(float)feet.z());
+        shader.bind();glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
+        shader.setMatrix4("uProjection",new Matrix4f().perspective((float)Math.toRadians(75),width/(float)height,.08f,200));shader.setMatrix4("uView",camera.createViewMatrix());
+        for(var d:draws){shader.setMatrix4("uModel",new Matrix4f().translation(d.pos.chunkX()*16,d.pos.chunkY()*16,d.pos.chunkZ()*16));d.mesh.render();}
+        // Ground markers only: original fixture geometry stays intact and practice sees no HCF regions.
+        object(blue,-7,1.01,-26,14,.025f,.12f);object(gold,-7,1.01,26,14,.025f,.12f);
+        for(int i=0;i<2;i++)if(state.teams().get(i).claimed())object(state.teams().get(i).raidable()?red:i==0?blue:gold,i==0?-30:20,1.015,-12,10,.025f,24);
+        object(state.contested()?red:state.capturingTeam()==0?blue:state.capturingTeam()==1?gold:green,-4,1.02,-4,8,.025f,8);
+        for(var m:state.members())if(!m.id().equals(client.id()) && m.body().alive() && m.connected()) {
+            var p=m.body().pose().feet();var mesh=m.team()==0?blue:gold;
+            object(mesh,p.x()-.3,p.y()+.65,p.z()-.3,.6f,.7f,.6f);object(mesh,p.x()-.24,p.y()+1.35,p.z()-.24,.48f,.45f,.48f);
+            object(mesh,p.x()-.25,p.y(),p.z()-.22,.2f,.65f,.44f);object(mesh,p.x()+.05,p.y(),p.z()-.22,.2f,.65f,.44f);
+            if(m.markedBy()==self.team() && m.markUntil()>state.tick())object(red,p.x()-.18,p.y()+2,p.z()-.18,.36f,.25f,.36f);
+        }
+        for(var p:state.projectiles()){var v=p.position();object(p.item()==KitProfile.Item.HEAL_SPLASH?green:red,v.x()-.1,v.y()-.1,v.z()-.1,.2f,.2f,.2f);}
+        for(var l:state.loot()){var p=l.feet();object(green,p.x()-.2,p.y()+.1,p.z()-.2,.4f,.4f,.4f);}
+        overlay.begin(width,height);overlay.rectangle(12,12,width-24,174,.025f,.045f,.07f,.92f);
+        var b=self.body();long tick=state.tick();
+        text("VOXEL ONE / HCF / BASALT COURTYARD | Season "+state.season()+" "+state.phase(),24,22,1.5f);
+        text(client.id()+"  Team "+(self.team()==0?"BLUE":"GOLD")+" | "+self.armor()+" / "+(self.active()==null?"warmup "+seconds(self.warmupUntil(),tick)+"s":"ACTIVE")+" | "+(self.deployed()?"DEPLOYED":"PROTECTED SPAWN"),24,46,1.25f);
+        text("HP "+number(b.health())+" /20 | food "+number(b.hunger())+" | pearl "+seconds(b.pearlReadyAt(),tick)+"s | tag "+seconds(self.tagUntil(),tick)+"s | shield "+seconds(self.spawnUntil(),tick)+"s",24,68,1.2f);
+        text("Energy "+self.energy()+" /100 | ability "+seconds(self.abilityReadyAt(),tick)+"s | deathban "+Math.max(0,(self.deathbanUntil()-state.now()+999)/1000)+"s",24,90,1.2f);
+        int y=112;for(var t:state.teams()) {
+            text((t.team()==0?"BLUE":"GOLD")+" DTR "+number(t.dtr())+" "+(t.raidable()?"RAIDABLE":"protected")+" | stash "+t.stash()+"/32 | KOTH score "+t.score()+" | freeze "+Math.max(0,(t.freezeUntil()-state.now()+999)/1000)+"s | regen "+Math.max(0,(t.regenAt()-state.now()+999)/1000)+"s",24,y,1.05f);y+=22;
+        }
+        text("KOTH center | "+(state.contested()?"CONTESTED - capture reset":state.capturingTeam()<0?"empty":(state.capturingTeam()==0?"BLUE":"GOLD")+" capturing "+state.captureTicks()+"/"+state.captureGoal()+" ticks")+" | cooldown "+seconds(state.kothReadyAt(),tick)+"s",24,196,1.15f);
+        text(self.notice(),24,220,1.1f);
+        text("Mark "+(self.markedBy()<0?"none":self.markedBy()==0?"BLUE":"GOLD")+" "+seconds(self.markUntil(),tick)+"s | ally aura "+seconds(self.auraUntil(),tick)+"s | stash restock "+seconds(state.restockAt(),tick)+"s | no golden food",24,242,1.05f);
+        int row=0;for(var m:state.members())text((m.team()==0?"B ":"G ")+m.id()+" "+m.armor()+" "+number(m.body().health())+"hp"+(m.connected()?"":" offline")+(m.markedBy()==self.team() && m.markUntil()>tick?" FOCUS "+seconds(m.markUntil(),tick)+"s":""),width-330,252+row++*18,1);
+        overlay.line(width/2f-6,height/2f,width/2f+6,height/2f,2,1,1,1,1);overlay.line(width/2f,height/2f-6,width/2f,height/2f+6,2,1,1,1,1);
+        float cell=Math.min(90,(width-24)/9f),start=(width-cell*9)/2;
+        for(int i=0;i<9;i++){var stack=b.inventory().get(i);float x=start+i*cell;overlay.rectangle(x,height-104,cell-3,45,i==b.selectedSlot()?.25f:.04f,.12f,.18f,.95f);text((i+1)+" "+item(stack.item()),x+4,height-98,1);text("x"+stack.count(),x+4,height-80,1);}
+        text("R deploy | E armor | B resupply | J class | H home | L safe logout | G claim | T raid | U loot",18,height-44,1);
+        text("WASD / Shift / Space | Left attack / Right use | 1-9 | F refill | C reconnect | F10 record | Esc leave",18,height-22,1);
+        if(!client.connected())text("Disconnected. C signs back in; combat logout counts as defeat.",24,height-144,1.2f);
+        if(!message.isEmpty())text(message,24,height-164,1.1f);overlay.end();
+    }
+    private static long seconds(long until,long tick){return Math.max(0,(until-tick+19)/20);}
     private void text(String s,float x,float y,float size){overlay.text(s,x,y,size,.9f,.94f,1,1);}
     private static String number(double n){return String.format(Locale.ROOT,"%.1f",n);}
     public static String item(KitProfile.Item item) {return switch(item){

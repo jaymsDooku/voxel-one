@@ -51,6 +51,17 @@ public final class CombatSimulation {
             position = eye(a); velocity = direction.scale(speed); this.damage = damage;
         }
     }
+    /** Trusted rules seam. Default is the unchanged practice behavior. Never supplied by a client. */
+    public interface Policy {
+        default boolean damage(String source,String target,DamageKind kind) { return true; }
+        default double multiplier(String source,String target,DamageKind kind) { return 1; }
+        default void damaged(String source,String target,DamageKind kind,double amount) {}
+        default boolean harmfulEffect(String source,String target,Effect effect) { return true; }
+        default void affected(String source,String target,Effect effect) {}
+        default boolean movement(String id,Vec3 from,Vec3 to) { return true; }
+        default boolean teleport(String id,Vec3 destination) { return true; }
+    }
+    private final Policy policy;
     private final CombatRules rules;
     private final CombatWorld world;
     private final LinkedHashMap<String, Actor> actors = new LinkedHashMap<>();
@@ -59,7 +70,33 @@ public final class CombatSimulation {
     private long tick, nextEvent, nextProjectile, droppedEvents;
 
     public CombatSimulation(CombatRules rules, CombatWorld world) {
+        this(rules,world,new Policy() {});
+    }
+    public CombatSimulation(CombatRules rules, CombatWorld world, Policy policy) {
         this.rules = Objects.requireNonNull(rules); this.world = Objects.requireNonNull(world);
+        this.policy = Objects.requireNonNull(policy);
+    }
+    /** Server supply/equipment operation; preserves health, replay fences and cooldowns. */
+    public void equip(String id,KitProfile kit,boolean inventory) {
+        validateKit(kit); Actor a=actor(id); cancel(a); a.guarding=false;
+        a.armor.clear(); kit.armor().forEach(v->a.armor.put(v.slot(),v));
+        if(inventory) { a.slots.clear(); a.slots.addAll(kit.slots()); a.selected=0; }
+    }
+    /** Trusted lifecycle defeat; no damage credit is invented. Dead participants are unchanged. */
+    public void defeat(String id) {
+        Actor a=actor(id); if(!a.alive())return; a.health=0; die(a,DamageKind.ENVIRONMENT);
+    }
+    public void clearActions(String id) {
+        Actor a=actor(id); a.inbox.clear(); cancel(a); stopSprint(a); a.guarding=false;
+    }
+    /** Moves drops into free slots only. Returns the uncollected stacks. */
+    public List<Stack> collect(String id,List<Stack> drops) {
+        Actor a=actor(id); var left=new ArrayList<Stack>();
+        for(Stack stack:drops) if(stack.count()>0) {
+            int free=a.slots.indexOf(Stack.EMPTY);
+            if(free<0) left.add(stack); else a.slots.set(free,stack);
+        }
+        return List.copyOf(left);
     }
     public CombatRules rules() { return rules; }
     public long tick() { return tick; }
@@ -204,6 +241,7 @@ public final class CombatSimulation {
         Vec3 v = a.pose.velocity();
         if (!a.pose.grounded()) v = v.add(new Vec3(0, -rules.physics().gravity(), 0));
         CombatWorld.Motion m = Objects.requireNonNull(world.move(a.pose.feet(), v, HALF_WIDTH, HEIGHT));
+        if(!policy.movement(a.id,a.pose.feet(),m.feet())) { a.pose=new Pose(a.pose.feet(),Vec3.ZERO,a.pose.grounded()); return; }
         double friction = m.grounded() ? rules.physics().groundFriction() : rules.physics().airFriction();
         a.pose = new Pose(m.feet(), new Vec3(m.velocity().x() * friction,
                 m.velocity().y() * rules.physics().verticalDrag(), m.velocity().z() * friction), m.grounded());
@@ -295,7 +333,7 @@ public final class CombatSimulation {
         int[] levels = {0, 1, -1, 2, -2};
         for (int y : levels) for (int[] xz : offsets) {
             Vec3 candidate = new Vec3(impact.x() + xz[0], Math.floor(impact.y()) + y, impact.z() + xz[1]);
-            if (world.safeLanding(candidate, HALF_WIDTH, HEIGHT)) {
+            if (world.safeLanding(candidate, HALF_WIDTH, HEIGHT) && policy.teleport(a.id,candidate)) {
                 cancel(a); a.pose = new Pose(candidate, Vec3.ZERO, true);
                 emit(Type.TELEPORT, a, a.id, candidate, 0, "pearl"); return;
             }
@@ -312,12 +350,14 @@ public final class CombatSimulation {
     }
     private void effect(Actor a, Actor source, Effect effect, int duration) {
         if ((effect == Effect.POISON || effect == Effect.SLOWNESS) && !rules.harmfulEffects()) return;
+        if((effect==Effect.POISON || effect==Effect.SLOWNESS) && !policy.harmfulEffect(source.id,a.id,effect)) return;
         Status old = a.effects.get(effect);
         // Refresh extends duration, never stacks strength or postpones an existing poison pulse.
         long expiry = Math.max(tick + duration, old == null ? 0 : old.expiresAt);
         a.effects.put(effect, new Status(expiry,
                 old == null ? tick + rules.supplies().poisonInterval() : old.nextPulse, source.id));
         emit(Type.EFFECT_START, source, a.id, a.pose.feet(), duration, effect.name());
+        if(effect==Effect.POISON || effect==Effect.SLOWNESS) policy.affected(source.id,a.id,effect);
     }
     private void sustain(Actor a) {
         if (a.useSlot >= 0 && a.hand() != Item.BOW && tick - a.useStart >= rules.supplies().useTicks()) {
@@ -357,6 +397,11 @@ public final class CombatSimulation {
     }
     private boolean damage(Actor victim, Actor source, double amount, DamageKind kind, boolean windowed) {
         if (!victim.alive() || amount <= 0 || (kind == DamageKind.FIRE && victim.effects.containsKey(Effect.FIRE_RESISTANCE))) return false;
+        String sourceId=source==null?null:source.id;
+        if(!policy.damage(sourceId,victim.id,kind)) return false;
+        double multiplier=policy.multiplier(sourceId,victim.id,kind);
+        if(!Double.isFinite(multiplier) || multiplier<0 || multiplier>4) throw new IllegalStateException("Damage multiplier");
+        amount*=multiplier;
         double raw = amount;
         if (windowed) {
             if (tick < victim.hurtUntil) {
@@ -373,6 +418,7 @@ public final class CombatSimulation {
         if (windowed) wearArmor(victim, raw);
         double actual = Math.min(victim.health, amount); victim.health -= actual; cancel(victim);
         if (source != null && source != victim) { victim.lastAttacker = source.id; victim.lastAttackAt = tick; }
+        policy.damaged(sourceId,victim.id,kind,actual);
         emit(Type.DAMAGE, source, victim.id, victim.pose.feet(), actual, kind.name());
         if (windowed) emit(Type.HIT, source, victim.id, victim.pose.feet(), actual, kind.name());
         if (!victim.alive()) die(victim, kind);

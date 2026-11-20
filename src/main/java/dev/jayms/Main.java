@@ -1846,6 +1846,9 @@ public class Main {
         for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("practice")) {
             dev.jayms.combat.duel.PracticeApp.main(args);return;
         }
+        for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("hcf")) {
+            dev.jayms.combat.hcf.HcfApp.main(args);return;
+        }
         if (java.util.Arrays.asList(args).contains("--asset-manager")) {
             dev.jayms.assets.AssetManagerServer.open(Controls.directory());
             return;
@@ -1920,7 +1923,8 @@ public class Main {
                         game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
                         if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
                         if (LoginDialog.practiceSelected) dev.jayms.combat.duel.PracticeApp.main(new String[0]);
-                    } while (LoginDialog.musicSelected || LoginDialog.practiceSelected);
+                        if (LoginDialog.hcfSelected) dev.jayms.combat.hcf.HcfApp.main(new String[0]);
+                    } while (LoginDialog.musicSelected || LoginDialog.practiceSelected || LoginDialog.hcfSelected);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
                 } catch (java.util.concurrent.ExecutionException e) {

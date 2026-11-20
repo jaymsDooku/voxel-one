@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T03:59:57+00:00",
+  "updatedAt": "2026-11-20T05:22:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,56 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "d04d25bc-dc2f-47a8-963f-e48398746f43",
+      "title": "HCF / PotPvP 3 \u2014 Faction combat, classes and objectives",
+      "description": "Prerequisite item 2 is merged at 30a06872. Building a separate opt-in HCF ruleset using the shared courtyard, combat service and native client; practice and existing saves stay isolated. Runner owns publication.",
+      "evidence": [
+        {
+          "kind": "video",
+          "label": "F10 team playtest (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-team-playtest.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "Ally aura and contested KOTH (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-team-aura-koth.png"
+        },
+        {
+          "kind": "image",
+          "label": "Tagged home rejection (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-tagged-home-rejected.png"
+        },
+        {
+          "kind": "image",
+          "label": "Combat logout and DTR loss (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-logout-deathban.png"
+        },
+        {
+          "kind": "image",
+          "label": "Rogue backstab (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-rogue-backstab.png"
+        },
+        {
+          "kind": "image",
+          "label": "KOTH takeover and zero DTR (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-koth-takeover.png"
+        },
+        {
+          "kind": "image",
+          "label": "Zero-DTR supply raid (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/dashboard/evidence/hcf-raid-zero-dtr.png"
+        },
+        {
+          "kind": "report",
+          "label": "Validation and qualification gates (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-64303464323562632d646332662d343761382d393633662d653438333938373436663433/docs/hcf-factions-validation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Local implementation and validation complete. Final Java 17 verify passed 128 tests and packaging; five real TLS clients passed normal-entry classes, KOTH, combat logout/reconnect, zero-DTR raid and resupply. Fresh F10 MP4 is 1,355,946 bytes, 11.219s, all 98 frames decoded; screenshots and sampled frames visually inspected. Tick batching reduced 64-operation durable burst from 145.496ms to 7.019ms. Runner publication, exact-head hosted checks and independent review remain pending; physical-GPU qualification gates stable rollout.",
+      "updatedAt": "2026-11-20T05:22:08+00:00"
+    },
     {
       "id": "ded4d353-5ee3-47bd-9c46-04b3ee7f53d9",
       "title": "HCF / PotPvP 2 \u2014 Playable No Debuff and Debuff duels",
