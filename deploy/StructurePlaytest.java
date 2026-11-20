@@ -30,7 +30,7 @@ public class StructurePlaytest {
     static Object get(String name)throws Exception {var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}
     static Object field(Object target,String name)throws Exception {var f=target.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(target);}
     static final ArrayList<String> lightingSamples=new ArrayList<>();
-    static boolean lightingProbeOnly;
+    static boolean lightingProbeOnly,sparseOnly,standardOnly;
     /** Synthetic coordinates and bounded counters only; no runtime/profile dump. */
     static void lightingSample(String label,Path output)throws Exception {
         require(label.matches("[a-z0-9-]{1,64}"),"Fixed lighting label required");
@@ -137,7 +137,8 @@ public class StructurePlaytest {
         return new Position(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z());
     }
     public static void main(String[] args)throws Exception {
-        require(args.length==1||args.length==2&&args[1].equals("--lighting-probe-only"),"Fixed native mode required");lightingProbeOnly=args.length==2;
+        require(args.length==1||args.length==2&&Set.of("--lighting-probe-only","--sparse-snapshot-only","--standard-workflow-only").contains(args[1]),"Fixed native mode required");
+        lightingProbeOnly=args.length==2&&args[1].equals("--lighting-probe-only");sparseOnly=args.length==2&&args[1].equals("--sparse-snapshot-only");standardOnly=args.length==2&&args[1].equals("--standard-workflow-only");
         Path output=Path.of(args[0]);Files.createDirectories(output);stageDirectory=output;stage("initializing");glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);
         set("offlineSave",Path.of("target/structure-native/world.dat").toAbsolutePath());set("gameConfig",GameConfig.sandbox());set("seed",42L);
         var driver=new Thread(()->{
@@ -147,6 +148,7 @@ public class StructurePlaytest {
                 handle=((dev.jayms.window.Window)get("window")).getHandle();
                 String window=x("search","--onlyvisible","--pid",Long.toString(ProcessHandle.current().pid()),"--name","^Voxel One").lines().findFirst().orElseThrow();x("windowfocus",window);
                 if(((ControlsMenu)get("menu")).open)x("key","Escape");
+                if(!sparseOnly) {
                 stage("fixture-setup");onFrame(()->{
                     for(int z=8;z<=34;z++)for(int xx=0;xx<=28;xx++)edit(new Protocol.Edit(xx,127,z,Blocks.STONE));
                     for(int y=128;y<=131;y++)for(int z=12;z<=16;z++)for(int xx=4;xx<=8;xx++)
@@ -292,8 +294,34 @@ public class StructurePlaytest {
                 x("key","F12");capture(window,output.resolve("structure-world-placed.png"));
                 onFrame(()->{var player=new dev.jayms.player.Player(new org.joml.Vector3f(30,131,24),180,-12,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
                 capture(window,output.resolve("structure-component-closeup.png"));stage("inventory-editor-regression");x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Inventory regression");x("key","e");x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Existing model editor regression");x("key","F7");
+                }
+                if(!standardOnly) {
+                stage("sparse-bounds-fixture");
+                var sparseModel=new SparseVoxelOctree(8);sparseModel.set(1,2,3,0xff267ac9);
+                var sparseBlock=new SparseVoxelOctree(16);sparseBlock.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));sparseBlock.freeze();
+                var sparseDetail=new SparseVoxelOctree(16);sparseDetail.fill(8,0,0,16,8,8,WorldVoxels.encode(new Protocol.Edit(0,0,0,Blocks.LED).withColor(0x26cfa8)));sparseDetail.freeze();
+                var sparseAsset=new StructurePackage("Sparse bounds native",new Bounds(1024,256,1024,0,0,0),List.of(new ModelDefinition("Sparse native part",sparseModel)),List.of(
+                    new Cell(new Position(0,0,0),sparseBlock,-1),new Cell(new Position(1023,0,0),null,0),
+                    new Cell(new Position(0,255,1023),sparseDetail,-1),new Cell(new Position(1023,255,1023),sparseBlock,-1)));
+                onFrame(()->{edit(new Protocol.Edit(13,136,34,Blocks.GLASS));menu().selected=sparseAsset;menu().target=new Position(12,136,34);menu().rotation=0;
+                    var player=new dev.jayms.player.Player(new org.joml.Vector3f(12.5f,138,42.5f),-90,-20,(Camera)get("camera"));player.toggleFlight();set("player",player);return null;});
+                x("key","F12");command("at 12 136 34");command("preview");require(menu().target.equals(new Position(12,136,34)),"Explicit sparse target survives menu opening");require(menu().message.startsWith("Footprint clear"),"Sparse maximum-bounds preview: "+menu().message);
+                x("key","F10");capture(window,output.resolve("structure-sparse-preview.png"));
+                command("place");require(menu().message.startsWith("Placed and saved"),"Sparse maximum-bounds placement: "+menu().message);
+                onFrame(()->{require(world().sample(12,136,34)==Blocks.STONE,"Sparse near geometry");require(Blocks.structureModel(world().sample(1035,136,34)),"Sparse distant model keeps its offset");require(world().sample(1035,391,1057)==Blocks.STONE,"Sparse high distant geometry keeps its dimensions");require(world().sample(13,136,34)==Blocks.GLASS,"Sparse empty source preserves terrain");return null;});
+                capture(window,output.resolve("structure-sparse-placed.png"));
+                onFrame(()->{edit(new Protocol.Edit(14,136,34,Blocks.BRICKS));return null;});command("undo");require(menu().message.equals("Structure placement undone"),"Sparse one-operation undo");
+                onFrame(()->{require(world().sample(12,136,34)==Blocks.AIR&&world().sample(1035,391,1057)==Blocks.AIR,"Sparse undo restores occupied cells");require(world().sample(13,136,34)==Blocks.GLASS&&world().sample(14,136,34)==Blocks.BRICKS,"Sparse undo preserves empty space and unrelated later edits");return null;});
+                capture(window,output.resolve("structure-sparse-undone.png"));x("key","F10");
+                }
                 onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});
-                stage("workflow-passed");Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 131073-leaf storage import with separate placement rejection and 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                String description=sparseOnly?"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; sparse maximum-bounds four-cell preview/place/save/undo with distant model/high geometry offsets, preserved empty source space and unrelated later edits. Normal regression workflow runs separately.":standardOnly?"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; normal capture/browse/import/export, four rotations, overlap/player/empty-space policy, cancellation and atomic failure, undo/repeat, storage/placement gates, dependencies/restart, inventory and model editor regression. Sparse maximum-bounds workflow runs separately.":null;
+                stage("workflow-passed");Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 131073-leaf storage import with separate placement rejection and 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions; sparse maximum-bounds four-cell preview/place/save/undo with distant model/high geometry offsets, preserved empty space and unrelated later edits.\",\"renderer\":\""+renderer+"\",\"qualification\":\"Experimental functional checks only; physical GPU and city/network budgets pending\"}\n");
+                if(description!=null) {
+                    String result=Files.readString(output.resolve("structure-native-result.json"));int begin=result.indexOf("\"playtest\":\"")+12,end=result.indexOf("\",\"renderer\"",begin);
+                    require(begin>=12&&end>begin,"Fixed native result fields");
+                    result=result.substring(0,begin)+description+result.substring(end);Files.writeString(output.resolve("structure-native-result.json"),result);
+                }
             }catch(Throwable problem){failure=problem;try{stage("workflow-failed");}catch(Exception ignored){}try{Files.writeString(output.resolve("structure-native-failure.txt"),problem.getClass().getSimpleName()+": "+problem.getMessage());}catch(Exception ignored){}}
             finally {if(handle!=0)glfwSetWindowShouldClose(handle,true);}
         },"structure-playtest-input");driver.setDaemon(true);driver.start();

@@ -11,9 +11,9 @@ public final class StructureOwnerQueue implements AutoCloseable {
     private final Thread owner=Thread.currentThread();
     private final AtomicReference<FutureTask<?>> pending=new AtomicReference<>();
     private final AtomicBoolean closed=new AtomicBoolean();
+    void requireWorker(){if(Thread.currentThread()==owner)throw new IllegalStateException("Owner read must be requested by a worker");}
     public <T> T call(Callable<T> read,BooleanSupplier cancel)throws IOException {
-        Objects.requireNonNull(read);Objects.requireNonNull(cancel);
-        if(Thread.currentThread()==owner)throw new IllegalStateException("Owner read must be requested by a worker");
+        Objects.requireNonNull(read);Objects.requireNonNull(cancel);requireWorker();
         StructurePackage.cancelled(cancel);
         if(closed.get())throw new IOException("Structure owner queue closed");
         var task=new FutureTask<T>(read);

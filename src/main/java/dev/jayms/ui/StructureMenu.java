@@ -114,8 +114,7 @@ public final class StructureMenu implements AutoCloseable {
                 start("Staging undo; world unchanged...",cancel->{
                     var prepared=engine.beginUndo("offline",cancel::get);
                     try {
-                        var box=prepared.footprint();
-                        var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/10);
+                        var snapshot=StructureRegionSnapshot.captureCells(world,prepared.cells().keySet(),ownerReads,cancel::get,p->progress=p/10);
                         prepared.validate(snapshot,p->progress=10+p*40/100);
                         var history=local.stageStructureHistory(prepared.cells(),ownerReads,cancel::get,p->progress=50+p/4);
                         try {local.stageStructureSave(history,prepared.modelSnapshot(),cancel::get,p->progress=75+p/4);}
@@ -131,8 +130,7 @@ public final class StructureMenu implements AutoCloseable {
             if(verb.equals("preview")) {
                 var point=target;int orientation=rotation;
                 start("Checking destination footprint...",cancel->{
-                    var box=StructureEngine.footprint(asset,point,orientation);
-                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/2);
+                    var snapshot=StructureRegionSnapshot.captureOccupied(world,asset,point,orientation,ownerReads,cancel::get,p->progress=p/2);
                     final boolean overlap=StructurePreview.blocked(asset,point,orientation,snapshot,cancel::get,p->progress=50+p/2);return new Completion(()->{
                         if(selected!=asset||!target.equals(point)||rotation!=orientation){conflict=null;execute("preview",world,local,network);return;}
                         conflict=overlap;message=overlap?"Blocking occupied cells; placement rejected":"Footprint clear; server revalidates at commit";
@@ -145,8 +143,8 @@ public final class StructureMenu implements AutoCloseable {
                     start("Preparing structure upload...",cancel->{StructureEngine.admittedFootprint(asset,point,orientation,cancel::get);byte[] payload=asset.encode(cancel::get,p->progress=p);return new Completion(()->message=network.placeStructure(payload,point,orientation)?"Upload queued; wait for server result":"Wait or update server to use structures",null,cancel);});return;
                 }
                 start("Staging placement; world unchanged...",cancel->{
-                    var box=StructureEngine.admittedFootprint(asset,point,orientation,cancel::get);
-                    var snapshot=StructureRegionSnapshot.capture(world,new Position(box.minX(),box.minY(),box.minZ()),box.width(),box.height(),box.depth(),ownerReads,cancel::get,p->progress=p/10);
+                    StructureEngine.admittedFootprint(asset,point,orientation,cancel::get);
+                    var snapshot=StructureRegionSnapshot.captureOccupied(world,asset,point,orientation,ownerReads,cancel::get,p->progress=p/10);
                     var prepared=engine.prepare(asset,point,orientation,snapshot,cancel::get,p->progress=10+p*40/100);
                     try {
                         message="Preparing save history; world unchanged...";

@@ -15,7 +15,9 @@ import time
 parser=argparse.ArgumentParser();parser.add_argument('--display',required=True);parser.add_argument('--evidence-prefix')
 parser.add_argument('--lighting-probe-only',action='store_true',help='Short Main lighting diagnostic; capture and editor/inventory regressions, no placement/import/undo')
 parser.add_argument('--timeout-seconds',type=int,default=600,help='Functional harness deadline (60–1200 s); does not change qualification budgets')
+parser.add_argument('--workflow',choices=('all','standard','sparse'),default='all',help='Bound the native session to a complete normal or sparse workflow; all remains the default')
 args=parser.parse_args()
+if args.lighting_probe_only and args.workflow!='all':parser.error('Lighting probe uses the default workflow only')
 if not 60<=args.timeout_seconds<=1200:
     parser.error('Timeout must be 60–1200 seconds')
 if args.evidence_prefix is not None and not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.evidence_prefix):
@@ -50,6 +52,8 @@ subprocess.run(['javac','--release','17','-cp',classpath,'-d',str(classes),'depl
 env=os.environ.copy();env['DISPLAY']=args.display;env.pop('WAYLAND_DISPLAY',None);env['ALSOFT_DRIVERS']='null';env['MAGICK_TMPDIR']=str(temporary);env['LP_NUM_THREADS']='2';env['LIBGL_ALWAYS_SOFTWARE']='1'
 command=['java','-Xmx1g','-Dvoxel.gl33=true','-Djava.io.tmpdir='+str(temporary),'-Duser.home='+str(home),'-cp',str(classes)+':'+classpath,'StructurePlaytest',str(output)]
 if args.lighting_probe_only:command.append('--lighting-probe-only')
+if args.workflow=='standard':command.append('--standard-workflow-only')
+if args.workflow=='sparse':command.append('--sparse-snapshot-only')
 execution=output/'structure-native-execution.json'
 started=time.monotonic();process=None
 
@@ -90,9 +94,10 @@ if any(hashlib.sha256(p.read_bytes()).hexdigest()!=source_hashes[str(p.relative_
     raise SystemExit('Native source changed during playtest; rerun required')
 report_path=output/'structure-native-result.json'
 report=json.loads(report_path.read_text())
+report['workflow']=args.workflow
 report['source_manifest']=(args.evidence_prefix+'-' if args.evidence_prefix else '')+'structure-native-source.json'
 report['source_manifest_sha256']=hashlib.sha256(json.dumps(source_hashes,sort_keys=True).encode()).hexdigest()
-report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')+' --timeout-seconds '+str(args.timeout_seconds)+(' --lighting-probe-only' if args.lighting_probe_only else '')
+report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')+' --timeout-seconds '+str(args.timeout_seconds)+(' --lighting-probe-only' if args.lighting_probe_only else '')+(' --workflow '+args.workflow if args.workflow!='all' else '')
 report['profile']='Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF'
 report['publication']='Local evidence pending controller publication'
 report_path.write_text(json.dumps(report,indent=2)+'\n')

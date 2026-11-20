@@ -2596,3 +2596,59 @@ These functional checks do not qualify city/maximum performance. Editable paging
 source/owner reconciliation, true model-ID remapping and required 20-run physical
 GPU/reference-network qualification remain unfinished. No limits or rollout gates
 were raised.
+
+
+### Snapshot only occupied destination chunks
+
+Placement and preview now use `StructureRegionSnapshot.captureOccupied` instead
+of snapshotting every chunk in the asset's bounding box. Rotation and anchor
+alignment select the destination chunks from occupied source positions, without
+decoding source geometry. Undo uses `captureCells` with its immutable before-image
+keys. All complete selected chunks are still captured, including existing geometry
+outside the footprint or beneath empty source cells, for conservative mesh-budget
+validation. The footprint shown to the player still uses the full bounds.
+
+Whole-footprint coordinates preflight before any owner request. Duplicate cell
+keys coalesce by chunk. Worker selection is bounded by 4 million positions and
+71825 distinct chunks: a maximum-size unaligned footprint intersects at most
+65x17x65 chunks. This is a snapshot work cap derived from the existing dimensions,
+not a larger placement allowance. Chunk lists are sorted and owner requests still
+capture at most 128 chunks each. Worker-only entry checks run before grouping.
+The existing resident-replay requirement, final World/model/terrain validation,
+private model maps, terrain-generation checks, cancellation and immutable data
+semantics remain. Missing chunks reject cell reads; their stamp is unknown rather
+than an empty-terrain claim. Ordinary region capture keeps its full-region path.
+
+A 20-run headless component comparison uses 1024x256x1024 bounds containing only
+four occupied cells. It compares the old bounding snapshot with occupied-chunk
+selection in one JVM, alternating order after one warmup of each mode. The old
+path reads 65536 chunks through 514 owner requests; the new path reads four chunks
+through three requests. This sparse selection is not the required maximum-limit
+fragmented fixture and does not replace city/maximum acceptance testing.
+
+The component report records median, p95, worst, maximum owner-call body time and
+2 ms samples of used Java heap. Heap samples share a JVM and include carryover
+from earlier runs; they do not establish incremental allocation or memory savings.
+The pump waits 0.1 ms only when idle. Its request counts and timings are not native
+frame, tick, controlled-cold-cache, physical-GPU or 32-client network qualification.
+The native Main workflow separately exercises sparse maximum-bounds preview,
+placement, save and one-operation undo, preserving empty space and unrelated later
+edits, alongside the normal capture/import/rotation/cancellation/editor regressions.
+All existing geometry, affected-chunk, mesh, persistence and rollout gates remain.
+
+
+The native harness can run the two complete cases as separate bounded sessions:
+`python3 deploy/run_structure_playtest.py --display "$DISPLAY" --evidence-prefix structure-sparse-case --timeout-seconds 240 --workflow sparse`
+and `python3 deploy/run_structure_playtest.py --display "$DISPLAY" --evidence-prefix structure-sparse-standard --timeout-seconds 600 --workflow standard`.
+Both passed on the measured source in 65.969 s and 582.150 s, respectively, using
+llvmpipe (LLVM 15.0.6, 256 bits). All 19 screenshots and both fully decoded F10
+clips were inspected. Two earlier combined attempts, one with a synthetic target
+setup error and one interrupted with exit 143, are not counted as full passes.
+
+The four-cell component comparison measured bounding median/p95/worst
+93.242262/127.089151/130.943096 ms and occupied-chunk
+0.789913/1.214280/4.018134 ms. These are snapshot component timings, excluding
+rendering, placement and saving. The 20 samples per mode, exact commands,
+hardware, hashes, correctness results and pending gates are recorded in
+`dashboard/evidence/structure-sparse-snapshot-validation.json` and its samples.
+No supported city or maximum-limit claim follows from this sparse probe.

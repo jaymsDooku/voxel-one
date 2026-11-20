@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T21:32:12+00:00",
+  "updatedAt": "2026-11-20T22:58:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "F12 saved-region capture now writes the existing structure library from a validated viewed snapshot on one worker. Changed sources and output aliases reject; cancellation and terminal receipts preserve atomic publication. Broad checks passed 700 Java tests; final 48-test capture/viewer recheck includes the race fix, giving 701 unique tests across 144 suites. All 40 Python checks, package/MP3 and native workflow passed. Four fresh images and a fully decoded 33-frame video inspected. Source/media await controller publication and exact-head CI. Full writable paging and city/maximum GPU/network qualification remain unfinished.",
-      "updatedAt": "2026-11-20T21:32:12+00:00"
+      "note": "Occupied destination snapshots passed 46 focused tests, 707 Java regressions, 40 Python checks, packaging and shipped MP3 checks. Separate Main workflows passed: standard 582.150 s; sparse 65.969 s. All 19 images inspected; both F10 clips fully decoded and inspected. A 20-run four-cell component probe measured p95 127.089/1.214 ms and 514/3 owner requests. This is not city/maximum qualification. Fresh source/media await controller publication and exact-head CI. Writable paging, remapping and full GPU/network qualification remain unfinished; gates stay closed.",
+      "updatedAt": "2026-11-20T22:58:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
