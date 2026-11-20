@@ -63,12 +63,18 @@ public final class MobileGateway implements AutoCloseable {
     private void handle(HttpExchange exchange)throws IOException{
         int code=200;Object result;
         try{
-            if(!exchange.getRequestMethod().equals("POST"))throw new Failure(405,"Use POST");
             if(exchange.getRequestHeaders().containsKey("Origin"))throw new Failure(403,"Native clients only");
+            String path=exchange.getRequestURI().getPath();
+            if(path.equals("/mobile/v1/health")){
+                if(!exchange.getRequestMethod().equals("GET"))throw new Failure(405,"Use GET");
+                if(exchange.getRequestURI().getRawQuery()!=null || exchange.getRequestBody().readNBytes(1).length!=0)throw new Failure(400,"Invalid health request");
+                // Process liveness only: no game login, accounts, session inventory or upstream probe.
+                result=Map.of("application","voxel-one","component","mobile-gateway","status","alive","protocol",1);
+            }else{
+            if(!exchange.getRequestMethod().equals("POST"))throw new Failure(405,"Use POST");
             byte[] bytes=exchange.getRequestBody().readNBytes(8193);
             if(bytes.length>8192)throw new Failure(413,"Request too large");
             var request=Json.object(new String(bytes,StandardCharsets.UTF_8));
-            String path=exchange.getRequestURI().getPath();
             if(path.equals("/mobile/v1/login")){
                 if(!authAllowed(exchange.getRemoteAddress().getAddress().getHostAddress()))throw new Failure(429,"Too many sign-in attempts; wait a minute");
                 if(connecting.incrementAndGet()>4){connecting.decrementAndGet();throw new Failure(503,"Sign-in busy");}
@@ -120,6 +126,7 @@ public final class MobileGateway implements AutoCloseable {
                         default -> throw new Failure(404,"Unknown route");
                     };
                 }
+            }
             }
         }catch(Failure e){code=e.status;result=Map.of("error",e.getMessage());}
         catch(IllegalArgumentException e){code=400;result=Map.of("error","Invalid request");}

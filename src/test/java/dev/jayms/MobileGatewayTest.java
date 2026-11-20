@@ -11,6 +11,24 @@ import java.util.*;
 import static org.junit.jupiter.api.Assertions.*;
 
 class MobileGatewayTest {
+    @Test void healthIsOnlyPublicGatewayLiveness()throws Exception {
+        // Unreachable game targets deliberately cannot affect process liveness.
+        var target=new MobileGateway.Target("127.0.0.1",1,"not-a-real-server-pin");
+        try(var gateway=new MobileGateway(0,target,target)){
+            gateway.start();var uri=URI.create("http://127.0.0.1:"+gateway.port()+"/mobile/v1/health");
+            var request=healthProbe(uri).GET().build();
+            var health=HTTP.send(request,HttpResponse.BodyHandlers.ofString());
+            assertEquals(200,health.statusCode());
+            assertEquals(Map.of("application","voxel-one","component","mobile-gateway","status","alive","protocol",1.0),Json.object(health.body()));
+            assertEquals("no-store",health.headers().firstValue("Cache-Control").orElseThrow());
+            assertEquals(405,HTTP.send(healthProbe(uri).POST(HttpRequest.BodyPublishers.ofString("{}")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(400,HTTP.send(healthProbe(URI.create(uri+"?probe=1")).GET().build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(400,HTTP.send(healthProbe(uri).method("GET",HttpRequest.BodyPublishers.ofString("x")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(403,HTTP.send(healthProbe(uri).header("Origin","https://example.invalid").GET().build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(401,HTTP.send(healthProbe(URI.create("http://127.0.0.1:"+gateway.port()+"/mobile/v1/state")).POST(HttpRequest.BodyPublishers.ofString("{}")).build(),HttpResponse.BodyHandlers.ofString()).statusCode());
+        }
+    }
+    private static HttpRequest.Builder healthProbe(URI uri){return HttpRequest.newBuilder(uri).timeout(java.time.Duration.ofSeconds(5));}
     @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
         var catalog=MobileSnapshot.recipeCatalog();assertEquals(104,catalog.size());
         Set<Integer> ids=new HashSet<>();

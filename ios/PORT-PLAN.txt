@@ -1558,3 +1558,47 @@ Playtest: affected capture integration exercised via mock simctl unittest CLI.
 Actual hosted capture needs a new exact-source check; no old or invented image
 was substituted. Full native/controls media, trusted execution-budget repair,
 real signed delivery and physical/device/live-service qualifications stay open.
+
+
+HTTPS gateway deployment increment (local qualification)
+Exact d14fcbaf hosted Linux, Windows, mac-intel, mac-arm and Simulator preflight
+checks passed. The downloaded preflight receipt matches that source and image
+checksum; the inspected image is the fresh Simulator home screen. It records
+clientChecked=false and one screenshot attempt. This does not qualify gameplay.
+
+The new deploy/mobile Nginx include/renderer prepares a concrete HTTPS origin for
+the existing loopback gateway. Literal values only; exclusive output creation;
+normal TLS1.2/1.3 trust; exact native routes;8192-byte body bound;16 peer/64 total
+concurrent requests; no proxy retry/cache/request or response buffering. Forwarded
+identity headers are removed. Authorization and Java's independent native-client
+guard remain. No production service, protected configuration or certificate was
+read, installed or reloaded. The renderer never reads private-key contents.
+
+GET /mobile/v1/health exposes only fixed gateway process liveness, with no account,
+session, world or game connection. It is deliberately not upstream readiness.
+Other game paths retain POST/auth/server authority and normal pinned Java TLS.
+The proxy disables request/error logging; its setup guide preserves production
+publication, certificate renewal and live qualification as controller work.
+
+Playtest: actual unprivileged Nginx1.22.1 from a checksum-verified Debian package,
+test-only localhost certificate and fresh synthetic Java Sandbox/City profiles.
+All31 CLI integration checks passed: normal trust rejects the fixture certificate;
+the explicit isolated trust context accepts TLS1.2/1.3; health, route/method/Origin/
+body/Host limits; authenticated movement ordering, edit/reach rejection, token
+revocation and reconnect resynchronization; City road/treasury regression; gateway
+loss returns502. Owned processes stop and private fixture directories are removed.
+No browser UI applies to this native-only HTTP integration.108 Linux harness
+tests and the actual renderer CLI normal/injection/overwrite checks passed.
+The18-case Java gateway suite passed with0 failures/errors/skips after correcting
+the new health test's numeric expectation (the bounded JSON parser returns1.0).
+The initial run had only that assertion failure; production parsing did not change.
+
+No file deletions are intended. The health branch adds one GET endpoint and moves
+the existing Origin guard before method dispatch; game mutation logic is retained.
+All47 required native cases and113 unrelated progress entries remain intact.
+The actual default-branch verifier still caps clients at1200 seconds. Independent
+bounded trusted-budget repair is still needed before a1500-second native run.
+Native controls/gameplay media, another Simulator size, remaining parity and
+landscape-first polish, live VPS, actual signed device export/install/update and
+physical iPhone performance/thermal/battery remain pending. No acceptance gate is
+reduced by this proxy increment or by the passing preflight.

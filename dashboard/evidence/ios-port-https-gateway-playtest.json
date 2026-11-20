@@ -1,0 +1,180 @@
+{
+  "sourceBase": "d14fcbaf4966bf964da45dc93e5bbf41d41e6618",
+  "environment": "Linux; real unprivileged Nginx with test-only trusted localhost certificate; isolated Java Sandbox/City servers and fresh synthetic profiles",
+  "command": "python3 deploy/mobile/test_proxy.py --nginx WORKTREE_NGINX_BINARY --report REPORT",
+  "Playtest": "CLI: verify HTTPS trust and TLS1.2/1.3; process health, method/path/Origin/body rejection; real Sandbox sign-in, movement ordering, edit/reach validation, logout/revocation, reconnect resynchronization; City road/treasury regression; gateway failure. Browser playtesting does not apply to a native-only HTTP integration.",
+  "tests": [
+    {
+      "name": "Fresh isolated Java game servers start",
+      "status": "passed"
+    },
+    {
+      "name": "Actual Nginx accepts rendered configuration",
+      "status": "passed"
+    },
+    {
+      "name": "TLS health exposes only fixed process liveness",
+      "status": "passed"
+    },
+    {
+      "name": "Health and API replies are no-store/nosniff",
+      "status": "passed"
+    },
+    {
+      "name": "Default trust rejects the test-only certificate",
+      "status": "passed"
+    },
+    {
+      "name": "HTTPS supports TLSv1_2",
+      "status": "passed"
+    },
+    {
+      "name": "HTTPS supports TLSv1_3",
+      "status": "passed"
+    },
+    {
+      "name": "Reject GET /mobile/v1/state status 405",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/health status 405",
+      "status": "passed"
+    },
+    {
+      "name": "Reject GET /mobile/v1/health?probe=1 status 404",
+      "status": "passed"
+    },
+    {
+      "name": "Reject GET /mobile/v1/health status 421",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/unknown status 404",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/%73tate status 404",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile//v1/state status 404",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/state status 403",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/state status 403",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/login status 413",
+      "status": "passed"
+    },
+    {
+      "name": "Reject POST /mobile/v1/state status 401",
+      "status": "passed"
+    },
+    {
+      "name": "HTTPS sign-in reaches pinned Java Sandbox transport",
+      "status": "passed"
+    },
+    {
+      "name": "Fresh snapshot retains exact model/item schemas",
+      "status": "passed"
+    },
+    {
+      "name": "Authoritative movement crosses HTTPS",
+      "status": "passed"
+    },
+    {
+      "name": "Delayed movement cannot rewind authoritative pose",
+      "status": "passed"
+    },
+    {
+      "name": "HTTPS edit receives real server confirmation",
+      "status": "passed"
+    },
+    {
+      "name": "Server reach validation survives proxy",
+      "status": "passed"
+    },
+    {
+      "name": "Logout and bearer revocation cross HTTPS",
+      "status": "passed"
+    },
+    {
+      "name": "Reconnect resynchronizes edited authoritative world",
+      "status": "passed"
+    },
+    {
+      "name": "City sign-in remains usable through same HTTPS origin",
+      "status": "passed"
+    },
+    {
+      "name": "City road and treasury stay authoritative",
+      "status": "passed"
+    },
+    {
+      "name": "Gateway loss fails health instead of reporting ready",
+      "status": "passed"
+    },
+    {
+      "name": "Gateway loss returns failed action",
+      "status": "passed"
+    },
+    {
+      "name": "No request or proxy temp files remain after the workflow",
+      "status": "passed"
+    }
+  ],
+  "status": "passed",
+  "limits": [
+    "Not live VPS, native Simulator or physical iPhone evidence.",
+    "Health proves gateway process liveness only, not game-server readiness.",
+    "No deployment, account access, production certificate or install was attempted."
+  ],
+  "sourceSha256": {
+    "deploy/mobile/nginx.conf.in": "c68547f93d5e1740c2f70ae67f2d513e72169dc3692e6d1014dd8e6009f089d3",
+    "deploy/mobile/render_proxy.py": "7bdef6eacaa31d3fa93e24c11bb069852d446e81eefe61120bd40f8db427f877",
+    "src/main/java/dev/jayms/net/mobile/MobileGateway.java": "353961ff1ef022976fc8a24f9fe5be395482e3c51658373d6dc6b80c207c61d8",
+    "deploy/mobile/test_proxy.py": "0adcc593620d82ab6553bfa055e714f396532fa16e7e22077e11da1f3eaab867",
+    "tools/ios/test_mobile_proxy_config.py": "43648a6eb8d943725c8a9921004da318d0fe5f70d1a5be1525009231f7d6c93d",
+    "src/test/java/dev/jayms/MobileGatewayTest.java": "e8d0188175cd35fb92a12d6a7748bd9a38becbc1a1b80acde741b91409ab3fd0"
+  },
+  "sourceState": "uncommitted HTTPS gateway increment on exact sourceBase",
+  "nginxQualification": {
+    "version": "nginx/1.22.1",
+    "package": "Debian nginx_1.22.1-9+deb12u11_amd64.deb",
+    "packageSha256": "4e2778e675c07d0f2d8d3b6f5ff84f6483ade1d82c21c910eb9a2787e1cf1b1a",
+    "execution": "Extracted into ignored assigned-worktree scratch; no system package installation or service change"
+  },
+  "rendererCLI": "Actual CLI rendered the literal production example using only protected path names, rejected an existing output without overwrite and rejected directive injection. No protected files were read.",
+  "remaining": "47-case native/controls media await reviewed trusted execution cap repair. Another Simulator size, landscape-first/remaining parity, live native VPS, actual signed archive/export/install and physical iPhone performance/thermal/battery remain pending.",
+  "references": [
+    "https://nginx.org/en/docs/http/ngx_http_proxy_module.html",
+    "https://nginx.org/en/docs/http/ngx_http_core_module.html",
+    "https://nginx.org/en/docs/http/ngx_http_ssl_module.html"
+  ],
+  "localChecks": [
+    {
+      "command": "mvn -q -o -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest test",
+      "result": "18 tests passed,0 failures/errors/skips in197.403seconds; real isolated Java transport/game regression suite"
+    },
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "108 passed in11.076seconds; Linux tooling/mock tests, not native iOS qualification"
+    },
+    {
+      "command": "python3 -m py_compile deploy/mobile/render_proxy.py deploy/mobile/test_proxy.py tools/ios/test_mobile_proxy_config.py; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "timeout --kill-after=5s 40s mvn -q -o -Dmaven.repo.local=target/maven-repository -DargLine=\"-Djava.io.tmpdir=$PWD/target/mobile-test-tmp\" -Dtest=MobileGatewayTest#healthIsOnlyPublicGatewayLiveness -Dsurefire.reportNameSuffix=health-bounded test",
+      "result": "1 passed with finite5-second HTTP request deadlines; no health or game gate changed"
+    }
+  ],
+  "testRepair": "Initial18-case Java run had1 new health assertion failure: bounded JSON decoder represents protocol1 as1.0. Corrected the test expectation; existing17 cases passed then, and final18-case suite passed. No parser or production gate was weakened.",
+  "audit": "47 native case methods exactly match the required list;113 unrelated progress entries preserved;no file deletions."
+}

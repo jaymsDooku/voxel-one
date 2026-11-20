@@ -102,6 +102,12 @@ app, choose Sandbox or City, then sign in or create an account on that game serv
 The phone uses standard system TLS trust. HTTP is accepted only for localhost
 simulator fixtures; remote cleartext URLs are rejected by the app.
 
+deploy/mobile/README.txt now supplies a literal Nginx HTTPS include renderer,
+process-liveness health contract and an actual isolated TLS/game integration
+check. It preserves the loopback gateway and pinned game-server transport. This
+prepares the VPS path; no production proxy or certificate was installed. Root must
+review/integrate its configuration before live native Sandbox qualification.
+
 The gateway never reads an account database. Passwords are forwarded only through
 the existing pinned-TLS login path, and no credentials are retained by the app.
 Bearers are memory-only, expire after 15 idle minutes and are revoked on logout.
