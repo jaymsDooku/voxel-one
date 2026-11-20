@@ -1,0 +1,119 @@
+{
+  "schema": 1,
+  "parent_head": "e4e96ed0bb000f5c562e5f85abf04a97508c8f07",
+  "review_base": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "status": "Production-shader controls passed; Main lighting diagnosis and full work item remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Adds an isolated native diagnostic and wrapper. Production Java, shaders, lighting defaults, structure caps and qualification gates are unchanged.",
+  "command": "python3 tools/structures/run_model_colour_check.py --display \"$DISPLAY\" --evidence-prefix structure-model-colour",
+  "native": {
+    "status": "passed",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "colour_pixels": [
+      [
+        12018,
+        8968,
+        12018
+      ],
+      [
+        6401,
+        4156,
+        6401
+      ],
+      [
+        6589,
+        3737,
+        6589
+      ],
+      [
+        12018,
+        8968,
+        12018
+      ]
+    ],
+    "qualification": false
+  },
+  "source_files": 292,
+  "compiled_classes": 749,
+  "all_source_shader_class_image_hashes_match": true,
+  "cli_checks": [
+    {
+      "case": "Preserve existing evidence",
+      "exit_code": 1,
+      "status": "passed"
+    },
+    {
+      "case": "fresh simple evidence prefix",
+      "exit_code": 2,
+      "status": "passed"
+    },
+    {
+      "case": "inherited assigned DISPLAY",
+      "exit_code": 2,
+      "status": "passed"
+    }
+  ],
+  "playtest": "Playtest: real GLFW/OpenGL on inherited assigned DISPLAY, synthetic red8 and blue32 model definitions plus an ordinary block. The shipped voxel vertex/fragment shaders draw all controls. Expected: red/blue colours under lighting-disabled tint, ambient/daylight and known camera irradiance; black surfaces under zero camera irradiance and zero sky. Observed: every panel passed its >100 matching-pixel threshold; all four rows and three columns were visually inspected. GL_NO_ERROR and final mesh accounting passed. No game profile, account or save is needed. Browser playtesting does not apply to this native Java shader diagnostic.",
+  "finding": "Custom model and ordinary uniform-colour paths display expected colours under controlled light. The production held path becomes black when supplied zero local light and zero sky. This isolates mesh/colour transfer; it does not prove why Main camera coverage was dark, establish indoor/outdoor lighting correctness, or fix startup coverage.",
+  "image_legend": {
+    "rows_top_to_bottom": [
+      "unlit production shader",
+      "ambient/daylight, no irradiance",
+      "held path with known camera irradiance",
+      "held path with zero camera irradiance and zero sky"
+    ],
+    "columns_left_to_right": [
+      "instanced red8 custom model",
+      "direct blue32 custom model",
+      "ordinary block using uniform red colour"
+    ],
+    "row_one_detail": "Lighting is disabled; the shader retains its built-in directional tint.",
+    "row_four_pixel_count": "Counts black foreground pixels, not coloured pixels."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "heap_limit": "-Xmx256m; not a peak-memory measurement"
+  },
+  "parent_hosted": {
+    "head": "e4e96ed0bb000f5c562e5f85abf04a97508c8f07",
+    "run": 44657692413,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": [
+      "windows-latest/windows",
+      "macos-15-intel/mac-intel",
+      "macos-latest/mac-arm",
+      "ubuntu-latest/linux"
+    ],
+    "publish": "skipped",
+    "scope": "Parent source only. New diagnostic/tooling/docs need fresh exact-head hosted checks."
+  },
+  "parent_regressions": {
+    "source_manifest_matches": 266,
+    "scope": "Published parent Main workflow, Java and Python tests are historical; they were not rerun for these diagnostic-only files. Source/class/shader hashes confirm production remains unchanged."
+  },
+  "audit": {
+    "restored_paths_match_base": 14,
+    "combat_paths_match_base": 14,
+    "deleted_files": [],
+    "intended_deletions": "None. Existing source, unique reports and media remain intact."
+  },
+  "remaining": [
+    "Diagnose actual Main camera sky/irradiance coverage; visible colour/lighting qualification remains pending.",
+    "Atomic World/source/view installation and reconciliation, model rebasing, later live tail coordination and Main large-world paging remain unfinished.",
+    "Current geometry/chunk caps reject required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU, shaped-network 32-client synchronization and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "No supported-city, supported-limit, stable-rollout, Main lighting, physical-GPU or 32-client qualification pass.",
+  "artifacts": {
+    "structure-model-colour.png": "1d9ef7e0492307bcd5fa213325938e05acf72436a04a1011f1023aabb57b729d",
+    "structure-model-colour.json": "731d12f3225323de324044feffc139bdc3038294028ea5cba40a80b90ac27c42"
+  }
+}

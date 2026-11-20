@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Integrated source 16d7: 260 Java and 39 serial Python tests passed; package/MP3, replay and full Main workflow passed. Fresh media and hash receipts saved locally. First Python attempt failed before rebuilt classes were available. Full implementation, city/maximum, lighting, physical-GPU and 32-client gates remain pending; hosted validation needs controller publication.",
-      "updatedAt": "2026-11-20T01:59:24+00:00"
+      "note": "Production-shader model colour controls and three wrapper rejection cases passed; fresh image and hash receipts saved. Known light preserves model colours; zero light stays black. Main camera coverage is not yet diagnosed. No production lighting changes. World/view/Main integration and full city/maximum/GPU/32-client qualification remain pending.",
+      "updatedAt": "2026-11-20T02:28:28+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
