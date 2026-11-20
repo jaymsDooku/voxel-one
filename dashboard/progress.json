@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T06:31:18+00:00",
+  "updatedAt": "2026-11-20T06:56:41+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Bounded resident vertical lighting implemented with height-fenced capture/results/uploads; private replay coverage unchanged. Passed 368 Java tests, 39 Python tests, package/MP3 checks, full native structure workflow, altitude/sealed-room GPU probe, replay/render checks and 15 colour panels. Fresh media/source hashes recorded locally pending controller publication. City/maximum implementation, physical-GPU and 32-client qualification remain gated.",
-      "updatedAt": "2026-11-20T06:31:18+00:00"
+      "note": "Recovered source 0d69fc67 validated against a9e8eed8: 388 Java tests/78 suites, 39 Python tests, package/MP3 checks, full native structure workflow (502.884 s), height/sealed-room GPU probe (200.588 s), replay/render checks and 15 colour panels passed. Fresh media decoded/inspected and hash-pinned locally, pending controller publication and hosted CI. HCF/practice and restored MP3/Hub features preserved. City/maximum implementation and GPU/32-client qualification remain gated.",
+      "updatedAt": "2026-11-20T06:56:41+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
