@@ -671,6 +671,12 @@ public final class PracticeGame {
             ui.rectangle(16, 76 + line * 19, ui.textWidth(status, 1f) + 22, 19, .031f, .05f, .065f, .86f);
             ui.text(status, 27, 81 + line++ * 19, 1);
         }
+        String sprintStatus = sprintToggle.status();
+        if (actor != null && actor.health() > 0 && !sprintStatus.isEmpty()) {
+            float top = 76 + line * 19;
+            ui.rectangle(16, top, ui.textWidth(sprintStatus, 1.35f) + 22, 24, .031f, .05f, .065f, .94f);
+            ui.text(sprintStatus, 27, top + 7, 1.35f, .61f, .94f, .76f, 1);
+        }
         if (view.phase() == Phase.COUNTDOWN || view.phase() == Phase.RESULT) {
             String notice = view.phase() == Phase.COUNTDOWN ? Integer.toString((view.ticksLeft() + 19) / 20)
                     : resultText();
@@ -746,9 +752,7 @@ public final class PracticeGame {
             drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
         String held = PracticeItemIcons.name(selectedItem());
-        String sprintStatus = sprintToggle.status();
-        String timers = (held.isEmpty() ? "" : held + "   ")
-                + (sprintStatus.isEmpty() ? "" : sprintStatus + "   ") + "Armor " + armor
+        String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor
                 + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";
         float timerScale = Math.min(1.02f, 532f / Math.max(1, ui.textWidth(timers, 1f)));
