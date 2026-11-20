@@ -23,11 +23,18 @@ final class SavedPagingSessionFrame {
         warm(session.world(),session.scene());assertFalse(session.local().replayComplete());assertThrows(java.io.IOException.class,session.local()::save);render(session.world(),image);
     }
     static void render(World world,Path image)throws Exception {
+        render(world,image,null);
+    }
+    static void render(World world,Path image,String navigation)throws Exception {
         try(var shader=new ShaderProgram("shaders/voxel.vert","shaders/planar.frag");var models=new VoxelModelRenderer(world.models())) {
             glViewport(0,0,640,480);glEnable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);glClearColor(.04f,.07f,.12f,1);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
             shader.bind();shader.setMatrix4("uProjection",ReplaySkyFrameCheck.projection());shader.setMatrix4("uView",new Matrix4f().translation(0,-160,0));shader.setMatrix4("uModel",new Matrix4f());
             shader.setInt("uVertexColor",1);shader.setInt("uInstanced",0);shader.setFloat("uAmbient",2);shader.setFloat("uDaylight",1);shader.setVector3("uSun",0,1,0);
-            assertEquals(1,world.renderReplayGeometry(ReplaySkyFrameCheck.visible(),shader));models.render(world,ReplaySkyFrameCheck.visible(),shader);glFinish();assertEquals(GL_NO_ERROR,glGetError());
+            assertEquals(1,world.renderReplayGeometry(ReplaySkyFrameCheck.visible(),shader));models.render(world,ReplaySkyFrameCheck.visible(),shader);
+            if(navigation!=null)try(var overlay=new dev.jayms.ui.Overlay()) {
+                overlay.begin(640,480);overlay.text(navigation,16,24,1.2f);overlay.text("2 chunks ready; saved world unchanged",16,44,1.2f);overlay.end();
+            }
+            glFinish();assertEquals(GL_NO_ERROR,glGetError());
             var pixels=MemoryUtil.memAlloc(640*480*4);
             try {
                 glReadPixels(0,0,640,480,GL_RGBA,GL_UNSIGNED_BYTE,pixels);var output=new BufferedImage(640,480,BufferedImage.TYPE_INT_RGB);int red=0,blue=0;
@@ -50,6 +57,28 @@ final class SavedPagingSessionFrame {
         }
         assertEquals(baseline,Mesh.estimatedResidentBytes());try(var files=Files.list(scratch)){assertEquals(0,files.count());}
         Files.writeString(root.resolve("cold-result.json"),"{\"status\":\"passed\",\"checked_rows\":"+rows+",\"cpu_chunks\":1,\"gpu_chunks\":1,\"resident_world_chunks\":0,\"unknown_cells_reject\":true,\"edits_reject\":true,\"saved_bytes_unchanged\":true,\"cleanup_complete\":true,\"os_cache_controlled\":false,\"qualification\":false}\n");
+    }
+    static void navigationCapture(Path root,Path file,Path image)throws Exception {
+        long baseline=Mesh.estimatedResidentBytes();byte[] disk=Files.readAllBytes(file);var scratch=root.resolve("navigation-source");
+        var here=new ChunkPos(0,10,0);var left=new ChunkPos(-1,10,0);var origin=new org.joml.Vector3f(-.5f,160.5f,.5f);var direction=new org.joml.Vector3f(1,0,0);
+        try(var session=new ReadOnlyWorldSession(file,scratch,2,8192)) {
+            ReadOnlyWorldSessionTest.ready(session);var world=session.world();var stopped=session.trace(origin,direction,6);assertNull(stopped.hit());assertEquals(-1,stopped.unavailable().x());assertFalse(stopped.unavailable().replayDataReady());
+            session.demand(List.of(here),Collections.nCopies(8,stopped.unavailable()));assertEquals(0,session.status().readyCpuChunks());ReadOnlyWorldNavigationTest.cpu(session,2);
+            var cpu=session.trace(origin,direction,6);assertNull(cpu.hit());assertTrue(cpu.unavailable().replayDataReady());assertFalse(world.isLoaded(-1,160,0));
+            for(int step=0;session.status().readyGpuChunks()!=2&&step<20000;step++)session.pumpGpu(64,System.nanoTime()+100_000_000L,()->false);
+            assertEquals(2,session.status().readyGpuChunks());var hit=session.trace(origin,direction,6);assertNull(hit.unavailable());assertNotNull(hit.hit());assertEquals(0,hit.hit().x());assertEquals(160,hit.hit().y());assertEquals(0,hit.hit().z());
+            var miss=session.trace(new org.joml.Vector3f(10.5f,160.5f,10.5f),new org.joml.Vector3f(0,0,1),2);assertNull(miss.hit());assertNull(miss.unavailable());
+            assertThrows(IllegalArgumentException.class,()->session.demand(List.of(here,left,new ChunkPos(1,10,0)),List.of()));assertEquals(2,session.status().readyGpuChunks());
+            assertThrows(IllegalArgumentException.class,()->session.trace(origin,direction,65));assertThrows(java.util.concurrent.CancellationException.class,()->session.pumpGpu(0,System.nanoTime()+1_000_000L,()->true));assertEquals(2,session.status().readyGpuChunks());
+            session.demand(List.of(here),List.of());assertEquals(1,session.status().readyGpuChunks());assertFalse(session.trace(origin,direction,6).unavailable().replayDataReady());
+            session.demand(List.of(here),List.of(cpu.unavailable()));ReadOnlyWorldNavigationTest.cpu(session,2);
+            for(int step=0;session.status().readyGpuChunks()!=2&&step<20000;step++)session.pumpGpu(64,System.nanoTime()+100_000_000L,()->false);
+            assertEquals(2,session.status().readyGpuChunks());assertNotNull(session.trace(origin,direction,6).hit());assertTrue(world.getLoadedChunks().isEmpty());
+            assertThrows(IllegalStateException.class,()->world.apply(new Protocol.Edit(0,160,0,Blocks.AIR)));assertThrows(IllegalStateException.class,world::beginStructureSnapshot);
+            render(world,image,"Ray resumed: hit saved cell 0 / 160 / 0");assertArrayEquals(disk,Files.readAllBytes(file));ReadOnlyWorldSessionTest.closed(session);assertTrue(world.isClosed());
+        }
+        assertEquals(baseline,Mesh.estimatedResidentBytes());try(var files=Files.list(scratch)){assertEquals(0,files.count());}
+        Files.writeString(root.resolve("navigation-result.json"),"{\"status\":\"passed\",\"cpu_chunks\":2,\"gpu_chunks\":2,\"resident_world_chunks\":0,\"unknown_then_cpu_then_gpu_hit\":true,\"known_miss\":true,\"invalid_demand_preserved_scene\":true,\"eviction_and_stale_hint_reload\":true,\"cancel_preserved_scene\":true,\"edits_reject\":true,\"saved_bytes_unchanged\":true,\"cleanup_complete\":true,\"qualification\":false}\n");
     }
     static void capture(Path root,Path image)throws Exception {
         long baseline=Mesh.estimatedResidentBytes();var tests=new ReadbackSaveSnapshotTest();tests.folder=Files.createDirectories(root.resolve("contexts"));
@@ -121,6 +150,7 @@ final class SavedPagingSessionFrame {
                 }
             }
             coldCapture(root,c.path,image.resolveSibling(image.getFileName().toString().replace("-session.png","-cold.png")));
+            navigationCapture(root,c.path,image.resolveSibling(image.getFileName().toString().replace("-session.png","-navigation.png")));
         }
     }
 }

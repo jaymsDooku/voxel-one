@@ -2399,3 +2399,34 @@ Main gameplay still requires a complete replay; this API does not bypass that
 gate. Main wiring, writable paging, true model-ID remapping and full
 city/maximum/reference-GPU/32-client qualification remain unfinished. Fresh-spool
 validation does not establish the required cold-OS-cache load budget.
+
+
+### Bounded read-only navigation
+
+`ReadOnlyWorldSession.trace(origin, direction, reach)` queries the same partial
+World used for drawing. It returns the first saved-geometry hit, a known miss,
+or the first unavailable cell. CPU data alone does not grant a hit: a chunk
+must also have its complete GPU scene entry. The new session API accepts finite,
+nonzero directions and finite reach from 0 through 64 world cells, including the
+endpoints. Origins must be within existing protocol world/build bounds. Invalid
+rays reject rather than becoming known misses. The ordinary gameplay raycaster
+and Main startup path remain unchanged.
+
+`demand(visible, boundaries)` merges visible chunk positions and ray-boundary
+coordinates through the scene, keeping CPU and GPU demand coherent. At most 64
+input hints total are inspected; duplicates collapse, encounter order is kept,
+and the unique union must fit the configured one- or two-chunk scene capacity.
+Full chunk bounds and boundary coordinates are checked before changing demand.
+Invalid, null, changed-size or oversized inputs leave the old selection intact.
+Boundary readiness flags convey no authority and are ignored: an evicted chunk
+must load again even when a held hint once reported ready.
+
+A caller traces, updates demand, then explicitly ticks and pumps GPU uploads
+before tracing again. Trace and demand do not submit worker requests, wait for
+completion, or start uploads. Demand may retire evicted GPU resources through
+the existing owner cleanup path; it has no frame-time guarantee. Empty demand
+evicts coverage. Invalid source/model/World state, foreign threads, closed
+sessions and callback reentry reject. This provides read-only navigation queries,
+not movement/physics scheduling, edit/capture/save authority or Main gameplay.
+All existing package, chunk, scene/cache, placement and qualification gates stay
+in force. City/maximum and physical-GPU/shaped-32-client qualification remain pending.

@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T18:13:25+00:00",
+  "updatedAt": "2026-11-20T18:51:08+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Added bounded public read-only saved-world startup. Passed 656 Java tests, 40 Python checks, packaged MP3 decoding and native fresh-session/save-reopen regressions; inspected six new images. Source and media await controller publication and exact-source CI. Main gameplay wiring, writable paging, model-ID remapping and city/reference-GPU/32-client qualification remain unfinished.",
-      "updatedAt": "2026-11-20T18:13:25+00:00"
+      "note": "Added bounded read-only ray queries and coherent visible/boundary chunk demand. Passed 664 Java tests, 40 Python checks, packaged MP3 decoding and native unknown/CPU/GPU-hit, miss, eviction/reload, cancellation and rendering regressions. Inspected seven fresh images. Source and media await controller publication and CI. Main/writable paging, model-ID remapping and city/GPU/32-client qualification remain unfinished.",
+      "updatedAt": "2026-11-20T18:51:08+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

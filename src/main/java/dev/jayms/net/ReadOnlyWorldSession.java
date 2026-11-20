@@ -3,6 +3,7 @@ package dev.jayms.net;
 import dev.jayms.ChunkPos;
 import dev.jayms.CloseSequence;
 import dev.jayms.World;
+import dev.jayms.BlockRaycaster;
 import dev.jayms.net.structure.StructurePackage;
 import java.io.IOException;
 import java.nio.file.*;
@@ -16,6 +17,8 @@ import java.util.function.BooleanSupplier;
 public final class ReadOnlyWorldSession implements AutoCloseable {
     public static final int MAX_VISIBLE_CHUNKS=2;
     public static final int MAX_CELL_LEAVES=RegionReplayChunk.MAX_CELL_LEAVES;
+    public static final int MAX_DEMAND_HINTS=64;
+    public static final float MAX_RAY_REACH=64;
     public enum State {OPENING,READY,UNAVAILABLE,CLOSING,CLEANUP_FAILED,CLOSED,FAILED}
     /** CPU/GPU counts during a callback describe the last completed owner step. */
     public record Status(State state,int checkedRows,int readyCpuChunks,int readyGpuChunks,int failedChunks,boolean ownerStepActive,Exception failure) {}
@@ -80,6 +83,46 @@ public final class ReadOnlyWorldSession implements AutoCloseable {
     }
     public void desired(List<ChunkPos> chunks)throws IOException {
         enter();try{ready().scene().desired(chunks);remember();}finally{busy=false;}
+    }
+    /** Merge visible chunks and ray loading boundaries before replacing scene
+     * demand. Flags are hints only: even a formerly ready cell must be loaded
+     * again after eviction. Invalid/oversized input leaves demand unchanged.
+     * This performs no tick, worker submission, upload, or waiting. */
+    public void demand(List<ChunkPos> visible,List<BlockRaycaster.UnavailableCell> boundaries)throws IOException {
+        enter();try {
+            var current=ready();remember();Objects.requireNonNull(visible);Objects.requireNonNull(boundaries);
+            int count=visible.size(),hints=boundaries.size();
+            if(count<0||hints<0||(long)count+hints>MAX_DEMAND_HINTS)throw new IllegalArgumentException("Read-only world demand hint budget");
+            var next=new LinkedHashSet<ChunkPos>();
+            for(int i=0;i<count;i++)addDemand(next,Objects.requireNonNull(visible.get(i)));
+            for(int i=0;i<hints;i++) {
+                var cell=Objects.requireNonNull(boundaries.get(i));
+                if(!new Protocol.Edit(cell.x(),cell.y(),cell.z(),0).valid())throw new IllegalArgumentException("Read-only world boundary bounds");
+                addDemand(next,ChunkPos.fromBlock(cell.x(),cell.y(),cell.z()));
+            }
+            if(visible.size()!=count||boundaries.size()!=hints)throw new ConcurrentModificationException("Read-only world demand changed");
+            current.scene().desired(List.copyOf(next));remember();
+        }finally{busy=false;}
+    }
+    private void addDemand(Set<ChunkPos> next,ChunkPos chunk)throws IOException {
+        RegionReplayChunk.checkRegion(chunk);next.add(chunk);
+        if(next.size()>capacity)throw new IllegalArgumentException("Read-only world desired-chunk budget");
+    }
+    /** Query only. An unavailable result is a stopping boundary, never known
+     * air or a hit. Call demand/tick/pumpGpu explicitly before tracing again.
+     * The new API bounds reach; the ordinary gameplay raycaster is unchanged. */
+    public BlockRaycaster.Trace trace(org.joml.Vector3f origin,org.joml.Vector3f direction,float reach)throws IOException {
+        enter();try {
+            var current=ready();remember();Objects.requireNonNull(origin);Objects.requireNonNull(direction);
+            var start=new org.joml.Vector3f(origin);var ray=new org.joml.Vector3f(direction);
+            if(!Float.isFinite(reach)||reach<0||reach>MAX_RAY_REACH
+                    ||!Float.isFinite(start.x)||!Float.isFinite(start.y)||!Float.isFinite(start.z)
+                    ||!Float.isFinite(ray.x)||!Float.isFinite(ray.y)||!Float.isFinite(ray.z)
+                    ||ray.x==0&&ray.y==0&&ray.z==0
+                    ||!new Protocol.Edit((int)Math.floor(start.x),(int)Math.floor(start.y),(int)Math.floor(start.z),0).valid())
+                throw new IllegalArgumentException("Read-only world ray bounds");
+            return BlockRaycaster.trace(current.world(),start,ray,reach);
+        }finally{busy=false;}
     }
     public IOException failure(ChunkPos chunk)throws IOException {
         owner();if(busy)throw new IOException("Read-only world reentry");return ready().scene().failure(Objects.requireNonNull(chunk));
