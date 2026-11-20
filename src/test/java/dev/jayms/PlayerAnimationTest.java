@@ -12,6 +12,19 @@ import java.io.*;
 
 class PlayerAnimationTest {
     @Test
+    void standingAvatarAndCameraSharePaperHeightAndEyeLine() {
+        assertEquals(1.80, PlayerSkin.STANDING_MODEL_HEIGHT * PlayerSkin.PLAYER_SCALE, .000001);
+        float eyes = PlayerSkin.HEAD_BASE + PlayerSkin.PLAYER_EYE_BASE + PlayerAnimation.PIXEL / 2;
+        assertEquals(1.62, eyes * PlayerSkin.PLAYER_SCALE, .000001);
+        assertEquals(1.62, Player.EYE_HEIGHT, .000001);
+        assertEquals(.60, Player.RADIUS * 2, .000001);
+        var player = new Player(new Vector3f(0, 1, 0), 0, 0, new Camera());
+        assertEquals(1.62, player.eyePosition().y - player.position().y, .000001);
+        player.mount(true, new Vector3f(0, 1, 0));
+        assertEquals(1.60, player.eyePosition().y - player.position().y, .000001);
+    }
+
+    @Test
     void classicRigHasFullWidthLimbsAndOpposingWalkCycle() {
         assertEquals(.5f, PlayerAnimation.HEAD);
         assertEquals(.5f, PlayerAnimation.BODY_WIDTH);

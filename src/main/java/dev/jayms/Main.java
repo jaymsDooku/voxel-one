@@ -1426,7 +1426,7 @@ public class Main {
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
                 if (p != null) {
-                    if (city().horses().stream().anyMatch(h -> h.rider() == p.id()))
+                    if (remoteMounted(p))
                         playerModel.renderRider(p, shader, modelRenderer);
                     else playerModel.render(p, shader, modelRenderer);
                 }
@@ -1510,12 +1510,18 @@ public class Main {
         if (network != null)
             for (var remote : network.remotePlayers.values()) {
                 var p = remote.sample(System.nanoTime());
-                if (p != null) nameplate(remote.name, new Vector3f(p.x(), p.y() + 2.15f, p.z()));
+                if (p != null) {
+                    float labelHeight = remoteMounted(p) ? 2.15f : PlayerDimensions.NAMEPLATE_HEIGHT;
+                    nameplate(remote.name, new Vector3f(p.x(), p.y() + labelHeight, p.z()));
+                }
             }
-        if (isometric || player.thirdPerson())
+        if (isometric || player.thirdPerson()) {
+            float labelHeight = player.mounted() || (jeep != null && jeep.driving())
+                    ? 2.15f : PlayerDimensions.NAMEPLATE_HEIGHT;
             nameplate(
                     network == null ? "Offline player" : network.username,
-                    player.position().add(0, 2.15f, 0));
+                    player.position().add(0, labelHeight, 0));
+        }
         if (captured) {
             overlay.rectangle(
                     framebufferWidth / 2f - 7, framebufferHeight / 2f - 1, 14, 2, 1, 1, 1, .9f);
@@ -1699,6 +1705,10 @@ public class Main {
             overlay.rectangle(rx, 12, rw, 30, .3f, .025f, .035f, .95f);
             overlay.text(recording, rx + 10, 22, 1.3f);
         }
+    }
+
+    private boolean remoteMounted(Protocol.Pose pose) {
+        return city().horses().stream().anyMatch(horse -> horse.rider() == pose.id());
     }
 
     private void nameplate(String name, Vector3f position) {

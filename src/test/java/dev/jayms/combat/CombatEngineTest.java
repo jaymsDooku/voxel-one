@@ -345,7 +345,7 @@ class CombatEngineTest {
         assertTrue(engine.submit(2, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0)));
         engine.tick();
         var alongWall = engine.snapshot(2);
-        assertEquals(4 - .31, alongWall.feet().x(), .00001);
+        assertEquals(3.70, alongWall.feet().x(), .00001);
         assertEquals(.098, alongWall.velocity().z(), .00001);
         assertFalse(alongWall.grounded());
         tick(engine, 4);

@@ -8,6 +8,11 @@ public final class PlayerSkin {
     public static final float HAIR_WIDTH = HEAD + 2 * OUTER_INFLATION;
     public static final float HAIR_BOTTOM = 6 * PIXEL;
     public static final float HAIR_HEIGHT = 2 * PIXEL + OUTER_INFLATION;
+    public static final float HEAD_BASE = LIMB_HEIGHT + BODY_HEIGHT;
+    public static final float STANDING_MODEL_HEIGHT = HEAD_BASE + HAIR_BOTTOM + HAIR_HEIGHT;
+    public static final float PLAYER_SCALE = (float) (PlayerDimensions.HEIGHT / STANDING_MODEL_HEIGHT);
+    public static final float PLAYER_EYE_BASE = (float) (PlayerDimensions.EYE_HEIGHT / PLAYER_SCALE)
+            - HEAD_BASE - PIXEL / 2;
 
     private PlayerSkin() {}
 }

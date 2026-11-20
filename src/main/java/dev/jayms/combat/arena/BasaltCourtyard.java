@@ -3,6 +3,7 @@ package dev.jayms.combat.arena;
 import dev.jayms.net.Blocks;
 import dev.jayms.net.Protocol;
 import dev.jayms.net.Terrain;
+import dev.jayms.player.PlayerDimensions;
 
 import java.util.function.Consumer;
 
@@ -17,8 +18,8 @@ public final class BasaltCourtyard {
     public static final int MAX_Z = 18;
     public static final int FLOOR_Y = 72;
     public static final int CEILING_Y = 84;
-    private static final double PLAYER_RADIUS = .3;
-    private static final double PLAYER_HEIGHT = 1.8;
+    private static final double PLAYER_RADIUS = PlayerDimensions.RADIUS;
+    private static final double PLAYER_HEIGHT = PlayerDimensions.HEIGHT;
     private static final double GROUND_TOLERANCE = .02;
     private static final int SPECTATOR_FLOOR = FLOOR_Y + 5;
 

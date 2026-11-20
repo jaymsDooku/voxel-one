@@ -15,6 +15,16 @@ class CombatMovementTest {
     private static final Arena FLOOR = field((x, y, z) -> y == 0);
 
     @Test
+    void standingHitboxUsesPaperWidthAndHeight() {
+        Vec3 across = new Vec3(2, 0, 0);
+        assertTrue(Double.isFinite(CombatGeometry.firstBody(new Vec3(-.5, 2.799, .799), across, SPAWN)));
+        assertEquals(Double.POSITIVE_INFINITY,
+                CombatGeometry.firstBody(new Vec3(-.5, 2.799, .801), across, SPAWN));
+        assertEquals(Double.POSITIVE_INFINITY,
+                CombatGeometry.firstBody(new Vec3(-.5, 2.801, .5), across, SPAWN));
+    }
+
+    @Test
     void walkingAccumulatesVelocityAndCoastsAfterRelease() {
         State state = new State(SPAWN, ZERO, true, 0);
         var walking = input(1, 0, false, false);
@@ -123,7 +133,7 @@ class CombatMovementTest {
         State state = new State(SPAWN, new Vec3(1.2, -.0784, .3), true, 0);
         var moved = CombatMovement.step(wall, 1, state, input(0, 0, false, false));
         assertTrue(moved.hitHorizontalWall());
-        assertEquals(.69, moved.state().feet().x(), EPSILON);
+        assertEquals(.70, moved.state().feet().x(), EPSILON);
         assertEquals(.3, moved.displacement().z(), EPSILON);
         assertEquals(0, moved.state().motion().x(), EPSILON);
         assertEquals(.1638, moved.state().motion().z(), EPSILON);

@@ -56,7 +56,7 @@ class ArenaMotionTimelineTest {
         assertEquals(5.60f, corner.z(), .0001f);
         for (int i = 0; i <= 40; i++) {
             var pose = motion.sample(1, cursor(100 + i / 40.0));
-            assertTrue(pose.x() < 7.69f || pose.z() < 5.69f, "the player body must stay outside the cover");
+            assertTrue(pose.x() < 7.70f || pose.z() < 5.70f, "the player body must stay outside the cover");
         }
     }
 
@@ -71,7 +71,7 @@ class ArenaMotionTimelineTest {
         assertEquals(7.73f, pose.x(), .0001f);
         for (int i = 1; i < 40; i++) {
             var frame = motion.sample(1, cursor(100 + i / 40.0));
-            assertTrue(frame.x() <= 7.69f || frame.y() >= 75f);
+            assertTrue(frame.x() <= 7.70f || frame.y() >= 75f);
         }
     }
 

@@ -27,6 +27,7 @@ import dev.jayms.net.ItemDrop;
 import dev.jayms.net.Items;
 import dev.jayms.net.Protocol;
 import dev.jayms.net.city.GameConfig;
+import dev.jayms.player.PlayerDimensions;
 import dev.jayms.player.PlayerModel;
 import dev.jayms.recording.ScreenRecorder;
 import dev.jayms.render.GraphicsProfile;
@@ -563,9 +564,10 @@ public final class PracticeGame {
         }
         var local = spectator || respawn ? null : motion.sample(id, frame.local());
         localPose = local == null ? new PoseView(view.tick(), view.tick(), view.tick()) : local.pose();
-        if (spectator) camera.position().set(gallery.x(), gallery.y() + 1.62f, gallery.z());
-        else if (local == null) camera.position().set(actor.x(), actor.y() + 1.62f, actor.z());
-        else camera.position().set(local.x(), local.y() + 1.62f, local.z());
+        float eyeHeight = (float) PlayerDimensions.EYE_HEIGHT;
+        if (spectator) camera.position().set(gallery.x(), gallery.y() + eyeHeight, gallery.z());
+        else if (local == null) camera.position().set(actor.x(), actor.y() + eyeHeight, actor.z());
+        else camera.position().set(local.x(), local.y() + eyeHeight, local.z());
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 
@@ -713,7 +715,7 @@ public final class PracticeGame {
         for (var actor : remoteActors) {
             Fighter fighter = actor.fighter();
             if (fighter.side() < 0 || !visible(actor)) continue;
-            Vector4f clip = clipFromWorld.transform(new Vector4f(actor.x(), actor.y() + 2.16f, actor.z(), 1));
+            Vector4f clip = clipFromWorld.transform(new Vector4f(actor.x(), actor.y() + PlayerDimensions.NAMEPLATE_HEIGHT, actor.z(), 1));
             if (clip.w <= 0 || Math.abs(clip.x) > clip.w || Math.abs(clip.y) > clip.w || Math.abs(clip.z) > clip.w) continue;
             float x = (clip.x / clip.w * .5f + .5f) * width;
             float y = (.5f - clip.y / clip.w * .5f) * height;

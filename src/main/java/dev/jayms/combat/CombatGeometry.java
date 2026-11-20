@@ -2,11 +2,12 @@ package dev.jayms.combat;
 
 import dev.jayms.combat.CombatEngine.Arena;
 import dev.jayms.combat.CombatEngine.Vec3;
+import dev.jayms.player.PlayerDimensions;
 
 public final class CombatGeometry {
-    static final double BODY_RADIUS = .31;
-    static final double BODY_HEIGHT = 1.8;
-    static final double EYE_HEIGHT = 1.62;
+    static final double BODY_RADIUS = PlayerDimensions.RADIUS;
+    static final double BODY_HEIGHT = PlayerDimensions.HEIGHT;
+    static final double EYE_HEIGHT = PlayerDimensions.EYE_HEIGHT;
     private static final double EPSILON = 1e-7;
     private static final double CONTACT_EPSILON = .0001;
 

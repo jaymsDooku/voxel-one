@@ -10,7 +10,8 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class Player {
-    public static final float RADIUS = .3f, HEIGHT = 1.8f, EYE_HEIGHT = 1.6f;
+    public static final float RADIUS = (float) PlayerDimensions.RADIUS, HEIGHT = (float) PlayerDimensions.HEIGHT,
+            EYE_HEIGHT = (float) PlayerDimensions.EYE_HEIGHT;
     private final Vector3f position, lastSafe, velocity = new Vector3f();
     private float yaw, pitch, verticalVelocity, walkPhase, walkAmount;
 
@@ -421,6 +422,6 @@ public class Player {
     }
 
     public Vector3f eyePosition() {
-        return new Vector3f(position).add(0, EYE_HEIGHT, 0);
+        return new Vector3f(position).add(0, mounted() ? 1.6f : EYE_HEIGHT, 0);
     }
 }

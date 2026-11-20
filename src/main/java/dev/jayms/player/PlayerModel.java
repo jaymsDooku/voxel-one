@@ -57,6 +57,8 @@ public class PlayerModel implements AutoCloseable {
             // Align along the house's depth; a station's travel yaw could put the head in a wall.
             root.translate(0, .3f, 0).rotateX((float) Math.PI / 2);
         else root.rotateY((float) Math.toRadians(-player.yaw() - 90));
+        boolean standingPlayer = cohort < 0 && !seated;
+        if (standingPlayer) root.scale(PlayerSkin.PLAYER_SCALE);
         var pose =
                 pose(
                         player.walkPhase(),
@@ -69,7 +71,7 @@ public class PlayerModel implements AutoCloseable {
         Matrix4f torso = new Matrix4f(root).rotateY(pose.bodyTwist());
         Matrix4f head =
                 new Matrix4f(torso)
-                        .translate(0, 24 * PIXEL, 0)
+                        .translate(0, PlayerSkin.HEAD_BASE, 0)
                         .rotateX((float) Math.toRadians(-player.pitch()));
         skin(shader);
         box(shader, head, HEAD, HEAD, HEAD);
@@ -81,18 +83,19 @@ public class PlayerModel implements AutoCloseable {
                 PlayerSkin.HAIR_WIDTH,
                 PlayerSkin.HAIR_HEIGHT,
                 PlayerSkin.HAIR_WIDTH);
+        float eyeBase = standingPlayer ? PlayerSkin.PLAYER_EYE_BASE : 3.6f * PIXEL;
         for (float x : new float[] {-1.7f * PIXEL, 1.7f * PIXEL}) {
             shader.setVector3("uColor", .95f, .96f, .92f);
             box(
                     shader,
-                    new Matrix4f(head).translate(x, 3.6f * PIXEL, -HEAD / 2 - .004f),
+                    new Matrix4f(head).translate(x, eyeBase, -HEAD / 2 - .004f),
                     1.5f * PIXEL,
                     PIXEL,
                     .008f);
             shader.setVector3("uColor", .13f, .22f, .32f);
             box(
                     shader,
-                    new Matrix4f(head).translate(x, 3.6f * PIXEL, -HEAD / 2 - .010f),
+                    new Matrix4f(head).translate(x, eyeBase, -HEAD / 2 - .010f),
                     .7f * PIXEL,
                     PIXEL,
                     .008f);
