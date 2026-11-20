@@ -13,7 +13,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Controlled material diagnostic using the shipped voxel shader, not Main readiness. */
 public final class ModelColourCheck {
-    static final int PANEL=144,W=3*PANEL,H=4*PANEL;
+    static final int PANEL=144,ROWS=5,W=3*PANEL,H=ROWS*PANEL;
     static void check(boolean ok,String message){if(!ok)throw new AssertionError(message);}
     static int program(ShaderProgram shader)throws Exception {
         var field=ShaderProgram.class.getDeclaredField("programId");field.setAccessible(true);return field.getInt(shader);
@@ -40,12 +40,12 @@ public final class ModelColourCheck {
             glReadPixels(0,0,W,H,GL_RGBA,GL_UNSIGNED_BYTE,pixels);var output=new BufferedImage(W,H,BufferedImage.TYPE_INT_RGB);
             for(int y=0;y<H;y++)for(int x=0;x<W;x++) {
                 int i=(y*W+x)*4,r=pixels.get(i)&255,g=pixels.get(i+1)&255,b=pixels.get(i+2)&255;
-                int row=3-y/PANEL,column=x/PANEL;
-                boolean expected=row==3?r+g+b<6:column==1?b>r*2&&b>50:r>b*2&&r>50;
+                int row=ROWS-1-y/PANEL,column=x/PANEL;
+                boolean expected=row>=3?r+g+b<6:column==1?b>r*2&&b>50:r>b*2&&r>50;
                 if(expected)counts[row][column]++;
                 output.setRGB(x,H-y-1,(r<<16)|(g<<8)|b);
             }
-            for(int row=0;row<4;row++)for(int column=0;column<3;column++)check(counts[row][column]>100,"Expected colour/light control row="+row+" column="+column);
+            for(int row=0;row<ROWS;row++)for(int column=0;column<3;column++)check(counts[row][column]>100,"Expected colour/light control row="+row+" column="+column);
             check(javax.imageio.ImageIO.write(output,"png",image.toFile()),"PNG capture");
         }finally{MemoryUtil.memFree(pixels);}
     }
@@ -57,7 +57,7 @@ public final class ModelColourCheck {
         var red=new SparseVoxelOctree(8);red.fill(0,0,0,8,8,8,0xffed593c);
         var blue=new SparseVoxelOctree(32);blue.fill(0,0,0,32,8,32,0xff3b91f4);blue.fill(0,0,0,8,32,32,0xff3b91f4);
         var ordinary=new Chunk();ordinary.setBlock(0,0,0,Blocks.STONE);
-        int texture=glGenTextures();int[][] counts=new int[4][3];String renderer=glGetString(GL_RENDERER),version=glGetString(GL_VERSION);
+        int texture=glGenTextures();int[][] counts=new int[ROWS][3];String renderer=glGetString(GL_RENDERER),version=glGetString(GL_VERSION);
         try(var shader=new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag");
                 var redMesh=VoxelModelRenderer.mesh(new ModelDefinition("Synthetic red8",red));
                 var blueMesh=VoxelModelRenderer.mesh(new ModelDefinition("Synthetic blue32",blue));
@@ -72,12 +72,12 @@ public final class ModelColourCheck {
             glEnable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);glClearColor(.06f,.06f,.06f,1);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
             try(var stack=MemoryStack.stackPush()) {
                 ByteBuffer light=stack.malloc(4);
-                for(int row=0;row<4;row++) {
-                    boolean dark=row==3;light.clear().put((byte)(dark?0:64)).put((byte)(dark?0:64)).put((byte)(dark?0:64)).put((byte)(dark?128:255)).flip();
+                for(int row=0;row<ROWS;row++) {
+                    boolean dark=row>=3;light.clear().put((byte)(dark?0:64)).put((byte)(dark?0:64)).put((byte)(dark?0:64)).put((byte)(dark?128:255)).flip();
                     glTexImage3D(GL_TEXTURE_3D,0,GL_RGBA8,1,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,light);
-                    shader.setInt("uLightingEnabled",row==0?0:1);shader.setInt("uHeld",row>=2?1:0);shader.setInt("uPlanetLighting",row>=2?1:0);shader.setInt("uHasIrradiance",row>=2?1:0);
+                    shader.setInt("uLightingEnabled",row==0?0:1);shader.setInt("uHeld",row>=2?1:0);shader.setInt("uPlanetLighting",row>=2?1:0);shader.setInt("uHasIrradiance",row>=2&&row<4?1:0);shader.setInt("uSkyColumns",0);
                     for(int column=0;column<3;column++) {
-                        glViewport(column*PANEL,(3-row)*PANEL,PANEL,PANEL);shader.setInt("uVertexColor",column==2?0:1);shader.setInt("uInstanced",column==0?1:0);
+                        glViewport(column*PANEL,(ROWS-1-row)*PANEL,PANEL,PANEL);shader.setInt("uVertexColor",column==2?0:1);shader.setInt("uInstanced",column==0?1:0);
                         if(column==0)redMesh.renderInstanced(new float[]{0,0,0});else if(column==1)blueMesh.render();else blockMesh.render();
                     }
                 }

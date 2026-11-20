@@ -1508,7 +1508,7 @@ public class Main {
         rendering.finish();
         if (!isometric && !player.thirdPerson() && !(jeep != null && jeep.driving())) {
             glClear(GL_DEPTH_BUFFER_BIT);
-            rendering.prepareHeld(shader);
+            rendering.prepareHeld(shader,view);
             shader.setInt("uFog", 0);
             shader.setInt("uShadowEnabled", 0);
             shader.setInt("uHeld", 1);

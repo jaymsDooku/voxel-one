@@ -28,12 +28,70 @@ public class StructurePlaytest {
     static final ConcurrentLinkedQueue<FutureTask<Void>> jobs=new ConcurrentLinkedQueue<>();
     static final java.util.concurrent.atomic.AtomicLong frames=new java.util.concurrent.atomic.AtomicLong();
     static Object get(String name)throws Exception {var f=Main.class.getDeclaredField(name);f.setAccessible(true);return f.get(game);}
+    static Object field(Object target,String name)throws Exception {var f=target.getClass().getDeclaredField(name);f.setAccessible(true);return f.get(target);}
+    static final ArrayList<String> lightingSamples=new ArrayList<>();
+    static boolean lightingProbeOnly;
+    /** Synthetic coordinates and bounded counters only; no runtime/profile dump. */
+    static void lightingSample(String label,Path output)throws Exception {
+        require(label.matches("[a-z0-9-]{1,64}"),"Fixed lighting label required");
+        require(lightingSamples.size()<64,"Lighting diagnostic sample budget");
+        var pipeline=(dev.jayms.render.RenderPipeline)get("rendering");
+        var camera=((Camera)get("camera")).position();
+        var volume=(dev.jayms.render.LightVolume)field(pipeline,"volume");
+        var sky=(dev.jayms.render.WorldSkyVisibility)field(pipeline,"worldSky");
+        var lighting=(dev.jayms.render.WorldLighting)field(pipeline,"lighting");
+        var scheduler=(dev.jayms.render.SkyVisibilityScheduler)field(pipeline,"skyVisibility");
+        int program=(int)field(get("shader"),"programId");
+        var sample=new StringBuilder("{\"stage\":\"").append(label).append("\",\"frames\":").append(frames.get());
+        sample.append(",\"near_ready\":").append(pipeline.nearLightingReady(world(),camera.x,camera.z));
+        sample.append(",\"has_irradiance\":").append(field(pipeline,"hasIrradiance"));
+        sample.append(",\"sky_columns\":").append(sky==null?0:sky.columns);
+        sample.append(",\"sky_pending\":").append(scheduler.pending());
+        sample.append(",\"bake_submitted\":").append(lighting.submitted).append(",\"bake_completed\":").append(lighting.completed).append(",\"bake_rejected\":").append(lighting.rejected);
+        sample.append(",\"shader\":{");boolean first=true;
+        for(String uniform:List.of("uHeld","uHasIrradiance","uPlanetLighting","uSkyColumns","uSkyOffset","uRootBuffer")) {
+            int location=org.lwjgl.opengl.GL20.glGetUniformLocation(program,uniform);
+            require(location>=0,"Diagnostic shader uniform "+uniform);
+            if(!first)sample.append(',');first=false;
+            sample.append('"').append(uniform).append("\":").append(org.lwjgl.opengl.GL20.glGetUniformi(program,location));
+        }
+        for(String uniform:List.of("uAmbient","uDaylight","uOutputExposure")) {
+            int location=org.lwjgl.opengl.GL20.glGetUniformLocation(program,uniform);require(location>=0,"Diagnostic shader uniform "+uniform);
+            float value=org.lwjgl.opengl.GL20.glGetUniformf(program,location);require(Float.isFinite(value),"Finite lighting diagnostic required");
+            sample.append(',').append('"').append(uniform).append("\":").append(value);
+        }
+        sample.append("},\"volume\":").append(volume==null?"null":"["+volume.x+","+volume.y+","+volume.z+","+volume.width+","+volume.height+","+volume.length+"]");
+        var points=List.of(new float[]{camera.x,camera.y,camera.z},new float[]{6.5f,130,14.5f},new float[]{7.5f,130,14.5f});
+        var gpu=lightingProbeOnly?StructureLightingProbe.sample(program,points):null;
+        sample.append(",\"points\":[");first=true;
+        int index=0;for(float[] point:points) {
+            if(!first)sample.append(',');first=false;
+            float x=point[0],y=point[1],z=point[2];
+            boolean inside=volume!=null&&x>=volume.x&&y>=volume.y&&z>=volume.z&&x<volume.x+volume.width&&y<volume.y+volume.height&&z<volume.z+volume.length;
+            sample.append("{\"position\":").append(Arrays.toString(point)).append(",\"inside_volume\":").append(inside);
+            sample.append(",\"volume_rgba\":").append(volume==null?"null":Arrays.toString(volume.sampleLighting(x,y,z)));
+            sample.append(",\"sky_visibility\":").append(sky==null?-1:sky.sampleKnown(x,y,z,-1));
+            if(gpu!=null)sample.append(",\"gpu_irradiance_rgba\":").append(Arrays.toString(gpu.get(index)));
+            sample.append('}');index++;
+        }
+        sample.append("]}");require(org.lwjgl.opengl.GL11.glGetError()==org.lwjgl.opengl.GL11.GL_NO_ERROR,"Lighting diagnostic GL error");
+        lightingSamples.add(sample.toString());
+        Files.writeString(output.resolve("structure-native-lighting.json"),"{\"schema\":1,\"scope\":\"Owner-frame CPU fields and previous-frame shader uniforms; synthetic Main fixture only; unknown sky is -1; outside-volume CPU samples do not mirror shader sky fallback\",\"samples\":["+String.join(",",lightingSamples)+"]}\n");
+    }
     static void set(String name,Object value)throws Exception {var f=Main.class.getDeclaredField(name);f.setAccessible(true);f.set(game,value);}
     static World world()throws Exception{return (World)get("world");}
     static LocalGame local()throws Exception{return (LocalGame)get("local");}
     static StructureMenu menu()throws Exception{return (StructureMenu)get("structures");}
     static void onFrame(Callable<Void> action)throws Exception {var job=new FutureTask<Void>(action);jobs.add(job);job.get(90,TimeUnit.SECONDS);}
     static void require(boolean value,String label){if(!value)throw new AssertionError(label);}
+    static double handLuma(Path path)throws Exception {
+        var image=javax.imageio.ImageIO.read(path.toFile());require(image!=null,"Hand diagnostic image");double total=0;int count=0;
+        // Fixed first-person fist/sleeve patch, above the HUD, relative to the window.
+        for(int y=image.getHeight()*72/100;y<image.getHeight()*78/100;y++)for(int x=image.getWidth()*79/100;x<image.getWidth()*84/100;x++) {
+            int rgb=image.getRGB(x,y);total+=.2126*((rgb>>16)&255)+.7152*((rgb>>8)&255)+.0722*(rgb&255);count++;
+        }
+        require(count>0,"Hand diagnostic pixel count");return total/count;
+    }
     static void waitFor(Callable<Boolean> test,String label)throws Exception {
         long deadline=System.nanoTime()+90_000_000_000L;while(System.nanoTime()<deadline){if(test.call())return;Thread.sleep(50);}throw new AssertionError(label);
     }
@@ -62,6 +120,7 @@ public class StructurePlaytest {
             return null;
         });
         long next=frames.get()+3;waitFor(()->frames.get()>=next,"Capture frame");
+        onFrame(()->{lightingSample(name,path.getParent());return null;});
         var process=new ProcessBuilder("import","-window",window,path.toString()).redirectError(ProcessBuilder.Redirect.DISCARD).start();require(process.waitFor()==0,"Native screenshot");stage("capture-"+name+"-done");
     }
     static void edit(Protocol.Edit edit)throws Exception {world().apply(edit);WorldVoxels.remember(local().edits,edit);}
@@ -70,6 +129,7 @@ public class StructurePlaytest {
         return new Position(box.minX()+p.x(),box.minY()+p.y(),box.minZ()+p.z());
     }
     public static void main(String[] args)throws Exception {
+        require(args.length==1||args.length==2&&args[1].equals("--lighting-probe-only"),"Fixed native mode required");lightingProbeOnly=args.length==2;
         Path output=Path.of(args[0]);Files.createDirectories(output);stageDirectory=output;stage("initializing");glfwInitHint(GLFW_PLATFORM,GLFW_PLATFORM_X11);
         set("offlineSave",Path.of("target/structure-native/world.dat").toAbsolutePath());set("gameConfig",GameConfig.sandbox());set("seed",42L);
         var driver=new Thread(()->{
@@ -100,6 +160,21 @@ public class StructurePlaytest {
                 require(packedCheck.toByteArray()[0]==1,"Dense component exercises packed dependency encoding");
                 require(menu().selected.cells.stream().anyMatch(c->c.model()<0&&c.geometry().leaves().stream().anyMatch(l->l.side()<16)),"Fractional geometry captured");
                 capture(window,output.resolve("structure-library-capture.png"));
+                if(lightingProbeOnly) {
+                    x("key","F12");onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,19.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                    capture(window,output.resolve("structure-lighting-components.png"));
+                    onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,15.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                    capture(window,output.resolve("structure-lighting-under-roof.png"));
+                    onFrame(()->{var p=new dev.jayms.player.Player(new org.joml.Vector3f(6.5f,128,19.5f),-90,0,(Camera)get("camera"));p.toggleFlight();set("player",p);return null;});
+                    x("key","e");waitFor(()->((InventoryHud)get("inventoryHud")).open,"Probe inventory regression");x("key","e");
+                    x("key","F7");waitFor(()->((ModelEditor)get("editor")).open,"Probe model editor regression");x("key","F7");
+                    capture(window,output.resolve("structure-lighting-restored-state.png"));
+                    double outdoor=handLuma(output.resolve("structure-lighting-components.png")),roof=handLuma(output.resolve("structure-lighting-under-roof.png")),restored=handLuma(output.resolve("structure-lighting-restored-state.png"));
+                    require(outdoor>5&&restored>5&&roof<outdoor*.2,"Held sky diffuse and roof occlusion: "+outdoor+" / "+roof+" / "+restored);
+                    Files.writeString(output.resolve("structure-native-hand.json"),"{\"outdoor_luma\":"+outdoor+",\"roof_luma\":"+roof+",\"restored_luma\":"+restored+",\"scope\":\"Mean display luma in fixed relative first-person patch; synthetic camera; outdoor >5 and roof <20% of outdoor; not HDR radiance or performance qualification\"}\n");
+                    onFrame(()->{renderer=org.lwjgl.opengl.GL11.glGetString(org.lwjgl.opengl.GL11.GL_RENDERER);return null;});stage("lighting-probe-passed");
+                    Files.writeString(output.resolve("structure-native-result.json"),"{\"status\":\"passed\",\"playtest\":\"Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus roof-covered component samples, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.\",\"renderer\":\""+renderer+"\",\"qualification\":false}\n");return;
+                }
                 command("export");Path exported=Controls.directory().resolve("structures/exports/Demo house.vstr");require(Files.exists(exported),"Self-contained export");
                 Path longImport=exported.getParent().resolve("long import path "+"a".repeat(100)).resolve("b".repeat(100)).resolve("Demo house.vstr");
                 Files.createDirectories(longImport.getParent());Files.copy(exported,longImport);

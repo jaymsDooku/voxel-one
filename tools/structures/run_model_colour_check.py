@@ -65,9 +65,9 @@ receipt = dict(
     source_sha256=sources, compiled_sha256=classes, image_sha256=sha(capture),
     os=platform.platform(),
     java=subprocess.run(['java', '-version'], capture_output=True, text=True, check=True).stderr.strip(),
-    rows=['unlit production shader', 'ambient/daylight, no irradiance', 'held path with known camera irradiance', 'held path with zero camera irradiance and zero sky'],
+    rows=['unlit production shader', 'ambient/daylight, no irradiance', 'held path with known camera irradiance', 'held path with zero camera irradiance and zero sky', 'held path with missing irradiance and unknown sky'],
     columns=['instanced red8 custom model', 'direct blue32 custom model', 'ordinary block using uniform red colour'],
-    method='Playtest: real GLFW/OpenGL on inherited DISPLAY; synthetic definitions and one ordinary block, shipped voxel vertex/fragment shaders. All three controls must show their expected red/blue colour in rows 1–3 and stay black with zero light in row 4. This isolates mesh/colour transfer from lighting coverage. It does not establish Main lighting readiness, diagnose its camera coverage, or qualify city/maximum/physical-GPU/network performance.',
+    method='Playtest: real GLFW/OpenGL on inherited DISPLAY; synthetic definitions and one ordinary block, shipped voxel vertex/fragment shaders. All three controls must show their expected red/blue colour in rows 1–3 and stay black with zero light in row 4 and missing irradiance/unknown sky in row 5. This isolates mesh/colour transfer and fail-closed held lighting from Main readiness. It does not qualify city/maximum/physical-GPU/network performance.',
     publication='Local evidence pending controller publication',
 )
 # Publish local artifacts only after every assertion and source check succeeds.

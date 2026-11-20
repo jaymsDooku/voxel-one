@@ -729,7 +729,13 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void prepareHeld(ShaderProgram shader) {
+        prepareHeld(shader,new Matrix4f());
+    }
+    /** The rigid camera view rotation maps held normals/view vectors back to
+     * the world frame used by sunlight and the sky environment. */
+    public void prepareHeld(ShaderProgram shader,Matrix4f view) {
         shader.bind();
+        shader.setMatrix3("uHeldToWorld",new org.joml.Matrix3f(view).transpose());
         // The grading pass uses unit 4 for a floating-point LUT; restore integer fine roots.
         bind(3,GL_TEXTURE_3D,irradiance);bind(4,GL_TEXTURE_3D,fineRoots);bind(5,GL_TEXTURE_BUFFER,fineLight);
         glActiveTexture(GL_TEXTURE0);

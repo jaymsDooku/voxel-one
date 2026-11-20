@@ -13,6 +13,7 @@ import signal
 import time
 
 parser=argparse.ArgumentParser();parser.add_argument('--display',required=True);parser.add_argument('--evidence-prefix')
+parser.add_argument('--lighting-probe-only',action='store_true',help='Short Main lighting diagnostic; capture and editor/inventory regressions, no placement/import/undo')
 parser.add_argument('--timeout-seconds',type=int,default=600,help='Functional harness deadline (60–1200 s); does not change qualification budgets')
 args=parser.parse_args()
 if not 60<=args.timeout_seconds<=1200:
@@ -20,9 +21,10 @@ if not 60<=args.timeout_seconds<=1200:
 if args.evidence_prefix is not None and not re.fullmatch(r'[a-z0-9][a-z0-9-]{0,63}',args.evidence_prefix):
     parser.error('Evidence prefix must be 1–64 lowercase letters, digits or hyphens, starting with a letter or digit')
 root=Path(__file__).resolve().parents[1]
-source_files=sorted((root/'src/main/java').rglob('*.java'))+[root/'deploy/StructurePlaytest.java',Path(__file__).resolve()]
+source_files=sorted((root/'src/main/java').rglob('*.java'))+sorted((root/'src/main/resources/shaders').rglob('*'))+[root/'deploy/StructurePlaytest.java',root/'deploy/StructureLightingProbe.java',Path(__file__).resolve()]
+source_files=[p for p in source_files if p.is_file()]
 source_hashes={str(p.relative_to(root)):hashlib.sha256(p.read_bytes()).hexdigest() for p in source_files}
-source_manifest=dict(schema=1,source_sha256=source_hashes,scope='Production Java plus native workflow harness; isolated synthetic profile')
+source_manifest=dict(schema=1,source_sha256=source_hashes,scope='Production Java/shaders plus native workflow harness/probe; isolated synthetic profile')
 publication=root/'dashboard/evidence'
 if args.evidence_prefix and any(publication.glob(args.evidence_prefix+'-*')):
     raise SystemExit('Preserve existing evidence; choose a fresh prefix')
@@ -44,9 +46,10 @@ for repo in (root/'target/structure-m2', Path('/home/debian/.m2/repository')):
     for group in ('org/lwjgl','org/joml','org/jcodec','com/googlecode/soundlibs'):
         jars.extend(str(p) for p in (repo/group).rglob('*.jar') if 'natives-windows' not in p.name and 'natives-macos' not in p.name)
 classpath=str(root/'target/classes')+':'+':'.join(jars)
-subprocess.run(['javac','--release','17','-cp',classpath,'-d',str(classes),'deploy/StructurePlaytest.java'],cwd=root,check=True)
+subprocess.run(['javac','--release','17','-cp',classpath,'-d',str(classes),'deploy/StructurePlaytest.java','deploy/StructureLightingProbe.java'],cwd=root,check=True)
 env=os.environ.copy();env['DISPLAY']=args.display;env.pop('WAYLAND_DISPLAY',None);env['ALSOFT_DRIVERS']='null';env['MAGICK_TMPDIR']=str(temporary);env['LP_NUM_THREADS']='2';env['LIBGL_ALWAYS_SOFTWARE']='1'
 command=['java','-Xmx1g','-Dvoxel.gl33=true','-Djava.io.tmpdir='+str(temporary),'-Duser.home='+str(home),'-cp',str(classes)+':'+classpath,'StructurePlaytest',str(output)]
+if args.lighting_probe_only:command.append('--lighting-probe-only')
 execution=output/'structure-native-execution.json'
 started=time.monotonic();process=None
 
@@ -89,7 +92,7 @@ report_path=output/'structure-native-result.json'
 report=json.loads(report_path.read_text())
 report['source_manifest']=(args.evidence_prefix+'-' if args.evidence_prefix else '')+'structure-native-source.json'
 report['source_manifest_sha256']=hashlib.sha256(json.dumps(source_hashes,sort_keys=True).encode()).hexdigest()
-report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')+' --timeout-seconds '+str(args.timeout_seconds)
+report['command']='python3 deploy/run_structure_playtest.py --display "$DISPLAY"'+(' --evidence-prefix '+args.evidence_prefix if args.evidence_prefix else '')+' --timeout-seconds '+str(args.timeout_seconds)+(' --lighting-probe-only' if args.lighting_probe_only else '')
 report['profile']='Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF'
 report['publication']='Local evidence pending controller publication'
 report_path.write_text(json.dumps(report,indent=2)+'\n')

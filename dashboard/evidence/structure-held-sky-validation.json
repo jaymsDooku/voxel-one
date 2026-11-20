@@ -1,0 +1,384 @@
+{
+  "schema": 1,
+  "parent_head": "2dac5231732970d0fcacaf07ffc1a91c0914a704",
+  "review_base": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "status": "Available local checks passed. Full structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "problem": "The real Main camera above the fixed local-light volume had GPU irradiance [0,0,0,1]: open sky, no local RGB. The held shader omitted the sky-diffuse term used by world geometry and used view-space normals/view vectors against world-space light directions. A hand face turned away from the sun could become black outdoors.",
+  "change": "Main passes its rigid camera view into prepareHeld. The shader transforms held normals/view vectors into world space and includes sky diffuse weighted by actual sky visibility. Planet lighting starts with zero sky/local RGB until real data is available. No arbitrary ambient floor was added. The old prepareHeld overload retains an identity frame for isolated callers.",
+  "diagnostics": "Bounded Main owner-frame CPU fields, previous-frame shader uniforms and a one-pixel GPU probe of the shipped irradiance function at three synthetic points. The probe uses actual Main textures/uniforms and restores GL state. The optional --lighting-probe-only mode exercises named capture, outdoor/roof/outdoor readbacks, rendering after state restoration and inventory/model editor regressions; it does not run placement/import/undo. Full workflow is a separate mode. Native source manifests now include all production shaders and both helpers.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest",
+      "test"
+    ],
+    "tests": 340,
+    "suites": 71,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "exit_code": 0,
+    "elapsed_seconds": 285.538009269163
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.172190438956022,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 752,
+    "all_shaders_match_shaded_client": true,
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "main": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-held-sky-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 558007,
+      "timeout_seconds": 900
+    },
+    "source_files": 293,
+    "source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-held-sky-main-structure-native-source.json",
+      "source_manifest_sha256": "bf1be37e04387a0056c0efc4496fde2584573639362bfe1a9c749a63d5fe6da7",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-held-sky-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "gpu_probe": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-held-sky-final-probe --timeout-seconds 300 --lighting-probe-only",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 64199,
+      "timeout_seconds": 300
+    },
+    "source_files": 293,
+    "source_hashes_match": true,
+    "hand": {
+      "outdoor_luma": 90.44699999999322,
+      "roof_luma": 0.0,
+      "restored_luma": 203.9548000000021,
+      "scope": "Mean display luma in fixed relative first-person patch; synthetic camera; outdoor >5 and roof <20% of outdoor; not HDR radiance or performance qualification"
+    },
+    "measurements_file": "structure-held-sky-final-probe-structure-native-lighting.json",
+    "observed": "Outdoor GPU RGBA [0,0,0,1]; roof-covered camera [0,0,0,0]; outdoor return [0,0,0,1]. Outdoor hand is visibly coloured, roof-covered hand remains dark, and outdoor recovery plus inventory/editor regression succeeds. Display-luma differences include camera/exposure changes and are not HDR radiance or a performance metric."
+  },
+  "colour_controls": {
+    "command": "python3 tools/structures/run_model_colour_check.py --display \"$DISPLAY\" --evidence-prefix structure-held-sky-controls",
+    "source_files": 292,
+    "compiled_classes": 752,
+    "source_class_image_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "colour_pixels": [
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          6401,
+          4156,
+          6401
+        ],
+        [
+          6589,
+          3737,
+          6589
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ]
+      ],
+      "qualification": false
+    },
+    "rows": [
+      "unlit production shader",
+      "ambient/daylight, no irradiance",
+      "held path with known camera irradiance",
+      "held path with zero camera irradiance and zero sky",
+      "held path with missing irradiance and unknown sky"
+    ],
+    "columns": [
+      "instanced red8 custom model",
+      "direct blue32 custom model",
+      "ordinary block using uniform red colour"
+    ],
+    "observed": "All 15 panels pass. Expected red/blue colours in the first three rows; zero light and missing irradiance/unknown sky remain black in the final two rows."
+  },
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited assigned DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected: full named capture/anchor/library, self-contained long-path export/import, four rotated placements, clear/blocked footprint, empty-space preservation, player/occupied-cell rejection, atomic cancellation, one-operation undo, repeated placement, dependency/restart recovery and inventory/model editor regression. Observed: all functional assertions passed on final source. Separate GPU mode verifies actual camera sky lookup, outdoor/roof/outdoor hand visibility and GL state restoration. A 15-panel production shader control verifies colours, zero light and missing-data darkness. Browser checks do not apply to this native Java client. Software FPS remains around 0\u20131 in full-workflow captures; no frame-time, GPU or city qualification pass is claimed.",
+  "video": {
+    "inspection_command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-held-sky-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-held-sky-main-midpoint.png",
+      "dashboard/evidence/structure-held-sky-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 24,
+      "durationSeconds": 44.834,
+      "bytes": 508334,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 12,
+      "videoSha256": "2811881df97925affe90bfd767856a7798fa6c4605f25d5b3d561c223b939314",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-held-sky-main-midpoint.png",
+      "structure-held-sky-main-structure-preview-conflict.png",
+      "structure-held-sky-main-structure-preview-3.png",
+      "structure-held-sky-main-structure-import-cancelled.png",
+      "structure-held-sky-main-structure-component-closeup.png",
+      "structure-held-sky-final-probe-structure-lighting-components.png",
+      "structure-held-sky-final-probe-structure-lighting-under-roof.png",
+      "structure-held-sky-final-probe-structure-lighting-restored-state.png",
+      "structure-held-sky-controls.png"
+    ],
+    "observed": "The final Main clip and screenshots show a coloured outdoor hand; roof-covered high models remain dark. Clear/blocked previews, cancelled import and component close-up were inspected. The final probe shows outdoor hand colour, darkness under a known roof and outdoor recovery. Control panels show the intended colour/zero-light/missing-data behavior."
+  },
+  "history": {
+    "baseline": {
+      "execution": {
+        "schema": 1,
+        "state": "completed",
+        "return_code": 0,
+        "elapsed_ms": 576805,
+        "timeout_seconds": 900
+      },
+      "result": {
+        "status": "passed",
+        "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+        "source_manifest": "structure-main-lighting-structure-native-source.json",
+        "source_manifest_sha256": "8447db97c3e17a242ea285c33a36ce8139ac5339bfc66a28dfd319234e260af0",
+        "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-main-lighting --timeout-seconds 900",
+        "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+        "publication": "Local evidence pending controller publication"
+      },
+      "source_files": 292,
+      "all_source_hashes_match": true,
+      "lighting_samples": 14
+    },
+    "pre_fix_gpu": {
+      "execution": {
+        "schema": 1,
+        "state": "completed",
+        "return_code": 0,
+        "elapsed_ms": 75326,
+        "timeout_seconds": 300
+      },
+      "result": {
+        "status": "passed",
+        "playtest": "Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus roof-covered component samples, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.",
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "qualification": false,
+        "source_manifest": "structure-main-gpu-lighting-structure-native-source.json",
+        "source_manifest_sha256": "6276a988d7917dee1157d8986615b262c4c17ac8a0e6e9178f789261ba8cb059",
+        "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-main-gpu-lighting --timeout-seconds 300 --lighting-probe-only",
+        "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+        "publication": "Local evidence pending controller publication"
+      },
+      "source_files": 293,
+      "source_manifest_sha256": "6276a988d7917dee1157d8986615b262c4c17ac8a0e6e9178f789261ba8cb059"
+    },
+    "intermediate_fix_probe": {
+      "execution": {
+        "schema": 1,
+        "state": "completed",
+        "return_code": 0,
+        "elapsed_ms": 63451,
+        "timeout_seconds": 300
+      },
+      "result": {
+        "status": "passed",
+        "playtest": "Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus roof-covered component samples, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.",
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "qualification": false,
+        "source_manifest": "structure-held-sky-structure-native-source.json",
+        "source_manifest_sha256": "445ed28f3e1a6f8dd2cafa15b5fc5fbe8ebe3a21290b7da02095ba3ff15c8900",
+        "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-held-sky --timeout-seconds 300 --lighting-probe-only",
+        "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+        "publication": "Local evidence pending controller publication"
+      },
+      "source_files": 293,
+      "source_manifest_sha256": "445ed28f3e1a6f8dd2cafa15b5fc5fbe8ebe3a21290b7da02095ba3ff15c8900"
+    },
+    "scope": "Baseline and pre-fix/intermediate images preserve this turn\u2019s investigation. They do not represent the final source. Final validation uses structure-held-sky-main, structure-held-sky-final-probe and structure-held-sky-controls. Java source stayed fixed during the broad tests; the shader missing-data guard was completed before final packaging and all final native runs."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "compile_release": 17,
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "2dac5231732970d0fcacaf07ffc1a91c0914a704",
+    "run": 44672681976,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Published parent only. New source requires fresh exact-head hosted checks; no QA or readiness approval."
+  },
+  "audit": {
+    "restored_paths_match_base": 14,
+    "combat_paths_match_base": 14,
+    "arena_preview_matches_base": true,
+    "deleted_files": [],
+    "intended_removed_lines": "Held-only normal/view directions and planet-lighting branches now use the world lighting frame and real sky visibility. The colour control extends four rows to five. Native manifests include shaders/probe. No unrelated feature/test deletion is intended. The existing full structure/replay/render/save/wire diff and historical evidence remain preserved."
+  },
+  "remaining": [
+    "The bounded local-light volume is still fixed at Y -32 through 96. Roof-covered custom models at Y 129\u2013130 remain dark; vertical local-light coverage and visible model-lighting qualification remain open.",
+    "Main paging installation, old World reconciliation, later live tail coordination, model rebasing and editable paging remain unfinished.",
+    "Geometry/chunk caps still reject the required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Held-sky functional fix only. No supported-city, supported-limit, stable-rollout, full model-lighting, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-held-sky-controls.json": "6289c069291c8fe51d675b365461d7f3fbdd6761cdead1647a5af5a680bae085",
+    "structure-held-sky-controls.png": "f2720da8fcd4ac147239780e08d9ab2dbf4383d88e4521e5df913b3faf3fe7fe",
+    "structure-held-sky-final-probe-structure-library-capture.png": "7f023d19a309a3207044f7634583718db3db579a1bbb62b62c9ed07913042a79",
+    "structure-held-sky-final-probe-structure-lighting-components.png": "b14b6f65bc63d11057ceb0fbbcbdb30314879179a3a5456cbea02d2b94b54309",
+    "structure-held-sky-final-probe-structure-lighting-restored-state.png": "0f1da500f50adf26ceb272b7d51d722b53673f4693dd36b7eb39967faa5dcf7f",
+    "structure-held-sky-final-probe-structure-lighting-under-roof.png": "2474e72f08454ba2ccb928d378481411364b0efe691d6c33ede73db587f04181",
+    "structure-held-sky-final-probe-structure-native-execution.json": "934174849b948824f8636b963d926c577bdf29fbbc51a5386ac58f0788d608b8",
+    "structure-held-sky-final-probe-structure-native-hand.json": "7e53731fecb0669c8fa393208aded12cb7daebda1af3b18501af21eb133385e0",
+    "structure-held-sky-final-probe-structure-native-lighting.json": "4756d5bf51d76a6738ba5a76a0a4d0611b3fab926fdcab69a6280bff22c5baec",
+    "structure-held-sky-final-probe-structure-native-result.json": "02f589cb34bc8397412abfb945f018aa9febaadec6547e1be71f82cea55f38b4",
+    "structure-held-sky-final-probe-structure-native-source.json": "95437fb288dbd6623eb2b4aa3462b8dfdb344348b94ea1b0c3272f37c3293418",
+    "structure-held-sky-final-probe-structure-native-stage.json": "8ea444c7ce0281418b10249e1af59462a02f20242d966c794fccaa13d0337602",
+    "structure-held-sky-main-midpoint.png": "a7ceea373afafed3d190e2f30a7b818805fa1506de41bcc8b6887bc3e888f669",
+    "structure-held-sky-main-structure-component-closeup.png": "ddace413827a5f203de8eb80d08993e031b041e7619dc8fa286c183b7f742dce",
+    "structure-held-sky-main-structure-export-cancelled.png": "6120b2def7e9d134af909e7bc095dedbbc946dfc9af7383672599f0dc7e85c13",
+    "structure-held-sky-main-structure-import-cancelled.png": "25c86b4c892dae9cbee42989e6221a63c01c64b9090e424c111e68f3c7bc0662",
+    "structure-held-sky-main-structure-invalid-anchor.png": "c9a7c8650fd797b81f29398c0782bb42072074fcd2e6745bb86ef4d53c730f70",
+    "structure-held-sky-main-structure-library-capture.png": "a3b0582b6485065d538634d02d7208a1d0a0b9c466fd2e5936023db416c6e8a3",
+    "structure-held-sky-main-structure-native-execution.json": "19e25b7c33cfc0955359323a765151544e4fa0e2e5fe8192f2feffbbefb6d4c3",
+    "structure-held-sky-main-structure-native-lighting.json": "8ec8fda17a9b6d99f96b97e378245dd810ff8d4725c2a0f1d3eb5c3add95fd77",
+    "structure-held-sky-main-structure-native-result.json": "74eea5f25a069293bffeab721030d1b1ec3da3c5390ba0a539c6a8093c69305e",
+    "structure-held-sky-main-structure-native-source.json": "95437fb288dbd6623eb2b4aa3462b8dfdb344348b94ea1b0c3272f37c3293418",
+    "structure-held-sky-main-structure-native-stage.json": "550ac2bf3ac0c996569c4c7e6bd9f47bc00a10e736b62dadd431b488e8eef338",
+    "structure-held-sky-main-structure-placed.png": "2ea4a4e7de80dcce5278b2e19cc78fe70e698bc0b2451c26b31ff3d343fa57a3",
+    "structure-held-sky-main-structure-player-conflict.png": "06d8484586d6b161cbe9d428c17381b76beb7e317e1efe87f8e9ec2dab1f5a2a",
+    "structure-held-sky-main-structure-preview-0.png": "b57a3a19f64b80c02c513ef21eafbea3deac2b9001060bc3da6f00dcc6e64cdc",
+    "structure-held-sky-main-structure-preview-1.png": "5b19b7e7f61acec43629c74cb5013c3d46d48fd126730af80596c2298f4d37ed",
+    "structure-held-sky-main-structure-preview-2.png": "6f09842c15ffca874d66c164d85100a4db10a5d89d1e69bf6896efa92786761a",
+    "structure-held-sky-main-structure-preview-3.png": "2cc5b26acbfdf3104c6fbb8eaa009f1e0b6bbf1c3aa314e3475007abac154195",
+    "structure-held-sky-main-structure-preview-conflict.png": "bc072906d96d67d9ae19b63107a0a7c8aab816d5627afd73bf5a6e386710cf4f",
+    "structure-held-sky-main-structure-undo-cancelled.png": "72c889de08b3ee9513aac452d1cfc29d507f8efb8113e5d17c2cf50f7fceca00",
+    "structure-held-sky-main-structure-workflow.mp4": "2811881df97925affe90bfd767856a7798fa6c4605f25d5b3d561c223b939314",
+    "structure-held-sky-main-structure-world-placed.png": "bebea35d7898b04616784a9a9c792a3e9a5296a025e355bd81599287d967e7b4",
+    "structure-held-sky-main-video.json": "9581e50ffcdfb1c45647d2f2762ccc63ffd1a8008dd1d05f11bd2d29b650d355",
+    "structure-held-sky-structure-library-capture.png": "74e34ada288ffb0b6f9b3fa347ddc1171eefa15b760869b8744231665e8004a4",
+    "structure-held-sky-structure-lighting-components.png": "23c16dad4d1c50be207b065a02ee2efec9c9a15dea47968878b08cbbc4b2882f",
+    "structure-held-sky-structure-lighting-restored-state.png": "2f5ce9c8ea28e56e77a736b35f28b42f8acc0fa0747dc6f89921d7014b718ac6",
+    "structure-held-sky-structure-lighting-under-roof.png": "c648104427abcee2b7cd4737f47736cc771ab67e2d57c9e21b28cceeead72696",
+    "structure-held-sky-structure-native-execution.json": "1b470b642a4997e00ade2bcc120ae810f23a56b5e5b893bcc3a1cba7ae24360e",
+    "structure-held-sky-structure-native-hand.json": "f428dc608d96276b1f1404a07361103b6cd96898eaeefb605f6f895937e16b43",
+    "structure-held-sky-structure-native-lighting.json": "86f89299b6326ee29bf66dc7b445797a18baa7b182b0bd410d56e198563a5c1e",
+    "structure-held-sky-structure-native-result.json": "41ed25c5a241aef044974b862d3a28eb850e9c83121b8edc2ec4d1b2099b49f8",
+    "structure-held-sky-structure-native-source.json": "46b3fbf3632bb5715fae80162e9adbc67d1aae9f0bf6229b3b126304b658454d",
+    "structure-held-sky-structure-native-stage.json": "ba41411e843faa8d913f31423aa477a384d909153d707c3bc62067d4ef4d5ef0",
+    "structure-main-gpu-lighting-structure-library-capture.png": "e142701b40973bf1145e3d18522d58a9bed99ff3fe2b2c0d1cb9a9f14106dc1c",
+    "structure-main-gpu-lighting-structure-lighting-components.png": "e6b7fd621ffbfd3069f27634c8ad4cd2aa60fc1911461c4494ac37e1e5802b84",
+    "structure-main-gpu-lighting-structure-lighting-restored-state.png": "258385d7eb6dbd7272e7d647bff9a5e9a9ecacfff679477ad61b7f640d28af35",
+    "structure-main-gpu-lighting-structure-native-execution.json": "8b479ce6e623c2a6a2deeeb3fae40040fa2005057813f9f4855ec6b68b0bde45",
+    "structure-main-gpu-lighting-structure-native-lighting.json": "e3dc50da3571e44f0fb3026cf8de61785bf3d7cf7462b4fc07e7f4b049eb6797",
+    "structure-main-gpu-lighting-structure-native-result.json": "459be163dfa0826b488d9e08ec37b1945eeababad4b23652edb692e7425be589",
+    "structure-main-gpu-lighting-structure-native-source.json": "f86e275adf7802b6da68b9805c591264c2eefb5c95425b9547723d5be2db0841",
+    "structure-main-gpu-lighting-structure-native-stage.json": "4b47a4f9b411eb357cedb4d38af18c4132d40f388f398d16a626b1e2f762c032",
+    "structure-main-lighting-midpoint.png": "fd3bdb8867a39fb3c6586d6a5dae1763baef6a13320d4afac2d72b745f465875",
+    "structure-main-lighting-structure-component-closeup.png": "469cb7bc2836b6afb170459becf035b907c65e73c5296b7bd1ebfe4ecd25c934",
+    "structure-main-lighting-structure-export-cancelled.png": "e7827dd4b8fb347fccca2eae3e47b542e73cd6dab5f3a91388332c833fb0de87",
+    "structure-main-lighting-structure-import-cancelled.png": "416b55f547b5be528704d6a8bea05128a870d3c7997cd616fec1090834bd257d",
+    "structure-main-lighting-structure-invalid-anchor.png": "11cdec3f7bad1f889312211e021c63165cc8d21f9ebbab991c4a72bb84cd4f22",
+    "structure-main-lighting-structure-library-capture.png": "4e7404c74bbb78a0ca891079d3fa75d1b96dd5041fa437f20816e174c20ac61e",
+    "structure-main-lighting-structure-native-execution.json": "f6d716f6efe05ca479180a1e3373f12063bf2a8a30fb4250ef10c3b96bca6236",
+    "structure-main-lighting-structure-native-lighting.json": "7e1106a86cf4cc26a81619c38ac527d8411950f72904c6699f071d3ad464b391",
+    "structure-main-lighting-structure-native-result.json": "73128ec102c34290b4390c48b529e64ea4949533105231c6f8face12c5530a04",
+    "structure-main-lighting-structure-native-source.json": "487349fa8a893ff18c31405a79caab463e6879dc0e48f6758e7deaaf789a7c01",
+    "structure-main-lighting-structure-native-stage.json": "b09e91d173068c18e083f76286f1f2699e9e4b0fc4814303063bfeb2cdb78006",
+    "structure-main-lighting-structure-placed.png": "08451c2e16e359035be78e38baaa24c8fd6db2073cbe1e9e5fa1ed71a1826740",
+    "structure-main-lighting-structure-player-conflict.png": "bfb6728611c12a6a943800988588ab40224ebf866ea10f8c4a3d5a28a76c3283",
+    "structure-main-lighting-structure-preview-0.png": "7b37be9ee6ff13f9abaa791ce2217b639bdca117f8672fa3b7f56cdf2269a89a",
+    "structure-main-lighting-structure-preview-1.png": "d09cbd87f61b644f78e03497745f5879b1252122d9d92ca4a70024281448354a",
+    "structure-main-lighting-structure-preview-2.png": "17d0c78fbdb3abce6381081dfb4218530cfdb4651823ab20ddfefcf9537f33c7",
+    "structure-main-lighting-structure-preview-3.png": "8ecd1d810afa17b937867191e5ccdfe823e85ab33b63e9319bfeea8adb29ee35",
+    "structure-main-lighting-structure-preview-conflict.png": "80e2bc922eef028c7134c6cf9b71a307fd83075c896f65df57ccb33b7a60df45",
+    "structure-main-lighting-structure-undo-cancelled.png": "e4172cefce64c285a0c1bb3afd6b41359317c945a46ff512517e105ac818bc8f",
+    "structure-main-lighting-structure-workflow.mp4": "14c40d901f8c8493b76c338ebcdfa6397c3584a1b6fdd2fdc5fe83aa0fd78a36",
+    "structure-main-lighting-structure-world-placed.png": "7370bbd593591301170e5d02a292fc35068c34ba7ec0c4898dd8459034de48dc",
+    "structure-main-lighting-video.json": "6541c891c67807aaaa620b0b29b14649c6dbd80eebc8192abd06e815db6eaa05"
+  }
+}
