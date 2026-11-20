@@ -74,6 +74,14 @@ public final class PracticeClient implements AutoCloseable {
     }
     public boolean swap(int first, int second) {
         if (first < 0 || first >= 36 || second < 0 || second >= 36) return false;
+        return inventoryCommand(first, second);
+    }
+
+    public boolean quickMove(int source) {
+        return source >= 0 && source < 36 && inventoryCommand(source, PracticeWire.QUICK_MOVE);
+    }
+
+    private boolean inventoryCommand(int first, int second) {
         return offer(out -> {
             out.writeByte(PracticeWire.SWAP);
             out.writeByte(first);

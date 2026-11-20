@@ -201,6 +201,15 @@ public final class FactionMatch implements ArenaMatch {
         return true;
     }
 
+    @Override public synchronized boolean quickMove(int id, int source) {
+        Seat seat = active(id);
+        if (seat == null) return false;
+        if (phase == Phase.FIGHT) return engine.quickMoveInventory(id, source);
+        if (phase != Phase.WAITING || seat.ready || !engine.quickMoveKit(id, source)) return false;
+        spawn(id, seat, false);
+        return true;
+    }
+
     @Override public synchronized void input(int id, Intent intent) {
         Seat seat = active(id);
         boolean combat = phase == Phase.FIGHT;

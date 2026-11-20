@@ -137,7 +137,11 @@ public final class PracticeServer implements AutoCloseable {
                 switch (action) {
                     case PracticeWire.CONTROL -> match.input(id, PracticeWire.readIntent(in));
                     case PracticeWire.READY -> match.ready(id);
-                    case PracticeWire.SWAP -> match.swap(id, in.readUnsignedByte(), in.readUnsignedByte());
+                    case PracticeWire.SWAP -> {
+                        int source = in.readUnsignedByte(), target = in.readUnsignedByte();
+                        if (target == PracticeWire.QUICK_MOVE) match.quickMove(id, source);
+                        else match.swap(id, source, target);
+                    }
                     case PracticeWire.ACTION -> match.action(id, in.readUnsignedByte());
                     default -> throw new IOException("Unknown practice message");
                 }

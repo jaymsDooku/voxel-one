@@ -62,6 +62,7 @@ public final class PracticeGame {
     private final int id;
     private final Camera camera = new Camera();
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
+    private final String[] hotbarLabels = new String[SLOTS.length];
     private final Vector3f feet = new Vector3f(), destination = new Vector3f();
     private final Matrix4f projection = new Matrix4f();
     private final Matrix4f clipFromWorld = new Matrix4f();
@@ -233,6 +234,7 @@ public final class PracticeGame {
 
     private void bind(ScreenRecorder recorder) {
         long handle = window.getHandle();
+        for (int i = 0; i < SLOTS.length; i++) hotbarLabels[i] = Controls.keyName(controls.code(SLOTS[i]));
         glfwSetFramebufferSizeCallback(handle, (w, x, y) -> { width = x; height = y; });
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(handle, (w, x, y) -> {
@@ -253,7 +255,11 @@ public final class PracticeGame {
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
             if (action != GLFW_PRESS) return;
             if (inventory) {
-                if (button == GLFW_MOUSE_BUTTON_LEFT) selectInventory();
+                if (button == GLFW_MOUSE_BUTTON_LEFT && (mods & GLFW_MOD_SHIFT) != 0) {
+                    selectInventory(true);
+                } else if (!organiseWithHotbar(-button - 1) && button == GLFW_MOUSE_BUTTON_LEFT) {
+                    selectInventory(false);
+                }
             } else combatPress(-button - 1);
         });
         glfwSetKeyCallback(handle, (w, key, scan, action, mods) -> {
@@ -264,18 +270,34 @@ public final class PracticeGame {
             } else if (controls.matches(INVENTORY, key)) {
                 if (view != null && !view.inventory().isEmpty()) setInventory(!inventory);
             } else if (controls.matches(RECORD, key)) recorder.toggle(width, height);
+            else if (inventory && organiseWithHotbar(key)) return;
             else if (key == GLFW_KEY_ENTER) {
                 setInventory(false);
                 if (remote != null) remote.ready();
                 else offline.ready(id);
+            } else if (inventory) {
+                return;
             } else if (factions && factionKey(key) != 0) {
                 remote.action(factionKey(key));
             } else {
-                for (int i = 0; i < SLOTS.length; i++)
-                    if (controls.matches(SLOTS[i], key)) selectSlot(i, System.nanoTime());
-                if (!inventory) combatPress(key);
+                int selection = hotbarSlot(key);
+                if (selection >= 0) selectSlot(selection, System.nanoTime());
+                combatPress(key);
             }
         });
+    }
+
+    private int hotbarSlot(int key) {
+        for (int i = 0; i < SLOTS.length; i++)
+            if (controls.matches(SLOTS[i], key)) return i;
+        return -1;
+    }
+
+    private boolean organiseWithHotbar(int code) {
+        int slot = hotbarSlot(code);
+        if (slot < 0) return false;
+        swapInventory(hoveredInventorySlot(), slot);
+        return true;
     }
 
     private void combatPress(int key) {
@@ -331,16 +353,35 @@ public final class PracticeGame {
         glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
-    private void selectInventory() {
+    private int hoveredInventorySlot() {
+        if (view == null || view.inventory().size() != 36) return -1;
         int[] screen = window.getSize();
         float x = (float) mouseX * width / Math.max(1, screen[0]);
         float y = (float) mouseY * height / Math.max(1, screen[1]);
         float left = (width - 540) / 2f, top = (height - 184) / 2f;
-        if (x < left || x >= left + 540 || y < top || y >= top + 184) return;
-        int selection = ((int) (y - top) / 46) * 9 + (int) (x - left) / 60;
-        if (source < 0) { source = selection; return; }
-        if (remote != null) remote.swap(source, selection);
-        else offline.swap(id, source, selection);
+        if (x < left || x >= left + 540 || y < top || y >= top + 184) return -1;
+        return ((int) (y - top) / 46) * 9 + (int) (x - left) / 60;
+    }
+
+    private void selectInventory(boolean shift) {
+        int selection = hoveredInventorySlot();
+        if (selection < 0) return;
+        if (shift) {
+            if (remote != null) remote.quickMove(selection);
+            else offline.quickMove(id, selection);
+            source = -1;
+        } else if (source < 0) {
+            source = selection;
+        } else {
+            swapInventory(source, selection);
+        }
+    }
+
+    private void swapInventory(int from, int to) {
+        if (from >= 0 && from != to) {
+            if (remote != null) remote.swap(from, to);
+            else offline.swap(id, from, to);
+        }
         source = -1;
     }
 
@@ -563,7 +604,8 @@ public final class PracticeGame {
         ui.rectangle(x, y - 30, 540, 29, .031f, .05f, .065f, .92f);
         ui.rectangle(x + 1, y - 4, 538 * Math.max(0, Math.min(20, actor.health())) / 20, 3, .96f, .29f, .22f, 1);
         ui.text(summary, x + 10, y - 22, 1.15f);
-        for (int i = 0; i < 9; i++) drawSlot(ui, view.inventory().get(i), i, x + i * 60, y, i == slot);
+        for (int i = 0; i < 9; i++)
+            drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
         String timers = "Armor " + armor + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";
@@ -581,13 +623,20 @@ public final class PracticeGame {
         float x = (width - 540) / 2f, y = (height - 184) / 2f;
         ui.rectangle(x - 12, y - 46, 564, 242, .031f, .05f, .065f, .96f);
         ui.text(view.phase() == Phase.WAITING ? "Kit layout" : "Inventory", x, y - 33, 1.6f);
-        ui.text("Click one slot, then its destination. Top row is the hotbar.", x, y - 15, 1.05f);
-        for (int i = 0; i < 36; i++) drawSlot(ui, view.inventory().get(i), i, x + i % 9 * 60, y + i / 9 * 46, i == source);
+        ui.text("Click two slots  |  Shift-click to move  |  Hotbar key to swap hovered slot", x, y - 15, 1.05f);
+        int hovered = hoveredInventorySlot();
+        for (int i = 0; i < 36; i++)
+            drawSlot(ui, view.inventory().get(i), i < 9 ? hotbarLabels[i] : null,
+                    x + i % 9 * 60, y + i / 9 * 46, i == source, i == hovered);
     }
 
-    private static void drawSlot(Overlay ui, Stack stack, int i, float x, float y, boolean selected) {
-        ui.rectangle(x + 1, y + 1, 58, 43, selected ? .27f : .07f, selected ? .48f : .12f, .17f, .95f);
-        if (i < 9) ui.text(Integer.toString(i + 1), x + 4, y + 5, .9f, .70f, .79f, .87f, 1);
+    private static void drawSlot(Overlay ui, Stack stack, String key, float x, float y, boolean selected, boolean hovered) {
+        ui.rectangle(x + 1, y + 1, 58, 43, selected ? .27f : hovered ? .15f : .07f,
+                selected ? .48f : hovered ? .23f : .12f, hovered ? .29f : .17f, .95f);
+        if (key != null) {
+            float scale = Math.min(.9f, 48f / Math.max(1, ui.textWidth(key, 1)));
+            ui.text(key, x + 4, y + 5, scale, .70f, .79f, .87f, 1);
+        }
         if (stack.count() == 0) return;
         String label = switch (stack.item()) {
             case HEALING -> "Heal";

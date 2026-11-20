@@ -110,6 +110,15 @@ public final class PracticeMatch implements ArenaMatch {
         return false;
     }
 
+    @Override public synchronized boolean quickMove(int id, int source) {
+        Member member = members.get(id);
+        if (member == null || member.side < 0) return false;
+        if (phase == Phase.FIGHT) return engine.quickMoveInventory(id, source);
+        if (phase != Phase.WAITING || member.ready || !engine.quickMoveKit(id, source)) return false;
+        engine.reset(id, feet(member.side), BasaltCourtyard.spawn(member.side).yaw());
+        return true;
+    }
+
     public synchronized void input(int id, Intent intent) {
         Member member = members.get(id);
         if (member == null || member.side < 0 || phase != Phase.FIGHT) return;

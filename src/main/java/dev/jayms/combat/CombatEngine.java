@@ -178,13 +178,57 @@ public final class CombatEngine {
         return true;
     }
 
+    public boolean quickMoveKit(int playerId, int source) {
+        Actor actor = actors.get(playerId);
+        return actor != null && quickMove(actor.kit, source);
+    }
+
+    public boolean quickMoveInventory(int playerId, int source) {
+        Actor actor = actors.get(playerId);
+        if (actor == null || !actor.alive()) return false;
+        Stack held = actor.inventory.get(actor.slot);
+        if (!quickMove(actor.inventory, source)) return false;
+        if (!held.equals(actor.inventory.get(actor.slot))) actor.cancelUse();
+        return true;
+    }
+
+    /** Merge into existing stacks first, then use the first empty slot in the other section. */
+    private static boolean quickMove(List<Stack> slots, int source) {
+        if (!validSlot(source)) return false;
+        Stack stack = slots.get(source);
+        if (stack.item() == Item.EMPTY) return false;
+        int start = source < HOTBAR_SIZE ? HOTBAR_SIZE : 0;
+        int end = source < HOTBAR_SIZE ? INVENTORY_SIZE : HOTBAR_SIZE;
+        int empty = -1, remaining = stack.count();
+        for (int i = start; i < end && remaining > 0; i++) {
+            Stack destination = slots.get(i);
+            if (destination.item() == Item.EMPTY && empty < 0) empty = i;
+            if (destination.item() == stack.item() && stackable(stack.item())) {
+                int moved = Math.min(remaining, 64 - destination.count());
+                if (moved > 0) slots.set(i, new Stack(stack.item(), destination.count() + moved));
+                remaining -= moved;
+            }
+        }
+        if (remaining > 0 && empty >= 0) {
+            slots.set(empty, new Stack(stack.item(), remaining));
+            remaining = 0;
+        }
+        if (remaining == stack.count()) return false;
+        slots.set(source, remaining == 0 ? EMPTY : new Stack(stack.item(), remaining));
+        return true;
+    }
+
+    private static boolean stackable(Item item) {
+        return item == Item.FOOD || item == Item.PEARL || item == Item.ARROW;
+    }
+
     /** Grants a whole trusted stack or leaves inventory unchanged if it cannot fit. */
     public boolean grant(int playerId, Stack stack) {
         Actor actor = actors.get(playerId);
         if (actor == null || !actor.alive() || stack == null || stack.item() == Item.EMPTY
                 || (isDebuff(stack.item()) && !rules.debuffs())) return false;
         int emptySlot = -1;
-        boolean stackable = stack.item() == Item.FOOD || stack.item() == Item.PEARL || stack.item() == Item.ARROW;
+        boolean stackable = stackable(stack.item());
         for (int slot = 0; slot < INVENTORY_SIZE; slot++) {
             Stack held = actor.inventory.get(slot);
             if (held.item() == Item.EMPTY && emptySlot == -1) emptySlot = slot;

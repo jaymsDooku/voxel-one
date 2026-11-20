@@ -94,8 +94,8 @@ class PracticeNetworkTest {
             assertEquals(Item.EMPTY, bob.view().inventory().get(5).item());
             assertEquals(1, self(bob).used());
             assertEquals(STARTING_POTS - 1, self(bob).remaining());
-            assertTrue(bob.swap(21, 5));
-            await(() -> bob.view().inventory().get(5).item() == Item.HEALING, "inventory reserve refill");
+            assertTrue(bob.quickMove(21));
+            await(() -> bob.view().inventory().get(5).item() == Item.HEALING, "shift-click reserve refill");
             assertEquals(Item.EMPTY, bob.view().inventory().get(21).item());
             assertEquals(Item.HEALING, alice.view().inventory().get(21).item());
             System.out.printf("Basalt Courtyard: %d ms added RTT, %d ms ready observed, sword and pot snapshots agree%n",

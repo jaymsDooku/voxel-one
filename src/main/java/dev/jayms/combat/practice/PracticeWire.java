@@ -14,6 +14,8 @@ import java.util.List;
 final class PracticeWire {
     static final int MAGIC = 0x56505241, VERSION = 1;
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
+    // SWAP with an out-of-range destination is ignored by older arena servers.
+    static final int QUICK_MOVE = 255;
 
     private PracticeWire() { }
 

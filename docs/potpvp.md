@@ -22,7 +22,10 @@ The lobby listens on port 25567 on loopback by default. Use `--bind` on the serv
 | Left click | Swing once |
 | Right click | Throw the selected splash potion or pearl. Hold to drink, eat, block, or draw a bow |
 | 1–9 or scroll | Select a hotbar slot |
-| E | Click a source slot and destination to rearrange the kit before a round or refill in a live round |
+| E | Open your kit or match inventory |
+| Click two slots | Swap their stacks |
+| Shift-click a stack | Move it between your hotbar and reserve. Compatible stacks fill first |
+| Hover a slot and press a bound hotbar key | Swap the hovered stack with that hotbar slot |
 | F10 | Start or stop an MP4 recording |
 | Escape | Close the inventory or leave |
 

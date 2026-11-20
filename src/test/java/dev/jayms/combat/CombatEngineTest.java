@@ -17,6 +17,31 @@ import static org.junit.jupiter.api.Assertions.*;
 class CombatEngineTest {
     private static final Vec3 ORIGIN = new Vec3(.5, 1, .5);
 
+    @Test void inventoryQuickMoveMergesAcrossSectionsWithoutDroppingOverflow() {
+        CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        var kit = new ArrayList<>(engine.kit(1));
+        kit.set(1, new Stack(Item.PEARL, 62));
+        kit.set(18, new Stack(Item.PEARL, 20));
+        assertTrue(engine.setKit(1, kit));
+        assertTrue(engine.reset(1, ORIGIN, 0));
+
+        assertTrue(engine.quickMoveInventory(1, 18));
+        var moved = engine.snapshot(1).inventory();
+        assertEquals(new Stack(Item.PEARL, 64), moved.get(1));
+        assertEquals(new Stack(Item.PEARL, 18), moved.get(18));
+        assertEquals(kit.get(1), engine.kit(1).get(1));
+        assertFalse(engine.quickMoveInventory(1, 18));
+        assertFalse(engine.quickMoveInventory(1, 36));
+        assertEquals(moved, engine.snapshot(1).inventory());
+
+        kit.set(10, new Stack(Item.EMPTY, 0));
+        assertTrue(engine.setKit(1, kit));
+        assertTrue(engine.quickMoveKit(1, 1));
+        assertEquals(new Stack(Item.PEARL, 64), engine.kit(1).get(18));
+        assertEquals(new Stack(Item.PEARL, 18), engine.kit(1).get(10));
+        assertEquals(new Stack(Item.EMPTY, 0), engine.kit(1).get(1));
+    }
+
     @Test void meleeUsesAimReachOcclusionAndHurtImmunity() {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.5);
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
