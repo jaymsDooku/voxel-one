@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:33:07+00:00",
+  "updatedAt": "2026-11-20T23:38:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4493,10 +4493,31 @@
       "id": "voxel-tower-side-shadow",
       "title": "Westminster clock tower side shadow",
       "description": "Comparing the shaded Elizabeth Tower shaft with adjacent trim and sealed spaces under fixed daylight.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Clock tower shadow PR 97",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/97"
+        },
+        {
+          "kind": "image",
+          "label": "westminster shaft shadow comparison.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-shaft-shadow-comparison.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster shaft shadow flight.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-shaft-shadow-flight.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster shaft shadow results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-shaft-shadow-results.txt"
+        }
+      ],
       "status": "in_progress",
-      "note": "Matched the reported camera angle. Original lower shaft measured 24 against 105 on exposed masonry. An isolated diffuse-sky control restored it to 98. Testing open courtyards and closed shutters on the GPU.",
-      "updatedAt": "2026-11-20T23:33:07+00:00"
+      "note": "Fixed in PR 97. In the matched view the brightness gap fell from 81 to 9. Native GPU controls and 88 selected tests passed. Awaiting repository checks and merge.",
+      "updatedAt": "2026-11-20T23:38:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
