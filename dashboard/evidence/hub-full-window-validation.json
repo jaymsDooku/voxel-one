@@ -1,0 +1,67 @@
+{
+  "sourceBase": "097069290732dbb11702c45a7fa020f73b245cd4",
+  "checks": [
+    {
+      "name": "default",
+      "launch": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Dvoxel.hub.preview=true",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-full-window-profile",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "geometryCommand": [
+        "xdotool",
+        "windowsize",
+        "2097159",
+        "1280",
+        "800"
+      ],
+      "captureCommand": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "PackageUiProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-full-window/default",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-full-window-profile",
+        "screen"
+      ],
+      "exitCode": 0,
+      "expected": "Whole assigned display includes full visible Hub window without center inset",
+      "observed": "Capture saved; inspection required"
+    },
+    {
+      "name": "small-edge",
+      "launch": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-Dvoxel.hub.preview=true",
+        "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-full-window-profile",
+        "-jar",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-launcher.jar"
+      ],
+      "geometryCommand": [
+        "xdotool",
+        "windowsize",
+        "2097159",
+        "900",
+        "600"
+      ],
+      "captureCommand": [
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-promotion-resumed-packages/package-1/Voxel One Hub/lib/runtime/bin/java",
+        "-cp",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/voxel-one-1.0-SNAPSHOT-client.jar:/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-tmp",
+        "PackageUiProbe",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/dashboard/evidence/hub-full-window/small-edge",
+        "/home/debian/codex/voxel-one-queue-worktrees/62383835386364312d346130642d346262652d383736632d393534373062343337356161/target/hub-full-window-profile",
+        "screen"
+      ],
+      "exitCode": 0,
+      "expected": "Whole assigned display includes full visible Hub window without center inset",
+      "observed": "Capture saved; inspection required"
+    }
+  ],
+  "Playtest:": "Linux inherited role display/XAUTHORITY; bundled Java; synthetic profile. Actual Hub at1280x800 then900x600; capture via modified screen probe. Expected whole-window borders without inset; actual images saved for inspection. No browser/gameplay claim.",
+  "stableRolloutQualified": false,
+  "observedInspection": "Both captures show the complete Hub at top-left with no removed edge; remaining assigned desktop is black. Whole-desktop capture, not exact OS-window-bound or physical DPI qualification.",
+  "probeSha256": "bd7cd3676fbd1cbeace68c2153b0fd3db74eda7761339e52eabd06cb4e26c311"
+}

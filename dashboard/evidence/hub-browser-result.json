@@ -1,0 +1,6 @@
+{
+  "playtest": "Playtest: open catalog Space Invaders HTTPS URL in fresh desktop WebKit context.",
+  "url": "https://voxel-one.jamesleaver1.chatgpt.site/games/space-invaders/",
+  "observed": "Game start control unavailable. Published game playtest blocked by site access or unavailable route.",
+  "passed": false
+}

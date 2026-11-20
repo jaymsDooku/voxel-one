@@ -1,0 +1,11 @@
+{
+  "command": "python3 target/hub-review-startup.py",
+  "playtest": "Playtest: start freshly packaged preview with empty PATH and isolated profile; select only own PID window; click Home to focus UI, then Alt+2; capture Home and Games; terminate own process",
+  "expected": "Bundled runtime opens Hub without system Java; keyboard switches to Games",
+  "observed": "Packaged Hub opened. Inspected captures show Home and then Games with City, Sandbox and Space Invaders. Initial unfocused shortcut attempts remained Home and are recorded separately.",
+  "startupWindowSeconds": 2.903,
+  "keyboardCaptureSeconds": 1.782,
+  "rss": "91008 kB",
+  "reference": "Linux x86_64 VPS; inherited authenticated X11 display; bundled Oracle JDK21.0.5; one sample; physical CPU/GPU unspecified",
+  "limitation": "Window visibility timing, not fully loaded content latency. No Windows timing, monitor-DPI, physical-GPU or smooth-gameplay claim."
+}

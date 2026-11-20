@@ -1,0 +1,70 @@
+{
+  "state": "Candidate implementation; release acceptance incomplete",
+  "baseline": "master 1ca97ff1b2c62484346425f60d756a1c7d3ca02b; published playtest-490",
+  "environment": "Linux x86_64; inherited assigned X11 display; synthetic profiles; Oracle JDK 21.0.5 UI/runtime; software GL; 1280x720 display limits full-height 1280x800 captures",
+  "checks": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/maven-cache\" -DargLine=-Djava.io.tmpdir=\"$PWD/target/hub-tmp\" -Dtest=SandboxIdentityTest,HubCatalogTest,HubShellTest,UpdaterTest,AccountStoreTest,ProtocolCompatibilityTest,MultiplayerTest#authenticationRegistrationDuplicateSessionsAndCertificatePin test package",
+      "observed": "Newest recovered-source17 tests passed; zero failures/errors/skips; package succeeded. SandboxIdentity covers game/default/explicit ports, launcher arrays and save isolation."
+    },
+    {
+      "command": "python3 tools/hub/test_publisher.py",
+      "observed": "1 integration test passed: independent native/web promotion and rejected unpublished receipt preserves output"
+    },
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\"",
+      "playtest": "Playtest: Home/Games/details/tools/downloads/settings; search edge; empty and synthetic catalogs; keyboard navigation; light theme; catalog network fallback",
+      "observed": "Newest recovered-source UI rerun passed; fresh captures saved. Native harness title match adapted to new game identity titles; remains scoped to test descendant PID."
+    },
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\" --workflow --no-record",
+      "playtest": "Playtest: install current native client; City/Sandbox/editor offline; shared download; corrupt update fallback; cancel; service offline; offline invalid server/port edge",
+      "observed": "Newest recovered-source launch/updater rerun passed with recording explicitly disabled: City/Sandbox/editor offline processes started; invalid offline server/port ignored; one shared download; corrupt fallback; cancellation preserves installation; service-offline cache. This does not establish rendered native gameplay or fresh native video."
+    },
+    {
+      "command": "PLAYWRIGHT_BROWSERS_PATH=\"$PWD/target/hub-browsers\" TMPDIR=\"$PWD/target/hub-tmp\" node tools/hub/web-freshness-playtest.cjs",
+      "playtest": "Playtest: real desktop WebKit localhost game; move/fire/pause; prime immutable browser cache; reopen web-only second build; fire/pause/resume",
+      "observed": "Newest recovered-source local desktop WebKit freshness rerun passed: both builds played, move/fire/pause/resume, module URLs changed, no page errors, native SHA unchanged. No production deployment claim."
+    },
+    {
+      "command": "node tools/hub/browser-playtest.cjs",
+      "playtest": "Playtest: open actual Space Invaders site URL",
+      "observed": "Historical pre-synchronization production attempt failed: start control unavailable. No production publication/access receipt or fresh controller report supplied."
+    },
+    {
+      "command": "python3 tools/hub/package.py --output target/hub-package-recovered-1f3b --jdk /usr/lib/jvm/jdk-21.0.5-oracle-x64",
+      "observed": "Newest recovered-source Linux app image/ZIP built."
+    },
+    {
+      "command": "python3 tools/hub/package_playtest.py",
+      "playtest": "Playtest: bundled Linux native executable, empty PATH, synthetic home; Alt+2 opens library",
+      "observed": "Newest recovered-source bundled executable started with empty PATH and Alt+2 library capture; see fresh hub-package-playtest.json for timings."
+    },
+    {
+      "command": "python3 tools/hub/run_playtest.py --display \"$DISPLAY\" --workflow",
+      "playtest": "Playtest: actual hub install and City offline launch; record via F10, then remaining native targets/updater edges",
+      "expected": "Fresh native F10 movie and full workflow completion",
+      "observed": "Failed on City F10: Native F10 produced no movie. Remaining steps were not executed by this attempt."
+    }
+  ],
+  "limits": [
+    "Windows installation without Java, DPI100/150/200, file locks and two packaged shell versions untested",
+    "macOS Intel/ARM packages untested",
+    "Real online City/Sandbox account/server handoff untested",
+    "Published catalog branch/root web promotion not configured or verified",
+    "Native F10 clips contain sparse software-rendered frames; no smooth motion claim",
+    "Full final-head checks required after controller master synchronization",
+    "FlatLaf evaluated via official docs only; custom Swing prototype used; accessibility not fully validated"
+  ],
+  "diffAudit": "No unmerged index or tracked file deletions observed. Existing merged features retained. No commit/push/deploy performed.",
+  "media": "All hub-* artifacts are candidate captures; pending controller publication. Root screenshots of GL windows were discarded because they did not prove gameplay.",
+  "nativeMedia": {
+    "status": "Historical captures from prior master integration; not current-source native media",
+    "limitation": "Newest recovered-source F10 attempt failed; no fresh native recording claimed."
+  },
+  "recoveredBaseHead": "1f3b321a46f2684d9c6530c84513bbb8da51c737",
+  "recovery": "All content conflicts resolved by controller. Master GameIdentity selection/port/save APIs retained; hub login accessibility/download links retained. No unmerged index or tracked file deletions. No distinct review-base receipt supplied.",
+  "controllerChecks": "Windows/macOS/production-web results not supplied; release requirements remain unverified.",
+  "recoveredValidationAt": "2026-10-12T13:38:23.779389+00:00",
+  "visualInspection": "Fresh City detail and light Settings screenshots inspected. Layout readable; 1280x800 detail action partly outside assigned1280x720 display. No full-height or Windows DPI acceptance."
+}

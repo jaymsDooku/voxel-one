@@ -1,0 +1,145 @@
+{
+  "sourceSha": "dad92c95a9def47d30b64a248fdad85512acb44b",
+  "sourceFingerprintsMatched": 297,
+  "desktop": {
+    "advertisedModes": [
+      "1024x576",
+      "1024x768",
+      "1280x720",
+      "1280x960",
+      "1344x1008",
+      "1344x756",
+      "1600x1200",
+      "1600x900",
+      "1920x1080",
+      "640x480",
+      "800x600",
+      "960x540"
+    ],
+    "after": [
+      1280,
+      960
+    ],
+    "before": [
+      1024,
+      768
+    ],
+    "changeResult": 0,
+    "configurationScope": "ephemeral login session",
+    "limitation": "Resolution setup only; no privacy permission or approval control is changed.",
+    "qualification": "Actual available window bounds are checked by the Swing playtest; mode selection alone is not a pass.",
+    "required": [
+      2560,
+      1600
+    ],
+    "status": "changed",
+    "sufficient": false,
+    "unscaledWindowCandidate": true
+  },
+  "maven": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "checks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed",
+      "observed": "Playtest: own-child query eof matched=true elapsedMs=87"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed",
+      "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed",
+      "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed",
+      "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed",
+      "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+    },
+    {
+      "name": "Provisional Hub responsiveness",
+      "status": "passed",
+      "observed": "Playtest: Hub startup, Java heap and 30 real page navigations measured; provisional software-session budgets passed. Physical performance remains pending."
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed",
+      "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed",
+      "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+    },
+    {
+      "name": "Friendly library status and detail provenance",
+      "status": "passed",
+      "observed": "Playtest: actual catalog refresh uses friendly Home/Games status; exact catalog version retained in detail; HTTP503 shows unavailable status and preserves verified cache."
+    },
+    {
+      "name": "Native client exit recovery",
+      "status": "passed",
+      "observed": "Playtest: actual Play; delayed exit 7 reported; verified client retained; clean exit 0 reported; older exit cannot overwrite latest launch; startup cancellation stops child; synthetic save preserved. Synthetic process fixture, not gameplay qualification."
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed",
+      "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed",
+      "observed": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "name": "Native rendered city",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "pending",
+      "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed",
+      "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/dad92c95a9def47d30b64a248fdad85512acb44b/563524f9933bfe6ab04d3a35ed3297eca86d368b6df6ee3ba68b2ae1ee728c5e/mac-arm.jar"
+    }
+  ],
+  "pendingQualification": [
+    "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+  ],
+  "mediaInspection": "Actual scale-1 Games-1280.png inspected: City and Sandbox cards, Space Invaders below scroll, search and navigation visible. Not native gameplay or physical DPI evidence.",
+  "fullQualificationPassed": false,
+  "workflow": "https://github.com/jaymsDooku/voxel-one/actions/runs/43303218390"
+}

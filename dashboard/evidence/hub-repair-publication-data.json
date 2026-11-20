@@ -1,0 +1,50 @@
+{
+  "format": 1,
+  "kind": "controller publication data only; never execute as a script",
+  "sourceHead": "b26b2179ba6674dda62669ebae4f0393a638954d",
+  "sourceKind": "working tree; harness edits pending feature publication",
+  "requiresRegenerationAfterControllerCommit": true,
+  "stableRolloutQualified": false,
+  "native": {
+    "build": "playtest-632",
+    "source": "b1d7b8d796b97a87a3d63bb08baf2bb9746b8ca6",
+    "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-632",
+    "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/39437770105",
+    "qualification": "build/publish success; no physical gameplay claim",
+    "manifestSha256": "76a9fc18403a877abbbe0dcdb784121f34f2b7ea578259a67855b03784c8c637"
+  },
+  "web": {
+    "directory": "target/hub-repair-preview-web",
+    "build": "dacf9106628eb0cb01d3",
+    "published": false,
+    "testedPublishedReceiptRequired": true
+  },
+  "shell": {
+    "directory": "target/hub-repair-preview-publication",
+    "previewTagCandidate": "hub-preview-1",
+    "sha256": "f82e08cefc617a399963bb015d96909754a6ea63ddca4a34a3027e8fdebc365b",
+    "size": 884821,
+    "published": false
+  },
+  "destination": {
+    "catalogBranch": "experience-catalog",
+    "expectedHead": "absent; controller must recheck",
+    "website": "existing owner-private Voxel One project"
+  },
+  "sequence": [
+    "Publish assigned feature branch and record exact source head; rerun hosted Hub checks.",
+    "Independently review shell source; regenerate shell asset/manifest from committed source and confirm preview tag is absent.",
+    "Deploy fingerprinted web directory using existing website controller; retain successful deployment provenance and test actual browser play/cache reload before issuing web receipt.",
+    "Verify native immutable manifest/assets and exact native release CI scope; issue an honest native receipt.",
+    "Run publication_bundle.py prepare using those real receipts; inspect catalog and preserve all license notices.",
+    "Publish immutable preview shell asset, verify size/SHA-256 over HTTPS, then atomically promote catalog.properties and shell.properties with destination fencing; preserve unrelated files.",
+    "Run publication_bundle.py verify, actual browser reopen, native/web independent promotions and packaged bootstrap against published metadata.",
+    "Repeat with a second reviewed shell generation; record actual upgrade. Keep physical GPU/DPI/performance and stable rollout gates pending until executed."
+  ],
+  "pending": [
+    "No tested deployed web receipt",
+    "No reviewed/published shell generation",
+    "Native physical gameplay qualification",
+    "Windows/macOS exact-source rerun after probe fix"
+  ]
+}

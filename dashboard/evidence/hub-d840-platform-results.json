@@ -1,0 +1,192 @@
+{
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/38986864061",
+  "reports": [
+    {
+      "sourceSha": "d840a9815d454fe399a3eba71412c2038489d907",
+      "platform": "Darwin",
+      "architecture": "arm64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        }
+      ],
+      "fullQualificationPassed": false
+    },
+    {
+      "sourceSha": "d840a9815d454fe399a3eba71412c2038489d907",
+      "platform": "Windows",
+      "architecture": "AMD64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 249,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        }
+      ],
+      "fullQualificationPassed": false
+    },
+    {
+      "sourceSha": "d840a9815d454fe399a3eba71412c2038489d907",
+      "platform": "Darwin",
+      "architecture": "x86_64",
+      "sourceFingerprintsMatchGitSource": true,
+      "windowsCRLFConversions": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        },
+        {
+          "name": "Native rendered city",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "failed",
+          "glfwWindowCreationFailed": true
+        },
+        {
+          "name": "Offline native installation",
+          "status": "passed",
+          "glfwWindowCreationFailed": false
+        }
+      ],
+      "fullQualificationPassed": false
+    }
+  ],
+  "scope": "Completed exact d840a981 source reports on all three hosts; prior to unpublished numeric GLFW diagnostic. All three native modes failed window creation on every host. Physical GPU/DPI remains unqualified.",
+  "fingerprintAuditNote": "Initial audit failed on Windows path separators; corrected normalization and explicit CRLF comparison passed."
+}

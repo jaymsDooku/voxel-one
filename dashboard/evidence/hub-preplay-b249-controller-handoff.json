@@ -1,0 +1,15 @@
+{
+  "baseSha": "b249ce6e2a34169765577869e205e5df89cbaee3",
+  "sourceKind": "working tree; regenerate after controller commit",
+  "bundle": "target/hub-preplay-b249-publication",
+  "publicationPlan": "dashboard/evidence/hub-preplay-b249-publication-plan.json",
+  "steps": [
+    "Commit/push only the assigned feature branch and new sanitized evidence.",
+    "Regenerate preview publication inputs from committed exact source and recheck expected destination head/tag availability.",
+    "Dispatch exact-head hosted Hub validation and inspect returned reports/media; current source includes pre-Play promotion check.",
+    "Execute existing fenced preview publication handoff only for accepted qualification scope, verify all public bytes and retain immutable assets.",
+    "Return two published shell upgrade results, independent published native/web promotion, published browser gameplay/cached reload and physical GPU/DPI results."
+  ],
+  "stableRolloutQualified": false,
+  "ownerInputRequired": false
+}

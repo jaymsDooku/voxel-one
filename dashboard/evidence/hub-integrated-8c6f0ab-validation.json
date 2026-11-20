@@ -1,0 +1,17 @@
+{
+  "sourceHead": "8c6f0ab51494b97dca8ea63c00fb8f4800649a5a",
+  "environment": "Linux; Oracle JDK 21.0.5; inherited DISPLAY/XAUTHORITY; isolated synthetic profile",
+  "tests": [
+    "javac --release 17 -d target/hub-integrated-classes src/main/java/dev/jayms/launcher/*.java: passed",
+    "python3 -m unittest discover -s tools/hub -p test_*.py: 4 passed",
+    "git diff --check: passed",
+    "Review-base deletion audit: no deleted files"
+  ],
+  "Playtest": "Compiled current launcher sources directly; ran HubPlaytest with target/hub-integrated-classes:target/hub-tmp. Expected home/library/details/tools/downloads/light theme, 900x600, keyboard navigation, empty search, catalog refresh, synthetic catalog entry and empty catalog. Observed harness exit 0 and 11 captures. Library capture inspected. No native gameplay or published browser update claim.",
+  "pending": [
+    "Maven local wrapper interrupted after no completed result; no Java regression pass claimed",
+    "Exact-head hosted Windows/macOS packaged reports/media",
+    "Published independent native/web promotion, cached-browser reload and two published shell versions",
+    "Physical GPU, Windows DPI and performance qualification"
+  ]
+}

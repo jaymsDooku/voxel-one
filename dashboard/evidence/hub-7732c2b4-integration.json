@@ -1,0 +1,131 @@
+{
+  "sourceSha": "7732c2b41c96bcbdff7279b4df3f9710ce35d59b",
+  "scope": "Integrated source after controller rebase. Dashboard-only staged update; no production edits made this turn.",
+  "commands": [
+    "python3 tools/hub/check_local.py --help (script ignores arguments and runs validation; interrupted during later Python stage, exit130)",
+    "python3 -m unittest discover -s tools/hub -p test_*.py -q",
+    "javac --release 17 -d target/hub-integrated-classes src/main/java/dev/jayms/launcher/*.java",
+    "javac --release 17 -cp target/hub-integrated-classes -d target/hub-integrated-classes tools/hub/HubPlaytest.java",
+    "java -cp target/hub-integrated-classes HubPlaytest target/hub-integrated-captures target/hub-integrated-profile"
+  ],
+  "javaTestCountsFromFreshSurefireReports": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "pythonTests": {
+    "tests": 8,
+    "passed": true
+  },
+  "Playtest": {
+    "environment": "Linux VPS; JDK21 release17 compilation; inherited managed display/authentication; isolated synthetic worktree profile.",
+    "steps": "Home, library, unmatched search, City details, engine tools, downloads at900x600, light theme, keyboard navigation, catalog refresh, synthetic catalog entry and empty catalog.",
+    "expected": "Pages render; edge states remain usable; supported synthetic entry appears without UI code edits.",
+    "observed": "HubPlaytest exited0. Library, unmatched search and downloads images inspected. Synthetic entry existence asserted; synthetic capture viewport shows first card and does not visually prove the added entry.",
+    "limitations": "No native gameplay, browser deployed session, physical monitor DPI or performance qualification claimed."
+  },
+  "oldDesktopEvidence": [
+    {
+      "platform": "windows",
+      "source": "786d00054795bb970a821dae7204033569b684ae",
+      "fingerprintMismatches": [],
+      "java": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nonpassingChecks": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "context": "Context diagnosis: variant=0 created=false code=0x10006\r\nContext diagnosis: variant=1 created=false code=0x10006\r\nContext diagnosis: variant=2 created=false code=0x10006\r\nContext diagnosis: variant=3 created=false code=0x10006\r\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "platform": "mac-arm",
+      "source": "786d00054795bb970a821dae7204033569b684ae",
+      "fingerprintMismatches": [],
+      "java": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nonpassingChecks": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "context": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    },
+    {
+      "platform": "mac-intel",
+      "source": "786d00054795bb970a821dae7204033569b684ae",
+      "fingerprintMismatches": [],
+      "java": {
+        "tests": 24,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "nonpassingChecks": [
+        {
+          "name": "Native rendered city",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual city rendering remains pending."
+        },
+        {
+          "name": "Native rendered sandbox",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending."
+        },
+        {
+          "name": "Native rendered editor",
+          "status": "pending",
+          "observed": "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+        }
+      ],
+      "context": "Context diagnosis: variant=0 created=false code=0x10009\nContext diagnosis: variant=1 created=false code=0x10009\nContext diagnosis: variant=2 created=false code=0x10009\nContext diagnosis: variant=3 created=false code=0x10009\nPlaytest: four bounded context attempts completed; diagnostic only, no gameplay qualification. Diagnostic completion only; native rendering gates remain required."
+    }
+  ],
+  "oldMediaInspection": "Both Mac shell-two captures inspected: actual Hub visible. These are historical786d source, not qualification for integrated7732 source.",
+  "diffAudit": {
+    "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "deletedPaths": [],
+    "intendedDeletions": "None; removed lines in edited files implement Hub routing/update behavior while retaining merged features."
+  },
+  "pending": [
+    "Fresh integrated-source Windows/Mac packaged validation.",
+    "Usable native OpenGL contexts on controller-provided qualified desktops; Windows error0x10006 and both Macs0x10009 on old hosted runs.",
+    "PhysicalGPU, Windows monitor DPI and performance.",
+    "Two actually published shell generations and actual upgrade.",
+    "Current published web-build promotion and cached browser reload."
+  ],
+  "stableRolloutQualified": false
+}

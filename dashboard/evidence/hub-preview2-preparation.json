@@ -1,0 +1,124 @@
+{
+  "sourceSha": "786d00054795bb970a821dae7204033569b684ae",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/39859141666",
+  "windowsSourceFingerprintMismatches": [],
+  "windowsJavaTests": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "windowsChecks": [
+    {
+      "name": "Bounded own-child query controls",
+      "status": "passed"
+    },
+    {
+      "name": "Updater failures, locks, concurrency and migration",
+      "status": "passed"
+    },
+    {
+      "name": "Native executable and two-version bootstrap update",
+      "status": "passed"
+    },
+    {
+      "name": "Failed shell activation rollback",
+      "status": "passed"
+    },
+    {
+      "name": "Windows MSI, shortcuts and uninstall",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 1",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 1.5",
+      "status": "passed"
+    },
+    {
+      "name": "UI at JVM scale 2",
+      "status": "passed"
+    },
+    {
+      "name": "Synthetic online login handoff",
+      "status": "passed"
+    },
+    {
+      "name": "Catalog promotion before Play",
+      "status": "passed"
+    },
+    {
+      "name": "Bounded native window failure",
+      "status": "passed"
+    },
+    {
+      "name": "Bounded context diagnosis",
+      "status": "passed"
+    },
+    {
+      "name": "Native rendered city",
+      "status": "pending"
+    },
+    {
+      "name": "Native rendered sandbox",
+      "status": "pending"
+    },
+    {
+      "name": "Native rendered editor",
+      "status": "pending"
+    },
+    {
+      "name": "Offline native installation",
+      "status": "passed"
+    }
+  ],
+  "windowsPendingQualification": [
+    "JVM scale 1: 1280x800 unavailable on 1024x728 desktop; qualification pending",
+    "JVM scale 1.5: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending",
+    "JVM scale 2: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending",
+    "No tested native OpenGL context could be created on this runner; actual city rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual sandbox rendering remains pending.",
+    "No tested native OpenGL context could be created on this runner; actual editor rendering remains pending."
+  ],
+  "preparedGeneration": "hub-preview-2",
+  "expectedCatalogHead": "1ce62377566c13e6b71783092073412a3289c93f",
+  "bundleFilesSha256": {
+    "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+    "shell.properties": "8f87cb5e26e125b4a6ee4baf8e873a096dc2f7b75b897ccb8b0e28e0600a769f",
+    "voxel-one-shell.jar": "5ce29dabf9d7d8cc7c78fa93ad1fca6537129bd31c6bcad85ee410f652650c68"
+  },
+  "sourceKind": "exact-commit",
+  "commands": [
+    "javac --release 17 -d target/hub-preview2-classes src/main/java/dev/jayms/launcher/*.java",
+    "jar --create --file target/hub-preview2-shell.jar --main-class dev.jayms.launcher.Launcher -C target/hub-preview2-classes dev/jayms/launcher",
+    "python3 tools/hub/publication_bundle.py prepare --native-receipt dashboard/evidence/hub-preview-native-receipt.json --web-receipt dashboard/evidence/hub-preview-web-receipt.json --jar target/hub-preview2-shell.jar --source-sha 786d00054795bb970a821dae7204033569b684ae --tag hub-preview-2 --expected-catalog-head 1ce62377566c13e6b71783092073412a3289c93f --output target/hub-preview2-publication",
+    "python3 -m unittest discover -s tools/hub -p test_*.py -q",
+    "java -cp target/hub-preview2-classes:target/hub-preview2-shell.jar UnavailableWebPlaytest target/hub-preview2-publication/catalog.properties target/hub-preview2-profile dashboard/evidence/hub-preview2-preparation.png"
+  ],
+  "environment": "Linux VPS; inherited managed display and authentication; JDK 21 compiling release 17; isolated synthetic profile. No authentication cookie read.",
+  "tests": [
+    "Eight Python contract tests passed.",
+    "Exact-source launcher compilation and preview bundle preparation passed.",
+    "No deleted paths against recorded review base."
+  ],
+  "Playtest": {
+    "steps": "Run actual Hub with prepared catalog; inspect withheld Space Invaders detail and native entries. Inspect exact-head Windows packaged Games capture.",
+    "expected": "Three native entries remain supported; unpublished web game is labelled unavailable and cannot open.",
+    "observed": "Passed assertions, exit 0; both captures viewed. Native gameplay not qualified.",
+    "media": [
+      "hub-preview2-preparation.png",
+      "hub-786d0005-windows-shell.png"
+    ]
+  },
+  "publicationState": "Preparation only. No Git, service or release mutations performed. hub-preview-2 API returned HTTP 404.",
+  "stableRolloutQualified": false,
+  "pending": [
+    "Trusted second-generation package preparation/publication under existing fences.",
+    "Actual upgrade from published preview1 package to second published shell.",
+    "Windows/macOS native physical GPU, monitor DPI and performance.",
+    "Live browser publication and cached reload.",
+    "Remaining exact-head Mac report inspection."
+  ]
+}

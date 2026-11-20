@@ -1,0 +1,42 @@
+{
+  "baseHead": "b8eb5df888e4cff7465af17cb33f702526650fe3",
+  "source": "Local edits after baseHead; pending controller publication and exact-head hosted checks",
+  "environment": "Linux; inherited managed DISPLAY/XAUTHORITY; JDK 21.0.5; --release 17; isolated synthetic profiles; no private account data",
+  "sourceSha256": {
+    "src/main/java/dev/jayms/launcher/HubFrame.java": "bb35c89821e9e0baf582a06d3501bc8e5454cd07a066c0f8f3b4e1d0be77718a",
+    "tools/hub/ClientExitPlaytest.java": "bdccf655d630030c686c5a6395173aeabe990352b7bde049257402f2bb811369",
+    "tools/hub/DelayedExitClient.java": "61c05dc5ba55d8bc3ebbd2c2fc9f0c7baec149d7d053b0298781572bf3623210",
+    "tools/hub/check_packages.py": "22a591586674c7c493105da14955d4b621e19272ade88c23fb6579d3a408101d"
+  },
+  "commands": [
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -d target/hub-exit-classes src/main/java/dev/jayms/launcher/*.java tools/hub/PrePlayCatalogPlaytest.java tools/hub/ClientExitPlaytest.java",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/javac --release 17 -d target/hub-exit-fixture tools/hub/DelayedExitClient.java",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/jar --create --file target/hub-delayed-exit-client.jar --main-class dev.jayms.Main -C target/hub-exit-fixture .",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/hub-exit-classes dev.jayms.launcher.ClientExitPlaytest target/hub-exit-profile-3 dashboard/evidence target/hub-delayed-exit-client.jar",
+    "/usr/lib/jvm/jdk-21.0.5-oracle-x64/bin/java -cp target/hub-exit-classes dev.jayms.launcher.PrePlayCatalogPlaytest target/hub-exit-catalog-profile target/hub-exit-catalog-evidence target/hub-promotion-resumed-packages/promotion-command-client.jar",
+    "python3 -m unittest discover -s tools/hub -p 'test_*.py' -q",
+    "python3 -m py_compile tools/hub/check_packages.py",
+    "git diff --check",
+    "git diff --name-status 71612f09bfec4549456b3317676e76cdced085a4 --diff-filter=D"
+  ],
+  "tests": [
+    "Playtest: actual Hub detail Play / Install downloads a SHA-256/size verified synthetic client from loopback; 3000 ms exit 7 shows fixed recovery status after startup; observed expected message and unchanged installed client hash.",
+    "Playtest: 3000 ms exit 0 reports Client closed.; overlapping 8000 ms exit 7 and newer 3000 ms exit 0 preserve newer clean status; startup Cancel stops owned child; synthetic save unchanged. All passed.",
+    "Playtest: catalog native A-to-B and web URL promotion, responsive EDT, duplicate suppression, malformed fallback, removal, updates-off and one shared download passed with synthetic command receiver. Browser dispatch is injected here; this is not a deployed browser game/cache test.",
+    "11 Python tests passed; Python syntax and diff whitespace passed; deletion audit found no deleted paths against recorded review base.",
+    "Media: inspected delayed-client-failure.png from this actual UI test. Fixed exit message, recovery action and retained-client statement visible."
+  ],
+  "limitations": [
+    "Synthetic process lifecycle tests do not qualify native gameplay or rendering.",
+    "Current-source packaged Windows/macOS checks remain required after controller sync/publication.",
+    "Mac ARM and Intel native rendering remains pending after four supported context/format probes returned GLFW 0x10009; shell checks do not qualify gameplay.",
+    "Retained prior Windows software-rendered gameplay evidence remains valid only for its recorded source.",
+    "Physical GPU, real Windows monitor DPI/performance, two published package self-update, deployed browser cache freshness, publication and independent review gates remain pending.",
+    "Close-after-launch still closes the Hub; exit observation does not reopen a closed window."
+  ],
+  "media": {
+    "path": "dashboard/evidence/delayed-client-failure.png",
+    "sha256": "1067f5a2ab6d37751fc5123d7b2716e012b7211f36fb3ecddc929f67feb9926a",
+    "publication": "pending controller publication"
+  }
+}

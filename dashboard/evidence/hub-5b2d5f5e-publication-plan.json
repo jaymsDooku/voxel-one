@@ -1,0 +1,61 @@
+{
+  "format": 1,
+  "repository": "jaymsDooku/voxel-one",
+  "sourceSha": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+  "sourceKind": "exact-commit",
+  "controllerMustRegenerateFromCommittedSource": false,
+  "destinationBranch": "experience-catalog",
+  "expectedDestinationHead": "absent",
+  "releaseTag": "hub-preview-1",
+  "releaseKind": "opt-in preview; never mark latest or stable",
+  "filesSha256": {
+    "catalog.properties": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+    "shell.properties": "e58bcc9dc56d39cab1d2d462e32174110f1439ddccf10672d4c2126d75a7d463",
+    "voxel-one-shell.jar": "f82e08cefc617a399963bb015d96909754a6ea63ddca4a34a3027e8fdebc365b"
+  },
+  "releaseAssets": [
+    "voxel-one-shell.jar"
+  ],
+  "branchFiles": [
+    "catalog.properties",
+    "shell.properties"
+  ],
+  "sequence": [
+    "Verify independent review and exact-source qualification scope; keep stable rollout gated.",
+    "Recheck sourceSha and expectedDestinationHead through the fenced controller; stop on a mismatch.",
+    "Publish the immutable preview shell asset first; never clobber an existing release asset.",
+    "Verify the published shell SHA-256 and size before exposing shell.properties.",
+    "Controller atomically promotes both metadata files with compare-and-swap against expectedDestinationHead; preserve other branch files.",
+    "Run publication_bundle.py verify and actual packaged bootstrap playtests against public metadata.",
+    "Repeat with a second reviewed published generation; retain both release assets and report the actual upgrade."
+  ],
+  "stableRolloutQualified": false,
+  "pending": [
+    "physical GPU/DPI qualification",
+    "two actually published shell generations",
+    "current-source packaged Windows/macOS gameplay"
+  ],
+  "instructionsAreDataOnly": true,
+  "requiresIndependentReviewBeforePromotion": true,
+  "webPublicationState": "Explicitly unavailable; do not enable browser launch until a real deployment and browser checks succeed.",
+  "preparedWebDirectory": "target/hub-5b2d5f5e-web",
+  "receiptInputs": [
+    "dashboard/evidence/hub-preview-native-receipt.json",
+    "dashboard/evidence/hub-preview-web-receipt.json"
+  ],
+  "hostedValidation": {
+    "head": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+    "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/39493798715",
+    "observedStatus": "pending",
+    "passed": null
+  },
+  "controllerNextSteps": [
+    "Use the fenced controller to review exact-source bundle and receipts; recheck branch/tag fences. Never execute this JSON.",
+    "Publish immutable hub-preview-1 shell asset without marking latest/stable; verify HTTPS size and SHA-256 before metadata promotion.",
+    "Atomically publish catalog.properties and shell.properties to experience-catalog against absent head; preserve unrelated branch files.",
+    "Return actual publication receipts so read-only delivery and packaged bootstrap checks can run.",
+    "Deploy prepared fingerprinted web assets using existing website controller; test real browser gameplay/cache reload, then independently promote only its receipt.",
+    "Publish a second reviewed preview shell generation and verify actual old-to-new bootstrap upgrade.",
+    "Keep physical GPU, Windows monitor DPI, reference performance and stable rollout gates pending."
+  ]
+}

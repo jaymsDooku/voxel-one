@@ -1,0 +1,1682 @@
+{
+  "runId": 39355282918,
+  "sourceSha": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+  "reports": [
+    {
+      "platform": "windows",
+      "sourceSha": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+      "sourceFilesVerified": 264,
+      "sourceMismatches": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "cancel",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\concurrent-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\legacy-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\legacy-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ]
+          ],
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-one",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "process",
+              "7092",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\8f0d2214864776519283632fc1e10f11764976e9097c6acd62de42a5cb35b4f5\\windows.jar"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-one",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "screen"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-stage",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "process",
+              "1820",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\8f0d2214864776519283632fc1e10f11764976e9097c6acd62de42a5cb35b4f5\\windows.jar"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-stage",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "screen"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell",
+              "http://127.0.0.1:63322/manifest",
+              "true"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "stop",
+              "1820"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "stop",
+              "7092"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-two",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "process",
+              "6304",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\123b1a77109b75d2a30498c2e7dc755d566647bd55c89d899620f7b762da6c93\\windows.jar"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-two",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "screen"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "stop",
+              "6304"
+            ]
+          ],
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "expected": "Failed downloaded shell returns to acknowledged downloaded shell, not bundled shell",
+          "status": "passed",
+          "playtest": "Playtest: Failed shell activation rollback",
+          "commands": [
+            [
+              "C:\\hostedtoolcache\\windows\\Java_Temurin-Hotspot_jdk\\21.0.12-101.0\\x64\\bin\\javac.exe",
+              "--release",
+              "17",
+              "-d",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\failed-shell-classes",
+              "tools/hub/FailedShell.java"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell",
+              "http://127.0.0.1:63322/manifest",
+              "true"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell",
+              "http://127.0.0.1:63322/manifest",
+              "true"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-rollback",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "process",
+              "7940",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\123b1a77109b75d2a30498c2e7dc755d566647bd55c89d899620f7b762da6c93\\windows.jar"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\shell-rollback",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "screen"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell",
+              "http://127.0.0.1:63322/manifest",
+              "true"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\local-app-data\\VoxelOne\\hub-shell",
+              "http://127.0.0.1:63322/manifest",
+              "true"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "stop",
+              "7940"
+            ]
+          ],
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "Windows MSI, shortcuts and uninstall",
+          "expected": "Bundled runtime install/launch and saves survive uninstall",
+          "status": "passed",
+          "playtest": "Playtest: Windows MSI, shortcuts and uninstall",
+          "commands": [
+            [
+              "C:\\hostedtoolcache\\windows\\Java_Temurin-Hotspot_jdk\\21.0.12-101.0\\x64\\bin\\jpackage.exe",
+              "--type",
+              "msi",
+              "--name",
+              "Voxel One Hub",
+              "--app-image",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub",
+              "--dest",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\installer",
+              "--app-version",
+              "1.0.1",
+              "--win-shortcut",
+              "--win-menu",
+              "--win-menu-group",
+              "Voxel One",
+              "--win-per-user-install"
+            ],
+            [
+              "C:/Windows/System32/msiexec.exe",
+              "/i",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\installer\\Voxel One Hub-1.0.1.msi",
+              "/qn",
+              "/norestart",
+              "INSTALLDIR=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\installed-app"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\msi",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "process",
+              "2180",
+              "-"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\synthetic-home",
+              "stop",
+              "2180"
+            ],
+            [
+              "C:\\Windows\\System32\\WindowsPowerShell\\v1.0\\powershell.exe",
+              "-NoProfile",
+              "-NonInteractive",
+              "-Command",
+              "$target='D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\installed-app\\Voxel One Hub.exe';$ErrorActionPreference='Stop';$s=New-Object -ComObject WScript.Shell;$links=@((Join-Path ([Environment]::GetFolderPath('DesktopDirectory')) 'Voxel One Hub.lnk'),(Join-Path ([Environment]::GetFolderPath('Programs')) 'Voxel One\\Voxel One Hub.lnk'));$present=0;$matching=0;foreach($link in $links){if(Test-Path -LiteralPath $link){$present++;$actual=$s.CreateShortcut($link).TargetPath;if($actual -and [String]::Equals([IO.Path]::GetFullPath($actual),[IO.Path]::GetFullPath($target),[StringComparison]::OrdinalIgnoreCase)){$matching++}}};if($matching -ne 2){Write-Output ('HUB_CHECK_FAILURE: MSI expected links present='+$present+'; matching target='+$matching);exit 1}"
+            ],
+            [
+              "C:/Windows/System32/msiexec.exe",
+              "/x",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\installer\\Voxel One Hub-1.0.1.msi",
+              "/qn",
+              "/norestart"
+            ]
+          ],
+          "observed": "Scoped MSI installed, native executable ran, desktop/menu shortcuts verified, uninstall retained synthetic save."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-Dsun.java2d.uiScale=1",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\scale-1",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\ui-1"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x728 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-Dsun.java2d.uiScale=1.5",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\scale-1.5",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\ui-1.5"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 900x600 unavailable on 683x485 desktop; qualification pending\n1280x800 unavailable on 683x485 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-Dsun.java2d.uiScale=2",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\scale-2",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\ui-2"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 900x600 unavailable on 512x364 desktop; qualification pending\n1280x800 unavailable on 512x364 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "OnlineLoginPlaytest",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\online-profile",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows"
+            ]
+          ],
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "expected": "Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required",
+          "status": "passed",
+          "playtest": "Playtest: Catalog promotion before Play",
+          "commands": [
+            [
+              "C:\\hostedtoolcache\\windows\\Java_Temurin-Hotspot_jdk\\21.0.12-101.0\\x64\\bin\\javac.exe",
+              "--release",
+              "17",
+              "-d",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\promotion-fixture-classes",
+              "tools/hub/PromotionClient.java"
+            ],
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "dev.jayms.launcher.PrePlayCatalogPlaytest",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\pre-play-profile",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\pre-play-catalog",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\promotion-command-client.jar"
+            ]
+          ],
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "expected": "Native window failures expose a fixed numeric GLFW code",
+          "status": "passed",
+          "playtest": "Playtest: Bounded native window failure",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\2fa3d8e79485cf1f34257de5d48999bec92fa0c0ec4eb06883882a1bcc8bf0cc\\windows.jar",
+              "WindowFailureProbe"
+            ]
+          ],
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\2fa3d8e79485cf1f34257de5d48999bec92fa0c0ec4eb06883882a1bcc8bf0cc\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-city",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-city",
+              "city"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\2fa3d8e79485cf1f34257de5d48999bec92fa0c0ec4eb06883882a1bcc8bf0cc\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-sandbox",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-sandbox",
+              "sandbox"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\2fa3d8e79485cf1f34257de5d48999bec92fa0c0ec4eb06883882a1bcc8bf0cc\\windows.jar",
+              "NativeRenderProbe",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-editor",
+              "D:\\a\\voxel-one\\voxel-one\\dashboard\\evidence\\hub-scoped-windows\\native-editor",
+              "editor"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10006)"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "commands": [
+            [
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\package-1\\Voxel One Hub\\runtime\\bin\\java.exe",
+              "-Djava.io.tmpdir=D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check",
+              "-cp",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\classes;D:\\a\\voxel-one\\voxel-one\\target\\voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache",
+              "http://127.0.0.1:63322/manifest",
+              "false"
+            ]
+          ],
+          "observed": "D:\\a\\voxel-one\\voxel-one\\target\\hub-scoped-check\\native-cache\\versions\\b17344808779c5a0556ff696e04bd7b85cf84d18\\2fa3d8e79485cf1f34257de5d48999bec92fa0c0ec4eb06883882a1bcc8bf0cc\\windows.jar"
+        }
+      ],
+      "media": {
+        "frames": 20,
+        "seconds": 2.917,
+        "inspected": "Decoded scale-1 clip and inspected Downloads frame; no gameplay shown",
+        "frame": "hub-platform-b173448-windows-frame.png"
+      }
+    },
+    {
+      "platform": "mac-arm",
+      "sourceSha": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+      "sourceFilesVerified": 264,
+      "sourceMismatches": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "cancel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/concurrent-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/legacy-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/legacy-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ]
+          ],
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-one",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "3215",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/fb3577ade685f122af2e80b24f4e7ea3675142791b6a502b8332fc7d1e0a149f/mac-arm.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-one",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-stage",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "3434",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/fb3577ade685f122af2e80b24f4e7ea3675142791b6a502b8332fc7d1e0a149f/mac-arm.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-stage",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49242/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "3434"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "3215"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-two",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "3553",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/af2dc5424ad21cbcdb9cf0155c81fe8153e7906075552156a3884e6e318d7529/mac-arm.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-two",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "3553"
+            ]
+          ],
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "expected": "Failed downloaded shell returns to acknowledged downloaded shell, not bundled shell",
+          "status": "passed",
+          "playtest": "Playtest: Failed shell activation rollback",
+          "commands": [
+            [
+              "/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-101.0/arm64/Contents/Home/bin/javac",
+              "--release",
+              "17",
+              "-d",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/failed-shell-classes",
+              "tools/hub/FailedShell.java"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49242/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49242/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-rollback",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "3667",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/af2dc5424ad21cbcdb9cf0155c81fe8153e7906075552156a3884e6e318d7529/mac-arm.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/shell-rollback",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49242/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49242/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "3667"
+            ]
+          ],
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=1",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/scale-1",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-1"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=1.5",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/scale-1.5",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-1.5"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=2",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/scale-2",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-2"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2. Full-size qualification pending: 1280x800 unavailable on 1024x684 desktop; qualification pending"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "OnlineLoginPlaytest",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/online-profile",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm"
+            ]
+          ],
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "expected": "Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required",
+          "status": "passed",
+          "playtest": "Playtest: Catalog promotion before Play",
+          "commands": [
+            [
+              "/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-101.0/arm64/Contents/Home/bin/javac",
+              "--release",
+              "17",
+              "-d",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/promotion-fixture-classes",
+              "tools/hub/PromotionClient.java"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "dev.jayms.launcher.PrePlayCatalogPlaytest",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/pre-play-profile",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/pre-play-catalog",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/promotion-command-client.jar"
+            ]
+          ],
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "expected": "Native window failures expose a fixed numeric GLFW code",
+          "status": "passed",
+          "playtest": "Playtest: Bounded native window failure",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/d86634e4334409f3cce0e97e4c87259e8bbff0d69bf8d86d1da6b93b13780334/mac-arm.jar",
+              "WindowFailureProbe"
+            ]
+          ],
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/d86634e4334409f3cce0e97e4c87259e8bbff0d69bf8d86d1da6b93b13780334/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-city",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-city",
+              "city"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/d86634e4334409f3cce0e97e4c87259e8bbff0d69bf8d86d1da6b93b13780334/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-sandbox",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-sandbox",
+              "sandbox"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/d86634e4334409f3cce0e97e4c87259e8bbff0d69bf8d86d1da6b93b13780334/mac-arm.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-editor",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-arm/native-editor",
+              "editor"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49242/manifest",
+              "false"
+            ]
+          ],
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/d86634e4334409f3cce0e97e4c87259e8bbff0d69bf8d86d1da6b93b13780334/mac-arm.jar"
+        }
+      ],
+      "media": {
+        "frames": 20,
+        "seconds": 2.917,
+        "inspected": "Decoded scale-1 clip and inspected Downloads frame; no gameplay shown",
+        "frame": "hub-platform-b173448-mac-arm-frame.png"
+      }
+    },
+    {
+      "platform": "mac-intel",
+      "sourceSha": "b17344808779c5a0556ff696e04bd7b85cf84d18",
+      "sourceFilesVerified": 264,
+      "sourceMismatches": 0,
+      "checks": [
+        {
+          "name": "Updater failures, locks, concurrency and migration",
+          "expected": "Previous verified installation retained; no duplicate transfer",
+          "status": "passed",
+          "playtest": "Playtest: Updater failures, locks, concurrency and migration",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "cancel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/concurrent-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/legacy-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/legacy-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ]
+          ],
+          "observed": "Verified immutable update under lock; corrupt/partial/malformed fallback; cancellation; two concurrent processes downloaded once; legacy migration reused bytes."
+        },
+        {
+          "name": "Native executable and two-version bootstrap update",
+          "expected": "Empty PATH works; active shell retained; new shell activates next start",
+          "status": "passed",
+          "playtest": "Playtest: Native executable and two-version bootstrap update",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-one",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "8194",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/0d486501cede5b785dfa8e328b6750d729b96b09f52a4e210583b40b2328ef21/mac-intel.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-one",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-stage",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "8355",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/0d486501cede5b785dfa8e328b6750d729b96b09f52a4e210583b40b2328ef21/mac-intel.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-stage",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49250/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "8355"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "8194"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-two",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "8623",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/3435c3416918ec1070f6df493add9a802cc78c66af154521b4c4d9f273b3a5ce/mac-intel.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-two",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "8623"
+            ]
+          ],
+          "observed": "Two packaged fixture generations: bundled runtime launched verified v1; bootstrap staged v2 while v1 active; next start executed v2. No public release claim."
+        },
+        {
+          "name": "Failed shell activation rollback",
+          "expected": "Failed downloaded shell returns to acknowledged downloaded shell, not bundled shell",
+          "status": "passed",
+          "playtest": "Playtest: Failed shell activation rollback",
+          "commands": [
+            [
+              "/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-101.0/x64/Contents/Home/bin/javac",
+              "--release",
+              "17",
+              "-d",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/failed-shell-classes",
+              "tools/hub/FailedShell.java"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49250/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49250/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-rollback",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "process",
+              "8757",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/3435c3416918ec1070f6df493add9a802cc78c66af154521b4c4d9f273b3a5ce/mac-intel.jar"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/shell-rollback",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "screen"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49250/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "update",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home/.voxel-one/client/hub-shell",
+              "http://127.0.0.1:49250/manifest",
+              "true"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/synthetic-home",
+              "stop",
+              "8757"
+            ]
+          ],
+          "observed": "Executable shell exited 7 without acknowledgement; downloaded working shell resumed, installed pointer rolled back, rejected artifact not restaged, immutable JARs retained."
+        },
+        {
+          "name": "UI at JVM scale 1",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=1",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/scale-1",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-1"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1"
+        },
+        {
+          "name": "UI at JVM scale 1.5",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 1.5",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=1.5",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/scale-1.5",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-1.5"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 1.5"
+        },
+        {
+          "name": "UI at JVM scale 2",
+          "expected": "900x600/1280x800 actual screenshots and bounded UI video",
+          "status": "passed",
+          "playtest": "Playtest: UI at JVM scale 2",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-Dsun.java2d.uiScale=2",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "PackageUiProbe",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/scale-2",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/ui-2"
+            ]
+          ],
+          "observed": "Production hub cards, available desktop extents and keyboard captured at JVM scale 2"
+        },
+        {
+          "name": "Synthetic online login handoff",
+          "expected": "Both native game identities authenticate to their selected TLS server",
+          "status": "passed",
+          "playtest": "Playtest: Synthetic online login handoff",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "OnlineLoginPlaytest",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/online-profile",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel"
+            ]
+          ],
+          "observed": "City/Sandbox locked selection; custom loopback port; invalid-port rejection; pinned TLS sign-in passed."
+        },
+        {
+          "name": "Catalog promotion before Play",
+          "expected": "Actual Hub/update/browser dispatch with synthetic native command; real rendering remains separately required",
+          "status": "passed",
+          "playtest": "Playtest: Catalog promotion before Play",
+          "commands": [
+            [
+              "/Users/runner/hostedtoolcache/Java_Temurin-Hotspot_jdk/21.0.12-101.0/x64/Contents/Home/bin/javac",
+              "--release",
+              "17",
+              "-d",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/promotion-fixture-classes",
+              "tools/hub/PromotionClient.java"
+            ],
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "dev.jayms.launcher.PrePlayCatalogPlaytest",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/pre-play-profile",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/pre-play-catalog",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/promotion-command-client.jar"
+            ]
+          ],
+          "observed": "Playtest: catalog native A-to-B and web URL B; responsive EDT; duplicate suppression; malformed fallback; removal; updates-off; one download; synthetic native command verified; not gameplay qualification."
+        },
+        {
+          "name": "Bounded native window failure",
+          "expected": "Native window failures expose a fixed numeric GLFW code",
+          "status": "passed",
+          "playtest": "Playtest: Bounded native window failure",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/9563d01dc08d6210cf9861ba631eba397215af57bd55b337c2a3d6195f7276a4/mac-intel.jar",
+              "WindowFailureProbe"
+            ]
+          ],
+          "observed": "Invalid native width produced fixed GLFW_INVALID_VALUE code 0x10004; no native descriptions retained."
+        },
+        {
+          "name": "Native rendered city",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered city",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/9563d01dc08d6210cf9861ba631eba397215af57bd55b337c2a3d6195f7276a4/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-city",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-city",
+              "city"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native city renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered sandbox",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered sandbox",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/9563d01dc08d6210cf9861ba631eba397215af57bd55b337c2a3d6195f7276a4/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-sandbox",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-sandbox",
+              "sandbox"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native sandbox renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Native rendered editor",
+          "expected": "Verified platform client renders four real frames with bundled Java",
+          "status": "failed",
+          "playtest": "Playtest: Native rendered editor",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-XstartOnFirstThread",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/9563d01dc08d6210cf9861ba631eba397215af57bd55b337c2a3d6195f7276a4/mac-intel.jar",
+              "NativeRenderProbe",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-editor",
+              "/Users/runner/work/voxel-one/voxel-one/dashboard/evidence/hub-scoped-mac-intel/native-editor",
+              "editor"
+            ]
+          ],
+          "observed": "AssertionError: HUB_CHECK_FAILURE: Native editor renderer: RuntimeException: Failed to create the GLFW window (GLFW error 0x10009)"
+        },
+        {
+          "name": "Offline native installation",
+          "expected": "Last verified client usable without service",
+          "status": "passed",
+          "playtest": "Playtest: Offline native installation",
+          "commands": [
+            [
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/package-1/Voxel One Hub.app/Contents/runtime/Contents/Home/bin/java",
+              "-Djava.io.tmpdir=/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check",
+              "-cp",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/classes:/Users/runner/work/voxel-one/voxel-one/target/voxel-one-1.0-SNAPSHOT-client.jar",
+              "UpdaterProbe",
+              "installed",
+              "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache",
+              "http://127.0.0.1:49250/manifest",
+              "false"
+            ]
+          ],
+          "observed": "/Users/runner/work/voxel-one/voxel-one/target/hub-scoped-check/native-cache/versions/b17344808779c5a0556ff696e04bd7b85cf84d18/9563d01dc08d6210cf9861ba631eba397215af57bd55b337c2a3d6195f7276a4/mac-intel.jar"
+        }
+      ],
+      "media": {
+        "frames": 20,
+        "seconds": 2.917,
+        "inspected": "Decoded scale-1 clip and inspected Downloads frame; no gameplay shown",
+        "frame": "hub-platform-b173448-mac-intel-frame.png"
+      }
+    }
+  ],
+  "Playtest": "Actual hosted packaged workflows executed with synthetic profiles. Developer independently verified exact Git source hashes and decoded/inspected all three launcher clips. Windows native renderer failed GLFW 0x10006; both Macs failed 0x10009 for City, Sandbox and editor. Synthetic shell generation swaps are not published-release upgrades. Hosted JVM scaling is not physical Windows monitor DPI qualification.",
+  "stableRolloutQualified": false,
+  "remaining": [
+    "Successful supported-GPU packaged gameplay",
+    "Windows monitor DPI and reference performance",
+    "Controller publication: catalog/shell delivery, two published shell generations, independent native/web promotion, cached latest browser reload"
+  ],
+  "localEditsOutsideRun": [
+    "tools/hub/check_local.py",
+    "tools/hub/VALIDATION.md"
+  ]
+}

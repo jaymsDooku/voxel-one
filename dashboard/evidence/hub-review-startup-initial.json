@@ -1,0 +1,11 @@
+{
+  "command": "python3 target/hub-review-startup.py",
+  "playtest": "Playtest: start freshly packaged preview executable with empty PATH and isolated synthetic profile; find only own PID window; Alt+2 opens Games; capture both views; terminate own test process",
+  "expected": "Bundled runtime opens Hub without system Java; keyboard switches to Games",
+  "observed": "Own Hub window opened; both captured views showed Home. This attempt did not prove Alt+2 navigation.",
+  "startupWindowSeconds": 1.1,
+  "keyboardCaptureSeconds": 0.418,
+  "rss": "84180 kB",
+  "reference": "Linux x86_64 VPS; inherited authenticated X11 display; bundled Oracle JDK21.0.5; one sample; physical CPU/GPU unspecified",
+  "limitation": "Window visibility timing, not fully loaded content latency. No Windows timing, monitor-DPI, physical-GPU or smooth-gameplay claim."
+}

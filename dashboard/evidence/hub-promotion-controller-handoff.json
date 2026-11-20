@@ -1,0 +1,20 @@
+{
+  "baseHead": "6307ffede5a191e917a3b6d248d7d44df2b361fc",
+  "scope": "Controller handoff only; acceptance incomplete",
+  "controllerActions": [
+    "Stage preserved source, tools/hub/PromotionClient.java, documentation and sanitized evidence on the assigned feature branch.",
+    "Integrate latest master through the controller; resume developer checks if source changes.",
+    "Commit and push assigned feature branch. Changed tools/hub paths trigger scoped platform checks.",
+    "Return exact resulting-head Windows/macOS reports and media for developer inspection. Keep real native render failures visible.",
+    "Regenerate publication inputs for the resulting source and execute the authorized preview publication handoff with existing fences; verify metadata/artifact endpoints.",
+    "Return actual published shell upgrades, independent native/web promotion and browser gameplay/cached-reload evidence."
+  ],
+  "pendingGates": [
+    "Passing exact-head packaged platform checks",
+    "Actual published delivery and upgrades",
+    "Published browser gameplay and cached reload",
+    "Physical GPU gameplay, monitor DPI and reference performance"
+  ],
+  "syntheticFixture": "Catalog command receiver only; never a production game client or gameplay qualification.",
+  "stableRolloutQualified": false
+}

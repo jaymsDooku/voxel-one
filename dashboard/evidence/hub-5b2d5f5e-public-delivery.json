@@ -1,0 +1,31 @@
+{
+  "sourceSha": "5b2d5f5e597e1d58bfdcfd8e7037910b8af7f4a0",
+  "sourceKind": "exact-commit",
+  "generation": "hub-preview-1",
+  "checks": [
+    {
+      "file": "catalog.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/catalog.properties",
+      "expectedSha256": "804b08528aa39ec14dab67bdf987932105022e5952a1ca5ea818a922e10881c7",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "file": "shell.properties",
+      "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/experience-catalog/shell.properties",
+      "expectedSha256": "e58bcc9dc56d39cab1d2d462e32174110f1439ddccf10672d4c2126d75a7d463",
+      "status": "failed",
+      "httpStatus": 404
+    },
+    {
+      "file": "voxel-one-shell.jar",
+      "url": "https://github.com/jaymsDooku/voxel-one/releases/download/hub-preview-1/voxel-one-shell.jar",
+      "expectedSha256": "f82e08cefc617a399963bb015d96909754a6ea63ddca4a34a3027e8fdebc365b",
+      "status": "failed",
+      "httpStatus": 404
+    }
+  ],
+  "passed": false,
+  "stableRolloutQualified": false,
+  "Playtest": "Read-only HTTPS metadata and shell-artifact integration; no browser UI is involved. Physical GPU/DPI and published generation upgrade playtests are separate release gates."
+}

@@ -1,0 +1,10 @@
+{
+  "tested": true,
+  "published": true,
+  "source": "403033b9f53ce66063982879c6e2daff684a427b",
+  "build": "playtest-565",
+  "notes": "Published playtest-565. City, Sandbox and the engine workspace share one verified client.",
+  "release": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-565",
+  "ci": "https://github.com/jaymsDooku/voxel-one/actions/runs/38977822347",
+  "testScope": "Native release CI succeeded and published update.properties revision matched. Physical GPU/DPI and Hub rollout qualification remain separate gates."
+}
