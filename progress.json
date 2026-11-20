@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T22:40:19+00:00",
+  "updatedAt": "2026-11-20T22:54:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4398,6 +4398,36 @@
       "status": "in_progress",
       "note": "Exact head 62a39cc1 independently reviewed and submitted in PR 89. Full Windows build passed with 770 tests passing and one opt-in browser test skipped. Fourteen GPU fixtures and matched native tower comparisons passed. Awaiting repository review and merge.",
       "updatedAt": "2026-11-20T22:40:19+00:00"
+    },
+    {
+      "id": "voxel-preview-flicker",
+      "title": "Stabilize Westminster preview rendering",
+      "description": "Submitted independently reviewed head bfcda4aa in PR 90. Native overview, clock and pan flicker fell by 96%, 93%, and 92%. Default graphics, tower lighting, and 45 targeted Maven tests passed. Awaiting repository review and merge.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Flicker fix and CI",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/90"
+        },
+        {
+          "kind": "video",
+          "label": "westminster flicker before.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-flicker-before.mp4"
+        },
+        {
+          "kind": "video",
+          "label": "westminster flicker after.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-flicker-after.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster flicker results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-flicker-results.txt"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Submitted independently reviewed head bfcda4aa in PR 90. Native overview, clock and pan flicker fell by 96%, 93%, and 92%. Default graphics, tower lighting, and 45 targeted Maven tests passed. Awaiting repository review and merge.",
+      "updatedAt": "2026-11-20T22:54:00+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
