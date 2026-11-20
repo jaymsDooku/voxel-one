@@ -3,7 +3,9 @@ import XCTest
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
 final class NativeWorkflowTests:XCTestCase {
     var app:XCUIApplication!
-    private var workflowCheckpoint:String?
+    private var workflowCheckpoint:String? {
+        didSet {if let checkpoint=workflowCheckpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}}
+    }
     override func tearDown(){
         if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
         super.tearDown()
@@ -116,10 +118,13 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func newOffline(){menu();app.buttons["offlineNewButton"].tap();if app.alerts.buttons["New world"].waitForExistence(timeout:2){app.alerts.buttons["New world"].tap()};wait(app.buttons["breakButton"])}
     func testPlanetAtmosphereNativeToggleAndLegacyWorld()throws {
+        workflowCheckpoint="sky_create"
         newOffline();wait(app.buttons["atmosphereToggle"])
         if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap()}
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview on")
+        workflowCheckpoint="sky_horizon"
         aimAtHorizonForEvidence();capture("atmosphere-native-enabled")
+        workflowCheckpoint="sky_sun_first"
         aimAtSolarDiscForEvidence();aimAtHorizonForEvidence()
         XCTAssertTrue(app.buttons["breakButton"].exists,"World controls remain available")
         app.buttons["atmosphereToggle"].tap();textContains("gameStatus","Planet sky preview off");capture("atmosphere-native-fallback")
@@ -127,10 +132,12 @@ final class NativeWorkflowTests:XCTestCase {
         aimAtHorizonForEvidence()
         app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
         app.buttons["pauseButton"].tap()
+        workflowCheckpoint="sky_restart"
         app.terminate();app.launch();wait(app.buttons["atmosphereToggle"])
         XCTAssertEqual(app.buttons["atmosphereToggle"].value as? String,"On","Local sky opt-in survives restart")
         XCTAssertTrue(app.buttons["breakButton"].exists,"World remains playable after restart")
         capture("atmosphere-native-enabled-restarted")
+        workflowCheckpoint="sky_sun_restart"
         aimAtSolarDiscForEvidence()
     }
     func testOfflineTouchBuildSavePauseAndLandscape()throws {

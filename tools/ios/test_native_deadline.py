@@ -123,3 +123,47 @@ class NativeProgressCaptureTests(unittest.TestCase):
             code='print('+repr(text)+');raise SystemExit(65)'
             self.assertEqual(runner.run([sys.executable,'-c',code],log,5,{'testDone'}),65)
             self.assertIn('started=1 passed=1 failed=0 unfinished=0 expected=1 phase=no_test_open',log.read_text())
+
+
+class NativeTimingCaptureTests(unittest.TestCase):
+    def test_timings_and_last_checkpoint_are_bounded_and_allowlisted(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / 'target') as scratch:
+            log=Path(scratch)/'test.log'
+            messages=[
+                "Test Case '-[VoxelOneUITests.WorldRulesTests testClosed]' started.",
+                "Test Case '-[VoxelOneUITests.WorldRulesTests testClosed]' passed.",
+                "Test Case '-[VoxelOneUITests.NativeWorkflowTests testOpen]' started.",
+                'error: native_workflow_checkpoint code=sky_create',
+                'error: native_workflow_checkpoint code=sky_sun_first',
+                'error: native_workflow_checkpoint code=private_fixture',
+                "Test Case '-[VoxelOneUITests.NativeWorkflowTests testPrivate]' started.",
+                'private-fixture-marker' * 5000]
+            log.write_text('\n'.join(messages)+'\n')
+            observer=runner.TestProgress(log,{'testClosed','testOpen'})
+            observer.stop.set()
+            with patch.object(runner.time,'monotonic',side_effect=[10,14,20,25]):
+                observer.observe()
+                # finish() joins a thread only when the asynchronous observer was started.
+                with patch.object(observer.thread,'join'),patch.object(observer.thread,'is_alive',return_value=False):
+                    markers=observer.finish()
+            closed=runner.hashlib.sha256(b'testClosed').hexdigest()[:12]
+            opened=runner.hashlib.sha256(b'testOpen').hexdigest()[:12]
+            self.assertIn('error: native_test_timing test_id='+closed+' elapsed_seconds=4 state=closed',markers)
+            self.assertIn('error: native_test_timing test_id='+opened+' elapsed_seconds=5 state=open',markers)
+            self.assertEqual([line for line in markers if 'native_workflow_checkpoint' in line],
+                             ['error: native_workflow_checkpoint code=sky_sun_first'])
+            self.assertNotIn('private', '\n'.join(markers))
+            self.assertLessEqual(len(markers),8)
+
+    def test_only_two_slowest_timings_are_exported_without_source_text(self):
+        with tempfile.TemporaryDirectory(dir=ROOT / 'target') as scratch:
+            observer=runner.TestProgress(Path(scratch)/'unused',{'testOne','testTwo','testThree'})
+            observer.started={'testOne','testTwo','testThree'}
+            observer.passed=set(observer.started)
+            observer.states={name:'passed' for name in observer.started}
+            observer.durations={'testOne':50,'testTwo':20,'testThree':30}
+            with patch.object(observer.thread,'join'),patch.object(observer.thread,'is_alive',return_value=False):
+                timings=[line for line in observer.finish() if 'native_test_timing' in line]
+            self.assertEqual(len(timings),2)
+            self.assertIn('elapsed_seconds=50',timings[0]);self.assertIn('elapsed_seconds=30',timings[1])
+            self.assertNotIn('testOne','\n'.join(timings))

@@ -36,7 +36,10 @@ app_product=add('PBXFileReference',explicitFileType='wrapper.application',path='
 test_product=add('PBXFileReference',explicitFileType='wrapper.cfbundle',path='VoxelOneUITests.xctest',sourceTree='BUILT_PRODUCTS_DIR')
 products=add('PBXGroup',children=[app_product,test_product],name='Products',sourceTree='<group>')
 main_group=add('PBXGroup',children=swift+tests+[resource,recipes,contract,terrain_fixture,products],sourceTree='<group>')
-base={'SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'16.0','SDKROOT':'iphoneos','TARGETED_DEVICE_FAMILY':'1','CODE_SIGNING_ALLOWED':'NO','CODE_SIGN_STYLE':'Automatic','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','CLANG_ENABLE_MODULES':'YES','SWIFT_OPTIMIZATION_LEVEL':'-Onone','ENABLE_TESTABILITY':'YES','PRODUCT_NAME':'$(TARGET_NAME)'}
+# Match normal device execution: optimize CPU voxel generation/meshing in app and
+# directly compiled native rules. Keep testability and every XCTest assertion.
+# Do not use -Ounchecked or fast-math; shared Java golden parity remains required.
+base={'SWIFT_VERSION':'5.0','IPHONEOS_DEPLOYMENT_TARGET':'16.0','SDKROOT':'iphoneos','TARGETED_DEVICE_FAMILY':'1','CODE_SIGNING_ALLOWED':'NO','CODE_SIGN_STYLE':'Automatic','SUPPORTED_PLATFORMS':'iphoneos iphonesimulator','CLANG_ENABLE_MODULES':'YES','SWIFT_OPTIMIZATION_LEVEL':'-O','ENABLE_TESTABILITY':'YES','PRODUCT_NAME':'$(TARGET_NAME)'}
 app_settings=base|{'PRODUCT_BUNDLE_IDENTIFIER':'dev.jayms.voxelone.ios','INFOPLIST_FILE':str(root/'Info.plist'),'GENERATE_INFOPLIST_FILE':'NO','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks'}
 app=add('PBXNativeTarget',name='VoxelOne',productName='VoxelOne',productReference=app_product,productType='com.apple.product-type.application',buildConfigurationList=config_list(app_settings),buildPhases=[phase('PBXSourcesBuildPhase',swift),phase('PBXResourcesBuildPhase',[resource,recipes,contract]),phase('PBXFrameworksBuildPhase',[])],dependencies=[],buildRules=[])
 test_settings=base|{'PRODUCT_BUNDLE_IDENTIFIER':'dev.jayms.voxelone.UITests','GENERATE_INFOPLIST_FILE':'YES','TEST_TARGET_NAME':'VoxelOne','LD_RUNPATH_SEARCH_PATHS':'$(inherited) @executable_path/Frameworks @loader_path/Frameworks'}

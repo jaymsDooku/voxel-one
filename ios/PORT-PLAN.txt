@@ -899,3 +899,39 @@ Playtest: Swift parity/cached eviction and new-world seed validation->edit->save
 restart are unexecuted and require exact-source Mac run; required count now36
 with all prior34 retained. Physical-device performance, live VPS, complete parity
 and signed iPhone delivery remain open.
+
+Seeded-generation native deadline recovery
+Source 738f11e89842f06025b95bfb6f523945595c7beb reached XCTest but exited124
+at900 seconds:16 started,15 passed,0 failed,1 unfinished,36 expected.
+NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld was open.
+No complete native qualification or gameplay capture returned. The preflight
+home screen is not game evidence and is not published as gameplay.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44638759661
+GitHub run metadata independently confirms workflow_dispatch on master at
+8a53afce99e735a7574bffab70558252577b387b, so this run used the reviewed
+trusted validator with the64-entry receipt bound. Feature source includes it too.
+
+The new procedural CPU path was still built with -Onone. Use standard Swift -O
+for app and directly compiled native rules, retaining testability, all36 cases,
+all XCTest assertions and the900-second child deadline. No -Ounchecked or
+fast-math. This is a performance correction to the build, not a measured device
+performance claim. Timing evidence does not yet prove generation caused the
+suite deadline. Default bundled/generated windows have matching17380-cell
+counts and49x49x45 bounds; shared sample/window parity remains required on Mac.
+
+Before owned-child teardown, diagnostics now capture at most two slowest closed
+tests and one open-test age, with source-declared hashed identifiers, numeric
+observer elapsed seconds capped900, and the last allowlisted workflow step.
+Atmosphere steps distinguish creation, horizon, first sun aim, relaunch and
+second sun aim. Test starts clear stale prior-test steps. Bounded reads/lines,
+private raw logs, fixed-code filtering and execution/finalization distinction
+remain. These timings describe observer/test elapsed time, not FPS or thermals.
+
+Executed76 Linux mock/harness checks, including deterministic timing, truncation,
+unknown-code/name rejection and last-step retention. Project generation, Python
+compilation, shell syntax and diff checks passed. No deleted files against the
+recorded review base8a53afce99e735a7574bffab70558252577b387b.
+Playtest: optimized native generation, all36 native cases and real gameplay
+media require a fresh exact-source Mac run. No current native pass claimed.
+Full streaming/distant terrain, complete parity, live VPS, signed installation,
+physical iPhone playtesting and device performance qualification remain open.

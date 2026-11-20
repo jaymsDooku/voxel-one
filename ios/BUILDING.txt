@@ -239,3 +239,9 @@ streaming and distant terrain remain unfinished; do not call this an infinite wo
 App generation has no Java/LWJGL dependency. Column/field caches cap at8192 entries
 each; generation work and cancellation use the existing bounded loader. Physical
 frame-time, memory, thermal and battery qualification remain pending.
+
+Native builds now use standard Swift -O for app and native rules; testability and
+all XCTest cases/assertions stay enabled. The900-second suite limit remains.
+The seeded terrain sample/window parity check must pass with these settings.
+Do not substitute -Ounchecked or fast-math. Simulator/test observer timings do
+not establish physical-device frame time, memory, thermal or battery budgets.

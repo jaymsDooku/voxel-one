@@ -9,9 +9,10 @@ import re
 import signal
 import subprocess
 import threading
+import time
 
 TAIL_BYTES = 65536
-_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed"}
+_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart"}
 _CHECKPOINT = re.compile(r"error: native_workflow_checkpoint code=([a-z_]{1,32})$")
 _TEST = re.compile(
     r"^Test Case '-\[VoxelOneUITests\.(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests) "
@@ -41,6 +42,9 @@ class TestProgress:
         self.started, self.passed, self.failed = set(), set(), set()
         self.states = {}
         self.checkpoints = set()
+        self.last_checkpoint = None
+        self.opened = {}
+        self.durations = {}
         self.stop = threading.Event()
         self.lock = threading.Lock()
         self.thread = threading.Thread(target=self.observe, daemon=True)
@@ -67,12 +71,20 @@ class TestProgress:
                             line=pending.decode('utf-8', errors='replace').rstrip('\r\n')
                             checkpoint=_CHECKPOINT.search(line)
                             if checkpoint and checkpoint[1] in _CHECKPOINT_CODES:
-                                with self.lock:self.checkpoints.add(checkpoint[1])
+                                with self.lock:
+                                    self.checkpoints.add(checkpoint[1])
+                                    self.last_checkpoint = checkpoint[1]
                             match = _TEST.match(line)
                             if match and match[2] in self.allowed:
                                 name, state = match[2], match[3]
                                 with self.lock:
                                     self.states[name] = state
+                                    now = time.monotonic()
+                                    if state == 'started':
+                                        self.last_checkpoint = None
+                                        self.opened[name] = now
+                                    elif name in self.opened:
+                                        self.durations[name] = min(900, max(0, now - self.opened.pop(name)))
                                     {'started': self.started, 'passed': self.passed, 'failed': self.failed}[state].add(name)
                         pending, discard = b'', False
 
@@ -93,8 +105,19 @@ class TestProgress:
             for kind, names in [('unfinished', unfinished), ('failed', sorted(self.failed))]:
                 for name in names[:3]:
                     lines.append('error: native_test_' + kind + '_event test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12])
-            for checkpoint in sorted(self.checkpoints)[:3]:
-                lines.append('error: native_workflow_checkpoint code=' + checkpoint)
+            # At most two closed-test timings and one open-test age. These are
+            # observer elapsed seconds, not frame-time/device performance claims.
+            for name, seconds in sorted(self.durations.items(), key=lambda row: (-row[1], row[0]))[:2]:
+                lines.append('error: native_test_timing test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
+                             ' elapsed_seconds=' + str(int(seconds)) + ' state=closed')
+            if unfinished:
+                name=unfinished[0]
+                now=time.monotonic()
+                seconds=min(900,max(0,now-self.opened.get(name,now)))
+                lines.append('error: native_test_timing test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
+                             ' elapsed_seconds=' + str(int(seconds)) + ' state=open')
+            if self.last_checkpoint is not None:
+                lines.append('error: native_workflow_checkpoint code=' + self.last_checkpoint)
             return lines
 
 
