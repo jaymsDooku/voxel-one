@@ -1,0 +1,205 @@
+{
+  "schema": 1,
+  "source_head": "2ff87f3dcaabc00820aa81879501665a723c4853",
+  "review_base": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+  "status": "Available final-source functional checks passed; required implementation and qualification remain pending. Not ready for review.",
+  "publication": "Local evidence pending controller publication",
+  "source_changes_this_validation": "No production Java or harness edits. Dashboard and validation records only.",
+  "audit": {
+    "review_base": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+    "source_head": "2ff87f3dcaabc00820aa81879501665a723c4853",
+    "base_identical_paths": [
+      ".github/workflows/hub-preview-registration-test.yml",
+      ".github/workflows/hub-publication-prepare.yml",
+      "deploy/tests/test_hub_preview_registration.py",
+      "deploy/MusicMp3DecodeSmoke.java",
+      "deploy/MusicMp3Smoke.java",
+      "deploy/generate_music_mp3_fixtures.py",
+      "deploy/run_music_mp3_smoke.py",
+      "src/test/java/dev/jayms/MusicMp3Test.java",
+      "src/test/resources/music/cbr-stereo.mp3",
+      "src/test/resources/music/vbr-mono.mp3",
+      "dashboard/evidence/asset-manager-catalog.png",
+      "dashboard/evidence/asset-manager-invalid.png",
+      "dashboard/evidence/asset-manager-skyscraper.png",
+      "dashboard/evidence/asset-manager-upload.png"
+    ],
+    "combat_files_identical_to_base": [
+      "src/main/java/dev/jayms/combat/package-info.java",
+      "src/main/java/dev/jayms/combat/CombatSimulation.java",
+      "src/main/java/dev/jayms/combat/KitProfile.java",
+      "src/main/java/dev/jayms/combat/CombatEvent.java",
+      "src/main/java/dev/jayms/combat/CombatRules.java",
+      "src/main/java/dev/jayms/combat/Vec3.java",
+      "src/main/java/dev/jayms/combat/CombatWorld.java",
+      "src/main/java/dev/jayms/combat/CombatIntent.java",
+      "src/test/java/dev/jayms/combat/TestCombatWorld.java",
+      "src/test/java/dev/jayms/combat/CombatBoundaryTest.java",
+      "src/test/java/dev/jayms/combat/CombatSimulationTest.java",
+      "src/test/java/dev/jayms/combat/CombatFoundationPlaytest.java"
+    ],
+    "deleted_paths": [],
+    "unmerged_paths": [],
+    "intended_removed_lines": "Replay/model/save/wire/render refactors replace existing paths; structure protocol advances 30 to 31 while city frame IDs remain compatible. No unrelated file deletion intended."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest",
+      "test"
+    ],
+    "state": "completed",
+    "exit_code": 0,
+    "elapsed_seconds": 323.2205331325531,
+    "suites": 53,
+    "tests": 247,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 13.412030220031738,
+    "status": "passed",
+    "method": "Inline python3 unittest runner; a fresh TestLoader for each discovery. Six tools/structures patterns (admission, fixtures, handoff, probe, qualification, undo_storage), plus deploy/tests/test_hub_preview_registration.py."
+  },
+  "retry_notes": [
+    "First Python loader reused its top-level directory and raised ImportError before execution; corrected local runner passed 39 tests. No source/test changes.",
+    "First Main attempt ended 143 during fixture setup, before a completed frame. Cause unknown; no game failure descriptor. It is not a pass. One serial retry uses the same source and a 900 s functional harness deadline."
+  ],
+  "package": {
+    "commands": [
+      "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DskipTests package",
+      "java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java"
+    ],
+    "status": "passed",
+    "mp3": [
+      "cbr-stereo.mp3: 44100 Hz, 6.060 s PCM",
+      "vbr-mono.mp3: 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "artifact_verification": {
+    "status": "passed",
+    "production_classes": 743,
+    "jar_sha256": "4aca9b33ccb710f8ecdabf45d11b301ec6cb4791e78c41fad3b4224c46295ee1",
+    "replay_source_files": 580,
+    "replay_compiled_classes": 1185,
+    "replay_image_hashes_match": true
+  },
+  "remaining": [
+    "Atomic source/view/World installation and reconciliation, model rebasing, live tail and Main large-world paging remain unfinished.",
+    "Current 131072-leaf and 256-placement-chunk limits cannot admit the required city and maximum fragmented fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients, memory/frame/tick/traffic budgets remain pending.",
+    "Main dark/black custom-model surfaces need visible lighting investigation. Data assertions do not prove visible colour qualification.",
+    "Fresh exact-source hosted checks and independent review remain required."
+  ],
+  "claims": "No supported-city, supported-limit, stable-rollout, frame-time, physical-GPU or 32-client qualification pass.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "opengl": "4.5 (Core Profile) Mesa 22.3.6",
+    "display": "Inherited assigned role DISPLAY and XAUTHORITY; no cookie read or emitted.",
+    "java_target": "--release 17; execution JDK 25",
+    "profile": "Isolated synthetic offline profile; LOW/detail32/horizon512/scale0.5, shadows/AA/dynamic resolution OFF, LP_NUM_THREADS=2"
+  },
+  "main": {
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 567781,
+      "timeout_seconds": 900
+    },
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-integrated-2ff87-main-retry-structure-native-source.json",
+      "source_manifest_sha256": "6e3cbc3975297b6a261289099ce0ff44f1dbdeb3b869584427b268e9f4e7a507",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-2ff87-main-retry --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "matched_source_files": 265,
+    "expected": "Complete named capture, long-path import, preview/rotation/placement/undo/cancellation, restart, inventory/editor without partial mutation.",
+    "observed": "All functional assertions reached workflow-passed. This does not establish visible colour/lighting or performance qualification."
+  },
+  "video": {
+    "decodedFrames": 25,
+    "durationSeconds": 47.937,
+    "bytes": 434770,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "3a85e4970de2be033b20af36b18f980d18074d17bd070e762bc54c950187acbb",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "command": "java -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/InspectStreamingVideo.java dashboard/evidence/structure-integrated-2ff87-main-retry-structure-workflow.mp4 dashboard/evidence/structure-integrated-2ff87-video-midpoint.png dashboard/evidence/structure-integrated-2ff87-video.json"
+  },
+  "visual_inspection": {
+    "images": [
+      "main-retry-structure-preview-conflict.png",
+      "main-retry-structure-preview-3.png",
+      "main-retry-structure-import-cancelled.png",
+      "main-retry-structure-component-closeup.png",
+      "video-midpoint.png",
+      "replay-pending-optics.png",
+      "replay-pending.png",
+      "replay-optics.png",
+      "replay-regression.png"
+    ],
+    "observed": "Red blocked footprint, green 270-degree footprint, anchor, cancellation feedback and placed house visible. Main custom-model surfaces and held hand are very dark/black; HUD 0\u20131 FPS. Replay lit geometry/model/water images remain visible. Visual colour/lighting investigation stays pending. All video frames decoded; midpoint visually inspected."
+  },
+  "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions. Native desktop checks apply; browser playtesting does not apply to this Java/GLFW client. Replay/save source-worker integration also passed using python3 tools/structures/run_replay_sky_frame_check.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-2ff87-replay.",
+  "replay": {
+    "report": "structure-integrated-2ff87-replay.json",
+    "source_files": 580,
+    "compiled_classes": 1185,
+    "all_source_class_helper_driver_image_hashes_match": true,
+    "qualification": false,
+    "source_lighting_chunks": 288,
+    "source_lighting_leaves": 515884,
+    "source_lighting_nanos": 13390167906,
+    "planar_lighting_nanos": 1438374365,
+    "planar_lit_geometry_pixels": 1329,
+    "scope": "Single-run source-worker replay/save/cleanup and GLFW diagnostics, not the city/maximum benchmark."
+  },
+  "artifacts": {
+    "structure-integrated-2ff87-main-retry-structure-component-closeup.png": "2e783c0ceeb771793f95a701e68f3b31b4b71923d2f8629a119b9a657c83f26b",
+    "structure-integrated-2ff87-main-retry-structure-export-cancelled.png": "c8ae2580309e088c927b155dfe5f3f40aa78e82b17e3b06d2c220e57eec2f210",
+    "structure-integrated-2ff87-main-retry-structure-import-cancelled.png": "67605bbd0a48a98e49b5f7ae71365e5eb434cb998f4928d4f18c73c08a05c9e1",
+    "structure-integrated-2ff87-main-retry-structure-invalid-anchor.png": "d0de7ffd4daa6f09dab29bbbf79c42149657599cbfa4b35e115ca160e0c5831f",
+    "structure-integrated-2ff87-main-retry-structure-library-capture.png": "b9faf652ab4f17115ba4cf0ac447d6d16952f085d1356799832ccf36cabebfc9",
+    "structure-integrated-2ff87-main-retry-structure-native-execution.json": "17d2061d0668630577575665e08eea913c8ff4dc557f0a06021360bb0b152c24",
+    "structure-integrated-2ff87-main-retry-structure-native-result.json": "297ae2de475a35fd63b577bf12e019b56929efaafd59c4268ee77e7472360bef",
+    "structure-integrated-2ff87-main-retry-structure-native-source.json": "55aa3c5847aa82deb7341f987a3722f01150676407ae24392819d99c0653a960",
+    "structure-integrated-2ff87-main-retry-structure-native-stage.json": "eed57304b376737a9e07cb8fbfe41b626ece0abc6a841fbd602a90c83aa6bc0d",
+    "structure-integrated-2ff87-main-retry-structure-placed.png": "60dd2e41f3f4261033e3bb5276374171952bc0c6c421419be5ad1c76659ad2d1",
+    "structure-integrated-2ff87-main-retry-structure-player-conflict.png": "7903b368579c198749113d66d72d216f9be1d21de0207cb02bec1029787a9e40",
+    "structure-integrated-2ff87-main-retry-structure-preview-0.png": "cd14303e61bea0b1aad292294704e203f4e6ec3ae1a50beb60e59568084c1415",
+    "structure-integrated-2ff87-main-retry-structure-preview-1.png": "871d36c97cd1dacc8a44ad550586ddd06f69789148915833435812670825b961",
+    "structure-integrated-2ff87-main-retry-structure-preview-2.png": "108f4e9f79ce21cc372a7870c0c1c902d090191cd34f0932ed3b00ec93534a6d",
+    "structure-integrated-2ff87-main-retry-structure-preview-3.png": "85921b5fb3eabaef07aaded5507eb69c589a1577963ab0b74b143b92ce37d662",
+    "structure-integrated-2ff87-main-retry-structure-preview-conflict.png": "d5012dfa8ef811a051817afb8d0801160b0e2db6add7be90a4e78ce5fcabe11e",
+    "structure-integrated-2ff87-main-retry-structure-undo-cancelled.png": "0daf253b20f16ab3f97025e5c0500982385609738cab049c50da62bcf4e5330b",
+    "structure-integrated-2ff87-main-retry-structure-workflow.mp4": "3a85e4970de2be033b20af36b18f980d18074d17bd070e762bc54c950187acbb",
+    "structure-integrated-2ff87-main-retry-structure-world-placed.png": "608f148123920deb6495efcb6d0f58fd336b10d9acd66edecc085c147343139f",
+    "structure-integrated-2ff87-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-integrated-2ff87-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-integrated-2ff87-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-integrated-2ff87-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-integrated-2ff87-replay.json": "5caa257906cbdecf60376570e4ca145ceacf7b806072f6ca151c1bceb4688468",
+    "structure-integrated-2ff87-video-midpoint.png": "b28f3874764622e31cf9e6976aaca0bdc903362567065ce7ee8222e858f52d53",
+    "structure-integrated-2ff87-video.json": "fcce004d0d79af27cbb5f2a6e302f417e73723a89049a104ce9dee0e6838977c"
+  }
+}

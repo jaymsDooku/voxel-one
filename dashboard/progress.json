@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Post-rebase validation: 219 Java tests, 39 Python tests, shipped CBR/VBR decode and source-pinned replay checks passed. Full Main rerun passed in 628.174 s with fresh media. Added bounded functional timeout option; restored four unrelated screenshots. Hosted CI, visible model lighting, city/maximum admission and physical-GPU/32-player qualification remain pending.",
-      "updatedAt": "2026-11-20T00:24:51+00:00"
+      "note": "Integrated source 2ff87: 247 Java and 39 Python tests passed; package/MP3, replay and full Main workflow passed. Fresh media saved locally. Source/view integration, city/maximum, visible lighting, physical-GPU and 32-client qualification remain pending. Controller publication needed for exact-source hosted checks.",
+      "updatedAt": "2026-11-20T00:51:23+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
