@@ -1,0 +1,11 @@
+{
+  "status": "passed",
+  "playtest": "Playtest: production Main synthetic fixture; named capture, actual previous-frame uniforms/textures sampled through shipped irradiance shader, outdoor camera versus roof-covered component samples, framebuffer captures after GL state restoration, inventory and model editor regressions. This mode does not run placement, import or undo.",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "qualification": false,
+  "source_manifest": "structure-integrated-956cc-probe-structure-native-source.json",
+  "source_manifest_sha256": "d2dd8bccbf1d0ff80c301845b9520286cceeaebd7bed173eda5f04f7165e3bd5",
+  "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-956cc-probe --timeout-seconds 300 --lighting-probe-only",
+  "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+  "publication": "Local evidence pending controller publication"
+}

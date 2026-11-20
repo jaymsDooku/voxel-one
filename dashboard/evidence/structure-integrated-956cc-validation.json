@@ -1,0 +1,367 @@
+{
+  "schema": 1,
+  "source_head": "956cc8d5f49ec8ccbc8bb6e110a6045c6ac39019",
+  "review_base": "30a0687254a6afd731686402823952599d798a69",
+  "status": "Rebased source available local checks passed; full implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Controller completed the preserved rebase. No production Java, shaders or native harnesses were edited during this validation. The merged practice-duel feature remains intact. Existing held-sky correction and source-only paging journals are retained.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest",
+      "test"
+    ],
+    "tests": 364,
+    "suites": 74,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "exit_code": 0,
+    "elapsed_seconds": 349.3963268697262,
+    "scope": "Previous 71 structure/replay/save/render/compatibility suites plus DuelSessionTest, DuelLifecycleTest and DuelTransportTest; the latter exercise real synthetic TLS clients."
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.288632687181234,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 776,
+    "shaders_match": 28,
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "main": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-956cc-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 521322,
+      "timeout_seconds": 900
+    },
+    "source_files": 302,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-integrated-956cc-main-structure-native-source.json",
+      "source_manifest_sha256": "d2dd8bccbf1d0ff80c301845b9520286cceeaebd7bed173eda5f04f7165e3bd5",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-956cc-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "probe": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-956cc-probe --timeout-seconds 300 --lighting-probe-only",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 66719,
+      "timeout_seconds": 300
+    },
+    "source_files": 302,
+    "all_source_hashes_match": true,
+    "hand": {
+      "outdoor_luma": 90.44699999999322,
+      "roof_luma": 0.0,
+      "restored_luma": 204.16739999999328,
+      "scope": "Mean display luma in fixed relative first-person patch; synthetic camera; outdoor >5 and roof <20% of outdoor; not HDR radiance or performance qualification"
+    },
+    "samples_file": "structure-integrated-956cc-probe-structure-native-lighting.json",
+    "scope": "Actual Main uniforms/textures sampled using shipped irradiance function at synthetic outdoor, roof-covered and outdoor-return camera positions. GL state restoration plus inventory/model editor regressions. Short mode does not run placement/import/undo."
+  },
+  "colour_control": {
+    "command": "python3 tools/structures/run_model_colour_check.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-956cc-controls",
+    "source_files": 301,
+    "compiled_classes": 776,
+    "all_source_class_image_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "colour_pixels": [
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          6401,
+          4156,
+          6401
+        ],
+        [
+          6589,
+          3737,
+          6589
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ]
+      ],
+      "qualification": false
+    },
+    "rows": [
+      "unlit production shader",
+      "ambient/daylight, no irradiance",
+      "held path with known camera irradiance",
+      "held path with zero camera irradiance and zero sky",
+      "held path with missing irradiance and unknown sky"
+    ],
+    "columns": [
+      "instanced red8 custom model",
+      "direct blue32 custom model",
+      "ordinary block using uniform red colour"
+    ]
+  },
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited assigned DISPLAY, isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected: capture/anchor/name/library, self-contained long-path export/import, four rotations, clear/blocked preview, empty-space preservation, occupied-cell/player rejection, atomic cancellation, one-operation undo, repeated placement, dependency/restart recovery and inventory/editor regression. Observed: all full-workflow assertions passed on rebased source. Separate GPU mode checks outdoor/roof/outdoor hand visibility and state restoration; five-row shader control checks expected model colours, zero light and unknown-sky darkness. Browser checks do not apply to this native Java client. Practice-duel UI was not rerun; its preserved code and 24 additional unit/integration cases are separate regression evidence. Physical-GPU and city/network performance are not qualified.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-integrated-956cc-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-integrated-956cc-main-midpoint.png",
+      "dashboard/evidence/structure-integrated-956cc-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 25,
+      "durationSeconds": 44.085,
+      "bytes": 500947,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 12,
+      "videoSha256": "508b0b2f8819485fe873e4f76864ec46bcdf4770930113c4b25cb39b35bbd291",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-integrated-956cc-main-midpoint.png",
+      "structure-integrated-956cc-main-structure-preview-conflict.png",
+      "structure-integrated-956cc-main-structure-preview-3.png",
+      "structure-integrated-956cc-main-structure-import-cancelled.png",
+      "structure-integrated-956cc-main-structure-component-closeup.png",
+      "structure-integrated-956cc-probe-structure-lighting-components.png",
+      "structure-integrated-956cc-probe-structure-lighting-under-roof.png",
+      "structure-integrated-956cc-probe-structure-lighting-restored-state.png",
+      "structure-integrated-956cc-controls.png"
+    ],
+    "scope": "Fresh media from this rebased implementation. Outdoor hand is coloured; the known-roof hand stays dark. High roof-covered models remain dark above the fixed local-light volume; full-workflow software HUD FPS remains around 0\u20131. No full model-lighting or performance pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "compile_release": 17,
+    "software_rendering": true
+  },
+  "audit": {
+    "source_head": "956cc8d5f49ec8ccbc8bb6e110a6045c6ac39019",
+    "review_base": "30a0687254a6afd731686402823952599d798a69",
+    "master_paths_preserved": [
+      "dashboard/evidence/practice-0ms-a.png",
+      "dashboard/evidence/practice-0ms-b.png",
+      "dashboard/evidence/practice-0ms-result.png",
+      "dashboard/evidence/practice-150ms-result.png",
+      "dashboard/evidence/practice-80ms-result.png",
+      "dashboard/evidence/practice-controls-live.png",
+      "dashboard/evidence/practice-controls-result.png",
+      "dashboard/evidence/practice-controls.mp4",
+      "dashboard/evidence/practice-input-kit-0ms-result.png",
+      "dashboard/evidence/practice-input-kit-150ms-result.png",
+      "dashboard/evidence/practice-input-kit-80ms-result.png",
+      "dashboard/evidence/practice-input-kit-duel.mp4",
+      "dashboard/evidence/practice-input-kit-edited.png",
+      "dashboard/evidence/practice-input-kit-frozen-result.png",
+      "dashboard/evidence/practice-input-kit-keyboard.mp4",
+      "dashboard/evidence/practice-input-kit-rematch.png",
+      "dashboard/evidence/practice-input-kit-result.png",
+      "dashboard/evidence/practice-input-kit-sprint.png",
+      "dashboard/evidence/practice-lifecycle-150ms-result.png",
+      "dashboard/evidence/practice-lifecycle-duel.mp4",
+      "dashboard/evidence/practice-lifecycle-ready-disconnect.png",
+      "dashboard/evidence/practice-lifecycle-recovered-live.png",
+      "dashboard/evidence/practice-lifecycle-recovery.mp4",
+      "dashboard/evidence/practice-lifecycle-replacement-ready.png",
+      "dashboard/evidence/practice-real-duel.mp4",
+      "docs/practice-duels-input-kit-validation.md",
+      "docs/practice-duels-lifecycle-validation.md",
+      "docs/practice-duels-validation.md",
+      "docs/practice-duels.md",
+      "src/main/java/dev/jayms/GameIdentity.java",
+      "src/main/java/dev/jayms/combat/CombatSimulation.java",
+      "src/main/java/dev/jayms/combat/duel/CourtyardCombatWorld.java",
+      "src/main/java/dev/jayms/combat/duel/DuelClient.java",
+      "src/main/java/dev/jayms/combat/duel/DuelServer.java",
+      "src/main/java/dev/jayms/combat/duel/DuelSession.java",
+      "src/main/java/dev/jayms/combat/duel/DuelWire.java",
+      "src/main/java/dev/jayms/combat/duel/PracticeApp.java",
+      "src/main/java/dev/jayms/combat/duel/PracticeView.java",
+      "src/main/java/dev/jayms/ui/LoginDialog.java",
+      "src/main/resources/shaders/practice.frag",
+      "src/main/resources/shaders/practice.vert",
+      "src/test/java/dev/jayms/combat/duel/DuelInputKitPlaytest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelLifecyclePlaytest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelLifecycleTest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelSessionTest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelTransportTest.java",
+      "src/test/java/dev/jayms/combat/duel/PracticePlaytest.java"
+    ],
+    "main_and_progress_require_combined_merge": true,
+    "deleted_files": [],
+    "proposed_diff_path_counts": {
+      "A": 1534,
+      "M": 41
+    },
+    "additional_code_paths_since_prior_audit": [
+      "deploy/StructureLightingProbe.java",
+      "src/main/resources/shaders/voxel.frag",
+      "src/test/java/dev/jayms/net/SavedPagingJournalTest.java",
+      "src/test/java/dev/jayms/net/SavedPagingSessionTest.java",
+      "tools/structures/ModelColourCheck.java",
+      "tools/structures/SavedPagingSessionFrame.java",
+      "tools/structures/run_model_colour_check.py"
+    ],
+    "additional_historical_evidence_paths_since_prior_audit": 119,
+    "restored_and_combat_preview_paths_match_base": 29,
+    "practice_main_entry_points_preserved": true,
+    "intended_removed_lines": "Existing structure/replay/save/render/wire replacements, held world-space lighting and five-row colour controls; no unrelated file/test deletion.",
+    "shaded_production_classes_match": 776,
+    "shaders_match_shaded_client": 28,
+    "local_evidence_pending_addition": [
+      "structure-integrated-956cc-controls.json",
+      "structure-integrated-956cc-controls.png",
+      "structure-integrated-956cc-main-midpoint.png",
+      "structure-integrated-956cc-main-structure-component-closeup.png",
+      "structure-integrated-956cc-main-structure-export-cancelled.png",
+      "structure-integrated-956cc-main-structure-import-cancelled.png",
+      "structure-integrated-956cc-main-structure-invalid-anchor.png",
+      "structure-integrated-956cc-main-structure-library-capture.png",
+      "structure-integrated-956cc-main-structure-native-execution.json",
+      "structure-integrated-956cc-main-structure-native-lighting.json",
+      "structure-integrated-956cc-main-structure-native-result.json",
+      "structure-integrated-956cc-main-structure-native-source.json",
+      "structure-integrated-956cc-main-structure-native-stage.json",
+      "structure-integrated-956cc-main-structure-placed.png",
+      "structure-integrated-956cc-main-structure-player-conflict.png",
+      "structure-integrated-956cc-main-structure-preview-0.png",
+      "structure-integrated-956cc-main-structure-preview-1.png",
+      "structure-integrated-956cc-main-structure-preview-2.png",
+      "structure-integrated-956cc-main-structure-preview-3.png",
+      "structure-integrated-956cc-main-structure-preview-conflict.png",
+      "structure-integrated-956cc-main-structure-undo-cancelled.png",
+      "structure-integrated-956cc-main-structure-workflow.mp4",
+      "structure-integrated-956cc-main-structure-world-placed.png",
+      "structure-integrated-956cc-main-video.json",
+      "structure-integrated-956cc-probe-structure-library-capture.png",
+      "structure-integrated-956cc-probe-structure-lighting-components.png",
+      "structure-integrated-956cc-probe-structure-lighting-restored-state.png",
+      "structure-integrated-956cc-probe-structure-lighting-under-roof.png",
+      "structure-integrated-956cc-probe-structure-native-execution.json",
+      "structure-integrated-956cc-probe-structure-native-hand.json",
+      "structure-integrated-956cc-probe-structure-native-lighting.json",
+      "structure-integrated-956cc-probe-structure-native-result.json",
+      "structure-integrated-956cc-probe-structure-native-source.json",
+      "structure-integrated-956cc-probe-structure-native-stage.json",
+      "structure-integrated-956cc-validation.json"
+    ]
+  },
+  "remaining": [
+    "Vertical local-light coverage and visible custom-model lighting above the fixed Y -32 through 96 volume remain open.",
+    "Main paging installation, old World reconciliation, later live tail coordination, model rebasing and editable paging remain unfinished.",
+    "Geometry/chunk caps still reject the required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "No supported-city, supported-limit, stable-rollout, full model-lighting, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-integrated-956cc-controls.json": "c5e5c13b1ef4819073197e213ac06f8bcd2d040d4111c6af331646135a6cc9ac",
+    "structure-integrated-956cc-controls.png": "f2720da8fcd4ac147239780e08d9ab2dbf4383d88e4521e5df913b3faf3fe7fe",
+    "structure-integrated-956cc-main-midpoint.png": "ba9af91669124bb65a7488f98acc3e41ec78064497a8d562211e0b808f71223d",
+    "structure-integrated-956cc-main-structure-component-closeup.png": "ddace413827a5f203de8eb80d08993e031b041e7619dc8fa286c183b7f742dce",
+    "structure-integrated-956cc-main-structure-export-cancelled.png": "62084aa9ad45f3ddc5f1291e41485be67f87732d8d9d34fd48aa24021ae3520e",
+    "structure-integrated-956cc-main-structure-import-cancelled.png": "25c86b4c892dae9cbee42989e6221a63c01c64b9090e424c111e68f3c7bc0662",
+    "structure-integrated-956cc-main-structure-invalid-anchor.png": "e56accf35cf14749b0d10e2150d61b3880b620a2392726fa51b038704205d6e3",
+    "structure-integrated-956cc-main-structure-library-capture.png": "d3fcc3892638772af0d945858703afae90256416d1cc3f84e0cc576e7608a372",
+    "structure-integrated-956cc-main-structure-native-execution.json": "954ef834aa1892fb04829459f227cb81256f146212ee67d0e167fea45c8d3fc1",
+    "structure-integrated-956cc-main-structure-native-lighting.json": "fdef2d6d5a60ed29dbb69963ec3b5473593c343d9ed034d4b34a12bbb11d6565",
+    "structure-integrated-956cc-main-structure-native-result.json": "c55ab14313c467f02a7730e849dad095b7ebaf3e8bcc842cf90d17babbcea49c",
+    "structure-integrated-956cc-main-structure-native-source.json": "644863c0d3a98911d12430f3241a3274ada1c01eac7df1bfc8b33802c4bb3b6f",
+    "structure-integrated-956cc-main-structure-native-stage.json": "4ecdf91813af92383de79dc0f8639e4f29a56ced232088281a5a791b853f9af7",
+    "structure-integrated-956cc-main-structure-placed.png": "0918af4cec315809ded4146bd5c5af48fb9443ff9d31088a33b5ad37a2d317ac",
+    "structure-integrated-956cc-main-structure-player-conflict.png": "024c6ff1c427dfe131219e597b89d4929134c662c1fff25e2792c9d3bc677d9e",
+    "structure-integrated-956cc-main-structure-preview-0.png": "098e70ff83173ac3ab57731a297c514152dfb54783755fcbfeb7603ed605b481",
+    "structure-integrated-956cc-main-structure-preview-1.png": "34df5aa12ce3eede55cc4a9fed1c12c583ac9a94ba7bc61ad66cde1d4197543c",
+    "structure-integrated-956cc-main-structure-preview-2.png": "6a1748ce3e8a6c11f3a1e8eabf35e7dd9b9b6354efcb7945d4fa903ab8cd7f34",
+    "structure-integrated-956cc-main-structure-preview-3.png": "b257a33d9d59ce272a464d0899d211d033cbef89e46448b2486a63630325a234",
+    "structure-integrated-956cc-main-structure-preview-conflict.png": "a58915bb373e000b07c0035bd8138ecbbc7c749bbf32dfac1a648f5db7989627",
+    "structure-integrated-956cc-main-structure-undo-cancelled.png": "07a0fff5ba29b7474b725578e724b9fdf9db9927d45e7fb4d4e5cd0981dbef0f",
+    "structure-integrated-956cc-main-structure-workflow.mp4": "508b0b2f8819485fe873e4f76864ec46bcdf4770930113c4b25cb39b35bbd291",
+    "structure-integrated-956cc-main-structure-world-placed.png": "b336a4cb66502137dfbd115e8c956a031405ea40b83ecab40e0e2235708c2d77",
+    "structure-integrated-956cc-main-video.json": "ca212fde45f009a87d8fc64a58a2b2402ead4fb54ca274d9730dc424e1c21249",
+    "structure-integrated-956cc-probe-structure-library-capture.png": "8ef6201f28fac88b525ebee055a1a58af0bcc3b0b20f8116d0677bc9f031df4c",
+    "structure-integrated-956cc-probe-structure-lighting-components.png": "770ec71ad85205f64aaa0ff96bdfa16f7075bef8829c6b27dfee3aaaa82ab4e1",
+    "structure-integrated-956cc-probe-structure-lighting-restored-state.png": "1edeeb9ec7ab63fdc6e30ca1d8e42c40bcf8a3530fdb36416d2bb683593e81ec",
+    "structure-integrated-956cc-probe-structure-lighting-under-roof.png": "14e6defdcc2bbe353f0118cfee8f02b28852fdd1fd7c8bd9696d4b6f946dfa09",
+    "structure-integrated-956cc-probe-structure-native-execution.json": "3d221ff3a8ab103b63e9c0ae06bf9502869ca7de03204499083ef60988987927",
+    "structure-integrated-956cc-probe-structure-native-hand.json": "8c151977d5834bc79f8e2e957c8528026365f333fe26f375b6afa9699bfb631d",
+    "structure-integrated-956cc-probe-structure-native-lighting.json": "1dfef58ab9dc27792076516bbab6506aafe2b329bf9d93ff2fab6d7381a0a513",
+    "structure-integrated-956cc-probe-structure-native-result.json": "ba7256e0f723114993230c28bb9c4791dc374968567a1e5dbba6b115b0f8db5e",
+    "structure-integrated-956cc-probe-structure-native-source.json": "644863c0d3a98911d12430f3241a3274ada1c01eac7df1bfc8b33802c4bb3b6f",
+    "structure-integrated-956cc-probe-structure-native-stage.json": "4c0974793776a2fd8c22e01dd9c0b085f1a6716e7dbd0f1f87d02ad23b2db6f9"
+  }
+}
