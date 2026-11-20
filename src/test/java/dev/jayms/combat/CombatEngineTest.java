@@ -10,11 +10,15 @@ import dev.jayms.combat.CombatEngine.PoseView;
 import dev.jayms.combat.CombatEngine.Stack;
 import dev.jayms.combat.CombatEngine.Vec3;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import static org.junit.jupiter.api.Assertions.*;
+import static dev.jayms.combat.ThrowablePhysicsTest.assertVector;
+import static dev.jayms.combat.ThrowablePhysicsTest.noSpread;
 
 class CombatEngineTest {
     private static final Vec3 ORIGIN = new Vec3(.5, 1, .5);
@@ -388,13 +392,73 @@ class CombatEngineTest {
         assertEquals(Item.EMPTY, engine.snapshot(1).inventory().get(5).item());
         assertEquals(1, engine.snapshot(1).stats().potsUsed());
         assertEquals(30, engine.snapshot(1).stats().potsRemaining());
-        assertTrue(engine.snapshot(1).health() > 17.5);
+        assertEquals(17, engine.snapshot(1).health());
         assertTrue(engine.snapshot(2).health() > 12);
         assertTrue(engine.snapshot(1).health() > engine.snapshot(2).health());
         assertEquals(1, engine.drainEvents().stream().filter(event -> event.type() == EventType.SPLASH).count());
         assertTrue(engine.swapInventory(1, 20, 5));
         assertEquals(Item.HEALING, engine.snapshot(1).inventory().get(5).item());
         assertEquals(Item.EMPTY, engine.snapshot(1).inventory().get(20).item());
+    }
+
+    @Test void splashUsesPreviousFlightPositionAndCanReachPastCover() {
+        Arena cover = new Arena() {
+            @Override public boolean solid(int x, int y, int z) {
+                return y <= 0 || (x == 1 && y <= 4) || (x == -2 && y == 4);
+            }
+            @Override public boolean contains(Vec3 feet) { return true; }
+        };
+        CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, cover, noSpread());
+        var behindWall = new Vec3(2.4, 1, .66);
+        var aboveSplash = new Vec3(-1.5, 5, .66);
+        assertTrue(engine.join(1, ORIGIN, 0));
+        assertTrue(engine.join(2, behindWall, 180));
+        assertTrue(engine.join(3, aboveSplash, 0));
+        assertTrue(engine.damage(0, 2, 10));
+        assertTrue(engine.damage(0, 3, 10));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, false, true, 5));
+        engine.tick();
+        var beforeContact = engine.projectiles().get(0).position();
+        assertTrue(beforeContact.x() < 1);
+        engine.tick();
+        var splash = engine.drainEvents().stream().filter(event -> event.type() == EventType.SPLASH)
+                .findFirst().orElseThrow();
+        assertVector(beforeContact, splash.position());
+        assertEquals(4, splash.amount());
+        assertEquals(10 + Math.round(8 * (1 - behindWall.minus(beforeContact).length() / 4)),
+                engine.snapshot(2).health());
+        assertTrue(aboveSplash.minus(beforeContact).length() < 4, "Height limits candidates inside the radius");
+        assertEquals(10, engine.snapshot(3).health());
+    }
+
+    @Test void directPotionHitAppliesTheFullEffect() {
+        CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, true), noSpread());
+        assertTrue(engine.join(1, ORIGIN, 0));
+        assertTrue(engine.join(2, new Vec3(2, 1, .5), 180));
+        assertTrue(engine.damage(0, 1, 10));
+        assertTrue(engine.damage(0, 2, 10));
+        assertTrue(input(engine, 1, 0, 0, -10, 0, false, false, true, 5));
+        tick(engine, 3);
+        assertTrue(engine.snapshot(1).health() < 18);
+        assertEquals(18, engine.snapshot(2).health());
+    }
+
+    @Test void splashRoundsDurationsAndDiscardsEffectsOfTwentyTicksOrLess() {
+        CombatEngine engine = new CombatEngine(CombatRules.DEBUFF, field(false, true), noSpread());
+        var near = new Vec3(3.8, 1, .66);
+        var far = new Vec3(-2.95, 1, .66);
+        assertTrue(engine.join(1, ORIGIN, 0));
+        assertTrue(engine.join(2, near, 180));
+        assertTrue(engine.join(3, far, 0));
+        assertTrue(input(engine, 1, 0, 0, -89, 0, false, false, true, 5));
+        tick(engine, 3);
+        var splash = engine.drainEvents().stream().filter(event -> event.type() == EventType.SPLASH)
+                .findFirst().orElseThrow().position();
+        int poison = CombatRules.DEBUFF.poisonDuration();
+        assertEquals((int) Math.round(poison * (1 - near.minus(splash).length() / 4)),
+                engine.snapshot(2).effects().get(Effect.POISON));
+        assertEquals(20, Math.round(poison * (1 - far.minus(splash).length() / 4)));
+        assertFalse(engine.snapshot(3).effects().containsKey(Effect.POISON));
     }
 
     @Test void missedSplashDoesNotHealAndPoisonCannotKill() {
@@ -452,18 +516,18 @@ class CombatEngineTest {
     }
 
     @Test void pearlsConsumeOnThrowAndStayOnTheNearSideOfCover() {
-        CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, field(true, true));
+        CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, field(true, true), noSpread());
         engine.join(1, ORIGIN, 0);
         input(engine, 1, 0, 0, -10, 0, false, false, true, 1);
         engine.tick();
         assertEquals(15, engine.snapshot(1).inventory().get(1).count());
         assertEquals(320, engine.snapshot(1).pearlCooldownTicks());
-        assertEquals(18, engine.snapshot(1).health());
+        assertEquals(15, engine.snapshot(1).health());
         assertEquals(1, engine.snapshot(1).hurtTick());
         assertEquals(1, engine.snapshot(1).motionEpoch());
         assertEquals(new Vec3(0, 0, 0), engine.snapshot(1).velocity());
-        assertTrue(engine.snapshot(1).feet().x() > .5);
-        assertTrue(engine.snapshot(1).feet().x() < 1);
+        assertVector(new Vec3(.5, 2.52, .66), engine.snapshot(1).feet());
+        assertFalse(engine.snapshot(1).grounded());
         assertTrue(engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.TELEPORT));
         input(engine, 1, 1, 0, -10, 0, false, false, false, 1);
         engine.tick();
@@ -471,6 +535,28 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(15, engine.snapshot(1).inventory().get(1).count());
         assertEquals(318, engine.snapshot(1).pearlCooldownTicks());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {true, false})
+    void pearlInterceptedByAPlayerReactsOnlyWhenHarmIsAllowed(boolean hostile) {
+        CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, hostile), noSpread());
+        assertTrue(engine.join(1, ORIGIN, 0));
+        assertTrue(engine.join(2, new Vec3(3, 1, .5), 180));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, false, true, 1));
+        engine.tick();
+        Vec3 beforeContact = engine.projectiles().get(0).position();
+        engine.tick();
+        assertVector(beforeContact, engine.snapshot(1).feet());
+        assertEquals(15, engine.snapshot(1).health());
+        assertEquals(20, engine.snapshot(2).health());
+        assertEquals(hostile ? engine.currentTick() : -1, engine.snapshot(2).hurtTick());
+        assertEquals(0, engine.snapshot(1).stats().hits());
+        assertEquals(hostile, engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.HIT
+                && event.item() == Item.PEARL && event.targetId() == 2 && event.amount() == 0));
+        assertTrue(engine.projectiles().isEmpty());
+        engine.tick();
+        assertEquals(hostile, engine.snapshot(2).velocity().x() > 0);
     }
 
     @Test void pearlOutsideBoundsFailsAndResetPreservesSequenceAndKitLayout() {

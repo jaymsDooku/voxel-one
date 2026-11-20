@@ -46,8 +46,16 @@ public final class BasaltCourtyard {
 
     /** Arena bounds, including the enclosing wall cells. Maxima are exclusive. */
     public static boolean contains(double x, double y, double z) {
-        return x >= MIN_X && x < MAX_X && z >= MIN_Z && z < MAX_Z
-                && y >= FLOOR_Y && y < CEILING_Y;
+        return containsThrowable(x, y, z) && y < CEILING_Y;
+    }
+
+    public static boolean containsThrowable(double x, double y, double z) {
+        return x >= MIN_X && x < MAX_X && z >= MIN_Z && z < MAX_Z && y >= FLOOR_Y;
+    }
+
+    /** Pearls and splash potions can arc above the court's player ceiling. */
+    public static boolean throwableSolid(int x, int y, int z) {
+        return containsThrowable(x, y, z) && block(x, y, z) != Blocks.AIR;
     }
 
     /** Authoritative collision also seals the open-air visual ceiling and exterior. */

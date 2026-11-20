@@ -1,6 +1,8 @@
 package dev.jayms.combat.arena;
 
 import dev.jayms.World;
+import dev.jayms.combat.CombatEngine.Intent;
+import dev.jayms.combat.practice.PracticeMatch;
 import dev.jayms.net.Blocks;
 import dev.jayms.net.Protocol;
 import dev.jayms.net.WorldVoxels;
@@ -99,6 +101,30 @@ class BasaltCourtyardTest {
             assertEquals(Blocks.PLANKS, world.sample((int) gallery.x(), (int) gallery.y() - 1, (int) gallery.z()));
             assertEquals(Blocks.AIR, world.sample((int) gallery.x(), (int) gallery.y(), (int) gallery.z()));
         }
+    }
+
+    @Test
+    void steepPearlCanArcOverThePlayerCeilingAndLandInTheCourt() {
+        var match = new PracticeMatch(PracticeMatch.Kit.NO_DEBUFF, false);
+        int thrower = match.join("Aster");
+        int opponent = match.join("Rowan");
+        match.ready(thrower);
+        match.ready(opponent);
+        for (int i = 0; i < 60; i++) match.tick();
+        var initial = match.view(thrower).fighters().get(0);
+        match.input(thrower, new Intent(1, -90, 89, 0, 0, false, false, false, true, 1));
+        double peak = FLOOR_Y;
+        for (int i = 0; i < 100; i++) {
+            match.tick();
+            var view = match.view(thrower);
+            if (!view.missiles().isEmpty()) peak = Math.max(peak, view.missiles().get(0).y());
+        }
+        var landing = match.view(thrower);
+        assertTrue(peak > CEILING_Y + 10, "pearl should pass above the movement ceiling");
+        assertTrue(landing.missiles().isEmpty());
+        assertEquals(initial.motionEpoch() + 1, landing.fighters().get(0).motionEpoch());
+        assertEquals(15, landing.fighters().get(0).health());
+        assertEquals(15, landing.inventory().get(1).count());
     }
 
     @Test

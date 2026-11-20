@@ -126,6 +126,12 @@ public final class FactionMatch implements ArenaMatch {
             @Override public boolean contains(Vec3 feet) {
                 return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z());
             }
+            @Override public boolean throwableSolid(int x, int y, int z) {
+                return BasaltCourtyard.throwableSolid(x, y, z);
+            }
+            @Override public boolean containsThrowable(Vec3 position) {
+                return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
+            }
             @Override public boolean canHarm(int attacker, int target) { return mayHarm(attacker, target); }
             @Override public boolean canEnter(int id, Vec3 position) { return mayEnter(id, position); }
         });
