@@ -1,0 +1,44 @@
+Westminster distant grid — Windows 11 / NVIDIA GeForce RTX 3060.
+Previous build bfcda4aa. Reviewed fix db84152e. Same fixed daylight, 800x480 framebuffer, render scale 1.
+Pairs compare road-center pixels with adjacent plot interiors. The farthest band includes unresolved road widths.
+Motion samples compare luminance (0–255) at reprojected positions on the ground, excluding the sky and HUD.
+
+Previous build
+stationary 90-180: 42/56 road and grass pairs aligned
+stationary 180-340: 119/196 road and grass pairs aligned
+stationary 340-620: 189/510 road and grass pairs aligned
+in-flight 90-180: 54/65 road and grass pairs aligned
+in-flight 180-340: 154/187 road and grass pairs aligned
+in-flight 340-620: 218/540 road and grass pairs aligned
+after-flight 90-180: 45/59 road and grass pairs aligned
+after-flight 180-340: 129/218 road and grass pairs aligned
+after-flight 340-620: 232/539 road and grass pairs aligned
+stationary distant ground: mean luma change 1.616, worst frame mean 3.366, change >=12 3.198% (256866 samples)
+crossing distant ground: mean luma change 1.964, worst frame mean 2.898, change >=12 2.602% (794968 samples)
+
+Final packaged build
+stationary 90-180: 56/56 road and grass pairs aligned
+stationary 180-340: 196/196 road and grass pairs aligned
+stationary 340-620: 375/510 road and grass pairs aligned
+in-flight 90-180: 65/65 road and grass pairs aligned
+in-flight 180-340: 184/187 road and grass pairs aligned
+in-flight 340-620: 320/540 road and grass pairs aligned
+after-flight 90-180: 59/59 road and grass pairs aligned
+after-flight 180-340: 218/218 road and grass pairs aligned
+after-flight 340-620: 386/539 road and grass pairs aligned
+stationary distant ground: mean luma change 0.318, worst frame mean 0.532, change >=12 0.000% (256866 samples)
+crossing distant ground: mean luma change 0.659, worst frame mean 1.015, change >=12 0.000% (794968 samples)
+
+NVIDIA GeForce RTX 3060/PCIe/SSE2: 70 GPU coverage checks; maximum absolute area error 0.00000007
+
+[INFO] Tests run: 66, Failures: 0, Errors: 0, Skipped: 0
+
+Median displayed luminance (0-255)
+Victoria shaft / buttress: 157 / 162
+Elizabeth shaft / band: 150 / 143
+Elizabeth close-up, shaded / sunlit shaft: 93 / 179
+
+Palace temporal regression (final client)
+overview: mean_luma_delta=1.097 worst_frame_mean=1.411 changed_by_8_pct=2.253 pairs=31
+clock: mean_luma_delta=0.475 worst_frame_mean=0.541 changed_by_8_pct=0.633 pairs=31
+pan: mean_luma_delta=1.011 worst_frame_mean=1.700 changed_by_8_pct=1.472 pairs=31
