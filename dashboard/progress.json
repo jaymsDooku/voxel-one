@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T20:55:33+00:00",
+  "updatedAt": "2026-11-19T23:55:19+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,26 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "hcf-combat-1a",
+      "title": "HCF / PotPvP 1A \u2014 Combat rules and consumables",
+      "description": "Implementing an opt-in Java 17 combat foundation with immutable profiles, server-owned state and deterministic CLI validation. Publication is reserved to the controller.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Live combat CLI playtest PNG (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-35636530323038622d646165302d343364632d393832632d353464656239613166383332/dashboard/evidence/hcf-combat-1a-playtest.png"
+        },
+        {
+          "kind": "link",
+          "label": "Combat contract and validation notes (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-35636530323038622d646165302d343364632d393832632d353464656239613166383332/docs/hcf-combat-foundation.md"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local validation complete: full Java 17 Maven verify passed (779 tests, 0 failures/errors, 1 opt-in browser skip); 28 combat and 67 direct regression tests passed. Live CLI playtest/media and synthetic capacity probe passed. Controller synchronization, publication and exact-head hosted CI remain pending before independent review.",
+      "updatedAt": "2026-11-19T23:55:19+00:00"
+    },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",
       "title": "iOS trusted validator: bounded expanded native test receipts",
