@@ -1,0 +1,21 @@
+Westminster tower lighting — Windows 11, NVIDIA GeForce RTX 3060
+Source: 62a39cc19a7ecdf4e33ccddf34af2377e7ad8086
+Maven verify: 770 passed, 0 failed, 0 errors, 1 skipped (opt-in asset browser workflow).
+
+Packaged game, default graphics
+Median displayed luminance (0-255)
+Victoria shaft / buttress: 131 / 154
+Elizabeth shaft / band: 133 / 134
+Elizabeth close-up, shaded / sunlit shaft: 90 / 168
+
+Matched resolution, preceding build
+Median displayed luminance (0-255)
+Victoria shaft / buttress: 53 / 160
+Elizabeth shaft / band: 34 / 151
+Elizabeth close-up, shaded / sunlit shaft: 34 / 44
+
+Matched resolution, final build
+Median displayed luminance (0-255)
+Victoria shaft / buttress: 133 / 149
+Elizabeth shaft / band: 133 / 133
+Elizabeth close-up, shaded / sunlit shaft: 90 / 168
