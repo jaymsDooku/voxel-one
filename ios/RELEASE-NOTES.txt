@@ -10,7 +10,9 @@ voxels and flower-pot models, collision/picking, nine hotbar slots,36 inventory
 slots, crafting, camera/fly controls, atomic persistence, graphics settings,
 offline time/daylight and saved touch sensitivity/inversion/movement bindings.
 The Java gateway retains authoritative online rules and existing City behavior.
-Current47-case native qualification and actual controls media remain pending.
+The native gateway now refuses HTTP redirects so credentials/bearers remain tied
+to the configured origin; normal system TLS trust is unchanged. Current48-case
+native qualification and actual controls/network media remain pending.
 
 New delivery tooling supplies an explicit Release arm64 iPhoneOS archive/export
 path with version/build/source binding and SHA256 receipts. Unsigned archives

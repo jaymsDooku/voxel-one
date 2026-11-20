@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T12:18:26+00:00",
+  "updatedAt": "2026-11-20T12:49:24+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "d14fcbaf hosted builds/preflight passed; verified home-screen image only, clientChecked=false. Prepared HTTPS Nginx include/renderer and fixed process-liveness endpoint.31 actual isolated Nginx/TLS/Java Sandbox+City CLI checks,18 Java gateway regressions and108 Linux harness tests passed. Production services/certificates unchanged.47-case native/controls media, trusted execution-cap repair, live VPS, remaining parity and signed/physical iPhone delivery stay pending.",
-      "updatedAt": "2026-11-20T12:18:26+00:00"
+      "note": "Added native gateway redirect refusal with fixed public error and unchanged TLS trust. New synthetic native Sandbox privacy/edit/reconnect case raises required suite47->48;not executed yet. Local18 gateway regressions,1 redirect fixture,31 actual HTTPS regression checks and108 harness tests passed. Failed helpers resolved as self;no findings inferred. Full native/media awaits reviewed trusted-budget repair;live/signing/install/physical/parity gates remain.",
+      "updatedAt": "2026-11-20T12:49:24+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

@@ -2,7 +2,7 @@ Native engine port: milestone 1 / early Sandbox slice
 
 Status: implementation in progress. Exact source60deab7026332972448f1cf7ce074eff27925593
 passed all45 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-Current saved touch controls require a47-case Mac run.
+Current saved touch controls and gateway redirect policy require a48-case Mac run.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -38,7 +38,7 @@ Network                    pinned Java server transport     Native HTTPS gateway
                                                             live VPS path unqualified
 
 Touch controls             UIKit input                       New sensitivity/inversion and
-                                                            movement bindings pending47-case run
+                                                            movement bindings pending48-case run
 
 Passed refers only to the45-case60deab70 developer Simulator run. It does not
 qualify new touch controls, independent review, physical device or signing.
@@ -1602,3 +1602,37 @@ Native controls/gameplay media, another Simulator size, remaining parity and
 landscape-first polish, live VPS, actual signed device export/install/update and
 physical iPhone performance/thermal/battery remain pending. No acceptance gate is
 reduced by this proxy increment or by the passing preflight.
+
+
+Native gateway redirect privacy and online Sandbox qualification
+The ephemeral URLSession now uses a stateless task delegate that refuses HTTP
+redirects with completionHandler(nil), including same-origin redirects. A3xx
+response produces a fixed public error. No authentication-challenge override,
+ATS exception, alternate trust store or game-server pin change was introduced.
+This prevents login bodies/bearers being deliberately forwarded to a redirect
+location; it does not claim that every network/platform qualification is complete.
+Apple delegate contract was checked against its primary Foundation documentation.
+
+A loopback-only redirect/capture pair lives solely in MobileFixtureHost. It stores
+only request/forward counters, never request bodies or header values. The ready
+receipt supplies the test origin through the generated XCTest scheme. The native
+48th required case submits a synthetic login, verifies the fixed refusal and no
+forwards, then uses the normal gateway for actual Sandbox movement, confirmed
+collection, inventory change, logout and reconnect persistence. Existing City
+planning/reconnect and every other native case remain required. Forms are never
+explicitly captured; the planned new captures show only the game world.
+
+Playtest: real Java loopback fixture test exercises both refusal and deliberate
+following of307 with a non-secret marker, verifying counter differences. This
+qualifies the fixture, not Swift URLSession or UIKit behavior. The existing actual
+Nginx/TLS/Sandbox/City CLI regression passed31 checks after the fixture change.
+108 Linux harness tests, scheme origin wiring, required-method parity and Python/
+shell syntax passed. The actual Swift/native48-case run and its new screenshots
+remain pending; no simulator or physical pass follows from the Linux fixture.
+The independently reviewed trusted-budget repair is still required before the
+next full native run. Existing private proposal/receipts and source edits remain.
+No file deletions are intended. A fixed-origin URLSession replaces only default
+redirect following; fixture endpoints are not part of production MobileGateway.
+18 existing Java gateway regression tests passed in197.624seconds; the new
+redirect-trap test passed separately in3.462seconds. Both used isolated synthetic
+profiles and real loopback HTTP. These are not Swift/native execution results.

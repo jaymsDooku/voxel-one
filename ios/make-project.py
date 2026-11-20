@@ -7,6 +7,7 @@ from xml.sax.saxutils import escape
 
 parser=argparse.ArgumentParser()
 parser.add_argument('--gateway',default='')
+parser.add_argument('--redirect-gateway',default='')
 args=parser.parse_args()
 root=Path(__file__).resolve().parent
 project=root/'build'/'VoxelOne.xcodeproj'
@@ -66,7 +67,7 @@ app_ref=buildable(app,'VoxelOne','VoxelOne.app');test_ref=buildable(test,'VoxelO
 </BuildActionEntries></BuildAction>
 <TestAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" shouldUseLaunchSchemeArgsEnv="NO">
 <Testables><TestableReference skipped="NO">{test_ref}</TestableReference></Testables>
-<EnvironmentVariables><EnvironmentVariable key="VOXEL_TEST_GATEWAY" value="{escape(args.gateway, {'"':'&quot;'})}" isEnabled="YES"/></EnvironmentVariables>
+<EnvironmentVariables><EnvironmentVariable key="VOXEL_TEST_GATEWAY" value="{escape(args.gateway, {'"':'&quot;'})}" isEnabled="YES"/><EnvironmentVariable key="VOXEL_TEST_REDIRECT_GATEWAY" value="{escape(args.redirect_gateway, {'"':'&quot;'})}" isEnabled="YES"/></EnvironmentVariables>
 </TestAction>
 <LaunchAction buildConfiguration="Debug" selectedDebuggerIdentifier="Xcode.DebuggerFoundation.Debugger.LLDB" selectedLauncherIdentifier="Xcode.IDEFoundation.Launcher.LLDB" launchStyle="0" useCustomWorkingDirectory="NO" ignoresPersistentStateOnLaunch="NO" debugDocumentVersioning="YES"><BuildableProductRunnable runnableDebuggingMode="0">{app_ref}</BuildableProductRunnable></LaunchAction>
 <ProfileAction buildConfiguration="Debug"><BuildableProductRunnable runnableDebuggingMode="0">{app_ref}</BuildableProductRunnable></ProfileAction>

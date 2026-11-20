@@ -101,6 +101,10 @@ a proxy or alter the current live services. Enter that HTTPS origin in the nativ
 app, choose Sandbox or City, then sign in or create an account on that game server.
 The phone uses standard system TLS trust. HTTP is accepted only for localhost
 simulator fixtures; remote cleartext URLs are rejected by the app.
+The ephemeral native URL session refuses all HTTP redirects, including redirects
+to the same origin. Enter the canonical HTTPS gateway origin directly. Redirect
+responses produce a fixed public error; passwords/bearers are never deliberately
+resent to a new location. Standard system TLS trust and server pinning remain.
 
 deploy/mobile/README.txt now supplies a literal Nginx HTTPS include renderer,
 process-liveness health contract and an actual isolated TLS/game integration

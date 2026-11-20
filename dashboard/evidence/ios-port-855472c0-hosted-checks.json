@@ -1,0 +1,25 @@
+{
+  "sourceHead": "855472c03dc72029f14a480aa09ff5cbc99f28a4",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "run": "https://github.com/jaymsDooku/voxel-one/actions/runs/44734765860",
+  "hostedBuilds": "Controller exact-head observation: Linux, Windows, mac-intel and mac-arm passed;publication skipped.",
+  "mode": "preflight",
+  "status": "passed",
+  "clientChecked": false,
+  "environment": {
+    "macOS": "15.8.2",
+    "xcode": "Xcode 16.4\nBuild version 16F6",
+    "simulatorSDK": "18.5"
+  },
+  "runtime": "iOS 18.5",
+  "device": "iPhone SE (3rd generation)",
+  "captureAttempts": 1,
+  "image": {
+    "path": "ios-port-855472c0-preflight-only.png",
+    "bytes": 1083023,
+    "sha256": "47e58c22c2765bce22068905dfea98ea844a210aaa9fcf81809f7253fbdcf81f"
+  },
+  "Playtest": "Inspected actual verified image: fresh iPhone Simulator home screen. No native gameplay ran.",
+  "localTooling": "Minimal three-file trusted-budget proposal tested separately on exported exact default-base sources:62 Linux contract tests passed;fresh-base patch dry-run passed. This does not qualify the app.",
+  "qualification": "Current master still uses1200second outer client deadline;current47-case native script requests1500seconds. Full native/media,independent review,live VPS,another Simulator size,remaining parity,signing/install and physical-device qualification pending."
+}

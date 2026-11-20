@@ -1,5 +1,13 @@
 import Foundation
 
+/// A configured gateway is an explicit destination for credentials and bearers.
+/// Refuse redirects, including same-origin redirects; keep normal system TLS trust.
+private final class GatewayRedirectPolicy:NSObject,URLSessionTaskDelegate,@unchecked Sendable {
+    func urlSession(_ session:URLSession,task:URLSessionTask,willPerformHTTPRedirection response:HTTPURLResponse,newRequest request:URLRequest,completionHandler:@escaping @Sendable (URLRequest?)->Void){
+        completionHandler(nil)
+    }
+}
+
 /// Tokens and passwords stay in process memory. URLSession uses normal system TLS trust.
 @MainActor
 final class Gateway {
@@ -12,7 +20,7 @@ final class Gateway {
               url.scheme=="https" || (url.scheme=="http" && ["127.0.0.1","localhost","::1"].contains(host)) else {throw GameError.invalidAddress}
         root=url
         let config=URLSessionConfiguration.ephemeral;config.timeoutIntervalForRequest=15;config.timeoutIntervalForResource=120;config.httpCookieStorage=nil;config.urlCache=nil
-        session=URLSession(configuration:config)
+        session=URLSession(configuration:config,delegate:GatewayRedirectPolicy(),delegateQueue:nil)
     }
     private func post(_ route:String,_ body:[String:Any]) async throws -> Data {
         var request=URLRequest(url:root.appendingPathComponent("mobile/v1/\(route)"));request.httpMethod="POST"
@@ -34,6 +42,7 @@ final class Gateway {
         }
         guard data.count<=8_000_000 else {throw GameError.invalidWorld}
         guard let http=response as? HTTPURLResponse else {throw GameError.message("No game server response.")}
+        guard !(300..<400).contains(http.statusCode) else {throw GameError.message("Game gateway redirects are not allowed. Check its HTTPS address.")}
         guard http.statusCode==200 else {
             let error=(try? JSONSerialization.jsonObject(with:data)) as? [String:String]
             throw GameError.message(error?["error"] ?? "Game server unavailable.")

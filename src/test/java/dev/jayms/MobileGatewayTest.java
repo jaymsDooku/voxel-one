@@ -29,6 +29,22 @@ class MobileGatewayTest {
         }
     }
     private static HttpRequest.Builder healthProbe(URI uri){return HttpRequest.newBuilder(uri).timeout(java.time.Duration.ofSeconds(5));}
+    @Test void syntheticRedirectTrapCountsOnlyRequestsAndForwards()throws Exception {
+        try(var host=new MobileFixtureHost(temp.resolve("redirect-profile"))){
+            var request=HttpRequest.newBuilder(URI.create(host.redirectUrl()+"/mobile/v1/login"))
+                .timeout(java.time.Duration.ofSeconds(5)).POST(HttpRequest.BodyPublishers.ofString("{\"probe\":true}")).build();
+            var refused=HTTP.send(request,HttpResponse.BodyHandlers.ofString());
+            assertEquals(307,refused.statusCode());
+            var destination=URI.create(refused.headers().firstValue("Location").orElseThrow());
+            assertEquals("127.0.0.1",destination.getHost());assertNotEquals(URI.create(host.redirectUrl()).getPort(),destination.getPort());
+            var probe=healthProbe(URI.create(host.redirectUrl()+"/probe")).GET().build();
+            assertEquals(Map.of("redirects",1.0,"forwards",0.0),Json.object(HTTP.send(probe,HttpResponse.BodyHandlers.ofString()).body()));
+            // Deliberately following client is confined to a synthetic marker and loopback trap.
+            var following=HttpClient.newBuilder().followRedirects(HttpClient.Redirect.ALWAYS).build();
+            assertEquals(401,following.send(request,HttpResponse.BodyHandlers.ofString()).statusCode());
+            assertEquals(Map.of("redirects",2.0,"forwards",1.0),Json.object(HTTP.send(probe,HttpResponse.BodyHandlers.ofString()).body()));
+        }
+    }
     @Test void nativeCatalogMatchesAuthoritativeRecipesAndBundledAsset()throws Exception {
         var catalog=MobileSnapshot.recipeCatalog();assertEquals(104,catalog.size());
         Set<Integer> ids=new HashSet<>();

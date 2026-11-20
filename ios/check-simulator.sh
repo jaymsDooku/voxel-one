@@ -71,11 +71,16 @@ import json,sys
 print(json.load(open(sys.argv[1]))['gateway'])
 PY
 )"
-python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" > ios/build/project-path.txt
+redirect_gateway="$(python3 - "$profile/ready.json" <<'PY'
+import json,sys
+print(json.load(open(sys.argv[1]))['redirectGateway'])
+PY
+)"
+python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" --redirect-gateway "$redirect_gateway" > ios/build/project-path.txt
 phase device_archive
 bash ios/archive-device.sh >> ios/build/native-build.log 2>&1
 # Restore the synthetic gateway environment in the generated test scheme.
-python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" > ios/build/project-path.txt
+python3 ios/make-project.py --gateway "$VOXEL_TEST_GATEWAY" --redirect-gateway "$redirect_gateway" > ios/build/project-path.txt
 phase native_build
 xcodebuild build-for-testing -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -sdk iphonesimulator -destination "platform=iOS Simulator,id=$udid" \

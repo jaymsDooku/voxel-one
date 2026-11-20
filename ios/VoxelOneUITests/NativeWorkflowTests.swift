@@ -1,5 +1,13 @@
 import XCTest
 import Darwin
+import Foundation
+
+/// Probe holds only fixed counters; no URL, request, credentials or error text.
+private final class RedirectProbeResult:@unchecked Sendable {
+    private let lock=NSLock();private var stored:[String:Int]?
+    func put(_ value:[String:Int]){lock.lock();defer{lock.unlock()};stored=value}
+    var value:[String:Int]? {lock.lock();defer{lock.unlock()};return stored}
+}
 
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
 final class NativeWorkflowTests:NativeEvidenceTestCase {
@@ -574,6 +582,59 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.terminate();app.launch();wait(app.buttons["breakButton"]);waitTerrain();capture("native-fine-grid-filled-restarted")
     }
     func fill(_ id:String,_ text:String,secure:Bool=false){let field=secure ? app.secureTextFields[id]:app.textFields[id];wait(field);field.tap();field.typeText(text+"\n")}
+    private func redirectProbe(_ origin:URL)throws->[String:Int]{
+        let result=RedirectProbeResult(),done=expectation(description:"Fixed redirect counters")
+        var request=URLRequest(url:origin.appendingPathComponent("probe"));request.timeoutInterval=5
+        let task=URLSession.shared.dataTask(with:request){data,response,_ in
+            if let response=response as? HTTPURLResponse,response.statusCode==200,let data=data,data.count<=1024,
+               let value=(try? JSONSerialization.jsonObject(with:data)) as? [String:Int] {result.put(value)}
+            done.fulfill()
+        }
+        task.resume();wait(for:[done],timeout:10);task.cancel()
+        return try XCTUnwrap(result.value,"Fixed redirect counters unavailable")
+    }
+    func testOnlineSandboxRedirectPrivacyEditAndReconnect()throws {
+        let normal=try XCTUnwrap(ProcessInfo.processInfo.environment["VOXEL_TEST_GATEWAY"],"Synthetic gateway missing")
+        let redirect=try XCTUnwrap(ProcessInfo.processInfo.environment["VOXEL_TEST_REDIRECT_GATEWAY"].flatMap(URL.init(string:)),"Synthetic redirect gateway missing")
+        let before=try redirectProbe(redirect)
+        fixtureLaunchUsed=true
+        defer {app.launchEnvironment["VOXEL_TEST_GATEWAY"]=normal;app.terminate()}
+        // Use a fresh app/form for each origin. Do not capture forms or credentials.
+        app.terminate();app.launchEnvironment["VOXEL_TEST_GATEWAY"]=redirect.absoluteString;app.launch();menu()
+        fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
+        app.buttons["signInButton"].tap();wait(app.alerts["Voxel One"],30,"redirect refusal")
+        let refused=app.alerts["Voxel One"].staticTexts["Game gateway redirects are not allowed. Check its HTTPS address."].exists
+        app.terminate();XCTAssertTrue(refused,"Redirect must fail with a fixed public message")
+        let after=try redirectProbe(redirect)
+        XCTAssertGreaterThan(after["redirects"] ?? -1,before["redirects"] ?? 0)
+        XCTAssertEqual(after["forwards"],before["forwards"],"Login and logout must not follow redirects")
+
+        app.launchEnvironment["VOXEL_TEST_GATEWAY"]=normal;app.launch();menu()
+        fill("username","ios_fixture");fill("password","fixture-password-123",secure:true)
+        app.segmentedControls["gameChoice"].buttons["Sandbox"].tap();app.buttons["signInButton"].tap()
+        wait(app.buttons["breakButton"],80,"online Sandbox login");textContains("playerPosition","Ground",timeout:30)
+        XCTAssertFalse(app.buttons["flyButton"].isHittable,"Online flight remains server controlled")
+        app.buttons["cameraButton"].tap();wait(app.buttons["First person"]);app.buttons["First person"].tap()
+        let position=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.5)
+        XCTAssertNotEqual(position,app.staticTexts["playerPosition"].label,"Online movement remains playable")
+        textContains("playerPosition","Ground",timeout:30)
+        let initialBag=(0..<9).map{app.buttons["slot\($0)"].label}
+        let scene=app.otherElements["worldView"]
+        scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.38)).press(forDuration:0.05,thenDragTo:scene.coordinate(withNormalizedOffset:CGVector(dx:0.5,dy:0.56)))
+        app.buttons["breakButton"].tap();textContains("gameStatus","Break checked by server",timeout:30)
+        let bag=(0..<9).map{app.buttons["slot\($0)"].label}
+        XCTAssertNotEqual(bag,initialBag,"Confirmed collection must change authoritative inventory")
+        capture("native-online-sandbox-authoritative-edit")
+        app.buttons["menuButton"].tap();wait(app.buttons["signInButton"])
+        fill("password","fixture-password-123",secure:true);app.buttons["signInButton"].tap()
+        wait(app.buttons["breakButton"],80,"reconnected Sandbox login")
+        XCTAssertEqual((0..<9).map{app.buttons["slot\($0)"].label},bag,"Authoritative inventory survives reconnect")
+        capture("native-online-sandbox-reconnected")
+        // Restore the ordinary saved offline world; later cases still start normally.
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.buttons["offlineResumeButton"].tap();wait(app.buttons["breakButton"])
+    }
     func testOnlineLoginCityPlanningAndReconnect()throws {
         menu()
         let address=app.textFields["gatewayAddress"];wait(address);XCTAssertFalse(address.value as? String == "")
