@@ -120,6 +120,13 @@ their normal tree paths. This trades bounded decoding work for lower retained
 fractional backing geometry. It does not establish peak-memory, frame or operation-time
 budgets, and it does not change geometry or placement limits.
 
+Primitive `forEachLeaf` traversal also walks private packed cell/model bytes
+directly, preserving stored octant order, coordinates, sizes and colours without
+building nodes or a leaf list. Model-definition opacity validation uses this
+visitor; its name, size, empty-model and fingerprint rules stay unchanged.
+Callback failures still stop traversal immediately. List-returning leaf queries,
+mutable copies, raycasts and region extraction can still reconstruct graphs.
+
 Immutable package cell queries validate canonical resolution16 wire images directly
 into private packed snapshots. Zero-turn rotation shares that immutable backing.
 Other world-cell quarter turns permute wire subtrees with bounded primitive scratch

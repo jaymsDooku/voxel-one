@@ -606,7 +606,23 @@ public final class SparseVoxelOctree {
     /** Visit stored leaves in octant order without allocating a leaf list. */
     public void forEachLeaf(LeafVisitor visitor) throws IOException {
         java.util.Objects.requireNonNull(visitor);
-        visitLeaves(readRoot(), 0, 0, 0, size, visitor);
+        if(root instanceof PackedCell packed)visitPackedLeaves(packed.bytes,1,0,0,0,size,visitor);
+        else visitLeaves(root, 0, 0, 0, size, visitor);
+    }
+
+    /** Private validated images use a one-byte resolution header. Visit exact
+     * stored topology without decoding nodes, allocating leaves or retaining caches. */
+    private static int visitPackedLeaves(byte[] bytes,int offset,int x,int y,int z,int side,LeafVisitor visitor)throws IOException {
+        int tag=bytes[offset++]&255;
+        if(tag==0)return offset;
+        if(tag==1) {
+            int color=(bytes[offset]&255)<<24|(bytes[offset+1]&255)<<16|(bytes[offset+2]&255)<<8|bytes[offset+3]&255;
+            visitor.accept(x,y,z,side,color);return offset+4;
+        }
+        if(tag!=2)throw new IllegalStateException("Invalid internal packed octree");
+        int half=side/2;
+        for(int i=0;i<8;i++)offset=visitPackedLeaves(bytes,offset,x+((i&1)!=0?half:0),y+((i&2)!=0?half:0),z+((i&4)!=0?half:0),half,visitor);
+        return offset;
     }
 
     private static void visitLeaves(Node node, int x, int y, int z, int side, LeafVisitor visitor)
