@@ -8,6 +8,21 @@ import java.util.*;
 public class World implements AutoCloseable {
     private final Map<ChunkPos, Chunk> loadedChunks = new HashMap<>();
     private final Set<ChunkPos> previewColumns = new HashSet<>();
+    private long previewMeshRevision;
+    private int previewColumnsX, previewColumnsZ;
+
+    void trackPreviewMeshes(int width, int depth) {
+        previewColumnsX = (width+15)/16;
+        previewColumnsZ = (depth+15)/16;
+    }
+
+    public long previewMeshRevision() { return previewMeshRevision; }
+
+    private void sceneChanged(ChunkPos p) {
+        sceneRevision++;
+        if (p.chunkX()>=0 && p.chunkX()<previewColumnsX && p.chunkZ()>=0 && p.chunkZ()<previewColumnsZ)
+            previewMeshRevision++;
+    }
 
     void retainPreviewColumn(int x,int z) {
         previewColumns.add(new ChunkPos(x,0,z));
@@ -25,7 +40,7 @@ public class World implements AutoCloseable {
     private static ChunkPos column(ChunkPos p){return new ChunkPos(p.chunkX(),0,p.chunkZ());}
     private boolean canonicalMutation;
     void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){if(c.takeGeometryChange()){changedSky(column(p));if(!c.terrainEquivalent&&!canonicalMutation)columnGeometryVersions.put(column(p),++geometryEpoch);}dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
-    void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneRevision++;}}
+    void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneChanged(p);}}
     Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
     private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||columnMembers.get(p).size()==10);for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
 
@@ -179,7 +194,7 @@ public class World implements AutoCloseable {
         if(c.terrainEquivalent&&!c.matchesTerrain(terrain,p))c.terrainEquivalent=false;
         if (loadedChunks.putIfAbsent(p, c) != null)
             throw new IllegalStateException("Already loaded");
-        sceneRevision++;skyPositions.put(column(p),true);
+        sceneChanged(p);skyPositions.put(column(p),true);
         c.attach(this, p);columnMembers.computeIfAbsent(column(p),k->new HashSet<>()).add(p);meshDirty(p,c);
         if(replayEdits)for (var e : edits.getOrDefault(p, Map.of()).values()) applyCanonical(c,e);
         dirtyNeighbors(p);
@@ -286,7 +301,7 @@ public class World implements AutoCloseable {
         if(terrainScheduler!=null)terrainScheduler.cancel(position);
         if(preparing!=null&&preparing.position().equals(position)){preparing=null;replay=null;}
         var chunk=loadedChunks.get(position);
-        if(chunk!=null){changedSky(column(position));sceneRevision++;chunk.close();loadedChunks.remove(position);dirtyMeshes.remove(position);ChunkPos column=column(position);var members=columnMembers.get(column);members.remove(position);if(!chunk.terrainEquivalent)columnGeometryVersions.put(column,++geometryEpoch);if(members.isEmpty()){columnGeometryVersions.remove(column);columnMembers.remove(column);if(!skyEditChunks.containsKey(column))skyPositions.remove(column);}dirtyColumns.add(column);dirtyNeighbors(position);}
+        if(chunk!=null){changedSky(column(position));sceneChanged(position);chunk.close();loadedChunks.remove(position);dirtyMeshes.remove(position);ChunkPos column=column(position);var members=columnMembers.get(column);members.remove(position);if(!chunk.terrainEquivalent)columnGeometryVersions.put(column,++geometryEpoch);if(members.isEmpty()){columnGeometryVersions.remove(column);columnMembers.remove(column);if(!skyEditChunks.containsKey(column))skyPositions.remove(column);}dirtyColumns.add(column);dirtyNeighbors(position);}
     }
 
     /** Synchronous bootstrap/CLI compatibility. Gameplay uses streamAsync; never call this from a frame. */

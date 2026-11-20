@@ -35,19 +35,35 @@ float previewWallSky(vec3 point,vec3 normal,float overhead){
     return max(overhead,openSky*path);
 }
 
-// A visible wall can receive diffuse daylight through the same opening that
-// exposes it to the observer. The depth-tested sightline supplies a clear path
-// even under a cornice where the vertical atlas has compacted out the room below.
-// A covered sample supplies no bounce. Never sample past the camera.
-float previewOpeningLight(vec3 point,vec3 normal,vec3 eye,float sky){
-    if(sky>=1.||abs(normal.y)>.001||uSkyColumns==0)return 0.;
-    vec3 ray=eye-point;
-    float reach=length(ray);
-    if(reach<=.001)return 0.;
-    ray/=reach;
-    float facing=max(0.,dot(ray,normal));
-    float nearSky=worldSkyVisibility(point+ray*min(2.,reach));
-    float middleSky=worldSkyVisibility(point+ray*min(4.,reach));
-    float farSky=worldSkyVisibility(point+ray*min(8.,reach));
-    return facing*(1.-sky)*dot(vec3(nearSky,middleSky,farSky),vec3(.5,.3,.2));
+uniform vec3 uPreviewMin,uPreviewMax;
+bool inPreviewBounds(vec3 point){
+    return all(greaterThanEqual(point,uPreviewMin))&&all(lessThanEqual(point,uPreviewMax));
+}
+// Each wall sees the exterior along its own normal if it is the nearest
+// opaque surface in that orthographic side view. Depth is linear in world units.
+float previewSideExposure(vec3 point,vec3 normal){
+    if(abs(normal.y)>.001||!inPreviewBounds(point))return 0.;
+    vec3 span=uPreviewMax-uPreviewMin;
+    vec3 p=(point-uPreviewMin)/span;
+    bool xWall=abs(normal.x)>.999;
+    if(!xWall&&abs(normal.z)<.999)return 0.;
+    bool positive=xWall?normal.x>0.:normal.z>0.;
+    float u=xWall?p.z:p.x;
+    if(xWall==positive)u=1.-u;
+    int side=xWall?(positive?0:1):(positive?2:3);
+    float depth=xWall?p.x:p.z;
+    if(positive)depth=1.-depth;
+    float first=textureLod(uShadow,vec3(u,p.y,float(3+side)),0.).r;
+    // Less than a sixteenth-block leaf, independent of building scale.
+    float depthSpan=xWall?span.x:span.z;
+    if((depth-first)*depthSpan<=.002)return 1.;
+    // The horizon can be blocked by an entire opposite wing in a courtyard
+    // while the sky above that wing remains open. Match skyProjection's shear.
+    float rise=.5*depthSpan;
+    float v=(span.y*p.y+rise*depth)/(span.y+rise);
+    ivec2 tile=textureSize(uShadow,0).xy/2;
+    ivec2 local=clamp(ivec2(vec2(u,v)*vec2(tile)),ivec2(0),tile-1);
+    ivec2 texel=ivec2(side%2,side/2)*tile+local;
+    first=texelFetch(uShadow,ivec3(texel,7),0).r;
+    return (depth-first)*depthSpan<=.002?1.:0.;
 }
