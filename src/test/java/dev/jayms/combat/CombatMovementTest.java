@@ -39,7 +39,7 @@ class CombatMovementTest {
     @Test
     void diagonalInputKeepsWalkingSpeedAndUsesCameraYaw() {
         State state = new State(SPAWN, ZERO, true, 0);
-        var diagonal = CombatMovement.step(FLOOR, 1, state, new Input(90, 1, 1, false, false, 1, 1));
+        var diagonal = CombatMovement.step(FLOOR, 1, state, new Input(90, 1, 1, false, false, 1, 1, false));
         assertEquals(-.098 / Math.sqrt(2), diagonal.displacement().x(), EPSILON);
         assertEquals(.098 / Math.sqrt(2), diagonal.displacement().z(), EPSILON);
         assertEquals(.098, Math.hypot(diagonal.displacement().x(), diagonal.displacement().z()), EPSILON);
@@ -48,7 +48,7 @@ class CombatMovementTest {
     @Test
     void airSteeringUsesItsOwnAccelerationAndRetainsMoreMomentum() {
         State midair = new State(new Vec3(.5, 4, .5), new Vec3(.2, 0, 0), false, 0);
-        var steered = CombatMovement.step(FLOOR, 1, midair, new Input(0, 0, 1, false, false, 1.4, 1));
+        var steered = CombatMovement.step(FLOOR, 1, midair, new Input(0, 0, 1, false, false, 1.4, 1, false));
         assertEquals(.2, steered.displacement().x(), EPSILON);
         assertEquals(.0196, steered.displacement().z(), EPSILON);
         assertEquals(.182, steered.state().motion().x(), EPSILON);
@@ -60,7 +60,7 @@ class CombatMovementTest {
     @Test
     void groundSpeedAndItemUseScaleTheInputAcceleration() {
         State state = new State(SPAWN, new Vec3(.1, 0, 0), true, 0);
-        var first = CombatMovement.step(FLOOR, 1, state, new Input(0, 1, 0, false, false, 1.4, .2));
+        var first = CombatMovement.step(FLOOR, 1, state, new Input(0, 1, 0, false, false, 1.4, .2, false));
         assertEquals(.12744, first.displacement().x(), EPSILON);
         assertEquals(.06958224, first.state().motion().x(), EPSILON);
     }
@@ -169,7 +169,7 @@ class CombatMovementTest {
     }
 
     private static Input input(float forward, float strafe, boolean jump, boolean sprint) {
-        return new Input(0, forward, strafe, jump, sprint, 1, 1);
+        return new Input(0, forward, strafe, jump, sprint, 1, 1, false);
     }
 
     private static Arena field(Voxels voxels) {

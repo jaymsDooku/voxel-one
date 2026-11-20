@@ -384,12 +384,15 @@ public final class CombatEngine {
         double speedMultiplier = 1;
         if (actor.has(Effect.SPEED)) speedMultiplier *= 1.35;
         if (actor.has(Effect.SLOWNESS)) speedMultiplier *= .72;
+        // Carry through takeoff and the first step after landing during a hit's hurt window.
+        boolean knockbackTransition = actor.hurtTicks > 0 && (actor.motion.y > 0 || actor.landedLastStep);
         var input = new CombatMovement.Input(actor.yaw, forward, strafe, fresh && intent.jump(),
-                actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1);
+                actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1, knockbackTransition);
         var state = new CombatMovement.State(actor.feet, actor.motion, actor.grounded, actor.jumpCooldown);
         var step = CombatMovement.step(arena, actor.id, state, input);
         actor.feet = step.state().feet();
         actor.motion = step.state().motion();
+        actor.landedLastStep = !actor.grounded && step.state().grounded();
         actor.grounded = step.state().grounded();
         actor.jumpCooldown = step.state().jumpCooldown();
         actor.velocity = step.displacement();
@@ -650,6 +653,7 @@ public final class CombatEngine {
                 owner.velocity = ZERO;
                 owner.fallDistance = 0;
                 owner.grounded = true;
+                owner.landedLastStep = false;
                 owner.jumpCooldown = 0;
                 owner.pendingKnockback = null;
                 owner.motionEpoch++;
@@ -693,6 +697,7 @@ public final class CombatEngine {
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
         float yaw, pitch;
         boolean grounded, sprinting, sprintKnockbackReady = true, attackRequested, sprintReleased, slowAfterSprintHit;
+        boolean landedLastStep;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
         int hits, combo, longestCombo, lastComboTarget, potsUsed, jumpCooldown;

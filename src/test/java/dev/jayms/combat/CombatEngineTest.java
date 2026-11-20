@@ -82,7 +82,7 @@ class CombatEngineTest {
             engine.tick();
             assertFalse(engine.snapshot(1).sprinting());
             engine.tick();
-            assertEquals(.7, engine.snapshot(2).velocity().x(), .00001);
+            assertEquals(.6, engine.snapshot(2).velocity().x(), .00001);
             assertEquals(.1274 + .1274 * .546 * .6, engine.snapshot(1).velocity().x(), .00001);
 
             // Move the victim back into melee range after the first boost without touching attacker input.
@@ -95,7 +95,7 @@ class CombatEngineTest {
             engine.tick();
             assertEquals(2, engine.snapshot(1).stats().hits());
             assertEquals(2, engine.snapshot(1).stats().longestCombo());
-            assertEquals(release ? .7 : .4, engine.snapshot(2).velocity().x(), .00001);
+            assertEquals(release ? .6 : .35, engine.snapshot(2).velocity().x(), .00001);
         }
     }
 
@@ -110,12 +110,16 @@ class CombatEngineTest {
 
             assertTrue(input(engine, 1, sequence++, 0, 0, 0, true, false, false, 0));
             engine.tick();
-            assertTrue(engine.snapshot(2).velocity().x() >= .69, "W release rearms sprint knockback");
+            assertTrue(engine.snapshot(2).velocity().x() >= .59, "W release rearms sprint knockback");
             assertEquals(.2108, engine.snapshot(2).velocity().y(), .00001);
 
             assertTrue(input(engine, 1, sequence++, 0, 0, 1, true, false, false, 0));
-            tick(engine, 8);
+            for (int betweenHits = 0; betweenHits < 8; betweenHits++) {
+                engine.tick();
+                assertTrue(engine.snapshot(2).velocity().x() > .07, "Victim keeps moving between hits");
+            }
             assertTrue(engine.snapshot(2).grounded(), "Victim lands before the next hit window");
+            assertTrue(engine.snapshot(2).velocity().x() > .14, "Horizontal movement carries past landing");
         }
         assertEquals(3, engine.snapshot(1).stats().longestCombo());
     }
@@ -129,11 +133,11 @@ class CombatEngineTest {
 
         engine.tick();
         var launched = engine.snapshot(2);
-        assertEquals(.7, launched.velocity().x(), .00001);
+        assertEquals(.6, launched.velocity().x(), .00001);
         assertEquals(.2108, launched.velocity().y(), .00001);
         assertFalse(launched.grounded());
         engine.tick();
-        assertEquals(.3822, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(.408, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(.128184, engine.snapshot(2).velocity().y(), .00001);
 
         int airborneTicks = 0;
@@ -152,7 +156,10 @@ class CombatEngineTest {
         double carried = engine.snapshot(2).velocity().x();
         assertEquals(landed.velocity().x() * .91, carried, .00001);
         engine.tick();
-        assertEquals(carried * .546, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(carried * .68, engine.snapshot(2).velocity().x(), .00001);
+        double coast = engine.snapshot(2).velocity().x();
+        engine.tick();
+        assertEquals(coast * .546, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(1, engine.snapshot(2).hurtTick());
     }
 
@@ -170,8 +177,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 1, 0, 0, 0, false, false, false, 0));
         engine.tick();
         Vec3 launch = engine.snapshot(2).velocity();
-        assertEquals(offset.x() * .4 / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
-        assertEquals(offset.z() * .4 / distance + victim.velocity().z() * .546 * .5, launch.z(), .00001);
+        assertEquals(offset.x() * .35 / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
+        assertEquals(offset.z() * .35 / distance + victim.velocity().z() * .546 * .5, launch.z(), .00001);
         assertEquals(.2108, launch.y(), .00001);
     }
 
@@ -186,7 +193,7 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 1, 180, 0, 0, false, false, false, 0));
         engine.tick();
 
-        double push = .7 - .1274 * .546 * .6 * .5;
+        double push = .6 - .1274 * .546 * .6 * .5;
         assertEquals(-push, engine.snapshot(1).velocity().x(), .00001);
         assertEquals(push, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(.2108, engine.snapshot(1).velocity().y(), .00001);

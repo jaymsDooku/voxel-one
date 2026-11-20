@@ -59,8 +59,9 @@ public final class PracticeNativePlaytest {
         private boolean ready, captured, capturedFlash, stopped, remotePresented;
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
         private double peakKnockbackHorizontal, peakKnockbackUp;
-        private long lastSprintHit = -1;
-        private int sprintHits;
+        private long lastSprintHit = -1, sampledLaunch = -1;
+        private double sampledLaunchSpeed;
+        private int sprintHits, carriedLaunches;
         private int betweenSnapshotFrames;
         private String report;
 
@@ -101,9 +102,16 @@ public final class PracticeNativePlaytest {
                 double horizontal = Math.hypot(b.vx(), b.vz());
                 peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, horizontal);
                 peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
-                if (horizontal > .58 && b.hurtTick() > lastSprintHit) {
+                if (horizontal > .51 && b.hurtTick() > lastSprintHit) {
                     lastSprintHit = b.hurtTick();
                     sprintHits++;
+                }
+                if (view.tick() == b.hurtTick() + 1 && horizontal > .51) {
+                    sampledLaunch = b.hurtTick();
+                    sampledLaunchSpeed = horizontal;
+                } else if (view.tick() == b.hurtTick() + 2 && sampledLaunch == b.hurtTick()
+                        && horizontal >= .6 * sampledLaunchSpeed) {
+                    carriedLaunches++;
                 }
             }
             if (remotePresented && view.phase() == Phase.FIGHT && b != null && b.hurtTick() >= 0) {
@@ -133,6 +141,8 @@ public final class PracticeNativePlaytest {
                     if (sprintHits < 3 || peakKnockbackUp < .20 || peakKnockbackUp > .26)
                         throw new IllegalStateException("Expected three sprint hits with a low arc, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
+                    if (carriedLaunches == 0)
+                        throw new IllegalStateException("No adjacent sprint launch snapshots retained momentum");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
                     report = "Windows native Voxel One renderer and two TLS clients in Basalt Courtyard.\n"
@@ -142,6 +152,7 @@ public final class PracticeNativePlaytest {
                             + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
+                            + carriedLaunches + " sprint launches kept at least 60% of horizontal speed on the next tick.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",
                             peakKnockbackHorizontal, peakKnockbackUp);
