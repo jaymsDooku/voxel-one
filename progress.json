@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T22:47:24+00:00",
+  "updatedAt": "2026-11-20T11:10:02+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4329,11 +4329,31 @@
           "kind": "link",
           "label": "Reliability qualification",
           "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/89"
+        },
+        {
+          "kind": "link",
+          "label": "Coordinator review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/87"
+        },
+        {
+          "kind": "link",
+          "label": "Reliability review",
+          "url": "https://github.com/jaymsDooku/codex-development-dashboard/pull/89"
+        },
+        {
+          "kind": "report",
+          "label": "task coordinator live verification 20261120.json",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/task-coordinator-live-verification-20261120.json"
+        },
+        {
+          "kind": "image",
+          "label": "task coordinator phone fixture 20261120.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/task-coordinator-phone-fixture-20261120.png"
         }
       ],
-      "status": "in_progress",
-      "note": "Coordinator feature merged after independent review. Follow-up review reproduced a saved-answer recovery race; the developer is correcting it before deployment. Focused synthetic recovery and controller tests passed; live activation remains pending.",
-      "updatedAt": "2026-11-19T22:47:24+00:00"
+      "status": "complete",
+      "note": "Independently reviewed coordinator and reliability fix deployed privately; VPS runner active and first live scan observed. 111 focused synthetic tests passed, including the saved-answer recovery scenario.",
+      "updatedAt": "2026-11-20T11:10:02+00:00"
     },
     {
       "id": "hcf-potpvp",
