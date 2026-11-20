@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-19T23:55:19+00:00",
+  "updatedAt": "2026-11-20T00:45:19+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,26 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "hcf-potpvp-1b-basalt-courtyard",
+      "title": "HCF / PotPvP 1B \u2014 Basalt Courtyard fixture",
+      "description": "Original opt-in Basalt Courtyard fixture with a stable local coordinate contract, reset, safe landing/collision queries and real engine preview.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Arena overview (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63333939313338642d346637312d346166662d623461362d623834383362643835366263/dashboard/evidence/basalt-courtyard-overview.png"
+        },
+        {
+          "kind": "link",
+          "label": "Engine fixture playtest video (pending controller publication)",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63333939313338642d346637312d346166662d623461362d623834383362643835366263/dashboard/evidence/basalt-courtyard-engine-preview.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local validation complete: 48 Java 17 arena/direct regression tests passed. Engine playtest passed reset, sprint, boundary and flank routes; three PNGs and a 2.29 MB F10-path MP4 were inspected. Full verify was interrupted after stalling at 181 reported tests with no failures/errors and one skip; no full-suite pass claimed. Controller integration, publication and exact-source hosted CI remain pending before independent review.",
+      "updatedAt": "2026-11-20T00:45:19+00:00"
+    },
     {
       "id": "hcf-combat-1a",
       "title": "HCF / PotPvP 1A \u2014 Combat rules and consumables",
