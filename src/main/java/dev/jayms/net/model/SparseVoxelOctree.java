@@ -59,10 +59,51 @@ public final class SparseVoxelOctree {
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         var result=new SparseVoxelOctree(size);
         if(turns==0){result.root=root;return result.freeze();}
+        if(size==16&&root instanceof PackedCell packed&&!(root instanceof PackedModel)) {
+            var rotation=new PackedCellRotation(packed.bytes,turns);
+            rotation.node(1,0);
+            try{return readOwnedPackedCell(java.util.Arrays.copyOf(rotation.output,rotation.position));}
+            catch(IOException invalid){throw new IllegalStateException("Invalid internal packed rotation",invalid);}
+        }
         // Nonzero turns retain the existing uniform-region shortcut.
         Node source=readRoot();
-        result.root=turns==0||source==null||source.children==null?source:rotateY(source,turns);
+        result.root=source==null||source.children==null?source:rotateY(source,turns);
         return result.freeze();
+    }
+
+    /** Bounded primitive scratch, one private output image and no child-node graph.
+     * Nonzero turns fold equal children exactly like the ordinary tree path. */
+    private static final class PackedCellRotation {
+        private static final long MIXED=2L<<32;
+        final byte[] input,output;
+        final int[] offsets=new int[32]; // Eight children at each of four branch levels.
+        final int turns;
+        int position=1;
+        PackedCellRotation(byte[] input,int turns){this.input=input;this.turns=turns;output=new byte[input.length];output[0]=16;}
+        long node(int offset,int level) {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+            int start=position,tag=input[offset++]&255;output[position++]=(byte)tag;
+            if(tag==0)return 0;
+            if(tag==1) {
+                int color=(input[offset]&255)<<24|(input[offset+1]&255)<<16|(input[offset+2]&255)<<8|input[offset+3]&255;
+                System.arraycopy(input,offset,output,position,4);position+=4;return 1L<<32|color&0xffffffffL;
+            }
+            int cursor=offset,base=level*8;
+            for(int i=0;i<8;i++){offsets[base+i]=cursor;cursor=skipPacked(input,cursor);}
+            long first=0;boolean uniform=true;
+            for(int i=0;i<8;i++) {
+                int x=i&1,y=i&2,z=(i>>>2)&1;
+                // Inverse permutation: output children must be written in wire order.
+                int source=switch(turns){case 1->z|y|((1-x)<<2);case 2->(1-x)|y|((1-z)<<2);default->(1-z)|y|(x<<2);};
+                long value=node(offsets[base+source],level+1);
+                if(i==0)first=value;else if(value!=first)uniform=false;
+                if(value==MIXED)uniform=false;
+            }
+            if(!uniform)return MIXED;
+            position=start;output[position++]=(byte)(first>>>32);
+            if(first!=0)for(int shift=24;shift>=0;shift-=8)output[position++]=(byte)(first>>>shift);
+            return first;
+        }
     }
 
     private static Node rotateY(Node node,int turns) {
@@ -334,7 +375,11 @@ public final class SparseVoxelOctree {
         java.util.Objects.requireNonNull(wire,"wire");
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         if(wire.length<2||wire.length>65536)throw new IOException("Packed world-cell byte limit");
-        var reader=new PackedCellReader(wire.clone());
+        return readOwnedPackedCell(wire.clone());
+    }
+    /** Only freshly allocated private images may use the no-copy internal path. */
+    private static SparseVoxelOctree readOwnedPackedCell(byte[] wire)throws IOException {
+        var reader=new PackedCellReader(wire);
         if(reader.take()!=16)throw new IOException("Packed world-cell resolution16 required");
         reader.node(16);
         if(reader.offset!=reader.bytes.length)throw new IOException("Trailing packed cell bytes");

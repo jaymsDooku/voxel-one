@@ -25,8 +25,14 @@ public final class PackedCellReadProbe {
             byte[] wire=fixture(dense);String hash=HexFormat.of().formatHex(MessageDigest.getInstance("SHA-256").digest(wire));int count=dense?32:512;
             var reference=SparseVoxelOctree.read(new DataInputStream(new ByteArrayInputStream(wire)),16);
             var asset=new StructurePackage("Read diagnostic",new Bounds(1,1,1,0,0,0),List.of(),List.of(new Cell(new Position(0,0,0),reference,-1)));
+            var arenaBuilder=new StructureGeometry.Builder();int offset=arenaBuilder.add(reference);var arena=arenaBuilder.snapshot();
+            // Explicit graph-reader control remains valid when production routing changes.
+            var graphCells=new AbstractList<Cell>() {
+                public int size(){return 1;}
+                public Cell get(int index){Objects.checkIndex(index,1);return new Cell(new Position(0,0,0),arena.readGraph(offset),-1);}
+            };
             for(int operation=-1;operation<4;operation++)for(String mode:List.of("graph","packed","routed")) {
-                var cells=mode.equals("graph")?asset.placementCells(1):mode.equals("packed")||operation<0?asset.cells:asset.placementCells(operation);
+                var cells=mode.equals("graph")?graphCells:mode.equals("packed")||operation<0?asset.cells:asset.placementCells(operation);
                 var check=cells.get(0).geometry();if(!reference.sameValues(check)||reference.nodes()!=check.nodes()||reference.occupied()!=check.occupied()||reference.leafCount()!=check.leafCount())throw new AssertionError("Fixture query mismatch");
                 double[] times=new double[20];long[] allocations=new long[20];
                 for(int run=-3;run<20;run++) {

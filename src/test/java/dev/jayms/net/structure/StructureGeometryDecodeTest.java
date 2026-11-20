@@ -29,7 +29,7 @@ class StructureGeometryDecodeTest {
         assertEquals("PackedCell",root.get(asset.cells.get(0).geometry()).getClass().getSimpleName());
         for(int r=0;r<4;r++) {
             var view=asset.placementCells(r);var cell=view.get(0);assertEquals(p,cell.position());assertTrue(cell.geometry().isFrozen());
-            assertArrayEquals(bytes(tree),bytes(cell.geometry()));assertEquals(r==0?"PackedCell":"Node",root.get(cell.geometry()).getClass().getSimpleName());
+            assertArrayEquals(bytes(tree),bytes(cell.geometry()));assertEquals("PackedCell",root.get(cell.geometry()).getClass().getSimpleName());
             assertThrows(UnsupportedOperationException.class,()->view.set(0,cell));assertThrows(UnsupportedOperationException.class,()->view.add(cell));
             assertArrayEquals(before,asset.encode());
         }

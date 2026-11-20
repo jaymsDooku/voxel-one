@@ -122,8 +122,10 @@ budgets, and it does not change geometry or placement limits.
 
 Immutable package cell queries validate canonical resolution16 wire images directly
 into private packed snapshots. Zero-turn rotation shares that immutable backing.
-Constructor validation and nonzero placement rotations use a direct graph view,
-since those operations immediately visit nodes. The general stream reader and
+Other world-cell quarter turns permute wire subtrees with bounded primitive scratch
+and fold equal children just like the graph path. Placement keeps packed snapshots
+for all four turns. Constructor validation still visits a direct graph; nonzero
+packed-model rotation retains its existing model path. The general stream reader and
 legacy headers remain compatible; package decoding normalizes extended headers
 before this internal canonical reader. Package bytes, positions and dependency IDs
 stay unchanged. This allocation change does not qualify city or maximum-size use.

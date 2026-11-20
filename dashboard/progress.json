@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T09:24:36+00:00",
+  "updatedAt": "2026-11-20T10:09:00+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Packed cell reads and zero-turn staging passed 450 Java tests/95 suites, 39 Python checks, package/MP3, full Main workflow (541.849 s) and replay/save/render validation. Interrupted attempts are recorded separately. Serial cell-view diagnostics show lower query/zero-turn allocation; nonzero turns retain the graph path. Fresh inspected media and source-bound reports await controller publication/CI. City/maximum/Main-paging/GPU/32-client qualification remains gated.",
-      "updatedAt": "2026-11-20T09:24:36+00:00"
+      "note": "Packed world-cell quarter turns now use bounded primitive scratch and private wire buffers; placement retains packed cells for all four turns. Passed 454 Java tests/96 suites, 39 Python checks, package/MP3, full Main workflow (541.644 s) and replay/save/render validation. Nonzero allocation fell; one sparse p95 increased. Fresh inspected media and source-bound reports await controller publication/CI. Main paging, city/maximum, physical-GPU and 32-client qualification remain pending.",
+      "updatedAt": "2026-11-20T10:09:00+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
