@@ -22,6 +22,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private GLFWKeyCallback keys;
     private long window, since, previous;
     private int stage;
+    private boolean cedar;
 
     private BuildingPreviewWindowsPlaytest(Path output) { this.output=output; }
 
@@ -29,16 +30,18 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         Path output=Files.createDirectories(Path.of(args[1]).toAbsolutePath());
         System.setProperty("user.home",Files.createDirectory(output.resolve("profile")).toString());
         var game=new Main();
-        field("buildingPreview").set(game,BuildingCompiler.compile(BuildingApi.readRecipe(Path.of(args[0]))));
+        var building=BuildingCompiler.compile(BuildingApi.readRecipe(Path.of(args[0])));
+        field("buildingPreview").set(game,building);
         field("offlineSave").set(game,output.resolve("unused.dat"));
         field("gameConfig").set(game,new GameConfig(false,false,1200,16));
         field("renderOnlyReplay").setBoolean(game,true);
         var probe=new BuildingPreviewWindowsPlaytest(output);
+        probe.cedar=building.name().equals("cedar-court-entry");
         game.run(probe);
         if (probe.stage!=2 || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview walk did not finish or wrote a world save");
         Files.writeString(output.resolve("results.txt"),
-                "PASS: Windows client rendered the compiled hotel, walked from the forecourt through the entrance into the lobby, and left the inspection plot unsaved.\n");
+                "PASS: Windows client rendered the compiled building, walked through its entrance, and left the inspection plot unsaved.\n");
     }
 
     @Override public void started(Main game) throws Exception {
@@ -49,7 +52,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        place(game,13,33.04f,-25,90,15);
+        if (cedar) place(game,5,33.04f,-8,90,9);
+        else place(game,13,33.04f,-25,90,15);
         since=previous=System.nanoTime();
     }
 
@@ -57,23 +61,24 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
-        if (stage==1 && player.position().z<8)
+        if (stage==1 && player.position().z<(cedar ? 4.5f : 8))
             player.step(world,dt,1,0,false,true);
     }
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
         if (stage==0 && elapsed>2_400_000_000L) {
-            capture(game,"breakwater-exterior.png");
-            place(game,17,33.04f,-8,90,-6);
+            capture(game,cedar ? "cedar-exterior.png" : "breakwater-exterior.png");
+            if (cedar) place(game,5,33.04f,-5,90,-6);
+            else place(game,17,33.04f,-8,90,-6);
             pressRecord();
             since=previous=System.nanoTime();
             stage=1;
         } else if (stage==1) {
             if (elapsed>16_000_000_000L) throw new AssertionError("Could not walk through entrance at "+player.position());
-            if (player.position().z>=8 && elapsed>2_000_000_000L) {
+            if (player.position().z>=(cedar ? 4.5f : 8) && elapsed>2_000_000_000L) {
                 if (player.collides(world)) throw new AssertionError("Lobby is obstructed");
-                capture(game,"breakwater-lobby.png");
+                capture(game,cedar ? "cedar-interior.png" : "breakwater-lobby.png");
                 pressRecord();
                 stage=2;
                 glfwSetWindowShouldClose(window,true);

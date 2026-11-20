@@ -44,3 +44,29 @@ end
 ```
 
 Commands are `building ID WIDTH HEIGHT DEPTH`, `part ID X0 Y0 Z0 X1 Y1 Z1`, `box MATERIAL X0 Y0 Z0 X1 Y1 Z1`, `cylinder MATERIAL AXIS X0 Y0 Z0 X1 Y1 Z1` and `end`. The cylinder sweeps an ellipse along X, Y or Z. Materials include AIR, GRASS, DIRT, STONE, SAND, SNOW, WOOD, LEAVES, PLANKS, BRICKS, GLASS and colored `LED:rrggbb`. See the schema endpoint for exact limits and field order.
+
+
+## Full octree detail
+
+Append `grid16` to the building header to use integer coordinates measured in sixteenths of a game block. Keep the same commands and half-open part bounds. Whole-block massing and fine cuts can live side by side in one part.
+
+```text
+building detail-demo 160 108 112 grid16
+part sidelights 32 13 47 58 76 53
+box WOOD 32 13 47 58 76 53
+box AIR 34 23 47 56 69 53
+box GLASS 34 23 49 56 69 50
+box WOOD 44 23 47 45 69 49
+end
+```
+
+The compiler paints sparse engine octrees in bounded tiles. Uniform regions merge automatically, and the output uses the largest matching native cube at each position, from whole blocks to 1/16-block details. The largest envelope is 64 game blocks per axis. A separate fine-work budget limits expensive unaligned geometry. The schema endpoint reports the limits.
+
+The opt-in JSON result has `schemaVersion: 2`, `unitsPerBlock: 16`, and an `editsByDepth` array ordered from whole blocks to sixteenths. Dimensions and `occupied` are in recipe units. Existing half-block recipes still return v1 JSON and the same canonical edit stream.
+
+**Cedar Court Entry** is an original detail study informed by the Gamble House in Pasadena. The [Historic American Buildings Survey](https://www.loc.gov/resource/hhh.ca0279.sheet?st=gallery) lists 11 measured drawings. The [Gamble House Conservancy research guide](https://gamblehouse.org/learn/) identifies floor plans, elevations, and a site plan. Its [joinery notes](https://gamblehouse.org/design-without-compromise/) document proud pegs, inlay, and stepped wood profiles. The sample uses deep eaves, layered brackets, round pegs, narrow glazing bars, and patterned flooring to exercise all five edit depths. The colored points behind the sidelights use the engine's LED material.
+
+```powershell
+java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-compile assets/buildings/cedar-court-entry.vbuild
+java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/buildings/cedar-court-entry.vbuild
+```

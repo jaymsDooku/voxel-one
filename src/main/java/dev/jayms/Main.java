@@ -411,7 +411,7 @@ public class Main {
         for (var e : network == null ? local.edits.values() : network.initialEdits) world.apply(e);
         Protocol.Pose spawn =
                 buildingPreview != null
-                        ? new Protocol.Pose(0, buildingPreview.width()/4f, PREVIEW_GRADE+1.01f, -14, 90, 0)
+                        ? new Protocol.Pose(0, buildingPreview.width()/(2f*buildingPreview.unitsPerBlock()), PREVIEW_GRADE+1.01f, -14, 90, 0)
                 : network == null
                         ? new Protocol.Pose(
                                 0,
@@ -508,7 +508,8 @@ public class Main {
 
     private void prepareBuildingPlot() throws Exception {
         world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(PREVIEW_GRADE));
-        int width = (buildingPreview.width()+1)/2, depth = (buildingPreview.depth()+1)/2;
+        int grid = buildingPreview.unitsPerBlock();
+        int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
         // Prepare the bounded asset footprint before the preview camera opens.
         world.stream(width*.5f,depth*.5f,25);
         for (int z=-19; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {

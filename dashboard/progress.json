@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T10:53:05+00:00",
+  "updatedAt": "2026-11-20T11:10:49+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,15 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "voxel-building-octree-v2",
+      "title": "Full octree resolution for building recipes",
+      "description": "Selected the measured Gamble House archive as a detail reference. Added a fine grid format, sparse octree composition, and an original modeled entryway.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Implemented and verified locally. 41 targeted passes and one optional browser test skipped. Cedar Court uses all five edit depths; Breakwater v1 export is byte-identical. Windows preview and 27-frame F10 evidence verified. Review handoff remains local because GitHub write authentication is unavailable.",
+      "updatedAt": "2026-11-20T11:10:49+00:00"
+    },
     {
       "id": "voxel-building-creator-api",
       "title": "Agentic voxel building creator API",

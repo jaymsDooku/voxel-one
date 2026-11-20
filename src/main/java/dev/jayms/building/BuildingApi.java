@@ -22,6 +22,15 @@ public final class BuildingApi {
               "contentType": "text/plain; charset=utf-8",
               "maxRecipeBytes": %d,
               "units": "half blocks",
+              "grid16": {
+                "schemaVersion": 2,
+                "header": "building ID WIDTH HEIGHT DEPTH grid16",
+                "unitsPerBlock": %d,
+                "maxAxis": %d,
+                "maxOctreeWork": %d,
+                "editDepths": [0, 1, 2, 3, 4],
+                "occupied": "Count in sixteenth-block cells"
+              },
               "maxAxis": %d,
               "maxVolume": %d,
               "maxLineCharacters": %d,
@@ -32,7 +41,7 @@ public final class BuildingApi {
               "comments": "Blank lines and # comments are ignored.",
               "ordering": "Parts and operations are applied in source order; later operations replace earlier voxels.",
               "commands": [
-                "building ID WIDTH HEIGHT DEPTH",
+                "building ID WIDTH HEIGHT DEPTH [grid16]",
                 "part ID X0 Y0 Z0 X1 Y1 Z1",
                 "box MATERIAL X0 Y0 Z0 X1 Y1 Z1",
                 "cylinder MATERIAL AXIS X0 Y0 Z0 X1 Y1 Z1",
@@ -42,7 +51,8 @@ public final class BuildingApi {
               "materials": ["AIR", "GRASS", "DIRT", "STONE", "SAND", "SNOW", "WOOD", "LEAVES", "PLANKS", "BRICKS", "GLASS", "LED:rrggbb"],
               "editFields": ["x", "y", "z", "type", "depth", "ix", "iy", "iz", "color"]
             }
-            """.formatted(MAX_RECIPE_BYTES,BuildingCompiler.MAX_DIMENSION,BuildingCompiler.MAX_VOLUME,
+            """.formatted(MAX_RECIPE_BYTES,BuildingCompiler.FINE_UNITS_PER_BLOCK,BuildingCompiler.MAX_FINE_DIMENSION,
+                    BuildingCompiler.MAX_OCTREE_WORK,BuildingCompiler.MAX_DIMENSION,BuildingCompiler.MAX_VOLUME,
                     BuildingCompiler.MAX_LINE_CHARS,BuildingCompiler.MAX_OPERATIONS,
                     BuildingCompiler.MAX_WORK,BuildingCompiler.MAX_EDITS);
 
@@ -71,11 +81,18 @@ public final class BuildingApi {
     /** Writes rows incrementally. The caller retains ownership of the output stream. */
     public static void writeJson(BuildingCompiler.Building building, OutputStream output) throws IOException {
         var writer = new BufferedWriter(new OutputStreamWriter(output,StandardCharsets.UTF_8));
-        writer.write("{\"schemaVersion\":1,\"name\":" + Json.write(building.name())
+        boolean fine = building.unitsPerBlock() == BuildingCompiler.FINE_UNITS_PER_BLOCK;
+        writer.write("{\"schemaVersion\":" + (fine ? 2 : 1) + ",\"name\":" + Json.write(building.name())
                 + ",\"dimensions\":{\"width\":" + building.width() + ",\"height\":"
                 + building.height() + ",\"depth\":" + building.depth() + "},\"occupied\":"
-                + building.occupied() + ",\"editCount\":" + building.edits().size()
-                + ",\"editFields\":[\"x\",\"y\",\"z\",\"type\",\"depth\",\"ix\",\"iy\",\"iz\",\"color\"],\"edits\":[");
+                + building.occupied() + ",\"editCount\":" + building.edits().size());
+        if (fine) {
+            int[] editsByDepth = new int[5];
+            for (var edit : building.edits()) editsByDepth[edit.depth()]++;
+            writer.write(",\"unitsPerBlock\":" + building.unitsPerBlock()
+                    + ",\"editsByDepth\":" + java.util.Arrays.toString(editsByDepth));
+        }
+        writer.write(",\"editFields\":[\"x\",\"y\",\"z\",\"type\",\"depth\",\"ix\",\"iy\",\"iz\",\"color\"],\"edits\":[");
         boolean first = true;
         for (var edit : building.edits()) {
             if (!first) writer.write(',');

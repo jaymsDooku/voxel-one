@@ -56,6 +56,23 @@ class BuildingApiIntegrationTest {
         }
     }
 
+    @Test void fineRecipesReturnTheSameVersionedMetadataOverHttpAndCli(@TempDir Path directory) throws Exception {
+        String source = RECIPE.replace("building lamp 4 4 4", "building lamp 4 4 4 grid16");
+        Path file = Files.writeString(directory.resolve("fine.vbuild"),source);
+        var cli = new ByteArrayOutputStream();
+        BuildingApi.run(new String[]{file.toString()},cli);
+        try (var server = new AssetManagerServer(directory)) {
+            var response = post(HttpClient.newHttpClient(),server,source.getBytes(StandardCharsets.UTF_8));
+            assertEquals(200,response.statusCode());
+            assertEquals(cli.toString(StandardCharsets.UTF_8),response.body());
+            var result = Json.object(response.body());
+            assertEquals(2,Json.integer(result,"schemaVersion"));
+            assertEquals(16,Json.integer(result,"unitsPerBlock"));
+            assertEquals(9,Json.integer(result,"occupied"));
+            assertTrue(response.body().contains("[0, 0, 0, 1, 1]"));
+        }
+    }
+
     @Test void rejectsMalformedAndOversizedRecipesBeforeEmittingEdits(@TempDir Path directory) throws Exception {
         try (var server = new AssetManagerServer(directory)) {
             var client = HttpClient.newHttpClient();
