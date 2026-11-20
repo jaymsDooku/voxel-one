@@ -89,11 +89,11 @@ class NativeDeadlineTests(unittest.TestCase):
         for line in live:self.assertEqual(diagnostics.diagnostic_line(line,ROOT)['text'],line)
 
     def test_video_window_is_bound_to_passing_offline_case_and_numeric_only(self):
-        name='testNativeDistantLandscapeGraphicsMemoryAndReach'
+        name='testNativeWorldTimeCycleFreezeAndPersistence'
         timing=self.log.parent/'timing.json'
         start="Test Case '-[VoxelOneUITests.NativeWorkflowTests "+name+"]' started."
         passed=start.replace('started.','passed.')
-        code='import time;print('+repr(start)+',flush=True);print("native_workflow_checkpoint code=distant_ready",flush=True);print("private-fixture-marker",flush=True);time.sleep(1.2);print('+repr(passed)+',flush=True)'
+        code='import time;print('+repr(start)+',flush=True);print("native_workflow_checkpoint code=clock_ready",flush=True);print("private-fixture-marker",flush=True);time.sleep(1.2);print('+repr(passed)+',flush=True)'
         self.assertEqual(runner.run([sys.executable,'-c',code],self.log,5,{name},video_timing=timing),0)
         data=json.loads(timing.read_text())
         self.assertEqual(set(data),{'offsetSeconds','durationSeconds'})
@@ -106,12 +106,12 @@ class NativeDeadlineTests(unittest.TestCase):
         self.assertFalse(timing.exists())
 
     def test_video_window_rejects_wrong_test_class_and_unfinished_case(self):
-        name='testNativeDistantLandscapeGraphicsMemoryAndReach'
+        name='testNativeWorldTimeCycleFreezeAndPersistence'
         timing=self.log.parent/'timing.json'
         for kind,close,ready in [('WorldRulesTests',True,True),('NativeWorkflowTests',False,True),('NativeWorkflowTests',True,False)]:
             start="Test Case '-[VoxelOneUITests."+kind+' '+name+"]' started."
             code='import time;print('+repr(start)+',flush=True)'
-            if ready:code+=';print("native_workflow_checkpoint code=distant_ready",flush=True)'
+            if ready:code+=';print("native_workflow_checkpoint code=clock_ready",flush=True)'
             code+=';time.sleep(1.2)'
             if close:code+=';print('+repr(start.replace('started.','passed.'))+',flush=True)'
             self.assertEqual(runner.run([sys.executable,'-c',code],self.log,5,{name},video_timing=timing),0)

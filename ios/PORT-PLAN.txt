@@ -1,9 +1,8 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913
-passed all40 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-Distant runs989ec634 and ea7debd0 timed out. Public opt-in control and explicit
-enabled-feature capture require a fresh43-case run.
+Status: implementation in progress. Exact source a77e0e4b7bb70e5c59b5d62d2add0abdc7160934
+passed all43 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
+Current saved offline world time and fallback daylight require a45-case Mac run.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -15,10 +14,10 @@ Schema2 shares material/model/fractional definitions; schema1 remains readable.
 Current compatibility matrix
 Capability                 Desktop / source                 Native status
 Terrain                    net/Terrain.java, Geography.java Exact seed/version1-3 golden
-                                                            samples/window passed ea0a95ab
-Streaming / distance       TerrainScheduler, DistantTerrain Moving49x49 window and durable
-                                                            edit journal passed ea0a95ab;
-                                                            new bounded far surface pending
+                                                            samples/window passed a77e0e4b
+Streaming / distance       TerrainScheduler, DistantTerrain Moving49x49 window, durable
+                                                            journal and opt-in far preview
+                                                            passed a77e0e4b
 Fractional / models        net/WorldVoxels.java             Exact schema2 leaves/models;
                                                             edits/render/collision passed
 Collision / pick           player/Player.java, Camera.java  AABB and exact leaf ray;
@@ -28,7 +27,8 @@ Inventory / crafting       net/Crafting.java                9 hotbar,36 bag,104 
 City                       existing Java CityFrame          Native planning/roads/zones;
                                                             synthetic gateway regression passed
                                                             specialized UI still missing
-Sky / graphics             atmosphere contract              Native opt-in sky, presets;
+Sky / graphics             atmosphere contract              Native opt-in sky/presets passed;
+                                                            new clock/daylight pending;
                                                             device budgets unmeasured
 Persistence                desktop engine saves             Separate atomic JSON save;
                                                             bounded save/load queues passed;
@@ -37,8 +37,8 @@ Network                    pinned Java server transport     Native HTTPS gateway
                                                             synthetic auth/edit tests passed;
                                                             live VPS path unqualified
 
-Passed refers only to the40-case ea0a95ab developer Simulator run. It does not
-qualify current distant surfaces, independent review, physical device or signing.
+Passed refers only to the43-case a77e0e4b developer Simulator run. It does not
+qualify new world time, independent review, physical device or signing.
 
 This slice
 Jump begins on touch-down and repeats while held. Release, drag exit, touch
@@ -1247,3 +1247,61 @@ release behavior and enabled-feature media need a fresh exact-source Mac run.
 No physical-device or full-port completion claim follows these local checks.
 No file deletions are intended. The automatic far-radius decision is replaced by
 a saved public graphics choice, with the same enabled distant implementation.
+
+
+Rebased43-case pass and native world-time increment
+Exact source a77e0e4b7bb70e5c59b5d62d2add0abdc7160934 passed all43 required
+native cases after integration of review base30a0687254a6afd731686402823952599d798a69.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44676749164
+Verified exact source, passed/clientChecked,43 passed statuses and media hashes.
+Trusted verifier used master30a06872, containing independently reviewed8a53afce.
+Actual client screenshot shows the native flower-pot model and touch HUD. Video
+was decoded and sampled every4 seconds: Graphics controls, native gameplay and
+cold reload. Measured360x640,39.15 seconds,4988177 bytes. Its presentation rate is
+not game FPS. The clip mostly shows controls/flat starting terrain; it is not
+broad landscape-parity or physical-performance proof. Evidence copied under
+ios-port-a77e0e4b-*; publication pending. No signing/install/live VPS claim.
+
+New optional worldTime metadata records version1, day1..1,000,000,000, hour0..<24,
+daySeconds60..86400 and cycling. Fresh Sandbox defaults match Java
+GameConfig.sandbox(): fixed10:00 and1200 seconds/day. Time -> Run day/night
+advances only active foreground offline play; Freeze time stops it. Presets
+Dawn06:00, Daylight10:00, Sunset18:00 and Midnight00:00 freeze at that hour.
+Time settings, pause, background and menus stop advancement. A frame gap advances
+at most1 second; there is no background wall-clock catch-up. Day overflow freezes
+safely at the supported limit. Existing nil-clock saves keep their original sun
+until the user configures Time. Period labels describe native light phases, not
+City economic schedules. Online time/sun remain authoritative gateway state;
+Time controls are hidden online and local advancement is never applied there.
+
+The existing atomic COW save includes the clock. Clock/sun consistency is
+validated; malformed metadata cannot replace a good save. Terrain result install
+preserves the current clock. Time and light changes never bump geometryRevision
+or regenerate near/far meshes. HUD shows the light period rather than a constantly
+changing digital clock; exact HH:MM is available in the paused Time sheet.
+
+Sun direction uses the same normalized hour vector as MobileSnapshot. Java now
+exports six clock vectors in the existing golden fixture, including its actual
+Sandbox snapshot sun. Native tests compare those values instead of copying the
+formula into assertions. Java capture uses the same extracted helper, preserving
+its existing sun calculation. Basic SceneKit directional/ambient/sky colors now
+follow sun height without requiring planetary scattering. Artistic night ambient
+keeps play possible; these intensities are not photometry. The low-poly solar
+sphere draws as background at a distance within the current camera clip range;
+opaque world geometry covers it. Opt-in planetary scattering remains available
+with its existing qualification limits. No device frame/memory claim is made.
+
+All45 cases are required: all prior43 plus clock validation/cycling/overflow,
+Java sun parity, legacy/save consistency, stale-region preservation, and native
+Night -> movement -> save/terminate/relaunch -> Daylight -> cycle/freeze/cancel ->
+pause/background recovery. Video targets that passing prepared-world workflow
+through a fixed clock_ready checkpoint. Same40-second/640x480/<6MB gates and
+900/1200-second budgets remain. Current Swift code and media are unexecuted on
+Mac. Linux validation:87 harness tests and14 focused Java tests passed; fixture
+regeneration, project generation, Python/shell syntax and diff checks passed.
+Playtest: prior43-case native run inspected; new clock/daylight workflow awaits
+fresh exact-source Mac execution and actual night/day media inspection.
+No file deletions are intended. Fixed fallback illumination is replaced by
+sun-aware lighting; Java sun math is factored into the shared fixture helper.
+Remaining full engine parity, another Simulator size, live VPS, signed delivery,
+physical iPhone qualification and independent review remain open.

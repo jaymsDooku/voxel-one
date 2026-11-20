@@ -144,6 +144,7 @@ struct Snapshot: Codable, Sendable {
     var generatorVersion:Int? = nil
     var terrainEdits:[NativeTerrainEdit]? = nil
     var atmosphere: AtmosphereProfile? = nil; var sun: [Double]? = nil
+    var worldTime:NativeWorldTime? = nil
     private func validInventoryEntry(_ entry:[Int])->Bool {
         guard entry.count==2,(0...198).contains(entry[0]),entry[1]>=0,(entry[0]==0)==(entry[1]==0) else{return false}
         let definition=contract?.items?.first{$0.id==entry[0]}
@@ -151,6 +152,7 @@ struct Snapshot: Codable, Sendable {
         return entry[1]<=(definition?.stackLimit ?? 64)
     }
     func validate() throws {
+        if let time=worldTime {guard game=="sandbox" else{throw GameError.invalidWorld};try time.validate()}
         if let version=generatorVersion {guard (1...NativeTerrain.currentVersion).contains(version),Int64(seed) != nil else {throw GameError.invalidWorld}}
         try contract?.validate()
         if let edits=terrainEdits {
@@ -170,6 +172,9 @@ struct Snapshot: Codable, Sendable {
         }
         try atmosphere?.validate()
         if let sun=sun {guard sun.count==3,sun.allSatisfy({$0.isFinite}),abs(sqrt(sun.reduce(0){$0+$1*$1})-1)<0.001 else {throw GameError.invalidWorld}}
+        if let time=worldTime {
+            guard let sun=sun,zip(sun,time.sun).allSatisfy({abs($0.0-$0.1)<0.000001}) else {throw GameError.invalidWorld}
+        }
         guard [1,2].contains(schema), ["sandbox","city"].contains(game), bounds.count==6, pose.count==5,
               pose.allSatisfy({$0.isFinite}), bounds.allSatisfy({abs(Double($0))<=1_000_100}), (game=="city")==((city != nil)), abs(pose[0])<=1_000_000, abs(pose[1])<=1_000_000, abs(pose[2])<=1_000_000,
               bounds[0]<=bounds[1], bounds[2]<=bounds[3], bounds[4]<=bounds[5],
@@ -323,6 +328,14 @@ final class VoxelWorld {
     var verticalSpeed: Float=0; var grounded=false
     var slot=0; var revision=0;private(set) var geometryRevision=0
     var streamsTerrain:Bool {snapshot.game=="sandbox" && snapshot.generatorVersion != nil && snapshot.terrainEdits != nil}
+    func advanceTime(seconds:Double){
+        guard var time=snapshot.worldTime,time.cycling else{return}
+        time.advance(seconds:seconds);snapshot.worldTime=time;snapshot.sun=time.sun
+    }
+    func setTime(_ time:NativeWorldTime)throws {
+        try time.validate();guard snapshot.game=="sandbox" else{throw GameError.invalidWorld}
+        snapshot.worldTime=time;snapshot.sun=time.sun;revision+=1
+    }
     init(_ snapshot: Snapshot) throws { self.snapshot=snapshot; try replace(snapshot,resetPose:true) }
     func replace(_ value: Snapshot, resetPose: Bool=false) throws {
         try value.validate();let oldTypes=types,oldColors=colors,oldShapes=shapes;snapshot=value
@@ -784,6 +797,7 @@ final class OfflineSave {
         let generated=try generator.window(cx:0,cz:0,eyeY:eyeY,radius:24,colors:colors)
         value.seed=String(seed);value.generatorVersion=NativeTerrain.currentVersion;value.terrainEdits=[];value.bounds=generated.bounds;value.cells=generated.cells
         value.pose=[0.5,Float(eyeY),0.5,0,0]
+        value.worldTime=NativeWorldTime();value.sun=value.worldTime!.sun
         value.inventory[5]=[8,2];value.inventory[6]=[141,8]
         try value.validate();return value
     }

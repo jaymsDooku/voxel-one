@@ -346,3 +346,23 @@ and disabling. The video window begins at the prepared-world checkpoint in that
 passing case, not at a menu. Missing checkpoint or incomplete case fails media
 qualification. Source ea7debd0 timed out with only partial progress; this control
 and capture change need a new exact-source Mac run and actual media inspection.
+
+
+Saved world time and daylight (new source; native validation pending)
+Rebased source a77e0e4b passed all43 native cases. Its actual360x640/39.15-second
+video was inspected; this does not prove physical-device performance or signing.
+
+Offline Sandbox now has Time controls. Run day/night advances while actively
+playing; Freeze time and Dawn/Daylight/Sunset/Midnight presets hold the chosen
+hour. New worlds match desktop Sandbox's fixed10:00/1200-second-day defaults.
+Older saves keep their existing light until Time is configured. Pause, settings,
+background and menus do not advance time; stalled frames never catch up more
+than1 second. The optional version1 clock is saved atomically with the world.
+Clock changes update light, not geometry; online time stays owned by the server.
+
+Basic directional/ambient/sky lighting reflects day and night without enabling
+planetary scattering. Night keeps an artistic ambient floor for playability;
+physical lighting/GPU budgets remain unmeasured. The sun vector matches six
+Java-generated values in terrain-fixtures.json. This is not full desktop lighting
+or City schedule parity. All45 native cases and new actual night/day media need
+a fresh controller Mac run before this increment is qualified.

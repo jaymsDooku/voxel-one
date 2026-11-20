@@ -13,7 +13,7 @@ import time
 import uuid
 
 TAIL_BYTES = 65536
-_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart", "distant_ready"}
+_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart", "distant_ready", "clock_ready"}
 _CHECKPOINT = re.compile(r"(?:error: )?native_workflow_checkpoint code=([a-z_]{1,32})$")
 _ISSUE = re.compile(r"native_workflow_issue source=((?:NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift) line=([0-9]{1,5}) code=(assertion|execution)$")
 _TEST = re.compile(
@@ -83,9 +83,9 @@ class TestProgress:
                                 with self.lock:
                                     self.checkpoints.add(checkpoint[1])
                                     self.last_checkpoint = checkpoint[1]
-                                    if (checkpoint[1] == 'distant_ready' and
+                                    if (checkpoint[1] == 'clock_ready' and
                                             self.active_class == 'NativeWorkflowTests' and
-                                            self.active == 'testNativeDistantLandscapeGraphicsMemoryAndReach' and
+                                            self.active == 'testNativeWorldTimeCycleFreezeAndPersistence' and
                                             self.video_started is None):
                                         self.video_started = time.monotonic()
                             issue=_ISSUE.search(line)
@@ -99,7 +99,7 @@ class TestProgress:
                                 with self.lock:
                                     self.states[name] = state
                                     now = time.monotonic()
-                                    if match[1] == 'NativeWorkflowTests' and name == 'testNativeDistantLandscapeGraphicsMemoryAndReach':
+                                    if match[1] == 'NativeWorkflowTests' and name == 'testNativeWorldTimeCycleFreezeAndPersistence':
                                         if state == 'started':
                                             self.video_started = None
                                             self.video_ended = None

@@ -149,7 +149,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let toolbar=row([menuButton,pause,plan,button("Bag","inventoryButton",#selector(inventory)),sky])
         let fly=button("Fly","flyButton",#selector(toggleFly));flyButton=fly;fly.isHidden=gateway != nil
         let camera=button("Camera","cameraButton",#selector(chooseCamera));cameraButton=camera;camera.isHidden=world?.snapshot.city != nil
-        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly,camera])
+        let time=button("Time","worldTimeButton",#selector(worldTime));time.isHidden=gateway != nil
+        let graphicsToolbar=row([button("Graphics","graphicsButton",#selector(openGraphics)),button("Craft","craftButton",#selector(crafting)),fly,camera,time])
         let t=UIStackView(arrangedSubviews:[toolbar,graphicsToolbar,cityLabel,status,positionLabel]);t.axis = .vertical;t.spacing=2;top=t;overlay(t,atTop:true)
         crosshair=label("+",size:26);crosshair.textAlignment = .center;crosshair.translatesAutoresizingMaskIntoConstraints=false;view.addSubview(crosshair)
         NSLayoutConstraint.activate([crosshair.centerXAnchor.constraint(equalTo:view.centerXAnchor),crosshair.centerYAnchor.constraint(equalTo:view.centerYAnchor)])
@@ -220,6 +221,26 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         present(screen,animated:true)
     }
     @objc private func toggleAtmosphere(_ sender:UIButton){var p=renderer.graphics;p.atmosphere = !renderer.atmospherePreview;p.preset="Custom";do{try p.save();renderer.applyGraphics(p)}catch{notify("Could not save graphics. Kept the current sky.");return};sender.accessibilityValue=renderer.atmospherePreview ? "On":"Off";if let world=world {renderer.rebuild(world);renderer.updateCamera(world)};notify(renderer.atmospherePreview ? "Planet sky preview on (low quality).":"Planet sky preview off.")}
+    @objc private func worldTime(){
+        guard gateway==nil,!closingMenu,let world=world else{return}
+        movement.removeAll();graphicsOpen=true
+        let current=world.snapshot.worldTime ?? NativeWorldTime.preserving(world.snapshot.sun),id=sessionID
+        let sheet=UIAlertController(title:current.label,message:current.cycling ? "Day/night runs while you play.":"Time is frozen. Day/night can run while you play.",preferredStyle:.actionSheet)
+        func choose(_ title:String,_ value:NativeWorldTime){
+            sheet.addAction(UIAlertAction(title:title,style:.default){[weak self,weak world] _ in
+                guard let self=self else{return};self.graphicsOpen=false;self.lastTime=0
+                guard let world=world,self.sessionID==id,self.gateway==nil else{return}
+                do {try world.setTime(value);self.renderer.updateCamera(world);self.saveOffline();self.notify("World time: \(value.label) · \(value.cycling ? "Cycling":"Frozen").");self.refreshHUD()}
+                catch{self.notify("Could not change world time.")}
+            })
+        }
+        var toggled=current;toggled.cycling.toggle();choose(current.cycling ? "Freeze time":"Run day/night",toggled)
+        for (title,hour) in [("Dawn (06:00)",6.0),("Daylight (10:00)",10.0),("Sunset (18:00)",18.0),("Midnight (00:00)",0.0)] {
+            var value=current;value.hour=hour;value.cycling=false;choose(title,value)
+        }
+        sheet.addAction(UIAlertAction(title:"Cancel",style:.cancel){[weak self] _ in self?.graphicsOpen=false;self?.lastTime=0})
+        anchor(sheet);present(sheet,animated:true)
+    }
     @objc private func chooseTool(){
         let alert=UIAlertController(title:"City tool",message:"Tap ground to choose points. Roads need two points; zones need at least three. The server checks cost and space.",preferredStyle:.actionSheet)
         for (index,title) in ["Inspect","Dirt road","Residential","Commercial","Industrial","Agricultural"].enumerated(){alert.addAction(UIAlertAction(title:title,style:.default){[weak self] _ in self?.tool=index;self?.points.removeAll();self?.notify("\(title) selected.")})}
@@ -372,6 +393,7 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         #endif
         let dt=lastTime==0 ? Float(1.0/30):Float(link.timestamp-lastTime);lastTime=link.timestamp
         if !paused && !graphicsOpen && !renderer.planning {
+            if gateway==nil {world.advanceTime(seconds:Double(dt))}
             let forward:Float=(movement.contains("moveForward") ? 1:0)-(movement.contains("moveBack") ? 1:0)
             let side:Float=(movement.contains("moveRight") ? 1:0)-(movement.contains("moveLeft") ? 1:0)
             if movement.contains("jumpButton") {jump()}
@@ -426,7 +448,8 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
         let statusText=paused || messagePinned || CACurrentMediaTime()-messageTime<7 ? message:defaultStatus
         let positionText=String(format:"Position %.1f, %.1f, %.1f · Aim %.2f, %.2f",world.position.x,world.position.y,world.position.z,world.yaw,world.pitch)+(world.flying ? " · Flying":world.grounded ? " · Ground":" · Air")
         let localDescription=gateway != nil ? "Sandbox · Seed \(world.snapshot.seed)":world.streamsTerrain ? "Seed \(world.snapshot.seed) · Sandbox · \(world.snapshot.terrainEdits?.count ?? 0)/8192 edited cells":"Local Sandbox · edits save on this phone"
-        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? localDescription
+        let clock=world.snapshot.worldTime.map{" · Day \($0.day) · \($0.period)"} ?? ""
+        let cityText=world.snapshot.city.map{String(format:"%@ · $%.0f · %d roads · %d zones",$0.time,$0.treasury,$0.roads.count,$0.zones)} ?? localDescription+clock
         craftingScreen?.update(inventory:world.snapshot.inventory,message:statusText,pending:busy || craftSaving || paused || !active)
         applyHUDLayout(view.bounds.size)
         let next=HUDState(status:statusText,position:positionText,city:cityText,inventory:world.snapshot.inventory,slot:world.slot,revision:world.revision,planning:renderer.planning,paused:paused,flying:world.flying,camera:renderer.sandboxCamera.title,depth:breakDepth,size:view.bounds.size)

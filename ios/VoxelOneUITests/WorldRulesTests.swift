@@ -24,6 +24,44 @@ private final class SaveWorkerProbe:@unchecked Sendable {
 }
 
 final class WorldRulesTests:NativeEvidenceTestCase {
+    func testWorldTimeValidationCycleLightingAndPersistence()throws {
+        let fixed=NativeWorldTime();try fixed.validate();XCTAssertEqual(fixed.hour,10);XCTAssertEqual(fixed.daySeconds,1200);XCTAssertFalse(fixed.cycling)
+        var clock=fixed;clock.advance(seconds:1);XCTAssertEqual(clock,fixed)
+        clock.hour=23.9;clock.daySeconds=60;clock.cycling=true;clock.advance(seconds:1)
+        XCTAssertEqual(clock.day,2);XCTAssertEqual(clock.hour,0.3,accuracy:0.000001)
+        let after=clock;clock.advance(seconds:Double.nan);clock.advance(seconds:-1);XCTAssertEqual(clock,after)
+        clock.advance(seconds:3600);XCTAssertEqual(clock.hour,0.7,accuracy:0.000001,"Background/stall gaps never catch up hours")
+        clock.day=1_000_000_000;clock.hour=23.9;clock.advance(seconds:1);XCTAssertFalse(clock.cycling);try clock.validate()
+        var invalid=fixed;invalid.version=2;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.hour=24;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.day=0;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.daySeconds=59;XCTAssertThrowsError(try invalid.validate())
+        invalid=fixed;invalid.hour=Double.infinity;XCTAssertThrowsError(try invalid.validate())
+        struct ClockCase:Decodable {var hour:Double;var sun:[Double]}
+        struct ClockFixture:Decodable {var clock:[ClockCase]}
+        let url=try XCTUnwrap(Bundle(for:WorldRulesTests.self).url(forResource:"terrain-fixtures",withExtension:"json"))
+        let fixture=try JSONDecoder().decode(ClockFixture.self,from:Data(contentsOf:url));XCTAssertEqual(fixture.clock.count,6)
+        for sample in fixture.clock {
+            var time=fixed;time.hour=sample.hour
+            for axis in 0..<3 {XCTAssertEqual(time.sun[axis],sample.sun[axis],accuracy:1e-12,"Native light must match the Java gateway fixture")}
+            XCTAssertEqual(NativeWorldTime.preserving(time.sun).hour,sample.hour,accuracy:1e-10)
+        }
+        let night=NativeDaylight(height:-1),day=NativeDaylight(height:1)
+        XCTAssertEqual(night.direct,0);XCTAssertEqual(night.ambient,75);XCTAssertEqual(day.direct,950);XCTAssertEqual(day.ambient,650)
+        XCTAssertLessThan(night.sky.reduce(0,+),day.sky.reduce(0,+))
+        XCTAssertTrue(NativeDaylight(height:Double.nan).sky.allSatisfy{$0.isFinite})
+        let world=try VoxelWorld(terrainFixture()),geometry=world.geometryRevision
+        XCTAssertNil(world.snapshot.worldTime,"Legacy saves do not acquire a new clock implicitly")
+        var selected=fixed;selected.hour=0;try world.setTime(selected)
+        XCTAssertEqual(world.geometryRevision,geometry,"Lighting changes never remesh terrain")
+        let restored=try VoxelWorld(JSONDecoder().decode(Snapshot.self,from:JSONEncoder().encode(world.savedSnapshot())))
+        XCTAssertEqual(restored.snapshot.worldTime,selected);XCTAssertEqual(restored.snapshot.sun,selected.sun)
+        selected.cycling=true;try world.setTime(selected)
+        let region=try NativeTerrainRegion.build(world.savePayload(),target:NativeTerrainTarget(x:8,y:27,z:0))
+        world.advanceTime(seconds:1);let live=world.snapshot.worldTime
+        XCTAssertTrue(world.installTerrain(region,expectedGeometryRevision:geometry));XCTAssertEqual(world.snapshot.worldTime,live,"Stale region preparation cannot rewind time")
+        var mismatch=world.savedSnapshot();mismatch.sun=fixed.sun;XCTAssertThrowsError(try mismatch.validate())
+    }
     func testDistantCacheReusesNearEditsInvalidatesAndEvicts()throws {
         let world=try VoxelWorld(terrainFixture()),cache=NativeDistantCache()
         let started=ProcessInfo.processInfo.systemUptime

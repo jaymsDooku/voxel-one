@@ -36,7 +36,9 @@ public final class NativeTerrainFixtures {
         var snapshot=MobileSnapshot.capture(new WorldVoxels(terrain),terrain,pose,new Inventory(),20,CityFrame.empty(GameConfig.sandbox()),"",24);
         var digest=MessageDigest.getInstance("SHA-256");int count=0;
         for(var row:(List<?>)snapshot.get("cells")){for(var number:(List<?>)row)digest.update(ByteBuffer.allocate(4).putInt(((Number)number).intValue()).array());count++;}
-        return new TreeMap<>(Map.of("version",1,"cases",cases,"window",new TreeMap<>(Map.of("seed",Long.toString(Terrain.DEFAULT_SEED),"generatorVersion",Terrain.CURRENT_VERSION,"eyeY",eye,"bounds",snapshot.get("bounds"),"cellCount",count,"sha256",HexFormat.of().formatHex(digest.digest())))));
+        var clock=new ArrayList<Map<String,Object>>();
+        for(double hour:new double[]{0,6,10,12,18,23.5})clock.add(new TreeMap<>(Map.of("hour",hour,"sun",hour==10?snapshot.get("sun"):MobileSnapshot.sunDirection(hour))));
+        return new TreeMap<>(Map.of("version",1,"cases",cases,"clock",clock,"window",new TreeMap<>(Map.of("seed",Long.toString(Terrain.DEFAULT_SEED),"generatorVersion",Terrain.CURRENT_VERSION,"eyeY",eye,"bounds",snapshot.get("bounds"),"cellCount",count,"sha256",HexFormat.of().formatHex(digest.digest())))));
     }
     public static void main(String[] args)throws Exception {
         if(args.length!=1)throw new IllegalArgumentException("Fixture output path required");

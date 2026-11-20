@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:22:08+00:00",
+  "updatedAt": "2026-11-20T05:26:39+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Source ea7debd0 timed out: latest844s counters17 started/16 passed/0 failed of43; no gameplay media or speedup proof. Added public persisted Distant landscape option, off by default while device budget is unqualified. Required native case explicitly enables/exercises it; video starts after its prepared-world checkpoint.87 Linux harness checks passed. All43 cases and900/1200s caps remain; fresh Mac/media validation, live VPS/signing/physical gates pending.",
-      "updatedAt": "2026-11-20T04:42:23+00:00"
+      "note": "Rebased a77e0e4b passed all43 native cases on iPhone SE Simulator/iOS18.5; actual360x640/39.15s video and model screenshot inspected/copied. Added saved offline Time controls and basic day/night light, matching Java sun fixtures and fixed10:00 Sandbox default.87 Linux harness and14 focused Java tests passed. Fresh45-case Mac/night-day media pending; full parity/live VPS/signing/physical gates remain open.",
+      "updatedAt": "2026-11-20T05:26:39+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

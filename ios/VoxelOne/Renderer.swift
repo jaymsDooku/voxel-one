@@ -38,7 +38,7 @@ import simd
         scene.rootNode.addChildNode(camera);scene.rootNode.addChildNode(terrain);scene.rootNode.addChildNode(people);scene.rootNode.addChildNode(markers);scene.rootNode.addChildNode(zones)
         let ambient=ambientNode;ambient.light=SCNLight();ambient.light?.type = .ambient;ambient.light?.intensity=650;scene.rootNode.addChildNode(ambient)
         let sun=sunNode;sun.light=SCNLight();sun.light?.type = .directional;sun.light?.intensity=950;sun.eulerAngles=SCNVector3(-0.7,-0.6,0);scene.rootNode.addChildNode(sun)
-        sunDisc.isHidden=true;sunDisc.castsShadow=false;sunDisc.categoryBitMask=2;scene.rootNode.addChildNode(sunDisc)
+        sunDisc.isHidden=true;sunDisc.castsShadow=false;sunDisc.renderingOrder = -100;sunDisc.categoryBitMask=2;scene.rootNode.addChildNode(sunDisc)
         scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor
         applyGraphics(graphics)
     }
@@ -178,16 +178,26 @@ import simd
         material.emission.contents=UIColor(cgColor:CGColor(colorSpace:CGColorSpace(name:CGColorSpace.extendedLinearSRGB)!,components:[CGFloat(value.x),CGFloat(value.y),CGFloat(value.z),1])!)
     }
     private func updateAtmosphere(_ snapshot:Snapshot) {
+        let value=snapshot.sun ?? [0.45,0.78,-0.45],sun=simd_normalize(SIMD3<Double>(value[0],value[1],value[2]))
+        let discDistance=min(80,Double(graphics.detail)*0.5)
+        sunDisc.position=SCNVector3(camera.position.x+Float(sun.x*discDistance),camera.position.y+Float(sun.y*discDistance),camera.position.z+Float(sun.z*discDistance))
         guard atmospherePreview else {
-            skyDiffuse = .zero;ambientNode.light?.intensity=650;scene.lightingEnvironment.intensity=1
-            sunDisc.isHidden=true;sunNode.light?.castsShadow=false
-            if atmosphereKey != nil {scene.background.contents=nil;sunNode.light?.color=UIColor.white;scene.lightingEnvironment.contents=nil;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=view.backgroundColor;sunNode.light?.intensity=950;sunNode.eulerAngles=SCNVector3(-0.7,-0.6,0);atmosphereKey=nil}
+            let key="basic:\(Int(sun.x*256)):\(Int(sun.y*256)):\(Int(sun.z*256))"
+            guard key != atmosphereKey else{return};atmosphereKey=key
+            let light=NativeDaylight(height:sun.y)
+            skyDiffuse = .zero;ambientNode.light?.intensity=CGFloat(light.ambient);scene.lightingEnvironment.intensity=1;scene.lightingEnvironment.contents=nil
+            let sky=UIColor(red:CGFloat(light.sky[0]),green:CGFloat(light.sky[1]),blue:CGFloat(light.sky[2]),alpha:1)
+            scene.background.contents=sky;scene.fogStartDistance=65;scene.fogEndDistance=110;scene.fogColor=sky
+            sunNode.light?.color=UIColor(red:CGFloat(light.tint[0]),green:CGFloat(light.tint[1]),blue:CGFloat(light.tint[2]),alpha:1)
+            sunNode.light?.intensity=CGFloat(light.direct);sunNode.light?.castsShadow=false
+            sunNode.position=SCNVector3Zero;sunNode.look(at:SCNVector3(Float(-sun.x),Float(-sun.y),Float(-sun.z)))
+            let sphere=SCNSphere(radius:CGFloat(discDistance*tan(0.004675)));sphere.segmentCount=12
+            let material=SCNMaterial();material.lightingModel = .constant;material.diffuse.contents=UIColor(red:1,green:0.9,blue:0.65,alpha:1);material.writesToDepthBuffer=false
+            sphere.materials=[material];sunDisc.geometry=sphere;sunDisc.isHidden=sun.y<=0
             return
         }
         ambientNode.light?.intensity=0;scene.lightingEnvironment.intensity=0
         let profile=snapshot.atmosphere ?? .earth
-        let value=snapshot.sun ?? [0.45,0.78,-0.45],sun=simd_normalize(SIMD3<Double>(value[0],value[1],value[2]))
-        sunDisc.position=SCNVector3(camera.position.x+Float(sun.x*80),camera.position.y+Float(sun.y*80),camera.position.z+Float(sun.z*80))
         let altitude=simd_length(profile.position(camera.position))-profile.values[0]
         // Quantized view updates bound CPU work on the low-quality native path.
         let key="\(profile)|\(Int(altitude/100))|\(Int(sun.x*100))|\(Int(sun.y*100))|\(Int(sun.z*100))"
@@ -204,7 +214,7 @@ import simd
         let colour=UIColor(cgColor:CGColor(colorSpace:CGColorSpace(name:CGColorSpace.linearSRGB)!,components:[CGFloat(rgb.x),CGFloat(rgb.y),CGFloat(rgb.z),1])!)
         sunNode.light?.color=colour;sunNode.light?.castsShadow=true;sunNode.light?.shadowMapSize=CGSize(width:512,height:512)
         sunNode.light?.intensity=950*peak/18;
-        let sphere=SCNSphere(radius:CGFloat(80*tan(profile.values[33])));sphere.segmentCount=12
+        let sphere=SCNSphere(radius:CGFloat(discDistance*tan(profile.values[33])));sphere.segmentCount=12
         let material=SCNMaterial();material.lightingModel = .constant
         let disc=irradiance/(2*Double.pi*(1-cos(profile.values[33])))
         material.diffuse.contents=UIColor(red:CGFloat(disc.x/(1+disc.x)),green:CGFloat(disc.y/(1+disc.y)),blue:CGFloat(disc.z/(1+disc.z)),alpha:1);material.writesToDepthBuffer=false;material.readsFromDepthBuffer=true;sphere.materials=[material]

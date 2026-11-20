@@ -296,6 +296,26 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         app.buttons["graphicsButton"].tap();app.scrollViews["graphicsScroll"].swipeUp();wait(app.buttons["graphicsReset"])
         app.buttons["graphicsReset"].tap();applyGraphics()
     }
+    func testNativeWorldTimeCycleFreezeAndPersistence()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        func choose(_ title:String){app.buttons["worldTimeButton"].tap();wait(app.buttons[title]);app.buttons[title].tap()}
+        workflowCheckpoint="clock_ready"
+        choose("Midnight (00:00)");textContains("cityStatus","Night");capture("native-world-time-night")
+        let before=app.staticTexts["playerPosition"].label
+        app.buttons["moveRight"].press(forDuration:0.4)
+        XCTAssertNotEqual(before,app.staticTexts["playerPosition"].label,"Night remains playable")
+        app.buttons["menuButton"].tap();wait(app.buttons["offlineResumeButton"])
+        app.terminate();app.launch();wait(app.buttons["worldTimeButton"]);textContains("cityStatus","Night")
+        capture("native-world-time-night-restarted")
+        choose("Daylight (10:00)");textContains("cityStatus","Daylight");capture("native-world-time-daylight")
+        choose("Run day/night");textContains("gameStatus","Cycling")
+        choose("Freeze time");textContains("gameStatus","Frozen")
+        choose("Cancel");textContains("cityStatus","Daylight")
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Paused")
+        XCUIDevice.shared.press(.home);app.activate();wait(app.buttons["pauseButton"])
+        app.buttons["pauseButton"].tap();textContains("gameStatus","Resumed")
+    }
     func testNativeToolCraftingPlacementGuardAndRestart()throws {
         workflowCheckpoint="tools_sticks"
         newOffline();app.buttons["craftButton"].tap()
