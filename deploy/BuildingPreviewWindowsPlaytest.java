@@ -30,6 +30,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean cedar, westminster, grand;
     private boolean clockLighting;
     private boolean facadeLighting;
+    private boolean roofLighting;
     private PreviewFlickerPlaytest flicker;
     private DistantGridMotion distantGrid;
     private int clockFrames;
@@ -51,6 +52,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.grand=building.name().equals("westminster-grand");
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
+        probe.roofLighting=probe.grand && args.length==3 && args[2].equals("roof-lighting");
         if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
         if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
@@ -58,7 +60,9 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         if (probe.stage!=(probe.flicker!=null ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
+        if (probe.roofLighting) checkRoofLighting(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.roofLighting ? "Captured the sunlit central spire, slate dormers and stone facade at rest and in motion.\n" :
                 probe.distantGrid!=null ? "Captured the Palace grid at rest and over a cross-tile flight.\n" :
                 probe.flicker!=null ? "Captured settled Palace, flight, and clock detail under fixed daylight.\n" :
                 probe.clockLighting ? "Captured two Elizabeth Tower corners and approach under fixed daylight.\n" :
@@ -71,13 +75,15 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
+        if (roofLighting) glfwSetWindowSize(window,1280,720);
+        else if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (clockLighting) placeFlying(game,49,77,-3,127,0);
+        if (roofLighting) placeFlying(game,99,75,-8,57,-5);
+        else if (clockLighting) placeFlying(game,49,77,-3,127,0);
         else if (grand) {
             player=(Player)field("player").get(game);
             overviewStart=new Vector3f(player.position());
@@ -92,6 +98,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (roofLighting) {
+            if (stage==1) {
+                float t=Math.min(1,(clockFrames+1)/72f);
+                placeFlying(game,99+7*t,75,-8+6*t,57+2*t,-5);
+            }
+            return;
+        }
         if (distantGrid!=null) {
             if(stage==2 && clockFrames<96) {
                 float t=(clockFrames+1)/96f;
@@ -133,6 +146,21 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (roofLighting) {
+            clockFrames++;
+            if (stage==0 && clockFrames==144) {
+                capture(game,"roof-still.png");
+                pressRecord();
+            } else if (stage==1 && clockFrames==72) {
+                capture(game,"roof-moving.png");
+            } else if (stage==2 && clockFrames==48) {
+                capture(game,"roof-settled.png");
+                pressRecord();
+                glfwSetWindowShouldClose(window,true);
+            } else return;
+            stage++;clockFrames=0;
+            return;
+        }
         if (distantGrid!=null) {
             clockFrames++;
             if((stage==1 && clockFrames>=209) || (stage==2 && clockFrames<=96)) {
@@ -245,6 +273,33 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         }
     }
 
+    private static void checkRoofLighting(Path output) throws Exception {
+        BufferedImage image=ImageIO.read(output.resolve("roof-still.png").toFile());
+        if (image.getWidth()!=1280 || image.getHeight()!=720)
+            throw new AssertionError("Roof lighting measurements require a 1280 x 720 framebuffer");
+        // Measure alternating light/dark columns inside the flat faces, away from trim.
+        double spire=horizontalRipple(image,608,261,30,40);
+        double dormer=horizontalRipple(image,950,427,17,21);
+        // Both patches are slate. The dormer shades the first one.
+        int shadow=pixelMedianLuma(image,827,466,853,481),sun=pixelMedianLuma(image,1003,458,1023,468);
+        String report=String.format(Locale.ROOT,
+                "Horizontal luma ripple (0-255 scale): spire %.2f, dormer %.2f%nMedian slate luma: shaded %d, sunlit %d%n",
+                spire,dormer,shadow,sun);
+        Files.writeString(output.resolve("roof-lighting.txt"),report);
+        if (spire>2.5 || dormer>5 || sun-shadow<40) throw new AssertionError(report);
+    }
+
+    private static double horizontalRipple(BufferedImage image,int left,int top,int width,int height) {
+        long sum=0;
+        for (int y=top;y<top+height;y++) for (int x=left;x<left+width;x++)
+            sum+=Math.abs(2*luma(image.getRGB(x,y))-luma(image.getRGB(x-1,y))-luma(image.getRGB(x+1,y)));
+        return sum/(double)(width*height);
+    }
+
+    private static int luma(int rgb) {
+        return (int)Math.round(.2126*((rgb>>16)&255)+.7152*((rgb>>8)&255)+.0722*(rgb&255));
+    }
+
     private void placeFlying(Main game,float x,float y,float z,float yaw,float pitch) throws Exception {
         place(game,x,y,z,yaw,pitch);
         player.toggleFlight();
@@ -330,13 +385,15 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private static int medianLuma(BufferedImage image,int left,int top,int right,int bottom) {
         int width=image.getWidth(),height=image.getHeight();
         if (width*480!=height*800) throw new AssertionError("Unexpected opening view aspect ratio: "+width+"x"+height);
+        return pixelMedianLuma(image,left*width/800,top*height/480,right*width/800,bottom*height/480);
+    }
+
+    private static int pixelMedianLuma(BufferedImage image,int left,int top,int right,int bottom) {
         int[] histogram=new int[256];
         int count=0;
-        for (int y=top*height/480;y<bottom*height/480;y++) {
-            for (int x=left*width/800;x<right*width/800;x++) {
-                int rgb=image.getRGB(x,y);
-                int luma=(int)Math.round(.2126*((rgb>>16)&255)+.7152*((rgb>>8)&255)+.0722*(rgb&255));
-                histogram[luma]++;
+        for (int y=top;y<bottom;y++) {
+            for (int x=left;x<right;x++) {
+                histogram[luma(image.getRGB(x,y))]++;
                 count++;
             }
         }

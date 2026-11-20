@@ -17,12 +17,24 @@ vec3 project(vec3 p){vec4 q=uVP*vec4(p,1);return q.xyz/q.w*.5+.5;}
 bool onScreen(vec3 q){return q.z>0.&&q.z<1.&&all(greaterThan(q.xy,vec2(0)))&&all(lessThan(q.xy,vec2(1)));}
 float noise(vec2 p){return fract(sin(dot(p,vec2(12.9898,78.233))+float(uFrame)*.754)*43758.5453);}
 // Screen-space ray marching uses world-distance thickness, not a constant nonlinear depth epsilon.
-bool hit(vec3 origin,vec3 dir,float stride,int steps,out vec2 uv){
+bool hit(vec3 origin,vec3 dir,float stride,int steps,vec3 receiverPlane,out vec2 uv){
     for(int i=1;i<=48;i++){
         if(i>steps)break;
         vec3 p=origin+dir*(float(i)*stride);vec3 q=project(p);
         if(!onScreen(q))break;
-        float d=texture(uDepth,q.xy).r;if(d>=.999999)continue;
+        ivec2 size=textureSize(uDepth,0);
+        ivec2 pixel=clamp(ivec2(q.xy*vec2(size)),ivec2(0),size-1);
+        float d=texelFetch(uDepth,pixel,0).r;if(d>=.999999)continue;
+        if(receiverPlane.z>=0.){
+            // Window depth is affine across a triangle. Compare at the actual
+            // nearest depth texel so an oblique receiver cannot occlude itself.
+            ivec2 receiver=clamp(ivec2((vUV+vec2(uJitterU,uJitterV))*vec2(size)),ivec2(0),size-1);
+            vec2 pixelDelta=vec2(pixel-receiver);
+            float planeDepth=receiverPlane.z+dot(receiverPlane.xy,pixelDelta);
+            // D24 quantization affects both the reference and its finite differences.
+            float tolerance=(1.+abs(pixelDelta.x)+abs(pixelDelta.y))*(2./16777215.);
+            if(d>=planeDepth-tolerance)continue;
+        }
         vec3 surface=world(q.xy,d);
         float along=dot(surface-uCamera,normalize(p-uCamera));
         float rayDistance=length(p-uCamera);
@@ -38,11 +50,14 @@ void main(){
     vec3 V=normalize(uCamera-p),N=vec3(0,1,0);
     if(depth<.999999){
         // Choose the least discontinuous derivative at silhouettes.
-        vec3 a=world(sceneUV+vec2(texel.x,0),texture(uDepth,sceneUV+vec2(texel.x,0)).r)-p;
-        vec3 b=p-world(sceneUV-vec2(texel.x,0),texture(uDepth,sceneUV-vec2(texel.x,0)).r);
-        vec3 c=world(sceneUV+vec2(0,texel.y),texture(uDepth,sceneUV+vec2(0,texel.y)).r)-p;
-        vec3 d=p-world(sceneUV-vec2(0,texel.y),texture(uDepth,sceneUV-vec2(0,texel.y)).r);
-        N=normalize(cross(dot(a,a)<dot(b,b)?a:b,dot(c,c)<dot(d,d)?c:d));
+        float right=texture(uDepth,sceneUV+vec2(texel.x,0)).r,left=texture(uDepth,sceneUV-vec2(texel.x,0)).r;
+        float up=texture(uDepth,sceneUV+vec2(0,texel.y)).r,down=texture(uDepth,sceneUV-vec2(0,texel.y)).r;
+        vec3 a=world(sceneUV+vec2(texel.x,0),right)-p;
+        vec3 b=p-world(sceneUV-vec2(texel.x,0),left);
+        vec3 c=world(sceneUV+vec2(0,texel.y),up)-p;
+        vec3 d=p-world(sceneUV-vec2(0,texel.y),down);
+        bool useRight=dot(a,a)<dot(b,b),useUp=dot(c,c)<dot(d,d);
+        N=normalize(cross(useRight?a:b,useUp?c:d));
         if(dot(N,V)<0.)N=-N;
         float occlusion=0.;vec3 bounce=vec3(0);
         // Horizon AO: integrate the maximum elevation in four azimuths, bounded to 2 world units.
@@ -65,8 +80,9 @@ void main(){
         if(uAO==1)color*=1.-clamp(occlusion*.18,0.,.65);
         if(uGI==1)color+=bounce;
         vec2 uv;
-        if(uContact==1&&dot(N,uSun)>0.&&hit(p+N*.025,uSun,.08,12,uv))color*=1.-.35*uDaylight;
-        if(uSSR==1&&hit(p+N*.035,reflect(-V,N),.18,32,uv)){
+        vec3 receiverPlane=vec3(useRight?right-depth:depth-left,useUp?up-depth:depth-down,depth);
+        if(uContact==1&&dot(N,uSun)>0.&&hit(p+N*.025,uSun,.08,12,receiverPlane,uv))color*=1.-.35*uDaylight;
+        if(uSSR==1&&hit(p+N*.035,reflect(-V,N),.18,32,vec3(0,0,-1),uv)){
             float edge=clamp(min(min(uv.x,uv.y),min(1.-uv.x,1.-uv.y))*12.,0.,1.);
             float fresnel=.04+.96*pow(1.-max(0.,dot(N,V)),5.);
             color=mix(color,texture(uScene,uv).rgb,edge*fresnel*.35);
@@ -90,7 +106,7 @@ void main(){
             float t=(float(i)+noise(vUV*1000.))*distance/12.;vec3 samplePoint=uCamera+dir*t;
             float density=uFogDensity*exp(clamp(-(samplePoint.y-24.)*.025,-8.,4.));
             float extinction=exp(-density*distance/12.);
-            vec2 uv;float visible=hit(samplePoint,uSun,1.5,6,uv)?0.:1.;
+            vec2 uv;float visible=hit(samplePoint,uSun,1.5,6,vec3(0,0,-1),uv)?0.:1.;
             float g=.65,cosine=dot(dir,uSun);
             float phase=(1.-g*g)/(4.*PI*pow(1.+g*g-2.*g*cosine,1.5));
             vec3 light=vec3(.18,.27,.42)*uAmbient+vec3(1.,.88,.62)*phase*visible*uDaylight*2.;
