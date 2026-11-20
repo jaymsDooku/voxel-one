@@ -282,6 +282,8 @@ public class AtmospherePlaytest {
         // A closed room with its thinnest wall and ceiling one microvoxel thick.
         root.fill(80,32,16,96,48,32,stone);
         root.fill(81,33,17,95,47,31,0);
+        // A four-block canopy shades the near probes but opens onto daylight.
+        root.fill(16,64,80,80,66,96,stone);
         var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(
                 java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(0,0,0),root)),
                 java.util.List.of(),new dev.jayms.net.model.ModelLibrary()));
@@ -312,16 +314,25 @@ public class AtmospherePlaytest {
             probe.setInt("uSkyIndexOffset",sky.indexOffset);
             probe.setInt("uSkyIndexSpan",sky.indexSpan);
             probe.setVector3("uTestNormal",1,0,0);
-            float[][] cases={{2.51f,2.01f,1.01f,1},{2.51f,2.01f,2.01f,0},{5.5f,2.5f,1.5f,0}};
-            String[] names={"Open side beneath relief","Fractional intervening wall","Sealed interior"};
-            for(int i=0;i<cases.length;i++){
-                float[] point=cases[i],pixel=new float[4];
-                probe.setVector3("uTestPosition",point[0],point[1],point[2]);
+            record Sample(String name,float x,float y,float z,float eyeX,float side,float opening){}
+            Sample[] cases={
+                new Sample("Open side beneath relief",2.51f,2.01f,1.01f,4,1,0),
+                new Sample("Fractional intervening wall",2.51f,2.01f,2.01f,2.53f,0,0),
+                new Sample("Sealed interior",5.5f,2.5f,1.5f,5.8f,0,0),
+                new Sample("Open beyond canopy",2.01f,2.01f,5.5f,12.01f,0,.5f),
+                new Sample("Observer under canopy",2.01f,2.01f,5.5f,2.26f,0,0)
+            };
+            for(Sample sample:cases){
+                float[] pixel=new float[4];
+                probe.setVector3("uTestPosition",sample.x(),sample.y(),sample.z());
+                probe.setVector3("uTestEye",sample.eyeX(),sample.y(),sample.z());
                 glDrawArrays(GL_TRIANGLES,0,3);
                 glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
-                require(glGetError()==GL_NO_ERROR,names[i]+" GPU readback");
-                require(pixel[0]<.001&&Math.abs(pixel[1]-point[3])<.001,names[i]+" got "+java.util.Arrays.toString(pixel));
-                report.append(names[i]).append(" vertical=").append(pixel[0]).append(" side=").append(pixel[1]).append('\n');
+                require(glGetError()==GL_NO_ERROR,sample.name()+" GPU readback");
+                require(pixel[0]<.001&&Math.abs(pixel[1]-sample.side())<.001&&Math.abs(pixel[2]-sample.opening())<.001,
+                        sample.name()+" got "+java.util.Arrays.toString(pixel));
+                report.append(sample.name()).append(" vertical=").append(pixel[0]).append(" side=").append(pixel[1])
+                        .append(" opening=").append(pixel[2]).append('\n');
             }
             Files.writeString(evidence.resolve("preview-wall-coverage.txt"),report);
             System.out.print(report);

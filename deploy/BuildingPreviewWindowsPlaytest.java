@@ -24,6 +24,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private int stage;
     private boolean cedar, westminster, grand;
     private boolean clockLighting;
+    private boolean facadeLighting;
     private int clockFrames;
     private Vector3f overviewStart;
 
@@ -42,6 +43,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.cedar=building.name().equals("cedar-court-entry");
         probe.grand=building.name().equals("westminster-grand");
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
+        probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
         if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
@@ -136,7 +138,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     }
 
     private void inspectWestminster(Main game,long elapsed) throws Exception {
-        if (stage==0 && elapsed>2_500_000_000L) {
+        if (stage==0 && elapsed>2_500_000_000L && (!facadeLighting || ++clockFrames>=240)) {
             capture(game,"westminster-thames.png");
             pressRecord();
             stage=1;

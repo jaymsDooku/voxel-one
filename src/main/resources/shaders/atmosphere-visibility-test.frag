@@ -2,9 +2,10 @@
 #include "shaders/atmosphere-common.glsl"
 #include "shaders/irradiance.glsl"
 #include "shaders/preview-wall-sky.glsl"
-uniform vec3 uTestPosition,uTestNormal;
+uniform vec3 uTestPosition,uTestNormal,uTestEye;
 out vec4 fragColor;
 void main(){
     float sky=irradiance(uTestPosition).a;
-    fragColor=vec4(sky,previewWallSky(uTestPosition,uTestNormal,sky),0.,1.);
+    float side=previewWallSky(uTestPosition,uTestNormal,sky);
+    fragColor=vec4(sky,side,previewOpeningLight(uTestPosition,uTestNormal,uTestEye,side),1.);
 }

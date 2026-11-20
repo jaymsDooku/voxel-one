@@ -34,3 +34,20 @@ float previewWallSky(vec3 point,vec3 normal,float overhead){
     if(path>0.&&any(notEqual(first,last)))path*=previewSkyPath(skyHeader(last),point,outside);
     return max(overhead,openSky*path);
 }
+
+// A visible wall can receive diffuse daylight through the same opening that
+// exposes it to the observer. The depth-tested sightline supplies a clear path
+// even under a cornice where the vertical atlas has compacted out the room below.
+// A covered sample supplies no bounce. Never sample past the camera.
+float previewOpeningLight(vec3 point,vec3 normal,vec3 eye,float sky){
+    if(sky>=1.||abs(normal.y)>.001||uSkyColumns==0)return 0.;
+    vec3 ray=eye-point;
+    float reach=length(ray);
+    if(reach<=.001)return 0.;
+    ray/=reach;
+    float facing=max(0.,dot(ray,normal));
+    float nearSky=worldSkyVisibility(point+ray*min(2.,reach));
+    float middleSky=worldSkyVisibility(point+ray*min(4.,reach));
+    float farSky=worldSkyVisibility(point+ray*min(8.,reach));
+    return facing*(1.-sky)*dot(vec3(nearSky,middleSky,farSky),vec3(.5,.3,.2));
+}

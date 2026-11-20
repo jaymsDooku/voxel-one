@@ -152,7 +152,12 @@ void main(){
             if(skyVisibility==0.&&(uHasIrradiance==0||!volumeInside(point))
                     &&skyHeader(ivec2(floor(point.xz)))<0)skyVisibility=.85;
         }
-        indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
+        vec3 skyDiffuse=textureLod(uEnvironment,N,7.).rgb;
+        indirect+=skyDiffuse*skyVisibility;
+        if(uBuildingPreview==1){
+            float opening=previewOpeningLight(point,geometricNormal,uCameraPosition,skyVisibility);
+            indirect+=max(skyDiffuse,vec3(.24,.23,.21))*.65*opening;
+        }
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){
