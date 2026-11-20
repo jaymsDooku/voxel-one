@@ -86,7 +86,7 @@ phase install
 xcrun simctl install "$udid" "$app"
 # The test runner owns/stops/reaps this role's recorder with a bounded deadline.
 phase native_playtests
-python3 ios/native-test-runner.py --timeout 900 --simulator "$udid" -- xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
+python3 ios/native-test-runner.py --timeout 1500 --simulator "$udid" -- xcodebuild test-without-building -project ios/build/VoxelOne.xcodeproj -scheme VoxelOne \
   -destination "platform=iOS Simulator,id=$udid" -derivedDataPath ios/build/DerivedData \
   -parallel-testing-enabled NO -maximum-concurrent-test-simulator-destinations 1 \
   -resultBundlePath ios/build/NativeTests.xcresult CODE_SIGNING_ALLOWED=NO

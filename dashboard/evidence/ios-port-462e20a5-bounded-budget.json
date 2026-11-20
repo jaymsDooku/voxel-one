@@ -1,0 +1,79 @@
+{
+  "sourceBase": "462e20a512beaaaf547950ba2c3fc30d5ac9640f",
+  "sourceState": "uncommitted bounded-budget proposal; trusted verifier repair pending",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "failedRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44696424204",
+  "observedFailure": {
+    "status": "failed",
+    "clientChecked": false,
+    "cleanup": "passed",
+    "exitCode": 124,
+    "started": 21,
+    "passed": 20,
+    "failed": 0,
+    "unfinished": 1,
+    "expected": 47,
+    "timeoutSeconds": 900,
+    "openCase": "NativeWorkflowTests.testPlanetAtmosphereNativeToggleAndLegacyWorld"
+  },
+  "reason": "Three47-case exact-source runs hit the same900-second cap after build/install, with zero recorded case failures, despite footer and launch-overhead changes. Complete47-case qualification still required. Stop dispatching the same undersized execution budget.",
+  "proposedWallTimeBounds": {
+    "nativeTestSeconds": 1500,
+    "trustedClientSeconds": 1800,
+    "workflowJobMinutes": 40
+  },
+  "trustedRepairScope": "Independently review/apply only the1800-second trusted verifier cap and its timeout/cleanup test hunks, plus40-minute workflow job bound. Feature-only1500-second native runner/script/tests stay on the assigned branch. Do not merge the full port to repair the trusted budget. Verify the actual dispatched trusted checkout contains these bounds before exact-source execution.",
+  "qualificationGates": "All47 cases, no failed/skipped/partial acceptance, exact source/device/native app, clean-source checks, fail-fast behavior, bounded owned-process termination/reaping, sanitized receipt/media constraints, independent review and physical-device requirements remain. Wall-time allowance is not a game performance target or physical qualification.",
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "89 passed in10.716s; mocked Linux harness, not Mac/gameplay"
+    },
+    {
+      "command": "CLI budget boundary mock integration",
+      "result": "1 and1500 seconds/default1500 propagate to owned runner;0/1501 rejected before child invocation; fail-fast retained"
+    },
+    {
+      "command": "trusted-client timeout mock integration",
+      "result": "1800-second cap propagated; timeout remains failed/clientChecked=false with fresh Simulator cleanup"
+    },
+    {
+      "command": "python3 -m py_compile ios/native-test-runner.py tools/ios/simulator_checks.py ios/check-results.py; bash -n ios/check-simulator.sh; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "yaml.safe_load workflow and native-case/review-base audit",
+      "result": "finite40-minute job bound parsed;47 required methods match source;113 unrelated progress entries preserved;zero file deletions"
+    },
+    {
+      "command": "filtered GitHub run metadata and ancestor check",
+      "result": "run used trusted verifiera9e8eed8, containing independently reviewed capacity fix8a53afce; it still has the old1200-second client cap"
+    }
+  ],
+  "Playtest": "Actual failed Mac source built/installed the native app but passed only20 of47 cases before900s. Inspected and copied the returned Simulator home-screen image, explicitly preflight only. No client media was returned. New bounded-budget exact-source run and actual controls video remain pending; browser playtesting does not apply to this UIKit/SceneKit app.",
+  "media": {
+    "file": "ios-port-462e20a5-preflight-only.png",
+    "bytes": 1105503,
+    "sha256": "a5bc8d751549957a9167f0e8b39352b596401604bb8c5d4bcfceb92b30d79b5a",
+    "publication": "pending controller publication; preflight only"
+  },
+  "intendedDeletions": "No file deletions. Only finite execution-time limits and associated tests/elapsed-counter caps change. No acceptance case or assertion removed.",
+  "pending": [
+    "Internal independently reviewed trusted verifier budget repair",
+    "All47-case Mac native qualification and media",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed installable iPhone delivery",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "sourceSha256": {
+    ".github/workflows/ios-simulator.yml": "0456038a702e088a56f5876c0f71d64e7d330971bda919dad78a62ceca33c61e",
+    "tools/ios/simulator_checks.py": "093cde920bbf4b0c985d4e391d09ee5a7516356ed88ced02787402ce58028920",
+    "tools/ios/test_simulator_checks.py": "a849e39ffc3c608a50bb33b88b88116b9428b3c17bec9d36ae47a67ec58bd3a8",
+    "ios/check-simulator.sh": "1d3d78ddab8b0a255a59db8d8f47b8d74ea647fa0ae3ac607167b09e65a29a68",
+    "ios/native-test-runner.py": "4696c1078505eaacd29d62c679aa0644075cc5b9347ac8fa6213e802440bb00e",
+    "tools/ios/test_native_deadline.py": "2e3e596b43cb1e72d0739b5d64337fece5fbf61102e7f2f3c613123523394558"
+  }
+}

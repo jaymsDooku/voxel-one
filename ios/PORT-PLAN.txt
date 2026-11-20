@@ -1438,3 +1438,32 @@ execution and actual controls media inspection. Full port, another Simulator
 size, live service, signed delivery, physical iPhone and independent review stay
 pending. No deletions intended; unconditional launches are replaced with normal
 foreground reuse while all explicit cold-restart checks remain.
+
+
+Bounded trusted Mac budget repair after462e20a5
+Run44696424204 built/installed source462e20a512beaaaf547950ba2c3fc30d5ac9640f
+but hit900 seconds with21 started,20 passed,0 failed,1 open,47 expected. Last
+open case was testPlanetAtmosphereNativeToggleAndLegacyWorld. Cleanup passed.
+Trusted verifiera9e8eed8 contains8a53afce but still caps client execution at1200s.
+Only preflight image was returned; it was inspected and copied with verified hash.
+No full native, new controls media, physical-device or install pass is claimed.
+
+Three full47-case attempts hit this same resource limit despite reducing footer
+scrolling and launch overhead. Prepare a finite1500s native/1800s trusted-client/
+40-minute job budget instead of more guesses under the old cap. Native CLI
+rejects0/1501 and retains owned-process cleanup, recorder/export/media bounds and
+fail-fast. All47 cases and assertions remain required. Expired client budget stays
+failed/clientChecked=false and cleans up its assigned Simulator.89 Linux harness
+tests passed, including new cap boundaries/propagation/failure cleanup. Python,
+shell, YAML and diff checks passed.113 unrelated progress entries and all source/
+media retained; no file deletions intended. These are wall-time bounds, not a
+weaker gameplay or physical-device qualification.
+
+A bounded internal controller repair must independently review/integrate only
+the trusted verifier timeout/cleanup-test hunks and workflow job bound. Keep the
+feature-native runner changes on the assigned branch. Do not merge the full port
+for this repair. Verify the actual dispatched trusted checkout has1800 seconds,
+then resume exact-source47-case testing and inspect actual controls media. No
+owner answer is needed for this execution repair. Full parity, another Simulator
+size, live VPS, signing/install, physical iPhone and independent review stay open.
+Playtest: current proposed resource change has no Mac/native execution yet.

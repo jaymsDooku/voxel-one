@@ -7,6 +7,7 @@ import unittest
 import json
 import subprocess
 import time
+import io
 from unittest.mock import patch
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -16,6 +17,20 @@ spec.loader.exec_module(runner)
 
 
 class NativeDeadlineTests(unittest.TestCase):
+    def test_cli_bounded_budget_accepts_endpoints_and_rejects_overrun(self):
+        base=['native-test-runner.py','--simulator','C6832151-D858-43BF-B90D-05F63089554B']
+        for seconds in (1,1500):
+            with patch.object(sys,'argv',base+['--timeout',str(seconds),'--','mock-native-command']),patch.object(runner,'run',return_value=0) as child:
+                self.assertEqual(runner.main(),0)
+                self.assertEqual(child.call_args.args[2],seconds)
+                self.assertTrue(child.call_args.kwargs['fail_fast'])
+        for seconds in (0,1501):
+            with patch.object(sys,'argv',base+['--timeout',str(seconds),'--','mock-native-command']),patch.object(runner,'run') as child,patch.object(sys,'stderr',io.StringIO()):
+                with self.assertRaises(SystemExit) as error:runner.main()
+                self.assertEqual(error.exception.code,2);child.assert_not_called()
+        with patch.object(sys,'argv',base+['--','mock-native-command']),patch.object(runner,'run',return_value=0) as child:
+            self.assertEqual(runner.main(),0);self.assertEqual(child.call_args.args[2],1500)
+
     def setUp(self):
         (ROOT / 'target').mkdir(exist_ok=True)
         self.scratch = tempfile.TemporaryDirectory(dir=ROOT / 'target')

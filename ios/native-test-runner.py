@@ -13,6 +13,7 @@ import time
 import uuid
 
 TAIL_BYTES = 65536
+MAX_TEST_SECONDS = 1500
 _CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart", "distant_ready", "clock_ready", "controls_ready"}
 _CHECKPOINT = re.compile(r"(?:error: )?native_workflow_checkpoint code=([a-z_]{1,32})$")
 _ISSUE = re.compile(r"native_workflow_issue source=((?:NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift) line=([0-9]{1,5}) code=(assertion|execution)$")
@@ -113,7 +114,7 @@ class TestProgress:
                                         self.active_class = match[1]
                                         self.opened[name] = now
                                     elif name in self.opened:
-                                        self.durations[name] = min(900, max(0, now - self.opened.pop(name)))
+                                        self.durations[name] = min(MAX_TEST_SECONDS, max(0, now - self.opened.pop(name)))
                                     if state == 'failed' and self.last_checkpoint is not None:
                                         self.failure_steps[name]=self.last_checkpoint
                                     if state != 'started':
@@ -154,7 +155,7 @@ class TestProgress:
             if unfinished:
                 name=unfinished[0]
                 now=time.monotonic()
-                seconds=min(900,max(0,now-self.opened.get(name,now)))
+                seconds=min(MAX_TEST_SECONDS,max(0,now-self.opened.get(name,now)))
                 lines.append('error: native_test_timing test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
                              ' elapsed_seconds=' + str(int(seconds)) + ' state=open')
             if self.last_checkpoint is not None:
@@ -166,7 +167,7 @@ class TestProgress:
         with self.lock:
             active = self.active if self.active in self.allowed else None
             suffix = ' active_id=' + (hashlib.sha256(active.encode()).hexdigest()[:12] if active else 'none')
-            elapsed = min(900, max(0, int(time.monotonic() - self.started_at)))
+            elapsed = min(MAX_TEST_SECONDS, max(0, int(time.monotonic() - self.started_at)))
             return ('error: native_test_live started=' + str(len(self.started)) +
                     ' passed=' + str(len(self.passed)) + ' failed=' + str(len(self.failed)) +
                     ' expected=' + str(len(self.allowed)) + suffix + ' elapsed_seconds=' + str(elapsed))
@@ -197,7 +198,7 @@ def run(command, log, timeout, allowed=None, fail_fast=False, video_timing=None,
         recording_command=None, progress_interval=30):
     log.parent.mkdir(parents=True, exist_ok=True)
     # Keep ownership of the recorder in Python: shell wait after SIGINT has no
-    # deadline and can consume the controller's entire1200-second client budget.
+    # deadline and can consume the controller's bounded client budget.
     if recording_command is not None:
         with (log.parent / 'recorder.log').open('wb') as recording_log:
             recorder = subprocess.Popen(recording_command, stdout=recording_log,
@@ -389,13 +390,13 @@ def record_failure(log, root):
 
 def main():
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument('--timeout', type=int, default=900)
+    parser.add_argument('--timeout', type=int, default=MAX_TEST_SECONDS)
     parser.add_argument('--simulator', required=True)
     parser.add_argument('command', nargs=argparse.REMAINDER)
     args = parser.parse_args()
     command = args.command[1:] if args.command[:1] == ['--'] else args.command
-    if not 1 <= args.timeout <= 900 or not command:
-        parser.error('timeout must be 1..900 seconds and a child command is required')
+    if not 1 <= args.timeout <= MAX_TEST_SECONDS or not command:
+        parser.error('timeout must be 1..1500 seconds and a child command is required')
     try:
         simulator = str(uuid.UUID(args.simulator))
     except ValueError:

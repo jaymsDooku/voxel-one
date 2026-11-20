@@ -16,6 +16,9 @@ import uuid
 import zlib
 from client_diagnostics import stage_artifacts
 
+# Full native suite wall time, not a gameplay/device-performance qualification.
+CLIENT_TIMEOUT_SECONDS = 1800
+
 
 class CheckError(Exception):
     def __init__(self, code, *, exit_code=None, timed_out=False):
@@ -254,7 +257,7 @@ def run_checks(repo, output, expected_head, mode, request_id, *, run_command=com
             client_env.update(IOS_SIMULATOR_UDID=udid, IOS_EVIDENCE_DIR=str(output), IOS_SOURCE_HEAD=expected_head,
                               IOS_RUNTIME_ID=runtime['identifier'])
             client_started = True
-            run(['bash', str(script), udid, str(output), expected_head], timeout=1200, env=client_env)
+            run(['bash', str(script), udid, str(output), expected_head], timeout=CLIENT_TIMEOUT_SECONDS, env=client_env)
             report['phase'] = 'client_receipt'
             receipt, videos = client_receipt(repo, output, expected_head, udid)
             report['phase'] = 'client_install'

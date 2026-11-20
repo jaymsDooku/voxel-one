@@ -208,10 +208,26 @@ class RunContractTests(unittest.TestCase):
         self.assertEqual(self.fake.client_runs, 1)
         bash = next((a, kw) for a, kw in self.fake.calls if a[0] == 'bash')
         self.assertEqual(bash[0][2:], [UDID, str(self.output), HEAD])
+        self.assertEqual(bash[1]['timeout'],1800)
         self.assertEqual(bash[1]['env']['IOS_SOURCE_HEAD'], HEAD)
         self.assertTrue(any(a[:3] == ['xcrun', 'simctl', 'get_app_container'] for a, _ in self.fake.calls))
         self.assertTrue(any(a[:3] == ['xcrun', 'simctl', 'launch'] for a, _ in self.fake.calls))
         self.assertTrue(any(a[-1] == str(self.output / 'client.png') for a, _ in self.fake.calls))
+
+    def test_native_client_deadline_failure_keeps_cleanup_and_no_pass(self):
+        self.script()
+        fake=self.fake
+        def deadline(args,**kwargs):
+            if args[0]=='bash':
+                self.assertEqual(kwargs['timeout'],1800)
+                raise checks.CheckError('command_failed',timed_out=True)
+            return fake(args,**kwargs)
+        report=checks.run_checks(self.repo,self.output,HEAD,'client',REQUEST,
+                                run_command=deadline,system_name='Darwin',wait=lambda _:None)
+        self.assertEqual(report['status'],'failed');self.assertTrue(report['timedOut'])
+        self.assertEqual(report['errorStage'],'client_script');self.assertFalse(report['clientChecked'])
+        self.assertEqual(report['cleanup'],'passed')
+        self.assertTrue(any(args[:3]==['xcrun','simctl','delete'] for args,_ in fake.calls))
 
     def expanded_receipt(self, count):
         self.script()
