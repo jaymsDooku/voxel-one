@@ -24,15 +24,34 @@ uniform samplerBuffer uLights;
 uniform sampler3D uVoxelRadiance,uDistanceField,uCascadeProbes[3];
 const float PI=3.14159265;
 vec2 disk(int i,int count){float angle=float(i)*2.39996323;return vec2(cos(angle),sin(angle))*sqrt((float(i)+.5)/float(count));}
-float cascadeShadow(int layer,vec3 q,float bias){
-    vec2 texel=1./vec2(textureSize(uShadow,0).xy);float blocker=0.,count=0.;
-    for(int i=0;i<8;i++){float z=texture(uShadow,vec3(q.xy+disk(i,8)*texel*5.,layer)).r;
-        if(z<q.z-bias){blocker+=z;count++;}}
+vec2 receiverDepthGradient(mat3 worldToShadow,vec3 normal){
+    // Cofactors transform the geometric plane normal into orthographic shadow space.
+    // Its plane equation gives the change in receiver depth per unit of shadow UV.
+    vec3 plane=cross(worldToShadow[1],worldToShadow[2])*normal.x
+              +cross(worldToShadow[2],worldToShadow[0])*normal.y
+              +cross(worldToShadow[0],worldToShadow[1])*normal.z;
+    if(abs(plane.z)<=1e-5*length(plane))return vec2(0.);
+    return -plane.xy/plane.z;
+}
+float shadowDepthGap(int layer,vec3 receiver,vec2 gradient,vec2 offset,ivec2 size){
+    ivec2 tap=clamp(ivec2(floor(receiver.xy+offset)),ivec2(0),size-1);
+    vec2 center=vec2(tap)+.5;
+    float expected=clamp(receiver.z+dot(center-receiver.xy,gradient),0.,1.);
+    return expected-texelFetch(uShadow,ivec3(tap,layer),0).r;
+}
+float cascadeShadow(int layer,vec3 q,vec3 normal,float bias){
+    ivec2 size=textureSize(uShadow,0).xy;
+    vec2 gradient=receiverDepthGradient(mat3(uShadowMatrix[layer]),normal)/vec2(size);
+    q.xy*=vec2(size);
+    float gap=0.,count=0.;
+    for(int i=0;i<8;i++){
+        float depthGap=shadowDepthGap(layer,q,gradient,disk(i,8)*5.,size);
+        if(depthGap>bias){gap+=depthGap;count++;}}
     if(count==0.)return 1.;
-    blocker/=count;
-    float radius=clamp((q.z-blocker)/max(.001,blocker)*70.,1.,8.);
+    gap/=count;
+    float radius=clamp(gap/max(.001,q.z-gap)*70.,1.,8.);
     float visible=0.;for(int i=0;i<16;i++)
-        visible+=q.z-bias<=texture(uShadow,vec3(q.xy+disk(i,16)*texel*radius,layer)).r?1.:0.;
+        visible+=shadowDepthGap(layer,q,gradient,disk(i,16)*radius,size)<=bias?1.:0.;
     return visible/16.;
 }
 float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
@@ -41,10 +60,10 @@ float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
         vec4 p=uShadowMatrix[layer]*vec4(worldPoint,1);vec3 q=p.xyz/p.w*.5+.5;
         if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))continue;
         float bias=max(.00012*(1.-dot(N,L)),.00004);
-        float result=cascadeShadow(layer,q,bias);
+        float result=cascadeShadow(layer,q,N,bias);
         float edge=max(abs(q.x-.5),abs(q.y-.5))*2.;
         if(layer<uShadowCascades-1&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(worldPoint,1);vec3 q2=p2.xyz/p2.w*.5+.5;
-            result=mix(result,cascadeShadow(layer+1,q2,bias),smoothstep(.8,.97,edge));}
+            result=mix(result,cascadeShadow(layer+1,q2,N,bias),smoothstep(.8,.97,edge));}
         return result;
     }
     return 1.;
@@ -189,7 +208,7 @@ void main(){
     vec3 Fs=vec3(.04)+vec3(.96)*pow(1.-max(dot(H,V),0.),5.);
     vec3 brdf=(1.-Fs)*albedo/PI+D*G*Fs/max(.001,4.*NoL*NoV);
     vec3 solar=uPlanetLighting==1&&uHeld==0?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera):vec3(4.5,4.14,3.45)*uDaylight;
-    vec3 color=albedo*indirect+brdf*solar*NoL*shadow(N,L)*sdfVisibility*skyVisibility
+    vec3 color=albedo*indirect+brdf*solar*NoL*shadow(geometricNormal,L)*sdfVisibility*skyVisibility
         +reflection*F*(1.-rough*.65)*(uPlanetLighting==1&&uHeld==0?1.:skyVisibility)+albedo*emission;
     if(uClusterReady==1&&uHeld==0){
         ivec3 cluster=ivec3(floor((vWorldPosition-uClusterOrigin)/8.));
