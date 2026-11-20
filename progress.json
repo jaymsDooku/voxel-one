@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:39:47+00:00",
+  "updatedAt": "2026-11-20T23:51:41+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4525,8 +4525,8 @@
       "description": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
-      "updatedAt": "2026-11-20T23:39:47+00:00"
+      "note": "Matched cornices and window sills receive slanted sun. Reworking an expensive per-pixel search caught by native GPU timing.",
+      "updatedAt": "2026-11-20T23:51:41+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
