@@ -464,7 +464,8 @@ public final class PracticeGame {
         inventory = open; source = -1; firstMouse = true; usePressed = sprintReleased = false;
         pendingClick = null;
         if (open) sprintToggle.suspend();
-        glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
+        int inventoryCursor = glfwGetPlatform() == GLFW_PLATFORM_WIN32 ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
+        glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? inventoryCursor : GLFW_CURSOR_DISABLED);
     }
 
     private int hoveredInventorySlot() {
