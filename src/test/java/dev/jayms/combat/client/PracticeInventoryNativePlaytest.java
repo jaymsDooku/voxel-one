@@ -73,6 +73,8 @@ public final class PracticeInventoryNativePlaytest implements PracticeGame.Frame
             case 1 -> {
                 if (view.phase() == Phase.FIGHT && item(view, 5) == Item.EMPTY) {
                     pressKey(handle, controls.code(Controls.Action.INVENTORY));
+                    requireCursorMode(handle,
+                            glfwGetPlatform() == GLFW_PLATFORM_WIN32 ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL);
                     step++;
                 }
             }
@@ -95,8 +97,11 @@ public final class PracticeInventoryNativePlaytest implements PracticeGame.Frame
             case 8 -> {
                 if (item(view, 4) == Item.EMPTY && item(view, 21) == Item.HEALING) {
                     PracticeNativePlaytest.screenshot(output.resolve("inventory-shortcuts.png"), width, height);
+                    pressKey(handle, GLFW_KEY_ESCAPE);
+                    requireCursorMode(handle, GLFW_CURSOR_DISABLED);
                     Files.writeString(output.resolve("inventory-playtest.txt"),
                             "Native Windows inventory controls in Basalt Courtyard.\n"
+                            + "Opening inventory enabled its visible cursor mode; closing restored mouse look.\n"
                             + "Shift-click refilled an emptied hotbar slot from reserve.\n"
                             + "Hovered reserve swapped into slot 5 using "
                             + Controls.keyName(controls.code(Controls.Action.SLOT_5)) + ".\n"
@@ -111,6 +116,11 @@ public final class PracticeInventoryNativePlaytest implements PracticeGame.Frame
 
     private static Item item(View view, int slot) {
         return view.inventory().get(slot).item();
+    }
+
+    private static void requireCursorMode(long handle, int expected) {
+        if (glfwGetInputMode(handle, GLFW_CURSOR) != expected)
+            throw new IllegalStateException("Inventory did not switch to the expected cursor mode");
     }
 
     private static void hover(Window window, int width, int height, int slot) {
