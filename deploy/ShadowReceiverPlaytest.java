@@ -44,11 +44,10 @@ public final class ShadowReceiverPlaytest {
         try {
             glfwMakeContextCurrent(window);
             GL.createCapabilities();
-            String source;
-            try (var stream = Objects.requireNonNull(ShadowReceiverPlaytest.class.getResourceAsStream("/shaders/voxel.frag"))) {
-                source = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
+            String helpers;
+            try (var stream = Objects.requireNonNull(ShadowReceiverPlaytest.class.getResourceAsStream("/shaders/sun-shadow.glsl"))) {
+                helpers = new String(stream.readAllBytes(), StandardCharsets.UTF_8);
             }
-            String helpers = source.substring(source.indexOf("vec2 disk("), source.indexOf("#include \"shaders/irradiance.glsl\""));
             int vs = compile(GL_VERTEX_SHADER, """
                     #version 330 core
                     void main(){vec2 p=vec2((gl_VertexID<<1)&2,gl_VertexID&2);gl_Position=vec4(p*2.-1.,0.,1.);}

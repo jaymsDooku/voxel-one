@@ -32,6 +32,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean facadeLighting;
     private boolean roofLighting;
     private boolean shaftShadow;
+    private boolean ledgeShadow;
     private PreviewFlickerPlaytest flicker;
     private DistantGridMotion distantGrid;
     private int clockFrames;
@@ -55,16 +56,19 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         probe.roofLighting=probe.grand && args.length==3 && args[2].equals("roof-lighting");
         probe.shaftShadow=probe.grand && args.length==3 && args[2].equals("shaft-shadow");
+        probe.ledgeShadow=probe.grand && args.length==3 && args[2].equals("ledge-shadow");
         if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
         if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
-        if (probe.stage!=(probe.flicker!=null ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
+        if (probe.stage!=(probe.flicker!=null || probe.ledgeShadow ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
         if (probe.roofLighting) checkRoofLighting(output);
         if (probe.shaftShadow) checkShaftShadow(output);
+        if (probe.ledgeShadow) checkLedgeLighting(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.ledgeShadow ? "Captured stacked tower cornices and window sills on Elizabeth Tower and Westminster Hall at fixed daylight.\n" :
                 probe.shaftShadow ? "Captured the east and west sides of Elizabeth Tower and the approach at fixed daylight.\n" :
                 probe.roofLighting ? "Captured the sunlit central spire, slate dormers and stone facade at rest and in motion.\n" :
                 probe.distantGrid!=null ? "Captured the Palace grid at rest and over a cross-tile flight.\n" :
@@ -79,14 +83,20 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (roofLighting || shaftShadow) glfwSetWindowSize(window,1280,720);
+        if (roofLighting || shaftShadow || ledgeShadow) glfwSetWindowSize(window,1280,720);
         else if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
+        if (ledgeShadow) {
+            // A background test window must keep rendering the scene when focus shifts.
+            var focus=glfwSetWindowFocusCallback(window,null);
+            if (focus!=null) focus.free();
+            placeFlying(game,-47,109,37,0,-30);
+        }
+        else if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
         else if (roofLighting) placeFlying(game,99,75,-8,57,-5);
         else if (clockLighting) placeFlying(game,49,77,-3,127,0);
         else if (grand) {
@@ -103,6 +113,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (ledgeShadow) {
+            if (stage==1) {
+                float t=Math.min(1,(clockFrames+1)/80f);
+                placeFlying(game,-47+12*t,109-8*t,37+5*t,-5*t,-30-2*t);
+            }
+            return;
+        }
         if (shaftShadow) {
             if (stage==1) {
                 float t=Math.min(1,(clockFrames+1)/96f);
@@ -158,6 +175,29 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (ledgeShadow) {
+            clockFrames++;
+            if (stage==0 && clockFrames==240) {
+                var renderer=(dev.jayms.render.RenderPipeline)field("rendering").get(game);
+                Files.writeString(output.resolve("gpu-time.txt"),String.format(Locale.ROOT,
+                        "Settled tower view, smoothed GPU frame %.2f ms and terrain %.2f ms%n",
+                        renderer.gpuMillis(),renderer.terrainGpuMillis()));
+                capture(game,"stacked-ledges.png");
+                pressRecord();
+            } else if (stage==1 && clockFrames==80) {
+                capture(game,"near-ledges.png");
+                pressRecord();
+                placeFlying(game,15,66,-11,88,-19);
+            } else if (stage==2 && clockFrames==100) {
+                capture(game,"window-sills.png");
+                placeFlying(game,13,48,87,57,-22);
+            } else if (stage==3 && clockFrames==96) {
+                capture(game,"hall-sills.png");
+                glfwSetWindowShouldClose(window,true);
+            } else return;
+            stage++;clockFrames=0;
+            return;
+        }
         if (shaftShadow) {
             clockFrames++;
             if (stage==0 && clockFrames==144) {
@@ -299,6 +339,31 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             stage=3;
             glfwSetWindowShouldClose(window,true);
         }
+    }
+
+    private static void checkLedgeLighting(Path output) throws Exception {
+        var tower=ImageIO.read(output.resolve("stacked-ledges.png").toFile());
+        var windows=ImageIO.read(output.resolve("window-sills.png").toFile());
+        var hall=ImageIO.read(output.resolve("hall-sills.png").toFile());
+        for (var image:new BufferedImage[]{tower,windows,hall})
+            if (image.getWidth()!=1280 || image.getHeight()!=720)
+                throw new AssertionError("Ledge measurements require the 1280 x 720 route");
+        // Fixed-route samples lie inside the narrow top surfaces. The sandstone
+        // front face, recessed wood, and cast shadow below the hall sill are controls.
+        int upper=pixelMedianLuma(tower,598,418,711,419);
+        int lower=pixelMedianLuma(tower,598,475,711,479);
+        int face=pixelMedianLuma(tower,598,480,711,484);
+        int sill=pixelMedianLuma(windows,255,484,267,489);
+        int recess=pixelMedianLuma(windows,254,466,268,474);
+        int hallSill=pixelMedianLuma(hall,417,339,421,341);
+        int shadow=pixelMedianLuma(hall,680,439,687,447);
+        int wall=pixelMedianLuma(hall,668,410,681,419);
+        String report=String.format(Locale.ROOT,
+                "Clock tower upper ledge %d, lower ledge %d, front face %d%nGable sill %d, recessed wood %d%nHall sill %d, cast shadow %d, adjacent wall %d%n",
+                upper,lower,face,sill,recess,hallSill,shadow,wall);
+        Files.writeString(output.resolve("ledge-lighting.txt"),report);
+        if (face<120 || upper<.66*face || lower<.66*face || sill-recess<55 || hallSill<65 || wall-shadow<45)
+            throw new AssertionError(report);
     }
 
     private static void checkShaftShadow(Path output) throws Exception {
