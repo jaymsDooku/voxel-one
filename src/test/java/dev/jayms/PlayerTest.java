@@ -8,6 +8,25 @@ import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 class PlayerTest {
+    @Test void flightSpeedStepsClampAndScaleVerticalAndHorizontalMovement() {
+        World world=floor();
+        Player pilot=new Player(new Vector3f(4,3,6),0,0,new Camera());
+        pilot.toggleFlight();
+        assertEquals(8,pilot.flightSpeed());
+        for (int i=0;i<8;i++) pilot.adjustFlightSpeed(false);
+        assertEquals(2,pilot.flightSpeed());
+        for (int i=0;i<60;i++) pilot.step(world,1f/60,1,0,false,false);
+        assertEquals(2,pilot.position().x-4,.15);
+        pilot.adjustFlightSpeed(true);
+        for (int i=0;i<60;i++) pilot.step(world,1f/60,0,0,true,true);
+        assertEquals(7,pilot.position().y-3,.4);
+        for (int i=0;i<8;i++) pilot.adjustFlightSpeed(true);
+        assertEquals(64,pilot.flightSpeed());
+        pilot.toggleFlight();
+        pilot.toggleFlight();
+        assertEquals(64,pilot.flightSpeed());
+    }
+
     private World floor() {
         World w = new World();
         Chunk c = new Chunk();

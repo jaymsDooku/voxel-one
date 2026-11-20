@@ -38,6 +38,7 @@ public class Player {
 
     private CameraView cameraView = CameraView.FIRST_PERSON;
     private boolean grounded, flying;
+    private int flightSpeed = 8;
     private boolean mounted;
 
     public boolean mounted() {
@@ -120,6 +121,14 @@ public class Player {
 
     public boolean flying() {
         return flying;
+    }
+
+    public int flightSpeed() {
+        return flightSpeed;
+    }
+
+    public void adjustFlightSpeed(boolean faster) {
+        flightSpeed = faster ? Math.min(64, flightSpeed * 2) : Math.max(2, flightSpeed / 2);
     }
 
     public float walkPhase() {
@@ -219,7 +228,7 @@ public class Player {
                         .fma(right, new Vector3f(direction).cross(0, 1, 0));
         if (flying) target.y = (jump ? 1 : 0) - (descend ? 1 : 0);
         if (target.lengthSquared() > 1) target.normalize();
-        target.mul(mounted ? (sprint ? 12 : 8) : flying ? (sprint ? 14 : 8) : (sprint ? 8 : 5));
+        target.mul(mounted ? (sprint ? 12 : 8) : flying ? flightSpeed * (sprint ? 1.75f : 1f) : (sprint ? 8 : 5));
         if (!flying && jump && grounded) {
             verticalVelocity = 8;
             grounded = false;

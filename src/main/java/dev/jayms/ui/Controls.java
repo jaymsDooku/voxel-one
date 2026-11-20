@@ -49,7 +49,9 @@ public final class Controls {
         CHEAT_MISSILE("Cheats: drop city missile at view centre", GLFW_KEY_DELETE),
         CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
         ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11),
-        DROP_ITEM("Drop one held item", GLFW_KEY_Q);
+        DROP_ITEM("Drop one held item", GLFW_KEY_Q),
+        FLY_SLOWER("Decrease flight speed", GLFW_KEY_LEFT_BRACKET),
+        FLY_FASTER("Increase flight speed", GLFW_KEY_RIGHT_BRACKET);
         public final String label;
         public final int defaultCode;
 

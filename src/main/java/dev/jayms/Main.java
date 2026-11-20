@@ -1096,6 +1096,9 @@ public class Main {
             if (jeep != null && jeep.driving() && (controls.matches(FLY, code)
                     || controls.matches(BREAK, code) || controls.matches(PLACE, code))) return;
             if (controls.matches(FLY, code)) player.toggleFlight();
+            else if (player.flying() && !isometric && (jeep == null || !jeep.driving())
+                    && (controls.matches(FLY_SLOWER, code) || controls.matches(FLY_FASTER, code)))
+                player.adjustFlightSpeed(controls.matches(FLY_FASTER, code));
             else if (controls.matches(VIEW, code)) player.toggleView();
             else if (controls.matches(BREAK, code)) interact(false);
             else if (controls.matches(PLACE, code)) interact(true);
@@ -1606,7 +1609,9 @@ public class Main {
                                 : jeep != null && jeep.driving() ? "DRIVING "+jeep.type().label+" | " + Controls.keyName(controls.code(JEEP)) + ": exit | " + Math.round(Math.abs(jeep.speed())*3.6f) + " km/h"
                                 : player.mounted()
                                         ? "RIDING HORSE | H: dismount"
-                                        : player.flying() ? "FLYING" : "WALKING"),
+                                        : player.flying() ? "FLYING | "+player.flightSpeed()+" blocks/s | "
+                                                +Controls.keyName(controls.code(FLY_SLOWER))+" / "
+                                                +Controls.keyName(controls.code(FLY_FASTER))+" speed" : "WALKING"),
                 22,
                 22,
                 1.8f);
