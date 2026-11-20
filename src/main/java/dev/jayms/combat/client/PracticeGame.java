@@ -641,11 +641,12 @@ public final class PracticeGame {
 
     private void drawPlayerHud(Overlay ui, Fighter actor) {
         float x = (width - 540) / 2f, y = height - 74;
-        String summary = String.format(Locale.ROOT, "HP %.1f / 20   FOOD %d   HITS %d   COMBO %d   POTS %d / %d",
-                actor.health(), view.food(), actor.hits(), actor.combo(), actor.used(), actor.remaining());
+        String summary = String.format(Locale.ROOT, "FOOD %d   HITS %d   COMBO %d   POTS %d / %d",
+                view.food(), actor.hits(), actor.combo(), actor.used(), actor.remaining());
         ui.rectangle(x, y - 30, 540, 29, .031f, .05f, .065f, .92f);
-        ui.rectangle(x + 1, y - 4, 538 * Math.max(0, Math.min(20, actor.health())) / 20, 3, .96f, .29f, .22f, 1);
-        ui.text(summary, x + 10, y - 22, 1.15f);
+        drawHealthHearts(ui, x + 9, y - 25, actor.health());
+        float summaryScale = Math.min(1.15f, 307f / Math.max(1, ui.textWidth(summary, 1f)));
+        ui.text(summary, x + 224, y - 20, summaryScale);
         for (int i = 0; i < 9; i++)
             drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
@@ -661,6 +662,40 @@ public final class PracticeGame {
                 String result = String.format(Locale.ROOT, "%s  HP %.1f  Hits %d  Combo %d  Pots used %d  Left %d",
                         fighter.name(), fighter.health(), fighter.hits(), fighter.combo(), fighter.used(), fighter.remaining());
                 ui.text(result, x, y - 54 - view.fighters().indexOf(fighter) * 19, 1.1f);
+            }
+        }
+    }
+
+    private static final String[] HEART = {
+            ".oo...oo.",
+            "ohro.orro",
+            "ohrrrrrro",
+            "orrrrrrro",
+            "orrrrrrdo",
+            ".orrrddo.",
+            "..orrdo..",
+            "...odo...",
+            "....o...."
+    };
+
+    private static void drawHealthHearts(Overlay ui, float x, float y, float health) {
+        int halfHearts = (int) Math.ceil(Math.max(0, Math.min(20, health)));
+        for (int heart = 0; heart < 10; heart++) {
+            int fill = halfHearts - 2 * heart;
+            for (int row = 0; row < HEART.length; row++) {
+                for (int col = 0; col < HEART[row].length(); col++) {
+                    char pixel = HEART[row].charAt(col);
+                    if (pixel == '.') continue;
+                    boolean filled = fill >= 2 || fill == 1 && col < 5;
+                    int rgb = switch (pixel) {
+                        case 'o' -> 0x576276;
+                        case 'h' -> filled ? 0xffa39c : 0x303d50;
+                        case 'd' -> filled ? 0xa9253e : 0x172330;
+                        default -> filled ? 0xec4558 : 0x233142;
+                    };
+                    ui.rectangle(x + 21 * heart + 2 * col, y + 2 * row, 2, 2, ((rgb >>> 16) & 255) / 255f,
+                            ((rgb >>> 8) & 255) / 255f, (rgb & 255) / 255f, 1);
+                }
             }
         }
     }
