@@ -1334,6 +1334,7 @@ public class Main {
             location.set(overview.focusX(), location.y, overview.focusZ());
         rendering.startFrame();
         distant.settings(graphics.transaction.effective().integer(GraphicsProfile.Key.HORIZON),graphics.transaction.effective().number(GraphicsProfile.Key.LOD));
+        distant.gridPaint(city().stressGrid()!=null);
         distant.update(world, location.x, location.z);
         if (isometric)
             projection.set(

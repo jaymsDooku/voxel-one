@@ -32,6 +32,30 @@ public final class MaterialTextures implements AutoCloseable {
         };
     }
 
+    /** Mean texel value used for matching the distant material to the final near mip. */
+    public static float meanBrightness(int layer) {
+        int sum=0;
+        for(int y=0;y<32;y++) for(int x=0;x<32;x++) sum+=shade(layer,x,y);
+        return sum/(32f*32*255);
+    }
+
+    private static int shade(int l,int x,int y) {
+        int hash = (x * 374761393 + y * 668265263 + l * 1274126177);
+        hash = (hash ^ (hash >>> 13)) * 1274126177;
+        int shade = 210 + (hash >>> 24 & 31);
+        if (l == 5 || l == 7) shade = (int) (222 + 12 * Math.sin(x * .8 + y * .15));
+        if (l == 7 && (y % 8 == 0 || x % 16 == (y / 8 % 2) * 8)) shade = 155;
+        if (l == 8 && (y % 8 == 0 || x % 16 == (y / 8 % 2) * 8)) shade = 145;
+        if (l == 9) shade = 245;
+        if (l == 10) shade = x % 8 == 0 || y % 8 == 0 ? 190 : 255;
+        if (l >= 11) {
+            shade = 50 + (hash >>> 24 & 15);
+            if (l == 12 && y >= 14 && y <= 17 || l == 13 && x >= 14 && x <= 17)
+                shade = 250;
+        }
+        return shade;
+    }
+
     public MaterialTextures() {
         id = glGenTextures();
         glBindTexture(GL_TEXTURE_2D_ARRAY, id);
@@ -40,19 +64,7 @@ public final class MaterialTextures implements AutoCloseable {
             for (int l = 0; l < 14; l++)
                 for (int y = 0; y < 32; y++)
                     for (int x = 0; x < 32; x++) {
-                        int hash = (x * 374761393 + y * 668265263 + l * 1274126177);
-                        hash = (hash ^ (hash >>> 13)) * 1274126177;
-                        int shade = 210 + (hash >>> 24 & 31);
-                        if (l == 5 || l == 7) shade = (int) (222 + 12 * Math.sin(x * .8 + y * .15));
-                        if (l == 7 && (y % 8 == 0 || x % 16 == (y / 8 % 2) * 8)) shade = 155;
-                        if (l == 8 && (y % 8 == 0 || x % 16 == (y / 8 % 2) * 8)) shade = 145;
-                        if (l == 9) shade = 245;
-                        if (l == 10) shade = x % 8 == 0 || y % 8 == 0 ? 190 : 255;
-                        if (l >= 11) {
-                            shade = 50 + (hash >>> 24 & 15);
-                            if (l == 12 && y >= 14 && y <= 17 || l == 13 && x >= 14 && x <= 17)
-                                shade = 250;
-                        }
+                        int shade=shade(l,x,y);
                         pixels.put((byte) shade)
                                 .put((byte) shade)
                                 .put((byte) shade)

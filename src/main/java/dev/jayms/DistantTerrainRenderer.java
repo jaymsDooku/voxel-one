@@ -1,6 +1,9 @@
 package dev.jayms;
 
 import dev.jayms.net.*;
+import dev.jayms.net.city.StressGrid;
+import dev.jayms.net.city.RoadMarkings;
+import dev.jayms.render.MaterialTextures;
 
 import org.joml.FrustumIntersection;
 import org.joml.Matrix4f;
@@ -18,7 +21,17 @@ public final class DistantTerrainRenderer implements AutoCloseable {
                         thread.setDaemon(true);
                         return thread;
                     });
-    private final Terrain terrain;
+    private Terrain terrain;
+    private boolean gridPaint;
+    // Match the mean texels of the detailed grass and asphalt material layers.
+    // Coverage must mix these colors in linear light at the horizon.
+    private static final float[] GRID_GRASS=linearAlbedo(Blocks.color(Blocks.GRASS),MaterialTextures.meanBrightness(MaterialTextures.layer(Blocks.GRASS)));
+    private static final float[] GRID_ASPHALT=linearAlbedo(Blocks.color(Blocks.ASPHALT),MaterialTextures.meanBrightness(MaterialTextures.layer(Blocks.ASPHALT)));
+    private static final float[] GRID_PAINT=linearAlbedo(new float[]{.95f,.95f,.9f},1);
+    private static float[] linearAlbedo(float[] rgb,float brightness){
+        for(int i=0;i<rgb.length;i++) rgb[i]=(float)Math.pow(rgb[i]*brightness,2.2);
+        return rgb;
+    }
     private DistantTerrainMesher mesher;
     private final Map<DistantTerrainPlan.Tile, Mesh> meshes = new HashMap<>();
     private final Map<DistantTerrainPlan.Tile, Future<MeshData>> pending = new LinkedHashMap<>();
@@ -32,8 +45,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     private long meshBytes,meshGeneration;
     private final Set<DistantTerrainPlan.Tile> capacityRejected=new HashSet<>();
     private java.util.List<DistantTerrainPlan.Tile> selectedCache=java.util.List.of();private long selectedGeneration=-1;
-    private Set<DistantTerrainPlan.Tile> selectedSet=Set.of();
-    private final Map<DistantTerrainPlan.Tile,Float> fadingParents=new HashMap<>();
+    private final DistantTerrainTransitions transitions=new DistantTerrainTransitions();
     private final List<DistantTerrainPlan.Tile> transitionDraws=new ArrayList<>();
     private final Matrix4f modelScratch=new Matrix4f();
     private int detailTexture;
@@ -62,7 +74,6 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     public long estimatedMeshBytes(){return meshBytes;}public int queuedTiles(){return pending.size();}
     private int projectionPixels;
     private float screenProjection,elevation; private int screenHeight; private boolean orthographic;
-    private final Map<DistantTerrainPlan.Tile,Float> transitionStart=new HashMap<>();
     public void screen(Matrix4f projection,int height,boolean iso,float cameraY) {
         // Quantize viewport scale to avoid rebuilding on tiny zoom changes.
         int scale=Math.round(Math.abs(projection.m11())*height/32f)*32;
@@ -95,8 +106,16 @@ public final class DistantTerrainRenderer implements AutoCloseable {
         return rendered;
     }
 
+    public void gridPaint(boolean enabled) { gridPaint=enabled; }
+
     public void update(World world, float x, float z) {
-        if (terrain.stressGrid() != world.terrain().stressGrid()) terrain.stressGrid(world.terrain().stressGrid());
+        if (!Objects.equals(terrain.stressGrid(),world.terrain().stressGrid())) {
+            // Keep the terrain used by already submitted jobs immutable.
+            remove(t->true);
+            terrain=new Terrain(terrain.seed,terrain.version);
+            terrain.stressGrid(world.terrain().stressGrid());
+            revision=-1;
+        }
         int px = Math.floorDiv((int) Math.floor(x), 16) * 16;
         int pz = Math.floorDiv((int) Math.floor(z), 16) * 16;
         if (plan == null || px != centerX || pz != centerZ) {
@@ -111,7 +130,17 @@ public final class DistantTerrainRenderer implements AutoCloseable {
             var changed =
                     next.values().stream().filter(e -> !e.equals(edits.get(e.key()))).toList();
             var removed=edits.values().stream().filter(e->!next.containsKey(e.key())).toList();
-            remove(t -> t.step() == 1 && (changed.stream().anyMatch(e -> t.touches(e.x(), e.z()))||removed.stream().anyMatch(e->t.touches(e.x(),e.z()))));
+            Set<DistantTerrainPlan.Tile> changedGridTiles=new HashSet<>();
+            if(terrain.stressGrid()!=null && (!meshes.isEmpty() || !pending.isEmpty())){
+                for(var events:List.of(changed,removed)) for(var edit:events){
+                    if(edit.depth()!=0 || edit.y()>terrain.stressGrid().grade()
+                            || !terrain.stressGrid().contains(edit.x(),edit.z())) continue;
+                    for(int size=32;size<=DistantTerrainPlan.ROOT_SIZE;size*=2)
+                        changedGridTiles.add(new DistantTerrainPlan.Tile(Math.floorDiv(edit.x(),size)*size,
+                                Math.floorDiv(edit.z(),size)*size,size));
+                }
+            }
+            remove(t -> changedGridTiles.contains(t) || t.step() == 1 && (changed.stream().anyMatch(e -> t.touches(e.x(), e.z()))||removed.stream().anyMatch(e->t.touches(e.x(),e.z()))));
             edits = next;
             mesher = new DistantTerrainMesher(terrain, edits.values());
             revision = world.editsVersion();capacityRejected.clear();
@@ -123,8 +152,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
             if (!entry.getValue().isDone()) continue;
             try {
                 MeshData data=entry.getValue().get();long bytes=DetailedMeshScheduler.bytes(data);
-                if(meshBytes+bytes<=128L*1024*1024&&meshes.size()<4096){meshes.put(entry.getKey(),new Mesh(data));meshBytes+=bytes;meshGeneration++;uploadedBytes+=bytes;
-                transitionStart.put(entry.getKey(),(float)org.lwjgl.glfw.GLFW.glfwGetTime());} else capacityRejected.add(entry.getKey());
+                if(meshBytes+bytes<=128L*1024*1024&&meshes.size()<4096){meshes.put(entry.getKey(),new Mesh(data));meshBytes+=bytes;meshGeneration++;uploadedBytes+=bytes;} else capacityRejected.add(entry.getKey());
             } catch (InterruptedException e) {
                 Thread.currentThread().interrupt();
                 throw new IllegalStateException("Terrain generation interrupted", e);
@@ -149,7 +177,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
                 .removeIf(
                         e -> {
                             if (!obsolete.test(e.getKey())) return false;
-                            meshBytes-=e.getValue().byteSize();e.getValue().close();transitionStart.remove(e.getKey());meshGeneration++;
+                            meshBytes-=e.getValue().byteSize();e.getValue().close();meshGeneration++;
                             return true;
                         });
         pending.entrySet()
@@ -176,6 +204,13 @@ public final class DistantTerrainRenderer implements AutoCloseable {
             maskBounds=bounds();
         }
         glActiveTexture(GL_TEXTURE0);
+        if(terrain.stressGrid()!=null){
+            shader.setVector3("uGridLayout",StressGrid.STRIDE,StressGrid.ROAD,gridPaint?RoadMarkings.GRID_STRIPE_WIDTH:0);
+            shader.setVector3("uGridOrigin",StressGrid.MIN_X,0,StressGrid.MIN_Z);
+            shader.setVector3("uGridGrass",GRID_GRASS[0],GRID_GRASS[1],GRID_GRASS[2]);
+            shader.setVector3("uGridAsphalt",GRID_ASPHALT[0],GRID_ASPHALT[1],GRID_ASPHALT[2]);
+            shader.setVector3("uGridPaint",GRID_PAINT[0],GRID_PAINT[1],GRID_PAINT[2]);
+        }
         shader.setVector3("uTerrainMinimum", bounds().minX(), 0, bounds().minZ());
         shader.setVector3("uTerrainMaximum", bounds().maxX(), 0, bounds().maxZ());
         shader.setVector3("uDetailOrigin",columnMask.originX(),0,columnMask.originZ());
@@ -184,17 +219,21 @@ public final class DistantTerrainRenderer implements AutoCloseable {
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
         rendered = 0;
-        if(selectedGeneration!=meshGeneration){selectedCache=plan.select(meshes.keySet());selectedSet=new HashSet<>(selectedCache);selectedGeneration=meshGeneration;}
-        java.util.Set<DistantTerrainPlan.Tile> selected=selectedSet;fadingParents.clear();
         float now=(float)org.lwjgl.glfw.GLFW.glfwGetTime();
-        for(var tile:selected) {
-            float age=now-transitionStart.getOrDefault(tile,now-1);
-            if(age<.4f&&tile.size()<1024) {
-                int size=tile.size()*2;var parent=new DistantTerrainPlan.Tile(Math.floorDiv(tile.x(),size)*size,Math.floorDiv(tile.z(),size)*size,size);
-                if(meshes.containsKey(parent)&&!selected.contains(parent))fadingParents.merge(parent,age/.4f,Math::min);
-            }
+        if(selectedGeneration!=meshGeneration){
+            selectedCache=plan.select(meshes.keySet());
+            transitions.select(selectedCache,meshes.keySet(),now);
+            selectedGeneration=meshGeneration;
+        } else {
+            transitions.expire(now);
         }
-        Iterable<DistantTerrainPlan.Tile> draws=selectedCache;if(!fadingParents.isEmpty()){transitionDraws.clear();transitionDraws.addAll(selectedCache);transitionDraws.addAll(fadingParents.keySet());draws=transitionDraws;}
+        Iterable<DistantTerrainPlan.Tile> draws=selectedCache;
+        if(!transitions.parents().isEmpty()){
+            transitionDraws.clear();
+            transitionDraws.addAll(selectedCache);
+            transitionDraws.addAll(transitions.parents());
+            draws=transitionDraws;
+        }
         for (var tile : draws) {
             if (!frustum.testAab(
                     tile.x(),
@@ -204,10 +243,8 @@ public final class DistantTerrainRenderer implements AutoCloseable {
                     Terrain.MAX_Y + 1,
                     tile.z() + tile.size())) continue;
             shader.setMatrix4("uModel", modelScratch.translation(tile.x(), 0, tile.z()));
-            Float fade=fadingParents.get(tile);
-            int parentSize=tile.size()*2;var parent=new DistantTerrainPlan.Tile(Math.floorDiv(tile.x(),parentSize)*parentSize,Math.floorDiv(tile.z(),parentSize)*parentSize,parentSize);
-            float childFade=fadingParents.getOrDefault(parent,1f);
-            shader.setFloat("uLodFade",fade==null?childFade:fade);shader.setInt("uLodParent",fade==null?0:1);
+            shader.setFloat("uLodFade",transitions.fraction(tile,now));
+            shader.setInt("uLodParent",transitions.parents().contains(tile)?1:0);
             meshes.get(tile).render();
             rendered++;
         }

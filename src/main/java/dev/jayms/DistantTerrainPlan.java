@@ -23,9 +23,14 @@ public final class DistantTerrainPlan {
         }
 
         public void select(Set<Tile> ready, List<Tile> out) {
-            if (!children.isEmpty() && children.stream().allMatch(n -> n.available(ready)))
-                children.forEach(n -> n.select(ready, out));
-            else if (ready.contains(tile)) out.add(tile);
+            if (ready.contains(tile) && (children.isEmpty()
+                    || !children.stream().allMatch(n -> n.available(ready)))) {
+                out.add(tile);
+                return;
+            }
+            // An uncached root can display its available descendants while its
+            // remaining quadrants stream. A ready parent above still takes precedence.
+            children.forEach(n -> n.select(ready, out));
         }
     }
 
