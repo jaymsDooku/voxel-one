@@ -254,7 +254,8 @@ public final class RenderPipeline implements AutoCloseable {
             }
         }
         if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
-        boolean changed=sceneChanged(world) || worldRevision != world.editsVersion();
+        boolean worldOrEditsChanged=sceneWorld!=world || worldRevision!=world.editsVersion();
+        boolean changed=sceneChanged(world) || worldOrEditsChanged;
         sceneNanos=System.nanoTime()-stage;
         SkyVisibilityScheduler.Prepared rebuilt=null;
         boolean uncovered=volume==null||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
@@ -268,7 +269,11 @@ public final class RenderPipeline implements AutoCloseable {
         if(System.nanoTime()<deadline){rebuilt=skyVisibility.update(world,skyLead(x,motionX),skyLead(z,motionZ),Math.min(skyAllowance,Math.max(0,(deadline-System.nanoTime())/2)),initialLightingFrame);skyBuildNanos=skyVisibility.ownerNanos;}
         if(rebuilt!=null)desiredSky=rebuilt;
         if (changed) {
-            hiZ.invalidate();temporal.reset();worldRevision = world.editsVersion();
+            hiZ.invalidate();
+            // Mesh uploads can finish every frame during streaming. Their new
+            // pixels have a depth test in the resolve; other pixels retain history.
+            if(worldOrEditsChanged) temporal.reset();
+            worldRevision = world.editsVersion();
         }
         stage=System.nanoTime();
         // Coalesce changing sky requests while the one available GPU generation uploads.

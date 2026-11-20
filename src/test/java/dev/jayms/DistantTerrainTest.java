@@ -11,6 +11,44 @@ import java.util.*;
 
 class DistantTerrainTest {
     @Test
+    void retainedPalacePavingExcludesCoplanarDistantTerrainAcrossCameraCells() {
+        // The opening camera is near (150,-155). This paving lies more than eight
+        // chunks away in Z, outside the old camera-centred mask.
+        Terrain terrain=new Terrain(Terrain.DEFAULT_SEED);
+        int grade=24, x=269, z=29;
+        terrain.stressGrid(new dev.jayms.net.city.StressGrid(grade));
+        ChunkPos column=new ChunkPos(x/16,0,z/16);
+        Chunk near=ChunkGenerator.generate(new ChunkPos(column.chunkX(),grade/16,column.chunkZ()),terrain);
+        near.setBlock(x%16,grade%16,z%16,Blocks.STONE);
+        MeshData detail=MeshDataGenerator.generate(near);
+        var far=new DistantTerrainMesher(terrain,List.of()).build(new DistantTerrainPlan.Tile(256,0,64));
+        assertTrue(coversTop(detail,x%16+.5f,grade%16+1,z%16+.5f));
+        assertTrue(coversTop(far,x-256+.5f,grade+1,z+.5f));
+
+        for (int cameraZ : new int[]{-160,-144}) {
+            var bounds=new DistantTerrainPlan(144,cameraZ).bounds();
+            var mask=DistantTerrainRenderer.ColumnMask.build(bounds,Set.of(column,new ChunkPos(-2,0,-1)));
+            assertTrue(masked(mask,column.chunkX(),column.chunkZ()));
+            assertTrue(masked(mask,-2,-1));
+            assertFalse(masked(mask,column.chunkX()+1,column.chunkZ()));
+            assertTrue(mask.words().length*Integer.BYTES<10_000);
+        }
+    }
+
+    private static boolean masked(DistantTerrainRenderer.ColumnMask mask,int x,int z) {
+        int ix=x-mask.originX(), iz=z-mask.originZ();
+        return (mask.words()[iz*mask.wordsPerRow()+(ix>>>5)] & (1<<(ix&31)))!=0;
+    }
+
+    private static boolean coversTop(MeshData mesh,float x,float y,float z) {
+        float[] v=mesh.vertices();
+        for (int i=0;i<v.length;i+=36)
+            if (v[i+4]==1 && v[i+1]==y && x>v[i] && x<v[i+18] && z<v[i+2] && z>v[i+20])
+                return true;
+        return false;
+    }
+
+    @Test
     void adaptiveTilesCoverTheVisibleWorldWithoutOverlapIncludingNegativeCoordinates() {
         for (int[] center : new int[][] {{0, 16}, {-160, -272}, {100000, -50000}}) {
             var plan = new DistantTerrainPlan(center[0], center[1]);
