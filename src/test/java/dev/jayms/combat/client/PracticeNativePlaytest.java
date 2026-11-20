@@ -130,7 +130,7 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
-                    if (sprintHits < 3 || peakKnockbackUp < .12 || peakKnockbackUp > .24)
+                    if (sprintHits < 3 || peakKnockbackUp < .20 || peakKnockbackUp > .26)
                         throw new IllegalStateException("Expected three sprint hits with a low arc, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
                     if (recorder.active()) recorder.toggle(width, height);
