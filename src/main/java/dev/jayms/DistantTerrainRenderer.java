@@ -7,6 +7,7 @@ import org.joml.Matrix4f;
 
 import java.util.*;
 import java.util.concurrent.*;
+import static org.lwjgl.opengl.GL33.*;
 
 /** CPU generation stays on one worker; GL uploads and disposal stay on the render thread. */
 public final class DistantTerrainRenderer implements AutoCloseable {
@@ -35,6 +36,28 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     private final Map<DistantTerrainPlan.Tile,Float> fadingParents=new HashMap<>();
     private final List<DistantTerrainPlan.Tile> transitionDraws=new ArrayList<>();
     private final Matrix4f modelScratch=new Matrix4f();
+    private int detailTexture;
+    private Set<ChunkPos> maskColumns;
+    private WorldBounds maskBounds;
+    private ColumnMask columnMask;
+
+    /** One bit per column within the far pass, including the inward bias on its boundary skirts. */
+    record ColumnMask(int originX, int originZ, int wordsPerRow, int rows, int[] words) {
+        static ColumnMask build(WorldBounds bounds, Set<ChunkPos> detailed) {
+            int originX=(int)Math.floor(bounds.minX()/16)-1;
+            int originZ=(int)Math.floor(bounds.minZ()/16)-1;
+            int columns=(int)Math.floor(bounds.maxX()/16)-originX+1;
+            int rows=(int)Math.floor(bounds.maxZ()/16)-originZ+1;
+            int stride=(columns+31)/32;
+            int[] words=new int[stride*rows];
+            for (ChunkPos column : detailed) {
+                int x=column.chunkX()-originX, z=column.chunkZ()-originZ;
+                if (x>=0 && x<columns && z>=0 && z<rows)
+                    words[z*stride+(x>>>5)] |= 1<<(x&31);
+            }
+            return new ColumnMask(originX,originZ,stride,rows,words);
+        }
+    }
     public void settings(int radius,float errorPixels){if(this.radius!=radius||this.errorPixels!=errorPixels){this.radius=radius;this.errorPixels=errorPixels;centerX=Integer.MIN_VALUE;}}
     public long estimatedMeshBytes(){return meshBytes;}public int queuedTiles(){return pending.size();}
     private int projectionPixels;
@@ -139,16 +162,24 @@ public final class DistantTerrainRenderer implements AutoCloseable {
     }
 
     public void render(ShaderProgram shader, FrustumIntersection frustum, Set<ChunkPos> detailed) {
-        int ox = Math.floorDiv(centerX, 16) - 7, oz = Math.floorDiv(centerZ, 16) - 7;
-        int[] rows = new int[16];
-        for (ChunkPos column : detailed) {
-            int x = column.chunkX() - ox, z = column.chunkZ() - oz;
-            if (x >= 0 && x < 16 && z >= 0 && z < 16) rows[z] |= 1 << x;
+        if (detailTexture==0) detailTexture=glGenTextures();
+        // Unit one also holds the near pass's shadow array. A 2D binding leaves that array intact.
+        glActiveTexture(GL_TEXTURE1);
+        glBindTexture(GL_TEXTURE_2D,detailTexture);
+        if (maskColumns!=detailed || !bounds().equals(maskBounds)) {
+            columnMask=ColumnMask.build(bounds(),detailed);
+            glTexImage2D(GL_TEXTURE_2D,0,GL_R32UI,columnMask.wordsPerRow(),columnMask.rows(),0,
+                    GL_RED_INTEGER,GL_UNSIGNED_INT,columnMask.words());
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+            glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+            maskColumns=detailed; // World supplies a new immutable set for each membership change.
+            maskBounds=bounds();
         }
+        glActiveTexture(GL_TEXTURE0);
         shader.setVector3("uTerrainMinimum", bounds().minX(), 0, bounds().minZ());
         shader.setVector3("uTerrainMaximum", bounds().maxX(), 0, bounds().maxZ());
-        shader.setVector3("uDetailOrigin", ox, 0, oz);
-        shader.setInts("uDetailRows", rows);
+        shader.setVector3("uDetailOrigin",columnMask.originX(),0,columnMask.originZ());
+        shader.setInt("uDetailColumns",1);
         shader.setInt("uDistantTerrain", 1);
         shader.setInt("uVertexColor", 1);
         shader.setInt("uInstanced", 0);
@@ -186,6 +217,7 @@ public final class DistantTerrainRenderer implements AutoCloseable {
 
     @Override
     public void close() {
+        if (detailTexture!=0) glDeleteTextures(detailTexture);
         pending.values().forEach(f -> f.cancel(true));
         worker.shutdownNow();
         meshes.values().forEach(Mesh::close);

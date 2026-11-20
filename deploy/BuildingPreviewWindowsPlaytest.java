@@ -5,7 +5,10 @@ import dev.jayms.player.Player;
 import dev.jayms.window.Window;
 import java.awt.image.BufferedImage;
 import java.lang.reflect.Field;
+import java.nio.ByteBuffer;
 import java.nio.file.Files;
+import java.nio.file.StandardOpenOption;
+import java.util.Locale;
 import java.nio.file.Path;
 import javax.imageio.ImageIO;
 import org.joml.Vector3f;
@@ -25,6 +28,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean cedar, westminster, grand;
     private boolean clockLighting;
     private boolean facadeLighting;
+    private PreviewFlickerPlaytest flicker;
     private int clockFrames;
     private Vector3f overviewStart;
 
@@ -44,12 +48,14 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.grand=building.name().equals("westminster-grand");
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
+        if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
-        if (probe.stage!=(probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
+        if (probe.stage!=(probe.flicker!=null ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.flicker!=null ? "Captured settled Palace, flight, and clock detail under fixed daylight.\n" :
                 probe.clockLighting ? "Captured two Elizabeth Tower corners and approach under fixed daylight.\n" :
                 probe.facadeLighting ? "PASS: Both tower shafts received exterior daylight. Captured the Thames view and both towers.\n" :
                 probe.grand ? "PASS: Captured the opening Palace overview, river roof and Westminster Hall lanterns in the native client. The plot stayed unsaved.\n" : probe.westminster
@@ -60,7 +66,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (facadeLighting) glfwSetWindowSize(window,800,480);
+        if (facadeLighting || flicker!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
@@ -81,6 +87,17 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (flicker!=null) {
+            if (stage==3) {
+                placeFlying(game,49,77,-3,127+(clockFrames+1)*PreviewFlickerPlaytest.PAN_DEGREES,0);
+            } else if (stage==1) {
+                float t=Math.min(1,clockFrames/64f);
+                placeFlying(game,overviewStart.x+(49-overviewStart.x)*t,
+                        overviewStart.y+(77-overviewStart.y)*t,overviewStart.z+(-3-overviewStart.z)*t,
+                        90+37*t,-10+10*t);
+            }
+            return;
+        }
         if (clockLighting) {
             if (stage==1) {
                 float t=Math.min(1,(now-since)/1_800_000_000f);
@@ -104,6 +121,29 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (flicker!=null) {
+            clockFrames++;
+            if (stage==1) {
+                if (clockFrames>=65) {stage++;clockFrames=0;}
+                return;
+            }
+            int warmup=stage==0?240:stage==2?96:0;
+            if (clockFrames<=warmup) return;
+            int sample=clockFrames-warmup;
+            String view=stage==0?"overview":stage==2?"clock":"pan";
+            if (sample==1) {
+                if (field("framebufferWidth").getInt(game)!=800 || field("framebufferHeight").getInt(game)!=480)
+                    throw new AssertionError("Flicker measurements require the 800 x 480 framebuffer");
+                capture(game,view+".png");
+                if(stage==0) pressRecord();
+            }
+            flicker.sample(view,sample);
+            if(sample==PreviewFlickerPlaytest.SAMPLES) {
+                if(stage==3) {pressRecord();glfwSetWindowShouldClose(window,true);}
+                stage++;clockFrames=0;
+            }
+            return;
+        }
         if (clockLighting) {
             clockFrames++;
             if (stage==0 && clockFrames==120) capture(game,"clock-warm.png");
@@ -235,5 +275,78 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         var field=Main.class.getDeclaredField(name);
         field.setAccessible(true);
         return field;
+    }
+}
+
+/** Adjacent-frame changes on opaque building details in the fixed daylight flight route. */
+final class PreviewFlickerPlaytest {
+    static final int SAMPLES=32;
+    static final float PAN_DEGREES=.10f;
+    private static final double FOCAL_LENGTH=240/Math.tan(Math.toRadians(35));
+    private static final double PAN_COS=Math.cos(Math.toRadians(PAN_DEGREES));
+    private static final double PAN_SIN=Math.sin(Math.toRadians(PAN_DEGREES));
+    private final Path report;
+    private static final int MAX_REGION_PIXELS=177*157;
+    private final ByteBuffer pixels=BufferUtils.createByteBuffer(MAX_REGION_PIXELS*4);
+    private int[] last=new int[MAX_REGION_PIXELS],current=new int[MAX_REGION_PIXELS];
+    private long absolute,total,changed;
+    private double worstFrame;
+
+    PreviewFlickerPlaytest(Path output) {
+        report=output.resolve("flicker.txt");
+    }
+
+    void sample(String view,int frame) throws Exception {
+        boolean overview=view.equals("overview");
+        // The two rectangles cover the river facade and clock tower respectively.
+        // Keep sky, grass and the updating HUD outside the sample.
+        int left=overview?205:330,top=overview?285:176;
+        int width=overview?385:177,height=overview?47:157;
+        glReadPixels(left,480-top-height,width,height,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+        long frameAbsolute=0,frameCount=0;
+        if(frame==1){absolute=0;total=0;changed=0;worstFrame=0;}
+        for(int i=0;i<width*height;i++){
+            int b=i*4;
+            int value=(54*(pixels.get(b)&255)+183*(pixels.get(b+1)&255)+19*(pixels.get(b+2)&255)+128)>>8;
+            current[i]=value;
+        }
+        boolean pan=view.equals("pan");
+        for(int y=1;frame>1 && y<height-2;y++)for(int x=1;x<width-3;x++){
+            // Reproject a pure camera rotation to the preceding frame. The
+            // camera's position, field of view and pitch are held fixed.
+            double prior=pan?previousPanSample(left,top,width,height,x,y):last[y*width+x];
+            if(left+x>=393 && left+x<=407 && top+height-1-y>=232 && top+height-1-y<=248) continue;
+            int delta=(int)Math.round(Math.abs(current[y*width+x]-prior));
+            frameAbsolute+=delta;
+            if(delta>=8) changed++;
+            frameCount++;
+        }
+        int[] swap=last;last=current;current=swap;
+        if(frame>1){
+            total+=frameCount;
+            absolute+=frameAbsolute;
+            worstFrame=Math.max(worstFrame,frameAbsolute/(double)frameCount);
+        }
+        if(frame==SAMPLES){
+            double mean=absolute/(double)total,changedPercent=100.*changed/total;
+            String line=String.format(Locale.ROOT,"%s: mean_luma_delta=%.3f worst_frame_mean=%.3f changed_by_8_pct=%.3f pairs=%d%n",
+                    view,mean,worstFrame,changedPercent,SAMPLES-1);
+            Files.writeString(report,line,StandardOpenOption.CREATE,StandardOpenOption.APPEND);
+            System.out.print(line);
+            // Permit isolated lighting updates while catching persistent shimmer.
+            if(mean>4 || changedPercent>12) throw new AssertionError("Persistent flicker: "+line);
+        }
+    }
+
+    private double previousPanSample(int left,int top,int width,int height,int x,int y){
+        double nx=(left+x+.5-400)/FOCAL_LENGTH;
+        double denom=PAN_COS-nx*PAN_SIN;
+        double oldX=400+FOCAL_LENGTH*(nx*PAN_COS+PAN_SIN)/denom-.5-left;
+        double bottom=480-top-height;
+        double oldY=240+(bottom+y+.5-240)/denom-.5-bottom;
+        int ix=(int)Math.floor(oldX),iy=(int)Math.floor(oldY);
+        double fx=oldX-ix,fy=oldY-iy;
+        return (1-fy)*((1-fx)*last[iy*width+ix]+fx*last[iy*width+ix+1])
+                +fy*((1-fx)*last[(iy+1)*width+ix]+fx*last[(iy+1)*width+ix+1]);
     }
 }

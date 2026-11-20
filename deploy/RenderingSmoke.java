@@ -157,6 +157,78 @@ public class RenderingSmoke {
             Files.writeString(output.resolve("model-shadow-draw-checks.txt"),report.toString());
         }
     }
+    /** A linear world-space ramp has a known HDR value at each display pixel
+     * regardless of the raster jitter, including while the camera pans. */
+    static void temporalGridCheck(Path output) throws Exception {
+        int size=32, scene=glGenTextures(), depth=glGenTextures();
+        float[] ramp=new float[size*size], depths=new float[size*size], result=new float[size*size];
+        java.util.Arrays.fill(depths,.5f);
+        var settings=new RenderSettings();
+        settings.ao=settings.contactShadows=settings.reflections=settings.screenGi=false;
+        settings.volumetrics=settings.autoExposure=settings.bloom=false;
+        float maxError=0, maxEdgeStep=0;
+        try(var post=new TemporalPost(settings)) {
+            for(int texture:new int[]{scene,depth}) {
+                glBindTexture(GL_TEXTURE_2D,texture);
+                glTexImage2D(GL_TEXTURE_2D,0,GL_R32F,size,size,0,GL_RED,GL_FLOAT,depths);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,texture==depth?GL_NEAREST:GL_LINEAR);
+                glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MAG_FILTER,texture==depth?GL_NEAREST:GL_LINEAR);
+            }
+            var projection=new Matrix4f().ortho(0,size,0,size,.1f,10);
+            var sun=new Vector3f(0,1,0);
+            for(int frame=0;frame<32;frame++) {
+                float pan=Math.max(0,frame-16)*.25f;
+                var eye=new Vector3f(pan,0,1);
+                post.begin(projection,new Matrix4f().translation(-pan,0,-1),eye,size,size,size,size);
+                float jitterPixels=post.jitterX(size)*size*.5f;
+                for(int y=0;y<size;y++) for(int x=0;x<size;x++)
+                    ramp[y*size+x]=(x+.5f+pan-jitterPixels)/size;
+                glBindTexture(GL_TEXTURE_2D,scene);
+                glTexSubImage2D(GL_TEXTURE_2D,0,0,0,size,size,GL_RED,GL_FLOAT,ramp);
+                post.finish(scene,depth,sun,1,1);
+                int texture=((int[])field(post,"color"))[(int)field(post,"index")];
+                glBindTexture(GL_TEXTURE_2D,texture);
+                glGetTexImage(GL_TEXTURE_2D,0,GL_RED,GL_FLOAT,result);
+                int x=size/2;
+                maxError=Math.max(maxError,Math.abs(result[(size/2)*size+x]-(x+.5f+pan)/size));
+            }
+            // A foreground edge bisects the center display pixel. Jitter
+            // alternately covers foreground and background at different depths.
+            post.reset();
+            float last=0;
+            for(int frame=0;frame<=96;frame++) {
+                post.begin(projection,new Matrix4f().translation(0,0,-1),new Vector3f(0,0,1),size,size,size,size);
+                float jitterPixels=post.jitterX(size)*size*.5f;
+                for(int y=0;y<size;y++) for(int x=0;x<size;x++) {
+                    boolean covered=frame<96&&x-jitterPixels<size/2;
+                    ramp[y*size+x]=covered?1:0;
+                    depths[y*size+x]=covered?.4f:.7f;
+                }
+                glBindTexture(GL_TEXTURE_2D,scene);
+                glTexSubImage2D(GL_TEXTURE_2D,0,0,0,size,size,GL_RED,GL_FLOAT,ramp);
+                glBindTexture(GL_TEXTURE_2D,depth);
+                glTexSubImage2D(GL_TEXTURE_2D,0,0,0,size,size,GL_RED,GL_FLOAT,depths);
+                post.finish(scene,depth,sun,1,1);
+                int texture=((int[])field(post,"color"))[(int)field(post,"index")];
+                glBindTexture(GL_TEXTURE_2D,texture);
+                glGetTexImage(GL_TEXTURE_2D,0,GL_RED,GL_FLOAT,result);
+                float edge=result[size/2*size+size/2];
+                if(frame>=48&&frame<96)maxEdgeStep=Math.max(maxEdgeStep,Math.abs(edge-last));
+                if(frame==95)require(edge>.4f&&edge<.6f,"TAA integrates fractional coverage: "+edge);
+                if(frame==96)require(edge==0,"Removed foreground does not linger in the history");
+                last=edge;
+            }
+        } finally {
+            glDeleteTextures(scene);
+            glDeleteTextures(depth);
+        }
+        Files.writeString(output.resolve("temporal-grid.txt"),"32 stationary and panning frames; maximum HDR sample error="+maxError+
+                "\n48 settled silhouette frames; largest HDR step="+maxEdgeStep+"\n");
+        require(maxError<.002f,"Jittered frames resolve to the fixed display grid, max error="+maxError);
+        require(maxEdgeStep<.035f,"Subpixel silhouette converges at rest, max step="+maxEdgeStep);
+        clean("Temporal grid");
+    }
+
     public static void main(String[] args) throws Exception {
         if (args.length != 1)
             throw new IllegalArgumentException("Provide an evidence output directory");
@@ -166,11 +238,18 @@ public class RenderingSmoke {
         glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, Boolean.getBoolean("voxel.gl33") ? 3 : 4);
         glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
         glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+        boolean gridOnly=Boolean.getBoolean("voxel.temporalGridOnly");
+        if(gridOnly)glfwWindowHint(GLFW_VISIBLE,GLFW_FALSE);
         long window = glfwCreateWindow(WIDTH, HEIGHT, "Voxel One rendering checks", 0, 0);
         require(window != 0, "Window creation");
         glfwMakeContextCurrent(window);
         GL.createCapabilities();
         String driver = glGetString(GL_RENDERER);
+        if(gridOnly){
+            try{temporalGridCheck(output);} finally {glfwDestroyWindow(window);glfwTerminate();}
+            return;
+        }
+        temporalGridCheck(output);
         modelShadowDrawChecks(output);
         try (var shader = new ShaderProgram("shaders/voxel.vert", "shaders/voxel.frag");
                 var rendering = new RenderPipeline();

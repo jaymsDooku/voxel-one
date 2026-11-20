@@ -14,7 +14,8 @@ public final class TemporalPost implements AutoCloseable {
     private final int vao = glGenVertexArrays(), lutTexture = glGenTextures();
     private int lutSize;
     private final int[] fbo = new int[2], color = new int[2], depth = new int[2];
-    private final Matrix4f previous = new Matrix4f(), current = new Matrix4f();
+    private final Matrix4f previous = new Matrix4f(), presentation = new Matrix4f(), current = new Matrix4f();
+    private float jitterU, jitterV;
     private final Vector3f camera = new Vector3f(), previousCamera = new Vector3f(Float.POSITIVE_INFINITY);
     private int width, height, index, frame;
     private boolean valid;
@@ -69,7 +70,13 @@ public final class TemporalPost implements AutoCloseable {
     public void begin(Matrix4f projection, Matrix4f view, Vector3f eye, int w, int h, int outW, int outH) {
         if (outW != width || outH != height) resize(outW, outH);
         camera.set(eye);
-        current.identity().translation(jitterX(w), jitterY(h), 0).mul(projection).mul(view);
+        presentation.set(projection).mul(view);
+        float jitterX = jitterX(w), jitterY = jitterY(h);
+        current.translation(jitterX, jitterY, 0).mul(presentation);
+        // Rasterization adds jitter in clip space. Resolve the scene back onto
+        // the same display pixel centers in every frame, including the first.
+        jitterU = jitterX * .5f;
+        jitterV = jitterY * .5f;
         if (camera.distanceSquared(previousCamera) > 64) valid = false;
     }
     public void prepare(int w,int h){if(w!=width||h!=height)resize(w,h);}
@@ -87,6 +94,8 @@ public final class TemporalPost implements AutoCloseable {
         effects.setInt("uHistory", 2); effects.setInt("uHistoryDepth", 3);
         effects.setMatrix4("uInverseVP", new Matrix4f(current).invert());
         effects.setMatrix4("uVP", current); effects.setMatrix4("uPreviousVP", previous);
+        effects.setFloat("uJitterU", jitterU); effects.setFloat("uJitterV", jitterV);
+        effects.setInt("uStationary",presentation.equals(previous,0f)?1:0);
         effects.setVector3("uCamera", camera.x, camera.y, camera.z);
         effects.setVector3("uSun", sun.x, sun.y, sun.z);
         effects.setFloat("uDaylight", daylight); effects.setFloat("uAmbient", ambient);
@@ -98,7 +107,7 @@ public final class TemporalPost implements AutoCloseable {
             effects.setVector3("uDecalColor["+i+"]",c.x,c.y,c.z);effects.setFloat("uDecalRadius["+i+"]",d.radius());
             effects.setFloat("uDecalDepth["+i+"]",d.depth());effects.setFloat("uDecalOpacity["+i+"]",d.opacity());
         }
-        effects.setInt("uFrame", frame); effects.setInt("uTAA", settings.taa && valid ? 1 : 0);
+        effects.setInt("uFrame", settings.taa ? frame : 0); effects.setInt("uTAA", settings.taa && valid ? 1 : 0);
         effects.setInt("uAO", settings.ao ? 1 : 0);
         effects.setInt("uContact", settings.contactShadows ? 1 : 0);
         effects.setInt("uSSR", settings.reflections ? 1 : 0);
@@ -124,7 +133,7 @@ public final class TemporalPost implements AutoCloseable {
         tone.setFloat("uExposure", exposure); tone.setFloat("uSaturation", settings.saturation);
         tone.setFloat("uContrast", settings.contrast);
         draw();
-        index = target; previous.set(current); previousCamera.set(camera); valid = true; frame++;
+        index = target; previous.set(presentation); previousCamera.set(camera); valid = true; frame++;
         glEnable(GL_DEPTH_TEST); glEnable(GL_CULL_FACE); glActiveTexture(GL_TEXTURE0);
     }
     private static void bind(int unit, int texture) {
