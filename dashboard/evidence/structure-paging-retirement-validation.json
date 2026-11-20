@@ -1,0 +1,239 @@
+{
+  "schema": 1,
+  "parent_head": "3b12ebac4d62a58adbf30159c8c20fd71e6753e9",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available previous-World retirement checks passed; full structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "Private source transfers now preallocate an exact previous-World retirement receipt before metadata transfer and saved-prefix acknowledgement. Explicit retirement requires completed handover, the exact old World, original owner, no reentry/cancellation and unchanged source/model/terrain/geometry/survival state. It never closes a foreign or new World. Failed pre-close cleanup revalidates the old receipt before explicit retry; post-close cleanup retries the same already closed World without an invalid fence. Poll/status never retry. Transfer.close still closes only the new scene/worker; old retirement remains explicit. Main installation is not supplied.",
+  "limits": {
+    "attempts": 3,
+    "scene_chunks": "existing one or two",
+    "scope": "No package, model, scene/cache, geometry/surface/chunk/mesh/persistence or qualification cap raised. Retirement capture copies state and can take linear owner CPU work. World.close keeps existing cleanup semantics and has no frame-time guarantee. Failed cleanup retries only by explicit caller action."
+  },
+  "focused": {
+    "exit_code": 0,
+    "elapsed_seconds": 30.085204266011715,
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=SavedPagingRetirementTest,SavedPagingWarmupTest,SavedPagingReplacementTest,PreparedPagingSceneTest",
+      "test"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.SavedPagingRetirementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingWarmupTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.PreparedPagingSceneTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 31
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest",
+      "test"
+    ],
+    "tests": 633,
+    "suites": 135,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 372.1470409128815
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.971500542014837,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 819,
+    "shaders_match": 28,
+    "mp3": "Both original shipped CBR/VBR fixtures decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-paging-retirement"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 84.87153592146933,
+      "prefix": "structure-paging-retirement"
+    },
+    "receipt": "structure-paging-retirement-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11997103123,
+      "planar_lighting_nanos": 1079644759,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11817497715,
+      "planar_lighting_nanos": 758049331,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true,
+    "retirement_result": {
+      "status": "passed",
+      "old_root_closed": true,
+      "old_paged_world_closed": true,
+      "new_gpu_entries": 1,
+      "mesh_bytes_before_retirement": 14448,
+      "mesh_bytes_after_retirement": 7224
+    }
+  },
+  "playtest": "Playtest: actual Java/GLFW/OpenGL saved-source integration CLI on inherited DISPLAY with isolated synthetic offline v10 data. Expected source transfer followed by explicit root-World retirement; later repeat save/reopen warms a second GPU-ready scene, transfers latest independent survival state and retires the previous paged World without disturbing new scene readiness/rendering. Observed both old Worlds closed, same new warm World/scene/binding/GPU entry at transfer, old estimated Mesh resident bytes released, one new GPU entry retained, and coloured later geometry/model definitions rendered after repeat save/reopen. The root-retirement test and rendered capture preserved saved bytes. Existing stale candidate retirement/retry, source model-counter/sky, ordinary/pending geometry, lighting/roof-clear sky, planar/model/water and final resource-baseline regressions passed. Eight new cases cover wrong World/owner, stale geometry/models/terrain/inventory/health/drops, explicit versus implicit ownership, cancellation at both retirement hooks, reentry, conservative stale receipts, failed cleanup before/after close, no polling retry, and rejection before handover. Browser testing does not apply to this internal native integration. Main was not rerun: these package-private helpers do not install into Main; full game integration remains unfinished.",
+  "media": {
+    "inspected": [
+      "structure-paging-retirement-session.png",
+      "structure-paging-retirement-optics.png",
+      "structure-paging-retirement-pending-optics.png",
+      "structure-paging-retirement-pending.png",
+      "structure-paging-retirement-regression.png"
+    ],
+    "scope": "Five fresh implementation-native framebuffers after guarded previous-World retirement and repeat save/reload. The old paged GPU scene was released while the new scene remained ready. Software rendering only; no physical-GPU or frame-time pass."
+  },
+  "source_files_fixed": 665,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/SavedPagingReplacement.java": "796925dd90b62d29681329e4717291e58fa026efdcc360d561e73587a23850a4",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "fe89c360ef4f0df5314f245401a2565e43e6b535fe0ee9032ebb720f3915a89b",
+    "src/test/java/dev/jayms/net/SavedPagingRetirementTest.java": "ef7236d0c77f819e9d917aa238b73fe1c403b2beb335217adb0d5c0b37f09b62",
+    "tools/structures/SavedPagingSessionFrame.java": "350748ec9423febb06591e25cbfd58ac8237a0d9c30cd517b3ed1f03b76b84d6",
+    "tools/structures/ReplaySkyFrameCheck.java": "8b49bc89b8c34ba389ff0448d692a324371b17fc3a4911721a032485dfc3697e",
+    "tools/structures/run_replay_sky_frame_check.py": "3c9eb0b5ca75dede552b9e42e1a72aae29771062d8db45c782b12ab021b71233"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "3b12ebac4d62a58adbf30159c8c20fd71e6753e9",
+    "run": 44763093417,
+    "builds": {
+      "windows": "success",
+      "mac-arm": "success",
+      "mac-intel": "success",
+      "linux": "success"
+    },
+    "publish": "skipped",
+    "method": "Inspected actual job and step summaries; no runtime logs"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Add retirement capture before transfer-handle construction and keep old cleanup explicit after successful handover. Native helper now retires exact previous Worlds and checks estimated Mesh resource release before rendering the retained new scene. Existing immediate/warmed transfer and separate scene-close semantics remain. Initial duplicate World lifecycle getter was removed; production World has no change from parent 3b12ebac in this phase. Existing base-diff world/history/render replacements and protocol compatibility adjustments remain documented. No unrelated deletion or removed regression assertion intended."
+  },
+  "remaining": [
+    "Main source installation and old-owner reconciliation after changes remain unfinished. Unchanged old Worlds can now be retired explicitly through a guarded private receipt.",
+    "Editable paging and true model-ID remapping remain unfinished or gated.",
+    "City/maximum still fail placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only runs do not qualify full workflows.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, physical GPU, shaped synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Private explicit old-World retirement and available CLI/native functional regressions only. No Main installation, supported-city/limit, stable-rollout, 30-FPS, whole-workflow or physical-GPU/network qualification pass.",
+  "native_harness_repair": {
+    "initial_exit_code": 1,
+    "reason": "Harness read the previous source journal after World retirement; expected source guard rejected it.",
+    "repair": "Check prefix acknowledgement before old World close, then assert closed old journal rejects; retain new journal check and all other assertions.",
+    "changed_helper": "tools/structures/SavedPagingSessionFrame.java",
+    "production_and_java_test_sources_unchanged": true,
+    "broad_java_rerun_needed": false,
+    "final_native_rerun_required": true
+  },
+  "source_manifest_scope": "Final 665-file manifest matches current source and final native run. Production/Java test sources stayed fixed through the broad run and native repair; only SavedPagingSessionFrame.java assertion order changed after the first native attempt.",
+  "initial_compile_repair": "Initial focused compile failed because World.isClosed already exists. Removed the duplicate; reused the existing lifecycle query. Added capture reentry guard before final successful focused and broad runs.",
+  "artifacts": {
+    "structure-paging-retirement-native.json": "ae7ddd6c2b14578864a20ed6817e6bdf2798a17fa9c31ce435836a0628b2bb1e",
+    "structure-paging-retirement-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-retirement-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-retirement-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-retirement-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-retirement-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}

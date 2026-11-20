@@ -247,6 +247,44 @@ final class ReadbackSaveSnapshot {
                 throw new IOException("Replay overlay acknowledgement unavailable");
             var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
         }
+        /** Preallocate an exact old-owner receipt before source transfer. Closing
+         * remains an explicit caller action after installation, never part of ack. */
+        WorldRetirement prepareWorldRetirement(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);
+            if(phase.get()!=Phase.PUBLISHED||tailAdopted||pagingAdopting||journal==null)
+                throw new IOException("Previous World retirement unavailable");
+            pagingAdopting=true;
+            try {
+                journal.validateWorld(world,cancel,true);validateGeometry(true);
+                return new WorldRetirement(ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel));
+            }finally{pagingAdopting=false;}
+        }
+        enum RetirementState {READY,CLEANUP_FAILED,CLOSED}
+        record RetirementStatus(RetirementState state,boolean closeStarted,Exception failure) {}
+        final class WorldRetirement {
+            private final ReadbackSaveSnapshot captured;
+            private boolean closing,done,busy;
+            private Exception failure;
+            private WorldRetirement(ReadbackSaveSnapshot captured){this.captured=captured;}
+            RetirementStatus status()throws IOException {
+                owner();return new RetirementStatus(done?RetirementState.CLOSED:failure==null?RetirementState.READY:RetirementState.CLEANUP_FAILED,closing,failure);
+            }
+            /** Exact World/owner and unchanged state required before first close.
+             * After partial close, only explicit same-World cleanup retries run.
+             * Cancellation never reverses an already started close. */
+            void retire(World expected,BooleanSupplier cancel)throws Exception {
+                owner();Objects.requireNonNull(cancel);
+                if(expected!=world||busy||!tailAdopted||!overlayAcknowledged)throw new IOException("Previous World retirement mismatch or reentry");
+                if(done)return;busy=true;
+                try {
+                    StructurePackage.cancelled(cancel);if(!closing)captured.validate();
+                    StructurePackage.cancelled(cancel);if(!closing)captured.validate();
+                    try {world.close();closing=true;done=true;failure=null;}
+                    catch(Exception error){closing=world.isClosed();failure=error;throw error;}
+                    catch(Error error){closing=world.isClosed();failure=new IOException("Previous World cleanup failed",error);throw error;}
+                }finally{busy=false;}
+            }
+        }
         private RegionReplayWorker adoptedPagingWorker;
         private RegionReplayOverlay adoptedPagingOverlay;
         private boolean pagingAdopting;

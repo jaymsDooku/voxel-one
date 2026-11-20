@@ -132,20 +132,24 @@ final class SavedPagingReplacement implements AutoCloseable {
         try {
             var next=advance(cancel);
             if(next!=State.READY&&next!=State.WARMING)throw new IOException("Saved paging replacement not ready");
-            var result=new Transfer(candidate,revision);
+            var result=new Transfer(candidate,revision,publication.prepareWorldRetirement(cancel));
             result.session=preparation==null?publication.adoptPagingScene(candidate,revision,pending,capacity,maxCellLeaves,cancel):preparation.commit(cancel);
             preparation=null;candidate=null;state=State.TRANSFERRED;return result;
         }catch(CancellationException stop){cancelled=true;retire(false);throw stop;}
         finally{busy=false;}
     }
     /** Returned ownership includes both scene and worker. Close signals cleanup;
-     * callers still observe the worker's terminal cleanup receipt separately. */
+     * callers still observe the worker's terminal cleanup receipt separately.
+     * Old World retirement is explicit and never performed by close. */
     static final class Transfer implements AutoCloseable {
         private final Thread owner=Thread.currentThread();
         private final RegionReplayWorker worker;
         private final RegionReplayWorker.Revision revision;
         private RegionReplayWorker.PagingSession session;
-        private Transfer(RegionReplayWorker worker,RegionReplayWorker.Revision revision){this.worker=worker;this.revision=revision;}
+        private final ReadbackSaveSnapshot.Publication.WorldRetirement previous;
+        private Transfer(RegionReplayWorker worker,RegionReplayWorker.Revision revision,ReadbackSaveSnapshot.Publication.WorldRetirement previous){this.worker=worker;this.revision=revision;this.previous=previous;}
+        ReadbackSaveSnapshot.Publication.RetirementStatus previousStatus()throws IOException {return previous.status();}
+        void retirePrevious(World expected,BooleanSupplier cancel)throws Exception {previous.retire(expected,cancel);}
         RegionReplayWorker worker(){return worker;}
         RegionReplayWorker.Revision revision(){return revision;}
         RegionReplayWorker.PagingSession session(){return session;}

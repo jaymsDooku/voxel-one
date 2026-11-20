@@ -2288,3 +2288,33 @@ budget. It does not install the source into Main, retire or reconcile the old li
 World, enable editable paging or remap model IDs. It does not raise placement or
 package limits. City/maximum whole-workflow, physical-GPU and shaped 32-client
 qualification remain pending and gate supported-limit and stable-rollout claims.
+
+### Retire the previous World explicitly
+
+A private source transfer now carries a separate old-World retirement receipt.
+The receipt is allocated before transfer and binds the exact previous World,
+source/model/terrain identity, geometry and survival state. It cannot close a
+World before successful metadata transfer and saved-prefix acknowledgement.
+After the caller installs the new session, `retirePrevious` can explicitly close
+the unchanged old World. A foreign World, foreign thread, callback reentry,
+cancellation or changed old state rejects before close. This receipt does not
+perform Main installation or prove that the caller installed anything.
+
+The receipt is deliberately conservative. If owner state changes after its
+capture, including during later source-transfer callbacks, retirement rejects
+while the new transfer may still contain the latest state. The caller keeps the
+old World for reconciliation. No forced retirement or silent retry is provided.
+
+Cleanup status distinguishes ready, failed and closed, with a separate indication
+that close has started. A failure before the World closes requires fresh state
+validation on explicit retry. After partial close, explicit retries finish the
+same World's existing cleanup without requiring its now-invalid geometry fence.
+Cancellation cannot undo a close already started. Polling and status reads never
+retry cleanup. Closing the transferred session closes its new scene and worker;
+it never implicitly closes the old World. Existing `World.close` resource cleanup
+semantics remain unchanged.
+
+Receipt capture copies current state and is not constant-time or performance
+qualified. Partial saves remain rejected. Main installation, old-owner
+reconciliation after changes, editable paging, model-ID remapping and full
+city/maximum/reference-GPU/32-client qualification remain unfinished and gated.

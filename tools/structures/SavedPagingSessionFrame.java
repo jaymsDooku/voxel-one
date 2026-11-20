@@ -66,6 +66,8 @@ final class SavedPagingSessionFrame {
                         assertNotEquals(c.local.models.revision(),session.local().models.revision());assertTrue(session.local().models.sameBindings(c.local.models));
                         var sky=session.binding().submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,session.world());RegionReplayWorkerTest.done(sky);
                         assertEquals(session.local().models.revision(),session.binding().skyResult(sky,session.world()).modelRevision());
+                        assertFalse(c.world.isClosed());transfer.retirePrevious(c.world,()->false);assertTrue(c.world.isClosed());
+                        assertEquals(ReadbackSaveSnapshot.Publication.RetirementState.CLOSED,transfer.previousStatus().state());assertEquals(1,session.scene().status().gpuEntries());
                         var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
                         int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
                         assertFalse(session.local().models.has(retiredId));
@@ -80,15 +82,20 @@ final class SavedPagingSessionFrame {
                                 assertFalse(session.journal().capture(()->false).overlay().rows().isEmpty());
                                 var warmWorld=preparedScene.world();var warmScene=preparedScene.scene();var warmBinding=preparedScene.binding();warm(warmWorld,warmScene);
                                 long warmBytes=Mesh.estimatedResidentBytes();session.local().health--;session.local().inventory.add(Blocks.STONE,1);session.local().drops.put(99,new ItemDrop(99,Blocks.STONE,1,1,2,3));
+                                var oldRetirement=second.prepareWorldRetirement(()->false);
                                 try(var next=preparedScene.commit(()->false)) {
                                 preparedScene.close();
                                 assertSame(warmWorld,next.world());assertSame(warmScene,next.scene());assertSame(warmBinding,next.binding());assertEquals(1,next.scene().status().gpuEntries());assertEquals(warmBytes,Mesh.estimatedResidentBytes());
+                                assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());
+                                oldRetirement.retire(session.world(),()->false);assertTrue(session.world().isClosed());assertFalse(next.world().isClosed());assertEquals(1,next.scene().status().gpuEntries());
+                                long retiredBytes=Mesh.estimatedResidentBytes();assertTrue(retiredBytes<warmBytes,"Old paged GPU resources released without closing new scene");
                                 assertEquals(session.local().drops,next.local().drops);assertNotSame(session.local().drops,next.local().drops);assertNotSame(session.local().inventory,next.local().inventory);
                                 for(int i=0;i<Inventory.SIZE;i++){assertEquals(session.local().inventory.type(i),next.local().inventory.type(i));assertEquals(session.local().inventory.count(i),next.local().inventory.count(i));}
                                 assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));
-                                assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
+                                assertThrows(java.io.IOException.class,()->session.journal().capture(()->false));assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
                                 byte[] disk=Files.readAllBytes(c.path);render(next,image);assertArrayEquals(disk,Files.readAllBytes(c.path));
                                 assertThrows(java.io.IOException.class,()->editor.capture(()->false));assertFalse(c.world.hasReplayReadView());
+                                Files.writeString(root.resolve("retirement-result.json"),"{\"status\":\"passed\",\"old_root_closed\":true,\"old_paged_world_closed\":true,\"new_gpu_entries\":1,\"mesh_bytes_before_retirement\":"+warmBytes+",\"mesh_bytes_after_retirement\":"+retiredBytes+"}\n");
                                 }
                             }
                         }finally{RegionReplayWorkerTest.closed(nextWorker);}
