@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T00:45:19+00:00",
+  "updatedAt": "2026-11-20T01:01:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -20,19 +20,29 @@
       "description": "Original opt-in Basalt Courtyard fixture with a stable local coordinate contract, reset, safe landing/collision queries and real engine preview.",
       "evidence": [
         {
-          "kind": "link",
-          "label": "Arena overview (pending controller publication)",
+          "kind": "image",
+          "label": "Arena overview (published; bytes verified)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63333939313338642d346637312d346166662d623461362d623834383362643835366263/dashboard/evidence/basalt-courtyard-overview.png"
         },
         {
-          "kind": "link",
-          "label": "Engine fixture playtest video (pending controller publication)",
+          "kind": "video",
+          "label": "Engine fixture playtest video (published; bytes verified)",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-63333939313338642d346637312d346166662d623461362d623834383362643835366263/dashboard/evidence/basalt-courtyard-engine-preview.mp4"
+        },
+        {
+          "kind": "link",
+          "label": "Four-platform Java 17 checks",
+          "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44648461072"
+        },
+        {
+          "kind": "link",
+          "label": "Arena usage and coordinate contract",
+          "url": "https://github.com/jaymsDooku/voxel-one/blob/ac03fa413ca5d6067233fbb09e741223ba751f7c/docs/basalt-courtyard.md"
         }
       ],
       "status": "in_progress",
-      "note": "Implementation and local validation complete: 48 Java 17 arena/direct regression tests passed. Engine playtest passed reset, sprint, boundary and flank routes; three PNGs and a 2.29 MB F10-path MP4 were inspected. Full verify was interrupted after stalling at 181 reported tests with no failures/errors and one skip; no full-suite pass claimed. Controller integration, publication and exact-source hosted CI remain pending before independent review.",
-      "updatedAt": "2026-11-20T00:45:19+00:00"
+      "note": "Ready for independent review of ac03fa413ca5d6067233fbb09e741223ba751f7c. Java 17 Maven verify, MP3 smoke and packaging passed on Linux, Windows, Intel Mac and Arm Mac: 787 tests per platform, 0 failures/errors, 1 opt-in browser skip; all 8 arena tests passed. 48 local regressions and the native fixture playtest passed. Published PNG/MP4 bytes match the tested head. No unrelated source changes or deletions. Final multiplayer scenarios belong to item 2; physical-GPU performance and stable rollout remain unqualified. Runner publication of this progress-only update and independent review remain pending.",
+      "updatedAt": "2026-11-20T01:01:45+00:00"
     },
     {
       "id": "hcf-combat-1a",
