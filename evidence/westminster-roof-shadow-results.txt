@@ -1,0 +1,50 @@
+Windows 11, NVIDIA GeForce RTX 3060, native OpenGL, 1280 x 720, fixed daylight and full render scale.
+Original db84152e, same camera and building
+Horizontal luma ripple (0-255 scale): spire 4.51, dormer 9.66
+Median slate luma: shaded 54, sunlit 125
+
+Corrected df70039d, same camera and building
+Horizontal luma ripple (0-255 scale): spire 0.41, dormer 1.82
+Median slate luma: shaded 52, sunlit 140
+
+Directional shadow probe, original then corrected
+NVIDIA GeForce RTX 3060/PCIe/SSE2: 62208 plane probes; 28800 falsely shadowed; 15552 missed blockers.
+
+NVIDIA GeForce RTX 3060/PCIe/SSE2: 62208 plane probes; 0 falsely shadowed; 0 missed blockers.
+
+Screen-space contact readbacks on the corrected build
+NVIDIA GeForce RTX 3060/PCIe/SSE2
+distance 10 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 10 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 30 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 30 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 75 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 75 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 10 normal (0.94,0.00,0.34) jitter 0.000 trim true: 398/398 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 30 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 30 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 75 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 75 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.000 trim true: 668/668 shadowed
+
+Preview wall and sealed-room readbacks
+Windows 11 / NVIDIA GeForce RTX 3060/PCIe/SSE2
+Open side beneath relief vertical=0.0 near=1.0 exterior=1.0
+Fractional intervening wall vertical=0.0 near=0.0 exterior=0.0
+East shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+West shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+North shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+South shaft below cornice vertical=0.0 near=0.0 exterior=1.0
+Sky above distant east wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant west wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant north wing vertical=0.0 near=0.0 exterior=1.0
+Sky above distant south wing vertical=0.0 near=0.0 exterior=1.0
+East cornice face vertical=1.0 near=1.0 exterior=1.0
+Shaft behind thin stone screen vertical=0.0 near=0.0 exterior=0.0
+Shaft behind glass screen vertical=0.0 near=0.0 exterior=1.0
+Inside sealed shaft vertical=0.0 near=0.0 exterior=0.0
+
+Maven verify, rendering/lighting/building integration selection
+60 tests passed, 0 failed, 0 errors, 0 skipped
