@@ -108,6 +108,12 @@ public final class LocalGame {
                 }
             }
         }
+        /** Cold read-only scene staging. Owner maps are already independent of
+         * the worker's source-policy maps; consume only after World staging. */
+        synchronized PreparedTail prepareInitialScene()throws IOException {
+            if(transferred)throw new IOException("Replay metadata already transferred");
+            return new PreparedTail(new LocalGame(this));
+        }
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
             var result=new LocalGame(this);transferred=true;models=null;inventory=null;drops=null;return result;

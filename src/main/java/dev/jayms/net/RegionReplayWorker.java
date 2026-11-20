@@ -290,15 +290,33 @@ final class RegionReplayWorker implements AutoCloseable {
             if(stopping.get()||preparingScene||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null||targetBinding!=null
                     ||!Objects.equals(expectedFingerprint,fingerprint)||!expectedTarget.toAbsolutePath().normalize().equals(sourceTarget)
                     ||sourceOverlay!=pending)throw new IOException("Replay live-tail scene source mismatch");
+            return prepareSceneLocked(sceneCapacity,maxCellLeaves,guard,reserveTail,false,live,inventory,drops,health);
+        }
+    }
+    /** Fresh read-only startup. A pending overlay requires the existing live-tail
+     * publication path and cannot be silently treated as a cold baseline. */
+    PagingSession metadataResultScene(Revision current,int sceneCapacity,int maxCellLeaves,OwnerGuard guard)throws IOException {
+        owner();Objects.requireNonNull(current);Objects.requireNonNull(guard);
+        if(sceneCapacity<1||sceneCapacity>2||maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
+            throw new IllegalArgumentException("Replay scene budget");
+        synchronized(gate) {
+            if(stopping.get()||preparingScene||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null||targetBinding!=null
+                    ||!sourceOverlay.rows().isEmpty())throw new IOException("Replay cold scene source mismatch");
+            return prepareSceneLocked(sceneCapacity,maxCellLeaves,guard,false,true,null,null,null,0);
+        }
+    }
+    /** Both callers hold gate; all staging precedes metadata consumption. */
+    private PagingSession prepareSceneLocked(int sceneCapacity,int maxCellLeaves,OwnerGuard guard,boolean reserveTail,boolean initial,
+            LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
             World world=null;preparingScene=true;
             try {
-                var capturedMetadata=metadata;var prepared=capturedMetadata.prepareCurrentScene(live,inventory,drops,health);var local=prepared.local();
+                var capturedMetadata=metadata;var prepared=initial?capturedMetadata.prepareInitialScene():capturedMetadata.prepareCurrentScene(live,inventory,drops,health);var local=prepared.local();
                 world=new World(local.seed,local.models,local.generatorVersion);
                 var binding=new Binding(local,world);
                 var pump=binding.new ChunkPump(sceneCapacity,maxCellLeaves);binding.chunkPump=pump;
                 var scene=new RegionReplayScene(binding,pump,world,sceneCapacity);
                 world.attachReplayReadView(scene.readView());binding.baseline=world.beginReplayFence();
-                var journal=RegionReplayJournal.readOnlySource(world,pending);
+                var journal=RegionReplayJournal.readOnlySource(world,sourceOverlay);
                 var session=new PagingSession(local,world,binding,scene,journal);var models=local.models;long modelRevision=models.revision();
                 if(reserveTail)binding.preparedTail=session;
                 guard.validate();binding.baseline.validate(world);
@@ -310,7 +328,6 @@ final class RegionReplayWorker implements AutoCloseable {
             }catch(IOException|RuntimeException|Error failure) {
                 if(world!=null)try{world.close();}catch(Exception|Error cleanup){failure.addSuppressed(cleanup);}throw failure;
             }finally{preparingScene=false;}
-        }
     }
     /** Private detached-target session. This does not mark coverage loaded,
      * install geometry, promote metadata, or authorize a save over a live path. */

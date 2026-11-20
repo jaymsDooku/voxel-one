@@ -2357,3 +2357,45 @@ failure releases the busy flag without publishing a partial view. Existing
 immediate/warmed transfer, cancellation, stale-view rejection and explicit
 old-World retirement semantics remain. This private API is not Main wiring or a
 city/performance qualification claim.
+
+### Open a bounded read-only saved-world session
+
+`ReadOnlyWorldSession` is a public rendering/inspection API for a fresh saved-world
+snapshot. A worker validates and spools the complete file; `poll` stages a partial
+World and scene without first applying every edit to a resident World. Cold and
+replacement startup share the same staged scene builder. All World/binding/pump/
+scene/journal/session allocation and final guards precede one-time metadata
+consumption. A failed owner guard leaves metadata available for retry. Cold startup
+rejects pending overlays, which still require the existing live-tail publication
+path.
+
+`READY` means the descriptor exists, not complete geometry or usable cells.
+`status` reports checked rows and separate CPU/GPU/failed-chunk counts. During a
+callback, counts describe the last completed owner step and `ownerStepActive` is
+true. The caller selects chunks with `desired`, advances CPU work with `tick`, and
+uploads with `pumpGpu` on its current GL context. Unknown cells reject reads;
+unmeshed cells remain loading boundaries. Chunk failures are visible through
+`failure`; demand eviction/reselection is an explicit retry. No implicit busy
+retry, filesystem work or joins occur in status reads.
+
+Defaults are one visible chunk and 8,192 geometry leaves per chunk; explicit
+construction allows the existing maximum of two chunks and 131,072 leaves per
+chunk. The inherited parameter name `maxCellLeaves` bounds the aggregate across
+the chunk's 4,096 cells. The private
+worker retains its existing 4 MiB / 32,768-row request limits. These are bounded
+experimental implementation limits, not supported-city or performance claims.
+No package, model, placement or qualification cap is raised.
+
+Only the original owner may poll, read, select demand, upload or close. Reentry
+cannot expose a half-built World. `poll` cancellation aborts that owner step and
+leaves staging retryable; `close` cancels the lifetime and starts cleanup. Failed
+cleanup remains visible until explicit close or active-resource cleanup retry.
+No LocalGame, inventory, save or edit API is exposed. The returned World keeps its
+read-only/capture guards. Mutating its model map or closing it externally makes the
+session unavailable. Separate sessions own independent model maps. Replacing the
+original file does not silently change the already spooled snapshot.
+
+Main gameplay still requires a complete replay; this API does not bypass that
+gate. Main wiring, writable paging, true model-ID remapping and full
+city/maximum/reference-GPU/32-client qualification remain unfinished. Fresh-spool
+validation does not establish the required cold-OS-cache load budget.

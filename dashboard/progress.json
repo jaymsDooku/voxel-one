@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T17:18:09+00:00",
+  "updatedAt": "2026-11-20T18:13:25+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Removed the escaping reservation handle; the entire source/slot install now stays in one owner-fenced call. Passed 643 Java tests in 136 suites, 40 Python checks, packaging/original MP3 decoding and 41 focused tests. Obsolete reservation bytecode is absent from current classes and shipped client. Native GLFW validation passed in 88.349 s with two coherent installs, stale-view rejection, retained warm GPU resources and explicit old-World retirement. Inspected five fresh images. Source/media await controller publication and exact-head CI. Main wiring, editable paging, model-ID remapping and full city/reference-GPU/32-client qualification remain unfinished and gated.",
-      "updatedAt": "2026-11-20T17:18:09+00:00"
+      "note": "Added bounded public read-only saved-world startup. Passed 656 Java tests, 40 Python checks, packaged MP3 decoding and native fresh-session/save-reopen regressions; inspected six new images. Source and media await controller publication and exact-source CI. Main gameplay wiring, writable paging, model-ID remapping and city/reference-GPU/32-client qualification remain unfinished.",
+      "updatedAt": "2026-11-20T18:13:25+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
