@@ -248,6 +248,10 @@ final class ReadbackSaveSnapshot {
         }
         private RegionReplayWorker adoptedPagingWorker;
         private RegionReplayOverlay adoptedPagingOverlay;
+        private boolean pagingAdopting;
+        private void beginPagingAdoption()throws IOException {
+            owner();if(pagingAdopting)throw new IOException("Saved paging adoption reentry");pagingAdopting=true;
+        }
         /** Capture only the unsaved suffix; neither edits nor the journal change. */
         RegionReplayOverlay pendingPagingOverlay(BooleanSupplier cancel)throws IOException {
             owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
@@ -259,19 +263,47 @@ final class ReadbackSaveSnapshot {
         LocalGame adoptPagingTail(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
                 RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
             owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
-            if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
-                throw new IOException("Saved paging pending geometry changed");
-            var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
-            var currentDrops=new LinkedHashMap<>(current.drops);
-            if(!pending.rows().equals(pendingPagingOverlay(cancel).rows()))throw new IOException("Saved paging pending geometry changed");
-            StructurePackage.cancelled(cancel);current.validate();
-            var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
-            tailAdopted=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                if(!pending.rows().equals(pendingPagingOverlay(cancel).rows()))throw new IOException("Saved paging pending geometry changed");
+                StructurePackage.cancelled(cancel);current.validate();
+                var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
+                tailAdopted=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+            }finally{pagingAdopting=false;}
+        }
+        /** One owner operation for live-tail transfer and exact saved-prefix
+         * acknowledgement. Preparation may cancel or fail without consuming
+         * metadata. No callbacks or cancellation after metadata transfer. This
+         * does not install a World/view, reconcile World edits or promote Main. */
+        LocalGame adoptAndAcknowledgePagingTail(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                try(var acknowledgement=journal.prepareAcknowledgement(pending,cancel)) {
+                    // Preparation called the last cancellation hook and locked
+                    // the journal. Revalidate its live state before transfer.
+                    validateGeometry(true);current.validate();
+                    var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
+                    acknowledgement.commit();
+                    tailAdopted=true;overlayAcknowledged=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+                }
+            }finally{pagingAdopting=false;}
         }
         /** Explicit saved-prefix acknowledgement after the matching owner transfer.
          * World edit reconciliation and source installation remain caller-owned. */
         RegionReplayOverlay acknowledgePagingOverlay(RegionReplayWorker replacement,BooleanSupplier cancel)throws IOException {
-            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            owner();Objects.requireNonNull(cancel);
+            if(pagingAdopting)throw new IOException("Saved paging adoption reentry");
+            StructurePackage.cancelled(cancel);
             if(!tailAdopted||replacement!=adoptedPagingWorker||overlayAcknowledged||adoptedPagingOverlay==null
                     ||!adoptedPagingOverlay.rows().equals(pendingPagingOverlay(cancel).rows()))
                 throw new IOException("Saved paging acknowledgement unavailable");

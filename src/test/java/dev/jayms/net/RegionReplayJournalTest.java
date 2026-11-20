@@ -31,6 +31,47 @@ public class RegionReplayJournalTest {
         assertEquals(List.of(edit(0),edit(1)),journal.capture(()->false).overlay().rows());
         journal.append(Collections.nCopies(RegionReplayOverlay.MAX_ROWS-2,edit(2)),()->false);assertEquals(RegionReplayOverlay.MAX_ROWS,journal.capture(()->false).overlay().rows().size());assertThrows(IOException.class,()->journal.append(List.of(edit(3)),()->false));
     }
+    @Test public void preparedAcknowledgementRetainsRowsUntilOwnerCommitAndCloseAllowsRetry()throws Exception {
+        var journal=new RegionReplayJournal();journal.append(List.of(edit(0)),()->false);var saved=journal.capture(()->false);
+        journal.append(List.of(edit(1),edit(0)),()->false);var pending=RegionReplayOverlay.capture(List.of(edit(1),edit(0)),()->false);
+        assertThrows(IOException.class,()->saved.prepareAcknowledgement(RegionReplayOverlay.empty(),()->false));
+        var abandoned=saved.prepareAcknowledgement(pending,()->false);
+        assertThrows(IOException.class,()->journal.capture(()->false));assertThrows(IOException.class,()->journal.append(List.of(edit(2)),()->false));
+        var worker=Executors.newSingleThreadExecutor();
+        try{worker.submit(()->{assertThrows(IOException.class,abandoned::commit);assertThrows(IOException.class,abandoned::close);return null;}).get(10,TimeUnit.SECONDS);}
+        finally{worker.shutdownNow();assertTrue(worker.awaitTermination(10,TimeUnit.SECONDS));}
+        abandoned.close();assertThrows(IOException.class,abandoned::commit);
+        assertEquals(List.of(edit(0),edit(1),edit(0)),journal.capture(()->false).overlay().rows());
+        try(var retry=saved.prepareAcknowledgement(pending,()->false)) {
+            abandoned.close(); // A stale handle cannot unlock a later reservation.
+            assertThrows(IOException.class,()->journal.append(List.of(edit(2)),()->false));
+            assertEquals(pending.rows(),retry.commit().rows());assertThrows(IOException.class,retry::commit);
+        }
+        assertEquals(pending.rows(),journal.capture(()->false).overlay().rows());assertThrows(IOException.class,()->saved.acknowledge(()->false));
+    }
+    @Test public void cancellationAtEveryPreparationHookLeavesPrefixAndSuffixIntact()throws Exception {
+        var calls=new java.util.concurrent.atomic.AtomicInteger();
+        var probe=new RegionReplayJournal();probe.append(List.of(edit(0)),()->false);var snapshot=probe.capture(()->false);probe.append(List.of(edit(1)),()->false);
+        try(var prepared=snapshot.prepareAcknowledgement(null,()->{calls.incrementAndGet();return false;})){}
+        for(int stop=1;stop<=calls.get();stop++) {
+            var journal=new RegionReplayJournal();journal.append(List.of(edit(0)),()->false);var saved=journal.capture(()->false);journal.append(List.of(edit(1)),()->false);
+            int boundary=stop;var seen=new java.util.concurrent.atomic.AtomicInteger();
+            assertThrows(CancellationException.class,()->saved.prepareAcknowledgement(null,()->seen.incrementAndGet()==boundary));
+            assertEquals(List.of(edit(0),edit(1)),journal.capture(()->false).overlay().rows());
+            try(var retry=saved.prepareAcknowledgement(null,()->false)){assertEquals(List.of(edit(1)),retry.commit().rows());}
+        }
+    }
+    @Test public void preparationRechecksBoundGuardAndInvalidationAfterCallbacks()throws Exception {
+        for(boolean invalidate:List.of(false,true))try(var world=new dev.jayms.World(42)) {
+            var journal=new RegionReplayJournal();journal.append(List.of(edit(0)),()->false);var snapshot=journal.capture(()->false);
+            var changed=new java.util.concurrent.atomic.AtomicBoolean();
+            journal.bind(world,()->{if(changed.get()){if(invalidate)journal.invalidate();else throw new IOException("Changed bound state");}});
+            assertThrows(IOException.class,()->snapshot.prepareAcknowledgement(null,()->{changed.set(true);return false;}));
+            changed.set(false);
+            if(invalidate)assertThrows(IOException.class,()->journal.capture(()->false));
+            else assertEquals(List.of(edit(0)),journal.capture(()->false).overlay().rows());
+        }
+    }
     @Test public void publicationAcknowledgesOnlyItsJournalPrefixAfterExactReadback()throws Exception {
         var tests=new ReadbackSaveSnapshotTest();tests.folder=Files.createDirectories(folder.resolve("contexts"));
         try(var c=tests.new Context("journal")) {

@@ -1,0 +1,166 @@
+{
+  "schema": 1,
+  "parent_head": "c87fc031fba294e546e595f67b6b5bb667cff67d",
+  "review_base": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+  "status": "Available local checks passed; full work item not ready. Changed source requires hosted validation.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Combined owner-thread replacement paging metadata adoption and exact saved-prefix acknowledgement. Journal preparation validates the suffix, performs allocations/cancellation/guard checks and holds a reentry lock. Metadata transfer follows live-state revalidation. Prefix commit has no callbacks, allocation or cancellation. Failed preparation/transfer retains the journal and permits retry. Existing separate APIs remain, with adoption reentry rejected.",
+  "scope": "Private readback recovery API only. No World/source/view installation, World edit reconciliation, Main startup integration, large-placement authority or qualification is granted.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,RegionReplayJournalTest",
+      "test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 254.9469527360052,
+    "suites": 53,
+    "tests": 252,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "count_method": "Sum distinct Surefire XML reports; repeated selector names do not count a suite twice.",
+    "selector_duplicate_names": [
+      "dev.jayms.net.RegionReplayJournalTest"
+    ]
+  },
+  "focused": {
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=SavedPagingTailTest,RegionReplayJournalTest,RegionReplayEditorTest,JournalTailAdoptionTest,ReadbackTailAdoptionTest,ReadbackSaveSnapshotTest test",
+    "exit_code": 0,
+    "tests": 21,
+    "suites": 6,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "status": "passed",
+    "production_class_bytes_match": 744,
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "native": {
+    "command": "python3 tools/structures/run_replay_sky_frame_check.py --display \"$DISPLAY\" --evidence-prefix structure-paging-atomic",
+    "exit_code": 0,
+    "report": "structure-paging-atomic.json",
+    "source_files": 580,
+    "compiled_classes": 1186,
+    "all_source_class_helper_driver_image_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12438002221,
+      "planar_lighting_nanos": 1058620997,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 10896989339,
+      "planar_lighting_nanos": 1066389195,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "qualification": false
+  },
+  "playtest": "Playtest: synthetic offline v10 publication and replacement paging recovery executed in the integration CLI before real GLFW/OpenGL checks on inherited assigned DISPLAY. Expected: cancellation, stale source/model/World/suffix, foreign thread and reentry reject before metadata or journal consumption; retry succeeds; successful combined operation preserves current health/inventory/drops, acknowledges only the saved prefix once, and leaves save bytes and World geometry unchanged. Observed: all assertions passed, including bound guard revalidation, cancellation at every journal preparation hook and subsequent readback of saved plus pending geometry. Existing separate adoption, saves, structures/multiplayer, models, inventory/editor, protocol/history, mobile and combat regressions passed. Browser playtesting does not apply to this private Java API. Main UI was not rerun this turn; the published parent Main workflow remains historical evidence.",
+  "media": {
+    "scope": "Four fresh regression framebuffer captures from this source, not a visual demonstration of an API transaction or a city/GPU qualification.",
+    "inspected": [
+      "structure-paging-atomic-pending-optics.png",
+      "structure-paging-atomic-pending.png",
+      "structure-paging-atomic-optics.png",
+      "structure-paging-atomic-regression.png"
+    ],
+    "observed": "Lit planar cube and ordinary/pending geometry, models and water rendered. No new claim about the unresolved dark custom-model surfaces in Main."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "parent_hosted": {
+    "head": "c87fc031fba294e546e595f67b6b5bb667cff67d",
+    "base": "1772d6158cadf2d97f28ef21a425c6f072c10ce6",
+    "run_id": 44649304482,
+    "run_url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44649304482",
+    "state": "completed",
+    "conclusion": "success",
+    "checks": [
+      {
+        "name": "build (macos-15-intel, mac-intel)",
+        "state": "success"
+      },
+      {
+        "name": "build (macos-latest, mac-arm)",
+        "state": "success"
+      },
+      {
+        "name": "build (windows-latest, windows)",
+        "state": "success"
+      },
+      {
+        "name": "build (ubuntu-latest, linux)",
+        "state": "success"
+      },
+      {
+        "name": "publish",
+        "state": "skipped"
+      }
+    ],
+    "scope": "Published parent source only. Current edits require fresh hosted checks. This is not QA approval or qualification."
+  },
+  "audit": {
+    "restored_paths_match_base": 14,
+    "merged_combat_paths_match_base": 12,
+    "deleted_files": [],
+    "intended_removed_lines": "Separate adoption is wrapped in a reentry guard; direct acknowledgement becomes prepared acknowledgement plus commit. No unrelated feature deletion or authorization weakening is intended."
+  },
+  "remaining": [
+    "Atomic World/source/view installation and reconciliation, model rebasing, later live tail coordination and Main large-world paging remain unfinished.",
+    "Current 131072-leaf and 256-placement-chunk caps still cannot admit required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU and shaped-network synchronization to 32 clients, memory/frame/tick/traffic and upload budgets remain pending.",
+    "Visible colour/lighting investigation remains pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "claims": "No supported-city, supported-limit, stable-rollout, frame-time, physical-GPU or 32-client qualification pass.",
+  "artifacts": {
+    "structure-paging-atomic-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-atomic-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-atomic-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-atomic-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-atomic.json": "3fc269d88d98cdcf4ad65d9be66212478a80af91fc9a76abba046d82b8e091c7"
+  }
+}

@@ -30,6 +30,7 @@ final class RegionReplayJournal {
         void validateWorld(World world,BooleanSupplier cancel,boolean requireBound)throws IOException {journal.validateWorld(this,world,cancel,requireBound);}
         RegionReplayOverlay acknowledge(BooleanSupplier cancel)throws IOException {return journal.acknowledge(this,cancel);}
         RegionReplayOverlay remaining(BooleanSupplier cancel)throws IOException {return journal.remaining(this,cancel);}
+        Acknowledgement prepareAcknowledgement(RegionReplayOverlay expected,BooleanSupplier cancel)throws IOException {return journal.prepareAcknowledgement(this,expected,cancel);}
     }
     private void enter()throws IOException {
         if(Thread.currentThread()!=owner)throw new IOException("Replay journal owner required");
@@ -98,12 +99,38 @@ final class RegionReplayJournal {
         try{prefix(snapshot,cancel);return RegionReplayOverlay.capture(rows.subList(snapshot.overlay.rows().size(),rows.size()),cancel);}finally{busy=false;}
     }
     private RegionReplayOverlay acknowledge(Snapshot snapshot,BooleanSupplier cancel)throws IOException {
+        try(var prepared=prepareAcknowledgement(snapshot,null,cancel)){return prepared.commit();}
+    }
+    /** Holds the journal against reentry while its exact suffix and allocations
+     * are prepared. Close abandons preparation without acknowledging any rows. */
+    private Acknowledgement prepareAcknowledgement(Snapshot snapshot,RegionReplayOverlay expected,BooleanSupplier cancel)throws IOException {
         Objects.requireNonNull(cancel);enter();
         try {
             prefix(snapshot,cancel);if(epoch==Long.MAX_VALUE)throw new IOException("Replay journal epoch exhausted");
             int count=snapshot.overlay.rows().size();
             var remaining=RegionReplayOverlay.capture(rows.subList(count,rows.size()),cancel);
-            StructurePackage.cancelled(cancel);rows.subList(0,count).clear();epoch++;return remaining;
-        }finally{busy=false;}
+            if(expected!=null&&!expected.rows().equals(remaining.rows()))throw new IOException("Replay journal pending suffix changed");
+            var prepared=new Acknowledgement(count,remaining);
+            StructurePackage.cancelled(cancel);
+            if(failed)throw new IOException("Replay journal requires recovery");
+            if(guard!=null)guard.validate();
+            if(failed)throw new IOException("Replay journal requires recovery");
+            return prepared;
+        }catch(IOException|RuntimeException|Error failure){busy=false;throw failure;}
+    }
+    final class Acknowledgement implements AutoCloseable {
+        private final List<Protocol.Edit> prefix;private final RegionReplayOverlay remaining;private boolean done;
+        private Acknowledgement(int count,RegionReplayOverlay remaining){prefix=rows.subList(0,count);this.remaining=remaining;}
+        RegionReplayOverlay commit()throws IOException {
+            if(Thread.currentThread()!=owner)throw new IOException("Replay journal owner required");
+            if(done||!busy)throw new IOException("Replay journal acknowledgement consumed");
+            if(failed)throw new IOException("Replay journal requires recovery");
+            // No callbacks, allocation or cancellation past this boundary.
+            prefix.clear();epoch++;done=true;busy=false;return remaining;
+        }
+        @Override public void close()throws IOException {
+            if(Thread.currentThread()!=owner)throw new IOException("Replay journal owner required");
+            if(!done){done=true;busy=false;}
+        }
     }
 }
