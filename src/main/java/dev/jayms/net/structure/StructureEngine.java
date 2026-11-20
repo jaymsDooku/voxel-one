@@ -184,7 +184,7 @@ public final class StructureEngine {
             var empty=new SparseVoxelOctree(16).freeze();
             var uniformGeometry=new StructureUniformCells(asset.cells.size()-asset.instanceCount,cancel);
             var instances=new HashMap<Integer,SparseVoxelOctree>();
-            for(var cell:asset.cells) {
+            for(var cell:asset.placementCells(rotation)) {
                 cancelled(cancel);var p=destination(cell.position(),asset,box);var old=snapshot.cell(p.x(),p.y(),p.z());
                 if(old.occupied()!=0)throw new IOException("Occupied destination cell; empty source space is preserved");
                 SparseVoxelOctree next;

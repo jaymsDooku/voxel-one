@@ -23,6 +23,18 @@ class StructureGeometryDecodeTest {
         for(int i=0;i<4096;i++)tree.fill(i%16,(i/16)%16,i/256,i%16+1,(i/16)%16+1,i/256+1,0xfe000000|i);
         return tree;
     }
+    @Test void placementViewsKeepValuesAndWireWhileChoosingTheNeededRepresentation()throws Exception {
+        var tree=dense();var p=new Position(0,0,0);var asset=new StructurePackage("Views",new Bounds(1,1,1,0,0,0),List.of(),List.of(new Cell(p,tree,-1)));
+        byte[] before=asset.encode();var root=SparseVoxelOctree.class.getDeclaredField("root");root.setAccessible(true);
+        assertEquals("PackedCell",root.get(asset.cells.get(0).geometry()).getClass().getSimpleName());
+        for(int r=0;r<4;r++) {
+            var view=asset.placementCells(r);var cell=view.get(0);assertEquals(p,cell.position());assertTrue(cell.geometry().isFrozen());
+            assertArrayEquals(bytes(tree),bytes(cell.geometry()));assertEquals(r==0?"PackedCell":"Node",root.get(cell.geometry()).getClass().getSimpleName());
+            assertThrows(UnsupportedOperationException.class,()->view.set(0,cell));assertThrows(UnsupportedOperationException.class,()->view.add(cell));
+            assertArrayEquals(before,asset.encode());
+        }
+        assertThrows(IllegalArgumentException.class,()->asset.placementCells(4));
+    }
     @Test void directWireMatchesConstructorAcrossRandomGeometryAndExtendedHeaders()throws Exception {
         var random=new Random(73019);
         for(int n=0;n<128;n++) {

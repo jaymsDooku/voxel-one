@@ -121,6 +121,8 @@ public final class StructurePackage {
     }
     /** Immutable occupied-cell index, without reading colours, geometry or dependencies. */
     public List<Position> occupiedPositions(){return ((StructureCells)cells).occupiedPositions();}
+    /** Engine-only immutable read strategy; never changes package identity. */
+    List<Cell> placementCells(int rotation){return ((StructureCells)cells).placementCells(rotation);}
 
     static long order(Position p) {
         long section=(p.y/16L*64+p.z/16)*64+p.x/16;

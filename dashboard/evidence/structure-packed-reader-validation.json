@@ -1,0 +1,350 @@
+{
+  "schema": 1,
+  "parent_head": "695d65253b09367bd2d3a0e3176547c13c77b8ca",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Strict readPackedCell clones a 2..65536-byte canonical resolution16 record before validating tags, depth, voxel values, complete consumption and node/leaf/occupancy counters without a node graph. It returns a frozen snapshot with private bytes. Air/uniform roots keep ordinary nodes; mixed/noncanonical branches retain exact bytes. General/legacy stream readers remain unchanged. Zero-turn rotation shares immutable roots, preserving packed cells/model samples. Published structure cell queries use packed reads; constructor validation and nonzero placement turns use a direct graph view, avoiding pack-then-unpack allocation. Positions/IDs/wire/package identity and all caps remain unchanged.",
+  "scope": "Packed cell access and zero-turn staging only. Traversal, mutable copies, raycasts and nonzero rotation may still use temporary graphs. No cap increase, city admission, Main paging installation, source-coverage expansion or save-authority change.",
+  "focused": {
+    "tests": 24,
+    "suites": [
+      {
+        "name": "dev.jayms.PackedCellReadTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SparseVoxelPackedCellTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureGeometryDecodeTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PackedOctreeQueryTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.OctreeValueComparisonTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureRotationTreeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "status": "passed",
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest test"
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest",
+      "test"
+    ],
+    "tests": 450,
+    "suites": 95,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 333.0722725968808
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.434773599728942,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven",
+    "command": "python3 target/packed-cell-reader-validation/run-checks.py",
+    "scope": "Serial Python phase of the recorded combined command; this phase completed before the later Main interruption."
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 809,
+    "shaders_match": 28,
+    "mp3": "Original CBR/VBR packaged fixtures both decoded to 44100 Hz, 6.060 s PCM."
+  },
+  "benchmark": "structure-packed-reader-benchmark.json",
+  "main": {
+    "earlier_attempt": {
+      "status": "incomplete",
+      "outer_exit_code": 143,
+      "main_pass": false,
+      "cause": "Combined command was terminated before Main produced a final receipt; cause not established. No assigned Main or wrapper process survived. Earlier completed Java/Python/package results remain recorded."
+    },
+    "final_retry": {
+      "exit_code": 0,
+      "elapsed_seconds": 544.2173800691962
+    },
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-packed-reader-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 541849,
+      "timeout_seconds": 900
+    },
+    "source_files": 311,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-packed-reader-main-structure-native-source.json",
+      "source_manifest_sha256": "9a207d3711a3846164eb7730e48f352740e6ce92d53cda3b1e9bbf9fdb4d272c",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-packed-reader-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "replay": {
+    "earlier_attempt": {
+      "status": "incomplete",
+      "exit_code": 143,
+      "pass": false,
+      "cause": "Supplemental session terminated before any step receipt. No bounded Exception/ERROR/failed/Error line and no assigned replay process survived. Retrying the same scoped check once."
+    },
+    "receipt": "structure-packed-reader-replay.json",
+    "source_files": 614,
+    "compiled_classes": 1274,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11254654984,
+      "planar_lighting_nanos": 1145519284,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11600398143,
+      "planar_lighting_nanos": 728864489,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    }
+  },
+  "supplemental_commands": [
+    [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-packed-reader-replay"
+    ],
+    [
+      "javac",
+      "--release",
+      "17",
+      "-cp",
+      "target/classes",
+      "-d",
+      "target/packed-cell-reader-validation",
+      "tools/structures/PackedCellReadProbe.java"
+    ],
+    [
+      "java",
+      "-Xmx512m",
+      "-cp",
+      "target/packed-cell-reader-validation:target/classes",
+      "dev.jayms.net.structure.PackedCellReadProbe"
+    ],
+    [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-packed-reader-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-packed-reader-main-midpoint.png",
+      "dashboard/evidence/structure-packed-reader-main-video.json"
+    ]
+  ],
+  "supplemental_execution": [
+    {
+      "command_index": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 75.73852280154824
+    },
+    {
+      "command_index": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 1.0677910074591637
+    },
+    {
+      "command_index": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 5.585565904155374
+    },
+    {
+      "command_index": 3,
+      "exit_code": 0,
+      "elapsed_seconds": 2.372694691643119
+    }
+  ],
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected full capture/anchor/library, long-path export/import, all rotations, footprint/conflicts, empty-space preservation, player/occupied-cell rejection, cancellation, undo, repeated placement, 257-chunk rejection without save/dependency/geometry mutation, dependency/restart recovery and inventory/editor regressions. Observed all assertions passed. Separate actual replay/save/reopen/paging/GPU/lighting/sky/planar/model/water and cleanup workflow passed on the final source. Unit cases also verified dense/random cells, malformed/truncated/trailing/over-depth/colour/header failures, noncanonical air/uniform branches, legacy extended headers, input/output buffer isolation, interruption, immutable views, counters and wire identity. Browser checks do not apply to this native Java client.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-packed-reader-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-packed-reader-main-midpoint.png",
+      "dashboard/evidence/structure-packed-reader-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 26,
+      "durationSeconds": 45.661,
+      "bytes": 472275,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "8c0c80689476d5c05f5aa149db45393dce04c669dacb788bad1ee89ab2e8d8d7",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-packed-reader-main-midpoint.png",
+      "structure-packed-reader-main-structure-placement-limit.png",
+      "structure-packed-reader-main-structure-preview-conflict.png",
+      "structure-packed-reader-main-structure-preview-3.png",
+      "structure-packed-reader-main-structure-import-cancelled.png",
+      "structure-packed-reader-main-structure-component-closeup.png",
+      "structure-packed-reader-replay-session.png",
+      "structure-packed-reader-replay-optics.png",
+      "structure-packed-reader-replay-pending-optics.png",
+      "structure-packed-reader-replay-pending.png",
+      "structure-packed-reader-replay-regression.png"
+    ],
+    "scope": "Fresh native workflow and replay framebuffers, including correct lit detailed models. Software HUD remains around 0\u20131 FPS; no frame-time or physical-GPU pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "compile_release": 17,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "695d65253b09367bd2d3a0e3176547c13c77b8ca",
+    "run": 44701758860,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh hosted validation."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Arena queries select strict packed reading; zero-turn rotation shares its immutable root before graph reconstruction. Constructor validation/nonzero placement use explicit graph views to preserve their prior allocation strategy. Engine iteration selects the immutable view by rotation. No unrelated feature/test/file deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Provisional 131072-leaf, 256-placement-chunk and 16384-instance caps and dependency/instance surface caps still reject required city/maximum fixtures.",
+    "Agreed targets remain 1024x256x1024 cells, 4 million occupied cells, 64 MiB compressed, 512 MiB decoded and 512 dependencies.",
+    "Required 20-run city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Reader/cell-view allocation diagnostics and functional checks only. No supported-city, supported-limit, stable-rollout, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-packed-reader-benchmark.json": "21be495b443fdfe50f1ec480b9ff4e81a5d3c66ac6be00c1e7267255ea4397a4",
+    "structure-packed-reader-main-midpoint.png": "d221edc120d33bca10f36f3587f7fd5aed6fdb81f3973b922e5b8b0e901d27ba",
+    "structure-packed-reader-main-structure-component-closeup.png": "87917b25fef72309ecffa469fdd80b528c9b63983149616b8cbd81b0ff23b20c",
+    "structure-packed-reader-main-structure-export-cancelled.png": "da3ea2df1c21b732ae974feedd4e0684e6297fb0c64296fb8d27430c682e348f",
+    "structure-packed-reader-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-packed-reader-main-structure-invalid-anchor.png": "d313ebd0c4fd90b5dceb3fabae4106708680c1425b782a1aea5c68bfdd110698",
+    "structure-packed-reader-main-structure-library-capture.png": "7585a8af7f4cb05b0da4b505f2d413260a29ec5784d9beeab0a9bccf401c1d76",
+    "structure-packed-reader-main-structure-native-execution.json": "7a5db920a29a0a34c13ace56b0201fa4bf14bd99f493c42b31cdf54fb23c2763",
+    "structure-packed-reader-main-structure-native-lighting.json": "8498fb6f5c78ce7077978dc442ae9f0cc94893c5659c604357aca0dfce6af1ba",
+    "structure-packed-reader-main-structure-native-result.json": "1bb80b108c39efc9915a037f0b0c625d8acabcf11cdf7bbc53acd39316f747b2",
+    "structure-packed-reader-main-structure-native-source.json": "447bf5f51b17bd8fa06e43096962aaa3112d931e1f2bf2d216be6ce02e2b471a",
+    "structure-packed-reader-main-structure-native-stage.json": "d4ff993bd6926d7c1691a739d7239c2730a1dcaca9ee2786e50041a351ff4494",
+    "structure-packed-reader-main-structure-placed.png": "c3861f96ae90913c98c7dee09c54f93d27c627eaa748bd1dab90d26227796129",
+    "structure-packed-reader-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-packed-reader-main-structure-player-conflict.png": "50bd3e81c2fedf542cb1918d2d0ec887e14767a9ac711e63ebb51cdd8a904e9a",
+    "structure-packed-reader-main-structure-preview-0.png": "766240222c1d0bac04e9d3d1c539946c8034e38ce2ec11cac7664ea6e2fe7fe8",
+    "structure-packed-reader-main-structure-preview-1.png": "9000693e2b95d8b18dcb97f2c3cc806ebcdffd7ce1f0da0a7050fe98ff47101a",
+    "structure-packed-reader-main-structure-preview-2.png": "e075bfda136251fe4c5a531941555cc72c50bf22671b1e4134c1662a8dbaa0d8",
+    "structure-packed-reader-main-structure-preview-3.png": "3d1fb2968b11fa178916a7c1c39132a58957c776185d22c8dd6c289b64b74d2f",
+    "structure-packed-reader-main-structure-preview-conflict.png": "d85830b8160a2a3e4ea564f4f20ada23e845cd13e70728a76c8485119d640064",
+    "structure-packed-reader-main-structure-undo-cancelled.png": "90800649e2779f7649295bd5c983433d0254f38194f0f2ab8527b6a8a73cb0d0",
+    "structure-packed-reader-main-structure-workflow.mp4": "8c0c80689476d5c05f5aa149db45393dce04c669dacb788bad1ee89ab2e8d8d7",
+    "structure-packed-reader-main-structure-world-placed.png": "131a7670f31a8520872dfc5ddb718841da6d8b1661fc4d9326d196e5b0e677db",
+    "structure-packed-reader-main-video.json": "add5b5b6ca3c927ad4f2368c739b97300f2df7beddb0acce53fed21669a34bca",
+    "structure-packed-reader-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-packed-reader-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-packed-reader-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-packed-reader-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-packed-reader-replay-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-packed-reader-replay.json": "1f55f9726b52de0148a48ef9b2101a7e5e4e21888bc94b6bdb6af1237dd3a005"
+  }
+}

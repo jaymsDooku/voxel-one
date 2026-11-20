@@ -58,7 +58,8 @@ public final class SparseVoxelOctree {
         if(turns<0||turns>3)throw new IllegalArgumentException("Quarter-turn rotation 0..3 required");
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         var result=new SparseVoxelOctree(size);
-        // Preserve the existing zero-turn and uniform-region shortcuts.
+        if(turns==0){result.root=root;return result.freeze();}
+        // Nonzero turns retain the existing uniform-region shortcut.
         Node source=readRoot();
         result.root=turns==0||source==null||source.children==null?source:rotateY(source,turns);
         return result.freeze();
@@ -324,6 +325,44 @@ public final class SparseVoxelOctree {
         }
         if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
         return result.freeze();
+    }
+
+    /** Validate and own one canonical resolution16 wire image without creating
+     * a node graph. Existing general/legacy stream readers remain unchanged.
+     * Input is copied before validation and never retained by reference. */
+    public static SparseVoxelOctree readPackedCell(byte[] wire)throws IOException {
+        java.util.Objects.requireNonNull(wire,"wire");
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        if(wire.length<2||wire.length>65536)throw new IOException("Packed world-cell byte limit");
+        var reader=new PackedCellReader(wire.clone());
+        if(reader.take()!=16)throw new IOException("Packed world-cell resolution16 required");
+        reader.node(16);
+        if(reader.offset!=reader.bytes.length)throw new IOException("Trailing packed cell bytes");
+        var result=new SparseVoxelOctree(16);int tag=reader.bytes[1]&255;
+        if(tag==1)result.root=new Node(reader.colorAt(2));
+        else if(tag==2)result.root=new PackedCell(reader.bytes,reader.nodes,reader.occupied,reader.leaves);
+        if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+        return result.freeze();
+    }
+    private static final class PackedCellReader {
+        final byte[] bytes;int offset,nodes,occupied,leaves;
+        PackedCellReader(byte[] bytes){this.bytes=bytes;}
+        int take()throws IOException {
+            if(offset==bytes.length)throw new EOFException("Truncated packed cell");
+            return bytes[offset++]&255;
+        }
+        int colorAt(int p){return (bytes[p]&255)<<24|(bytes[p+1]&255)<<16|(bytes[p+2]&255)<<8|bytes[p+3]&255;}
+        void node(int side)throws IOException {
+            if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
+            int tag=take();if(tag==0)return;
+            if(tag==1) {
+                int color=take()<<24|take()<<16|take()<<8|take();
+                if(color>>>24!=255&&color>>>24!=254)throw new IOException("Invalid voxel value");
+                nodes++;leaves++;occupied+=side*side*side;return;
+            }
+            if(tag!=2||side==1)throw new IOException("Invalid octree branch");
+            nodes++;for(int i=0;i<8;i++)node(side/2);
+        }
     }
 
     /** Detached model snapshot bounded by the existing 8/16/32-resolution model format.

@@ -31,9 +31,21 @@ final class StructureCells extends AbstractList<Cell> implements RandomAccess {
         };
     }
     @Override public Cell get(int index) {
+        return get(index,true);
+    }
+    private Cell get(int index,boolean packed) {
         Objects.checkIndex(index,positions.length);
         short model=models[index];
-        return cell(positions[index],model>=0?null:model==UNIFORM?uniform(values[index]):geometry.read(values[index]),model>=0?model:-1);
+        return cell(positions[index],model>=0?null:model==UNIFORM?uniform(values[index]):packed?geometry.read(values[index]):geometry.readGraph(values[index]),model>=0?model:-1);
+    }
+    /** Nonzero rotation must visit nodes; avoid packing only to unpack again. */
+    List<Cell> placementCells(int rotation) {
+        if(rotation==0)return this;
+        if(rotation<1||rotation>3)throw new IllegalArgumentException("Quarter-turn rotation 0..3 required");
+        return new AbstractList<>() {
+            @Override public int size(){return positions.length;}
+            @Override public Cell get(int index){return StructureCells.this.get(index,false);}
+        };
     }
     private static SparseVoxelOctree uniform(int color) {
         var tree=new SparseVoxelOctree(16);tree.fill(0,0,0,16,16,16,color);return tree.freeze();

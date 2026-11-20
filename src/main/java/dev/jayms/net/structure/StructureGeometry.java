@@ -21,7 +21,8 @@ final class StructureGeometry {
         public int length(){return length;}
         public byte[] segment(int index){return segments[index];}
     };
-    SparseVoxelOctree read(int offset){return read(bytes,offset);}
+    SparseVoxelOctree read(int offset){return read(bytes,offset,true);}
+    SparseVoxelOctree readGraph(int offset){return read(bytes,offset,false);}
     void write(int offset,DataOutputStream out)throws IOException {write(bytes,offset,out);}
 
     private static int at(Bytes bytes,int offset){return bytes.segment(offset>>>SHIFT)[offset&MASK]&255;}
@@ -32,14 +33,17 @@ final class StructureGeometry {
         if(length<1||length>SIZE||(long)offset+4+length>bytes.length())throw new IOException("Invalid packed geometry length");
         return length;
     }
-    private static SparseVoxelOctree read(Bytes bytes,int offset) {
+    private static SparseVoxelOctree read(Bytes bytes,int offset,boolean packed) {
         try {
             int length=recordLength(bytes,offset);
-            try(var in=new DataInputStream(new Input(bytes,offset+4,length))) {
+            if(!packed)try(var in=new DataInputStream(new Input(bytes,offset+4,length))) {
                 var tree=SparseVoxelOctree.read(in,16).freeze();
                 if(in.read()!=-1)throw new IOException("Trailing packed geometry");
                 return tree;
             }
+            var wire=new byte[length];
+            try(var in=new DataInputStream(new Input(bytes,offset+4,length))){in.readFully(wire);}
+            return SparseVoxelOctree.readPackedCell(wire);
         } catch(IOException invalid){throw new IllegalStateException("Invalid internal structure geometry",invalid);}
     }
     private static void write(Bytes bytes,int offset,DataOutputStream out)throws IOException {
@@ -122,7 +126,8 @@ final class StructureGeometry {
             if(budget<1)throw new IOException("Experimental geometry cap");
             StructurePackage.validateMaterial(side,color);return color;
         }
-        SparseVoxelOctree read(int offset){return StructureGeometry.read(bytes,offset);}
+        // Constructor validation immediately visits leaves, so it needs a graph.
+        SparseVoxelOctree read(int offset){return StructureGeometry.read(bytes,offset,false);}
         @Override public void write(int value)throws IOException {
             budget(1);if((length&MASK)==0)segments.add(new byte[SIZE]);
             segment(length>>>SHIFT)[length&MASK]=(byte)value;length++;

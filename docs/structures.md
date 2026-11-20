@@ -120,6 +120,14 @@ their normal tree paths. This trades bounded decoding work for lower retained
 fractional backing geometry. It does not establish peak-memory, frame or operation-time
 budgets, and it does not change geometry or placement limits.
 
+Immutable package cell queries validate canonical resolution16 wire images directly
+into private packed snapshots. Zero-turn rotation shares that immutable backing.
+Constructor validation and nonzero placement rotations use a direct graph view,
+since those operations immediately visit nodes. The general stream reader and
+legacy headers remain compatible; package decoding normalizes extended headers
+before this internal canonical reader. Package bytes, positions and dependency IDs
+stay unchanged. This allocation change does not qualify city or maximum-size use.
+
 Whole-cell history replacements share compact immutable replay rows between staged
 and live histories. Uniform cells share one immutable edit; fractional cells retain
 primitive row data and a bounded local lookup index. Ordered views materialize edit
