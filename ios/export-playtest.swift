@@ -20,8 +20,8 @@ func exportClip()async throws {
     let asset=AVURLAsset(url:input),duration=try await asset.load(.duration)
     let available=CMTimeGetSeconds(duration)-window.offsetSeconds
     guard available.isFinite,available>=1 else {throw ClipError.invalidRange}
-    guard let exporter=AVAssetExportSession(asset:asset,presetName:AVAssetExportPresetLowQuality) else {throw ClipError.missingExporter}
-    exporter.shouldOptimizeForNetworkUse=true;exporter.metadata=[]
+    guard let exporter=AVAssetExportSession(asset:asset,presetName:AVAssetExportPreset640x480) else {throw ClipError.missingExporter}
+    exporter.shouldOptimizeForNetworkUse=true;exporter.metadata=[];exporter.fileLengthLimit=5_500_000
     exporter.timeRange=CMTimeRange(start:CMTime(seconds:window.offsetSeconds,preferredTimescale:600),
                                   duration:CMTime(seconds:min(available,window.durationSeconds),preferredTimescale:600))
     try await exporter.export(to:output,as:.mp4)

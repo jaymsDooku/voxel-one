@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac sourcefe16c49e hit1200s client timeout; no native pass or gameplay media returned. Trusted verifier f446ad3f includes reviewed cap fix. Bounded recorder/fixture cleanup and media export; fixed phase and live/final test counters added.87 Linux harness tests passed. All40 native cases and fresh exact-source Mac/media validation remain required; full parity/live VPS/signing/physical gates stay open.",
-      "updatedAt": "2026-11-20T02:48:40+00:00"
+      "note": "Source ea0a95ab passed all40 native cases on iPhone SE Simulator/iOS18.5. Actual screenshot/video inspected and copied;40s clip is only108x192. Added bounded render-only distant surfaces on existing mesh worker and higher-resolution export target.87 Linux harness tests passed. Fresh42-case Mac run/media pending; second Simulator size, remaining parity/live VPS/signing/physical qualification stay open.",
+      "updatedAt": "2026-11-20T03:21:19+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

@@ -257,6 +257,28 @@ final class NativeWorkflowTests:NativeEvidenceTestCase {
         let stopped=x();app.buttons["pauseButton"].tap()
         app.buttons["moveRight"].press(forDuration:0.4);XCTAssertEqual(x(),stopped)
     }
+    func testNativeDistantLandscapeGraphicsMemoryAndReach()throws {
+        newOffline();textContains("playerPosition","Ground");waitTerrain()
+        if app.buttons["atmosphereToggle"].value as? String == "On" {app.buttons["atmosphereToggle"].tap();waitTerrain()}
+        app.buttons["cameraButton"].tap();app.buttons["First person"].tap()
+        let scene=app.otherElements["worldView"]
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"))
+        aimAtHorizonForEvidence();capture("native-distant-landscape-horizon")
+        let inventory=app.buttons["slot0"].label
+        app.buttons["breakButton"].tap();textContains("gameStatus","within five blocks")
+        XCTAssertEqual(app.buttons["slot0"].label,inventory,"Far preview cannot grant remote edit reach")
+        app.buttons["graphicsButton"].tap();wait(app.segmentedControls["graphicsDetail"])
+        app.segmentedControls["graphicsDetail"].buttons["32"].tap();app.buttons["graphicsApply"].tap();waitTerrain()
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"))
+        capture("native-distant-low-distance")
+        app.terminate();app.launchArguments=["--mesh-memory-warning-test"];app.launch()
+        wait(app.buttons["pauseButton"]);textContains("gameStatus","Memory low")
+        app.buttons["pauseButton"].tap();waitTerrain()
+        XCTAssertTrue(scene.label.contains("distant landscape prepared"));capture("native-distant-memory-recovery")
+        app.launchArguments=[]
+        app.buttons["graphicsButton"].tap();wait(app.buttons["graphicsReset"])
+        app.buttons["graphicsReset"].tap();app.buttons["graphicsApply"].tap();waitTerrain()
+    }
     func testNativeToolCraftingPlacementGuardAndRestart()throws {
         workflowCheckpoint="tools_sticks"
         newOffline();app.buttons["craftButton"].tap()

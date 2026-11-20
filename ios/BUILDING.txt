@@ -296,3 +296,25 @@ counts every30 seconds and final counts survive later media failure through the
 existing bounded diagnostic collector; no raw logs or form values are evidence.
 All40 native cases, the900-second child cap and1200-second outer cap remain.
 Mac source fe16c49e timed out without native proof; this repair awaits rerun.
+
+
+Distant landscape preview (new source, native validation pending)
+Source ea0a95ab passed all40 moving-window and prior native cases; its actual
+40-second video was inspected but is only108x192. New export uses the640x480
+preset with a5,500,000-byte target, retaining a strict below6MB artifact gate.
+This output quality still needs Mac inspection.
+
+Versioned offline Sandbox adds a coarse surface beyond loaded voxels, using the
+same seeded generator and known journal heights/colors. During high flight,
+ground below the loaded band remains visible as a distant surface. Initial radius is the
+smaller of detail distance and96 blocks. It never grants editing or collision
+outside the exact loaded window. Tiny models/trees are omitted at distance;
+exact nearby models and fractional cells stay in the resident mesh. Online and
+unversioned legacy worlds do not synthesize an unseen far world. This is an
+initial bounded preview, not full desktop LOD or cross-platform save parity.
+
+Bounds:4096 sampled columns,16384 quads,4096 vertices/page,4 ready pages and2
+page installs/frame. The existing single mesh worker handles both layers and
+cancels stale generations; memory warning drops distant nodes until resume.
+These are engineering caps, not measured device memory/frame-rate claims.
+All42 native cases and new screenshot/video inspection remain pending.

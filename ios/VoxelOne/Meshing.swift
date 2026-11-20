@@ -1,6 +1,6 @@
 import Foundation
 
-struct NativeMeshRequest:Sendable {var payload:NativeSavePayload;var atmosphere:Bool;var center:[Float]}
+struct NativeMeshRequest:Sendable {var payload:NativeSavePayload;var atmosphere:Bool;var center:[Float];var distantRadius:Int=0}
 struct NativeMeshKey:Hashable,Sendable {var color:Int;var sky:Int;var emitter:Bool}
 struct NativeMeshBuffer:Sendable {
     var key:NativeMeshKey
@@ -10,6 +10,7 @@ struct NativeMeshBuffer:Sendable {
 enum NativeMeshEvent:Sendable {
     case index(Set<GridKey>)
     case page(GridKey,Bool,NativeMeshBuffer?)
+    case distant(Bool,NativeMeshBuffer?)
     case finished
     case failed
 }
@@ -69,6 +70,13 @@ final class NativeMeshWorker:@unchecked Sendable {
                 var complete=true
                 for chunk in chunks {
                     if !current(job.0) || !build(chunk,index[chunk]!,world,job.1.atmosphere,job.0) {complete=false;break}
+                }
+                if complete,job.1.distantRadius>0,world.streamsTerrain {
+                    var first=true
+                    complete=try NativeDistantMesher.build(world.snapshot,radius:job.1.distantRadius,cancelled:{!self.current(job.0)}){buffer in
+                        let accepted=self.emit(.distant(first,buffer),job.0);first=false;return accepted
+                    }
+                    if complete && first {_ = emit(.distant(true,nil),job.0)}
                 }
                 if complete {_ = emit(.finished,job.0)}
             }catch{_ = emit(.failed,job.0)}

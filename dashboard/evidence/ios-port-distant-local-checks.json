@@ -1,0 +1,57 @@
+{
+  "sourceBase": "ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913",
+  "sourceState": "Uncommitted distant terrain and video-quality increment; pending controller commit and native validation",
+  "reviewBase": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "environment": "Linux developer worktree; no Swift/Xcode/native client execution",
+  "commands": [
+    "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+    "python3 ios/make-project.py",
+    "python3 -m py_compile ios/check-results.py ios/make-project.py ios/native-test-runner.py",
+    "bash -n ios/check-simulator.sh",
+    "git diff --check"
+  ],
+  "results": [
+    "87 Linux harness tests passed; Apple command/screenshot fixtures are mocked. Child-process supervision integration tests use actual synthetic Python/Bash children.",
+    "Project generation, Python compilation, shell syntax and diff checks passed.",
+    "All42 declared native methods are required; zero omitted cases.",
+    "110 unrelated progress entries preserved; zero deleted files."
+  ],
+  "Playtest": "Prior exact source ea0a95ab passed40 actual native cases. Returned screenshot inspected. Original40-second/15fps/108x192 video decoded locally and sampled every4 seconds; it shows menu with blank account fields, edits, flight and return but HUD resolution is insufficient. New distant surfaces and640x480 export preset are UNEXECUTED until controller Mac run. Browser playtesting does not apply to UIKit/SceneKit.",
+  "newNativeSteps": [
+    "Inspect distant landscape at horizon; reject break beyond5-block reach without inventory change; Apply32-block detail and inspect; terminate/relaunch; simulate memory warning; resume and inspect rebuilt distant nodes.",
+    "Measure actual distant page/quad/position bounds and near exclusion; verify known column edits, model omission and fractional/partial maximum height; invalid radius and cancellation paths.",
+    "Run every prior40 native case, including City, touch, graphics, crafting, save, geometry and streaming regressions; inspect larger video and actual screenshot."
+  ],
+  "bounds": {
+    "distantRadiusMaximum": 96,
+    "sampleStep": 4,
+    "cachedColumnsMaximum": 4096,
+    "quadsMaximum": 16384,
+    "verticesPerPageMaximum": 4096,
+    "readyPagesMaximum": 4,
+    "installsPerFrameMaximum": 2,
+    "exportByteTarget": 5500000,
+    "artifactBytesMustBeBelow": 6000000
+  },
+  "limits": "Engineering caps, not measured physical-device budgets. Distant layer is a coarse render-only offline preview; tiny models/generated trees are omitted, close leaves remain exact, and online/unversioned worlds do not synthesize unseen surfaces. It is not desktop LOD parity.",
+  "intendedRemovals": "No file deletions. Resident mesh-node construction was factored into a shared main-actor helper; existing City and native paths remain required by regressions. Obsolete top-level plan status was updated while historical receipts remain intact.",
+  "qualificationPending": [
+    "Current42-case exact-source native run and higher-resolution media inspection",
+    "Additional Simulator size",
+    "Remaining engine parity including time-of-day/mobile settings",
+    "Live VPS service qualification",
+    "Signed iPhone installation and physical-device measurements",
+    "Independent exact-head native review"
+  ],
+  "sourceSha256": {
+    "ios/VoxelOne/DistantTerrain.swift": "9d68ba06880e6b6b62504dabd27be089f3b7d51f47ab4b259bf571d71ea66b3b",
+    "ios/VoxelOne/Meshing.swift": "f65c064bc475588f0b92ed58e20022f49adae058b63c34976521a76f2609b247",
+    "ios/VoxelOne/Renderer.swift": "ab5ec2a3ff4ed1df4bba557f321a197b3ef9558bc34888d06cc48662910199c9",
+    "ios/VoxelOneUITests/WorldRulesTests.swift": "7821b90e4e569c4b2ac482bf56d00428c579ade94b035860d04d4cfd07f2dede",
+    "ios/VoxelOneUITests/NativeWorkflowTests.swift": "457b9a5990634e5915c6d2c5ed2e85751417c1d5492034537122155282785e05",
+    "ios/check-results.py": "bfb3a28c47079daf198ee1ebc0747459f99fce14b727b8cd1b4172ddfc72b9d2",
+    "ios/make-project.py": "00ac0ab64aa1fc8967c4fcd76a6805ad070445e856c8fd5c616eeb5456a03b5a",
+    "ios/export-playtest.swift": "73791bab9e004ef22e4755c35fad58b208c60dcb8da2e69451701a2fd36e764b"
+  },
+  "publication": "Pending controller publication"
+}

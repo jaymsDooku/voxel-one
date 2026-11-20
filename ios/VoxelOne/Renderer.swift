@@ -23,6 +23,9 @@ import simd
     private var meshWorld:ObjectIdentifier?
     private var meshRevision = -1
     private var meshOutdoor=false
+    private var distantNodes:[SCNNode]=[]
+    private var distantBounds:[Int]=[]
+    private var distantRadius=0
     private var skyMaterials:[(SCNMaterial,Int,Double,Bool)]=[]
     init() {
         let body=SCNCapsule(capRadius:0.28,height:1.8);body.firstMaterial?.diffuse.contents=UIColor.systemCyan
@@ -50,7 +53,7 @@ import simd
     }
     func cancelMeshing(){meshWorker.cancel();meshRevision = -1;view.accessibilityValue="Terrain paused"}
     func trimMeshes(around world:VoxelWorld){
-        cancelMeshing()
+        cancelMeshing();clearDistant()
         for key in Array(renderChunks.keys) {
             let x=Float(key.x*8+4)-world.position.x,y=Float(key.y*8+4)-world.position.y,z=Float(key.z*8+4)-world.position.z
             if x*x+y*y+z*z>16*16 {dropChunk(key)}
@@ -70,31 +73,48 @@ import simd
             case .page(let chunk,let first,let page):
                 if first {dropChunk(chunk)}
                 guard let page=page else{continue}
-                func source(_ values:[Float],_ semantic:SCNGeometrySource.Semantic,_ count:Int)->SCNGeometrySource {
-                    let data=values.withUnsafeBytes{Data($0)}
-                    return SCNGeometrySource(data:data,semantic:semantic,vectorCount:values.count/count,usesFloatComponents:true,componentsPerVector:count,bytesPerComponent:4,dataOffset:0,dataStride:count*4)
+                let node=meshNode(page,outdoor:meshOutdoor);terrain.addChildNode(node);renderChunks[chunk,default:[]].append(node)
+            case .distant(let first,let page):
+                if first {clearDistant()}
+                if let page=page {
+                    let node=meshNode(page,outdoor:false);node.name="distant-terrain-preview"
+                    terrain.addChildNode(node);distantNodes.append(node)
+                    view.accessibilityLabel="Voxel world. Drag to look; distant landscape prepared."
                 }
-                let indexData=page.indices.withUnsafeBytes{Data($0)}
-                let element=SCNGeometryElement(data:indexData,primitiveType:.triangles,primitiveCount:page.indices.count/3,bytesPerIndex:4)
-                let geometry=SCNGeometry(sources:[source(page.positions,.vertex,3),source(page.normals,.normal,3),source(page.colors,.color,4)],elements:[element])
-                let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
-                if meshOutdoor || page.key.emitter {
-                    skyMaterials.append((material,page.key.color,Double(page.key.sky)/8,page.key.emitter))
-                    setSkyEmission(material,page.key.color,Double(page.key.sky)/8,page.key.emitter)
-                }
-                geometry.materials=[material];let node=SCNNode(geometry:geometry);terrain.addChildNode(node);renderChunks[chunk,default:[]].append(node)
             case .finished:view.accessibilityValue="Terrain ready"
             case .failed:view.accessibilityValue="Terrain failed"
             }
         }
     }
+    private func clearDistant(){
+        distantNodes.forEach{$0.removeFromParentNode()};distantNodes.removeAll()
+        view.accessibilityLabel="Voxel world. Drag to look; two fingers pan the planning view."
+    }
+    private func meshNode(_ page:NativeMeshBuffer,outdoor:Bool)->SCNNode {
+        func source(_ values:[Float],_ semantic:SCNGeometrySource.Semantic,_ count:Int)->SCNGeometrySource {
+            let data=values.withUnsafeBytes{Data($0)}
+            return SCNGeometrySource(data:data,semantic:semantic,vectorCount:values.count/count,usesFloatComponents:true,componentsPerVector:count,bytesPerComponent:4,dataOffset:0,dataStride:count*4)
+        }
+        let indexData=page.indices.withUnsafeBytes{Data($0)}
+        let element=SCNGeometryElement(data:indexData,primitiveType:.triangles,primitiveCount:page.indices.count/3,bytesPerIndex:4)
+        let geometry=SCNGeometry(sources:[source(page.positions,.vertex,3),source(page.normals,.normal,3),source(page.colors,.color,4)],elements:[element])
+        let material=SCNMaterial();material.diffuse.contents=UIColor.white;material.lightingModel = .lambert;material.isDoubleSided=false
+        if outdoor || page.key.emitter {
+            skyMaterials.append((material,page.key.color,Double(page.key.sky)/8,page.key.emitter))
+            setSkyEmission(material,page.key.color,Double(page.key.sky)/8,page.key.emitter)
+        }
+        geometry.materials=[material];return SCNNode(geometry:geometry)
+    }
     func rebuild(_ world:VoxelWorld) {
         let identity=ObjectIdentifier(world),outdoor=atmospherePreview
-        if meshWorld != identity || meshRevision != world.geometryRevision || meshOutdoor != outdoor {
+        let radius=world.streamsTerrain ? min(NativeDistantMesher.maximumRadius,graphics.detail):0
+        if meshWorld != identity || distantBounds != world.snapshot.bounds || distantRadius != radius {clearDistant()}
+        distantBounds=world.snapshot.bounds
+        if meshWorld != identity || meshRevision != world.geometryRevision || meshOutdoor != outdoor || distantRadius != radius {
             if meshWorld != identity {for key in Array(renderChunks.keys) {dropChunk(key)}}
-            meshWorld=identity;meshRevision=world.geometryRevision;meshOutdoor=outdoor
+            meshWorld=identity;meshRevision=world.geometryRevision;meshOutdoor=outdoor;distantRadius=radius
             let p=planning ? focus:world.position
-            meshGeneration=meshWorker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:outdoor,center:[p.x,p.y,p.z]))
+            meshGeneration=meshWorker.submit(NativeMeshRequest(payload:world.savePayload(),atmosphere:outdoor,center:[p.x,p.y,p.z],distantRadius:radius))
             view.accessibilityValue="Terrain loading"
         }
         zones.childNodes.forEach{$0.removeFromParentNode()}

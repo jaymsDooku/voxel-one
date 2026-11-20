@@ -24,6 +24,49 @@ private final class SaveWorkerProbe:@unchecked Sendable {
 }
 
 final class WorldRulesTests:NativeEvidenceTestCase {
+    func testDistantTerrainBoundsJournalModelsAndCancellation()throws {
+        var value=try terrainFixture()
+        func pages(_ value:Snapshot)throws->[NativeMeshBuffer] {
+            var result:[NativeMeshBuffer]=[]
+            XCTAssertTrue(try NativeDistantMesher.build(value,radius:96,cancelled:{false}){result.append($0);return true})
+            return result
+        }
+        let result=try pages(value)
+        XCTAssertFalse(result.isEmpty)
+        var quads=0
+        for page in result {
+            XCTAssertLessThanOrEqual(page.positions.count/3,4096)
+            XCTAssertEqual(page.normals.count,page.positions.count);XCTAssertEqual(page.colors.count/4,page.positions.count/3)
+            XCTAssertTrue(page.positions.allSatisfy{$0.isFinite});quads+=page.positions.count/12
+            for offset in stride(from:0,to:page.positions.count,by:12) where page.normals[offset+1]==1 {
+                let xs=(0..<4).map{page.positions[offset+$0*3]},zs=(0..<4).map{page.positions[offset+$0*3+2]}
+                let x=(xs.min()!+xs.max()!)/2,z=(zs.min()!+zs.max()!)/2
+                XCTAssertFalse(x>=(-24) && x<25 && z>=(-24) && z<25,"Distant tops never cover resident cells")
+                XCTAssertTrue(xs.allSatisfy{abs($0)<=96});XCTAssertTrue(zs.allSatisfy{abs($0)<=96})
+            }
+        }
+        XCTAssertLessThanOrEqual(quads,NativeDistantMesher.maximumQuads)
+        func sampledHeight(_ pages:[NativeMeshBuffer])->Float? {
+            for page in pages {for offset in stride(from:0,to:page.positions.count,by:12) {
+                if page.normals[offset+1]==1 && page.positions[offset]==48 && page.positions[offset+2]==0 {return page.positions[offset+1]}
+            }};return nil
+        }
+        let baseline=try XCTUnwrap(sampledHeight(result))
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:8,color:0)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),baseline,"Tiny models are omitted, never shown as coarse cubes")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:3,color:0x8c949e)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),91,"Known column edits affect distant surface height")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:141,color:0)]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),90.5,"Fractional item height must not become a whole cube")
+        value.terrainEdits=[NativeTerrainEdit(cell:GridKey(49,90,-3),type:255,color:0,geometry:NativeGeometry(resolution:16,leaves:[[0,0,0,8,2,0x7a4d2b]]))]
+        XCTAssertEqual(try XCTUnwrap(sampledHeight(pages(value))),90.5,"Partial leaves retain their maximum height in the coarse surface")
+        var emitted=false
+        XCTAssertFalse(try NativeDistantMesher.build(value,radius:96,cancelled:{true}){_ in emitted=true;return true});XCTAssertFalse(emitted)
+        XCTAssertFalse(try NativeDistantMesher.build(value,radius:96,cancelled:{false}){_ in false},"Consumer cancellation stops page production")
+        XCTAssertThrowsError(try NativeDistantMesher.build(value,radius:100,cancelled:{false}){_ in true})
+        var finite=value;finite.generatorVersion=nil;finite.terrainEdits=nil
+        XCTAssertThrowsError(try NativeDistantMesher.build(finite,radius:96,cancelled:{false}){_ in true})
+    }
     private func terrainFixture()throws->Snapshot {
         let bundle=Bundle(for:WorldRulesTests.self)
         let contract=try JSONDecoder().decode(NativeContract.self,from:Data(contentsOf:XCTUnwrap(bundle.url(forResource:"contract",withExtension:"json"))))

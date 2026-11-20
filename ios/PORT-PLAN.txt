@@ -1,8 +1,8 @@
 Native engine port: milestone 1 / early Sandbox slice
 
-Status: implementation in progress. Exact source b25184722108b4ff9514ec92e3162f44024820ee
-passed all36 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
-The current moving-window/journal increment has not run on Mac yet.
+Status: implementation in progress. Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913
+passed all40 native cases on iPhone SE (3rd generation) Simulator / iOS18.5.
+Current distant landscape and higher-resolution video changes have not run on Mac.
 This is not full engine parity or signed iPhone delivery.
 
 Architecture decision
@@ -14,10 +14,10 @@ Schema2 shares material/model/fractional definitions; schema1 remains readable.
 Current compatibility matrix
 Capability                 Desktop / source                 Native status
 Terrain                    net/Terrain.java, Geography.java Exact seed/version1-3 golden
-                                                            samples/window passed b2518472
-Streaming / distance       TerrainScheduler, DistantTerrain Proposed49x49 moving window;
-                                                            bounded worker/journal; Mac pending
-                                                            distant terrain unfinished
+                                                            samples/window passed ea0a95ab
+Streaming / distance       TerrainScheduler, DistantTerrain Moving49x49 window and durable
+                                                            edit journal passed ea0a95ab;
+                                                            new bounded far surface pending
 Fractional / models        net/WorldVoxels.java             Exact schema2 leaves/models;
                                                             edits/render/collision passed
 Collision / pick           player/Player.java, Camera.java  AABB and exact leaf ray;
@@ -36,8 +36,8 @@ Network                    pinned Java server transport     Native HTTPS gateway
                                                             synthetic auth/edit tests passed;
                                                             live VPS path unqualified
 
-Passed refers only to the36-case b2518472 developer Simulator run. It does not
-qualify the new streaming source, independent review, physical device or signing.
+Passed refers only to the40-case ea0a95ab developer Simulator run. It does not
+qualify current distant surfaces, independent review, physical device or signing.
 
 This slice
 Jump begins on touch-down and repeats while held. Release, drag exit, touch
@@ -55,8 +55,8 @@ Simulator validation needs the controller's Mac result and actual media inspecti
 30 FPS is the initial requested baseline, not a measured physical-device result.
 
 Remaining acceptance work
-1. Validate moving terrain, durable evicted edits, migration and worker fences on
-   exact source. Add distant terrain and finish remaining engine parity.
+1. Validate distant landscape and new export quality on exact source; finish
+   remaining engine parity, including time-of-day and further mobile settings.
 2. Remaining tool/equipment pose, touch/settings polish and shared save tooling.
 3. Live Sandbox multiplayer resynchronization, denied-network paths and isolated
    HTTPS proxy checks, then root-coordinated production service qualification.
@@ -1115,3 +1115,53 @@ graceful recorder shutdown, forced shutdown with INT/TERM ignored, unrelated
 child isolation, failing recorder rejection, shell-owned fixture cleanup and
 safe live/final counters. Native streaming gameplay and video export still need
 a fresh exact-source Mac run; browser testing does not apply to this harness.
+
+
+Observed moving-window pass and distant-landscape increment
+Exact source ea0a95ab4ea3e3fbbec6f6d43bc8b32b48a78913 passed all40 required
+native cases. Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44663550947
+Verified source/expected head, passed/clientChecked, all40 test statuses, media
+bytes and SHA-256. Trusted verifier was master f446ad3f, which contains8a53afce.
+Actual client screenshot was inspected: native flower-pot model and touch HUD.
+Video was decoded locally and sampled every4 seconds: offline menu with empty
+account fields, editing, flight and terrain return. It is40.00 seconds at15 FPS,
+108x192,381450 bytes. That resolution is too small for readable HUD inspection;
+new export requests Apple's640x480 preset and a5,500,000-byte length limit, still
+rejecting artifacts >=6MB. Output dimensions/clarity must be measured on Mac.
+Copies: ios-port-ea0a95ab-native-model.png, ios-port-ea0a95ab-streaming.mp4 and
+preflight-only image; receipt ios-port-ea0a95ab-receipt.json. Publication pending.
+The preflight image is only a Simulator home screen, not gameplay qualification.
+
+New distant landscape follows desktop DistantTerrainMesher's coarse-column
+surface approach with the same versioned NativeTerrain generator. It is a
+render-only surface preview outside the exact resident window. Coarse samples
+are4 columns apart, radius=min(graphics detail,96), with a maximum4096 cached
+column samples and16384 quads. Bounds split exactly at the resident rectangle;
+no distant top covers a resident cell. Ground below the loaded vertical band
+remains visible during high flight. Downward side faces cover height steps,
+and4-block near-border skirts reduce LOD cracks. Known journal column edits
+change height/color; removed blocks expose the next solid sample. Tiny models
+and trees are omitted at this LOD instead of being drawn as full cubes. Fine
+geometry remains exact in the resident layer; the far preview is not an export,
+picking, collision or authoritative world snapshot. It is not desktop LOD parity.
+
+Only versioned journal-backed offline Sandbox uses this preview. Online City,
+online Sandbox and unversioned finite saves keep their received/saved geometry;
+unseen authoritative edits are not invented. Main-thread SceneKit nodes use the
+existing mesh page installer. Near pages are built first, then distant pages;
+ready queue<=4, page<=4096 vertices, installs<=2/frame, one active worker and
+one latest pending request. Generation fences apply to both layers. Resident
+window/radius/world changes clear stale far nodes; memory warning releases far
+nodes and existing pause/resume rebuilds them. Physical GPU/memory costs remain
+unmeasured; these caps are engineering defaults. Radius32/64 follow detail choices;
+detail128/180 cap the initial distant preview at96 blocks.
+
+Qualification now requires42 cases: all prior40 plus distant surface bounds,
+page/index caps, journal/model behavior, invalid radius and cancellation; normal
+native horizon, far reach rejection, detail Apply and memory-warning recovery.
+New Swift source is unexecuted on Linux. Request exact-source Mac build/run and
+inspect the actual screenshot plus higher-resolution video before claims. A
+second Simulator size, remaining core parity, live VPS, signed installation,
+physical qualification and independent review remain open. No file deletions
+are intended. The old mesh-node construction was factored into a shared helper
+for resident and distant pages; it still creates SceneKit objects only on main.
