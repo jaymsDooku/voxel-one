@@ -82,7 +82,7 @@ public final class PracticeGame {
     private View view;
     private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
     private boolean inventory, usePressed, previousIntentUse, firstMouse = true, positioned;
-    private boolean sprintReleased;
+    private boolean sprintReleased, showHitboxes, hitboxShortcutNeedsControl;
     private Intent pendingClick;
     private boolean pendingClickRearm;
     private PoseView localPose;
@@ -206,6 +206,7 @@ public final class PracticeGame {
                      .with(GraphicsProfile.Key.SHADOWS, "OFF").with(GraphicsProfile.Key.AA, "OFF"), shader);
              var overlay = new Overlay();
              var avatars = new PlayerModel();
+             var hitboxes = new PracticeHitboxes();
              var models = new VoxelModelRenderer(world.models())) {
             BasaltCourtyardWorld.generate(world);
             world.stream(0, 0, 25);
@@ -235,7 +236,7 @@ public final class PracticeGame {
                 view = snapshot();
                 updatePresentation(now);
                 if (width == 0 || height == 0) { glfwWaitEventsTimeout(.1); continue; }
-                render(world, shader, rendering, models, avatars, now);
+                render(world, shader, rendering, models, avatars, hitboxes, now);
                 drawHud(overlay, recorder);
                 if (observer != null) {
                     for (var fighter : remoteActors)
@@ -253,6 +254,8 @@ public final class PracticeGame {
     private void bind(ScreenRecorder recorder) {
         long handle = window.getHandle();
         for (int i = 0; i < SLOTS.length; i++) hotbarLabels[i] = Controls.keyName(controls.code(SLOTS[i]));
+        hitboxShortcutNeedsControl = Arrays.stream(Controls.Action.values())
+                .anyMatch(action -> controls.matches(action, GLFW_KEY_F12));
         glfwSetFramebufferSizeCallback(handle, (w, x, y) -> { width = x; height = y; });
         glfwSetInputMode(handle, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
         glfwSetCursorPosCallback(handle, (w, x, y) -> {
@@ -286,6 +289,11 @@ public final class PracticeGame {
             } else combatPress(-button - 1);
         });
         glfwSetKeyCallback(handle, (w, key, scan, action, mods) -> {
+            if (action == GLFW_PRESS && key == GLFW_KEY_F12
+                    && (!hitboxShortcutNeedsControl || (mods & GLFW_MOD_CONTROL) != 0)) {
+                showHitboxes = !showHitboxes;
+                return;
+            }
             sprintInput(w, key, action);
             if (action != GLFW_PRESS) return;
             if (key == GLFW_KEY_ESCAPE) {
@@ -572,7 +580,7 @@ public final class PracticeGame {
     }
 
     private void render(World world, ShaderProgram shader, RenderPipeline pipeline, VoxelModelRenderer models,
-                        PlayerModel avatars, long now) {
+                        PlayerModel avatars, PracticeHitboxes hitboxes, long now) {
         Vector3f eye = camera.position();
         projection.identity().perspective((float) Math.toRadians(73), (float) width / height, .06f, 180);
         Matrix4f matrix = camera.createViewMatrix();
@@ -602,6 +610,7 @@ public final class PracticeGame {
             var drop = new ItemDrop((int) missile.id(), renderItem(missile.item()), 1, missile.x(), missile.y(), missile.z());
             avatars.renderDrop(drop, view.tick() / 20f, shader);
         }
+        if (showHitboxes && !remoteActors.isEmpty()) hitboxes.render(clipFromWorld, remoteActors);
         pipeline.finish();
         Fighter actor = self();
         if (actor != null && actor.health() > 0 && view.spectatorId() != id && view.inventory().size() == 36) {
@@ -663,6 +672,12 @@ public final class PracticeGame {
         String title = factions ? "Faction Arena" : view.kit() == PracticeMatch.Kit.DEBUFF ? "Debuff" : "No Debuff";
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
         ui.text("Basalt Courtyard  /  " + title, 27, 24, 1.4f);
+        if (showHitboxes) {
+            String label = "Hitboxes  /  " + (hitboxShortcutNeedsControl ? "Ctrl+F12" : "F12");
+            float labelWidth = ui.textWidth(label, 1.1f) + 20;
+            ui.rectangle(width - labelWidth - 16, 13, labelWidth, 24, .031f, .05f, .065f, .90f);
+            ui.text(label, width - labelWidth - 6, 20, 1.1f, .72f, 1, .72f, 1);
+        }
         String state = stateText(actor);
         ui.text(state, 27, 47, 1.05f, .66f, .84f, .90f, 1);
         if (factions) {
