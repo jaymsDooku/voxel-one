@@ -33,7 +33,7 @@ def main():
     }
     for old, new in changes.items():
         if text.count(old) != 1:
-            raise SystemExit('Production source differs from the reviewed experiment input')
+            raise SystemExit('Historical isolated-cap experiment requires its reviewed older source; use PackageStorageBenchmark for current storage decoding')
         text = text.replace(old, new)
     candidate = folder / 'StructurePackage.java'
     candidate.write_text(text)

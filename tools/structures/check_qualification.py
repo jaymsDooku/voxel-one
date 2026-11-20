@@ -58,6 +58,7 @@ def check(receipt, head, environment_id):
         fixture = fixtures[name]
         require(isinstance(fixture, dict), 'Invalid fixture ' + name)
         require(fixture.get('admitted') is True, name + ' admission pending')
+        require(fixture.get('placement_preflight_admitted') is True, name + ' placement admission pending')
         require(re.fullmatch('[0-9a-f]{64}', str(fixture.get('package_sha256', ''))) is not None, name + ' package identity missing')
         require(fixture.get('dimensions') == ([512, 128, 512] if name == 'city' else [1024, 256, 1024]), name + ' dimensions mismatch')
         for field in ('occupied_cells', 'models', 'instances', 'compressed_bytes', 'decoded_bytes', 'geometry_leaves'):

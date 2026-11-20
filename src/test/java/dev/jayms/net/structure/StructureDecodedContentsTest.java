@@ -45,6 +45,7 @@ class StructureDecodedContentsTest {
         for(int version:List.of(1,2)) {
             var decoded=StructurePackage.decode(wire("Decode receipt",bounds,models,cells,version));
             assertEquals(expected.cells,decoded.cells);assertEquals(expected.leafCount,decoded.leafCount);assertEquals(1,decoded.instanceCount);
+            assertEquals(expected.dependencyQuads,decoded.dependencyQuads);assertEquals(expected.instanceQuads,decoded.instanceQuads);
             assertArrayEquals(expected.encode(),decoded.encode());
             assertThrows(IllegalStateException.class,()->decoded.models.get(0).voxels().set(0,0,0,0xffabcdef));
             assertThrows(IllegalStateException.class,()->decoded.cells.get(1).geometry().set(0,0,0,0xffabcdef));
@@ -56,7 +57,13 @@ class StructureDecodedContentsTest {
         var model=new ModelDefinition("Surface",tree);var bounds=new Bounds(1024,1,3,0,0,0);
         var instances=new ArrayList<Cell>();for(int i=0;i<3000;i++)instances.add(new Cell(new Position(i%1024,0,i/1024),null,0));
         instances.sort(Comparator.comparingLong(c->StructurePackage.order(c.position())));
-        assertEquals("Experimental instance surface cap",assertThrows(IOException.class,()->StructurePackage.decode(wire("Surface",bounds,List.of(model),instances,2))).getMessage());
+        var stored=StructurePackage.decode(wire("Surface",bounds,List.of(model),instances,2));
+        assertEquals(3000L*ModelMesher.count(tree),stored.instanceQuads);
+        assertEquals("Experimental placement instance surface cap",assertThrows(IOException.class,()->StructureEngine.admittedFootprint(stored,new Position(0,160,0),0,()->false)).getMessage());
+        var dense=new SparseVoxelOctree(32);for(int i=0;i<32768;i++)dense.set(i%32,i/32%32,i/1024,0xff000000|i);
+        var tooMany=new ArrayList<Cell>();for(int i=0;i<10923;i++)tooMany.add(new Cell(new Position(i%1024,0,i/1024),null,0));
+        tooMany.sort(Comparator.comparingLong(c->StructurePackage.order(c.position())));
+        assertEquals("Experimental instance surface cap",assertThrows(IOException.class,()->StructurePackage.decode(wire("Surface",new Bounds(1024,1,11,0,0,0),List.of(new ModelDefinition("Dense",dense)),tooMany,2))).getMessage());
         assertThrows(IOException.class,()->StructurePackage.decode(wire("Duplicates",bounds,List.of(model,model),List.of(instances.get(0)),2)));
         assertThrows(IOException.class,()->StructurePackage.decode(wire("Empty dependency",bounds,List.of(new ModelDefinition("Empty",new SparseVoxelOctree(8))),List.of(instances.get(0)),2)));
     }

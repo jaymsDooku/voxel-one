@@ -61,6 +61,8 @@ public class DecodedSizeProbe {
         code, report = self.run_cli(path, hashlib.sha256(raw).hexdigest())
         self.assertEqual(0, code)
         self.assertTrue(report['admitted'])
+        self.assertEqual('package_storage', report['scope'])
+        self.assertTrue(report['placement_preflight_admitted'])
         self.assertTrue(report['identity_verified'])
         self.assertEqual((1, 0, 1, 0), tuple(report[k] for k in ('cells', 'models', 'geometry_leaves', 'instances')))
         self.assertEqual(len(gzip.decompress(raw)), report['decoded_bytes'])
@@ -101,9 +103,8 @@ public class DecodedSizeProbe {
             self.assertEqual('decoder_rejected', report['reason'])
             self.assertNotIn('decoded_bytes', report)
 
-    def test_production_geometry_cap_is_reported_as_first_rejection(self):
-        # Spatially ordered, nonempty cells exceed the current development cap.
-        # The early rejection does not certify the rest of a rejected package.
+    def test_storage_admission_reports_independent_placement_rejection(self):
+        # Storage accepts these cells; the unchanged placement gate still rejects.
         name = b'Geometry cap'
         raw = struct.pack('>IIH', 0x56535452, 2, len(name)) + name
         raw += struct.pack('>6i2i', 1024, 256, 1024, 0, 0, 0, 0, 131073)
@@ -114,8 +115,30 @@ public class DecodedSizeProbe {
         raw = gzip.compress(raw + cells, mtime=0)
         path = self.work / 'geometry-cap.vstr'; path.write_bytes(raw)
         code, report = self.run_cli(path, hashlib.sha256(raw).hexdigest())
+        self.assertEqual(0, code)
+        self.assertTrue(report['identity_verified'])
+        self.assertTrue(report['admitted'])
+        self.assertFalse(report['placement_preflight_admitted'])
+        self.assertEqual('geometry_cap', report['placement_reason'])
+        self.assertEqual(len(gzip.decompress(raw)), report['decoded_bytes'])
+
+    def test_storage_geometry_cap_still_reports_early_rejection(self):
+        name = b'Storage geometry cap'
+        header = struct.pack('>IIH', 0x56535452, 2, len(name)) + name
+        header += struct.pack('>6i2i', 16, 16, 16, 0, 0, 0, 0, 2049)
+        tree = b'\x01' + struct.pack('>I', 0xff000003)
+        for _ in range(4):
+            tree = b'\x02' + tree * 8
+        path = self.work / 'storage-geometry-cap.vstr'
+        with path.open('wb') as output, gzip.GzipFile(fileobj=output, filename='', mode='wb', mtime=0) as stream:
+            stream.write(header)
+            for index in range(2049):
+                stream.write(struct.pack('>HBHHh', 0, 0, 0, index, -1))
+                stream.write(b'\x10' + tree if index < 2048 else b'\x10\x01' + struct.pack('>I', 0xff000003))
+        code, report = self.run_cli(path, hashlib.sha256(path.read_bytes()).hexdigest())
         self.assertEqual(2, code)
         self.assertTrue(report['identity_verified'])
+        self.assertFalse(report['admitted'])
         self.assertEqual('geometry_cap', report['reason'])
         self.assertNotIn('decoded_bytes', report)
 

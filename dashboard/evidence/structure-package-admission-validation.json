@@ -1,0 +1,319 @@
+{
+  "schema": 1,
+  "parent_head": "d9d060953eda3bc8a70f61c422a9db6d95136e03",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Storage codec and available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Package storage now allows 8,388,608 geometry leaves, 2,097,152 dependency quads and 67,108,864 instance-weighted quads under unchanged limits of 4 million occupied cells, 512 dependencies, 64 MiB compressed, 512 MiB decoded and 16,384 instances and per-model bounds. Immutable dependencyQuads/instanceQuads are derived during constructor/capture/strictdecode, not serialized or trusted from wire. Public construction keeps its single-root caller snapshot before compact frozen model storage. The serialized VSTR1/2 format is unchanged.",
+  "placement_policy": {
+    "geometry_leaves": 131072,
+    "dependency_quads": 1048576,
+    "instance_quads": 1048576,
+    "affected_chunks": 256,
+    "uniform_material_cache_cells": 131072,
+    "scope": "All previous placement limits retained. Common preflight protects offline/client/server snapshot/upload paths, and direct engine.prepare checks independently before any source access. Footprint occupancy/player/authority/mesh checks remain required; no city placement promotion."
+  },
+  "scope": "Storage/admission separation only. Archive acceptance grants no renderer, world persistence, placement, synchronization or rollout qualification. Qualification checker now also requires explicit placement_preflight_admitted=true along with every previous hardware/workflow/metric gate. CheckAdmission labels package_storage and reports placement preflight separately. Historical isolated-cap runner explicitly requires its older source.",
+  "focused": {
+    "tests": 41,
+    "suites": [
+      {
+        "name": "dev.jayms.StructurePackageAdmissionTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructurePlacementAdmissionTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureDecodedContentsTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureUniformCellsTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "status": "passed",
+    "earlier_failures": "Two old codec tests expected former placement-level rejection during decoding. Updated to check storage acceptance, derived counters and unchanged placement rejection; over-storage-limit decoder checks remain."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest",
+      "test"
+    ],
+    "tests": 593,
+    "suites": 129,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 362.3373434357345
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.796320671215653,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven",
+    "command": "python3 target/package-admission-validation/run-checks.py"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 809,
+    "shaders_match": 28,
+    "mp3": "Original shipped CBR/VBR fixtures both decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "benchmark": "structure-package-admission-benchmark.json",
+  "main": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-package-admission-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 582929,
+      "timeout_seconds": 900
+    },
+    "source_files": 311,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 131073-leaf storage import with separate placement rejection and 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-package-admission-main-structure-native-source.json",
+      "source_manifest_sha256": "4e1904a9b1b0a56b560a5e34132c0de7231ed94da2c912e807b5dad9dfff691d",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-package-admission-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "replay": {
+    "receipt": "structure-package-admission-replay.json",
+    "source_files": 617,
+    "compiled_classes": 1278,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12288745282,
+      "planar_lighting_nanos": 1041712554,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11493046013,
+      "planar_lighting_nanos": 728288816,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    }
+  },
+  "incomplete_supplemental_attempt": {
+    "exit_code": 143,
+    "completed_steps": [],
+    "bounded_error_lines": [],
+    "cause": "Not established; no receipt or completed driver step. Same-source bounded retry planned.",
+    "preserved_image": "structure-package-admission-replay-first-incomplete-session.png",
+    "retry_preflight": "An initial retry refused the existing image name before running; the incomplete image was preserved under an explicit filename, then the same-source retry used fresh output names."
+  },
+  "supplemental_commands": [
+    [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-package-admission-replay"
+    ],
+    [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-package-admission-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-package-admission-main-midpoint.png",
+      "dashboard/evidence/structure-package-admission-main-video.json"
+    ]
+  ],
+  "supplemental_execution": [
+    {
+      "command_index": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 76.23337390832603
+    },
+    {
+      "command_index": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 2.3719638008624315
+    }
+  ],
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected capture/anchor/library, long-path import/export, all turns, footprint/conflicts, empty-space preservation, player/occupied-cell rejection, cancellation, atomic failure, single-operation undo, repeated placement, 257-chunk rejection, dependency/restart recovery and inventory/editor regressions. Also imported a 131,073-leaf package, observed separate placement rejection and verified unchanged world version/history, model-library identity/count and durable save bytes. Observed all assertions passed. Real TLS edge similarly rejected a stored over-placement package before model/geometry delivery, followed by ordinary four-turn road/undo/late-join/restart checks on unshaped loopback clients. Separate replay/save/reopen/paging/GPU/lighting/sky/planar/model/water and cleanup assertions passed. Browser checks do not apply to this native Java client.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-package-admission-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-package-admission-main-midpoint.png",
+      "dashboard/evidence/structure-package-admission-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 26,
+      "durationSeconds": 48.16,
+      "bytes": 459904,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "db931bbbadff4577aa2f4df964ef2a4b9a6eed48438307a4b1f10779aa8e538e",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-package-admission-main-midpoint.png",
+      "structure-package-admission-main-structure-storage-limit.png",
+      "structure-package-admission-main-structure-placement-limit.png",
+      "structure-package-admission-main-structure-preview-conflict.png",
+      "structure-package-admission-main-structure-preview-3.png",
+      "structure-package-admission-main-structure-import-cancelled.png",
+      "structure-package-admission-main-structure-component-closeup.png",
+      "structure-package-admission-replay-session.png",
+      "structure-package-admission-replay-optics.png",
+      "structure-package-admission-replay-pending-optics.png",
+      "structure-package-admission-replay-pending.png",
+      "structure-package-admission-replay-regression.png"
+    ],
+    "scope": "Fresh implementation-native framebuffer images/F10 recording. Software HUD remains around 0\u20131 FPS; no frame-time or physical-GPU pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "logical_cpus": 4,
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "compile_release": 17,
+    "os_visible_memory_bytes": 8140382208,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "d9d060953eda3bc8a70f61c422a9db6d95136e03",
+    "run": 44723346673,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh exact-head hosted validation."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Package complexity bounds move to storage scope; immutable derived counts let engine retain former lower placement caps. Uniform-cache bound decoupled from storage. Two former codec rejection assertions now check storage acceptance plus unchanged placement rejection; larger storage rejection tests remain. CLI/qualification scopes clarify the split and strengthen the qualification gate. No unrelated feature/test deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Both full fixtures remain rejected for placement by existing geometry/surface/chunk/mesh/persistence limits. Storage acceptance is not supported-city qualification.",
+    "Required 20-run whole-workflow city/maximum benchmarks in reference client/server/network environment, physical GPU, shaped 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Full-fixture storage codec correctness and decode-only measurements plus bounded functional regressions. No whole-workflow, supported-city/limit, stable-rollout, physical-GPU or 32-client qualification pass.",
+  "artifacts": {
+    "structure-package-admission-benchmark.json": "b74b89a64946c03fadb107f566f57ae457f7c42a808dd323b7a82fa9674b9000",
+    "structure-package-admission-main-midpoint.png": "713201c9d6866a57e37147085e8147821b02afd59bd13e97ae7455451d45fc64",
+    "structure-package-admission-main-structure-component-closeup.png": "a5d3294c98eb51ef0970f24f2fa57c25748fab09e7aa175489bd07d8c8db93fd",
+    "structure-package-admission-main-structure-export-cancelled.png": "da3ea2df1c21b732ae974feedd4e0684e6297fb0c64296fb8d27430c682e348f",
+    "structure-package-admission-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-package-admission-main-structure-invalid-anchor.png": "79b57713ddf22cee2ec7dc45b49a65eaaee0fd327a251b8af3cd70ce40866500",
+    "structure-package-admission-main-structure-library-capture.png": "5ad1aa4f4a6b3687b2f6867f182dfe9b8ae0a4861c64f86bb13bca2c98cf017e",
+    "structure-package-admission-main-structure-native-execution.json": "4795bee7b7fa71fc6b8b554c693c851ee0447a16e505902f5029c94a508f3d4b",
+    "structure-package-admission-main-structure-native-lighting.json": "ef21d5e6cbe482ddac24249c58e85248d94755ea773808b8695531179bbc0752",
+    "structure-package-admission-main-structure-native-result.json": "a246bcabf2826e1373a54d267f3618023595facd21316b1f81b648dbfcf189dc",
+    "structure-package-admission-main-structure-native-source.json": "8bb80239871c7f2153ef46adcd37cd11b6230547c99b71acb77e00aced8286d5",
+    "structure-package-admission-main-structure-native-stage.json": "b87c5f27cbc31bb48877463641c093c32d1d2990a42c36e47363bf9baa945c78",
+    "structure-package-admission-main-structure-placed.png": "07b513f42d436b5853a3ba72facdc21f864cfa5a90261471ee4950f8bcaa57bc",
+    "structure-package-admission-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-package-admission-main-structure-player-conflict.png": "173585c41c230284065dbe2287b3127908b1d2d3b1e4ad4c8e72b3fde3c28b4f",
+    "structure-package-admission-main-structure-preview-0.png": "7df0d4e43673f584d3b5cf019c9ecfa34412cbda5fbf51a629183fbd3e2be40f",
+    "structure-package-admission-main-structure-preview-1.png": "847b900c36205a6f7caace298be0843b66a199a9c40dcb61d63e40cd3efbede6",
+    "structure-package-admission-main-structure-preview-2.png": "bfa835495308843e9af1d9c6d9f40ac4958447842a08072652554df44007352c",
+    "structure-package-admission-main-structure-preview-3.png": "0922a8656edc3215505e627384adec99ad11452f5a5d99294b2377aa90165b3a",
+    "structure-package-admission-main-structure-preview-conflict.png": "92d6cd35d062b18b24f682312c43b72e29d38e2a84f3bbce05ec0a531540cd24",
+    "structure-package-admission-main-structure-storage-limit.png": "550bdb8ab9b6b1238215bea423d9c9daa51b3db280385fc4cd187a174a26b8b9",
+    "structure-package-admission-main-structure-undo-cancelled.png": "6b7727a8550741cb3e58caf2983293ec324c287c78e29ef17084394b376604be",
+    "structure-package-admission-main-structure-workflow.mp4": "db931bbbadff4577aa2f4df964ef2a4b9a6eed48438307a4b1f10779aa8e538e",
+    "structure-package-admission-main-structure-world-placed.png": "4255387a23bafc8a03e8d69cb46755beb7c7d52002720a31c19a6bf38590971f",
+    "structure-package-admission-main-video.json": "149940fefa2091727a652afd42f5b657e27af515d9daca8ed855f59a5c9b9de4",
+    "structure-package-admission-replay-first-incomplete-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-package-admission-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-package-admission-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-package-admission-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-package-admission-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-package-admission-replay-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-package-admission-replay.json": "b61e06ece6c2a97ef5b1135f5d625f0be31086a445f5e7b57c345abc1fd16434"
+  }
+}

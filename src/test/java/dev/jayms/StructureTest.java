@@ -268,7 +268,8 @@ class StructureTest {
         for(int i=0;i<32768;i++)tree.set(i%32,(i/32)%32,i/1024,0xff000000|i);
         var definition=new ModelDefinition("Dense component",tree);var cells=new ArrayList<Cell>();
         for(int i=0;i<180;i++)cells.add(new Cell(new Position(i,0,0),null,0));
-        assertThrows(IOException.class,()->new StructurePackage("Too many surfaces",new Bounds(180,1,1,0,0,0),List.of(definition),cells));
+        var stored=new StructurePackage("Too many surfaces",new Bounds(180,1,1,0,0,0),List.of(definition),cells);
+        assertThrows(IOException.class,()->StructureEngine.admittedFootprint(stored,new Position(320,128,320),0,()->false));
         cells.clear();for(int z=0;z<8;z++)for(int x=0;x<8;x++)cells.add(new Cell(new Position(x,0,z),null,0));
         var asset=new StructurePackage("Dense cluster",new Bounds(8,1,8,0,0,0),List.of(definition),cells);
         var local=new LocalGame(folder.resolve("dense-models.dat"),42);var world=new World(42,local.models);var engine=new StructureEngine();

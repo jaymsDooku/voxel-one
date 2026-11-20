@@ -13,9 +13,9 @@ public final class StructurePackage {
     public static final int MAGIC=0x56535452, VERSION=2;
     public static final long COMPRESSED=64L*1024*1024, DECODED=512L*1024*1024;
     public static final int MAX_CELLS=4_000_000, MAX_MODELS=512;
-    // Development safety caps, NOT supported-city/performance qualifications.
-    public static final int MAX_LEAVES=131_072, MAX_INSTANCES=16_384;
-    public static final long MAX_DEPENDENCY_QUADS=1_048_576, MAX_INSTANCE_QUADS=1_048_576;
+    // Bounded package storage, NOT placement or supported-city qualification.
+    public static final int MAX_LEAVES=8_388_608, MAX_INSTANCES=16_384;
+    public static final long MAX_DEPENDENCY_QUADS=2_097_152, MAX_INSTANCE_QUADS=67_108_864;
     public record Bounds(int x,int y,int z,int ax,int ay,int az) {
         public Bounds {
             if(x<1||x>1024||y<1||y>256||z<1||z>1024||ax<0||ax>=x||ay<0||ay>=y||az<0||az>=z)
@@ -48,6 +48,8 @@ public final class StructurePackage {
     public final List<ModelDefinition> models;
     public final List<Cell> cells;
     public final int leafCount, instanceCount;
+    /** Derived from validated definitions/references, never accepted from wire metadata. */
+    public final long dependencyQuads,instanceQuads;
 
     public StructurePackage(String name,Bounds bounds,List<ModelDefinition> models,List<Cell> cells) throws IOException {
         this(name,bounds,models,cells,null,()->false);
@@ -67,7 +69,8 @@ public final class StructurePackage {
         int[] quads=new int[models.size()];long dependencyQuads=0,instanceQuads=0;
         for(var model:models) {
             cancelled(cancel);
-            var frozen=new ModelDefinition(model.name(),model.voxels().copy().freeze());
+            // Keep the existing single-root caller snapshot before compaction.
+            var frozen=new ModelDefinition(model.name(),model.voxels().copy().freeze().packedModelCopy());
             if(frozen.voxels().occupied()==0||!identities.add(frozen.fingerprint()))throw new IOException("Empty or duplicate dependency");
             int faces=ModelMesher.count(frozen.voxels());quads[definitions.size()]=faces;dependencyQuads+=faces;
             if(dependencyQuads>MAX_DEPENDENCY_QUADS)throw new IOException("Experimental dependency surface cap");
@@ -98,16 +101,18 @@ public final class StructurePackage {
         }
         // Spatial partition order: 16-cell sections, then local cell index.
         cancelled(cancel);this.cells=entries.build(cancel);cancelled(cancel);leafCount=leaves[0];instanceCount=instances;
+        this.dependencyQuads=dependencyQuads;this.instanceQuads=instanceQuads;
     }
     /** Private decode receipt. Created only after all content, ordering and stream
      * integrity checks pass. Definitions are frozen; the builder owns detached bytes.
      * Public construction/capture still use the full untrusted-content validator. */
     private record DecodedContents(String name,Bounds bounds,List<ModelDefinition> models,
-            StructureCells.Builder cells,int leaves,int instances) {}
+            StructureCells.Builder cells,int leaves,int instances,long dependencyQuads,long instanceQuads) {}
     private StructurePackage(DecodedContents decoded,BooleanSupplier cancel)throws IOException {
         cancelled(cancel);name=decoded.name;bounds=decoded.bounds;
         models=List.copyOf(decoded.models);cells=decoded.cells.buildOrdered(cancel);
-        leafCount=decoded.leaves;instanceCount=decoded.instances;cancelled(cancel);
+        leafCount=decoded.leaves;instanceCount=decoded.instances;
+        dependencyQuads=decoded.dependencyQuads;instanceQuads=decoded.instanceQuads;cancelled(cancel);
     }
     private static void validateMaterial(SparseVoxelOctree tree,BooleanSupplier cancel)throws IOException {
         tree.forEachLeaf((x,y,z,side,color)->{
@@ -271,7 +276,7 @@ public final class StructurePackage {
                     ||crc.getValue()!=expectedCRC
                     ||((DECODED-budget.remaining)&0xffffffffL)!=expectedLength)
                 throw new IOException("Structure gzip length/checksum/trailing data");
-            cancelled(cancel);var result=new StructurePackage(new DecodedContents(name,bounds,models,cells,leaves,instances),cancel);
+            cancelled(cancel);var result=new StructurePackage(new DecodedContents(name,bounds,models,cells,leaves,instances,dependencyQuads,instanceQuads),cancel);
             cancelled(cancel);progress.accept(100);cancelled(cancel);return result;
         } finally {inflater.end();}
     }

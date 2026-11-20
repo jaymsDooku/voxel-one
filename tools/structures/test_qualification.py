@@ -16,7 +16,7 @@ def fixture(name):
                min_fps=60, server_hz=20, tick_p95_ms=10, frame_p95_ms=16,
                frame_worst_ms=20, peak_memory_bytes=1024, traffic_bytes=1024)
     run.update({key: .01 for key in checker.TIMINGS})
-    result = dict(admitted=True, package_sha256='b' * 64,
+    result = dict(admitted=True, placement_preflight_admitted=True, package_sha256='b' * 64,
                   dimensions=[512, 128, 512] if name == 'city' else [1024, 256, 1024],
                   occupied_cells=1_000_000 if name == 'city' else 4_000_000,
                   models=256 if name == 'city' else 512, instances=10_240,
@@ -58,7 +58,8 @@ class QualificationTest(unittest.TestCase):
             with self.assertRaises(ValueError): self.check(data)
 
     def test_incomplete_fixture_runs_and_conditions_fail(self):
-        for mutate in (lambda f: f.update(admitted=False), lambda f: f.update(runs=f['runs'][:19]),
+        for mutate in (lambda f: f.update(admitted=False), lambda f: f.update(placement_preflight_admitted=False),
+                       lambda f: f.pop('placement_preflight_admitted'), lambda f: f.update(runs=f['runs'][:19]),
                        lambda f: f['runs'][1].update(id=1), lambda f: f.update(models=1),
                        lambda f: f.update(compressed_bytes=1), lambda f: f.update(buildings=99),
                        lambda f: f.update(cancellation_verified=False),

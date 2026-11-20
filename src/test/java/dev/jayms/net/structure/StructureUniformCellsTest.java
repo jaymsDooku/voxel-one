@@ -27,7 +27,7 @@ class StructureUniformCellsTest {
         var empty=new StructureUniformCells(0,()->false);assertNull(empty.get(0));
         assertThrows(IllegalStateException.class,()->empty.put(0,tree(0)));
         assertThrows(IllegalArgumentException.class,()->new StructureUniformCells(-1,()->false));
-        assertThrows(IllegalArgumentException.class,()->new StructureUniformCells(StructurePackage.MAX_LEAVES+1,()->false));
+        assertThrows(IllegalArgumentException.class,()->new StructureUniformCells(StructureEngine.MAX_PLACEMENT_LEAVES+1,()->false));
         assertThrows(NullPointerException.class,()->new StructureUniformCells(1,null));
         assertThrows(NullPointerException.class,()->new StructureUniformCells(1,()->false).put(0,null));
     }

@@ -70,6 +70,13 @@ Enforced format ceilings are 1,024×256×1,024 cells, 4,000,000 occupied cells,
 the version, order, duplicate positions, material values, references, gzip CRC
 and lengths. Invalid dimensions/counts fail before world publication.
 
+Storage complexity ceilings are 8,388,608 geometry leaves, 16,384 model
+instances, 2,097,152 dependency surface quads and 67,108,864 instance-weighted
+quads. These bounds allow validating and sharing larger physical packages; they
+do not grant placement or qualify city support. Geometry and surface totals are
+derived from validated contents, never trusted from serialized counters.
+The same VSTR versions remain readable and the serialized format is unchanged.
+
 File imports first copy the opened compressed source into a private temporary file
 in chunks of at most 64 KiB, enforcing the 64 MiB limit before staging. The worker
 then streams that snapshot through the same strict decoder used for network byte
@@ -100,13 +107,14 @@ constructor inputs are copied before freezing. Both paths enforce all package
 checks. Sorting still creates final storage separately, and placement staging
 needs further memory work.
 
-Placement checks the exact rotated occupied-cell chunk count and destination
+Placement first checks its separate geometry/surface limits, then the exact
+rotated occupied-cell chunk count and destination
 coordinates before offline snapshot capture, network encoding or server snapshot
 capture. This position-only check avoids decoding geometry or staging
 dependencies for a destination over the provisional 256-chunk cap. Empty
 bounding space does not consume that budget; unaligned anchors can increase it.
 The engine repeats admission for direct callers, and occupancy/source/authority
-checks still run before commit. This does not increase any cap or qualify city
+checks still run before commit. This does not increase placement caps or qualify city
 placement.
 
 Placement staging retains mixed 16-resolution cells as immutable packed wire
@@ -151,10 +159,9 @@ flattening every row. The ready-phase delta checks both changed current rows and
 removed snapshot rows, so undo of the final fractional leaf still clears that cell
 for a client finishing its initial load. This comparison still scans rows under
 authority locking and needs large-world timing work. This does not complete
-region-backed persistence or admit the required city/maximum fixtures.
+region-backed persistence or admit placement of the required city/maximum fixtures.
 
-Additional provisional development caps are 131,072 geometry leaves and 16,384
-model instances per package, 1,048,576 model-definition surface quads,
+Provisional placement caps remain 131,072 geometry leaves, 1,048,576 model-definition surface quads,
 1,048,576 instance-weighted model quads, and 262,144 instance-weighted
 model quads per affected chunk, with at most 256 affected chunks per placement.
 Detached production CPU meshes validate each affected chunk before publication,
@@ -162,7 +169,9 @@ including unchanged geometry. The authority repeats this check under its lock
 to cover concurrent edits outside the footprint. Chunk edges are conservatively
 counted as exposed. These are safety caps, not benchmark-established
 supported limits. A representative city or maximum fragmented fixture can exceed
-them and is currently rejected. World-only structure definitions have a separate
+them and is rejected before model/destination work, even when storage validation
+accepts the package. The per-preparation uniform cache remains bounded by 131,072
+geometry cells. World-only structure definitions have a separate
 budget of 2,048 definitions and 128 MiB serialized model data. These allowances
 do not change the legacy 128-custom-model world library or 16-model author quota.
 

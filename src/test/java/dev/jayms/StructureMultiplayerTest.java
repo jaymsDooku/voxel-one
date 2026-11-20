@@ -65,6 +65,10 @@ class StructureMultiplayerTest {
                 assertTrue(player.placeStructure(limit.encode(),new Position(15000,128,2000),1));
                 waitFor(views,()->!player.structurePending());assertTrue(player.structureMessage.contains("256 affected chunks"),player.structureMessage);
                 for(var view:views){assertEquals(initialModels,view.client.models.entries().size());assertEquals(0,view.geometry.cell(15000,128,2000).occupied());}
+                var archive=StructurePackageAdmissionTest.geometry(131073);
+                assertTrue(player.placeStructure(archive.encode(),new Position(15000,128,2000),2));
+                waitFor(views,()->!player.structurePending());assertTrue(player.structureMessage.contains("131072 geometry leaves"),player.structureMessage);
+                for(var view:views){assertEquals(initialModels,view.client.models.entries().size());assertEquals(0,view.geometry.cell(15000,128,2000).occupied());}
                 for(int r=0;r<4;r++) {
                     var target=new Position(2000+r*2000,128,2000);
                     long placementStarted=System.nanoTime();

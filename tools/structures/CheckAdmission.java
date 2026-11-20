@@ -1,4 +1,5 @@
 import dev.jayms.net.structure.StructurePackage;
+import dev.jayms.net.structure.StructureEngine;
 import java.io.IOException;
 import java.io.ByteArrayInputStream;
 import java.nio.file.Files;
@@ -52,14 +53,19 @@ public final class CheckAdmission {
                 + "\",\"compressed_bytes\":" + bytes.length;
         try {
             var asset = StructurePackage.decode(bytes);
+            boolean placement=true;String placementReason="bounded_preflight_only";
+            try {StructureEngine.admittedFootprint(asset,new StructurePackage.Position(asset.bounds.ax(),asset.bounds.ay(),asset.bounds.az()),0,()->false);}
+            catch(IOException rejected){placement=false;placementReason=placementReason(rejected);}
             // Diagnostic pass only, outside game decoding and benchmark timings. Do not
             // retain the decoded stream or infer its size from gzip's 32-bit trailer.
             long decoded = decodedBytes(bytes, StructurePackage.DECODED);
             System.out.println("{\"status\":\"admitted\",\"admitted\":true," + identity
+                    + ",\"scope\":\"package_storage\",\"placement_preflight_admitted\":"+placement+",\"placement_reason\":\""+placementReason+"\""
                     + ",\"decoded_bytes\":" + decoded
                     + ",\"dimensions\":[" + asset.bounds.x() + "," + asset.bounds.y() + "," + asset.bounds.z() + "]"
                     + ",\"cells\":" + asset.cells.size() + ",\"models\":" + asset.models.size()
                     + ",\"geometry_leaves\":" + asset.leafCount + ",\"instances\":" + asset.instanceCount
+                    + ",\"dependency_quads\":"+asset.dependencyQuads+",\"instance_quads\":"+asset.instanceQuads
                     + ",\"qualification\":\"NOT QUALIFIED\"}");
             return 0;
         } catch (IOException rejected) {
@@ -76,6 +82,16 @@ public final class CheckAdmission {
                     + ",\"reason\":\"" + reason + "\",\"qualification\":\"NOT QUALIFIED\"}");
             return 2;
         }
+    }
+
+    private static String placementReason(IOException rejected) {
+        return switch(String.valueOf(rejected.getMessage())) {
+            case "Experimental placement exceeds 131072 geometry leaves" -> "geometry_cap";
+            case "Experimental placement dependency surface cap" -> "dependency_surface_cap";
+            case "Experimental placement instance surface cap" -> "instance_surface_cap";
+            case "Experimental placement exceeds 256 affected chunks" -> "chunk_cap";
+            default -> "preflight_rejected";
+        };
     }
 
     static long decodedBytes(byte[] bytes, long limit) throws IOException {

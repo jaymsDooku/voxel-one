@@ -15,6 +15,8 @@ import static dev.jayms.net.structure.StructurePackage.*;
 public final class StructureEngine {
     /** Provisional development cap; not supported-city qualification. */
     public static final int MAX_AFFECTED_CHUNKS=256;
+    public static final int MAX_PLACEMENT_LEAVES=131_072;
+    public static final long MAX_PLACEMENT_DEPENDENCY_QUADS=1_048_576,MAX_PLACEMENT_INSTANCE_QUADS=1_048_576;
     public interface Authority extends Source {
         Object lock();
         /** Owner-thread atomic replacement, including durable world state; rollback on IOException. */
@@ -88,10 +90,15 @@ public final class StructureEngine {
         }
         cancelled(cancel);return chunks.size();
     }
+    private static void admitComplexity(StructurePackage asset)throws IOException {
+        if(asset.leafCount>MAX_PLACEMENT_LEAVES)throw new IOException("Experimental placement exceeds 131072 geometry leaves");
+        if(asset.dependencyQuads>MAX_PLACEMENT_DEPENDENCY_QUADS)throw new IOException("Experimental placement dependency surface cap");
+        if(asset.instanceQuads>MAX_PLACEMENT_INSTANCE_QUADS)throw new IOException("Experimental placement instance surface cap");
+    }
     /** Worker-side preflight before snapshot capture or upload. This proves only
-     * bounded destination coordinates/chunk count, never occupancy or authority. */
+     * bounded complexity/coordinates/chunk count, never occupancy or authority. */
     public static Footprint admittedFootprint(StructurePackage asset,Position anchor,int rotation,BooleanSupplier cancel)throws IOException {
-        cancelled(cancel);var box=footprint(asset,anchor,rotation);admitChunks(asset,box,cancel);return box;
+        cancelled(cancel);var box=footprint(asset,anchor,rotation);admitComplexity(asset);admitChunks(asset,box,cancel);return box;
     }
     public final class Prepared implements AutoCloseable {
         private final Map<Position,SparseVoxelOctree> before,after;
@@ -173,7 +180,7 @@ public final class StructureEngine {
         if(!busy.compareAndSet(false,true))throw new IOException("Another large placement is running");
         boolean complete=false;
         try {
-            var box=footprint(asset,anchor,rotation);int affectedChunks=admitChunks(asset,box,cancel);
+            cancelled(cancel);var box=footprint(asset,anchor,rotation);admitComplexity(asset);int affectedChunks=admitChunks(asset,box,cancel);
             long revision=snapshot.models().revision();var staged=snapshot.models().copy();
             var modelIds=new int[asset.models.size()];
             for(int i=0;i<modelIds.length;i++) {

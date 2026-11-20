@@ -15,7 +15,7 @@ final class StructureUniformCells {
     private int size;
     StructureUniformCells(int maximum,BooleanSupplier cancel) {
         // Every occupied geometry cell has at least one leaf; models use their separate cache.
-        if(maximum<0||maximum>StructurePackage.MAX_LEAVES)throw new IllegalArgumentException("Uniform material cache budget");
+        if(maximum<0||maximum>StructureEngine.MAX_PLACEMENT_LEAVES)throw new IllegalArgumentException("Uniform material cache budget");
         this.maximum=maximum;this.cancel=Objects.requireNonNull(cancel);
     }
     private static int hash(int key) {
