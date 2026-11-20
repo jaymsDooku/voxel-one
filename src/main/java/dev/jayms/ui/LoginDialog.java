@@ -18,6 +18,7 @@ import javax.swing.*;
 public final class LoginDialog {
     public static volatile boolean citySelected = false;
     public static volatile boolean musicSelected = false;
+    public static volatile boolean practiceSelected = false;
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
@@ -27,6 +28,7 @@ public final class LoginDialog {
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin,
             boolean gameExplicit, boolean portExplicit) throws Exception {
         musicSelected = false;
+        practiceSelected = false;
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, gameExplicit, portExplicit, result));
         return result.get();
@@ -119,6 +121,16 @@ public final class LoginDialog {
         buttons.add(login);
         buttons.add(register);
         buttons.add(offline);
+        if (!gameExplicit) {
+            JButton practice = new JButton("PotPvP Practice");
+            practice.addActionListener(e -> {
+                practiceSelected = true;
+                musicSelected = false;
+                result.complete(null);
+                frame.dispose();
+            });
+            buttons.add(practice);
+        }
         c.gridx = 0;
         c.gridy = 6;
         c.gridwidth = 2;

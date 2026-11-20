@@ -46,6 +46,10 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void render(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models) {
+        render(player, shader, models, -1);
+    }
+
+    public void render(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models, int jerseyColor) {
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         Matrix4f root = new Matrix4f().translate(player.x(), player.y(), player.z());
@@ -100,7 +104,7 @@ public class PlayerModel implements AutoCloseable {
                 2.5f * PIXEL,
                 .65f * PIXEL,
                 .008f);
-        shirt(shader);
+        shirt(shader, jerseyColor);
         box(
                 shader,
                 new Matrix4f(torso).translate(0, LIMB_HEIGHT, 0),
@@ -110,14 +114,14 @@ public class PlayerModel implements AutoCloseable {
         arm(
                 shader,
                 new Matrix4f(torso).translate(-5 * PIXEL, 22 * PIXEL, 0).rotateX(pose.leftArm()),
-                -1);
+                -1, jerseyColor);
         Matrix4f rightArm =
                 new Matrix4f(torso)
                         .translate(5 * PIXEL, 22 * PIXEL, 0)
                         .rotateY(-pose.attack() * .3f)
                         .rotateZ(-pose.attack() * .2f)
                         .rotateX(pose.rightArm());
-        arm(shader, rightArm, 1);
+        arm(shader, rightArm, 1, jerseyColor);
         shader.setVector3("uColor", .17f, .22f, .40f);
         leg(shader, root, -2 * PIXEL, seated ? -1.25f : pose.leftLeg());
         leg(shader, root, 2 * PIXEL, seated ? -1.25f : pose.rightLeg());
@@ -137,30 +141,32 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void renderFirstPerson(Player player, ShaderProgram shader, VoxelModelRenderer models) {
+        renderFirstPerson(player.walkPhase(), player.walkAmount(), player.swingProgress(), player.placingSwing(),
+                player.heldItem(), player.heldColor(), shader, models);
+    }
+
+    public void renderFirstPerson(float walkPhase, float walkAmount, float swing, boolean placing,
+                                  int item, int color, ShaderProgram shader, VoxelModelRenderer models) {
         Matrix4f hand =
-                firstPersonHand(
-                        player.walkPhase(),
-                        player.walkAmount(),
-                        player.swingProgress(),
-                        player.placingSwing());
+                firstPersonHand(walkPhase, walkAmount, swing, placing);
         // Keep tool and fist together, farther from the lens and inside narrow viewports.
         // Ordinary items retain their existing first-person presentation.
-        if (Items.tool(player.heldItem())) hand = HeldToolPose.firstPersonHand(hand);
+        boolean tool = Items.tool(item);
+        if (tool) hand = HeldToolPose.firstPersonHand(hand);
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         skin(shader);
         box(shader, new Matrix4f(hand).translate(0, .25f, 0), LIMB_WIDTH, .5f, DEPTH);
-        shirt(shader);
+        shirt(shader, -1);
         // The farther tool camera pose can expose the sleeve base at wide FOV.
         // Extend only its lower end off screen; the fist and grip stay unchanged.
-        boolean tool = Items.tool(player.heldItem());
         box(shader, tool ? new Matrix4f(hand).translate(0, -1.5f, 0) : hand,
                 LIMB_WIDTH, tool ? 1.75f : .25f, DEPTH);
         held(
-                player.heldItem(),
-                player.heldColor(),
-                Items.tool(player.heldItem())
-                        ? HeldToolPose.firstPerson(player.heldItem(), hand)
+                item,
+                color,
+                tool
+                        ? HeldToolPose.firstPerson(item, hand)
                         : new Matrix4f(hand)
                         .translate(-.14f, .78f, .18f)
                         .rotateY(.55f)
@@ -169,6 +175,23 @@ public class PlayerModel implements AutoCloseable {
                         .translate(-.5f, -.1f, -.5f),
                 shader,
                 models);
+    }
+
+    public void renderPracticeFirstPerson(float walkPhase, float walkAmount, float swing, float equipDrop,
+                                          boolean blocking, int item, int color, ShaderProgram shader,
+                                          VoxelModelRenderer models) {
+        var pose = PracticeHandPose.sample(walkPhase, walkAmount, swing, equipDrop, blocking, item);
+        shader.setInt("uVertexColor", 0);
+        shader.setInt("uInstanced", 0);
+        skin(shader);
+        box(shader, new Matrix4f(pose.hand()).translate(0, PracticeHandPose.PALM_BOTTOM, 0),
+                PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_TOP - PracticeHandPose.PALM_BOTTOM,
+                PracticeHandPose.PALM_DEPTH);
+        shirt(shader, -1);
+        box(shader, new Matrix4f(pose.hand()).translate(0, PracticeHandPose.SLEEVE_BOTTOM, 0),
+                PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_BOTTOM - PracticeHandPose.SLEEVE_BOTTOM,
+                PracticeHandPose.PALM_DEPTH);
+        held(item, color, pose.item(), shader, models);
     }
 
     private void held(
@@ -206,14 +229,16 @@ public class PlayerModel implements AutoCloseable {
         shader.setVector3("uColor", .88f, .68f, .46f);
     }
 
-    private void shirt(ShaderProgram shader) {
-        if (cohort == 0) shader.setVector3("uColor", .65f, .4f, .18f);
+    private void shirt(ShaderProgram shader, int jerseyColor) {
+        if (jerseyColor >= 0) shader.setVector3("uColor", (jerseyColor >> 16 & 255) / 255f,
+                (jerseyColor >> 8 & 255) / 255f, (jerseyColor & 255) / 255f);
+        else if (cohort == 0) shader.setVector3("uColor", .65f, .4f, .18f);
         else if (cohort == 1) shader.setVector3("uColor", .2f, .6f, .4f);
         else if (cohort == 2) shader.setVector3("uColor", .55f, .25f, .65f);
         else shader.setVector3("uColor", .16f, .46f, .86f);
     }
 
-    private void arm(ShaderProgram shader, Matrix4f pivot, int side) {
+    private void arm(ShaderProgram shader, Matrix4f pivot, int side, int jerseyColor) {
         skin(shader);
         box(
                 shader,
@@ -221,7 +246,7 @@ public class PlayerModel implements AutoCloseable {
                 LIMB_WIDTH,
                 8 * PIXEL,
                 DEPTH);
-        shirt(shader);
+        shirt(shader, jerseyColor);
         box(
                 shader,
                 new Matrix4f(pivot).translate(side * PIXEL, -2 * PIXEL, 0),

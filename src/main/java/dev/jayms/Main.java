@@ -1843,6 +1843,17 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        if (args.length > 0 && args[0].equals("--practice-server")) {
+            dev.jayms.combat.practice.PracticeServer.main(Arrays.copyOfRange(args, 1, args.length));
+            return;
+        }
+        int gameOption = Arrays.asList(args).indexOf("--game");
+        if (gameOption >= 0 && gameOption + 1 < args.length && args[gameOption + 1].equals("practice")) {
+            var practiceArgs = new ArrayList<>(Arrays.asList(args));
+            practiceArgs.subList(gameOption, gameOption + 2).clear();
+            dev.jayms.combat.client.PracticeGame.launch(practiceArgs.toArray(String[]::new));
+            return;
+        }
         if (java.util.Arrays.asList(args).contains("--asset-manager")) {
             dev.jayms.assets.AssetManagerServer.open(Controls.directory());
             return;
@@ -1916,6 +1927,10 @@ public class Main {
                     do {
                         game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
                         if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
+                        if (LoginDialog.practiceSelected) {
+                            dev.jayms.combat.client.PracticeGame.launch(new String[]{"--offline"});
+                            return;
+                        }
                     } while (LoginDialog.musicSelected);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
