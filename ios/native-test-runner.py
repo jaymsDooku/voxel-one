@@ -12,8 +12,9 @@ import threading
 import time
 
 TAIL_BYTES = 65536
-_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart"}
+_CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart", "batch_open", "batch_query", "batch_quantity", "batch_craft", "batch_restart"}
 _CHECKPOINT = re.compile(r"(?:error: )?native_workflow_checkpoint code=([a-z_]{1,32})$")
+_ISSUE = re.compile(r"native_workflow_issue source=((?:NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests)\.swift) line=([0-9]{1,5}) code=(assertion|execution)$")
 _TEST = re.compile(
     r"^Test Case '-\[VoxelOneUITests\.(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests) "
     r"(test[A-Za-z0-9_]{1,96})\]' (started|passed|failed)(?:[ .(]|$)"
@@ -45,6 +46,9 @@ class TestProgress:
         self.last_checkpoint = None
         self.opened = {}
         self.durations = {}
+        self.active = None
+        self.issues = {}
+        self.failure_steps = {}
         self.stop = threading.Event()
         self.lock = threading.Lock()
         self.thread = threading.Thread(target=self.observe, daemon=True)
@@ -74,6 +78,11 @@ class TestProgress:
                                 with self.lock:
                                     self.checkpoints.add(checkpoint[1])
                                     self.last_checkpoint = checkpoint[1]
+                            issue=_ISSUE.search(line)
+                            if issue and 1<=int(issue[2])<=99999:
+                                with self.lock:
+                                    if self.active in self.allowed:
+                                        self.issues.setdefault(self.active,(issue[1],int(issue[2]),issue[3]))
                             match = _TEST.match(line)
                             if match and match[2] in self.allowed:
                                 name, state = match[2], match[3]
@@ -82,9 +91,14 @@ class TestProgress:
                                     now = time.monotonic()
                                     if state == 'started':
                                         self.last_checkpoint = None
+                                        self.active = name
                                         self.opened[name] = now
                                     elif name in self.opened:
                                         self.durations[name] = min(900, max(0, now - self.opened.pop(name)))
+                                    if state == 'failed' and self.last_checkpoint is not None:
+                                        self.failure_steps[name]=self.last_checkpoint
+                                    if state != 'started':
+                                        self.active = None
                                     {'started': self.started, 'passed': self.passed, 'failed': self.failed}[state].add(name)
                         pending, discard = b'', False
 
@@ -104,7 +118,14 @@ class TestProgress:
                      ' phase=' + phase]
             for kind, names in [('unfinished', unfinished), ('failed', sorted(self.failed))]:
                 for name in names[:3]:
-                    lines.append('error: native_test_' + kind + '_event test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12])
+                    suffix=''
+                    if kind=='failed':
+                        if name in self.issues:
+                            source,line,code=self.issues[name]
+                            suffix+=' source='+source+' line='+str(line)+' code='+code
+                        if name in self.failure_steps:
+                            suffix+=' checkpoint='+self.failure_steps[name]
+                    lines.append('error: native_test_' + kind + '_event test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12]+suffix)
             # At most two closed-test timings and one open-test age. These are
             # observer elapsed seconds, not frame-time/device performance claims.
             for name, seconds in sorted(self.durations.items(), key=lambda row: (-row[1], row[0]))[:2]:
@@ -121,7 +142,7 @@ class TestProgress:
             return lines
 
 
-def run(command, log, timeout, allowed=None):
+def run(command, log, timeout, allowed=None, fail_fast=False):
     log.parent.mkdir(parents=True, exist_ok=True)
     if allowed is None:
         root = Path(__file__).resolve().parents[1]
@@ -135,12 +156,31 @@ def run(command, log, timeout, allowed=None):
                                    start_new_session=True)
         progress = TestProgress(log, allowed)
         progress.thread.start()
+        failed_early=False
         try:
-            result = process.wait(timeout=timeout)
+            deadline=time.monotonic()+timeout
+            while True:
+                with progress.lock:
+                    failed_early=fail_fast and bool(progress.failed)
+                if failed_early:
+                    # A failed case cannot qualify this source. Keep its bounded
+                    # location before teardown instead of spending the full budget.
+                    markers=progress.finish()
+                    break
+                remaining=deadline-time.monotonic()
+                if remaining<=0:raise subprocess.TimeoutExpired(command,timeout)
+                try:
+                    result=process.wait(timeout=min(.2,remaining));break
+                except subprocess.TimeoutExpired:
+                    continue
         except subprocess.TimeoutExpired:
             timed_out = True
             # Preserve event counts before terminating the owned process group.
             markers = progress.finish()
+        finally:
+            if not timed_out and not failed_early:
+                markers = progress.finish()
+        if timed_out or failed_early:
             try:
                 os.killpg(process.pid, signal.SIGTERM)
             except ProcessLookupError:
@@ -153,10 +193,7 @@ def run(command, log, timeout, allowed=None):
                 except ProcessLookupError:
                     pass
                 process.wait(timeout=5)
-            result = 124
-        finally:
-            if not timed_out:
-                markers = progress.finish()
+            result = 124 if timed_out else 65
     if result != 0:
         with log.open('a') as output:
             if timed_out:
@@ -164,6 +201,8 @@ def run(command, log, timeout, allowed=None):
                 output.write('\nerror: native_test_deadline last_test=' + name +
                              ' last_test_id=' + hashlib.sha256(name.encode()).hexdigest()[:12] +
                              ' last_state=' + state + ' timeout_seconds=' + str(timeout) + '\n')
+            if failed_early:
+                output.write('\nerror: native_test_stopped reason=first_failed_case\n')
             for marker in markers:
                 output.write('\n' + marker + '\n')
     return result
@@ -266,7 +305,7 @@ def main():
         parser.error('timeout must be 1..900 seconds and a child command is required')
     root = Path(__file__).resolve().parents[1]
     log = root / 'ios/build/native-tests.log'
-    result = run(command, log, args.timeout)
+    result = run(command, log, args.timeout, fail_fast=True)
     if result != 0:
         record_failure(log, root)
     return result

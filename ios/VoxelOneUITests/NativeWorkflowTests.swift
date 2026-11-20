@@ -1,7 +1,7 @@
 import XCTest
 
 /// Tests use normal controls in the installed native app and a fresh synthetic Java server.
-final class NativeWorkflowTests:XCTestCase {
+final class NativeWorkflowTests:NativeEvidenceTestCase {
     var app:XCUIApplication!
     private var workflowCheckpoint:String? {
         didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}}
@@ -187,10 +187,10 @@ final class NativeWorkflowTests:XCTestCase {
     }
     func testNativeCraftingMissingIngredientsAndRestart()throws {
         newOffline();app.buttons["craftButton"].tap()
-        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks")
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks\n")
         let planks=app.cells["recipe88"];wait(planks);planks.tap();textContains("craftStatus","Crafted 4 Planks")
         capture("offline-crafted-planks")
-        search.tap();search.buttons["Clear text"].tap();search.typeText("Grow grass")
+        search.tap();search.buttons["Clear text"].tap();search.typeText("Grow grass\n")
         let grass=app.cells["recipe91"];wait(grass);grass.tap();textContains("craftStatus","Missing ingredients")
         app.buttons["craftDone"].tap()
         app.terminate();app.launch();wait(app.buttons["craftButton"])
@@ -246,13 +246,19 @@ final class NativeWorkflowTests:XCTestCase {
         capture("native-tool-inventory-restarted")
     }
     func testNativeBatchCraftingSaveAndRestart()throws {
+        workflowCheckpoint="batch_open"
         newOffline();app.buttons["craftButton"].tap()
-        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks")
+        workflowCheckpoint="batch_query"
+        let search=app.searchFields["craftSearch"];wait(search);search.tap();search.typeText("Saw planks\n")
+        workflowCheckpoint="batch_quantity"
         let stepper=app.steppers["craftQuantity"];wait(stepper)
         stepper.buttons["Increment"].tap();stepper.buttons["Increment"].tap()
         textContains("craftQuantityLabel","Batch: 3")
+        XCTAssertFalse(app.keyboards.element.exists,"Search/batch controls release the keyboard before recipe selection")
+        workflowCheckpoint="batch_craft"
         app.cells["recipe88"].tap();textContains("craftStatus","Crafted 12 Planks")
         capture("native-batch-crafted-planks")
+        workflowCheckpoint="batch_restart"
         app.buttons["craftDone"].tap();app.terminate();app.launch();wait(app.buttons["craftButton"])
         XCTAssertTrue(app.buttons["slot2"].label.contains("29 blocks"))
         XCTAssertTrue(app.buttons["slot3"].label.contains("44 blocks"))

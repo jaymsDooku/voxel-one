@@ -197,3 +197,49 @@ class NativeDeadlineDiagnosticIntegrationTests(unittest.TestCase):
             self.assertIn('error: native_workflow_checkpoint code=sky_create',exported)
             self.assertIn('error: native_test_failure_summary status=unavailable',exported)
             self.assertLessEqual(len(exported),8)
+
+
+class NativeFirstFailureTests(unittest.TestCase):
+    def test_first_failed_case_stops_owned_child_with_source_location_only(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'target') as scratch:
+            log=Path(scratch)/'test.log'
+            messages=["Test Case '-[VoxelOneUITests.NativeWorkflowTests testBatch]' started.",
+                      'native_workflow_checkpoint code=batch_craft',
+                      'native_workflow_issue source=NativeWorkflowTests.swift line=271 code=assertion',
+                      'native_workflow_issue source=PrivateAccount.swift line=7 code=assertion',
+                      'private-fixture-marker',
+                      "Test Case '-[VoxelOneUITests.NativeWorkflowTests testBatch]' failed."]
+            code='import time;print('+repr('\n'.join(messages))+',flush=True);time.sleep(10)'
+            self.assertEqual(runner.run([sys.executable,'-c',code],log,5,{'testBatch'},fail_fast=True),65)
+            markers=log.read_text().split('error: native_test_stopped',1)[1]
+            self.assertIn('reason=first_failed_case',markers)
+            self.assertIn('source=NativeWorkflowTests.swift line=271 code=assertion checkpoint=batch_craft',markers)
+            self.assertIn('started=1 passed=0 failed=1 unfinished=0 expected=1',markers)
+            self.assertNotIn('private',markers);self.assertNotIn('PrivateAccount',markers)
+            self.assertNotIn('native_test_deadline',markers)
+            spec=importlib.util.spec_from_file_location('first_failure_diagnostics',ROOT/'tools/ios/client_diagnostics.py')
+            diagnostics=importlib.util.module_from_spec(spec);spec.loader.exec_module(diagnostics)
+            failed=next(line for line in log.read_text().splitlines() if line.startswith('error: native_test_failed_event'))
+            self.assertEqual(diagnostics.diagnostic_line(failed,ROOT)['text'],failed)
+
+    def test_issue_is_bound_to_open_declared_case_and_line_bounds(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'target') as scratch:
+            log=Path(scratch)/'test.log'
+            log.write_text('\n'.join([
+                'native_workflow_issue source=NativeWorkflowTests.swift line=4 code=assertion',
+                "Test Case '-[VoxelOneUITests.NativeWorkflowTests testKnown]' started.",
+                'native_workflow_issue source=NativeWorkflowTests.swift line=0 code=assertion',
+                'native_workflow_issue source=NativeWorkflowTests.swift line=100000 code=assertion',
+                'native_workflow_issue source=NativeWorkflowTests.swift line=8 code=private_fixture',
+                'native_workflow_issue source=NativeWorkflowTests.swift line=42 code=execution',
+                "Test Case '-[VoxelOneUITests.NativeWorkflowTests testKnown]' failed.",
+                'native_workflow_issue source=NativeWorkflowTests.swift line=99 code=assertion'])+'\n')
+            observer=runner.TestProgress(log,{'testKnown'});observer.stop.set();observer.observe()
+            self.assertEqual(observer.issues,{'testKnown':('NativeWorkflowTests.swift',42,'execution')})
+
+    def test_fail_fast_does_not_change_success_or_unrelated_child_exit(self):
+        with tempfile.TemporaryDirectory(dir=ROOT/'target') as scratch:
+            log=Path(scratch)/'test.log'
+            lines="Test Case '-[VoxelOneUITests.NativeWorkflowTests testKnown]' started.\nTest Case '-[VoxelOneUITests.NativeWorkflowTests testKnown]' passed."
+            self.assertEqual(runner.run([sys.executable,'-c','print('+repr(lines)+')'],log,5,{'testKnown'},fail_fast=True),0)
+            self.assertEqual(runner.run([sys.executable,'-c','raise SystemExit(7)'],log,5,{'testKnown'},fail_fast=True),7)

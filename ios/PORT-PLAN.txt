@@ -969,3 +969,56 @@ syntax and diff checks passed. No files deleted against8a53afce99e735a7574bffab7
 Playtest: new default/Change seed native controls, all36-case qualification and
 fresh app media require exact-source Mac execution. Physical iPhone signing,
 installation, live VPS, full streaming/parity and device performance remain open.
+
+Post-integration batch workflow repair and first-failure capture
+Exact sourcefc51743d51b5ac33314665406c4a1e86e7380883 is based on current
+review base1772d6158cadf2d97f28ef21a425c6f072c10ce6. Native run observed17
+started,15 passed,1 failed,1 open of36 at900 seconds. The failed case maps to
+testNativeBatchCraftingSaveAndRestart (110 observer seconds); missing-ingredient
+crafting passed at93 observer seconds. Camera mode workflow was still open.
+No complete native qualification or gameplay media returned.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44649067654
+GitHub metadata confirms workflow_dispatch/master at1772d6158cadf2d97f28ef21a425c6f072c10ce6;
+ancestry check confirms this trusted source includes reviewed validator8a53afce.
+
+Craft Search now dismisses the keyboard when Search is pressed; changing batch
+quantity also ends editing. This exposes recipe selection while preserving query,
+quantity and inventory transactions. The batch and missing-ingredient tests use
+the actual Search action. Batch also checks the keyboard closed before selection.
+The exact prior failing assertion was unavailable, so no claim this change alone
+has resolved the observed failure. The updated native flow still needs execution.
+
+All three XCTest classes inherit a source-only issue recorder. It forwards every
+issue to XCTest and emits only one of the three source basenames, bounded source
+line and assertion/execution category. Descriptions, errors, stacks, attachments
+and profile data remain private. API: https://developer.apple.com/documentation/xctest/xctestcase/record(_:)
+The bounded observer binds this metadata and the last fixed step to the open,
+source-declared case, then includes it on that case's failed-event marker. New
+batch steps cover opening, query, quantity, crafting and cold restart.
+
+The command-line runner stops its own child process group after the first
+observed failed case (exit65), preserving diagnostics before teardown. Passing
+runs still execute every required case, and receipt validation still requires
+all36 passed/zero skipped plus the native app/media checks. The900-second cap
+remains; no independent test or physical-device gate removed. This prevents
+another full deadline run after a known case has already failed.
+
+Executed14 focused Java tests after integration (1 golden fixture,6 mobile,
+7 fractional; zero failures/errors/skips) and80 Linux harness tests. Harness
+checks exercise child success/exit preservation, first-failure termination,
+issue source/line/code bounds, inactive/unknown issue rejection and passage
+through the trusted diagnostic sanitizer. Project generation, Python compilation,
+shell syntax and diff checks passed. Native Swift/UIKit checks remain pending.
+Playtest: Search -> batch3 -> craft12 -> save -> cold restart, invalid seed Cancel,
+model/fractional edits and all prior36 native cases require exact-source Mac run.
+
+Whole proposed diff audit against1772d6158cadf2d97f28ef21a425c6f072c10ce6:
+no file deletions, and all unrelated master progress entries compare exactly.
+Intended line replacements are scoped to native voxel geometry/physics, bounded
+mesh/load/save workers, recipe-book controls, versioned mobile detail/item
+contracts and their checks. They replace earlier whole-block rendering/editing
+and fixed recipe UI; City camera/planning and legacy mobile views are retained
+and covered by focused integration plus required native regressions. Unrelated
+merged HCF/desktop/server source and media are retained. Full engine streaming/
+parity, live VPS, signed artifact/iPhone installation and physical qualification
+remain open; no completion or Simulator/physical performance claim is made.

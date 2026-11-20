@@ -62,7 +62,7 @@ import UIKit
         self.inventory=inventory;self.pending=pending;table.reloadData()
     }
     @objc private func close(){view.endEditing(true);let finish=onClose;dismiss(animated:true){finish?()}}
-    @objc private func quantityChanged(){quantityLabel.text="Batch: \(Int(quantity.value))";table.reloadData()}
+    @objc private func quantityChanged(){view.endEditing(true);quantityLabel.text="Batch: \(Int(quantity.value))";table.reloadData()}
     @objc private func queryChanged(){queryText=search.searchTextField.text ?? "";filter()}
     @objc private func filter(){
         let query=queryText.trimmingCharacters(in:.whitespacesAndNewlines)
@@ -76,6 +76,7 @@ import UIKit
         table.isHidden=shown.isEmpty;table.accessibilityValue="\(shown.count) recipes";table.reloadData()
     }
     func searchBar(_ searchBar:UISearchBar,textDidChange searchText:String){queryText=searchText;filter()}
+    func searchBarSearchButtonClicked(_ searchBar:UISearchBar){view.endEditing(true)}
     func tableView(_ tableView:UITableView,numberOfRowsInSection section:Int)->Int {shown.count}
     func tableView(_ tableView:UITableView,cellForRowAt indexPath:IndexPath)->UITableViewCell {
         let cell=tableView.dequeueReusableCell(withIdentifier:"recipe") ?? UITableViewCell(style:.subtitle,reuseIdentifier:"recipe")

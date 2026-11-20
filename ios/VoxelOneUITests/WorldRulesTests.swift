@@ -2,6 +2,20 @@ import XCTest
 import SceneKit
 import CryptoKit
 
+/// Capture only allowlisted source metadata. All assertions still reach XCTest.
+class NativeEvidenceTestCase:XCTestCase {
+    override func record(_ issue:XCTIssue){
+        // Descriptions, associated errors, attachments and stacks stay private.
+        if let location=issue.sourceCodeContext.location,
+           ["NativeWorkflowTests.swift","WorldRulesTests.swift","GraphicsRulesTests.swift"].contains(location.fileURL.lastPathComponent),
+           location.lineNumber>0,location.lineNumber<=99999 {
+            let code=issue.type == .assertionFailure ? "assertion":"execution"
+            print("native_workflow_issue source=\(location.fileURL.lastPathComponent) line=\(location.lineNumber) code=\(code)")
+        }
+        super.record(issue)
+    }
+}
+
 /// The worker probe synchronizes every access; no actor-isolated test state enters the worker.
 private final class SaveWorkerProbe:@unchecked Sendable {
     private let lock=NSLock();private var values:[Int]=[]
@@ -9,7 +23,7 @@ private final class SaveWorkerProbe:@unchecked Sendable {
     var counts:[Int] {lock.lock();defer{lock.unlock()};return values}
 }
 
-final class WorldRulesTests:XCTestCase {
+final class WorldRulesTests:NativeEvidenceTestCase {
     func testNativeTerrainMatchesSharedJavaFixture()throws {
         struct Sample:Decodable {var seed:String;var version:Int;var x:Int;var y:Int;var z:Int;var block:Int;var surface:Int;var ocean:Bool}
         struct Window:Decodable {var seed:String;var generatorVersion:Int;var eyeY:Int;var bounds:[Int];var cellCount:Int;var sha256:String}
