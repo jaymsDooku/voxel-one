@@ -14,6 +14,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
@@ -57,6 +58,7 @@ public final class PracticeNativePlaytest {
         private long start, recordedAt, previousTick = -1;
         private boolean ready, captured, capturedFlash, stopped, remotePresented;
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
+        private double peakKnockbackHorizontal, peakKnockbackUp;
         private int betweenSnapshotFrames;
         private String report;
 
@@ -92,6 +94,11 @@ public final class PracticeNativePlaytest {
                 recordedAt = now;
             }
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
+            if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
+                    && b.hurtTick() >= 0 && view.tick() > b.hurtTick() && view.tick() <= b.hurtTick() + 3) {
+                peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, Math.hypot(b.vx(), b.vz()));
+                peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
+            }
             if (remotePresented && view.phase() == Phase.FIGHT && b != null && b.hurtTick() >= 0) {
                 double moved = Math.abs(presentX - previousX) + Math.abs(presentY - previousY)
                         + Math.abs(presentZ - previousZ);
@@ -116,6 +123,8 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
+                    if (peakKnockbackHorizontal < .6 || peakKnockbackUp < .4)
+                        throw new IllegalStateException("Missing authoritative sprint knockback and lift");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
                     report = "Windows native Voxel One renderer and two TLS clients in Basalt Courtyard.\n"
@@ -123,7 +132,10 @@ public final class PracticeNativePlaytest {
                             + a.name() + " hits " + a.hits() + ", longest combo " + a.combo() + ", pots used " + a.used() + ".\n"
                             + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n"
                             + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
-                            + " moving frames between received snapshots after damage.\n";
+                            + " moving frames between received snapshots after damage.\n"
+                            + String.format(Locale.ROOT,
+                            "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",
+                            peakKnockbackHorizontal, peakKnockbackUp);
                 }
             }
             if (stopped && recorder.status("F10").startsWith("Recording saved"))
@@ -150,7 +162,8 @@ public final class PracticeNativePlaytest {
                 if (view.inventory().get(i).item() == Item.HEALING) { slot = i; break; }
             }
         }
-        float forward = heal ? -.2f : range > 2.35 ? 1 : 0;
+        boolean sprintOpener = primary && self.hits() == 0 && self.used() > 0;
+        float forward = heal ? -.2f : range > 2.35 || sprintOpener ? 1 : 0;
         boolean swing = primary ? self.used() > 0 || other.hits() >= 2 : self.hits() < 2;
         return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0,
                 !heal && range < 3.05 && swing && sequence % 3 == 0, heal, slot);

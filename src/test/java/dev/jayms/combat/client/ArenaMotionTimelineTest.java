@@ -61,6 +61,21 @@ class ArenaMotionTimelineTest {
     }
 
     @Test
+    void risingAcrossTheTopOfCoverClearsHeightBeforeHorizontalMotion() {
+        var motion = new ArenaMotionTimeline();
+        motion.observe(100, List.of(fighter(7.68f, 74.8f, 7, 0, 0, 20, -1, 1)), ms(0));
+        motion.observe(101, List.of(fighter(8.20f, 75.22f, 7, 0, .52f, 20, -1, 1)), ms(50));
+
+        var pose = motion.sample(1, cursor(100.5));
+        assertEquals(75.22f, pose.y(), .0001f);
+        assertEquals(7.73f, pose.x(), .0001f);
+        for (int i = 1; i < 40; i++) {
+            var frame = motion.sample(1, cursor(100 + i / 40.0));
+            assertTrue(frame.x() <= 7.69f || frame.y() >= 75f);
+        }
+    }
+
+    @Test
     void blockedBridgeAcrossMissingSnapshotsHoldsThenSnaps() {
         var motion = route(2);
         var held = motion.sample(1, cursor(101));
@@ -156,7 +171,11 @@ class ArenaMotionTimelineTest {
     }
 
     private static Fighter fighter(float x, float z, float yaw, float vx, float health, long hurt, long epoch) {
-        return new Fighter(1, "Fighter", x, 73, z, yaw, 0, health, vx != 0, false, false, Item.SWORD,
+        return fighter(x, 73, z, yaw, vx, health, hurt, epoch);
+    }
+
+    private static Fighter fighter(float x, float y, float z, float yaw, float vx, float health, long hurt, long epoch) {
+        return new Fighter(1, "Fighter", x, y, z, yaw, 0, health, vx != 0, false, false, Item.SWORD,
                 0, 0, 0, 0, -1, "", vx, 0, 0, hurt, epoch);
     }
 

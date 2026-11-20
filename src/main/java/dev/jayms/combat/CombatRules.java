@@ -14,10 +14,10 @@ public record CombatRules(
         int poisonDuration, int slownessDuration) {
 
     public static final CombatRules NO_DEBUFF = new CombatRules(
-            false, 3.05, 10, 8.0, 0.68, 0.32, 0.20, 0.29, 8.0, 3.4,
+            false, 3.05, 10, 8.0, 0.68, 0.40, 0.50, 0.40, 8.0, 3.4,
             320, 2.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
     public static final CombatRules DEBUFF = new CombatRules(
-            true, 3.05, 10, 8.0, 0.68, 0.32, 0.20, 0.29, 8.0, 3.4,
+            true, 3.05, 10, 8.0, 0.68, 0.40, 0.50, 0.40, 8.0, 3.4,
             320, 2.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
 
     public CombatRules {

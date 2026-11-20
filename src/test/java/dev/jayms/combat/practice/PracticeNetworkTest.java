@@ -132,16 +132,23 @@ class PracticeNetworkTest {
 
     private static long approach(PracticeClient alice, PracticeClient bob) throws InterruptedException {
         long sequence = 1;
-        long deadline = System.nanoTime() + TimeUnit.MILLISECONDS.toNanos(1990);
-        do {
-            assertTrue(input(alice, sequence, -90, 0, 1, true, false, false, 8));
-            assertTrue(input(bob, sequence++, 90, 0, 1, true, false, false, 0));
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        for (;;) {
+            float aliceForward = laneApproach(self(alice).z());
+            float bobForward = laneApproach(-self(bob).z());
+            assertTrue(input(alice, sequence, -90, 0, aliceForward, aliceForward == 1, false, false, 8));
+            assertTrue(input(bob, sequence++, 90, 0, bobForward, bobForward == 1, false, false, 0));
+            if (aliceForward == 0 && bobForward == 0) break;
+            if (System.nanoTime() >= deadline) fail("Timed out approaching the central trading lane");
             Thread.sleep(25);
-        } while (System.nanoTime() < deadline);
-        assertTrue(input(alice, sequence, -90, 0, 0, false, false, false, 8));
-        assertTrue(input(bob, sequence++, 90, 0, 0, false, false, false, 0));
+        }
         await(() -> !self(alice).moving() && !self(bob).moving(), "both fighters stop after sprinting");
         return sequence;
+    }
+
+    private static float laneApproach(float distanceFromCenter) {
+        // Brake on confirmed position so momentum and relay delay cannot carry fighters past melee range.
+        return distanceFromCenter <= 1.4f ? 0 : Math.min(1, (distanceFromCenter - 1.2f) * .75f);
     }
 
     private static void verifySpectatorForfeitAndRematch(int port, String pin, PracticeClient alice, PracticeClient bob)

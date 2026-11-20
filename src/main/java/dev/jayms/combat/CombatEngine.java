@@ -19,9 +19,8 @@ public final class CombatEngine {
     private static final int MAX_ACTORS = 32, MAX_EVENTS = 512, INPUT_TIMEOUT = 12;
     private static final int ARMOR_DURABILITY = 200;
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
-    private static final double GROUND_CONTROL = .66, AIR_CONTROL = .20, AIR_BLEND_RESPONSE = .62;
-    private static final double GROUND_KNOCKBACK_RETENTION = .57, AIR_KNOCKBACK_RETENTION = .83;
-    private static final double MAX_KNOCKBACK_STEP = 1.55, MAX_LAUNCH_STEP = 1.0;
+    private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6;
+    private static final double SPRINT_HIT_LIFT = .1, USE_MOVEMENT_SCALE = .2;
 
     public interface Arena {
         boolean solid(int x, int y, int z);
@@ -327,6 +326,8 @@ public final class CombatEngine {
         for (Iterator<Projectile> iterator = shots.iterator(); iterator.hasNext();) {
             if (advance(iterator.next())) iterator.remove();
         }
+        // Finish every attack against the same movement phase before changing any fighter's motion.
+        for (Actor actor : actors.values()) resolveHitMotion(actor);
     }
 
     private void tickEffects(Actor actor) {
@@ -366,8 +367,7 @@ public final class CombatEngine {
             actor.cancelUse();
             actor.slot = slot;
         }
-        actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6;
-        if (!actor.sprinting || actor.sprintReleased) actor.sprintKnockbackReady = true;
+        if (!fresh || actor.sprintReleased) actor.sprintKnockbackReady = true;
         actor.sprintReleased = false;
         if (fresh) {
             actor.yaw = intent.yaw() % 360;
@@ -377,62 +377,48 @@ public final class CombatEngine {
             actor.submittedUse = false;
         }
         actor.useHeld = fresh && intent.use();
-        Knockback incoming = actor.pendingKnockback;
-        actor.pendingKnockback = null;
-        if (incoming != null) {
-            Vec3 momentum = actor.impulse.scale(.42).add(incoming.horizontal());
-            actor.impulse = momentum.scale(MAX_KNOCKBACK_STEP / Math.max(MAX_KNOCKBACK_STEP, momentum.length()));
-        }
-        boolean launched = incoming != null && incoming.lift() > 0;
-        boolean jumping = !launched && fresh && intent.jump() && actor.grounded;
-        if (launched) {
-            // Apply the full launch step before gravity and keep part of any existing ascent.
-            actor.vertical = Math.min(MAX_LAUNCH_STEP, Math.max(0, actor.vertical) * .32 + incoming.lift());
-        } else if (jumping) {
-            actor.vertical = .42;
-            actor.exhaustion += actor.sprinting ? .2 : .05;
-        } else {
-            actor.vertical = Math.max(-1.5, (actor.vertical - .08) * .98);
-        }
-        Vec3 direction = direction(actor.yaw, 0);
-        double inputLength = Math.max(1, Math.hypot(forward, strafe));
-        double speed = actor.sprinting ? .283 : .216;
-        if (actor.has(Effect.SPEED)) speed *= 1.35;
-        if (actor.has(Effect.SLOWNESS)) speed *= .72;
-        if ((actor.useHeld && actor.selected() == Item.SWORD) || actor.useTicks > 0) speed *= .6;
-        double targetX = (direction.x() * forward - direction.z() * strafe) * speed / inputLength;
-        double targetZ = (direction.z() * forward + direction.x() * strafe) * speed / inputLength;
-        // Blend the surface change instead of switching drag or steering abruptly at impact and landing.
-        actor.airBlend = approach(actor.airBlend, !actor.grounded || launched || jumping ? 1 : 0, AIR_BLEND_RESPONSE);
-        double impact = Math.min(1, actor.impulse.length() / .4);
-        double response = approach(GROUND_CONTROL, AIR_CONTROL, actor.airBlend) * (1 - impact * .30);
-        actor.drive = new Vec3(approach(actor.drive.x(), targetX, response), 0,
-                approach(actor.drive.z(), targetZ, response));
-        Vec3 before = actor.feet;
-        double dx = actor.drive.x + actor.impulse.x, dz = actor.drive.z + actor.impulse.z;
-        actor.feet = CombatGeometry.move(arena, actor.id, actor.feet, dx, 0);
-        actor.feet = CombatGeometry.move(arena, actor.id, actor.feet, dz, 2);
-        actor.feet = CombatGeometry.move(arena, actor.id, actor.feet, actor.vertical, 1);
-        actor.velocity = actor.feet.minus(before);
-        boolean blockedX = Math.abs(actor.velocity.x - dx) > .0002;
-        boolean blockedZ = Math.abs(actor.velocity.z - dz) > .0002;
-        boolean blockedY = Math.abs(actor.velocity.y - actor.vertical) > .0002;
-        if (blockedX || blockedZ) actor.drive = new Vec3(blockedX ? 0 : actor.drive.x, 0, blockedZ ? 0 : actor.drive.z);
-        double retention = approach(GROUND_KNOCKBACK_RETENTION, AIR_KNOCKBACK_RETENTION, actor.airBlend);
-        actor.impulse = new Vec3(blockedX ? 0 : actor.impulse.x * retention, 0,
-                blockedZ ? 0 : actor.impulse.z * retention);
+        Item selected = actor.selected();
+        boolean using = actor.useHeld && (selected == Item.SWORD || actor.useItem == selected && selected != Item.EMPTY
+                || actor.usePressed && startsTimedUse(actor, selected));
+        actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using;
+        double speedMultiplier = 1;
+        if (actor.has(Effect.SPEED)) speedMultiplier *= 1.35;
+        if (actor.has(Effect.SLOWNESS)) speedMultiplier *= .72;
+        var input = new CombatMovement.Input(actor.yaw, forward, strafe, fresh && intent.jump(),
+                actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1);
+        var state = new CombatMovement.State(actor.feet, actor.motion, actor.grounded, actor.jumpCooldown);
+        var step = CombatMovement.step(arena, actor.id, state, input);
+        actor.feet = step.state().feet();
+        actor.motion = step.state().motion();
+        actor.grounded = step.state().grounded();
+        actor.jumpCooldown = step.state().jumpCooldown();
+        actor.velocity = step.displacement();
+        if (step.jumped()) actor.exhaustion += actor.sprinting ? .2 : .05;
+        if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
+        if (step.hitHorizontalWall()) actor.sprinting = false;
         if (actor.velocity.y < 0) actor.fallDistance -= actor.velocity.y;
-        actor.grounded = blockedY && actor.vertical < 0;
-        if (blockedY) actor.vertical = 0;
         if (actor.grounded) {
             if (actor.fallDistance > 3.5) applyDamage(actor, 0, Math.floor(actor.fallDistance - 3));
             actor.fallDistance = 0;
         }
-        if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
     }
 
-    private static double approach(double value, double target, double response) {
-        return value + (target - value) * response;
+    private void resolveHitMotion(Actor actor) {
+        boolean sprintHit = actor.slowAfterSprintHit;
+        Knockback incoming = actor.pendingKnockback;
+        actor.slowAfterSprintHit = false;
+        actor.pendingKnockback = null;
+        if (!actor.alive()) return;
+        Vec3 motion = actor.motion;
+        if (sprintHit) {
+            motion = new Vec3(motion.x * SPRINT_HIT_RETENTION, motion.y, motion.z * SPRINT_HIT_RETENTION);
+            actor.sprinting = false;
+        }
+        if (incoming != null) {
+            motion = motion.scale(HIT_MOTION_RETENTION).add(incoming.base());
+            motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z).add(incoming.sprint());
+        }
+        actor.motion = motion;
     }
 
     private void melee(Actor attacker) {
@@ -454,10 +440,11 @@ public final class CombatEngine {
         if (target == null || !arena.canHarm(attacker.id, target.id)) return;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
         if (attacker.has(Effect.STRENGTH)) damage *= 1.28;
-        if (!attacker.grounded && attacker.vertical < -.025 && !attacker.sprinting) damage *= 1.5;
+        if (!attacker.grounded && attacker.velocity.y < -.025 && !attacker.sprinting) damage *= 1.5;
         boolean sprintHit = attacker.sprinting && attacker.sprintKnockbackReady;
         if (strike(attacker, target, damage, sprintHit, weapon) && sprintHit) {
             attacker.sprintKnockbackReady = false;
+            attacker.slowAfterSprintHit = true;
         }
     }
 
@@ -481,9 +468,10 @@ public final class CombatEngine {
         target.lastDamage = damage;
         if (fullHit) {
             target.hurtTicks = rules.hurtTicks();
-            double knockback = rules.knockback() + (sprintHit ? rules.sprintKnockback() : 0);
-            // Resolve movement next tick so exchanges share the same pre-impact pose and falling state.
-            target.pendingKnockback = new Knockback(away.scale(knockback), rules.lift());
+            Vec3 base = away.scale(rules.knockback()).add(0, rules.lift(), 0);
+            Vec3 sprint = sprintHit ? direction(attacker.yaw, 0).scale(rules.sprintKnockback())
+                    .add(0, SPRINT_HIT_LIFT, 0) : ZERO;
+            target.pendingKnockback = new Knockback(base, sprint);
         }
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
         attacker.lastHit = currentTick;
@@ -537,8 +525,7 @@ public final class CombatEngine {
                 actor.consume(actor.slot);
                 actor.pearlCooldown = rules.pearlCooldown();
                 launch(actor, selected, 1.2, .01);
-            } else if (actor.useHeld && (selected == Item.SPEED || selected == Item.FIRE_RESISTANCE
-                    || (selected == Item.FOOD && actor.food < 20) || selected == Item.BOW)) {
+            } else if (actor.useHeld && startsTimedUse(actor, selected)) {
                 actor.useItem = selected;
                 actor.useTicks = 0;
             }
@@ -547,6 +534,11 @@ public final class CombatEngine {
             actor.useTicks = Math.min(ITEM_USE_TICKS, actor.useTicks + 1);
             if (actor.useTicks == ITEM_USE_TICKS && selected != Item.BOW) finishConsumable(actor, selected);
         }
+    }
+
+    private static boolean startsTimedUse(Actor actor, Item item) {
+        return item == Item.SPEED || item == Item.FIRE_RESISTANCE || item == Item.BOW
+                || item == Item.FOOD && actor.food < 20;
     }
 
     private void finishConsumable(Actor actor, Item item) {
@@ -655,13 +647,11 @@ public final class CombatEngine {
                 Vec3 chest = feet.add(0, .4, 0);
                 if (firstBlock(arena, clearImpact, chest.minus(clearImpact)) <= 1) continue;
                 owner.feet = feet;
-                owner.drive = ZERO;
-                owner.impulse = ZERO;
+                owner.motion = ZERO;
                 owner.velocity = ZERO;
-                owner.vertical = 0;
                 owner.fallDistance = 0;
                 owner.grounded = true;
-                owner.airBlend = 0;
+                owner.jumpCooldown = 0;
                 owner.pendingKnockback = null;
                 owner.motionEpoch++;
                 emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
@@ -697,18 +687,17 @@ public final class CombatEngine {
         final int[] armor = {ARMOR_DURABILITY, ARMOR_DURABILITY, ARMOR_DURABILITY, ARMOR_DURABILITY};
         final EnumMap<Effect, Integer> effects = new EnumMap<>(Effect.class);
         List<Stack> kit;
-        Vec3 feet, drive = ZERO, impulse = ZERO, velocity = ZERO;
+        Vec3 feet, motion = ZERO, velocity = ZERO;
         Knockback pendingKnockback;
         Intent intent;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
         float yaw, pitch;
-        boolean grounded, sprinting, sprintKnockbackReady = true, attackRequested, sprintReleased;
+        boolean grounded, sprinting, sprintKnockbackReady = true, attackRequested, sprintReleased, slowAfterSprintHit;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
-        int hits, combo, longestCombo, lastComboTarget, potsUsed;
-        double health = MAX_HEALTH, saturation = 6, exhaustion, vertical, fallDistance, lastDamage, armorReduction;
-        double airBlend;
+        int hits, combo, longestCombo, lastComboTarget, potsUsed, jumpCooldown;
+        double health = MAX_HEALTH, saturation = 6, exhaustion, fallDistance, lastDamage, armorReduction;
 
         Actor(int id, Vec3 feet, float yaw, List<Stack> kit, double armorReduction) {
             this.id = id;
@@ -739,7 +728,7 @@ public final class CombatEngine {
         }
     }
 
-    private record Knockback(Vec3 horizontal, double lift) {}
+    private record Knockback(Vec3 base, Vec3 sprint) {}
 
     private static final class Projectile {
         final long id;

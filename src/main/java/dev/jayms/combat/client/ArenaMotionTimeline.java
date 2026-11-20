@@ -44,11 +44,11 @@ final class ArenaMotionTimeline {
                     || !BasaltCourtyard.contains(right.x, right.y, right.z)) return null;
             if (distance == 0 || clearSweep(left, right)) return new Route(new Point[]{left, right}, distance);
             if (gap != 1) return null;
-            // The simulation applies X, then Z, then Y. Preserve that route if the diagonal cuts a corner.
-            var x = new Point(right.x, left.y, left.z);
-            var z = new Point(right.x, left.y, right.z);
-            if (!clearSweep(left, x) || !clearSweep(x, z) || !clearSweep(z, right)) return null;
-            return new Route(new Point[]{left, x, z, right}, left.distance(x) + x.distance(z) + z.distance(right));
+            // The simulation clips Y, then X, then Z. Follow that route where the straight path hits terrain.
+            var y = new Point(left.x, right.y, left.z);
+            var x = new Point(right.x, right.y, left.z);
+            if (!clearSweep(left, y) || !clearSweep(y, x) || !clearSweep(x, right)) return null;
+            return new Route(new Point[]{left, y, x, right}, left.distance(y) + y.distance(x) + x.distance(right));
         }
 
         Point at(double t) {
