@@ -1,0 +1,112 @@
+Voxel One iPhone delivery and updates
+
+Status: delivery tooling implemented; real versioned archive/export, signing,
+installation and physical iPhone qualification remain pending. No installable
+iPhone build has been delivered by this tooling yet. Existing Simulator passes
+and unsigned archives do not establish iPhone installation.
+
+Build requirements
+
+Use the assigned exact-source checkout on a Mac with Xcode16.4 or compatible
+newer Xcode, the iPhoneOS SDK and Python3.9+. Keep tracked and untracked source
+clean. Outputs must stay in the existing ignored ios/build tree. The helper
+refuses Linux, a different Git head, dirty source, an existing delivery output,
+or a symlinked output parent. It never uploads, registers devices, buys access,
+invites testers, installs the app or enables automatic provisioning updates.
+
+The build uses the Release configuration, generic iOS destination and arm64.
+Debug/Simulator builds keep their existing default version1.0/build1. Device
+delivery takes an explicit three-part release version and integer build1..9999.
+Increment the build for each update; preserve the bundle ID and signing team.
+
+Unsigned device archive, without Apple signing access
+
+  python3 ios/device-delivery.py --source-head EXACT_40_CHARACTER_GIT_HEAD \
+    --version 1.0.0 --build 1 --mode unsigned
+
+This creates a versioned private directory under:
+
+  ios/build/delivery/VoxelOne-VERSION-BUILD-HEAD12/
+
+It contains the arm64 device .xcarchive, an unsigned archive ZIP, SHA256SUMS and
+a sanitized receipt.json. The receipt marks the archive not_installable_unsigned.
+This is a real device-target build when executed on Xcode, but it cannot be
+installed on an iPhone. This helper has only been exercised with mock Xcode
+commands on Linux so far. The existing archive-device.sh remains available for
+the current unsigned Simulator-check foundation.
+
+Signed local export, once an existing signing setup is available
+
+The controller must provide a pre-provisioned Mac/keychain, the owner's selected
+team's signing configuration and the ExportOptions.plist from that existing
+Xcode distribution setup. For registered-device testing, the iPhone must be
+included in the applicable provisioning profile. Keep these inputs in protected
+CI provisioning; never send passwords, certificates, private keys, profiles or
+device IDs in chat, source or dashboard evidence.
+
+  python3 ios/device-delivery.py --source-head EXACT_40_CHARACTER_GIT_HEAD \
+    --version 1.0.0 --build 2 --mode release-testing \
+    --signing-config /protected/mac-signing.xcconfig \
+    --export-options /protected/ExportOptions.plist
+
+Xcode16 export routes:
+  debugging: development testing with existing development signing assets.
+  release-testing: registered-device distribution with matching signing assets.
+  app-store-connect: local export for a later authorized TestFlight/Connect upload.
+
+The helper passes the protected xcconfig to Xcode, forces local export rather
+than upload, disables symbol upload and automatic build-number changes, and
+does not request provisioning updates. It checks both archived and exported app
+signatures against Apple's certificate anchor and requires an embedded profile
+without decoding or publishing its account/device contents. Failed signing or
+a changed source produces no success receipt. A successful signed export still
+records installStatus=not_attempted and physicalQualification=pending.
+
+Keep the entire delivery folder private. IPA files and archives can contain
+provisioning/account/device information; never commit them or private build logs
+to dashboard/evidence. Only the sanitized receipt/checksums may be copied to the
+dashboard after a real build. Mock artifact checksums are not release artifacts.
+Failed outputs are preserved. Use a fresh checkout or a new build number for a
+retry; recorded artifacts are never overwritten. Xcode outputs are checksummed,
+but byte-for-byte identical archives across SDKs/signing runs are not promised.
+
+Install on the registered iPhone
+
+Verify the checksum of the privately delivered IPA against its receipt. In Xcode,
+connect the registered phone, open Window -> Devices and Simulators, choose the
+phone and use the Installed Apps add control to select the IPA. Apple Configurator
+is another supported route. Follow the phone's pairing/developer prompts. An IPA
+for App Store Connect must use the authorized distribution route; it is not a
+registered-device install package. The account/profile must permit the device.
+
+For an update, retain the same bundle ID/team and use a newer build. Keep the app
+installed while updating; deleting it removes its local app data. Confirm the
+saved Sandbox, edits and inventory remain after installation and a full restart.
+Compatibility is not qualified until this actual phone workflow has run.
+
+TestFlight route
+
+Prefer TestFlight if existing authorized Apple Developer/App Store Connect access
+and the appropriate app record are available. The controller coordinates any
+authorized upload and testing setup through that protected access. This helper
+only exports locally. TestFlight provides app installation/updates through its
+iPhone app; Apple's beta build window is up to90days. Processing/review and actual
+owner installation remain separate from a local signature/export check. No
+membership purchase, external account creation, public App Store publication,
+email or invitation is performed here.
+
+Phone acceptance record
+
+Record the actual version/build/source, device/iOS, install route and checksum.
+Exercise cold boot -> Sandbox creation/load -> movement/look/jump/fly -> block,
+model and fractional edits -> inventory/crafting -> save -> terminate/relaunch ->
+network join/reconnect. Include background cancellation, denied network and low
+memory. Measure frame time/stalls/memory/thermal/battery on the actual iPhone;
+30FPS remains a target until measured. Keep account details out of media/receipts.
+
+Apple primary references
+https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview/
+https://help.apple.com/xcode/mac/current/en.lproj/dev7ccaf4d3c.html
+https://help.apple.com/xcode/mac/current/en.lproj/dev23ea8b877.html
+https://help.apple.com/xcode/mac/current/en.lproj/devade83d1d7.html
+https://developer.apple.com/library/archive/documentation/General/Reference/InfoPlistKeyReference/Articles/CoreFoundationKeys.html

@@ -75,7 +75,8 @@ For manual simulator play:
   open ios/build/VoxelOne.xcodeproj
 
 Choose the VoxelOne scheme and an iPhone Simulator. Run the app and choose New
-offline sandbox. For a physical phone, use your own Mac and Apple account/team,
+offline sandbox. The versioned device-export workflow, protected signing inputs,
+installation and update steps are documented in ios/DEVICE-INSTALL.txt. For a physical phone, use your own Mac and Apple account/team,
 change the app target's CODE_SIGNING_ALLOWED to YES and configure Signing &
 Capabilities before building to your connected iPhone. TestFlight/App Store
 publication and physical-device signing are separate steps; this check does not

@@ -1,0 +1,42 @@
+{
+  "sourceHead": "7ec1ee6886de64bfec1e520af88d8ca5b421956d",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "hostedChecks": {
+    "platformBuilds": "passed: linux,windows,mac-intel,mac-arm",
+    "buildRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44702008960",
+    "simulatorRun": "https://github.com/jaymsDooku/voxel-one/actions/runs/44702009010",
+    "simulatorMode": "preflight",
+    "simulatorStatus": "passed",
+    "clientChecked": false,
+    "cleanup": "passed",
+    "publish": "skipped; no release/deployment claim"
+  },
+  "trustedSource": {
+    "actualPreflightVerifier": "35c986c9edd22dc0e2c2455990898af1082ab0c7",
+    "containsReviewedCapacityFix": "8a53afce99e735a7574bffab70558252577b387b",
+    "dispatchMaster": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+    "dispatchMasterClientTimeoutSeconds": 1200,
+    "proposedNativeSeconds": 1500,
+    "requiredReviewedClientSeconds": 1800,
+    "proposedJobMinutes": 40
+  },
+  "inspection": "Verified exact-head check-run metadata, downloaded only receipted report/image artifact, confirmed source/expected head, preflight mode/clientChecked=false and image bytes/SHA256. Inspected actual Simulator home-screen image. Confirmed actual preflight trusted source contains8a53afce by commit ancestry. No runtime/account/config log inspection.",
+  "Playtest": "Hosted noninteractive platform builds and Simulator readiness passed. This run did not build/install/exercise the native game client. Actual47-case controls/gameplay and client media remain pending; preflight image proves no game behavior. Previous45-case native evidence is historical for earlier source. No physical iPhone or signing/install claim.",
+  "internalRepair": "Prepared budget patch is now published and hosted checks pass. Independently review/integrate only trusted verifier1800-second cap, associated timeout/cleanup test hunks and40-minute job bound; keep1500-second client source on this feature. Verify trusted master contains the reviewed repair before dispatching exact source. Do not merge the full port or substitute unreviewed feature code as the trusted verifier.",
+  "media": {
+    "file": "ios-port-7ec1ee68-preflight-only.png",
+    "bytes": 1105826,
+    "sha256": "c3ce7453cfdda6e4e3c536c6a56248e2341f989fd9ef6ebc61ab408e7d7b09e5",
+    "publication": "pending controller publication; preflight only"
+  },
+  "pending": [
+    "Bounded controller trusted-budget review/integration",
+    "Complete47-case native run and actual controls media",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Signed installable iPhone artifact",
+    "Physical iPhone performance/thermal/battery",
+    "Independent exact-head review"
+  ]
+}

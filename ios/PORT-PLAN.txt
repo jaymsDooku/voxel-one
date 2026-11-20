@@ -1488,3 +1488,50 @@ Playtest: actual affected noninteractive unittest CLI exercised before/after.
 Browser playtesting does not apply. Fresh hosted checks and full native game
 run/media remain pending, along with trusted-master budget repair, physical
 iPhone/signing, live service, remaining parity and independent review.
+
+
+Independent versioned iPhone delivery tooling
+The internal trusted-budget repair remains queued/unverified. Continue available
+engineering without repeating an unchanged hosted wait or claiming qualification.
+New ios/device-delivery.py builds an explicit Release generic-iPhoneOS arm64
+archive tied to clean exact Git source, release version and build. Existing
+Simulator/Debug defaults remain version1.0/build1; source Info.plist now resolves
+standard MARKETING_VERSION/CURRENT_PROJECT_VERSION settings. The generated
+project adds Release configurations with testability off; native tests stay Debug.
+Real Xcode builds for this new source have not run yet.
+
+Unsigned mode packages a versioned .xcarchive ZIP and SHA256 receipt and marks
+it not_installable_unsigned. Signed local modes require existing protected
+xcconfig/ExportOptions inputs; no actual owner signing material was read. Xcode
+receives those inputs only for an explicit signed request. Export is forced
+local, with symbol upload and version mutation off and no provisioning-update
+flag. Both archive/export signatures must verify against Apple's certificate
+anchor and have an embedded profile; profile/account/device contents are not
+decoded or published. Receipts contain only source/version/build/platform,
+artifact checksum/size and qualification status. Signed receipts still record
+installStatus=not_attempted, uploadStatus=not_attempted, physical=pending.
+
+The validator checks Info.plist identity/version/iPhoneOS metadata, arm64
+MH_EXECUTE and LC_BUILD_VERSION platform2, rejecting arm64 Simulator platform7.
+Private outputs are fresh/versioned,0700 and Git-ignored. Protected export options
+are0600. Artifacts cap at20000 files/1GiB; IPA extraction rejects traversal, aliases,
+duplicates, symlinks and unsupported top-level roots (Payload/SwiftSupport only).
+Metadata caps64KiB and load-command data1MiB. Existing outputs are never overwritten.
+Archive/export commands cap at600/180seconds; timeout kills/reaps only their owned
+process group. No actual archive/IPA was signed or installed by these local tests.
+
+DEVICE-INSTALL.txt documents Mac/signing/device prerequisites, versioned local
+export, private artifact handling, registered-phone installation/update checks and
+TestFlight as an existing-access route. RELEASE-NOTES.txt labels the candidate
+unreleased and states current gaps. Apple primary docs were checked; no team,
+account, membership, invite, live upload or install was created. Full native
+qualification, actual versioned device artifact/checksums and owner installation
+remain required; mock artifact hashes are not release evidence.
+Playtest: local noninteractive device-tool CLI/help/Linux refusal and isolated
+mock-Xcode integration exercise normal unsigned/signed export, signing failure,
+metadata/simulator rejection, unsafe ZIPs, dirty/source-change rejection and owned
+command deadline. Browser playtesting does not apply to this build/export tool.
+Actual Mac/archive/export/install remains unexecuted.47 native cases remain
+required; full engine/live-service/physical-device and independent review gates
+stay open. No file deletions intended; fixed version strings are replaced by
+build settings with their existing defaults preserved.

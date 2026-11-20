@@ -1,0 +1,80 @@
+{
+  "sourceBase": "7ec1ee6886de64bfec1e520af88d8ca5b421956d",
+  "sourceState": "uncommitted versioned device-delivery increment",
+  "reviewBase": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "implementation": "Exact-clean-source Release arm64 iPhoneOS archive, optional local signed export using existing protected signing setup, device-platform validation, immutable private versioned outputs, SHA256SUMS and sanitized receipt. Unsigned archives explicitly not installable; signed exports never claim installation or physical qualification.",
+  "privacy": "No actual signing account, certificate, private key, provisioning profile or device ID was read. Tests use synthetic files. Real delivery folders/IPA/archive/logs remain private and ignored; only sanitized receipt/checksums may be published after an actual build. No upload, account creation, invite, provisioning-update or install command exists.",
+  "bounds": {
+    "version": "three components,each0..999",
+    "build": "integer1..9999",
+    "archiveCommandSeconds": 600,
+    "exportCommandSeconds": 180,
+    "otherCommandSeconds": 60,
+    "ownedGroupReapSeconds": 5,
+    "artifactFiles": 20000,
+    "artifactBytes": 1073741824,
+    "metadataBytes": 65536,
+    "loadCommandBytes": 1048576,
+    "outputDirectoryMode": "0700",
+    "protectedOptionsMode": "0600"
+  },
+  "checks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "100 passed in10.889s on final source; Linux mock harness, not Mac/gameplay"
+    },
+    {
+      "command": "python3 -W error::ResourceWarning -m unittest discover -s tools/ios -p 'test_device_delivery.py'",
+      "result": "11 passed in0.233s; normal unsigned/signed-mode mocks, forced local export, checksum, version metadata, source/dirty/signature/profile rejection, simulator/x86/truncated binary rejection, unsafe/duplicate/oversized ZIPs, output alias and real owned-child deadline cleanup"
+    },
+    {
+      "command": "Complete fresh copied tools/ios Python files, required ios helper/scripts and workflow YAML; python3 -m unittest discover -s tools/ios -p test_*.py",
+      "result": "100 passed in10.758s with target/ initially absent, before final owned-group hard-stop refinement; focused11 and full100 passed after that refinement. Initial incomplete copy omitted required workflow YAML and failed2 fixture checks; fixture was corrected without weakening source tests."
+    },
+    {
+      "command": "python3 ios/device-delivery.py --source-head 7ec1ee6886de64bfec1e520af88d8ca5b421956d --version 1.0.0 --build 1 --mode unsigned",
+      "result": "Actual Linux CLI refused as expected: exit1,Device delivery failed: mac_xcode_required; no artifact/signing/install claim. Actual invocation used separate option/value arguments."
+    },
+    {
+      "command": "python3 ios/make-project.py; Python Info.plist/project configuration inspection",
+      "result": "passed; generated three Release configurations; version defaults1.0/build1 retained via standard build settings"
+    },
+    {
+      "command": "python3 -m py_compile ios/device-delivery.py ios/make-project.py; bash -n ios/archive-device.sh; bash -n ios/check-simulator.sh; git diff --check",
+      "result": "passed"
+    },
+    {
+      "command": "AST native-case inventory and full review-base deletion/progress audit",
+      "result": "all47 required native cases retained;113 unrelated progress entries unchanged;zero file deletions"
+    }
+  ],
+  "Playtest": "Exercised the actual noninteractive CLI help/Linux guard and isolated mock-Xcode archive/export integration. Covered normal output/checksum, signing failure, unsafe artifact and cleanup edges, plus source/version regression. Browser playtesting does not apply to a private build/export CLI. Real Xcode archive/export, signing, iPhone installation and current native47-case media remain unexecuted.",
+  "intendedDeletions": "No file deletions. Hardcoded Info.plist version strings are replaced by build-setting references with original defaults preserved. Project adds Release alongside existing Debug; Simulator/native UI tests remain Debug.",
+  "qualificationPending": [
+    "Fresh hosted checks for these edits",
+    "Internal trusted-budget repair before1500-second native dispatch",
+    "Actual Mac Release/archive/versioned package/checksum",
+    "Actual signed export with protected existing access",
+    "Owner iPhone install/update and save retention",
+    "Current47-case native run and controls media",
+    "Remaining engine parity/landscape-first polish",
+    "Another Simulator size",
+    "Live secure VPS multiplayer",
+    "Physical iPhone frame/memory/thermal/battery",
+    "Independent exact-head review"
+  ],
+  "appleReferences": [
+    "https://developer.apple.com/help/app-store-connect/test-a-beta-version/testflight-overview/",
+    "https://help.apple.com/xcode/mac/current/en.lproj/dev7ccaf4d3c.html",
+    "https://help.apple.com/xcode/mac/current/en.lproj/dev23ea8b877.html",
+    "https://help.apple.com/xcode/mac/current/en.lproj/devade83d1d7.html"
+  ],
+  "sourceSha256": {
+    "ios/device-delivery.py": "2e65e22338313648d7a52310686c2a69f3ff2df8a118b8979a4ea0f4ecdf6f9f",
+    "tools/ios/test_device_delivery.py": "205047de9c19665afbdab017c21aefc03a58cf81edf913ec1d3a4ebb7bb0d030",
+    "ios/Info.plist": "2be6d8eeeee78d83893e17f6fa92e01cc14caa240989d58d34906b1720e67300",
+    "ios/make-project.py": "7d86e7627530d78cf2a3c75f7e7114ca1077f6256946df1effb2d836292174c9",
+    "ios/DEVICE-INSTALL.txt": "a05ec00186028bf7eb7d5ee094e5484b51913d06077e4ffa9b3fc3b153c91dcf",
+    "ios/RELEASE-NOTES.txt": "0d9d65088142d5f6c30412c44a782f8be6e0f8ae03c5cb71fb77f24ef852b9b1"
+  }
+}
