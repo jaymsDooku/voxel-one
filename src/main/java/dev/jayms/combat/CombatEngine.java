@@ -20,7 +20,7 @@ public final class CombatEngine {
     private static final int ARMOR_DURABILITY = 200;
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
     private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6;
-    private static final double SPRINT_HIT_LIFT = .1, USE_MOVEMENT_SCALE = .2;
+    private static final double USE_MOVEMENT_SCALE = .2;
 
     public interface Arena {
         boolean solid(int x, int y, int z);
@@ -405,7 +405,7 @@ public final class CombatEngine {
 
     private void resolveHitMotion(Actor actor) {
         boolean sprintHit = actor.slowAfterSprintHit;
-        Knockback incoming = actor.pendingKnockback;
+        Vec3 incoming = actor.pendingKnockback;
         actor.slowAfterSprintHit = false;
         actor.pendingKnockback = null;
         if (!actor.alive()) return;
@@ -415,8 +415,8 @@ public final class CombatEngine {
             actor.sprinting = false;
         }
         if (incoming != null) {
-            motion = motion.scale(HIT_MOTION_RETENTION).add(incoming.base());
-            motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z).add(incoming.sprint());
+            motion = motion.scale(HIT_MOTION_RETENTION).add(incoming);
+            motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z);
         }
         actor.motion = motion;
     }
@@ -469,9 +469,8 @@ public final class CombatEngine {
         if (fullHit) {
             target.hurtTicks = rules.hurtTicks();
             Vec3 base = away.scale(rules.knockback()).add(0, rules.lift(), 0);
-            Vec3 sprint = sprintHit ? direction(attacker.yaw, 0).scale(rules.sprintKnockback())
-                    .add(0, SPRINT_HIT_LIFT, 0) : ZERO;
-            target.pendingKnockback = new Knockback(base, sprint);
+            // Sprint resets affect spacing without extending the victim's time in the air.
+            target.pendingKnockback = sprintHit ? base.add(direction(attacker.yaw, 0).scale(rules.sprintKnockback())) : base;
         }
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
         attacker.lastHit = currentTick;
@@ -688,7 +687,7 @@ public final class CombatEngine {
         final EnumMap<Effect, Integer> effects = new EnumMap<>(Effect.class);
         List<Stack> kit;
         Vec3 feet, motion = ZERO, velocity = ZERO;
-        Knockback pendingKnockback;
+        Vec3 pendingKnockback;
         Intent intent;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
@@ -727,8 +726,6 @@ public final class CombatEngine {
                     hurtTick, motionEpoch);
         }
     }
-
-    private record Knockback(Vec3 base, Vec3 sprint) {}
 
     private static final class Projectile {
         final long id;

@@ -74,6 +74,7 @@ public final class PracticeGame {
     private View view;
     private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
     private boolean inventory, attack, usePressed, previousIntentUse, firstMouse = true, positioned;
+    private boolean sprintReleased;
     private Boolean scriptedUse;
     private int width, height, slot, source = -1;
     private long frameInput, sequence;
@@ -253,12 +254,13 @@ public final class PracticeGame {
         });
         glfwSetWindowFocusCallback(handle, (w, focused) -> {
             firstMouse = true;
-            if (!focused) attack = usePressed = false;
+            if (!focused) attack = usePressed = sprintReleased = false;
         });
         glfwSetScrollCallback(handle, (w, x, y) -> {
             if (!inventory && y != 0) selectSlot(Math.floorMod(slot - (y > 0 ? 1 : -1), 9), System.nanoTime());
         });
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
+            if (action == GLFW_RELEASE) latchSprintRelease(-button - 1);
             if (action != GLFW_PRESS) return;
             if (inventory) {
                 if (button == GLFW_MOUSE_BUTTON_LEFT && (mods & GLFW_MOD_SHIFT) != 0) {
@@ -269,6 +271,7 @@ public final class PracticeGame {
             } else combatPress(-button - 1);
         });
         glfwSetKeyCallback(handle, (w, key, scan, action, mods) -> {
+            if (action == GLFW_RELEASE) latchSprintRelease(key);
             if (action != GLFW_PRESS) return;
             if (key == GLFW_KEY_ESCAPE) {
                 if (inventory) setInventory(false);
@@ -291,6 +294,12 @@ public final class PracticeGame {
                 combatPress(key);
             }
         });
+    }
+
+    private void latchSprintRelease(int code) {
+        if (!inventory && (controls.matches(FORWARD, code) || controls.matches(SPRINT, code))
+                && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE && canAnimateCombat())
+            sprintReleased = true;
     }
 
     private int hotbarSlot(int key) {
@@ -355,7 +364,7 @@ public final class PracticeGame {
 
     private void setInventory(boolean open) {
         if (inventory == open) return;
-        inventory = open; source = -1; firstMouse = true; attack = usePressed = false;
+        inventory = open; source = -1; firstMouse = true; attack = usePressed = sprintReleased = false;
         glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? GLFW_CURSOR_NORMAL : GLFW_CURSOR_DISABLED);
     }
 
@@ -398,8 +407,18 @@ public final class PracticeGame {
         long w = window.getHandle();
         float forward = enabled ? axis(w, FORWARD, BACKWARD) : 0;
         float strafe = enabled ? axis(w, RIGHT, LEFT) : 0;
-        Intent intent = new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe, enabled && controls.down(w, JUMP),
-                enabled && controls.down(w, SPRINT), enabled && attack, enabled && (usePressed || controls.down(w, PLACE)), slot);
+        boolean jump = enabled && controls.down(w, JUMP);
+        boolean sprint = enabled && controls.down(w, SPRINT);
+        boolean use = enabled && (usePressed || controls.down(w, PLACE));
+        if (!enabled || !canAnimateCombat()) sprintReleased = false;
+        // Preserve a release and repress that both happened between movement samples.
+        if (sprintReleased && sprint && forward > 0) {
+            if (!submitInput(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
+                    jump, false, false, use, slot))) return;
+            sprintReleased = false;
+        }
+        Intent intent = new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
+                jump, sprint, enabled && attack, use, slot);
         if (observer != null) {
             Intent controlsIntent = intent;
             intent = observer.input(intent, view);
@@ -415,8 +434,13 @@ public final class PracticeGame {
                 if (intent.attack()) hand.attack(item, scriptedUse, now);
             }
         }
-        if (remote == null) offline.input(id, intent);
-        if (remote == null || remote.input(intent)) attack = usePressed = false;
+        if (submitInput(intent)) attack = usePressed = sprintReleased = false;
+    }
+
+    private boolean submitInput(Intent intent) {
+        if (remote != null) return remote.input(intent);
+        offline.input(id, intent);
+        return true;
     }
 
     private int axis(long window, Controls.Action positive, Controls.Action negative) {

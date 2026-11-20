@@ -59,6 +59,8 @@ public final class PracticeNativePlaytest {
         private boolean ready, captured, capturedFlash, stopped, remotePresented;
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
         private double peakKnockbackHorizontal, peakKnockbackUp;
+        private long lastSprintHit = -1;
+        private int sprintHits;
         private int betweenSnapshotFrames;
         private String report;
 
@@ -96,8 +98,13 @@ public final class PracticeNativePlaytest {
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.hurtTick() >= 0 && view.tick() > b.hurtTick() && view.tick() <= b.hurtTick() + 3) {
-                peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, Math.hypot(b.vx(), b.vz()));
+                double horizontal = Math.hypot(b.vx(), b.vz());
+                peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, horizontal);
                 peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
+                if (horizontal > .58 && b.hurtTick() > lastSprintHit) {
+                    lastSprintHit = b.hurtTick();
+                    sprintHits++;
+                }
             }
             if (remotePresented && view.phase() == Phase.FIGHT && b != null && b.hurtTick() >= 0) {
                 double moved = Math.abs(presentX - previousX) + Math.abs(presentY - previousY)
@@ -123,8 +130,9 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
-                    if (peakKnockbackHorizontal < .6 || peakKnockbackUp < .4)
-                        throw new IllegalStateException("Missing authoritative sprint knockback and lift");
+                    if (sprintHits < 3 || peakKnockbackUp < .12 || peakKnockbackUp > .24)
+                        throw new IllegalStateException("Expected three sprint hits with a low arc, got "
+                                + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
                     report = "Windows native Voxel One renderer and two TLS clients in Basalt Courtyard.\n"
@@ -133,6 +141,7 @@ public final class PracticeNativePlaytest {
                             + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n"
                             + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
+                            + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",
                             peakKnockbackHorizontal, peakKnockbackUp);
@@ -162,9 +171,11 @@ public final class PracticeNativePlaytest {
                 if (view.inventory().get(i).item() == Item.HEALING) { slot = i; break; }
             }
         }
-        boolean sprintOpener = primary && self.hits() == 0 && self.used() > 0;
-        float forward = heal ? -.2f : range > 2.35 || sprintOpener ? 1 : 0;
-        boolean swing = primary ? self.used() > 0 || other.hits() >= 2 : self.hits() < 2;
+        boolean combo = primary && self.used() > 0;
+        boolean wTap = combo && other.hurtTick() >= 0 && view.tick() - other.hurtTick() < 2;
+        boolean advance = !wTap && range > (combo ? .65 : 2.35);
+        float forward = heal ? -.2f : advance ? 1 : 0;
+        boolean swing = primary ? combo && !wTap : self.hits() < 2;
         return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0,
                 !heal && range < 3.05 && swing && sequence % 3 == 0, heal, slot);
     }
