@@ -2258,3 +2258,33 @@ World retirement. Scene residency stays at one or two chunks. Editable paging,
 true model-ID remapping and full city/maximum, physical-GPU and shaped-32-client
 qualification remain unfinished or pending. No performance or supported-city
 claim is made.
+
+
+### Coordinate warmup and replacement retries
+
+The private `SavedPagingReplacement` coordinator now has a `WARMING` phase.
+After its worker reaches `READY`, `prepare` consumes only private candidate
+metadata. Owner-only `warmingWorld`, `warmingScene` and `warmingBinding` accessors
+let the caller warm bounded CPU/GPU resources. The coordinator does not choose
+visible chunks or run a GPU upload loop. The old live World, survival state and
+saved journal prefix remain unchanged until `take` commits the prepared scene.
+`take` preserves warmed scene resources and captures the latest independent
+inventory, drops and health. The immediate `READY` transfer remains available.
+
+The caller must keep polling during warmup. A changed journal stamp retires the
+private World and worker before another source opens. Fresh candidates include
+later geometry, and the existing three-attempt limit still applies. Cancellation
+and abandonment never acknowledge the saved prefix. Accessors reject foreign
+threads, callback reentry and stale phases. A returned transfer owns its scene
+and worker; closing the coordinator after transfer leaves them intact.
+
+Retirement never retries a worker already reporting failed cleanup. Polling waits
+for terminal cleanup and retains a failed World-close handle. Explicit owner
+close can retry cleanup. This prevents retries from overlapping owned resources.
+The source factory's existing terminal-cleanup gate remains in force.
+
+This is internal read-only coordination, with the existing one- or two-chunk scene
+budget. It does not install the source into Main, retire or reconcile the old live
+World, enable editable paging or remap model IDs. It does not raise placement or
+package limits. City/maximum whole-workflow, physical-GPU and shaped 32-client
+qualification remain pending and gate supported-limit and stable-rollout claims.

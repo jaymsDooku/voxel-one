@@ -45,16 +45,23 @@ final class SavedPagingSessionFrame {
                 c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
                 var spool=Files.createDirectories(c.fixture.folder.resolve("paging"));
                 try(var replacement=new SavedPagingReplacement(publication,old,spool,SavedPagingFactoryTest.NEXT,1,8192,()->false)) {
-                    SavedPagingReplacementTest.ready(replacement);
-                    // Edit after the first candidate opened: the red geometry
+                    SavedPagingReplacementTest.ready(replacement);replacement.prepare(()->false);
+                    warm(replacement.warmingWorld(),replacement.warmingScene());var abandonedWorld=replacement.warmingWorld();
+                    // Edit after the first candidate warmed: the red geometry
                     // must survive its retirement, fresh source and repeat save.
                     editor.apply(new Protocol.Edit(6,160,2,Blocks.LED).withColor(0xed593c),()->false);
                     assertEquals(SavedPagingReplacement.State.RETIRING,replacement.poll(()->false));SavedPagingReplacementTest.ready(replacement);
+                    assertThrows(IllegalStateException.class,()->abandonedWorld.cell(0,160,0));
                     assertEquals(2,replacement.status().attempts());var pending=publication.pendingPagingOverlay(()->false);
+                    replacement.prepare(()->false);var firstWorld=replacement.warmingWorld();var firstScene=replacement.warmingScene();var firstBinding=replacement.warmingBinding();warm(firstWorld,firstScene);
+                    long firstWarmBytes=Mesh.estimatedResidentBytes();c.local.health--;c.local.inventory.add(Blocks.STONE,1);c.local.drops.put(91,new ItemDrop(91,Blocks.STONE,1,1,2,3));
+                    assertFalse(editor.capture(()->false).overlay().rows().isEmpty());
                     var transfer=replacement.take(()->false);var worker=transfer.worker();var revision=transfer.revision();
                     long rows=worker.status().sourceRows();
                     try(transfer) {
                         var session=transfer.session();
+                        assertSame(firstWorld,session.world());assertSame(firstScene,session.scene());assertSame(firstBinding,session.binding());assertEquals(1,session.scene().status().gpuEntries());assertEquals(firstWarmBytes,Mesh.estimatedResidentBytes());
+                        assertEquals(c.local.health,session.local().health);assertEquals(c.local.drops,session.local().drops);assertNotSame(c.local.drops,session.local().drops);assertNotSame(c.local.inventory,session.local().inventory);
                         assertNotSame(c.local.models,session.local().models);
                         assertNotEquals(c.local.models.revision(),session.local().models.revision());assertTrue(session.local().models.sameBindings(c.local.models));
                         var sky=session.binding().submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,session.world());RegionReplayWorkerTest.done(sky);
@@ -62,7 +69,7 @@ final class SavedPagingSessionFrame {
                         var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
                         int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
                         assertFalse(session.local().models.has(retiredId));
-                        assertEquals(0,session.scene().status().data().ready());session.local().health--;
+                        assertEquals(1,session.scene().status().data().ready());session.local().health--;
                         var second=SavedPagingJournalTest.stage(worker,session,revision);SavedPagingJournalTest.publish(worker,second,revision);
                         var nextPending=second.pendingPagingOverlay(()->false);assertTrue(nextPending.rows().isEmpty());RegionReplayWorkerTest.closed(worker);
                         var nextRevision=new RegionReplayWorker.Revision(revision.world()+1,revision.models(),revision.terrain());

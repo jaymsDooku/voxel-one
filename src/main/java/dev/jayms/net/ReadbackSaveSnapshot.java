@@ -319,10 +319,16 @@ final class ReadbackSaveSnapshot {
             /** No joins. Keep this owner handle for an explicit cleanup retry
              * if either resource close fails; successful commit transfers ownership.
              * Caller retains the worker for its terminal cleanup receipt/retry. */
-            @Override public void close()throws Exception {
+            /** Coordinator retirement may signal cleanup once, but never retries
+             * an already failed worker cleanup. Explicit close retains that right. */
+            void retire()throws Exception {close(false);}
+            @Override public void close()throws Exception {close(true);}
+            private void close(boolean retryCleanup)throws Exception {
                 owner();if(done)return;check();pagingAdopting=true;
                 try {
-                    try{session.close();}finally{replacement.close();}
+                    try{session.close();}finally {
+                        if(retryCleanup||replacement.status().state()!=RegionReplayWorker.State.CLEANUP_FAILED)replacement.close();
+                    }
                     done=true;preparedPagingScene=null;retiringPreparedWorker=replacement;
                 }finally{pagingAdopting=false;}
             }

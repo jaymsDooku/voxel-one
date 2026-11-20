@@ -1,0 +1,213 @@
+{
+  "schema": 1,
+  "parent_head": "3109f4c57c031cdd3b9b0d14a982d38ed578aa8f",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available warm-coordinator checks passed; full structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "SavedPagingReplacement now coordinates private scene warmup through WARMING before final transfer. Owner-only accessors expose World/scene/binding without candidate local metadata or transfer authority. The caller controls bounded warming. Poll keeps checking the old journal stamp; a change closes private scene resources and retires its worker before a fresh source opens. At most one worker and three attempts remain. take preallocates a transfer handle, commits the prepared latest independent survival tail and exact saved prefix, then retains the same World/scene/binding/GPU resources. Immediate READY transfer remains available. Abandonment and cancellation do not acknowledge rows. Normal retirement never retries already failed worker cleanup; explicit close retains retry authority. Failed World close retains its handle and blocks fresh attempts.",
+  "limits": {
+    "attempts": 3,
+    "scene_chunks": "existing one or two",
+    "scope": "No package, model, scene/cache, geometry/surface/chunk/mesh/persistence or qualification cap raised. Poll does no joins or filesystem work. Complete overlay capture/adoption can still take linear owner CPU work; no 100 ms guarantee."
+  },
+  "focused": {
+    "exit_code": 0,
+    "elapsed_seconds": 29.630143960937858,
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=SavedPagingWarmupTest,SavedPagingReplacementTest,PreparedPagingSceneTest",
+      "test"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.SavedPagingWarmupTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.PreparedPagingSceneTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 23
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest",
+      "test"
+    ],
+    "tests": 625,
+    "suites": 134,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 388.51356130093336
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.697118105366826,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 816,
+    "shaders_match": 28,
+    "mp3": "Both original shipped CBR/VBR fixtures decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-warm-coordinator"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 81.46525363996625,
+      "prefix": "structure-warm-coordinator"
+    },
+    "receipt": "structure-warm-coordinator-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12028019109,
+      "planar_lighting_nanos": 1078844696,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11457915292,
+      "planar_lighting_nanos": 700324908,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true
+  },
+  "playtest": "Playtest: native Java/GLFW/OpenGL saved-source integration CLI on inherited DISPLAY with isolated synthetic offline v10 data. Expected bounded coordinator warmup without old saved-prefix acknowledgement, stale CPU/GPU candidate disposal after a later red edit, fresh warm retry, and latest health/inventory/drops transfer while retaining warmed resources. Observed two attempts, old candidate World closed, fresh source including later geometry, same warmed World/scene/binding and ready GPU entry after take, unchanged estimated mesh resident bytes at transfer, independent survival copies, exact prefix acknowledgement, and repeat save/reopen/render preserving models and geometry. The separate prepared-scene workflow and existing source model-counter/sky, ordinary/pending geometry, lighting/roof-clear sky, planar/model/water and resource-baseline regressions passed. New tests cover three-attempt exhaustion during warmup, cancellation at every observed final transfer hook, owner/reentry/stale accessor rejection, cancellation/abandonment and real failed cleanup with explicit retry. Browser playtesting does not apply to this internal native integration. Main was not rerun because these package-private helpers do not install into Main; full game integration remains unfinished.",
+  "media": {
+    "inspected": [
+      "structure-warm-coordinator-session.png",
+      "structure-warm-coordinator-optics.png",
+      "structure-warm-coordinator-pending-optics.png",
+      "structure-warm-coordinator-pending.png",
+      "structure-warm-coordinator-regression.png"
+    ],
+    "scope": "Five fresh implementation-native framebuffers, including saved/reloaded scene after coordinator GPU warmup, stale retirement and latest-tail transfer. Software rendering only; no physical-GPU/frame-time pass."
+  },
+  "source_files_fixed": 664,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/SavedPagingReplacement.java": "aeb38ecd67d861872f4117e8d2ba9565d1720b4d1151c53e06105c1ffdd528a6",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "f21ac15bff028fdc3496c645ce213a2d43b6c73540e01a7c830d6b05a84b356b",
+    "src/test/java/dev/jayms/net/SavedPagingWarmupTest.java": "1d085c8dc19094358be4ffc315005c0dca91d8ddcc6e73dd2fd0cf91059571a6",
+    "tools/structures/SavedPagingSessionFrame.java": "341eb5a2f35a8a99e3c422db4dfa2206f02ec6f1615e44e55c2e42085137eb40",
+    "tools/structures/ReplaySkyFrameCheck.java": "291bad3df380c74736e826fb42bdeeb2a047fccb23ada3ec90abab3836dbbc13",
+    "tools/structures/run_replay_sky_frame_check.py": "1cdfb5bdc6d910ca899912ca3a254854b9e14c974f7f4e4caf41ac022d9418f6"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "3109f4c57c031cdd3b9b0d14a982d38ed578aa8f",
+    "run": 44756838056,
+    "builds": {
+      "windows": "success",
+      "mac-arm": "success",
+      "mac-intel": "success",
+      "linux": "success"
+    },
+    "publish": "skipped",
+    "method": "Inspected actual workflow job and step summaries; no runtime logs"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Extend the existing coordinator with WARMING and optional prepared-scene ownership, and split explicit close from non-retrying retirement. Preserve immediate transfer. Native warmup now precedes stale-edit retirement and fresh transfer; change the old zero-ready assertion to the expected one warmed CPU entry and add resource identity checks. Existing base-diff world/history/render replacements and protocol compatibility adjustments remain documented. No unrelated deletion or removed regression assertion intended."
+  },
+  "remaining": [
+    "Main source installation and old World retirement/reconciliation remain unfinished.",
+    "Editable paging and true model-ID remapping remain unfinished or gated.",
+    "City/maximum still fail placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only runs do not qualify full workflows.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, physical GPU, shaped synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Internal bounded warm-coordinator and available CLI/native functional regressions only. No supported-city/limit, stable-rollout, 30-FPS, whole-workflow or physical-GPU/network qualification pass.",
+  "artifacts": {
+    "structure-warm-coordinator-native.json": "46f6f6bb492b95ed71a0a1ca116c3e0ba0543f5c2493855865692e63786a59b4",
+    "structure-warm-coordinator-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-warm-coordinator-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-warm-coordinator-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-warm-coordinator-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-warm-coordinator-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}
