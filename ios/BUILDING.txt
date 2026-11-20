@@ -245,3 +245,7 @@ all XCTest cases/assertions stay enabled. The900-second suite limit remains.
 The seeded terrain sample/window parity check must pass with these settings.
 Do not substitute -Ounchecked or fast-math. Simulator/test observer timings do
 not establish physical-device frame time, memory, thermal or battery budgets.
+
+New offline confirmation uses seed748291 by default without opening a keyboard.
+Choose Change seed to enter another signed64-bit seed. Invalid input disables
+New world; Cancel preserves the saved world. Both paths generate native terrain.

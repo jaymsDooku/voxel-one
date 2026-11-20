@@ -536,19 +536,31 @@ final class GameController:UIViewController,UITextFieldDelegate,UIGestureRecogni
             }
         }
     }
-    @objc private func newOffline(){
+    @objc private func newOffline(){presentNewOffline(editSeed:false)}
+    private func presentNewOffline(editSeed:Bool){
         guard !busy,!loadingOffline else{return}
         let replacing=FileManager.default.fileExists(atPath:OfflineSave.url.path)
-        seedPromptMessage=replacing ? "Replace the saved Sandbox after the new world loads. Choose a seed.":"Create a new Sandbox with this seed."
+        seedPromptMessage=replacing ? "Replace the saved Sandbox after the new world loads.":"Create a new Sandbox."
+        if editSeed {seedPromptMessage += " Choose a seed."}
+        else {seedPromptMessage += " Seed: 748291. Choose Change seed to use another world."}
         let alert=UIAlertController(title:replacing ? "Replace offline sandbox?":"New Sandbox",message:seedPromptMessage,preferredStyle:.alert)
-        alert.addTextField {field in
-            field.text="748291";field.placeholder="World seed";field.accessibilityIdentifier="worldSeed"
-            field.keyboardType = .numbersAndPunctuation;field.autocorrectionType = .no
-            field.addTarget(self,action:#selector(self.seedChanged(_:)),for:.editingChanged)
+        // UIKit focuses alert text fields automatically. Keep the normal default
+        // path free of keyboard transitions; seed editing remains an explicit route.
+        if editSeed {
+            alert.addTextField {field in
+                field.text="748291";field.placeholder="World seed";field.accessibilityIdentifier="worldSeed"
+                field.keyboardType = .numbersAndPunctuation;field.autocorrectionType = .no
+                field.addTarget(self,action:#selector(self.seedChanged(_:)),for:.editingChanged)
+            }
+        }else{
+            alert.addAction(UIAlertAction(title:"Change seed",style:.default){[weak self,weak alert] _ in
+                alert?.dismiss(animated:true){[weak self] in self?.presentNewOffline(editSeed:true)}
+            })
         }
         alert.addAction(UIAlertAction(title:"Cancel",style:.cancel))
         let create=UIAlertAction(title:"New world",style:replacing ? .destructive:.default){[weak self,weak alert] _ in
-            guard let seed=Int64(alert?.textFields?.first?.text ?? "") else{return}
+            let text=editSeed ? alert?.textFields?.first?.text ?? "":"748291"
+            guard let seed=Int64(text) else{return}
             self?.requestedSeed=seed;self?.loadOffline(fresh:true)
         }
         alert.addAction(create);seedCreateAction=create;seedPrompt=alert;present(alert,animated:true)

@@ -167,3 +167,33 @@ class NativeTimingCaptureTests(unittest.TestCase):
             self.assertEqual(len(timings),2)
             self.assertIn('elapsed_seconds=50',timings[0]);self.assertIn('elapsed_seconds=30',timings[1])
             self.assertNotIn('testOne','\n'.join(timings))
+
+
+class NativeDeadlineDiagnosticIntegrationTests(unittest.TestCase):
+    def test_routine_steps_do_not_displace_deadline_and_timing_diagnostics(self):
+        diagnostics_spec=importlib.util.spec_from_file_location('deadline_diagnostics',ROOT/'tools/ios/client_diagnostics.py')
+        diagnostics=importlib.util.module_from_spec(diagnostics_spec);diagnostics_spec.loader.exec_module(diagnostics)
+        with tempfile.TemporaryDirectory(dir=ROOT/'target') as scratch:
+            repo=Path(scratch);build=repo/'ios/build';build.mkdir(parents=True)
+            output=repo/'evidence';output.mkdir()
+            source=repo/'ios/VoxelOneUITests';source.mkdir()
+            (source/'NativeWorkflowTests.swift').write_text('func testClosed() {}\nfunc testOpen() {}')
+            log=build/'native-tests.log'
+            messages=["Test Case '-[VoxelOneUITests.NativeWorkflowTests testClosed]' started.",
+                      "Test Case '-[VoxelOneUITests.NativeWorkflowTests testClosed]' passed."]
+            messages += ['native_workflow_checkpoint code='+code for code in sorted(runner._CHECKPOINT_CODES)]
+            messages += ["Test Case '-[VoxelOneUITests.NativeWorkflowTests testOpen]' started.",
+                         'native_workflow_checkpoint code=sky_create']
+            code='import time;print('+repr('\n'.join(messages))+',flush=True);print("x"*140000,flush=True);time.sleep(10)'
+            self.assertEqual(runner.run([sys.executable,'-c',code],log,1,{'testClosed','testOpen'}),124)
+            runner.record_failure(log,repo)
+            diagnostics.collect_client_diagnostics(repo,output,{'sourceHead':'a'*40,'requestId':'synthetic-request',
+                'errorStage':'client_script','errorCode':'command_failed','exitCode':124})
+            result=json.loads((output/'client-diagnostics.json').read_text())
+            exported=[line['text'] for line in result['lines']]
+            self.assertTrue(any('native_test_deadline' in line for line in exported))
+            self.assertTrue(any('native_test_progress started=2 passed=1 failed=0 unfinished=1 expected=2' in line for line in exported))
+            self.assertEqual(sum('native_test_timing' in line for line in exported),2)
+            self.assertIn('error: native_workflow_checkpoint code=sky_create',exported)
+            self.assertIn('error: native_test_failure_summary status=unavailable',exported)
+            self.assertLessEqual(len(exported),8)

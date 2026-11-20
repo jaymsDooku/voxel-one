@@ -230,8 +230,8 @@
       "description": "Audit existing native client; implement hold-jump and lossless inventory edits. Exact-source simulator validation and device delivery remain pending.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Mac source738f11e8 built but hit the 900-second native deadline:15 passed,1 open,36 required. Trusted verifier confirmed at8a53afce. Enabled standard Swift -O for voxel CPU work and added bounded per-test timing/atmosphere step markers.76 Linux harness checks passed; exact-source36-case native rerun pending. Full parity/live VPS/signing/physical iPhone gates remain open.",
-      "updatedAt": "2026-11-20T00:04:44+00:00"
+      "note": "Source57563654 reached900-second native deadline:14 passed,1 open,36 required; slowest retained completed case93s. Default New world now avoids keyboard transitions; Change seed keeps full Int64 validation/cancel flow. Routine step markers no longer fill failure diagnostic slots.77 Linux harness tests passed; native workflow/timing and all36-case qualification pending. Full parity/live VPS/signing/physical gates remain open.",
+      "updatedAt": "2026-11-20T00:33:37+00:00"
     },
     {
       "id": "63d1aff7-c119-4abe-bfc8-53c7ce6b68d3",

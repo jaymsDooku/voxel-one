@@ -4,10 +4,10 @@ import XCTest
 final class NativeWorkflowTests:XCTestCase {
     var app:XCUIApplication!
     private var workflowCheckpoint:String? {
-        didSet {if let checkpoint=workflowCheckpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}}
+        didSet {if let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}}
     }
     override func tearDown(){
-        if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
+        if (testRun?.failureCount ?? 0)>0,let checkpoint=workflowCheckpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
         super.tearDown()
     }
     override func setUpWithError()throws {
@@ -48,14 +48,14 @@ final class NativeWorkflowTests:XCTestCase {
         let scene=app.otherElements["worldView"]
         let ready=XCTNSPredicateExpectation(predicate:NSPredicate{_,_ in scene.value as? String == "Terrain ready"},object:scene)
         let result=XCTWaiter.wait(for:[ready],timeout:30)
-        if result != .completed,let checkpoint=checkpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
+        if result != .completed,let checkpoint=checkpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
         XCTAssertEqual(result,.completed,"Native terrain did not finish: \(String(describing:scene.value))")
     }
     func textContains(_ id:String,_ value:String,timeout:TimeInterval=15,checkpoint:String?=nil){
         let predicate=NSPredicate(format:"label CONTAINS[c] %@",value)
         let expectation=XCTNSPredicateExpectation(predicate:predicate,object:app.staticTexts[id])
         if XCTWaiter.wait(for:[expectation],timeout:timeout) != .completed {
-            if let checkpoint=checkpoint {print("error: native_workflow_checkpoint code=\(checkpoint)")}
+            if let checkpoint=checkpoint {print("native_workflow_checkpoint code=\(checkpoint)")}
             XCTFail("HUD observed: \(app.staticTexts[id].label.prefix(80)); expected: \(value.prefix(25))")
         }
     }
@@ -201,12 +201,15 @@ final class NativeWorkflowTests:XCTestCase {
     func testNativeSeededWorldValidationEditAndRestart()throws {
         workflowCheckpoint="terrain_seed"
         newOffline();menu();app.buttons["offlineNewButton"].tap()
+        XCTAssertFalse(app.alerts.textFields["worldSeed"].exists,"Default creation does not open a seed keyboard")
+        XCTAssertFalse(app.keyboards.element.exists)
+        let change=app.alerts.buttons["Change seed"];wait(change);change.tap()
         let seed=app.alerts.textFields["worldSeed"];wait(seed);seed.tap()
         seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"9223372036854775808")
         let disabled=XCTNSPredicateExpectation(predicate:NSPredicate(format:"isEnabled == NO"),object:app.alerts.buttons["New world"])
         XCTAssertEqual(XCTWaiter.wait(for:[disabled],timeout:5),.completed)
         app.alerts.buttons["Cancel"].tap();wait(app.buttons["offlineResumeButton"])
-        app.buttons["offlineNewButton"].tap();wait(seed);seed.tap()
+        app.buttons["offlineNewButton"].tap();wait(change);change.tap();wait(seed);seed.tap()
         seed.typeText(String(repeating:XCUIKeyboardKey.delete.rawValue,count:(seed.value as? String ?? "").count)+"-42")
         app.alerts.buttons["New world"].tap();wait(app.buttons["breakButton"]);waitTerrain()
         textContains("cityStatus","Seed -42")

@@ -1,0 +1,56 @@
+{
+  "sourceHead": "575636547b85363b2f7ab2124c0534d574cbf428",
+  "runUrl": "https://github.com/jaymsDooku/voxel-one/actions/runs/44642981796",
+  "observedResult": {
+    "status": "failed",
+    "exitCode": 124,
+    "deadlineSeconds": 900,
+    "started": 15,
+    "passed": 14,
+    "failed": 0,
+    "unfinished": 1,
+    "required": 36,
+    "openCase": "NativeWorkflowTests.testOnlineLoginCityPlanningAndReconnect",
+    "slowestRetainedClosedCase": "testIncrementalMeshEditsBackgroundAndRestart",
+    "observerElapsedSeconds": 93
+  },
+  "trustedVerifierHead": "8a53afce99e735a7574bffab70558252577b387b",
+  "trustedVerifierCheck": "GitHub run metadata confirms workflow_dispatch on master at the reviewed validator commit.",
+  "changes": [
+    "Default New world confirmation has no text field or automatic keyboard; Change seed retains signed64-bit editing, validation and cancellation.",
+    "Routine fixed step events are private observer input; only final allowlisted step summary uses an error marker.",
+    "All36 native cases and900-second deadline retained."
+  ],
+  "executedChecks": [
+    {
+      "command": "python3 -m unittest discover -s tools/ios -p 'test_*.py'",
+      "result": "77 passed; Linux mock/harness tests only. Includes actual bounded diagnostic collector integration."
+    },
+    {
+      "command": "python3 ios/make-project.py",
+      "result": "passed"
+    },
+    {
+      "command": "python3 -m py_compile ios/make-project.py ios/native-test-runner.py ios/check-results.py tools/ios/test_native_deadline.py",
+      "result": "passed"
+    },
+    {
+      "command": "bash -n ios/check-simulator.sh ios/archive-device.sh",
+      "result": "passed"
+    },
+    {
+      "command": "git diff --check",
+      "result": "passed"
+    }
+  ],
+  "Playtest": "Failed exact source57563654 returned no complete gameplay result or client media. Native default confirmation -> Change seed -> invalid-input Cancel -> seed -42 -> edit -> save -> cold restart plus all36 cases remain pending. Browser playtesting does not apply to this native iOS flow or CLI harness.",
+  "limits": [
+    "The effect of removing keyboard transitions remains unmeasured until the new native run.",
+    "No current native pass or physical iPhone qualification claimed.",
+    "Full engine parity, streaming, live VPS, signed artifact and actual iPhone installation remain open."
+  ],
+  "diffAudit": {
+    "reviewBase": "8a53afce99e735a7574bffab70558252577b387b",
+    "deletedFiles": []
+  }
+}

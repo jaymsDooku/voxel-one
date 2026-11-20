@@ -935,3 +935,37 @@ Playtest: optimized native generation, all36 native cases and real gameplay
 media require a fresh exact-source Mac run. No current native pass claimed.
 Full streaming/distant terrain, complete parity, live VPS, signed installation,
 physical iPhone playtesting and device performance qualification remain open.
+
+Seed confirmation and diagnostic extraction recovery
+Source575636547b85363b2f7ab2124c0534d574cbf428 again reached900 seconds.
+Observed15 started,14 passed,0 failed,1 unfinished,36 expected. City login was
+open; the retained slowest completed case was incremental mesh/background/
+restart at93 observer seconds. The optimized build alone did not resolve the
+suite deadline. No complete native qualification or gameplay media returned.
+Run: https://github.com/jaymsDooku/voxel-one/actions/runs/44642981796
+Run metadata again confirms trusted workflow_dispatch master8a53afce99e735a7574bffab70558252577b387b.
+
+Default New world confirmation now shows seed748291 without a text field, so
+UIKit does not open a keyboard for every new-world operation. Change seed opens
+the validated signed64-bit editor. Creation with default and custom seeds still
+uses native procedural generation; replacement confirmation, invalid-input
+creation guard, Cancel preserving the existing save and save/relaunch remain.
+The existing seed UI case now also checks the default route has no keyboard
+and exercises Change seed before both invalid and negative seed input.
+This removes repeated UI transitions; its effect on the aggregate native runtime
+still needs measurement. No timeout increase, case removal or native pass claimed.
+
+Routine allowlisted step events are observed privately without error prefixes.
+Only the runner's final failure summary emits the last step as an error marker.
+Previously four normal tool-step errors consumed half the trusted eight-line
+native-test diagnostic allowance, hiding later timings. A Linux integration test
+runs a bounded synthetic child, exceeds128KiB output, hits its1-second deadline,
+and uses the actual trusted diagnostic collector: counts, closed/open timings,
+last step and finalization state all survive within eight exported lines.
+No trusted collector limit or privacy boundary changed; no raw logs published.
+
+Executed77 Linux harness checks. Project generation, Python compilation, shell
+syntax and diff checks passed. No files deleted against8a53afce99e735a7574bffab70558252577b387b.
+Playtest: new default/Change seed native controls, all36-case qualification and
+fresh app media require exact-source Mac execution. Physical iPhone signing,
+installation, live VPS, full streaming/parity and device performance remain open.

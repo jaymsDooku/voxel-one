@@ -13,7 +13,7 @@ import time
 
 TAIL_BYTES = 65536
 _CHECKPOINT_CODES = {"model_terrain", "camera_terrain", "model_place", "model_half_place", "model_collect", "graphics_open", "graphics_draft", "graphics_saved", "graphics_landscape", "graphics_reset_cancel", "graphics_high", "tools_sticks", "tools_craft", "tools_place", "tools_restart", "terrain_seed", "sky_create", "sky_horizon", "sky_sun_first", "sky_restart", "sky_sun_restart"}
-_CHECKPOINT = re.compile(r"error: native_workflow_checkpoint code=([a-z_]{1,32})$")
+_CHECKPOINT = re.compile(r"(?:error: )?native_workflow_checkpoint code=([a-z_]{1,32})$")
 _TEST = re.compile(
     r"^Test Case '-\[VoxelOneUITests\.(NativeWorkflowTests|WorldRulesTests|GraphicsRulesTests) "
     r"(test[A-Za-z0-9_]{1,96})\]' (started|passed|failed)(?:[ .(]|$)"
