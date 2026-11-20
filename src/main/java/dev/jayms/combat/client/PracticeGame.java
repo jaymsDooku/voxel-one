@@ -566,8 +566,11 @@ public final class PracticeGame {
         ui.text("Basalt Courtyard  /  " + title, 27, 24, 1.4f);
         String state = stateText(actor);
         ui.text(state, 27, 47, 1.05f, .66f, .84f, .90f, 1);
-        if (factions) ui.text("Z/X: team  F1-F5: class  R: ability  C: resupply  V: raid  L: logout",
-                22, height - 22, 1.05f);
+        if (factions) {
+            String actions = "Z/X: team  F1-F5: class  R: ability  C: resupply  V: raid  L: logout";
+            ui.rectangle(16, height - 13, ui.textWidth(actions, 1.05f) + 12, 13, .031f, .05f, .065f, .90f);
+            ui.text(actions, 22, height - 11, 1.05f);
+        }
         int line = 0;
         for (String status : view.status()) {
             ui.rectangle(16, 76 + line * 19, ui.textWidth(status, 1f) + 22, 19, .031f, .05f, .065f, .86f);
@@ -646,9 +649,13 @@ public final class PracticeGame {
         for (int i = 0; i < 9; i++)
             drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
-        String timers = "Armor " + armor + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
+        String held = PracticeItemIcons.name(selectedItem());
+        String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor
+                + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";
-        ui.text(timers, x, y + 52, 1.02f);
+        float timerScale = Math.min(1.02f, 532f / Math.max(1, ui.textWidth(timers, 1f)));
+        ui.rectangle(x, y + 48, ui.textWidth(timers, timerScale) + 8, 13, .031f, .05f, .065f, .90f);
+        ui.text(timers, x + 4, y + 51, timerScale);
         if (view.phase() == Phase.RESULT) {
             for (Fighter fighter : view.fighters()) {
                 String result = String.format(Locale.ROOT, "%s  HP %.1f  Hits %d  Combo %d  Pots used %d  Left %d",
@@ -664,6 +671,10 @@ public final class PracticeGame {
         ui.text(view.phase() == Phase.WAITING ? "Kit layout" : "Inventory", x, y - 33, 1.6f);
         ui.text("Click two slots  |  Shift-click to move  |  Hotbar key to swap hovered slot", x, y - 15, 1.05f);
         int hovered = hoveredInventorySlot();
+        if (hovered >= 0) {
+            String name = PracticeItemIcons.name(view.inventory().get(hovered).item());
+            if (!name.isEmpty()) ui.text(name, x + 540 - ui.textWidth(name, 1.2f), y - 32, 1.2f);
+        }
         for (int i = 0; i < 36; i++)
             drawSlot(ui, view.inventory().get(i), i < 9 ? hotbarLabels[i] : null,
                     x + i % 9 * 60, y + i / 9 * 46, i == source, i == hovered);
@@ -674,18 +685,15 @@ public final class PracticeGame {
                 selected ? .48f : hovered ? .23f : .12f, hovered ? .29f : .17f, .95f);
         if (key != null) {
             float scale = Math.min(.9f, 48f / Math.max(1, ui.textWidth(key, 1)));
-            ui.text(key, x + 4, y + 5, scale, .70f, .79f, .87f, 1);
+            ui.text(key, x + 4, y + 3, scale, .70f, .79f, .87f, 1);
         }
         if (stack.count() == 0) return;
-        String label = switch (stack.item()) {
-            case HEALING -> "Heal";
-            case FIRE_RESISTANCE -> "FireRes";
-            case SLOWNESS -> "Slow";
-            default -> stack.item().name().substring(0, 1) + stack.item().name().substring(1).toLowerCase(Locale.ROOT);
-        };
-        float[] color = Blocks.color(renderItem(stack.item()));
-        ui.rectangle(x + 5, y + 20, 5, 10, color[0], color[1], color[2], 1);
-        ui.text(label, x + 13, y + 20, .9f);
-        if (stack.count() > 1) ui.text(Integer.toString(stack.count()), x + 38, y + 33, .88f);
+        PracticeItemIcons.draw(ui, stack.item(), x + 14, y + 9, 32);
+        if (stack.count() > 1) {
+            String count = Integer.toString(stack.count());
+            float countX = x + 55 - ui.textWidth(count, 1.1f);
+            ui.rectangle(countX - 2, y + 31, x + 57 - countX, 12, .025f, .04f, .06f, .95f);
+            ui.text(count, countX, y + 33, 1.1f);
+        }
     }
 }
