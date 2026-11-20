@@ -1,0 +1,28 @@
+{
+  "sourceSha": "cee2fbbd5d97b5f1bc40cbe866f91cc52e75c5f5",
+  "javaCounts": {
+    "tests": 24,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "pythonTests": 14,
+  "commands": [
+    "JAVA_HOME=/usr/lib/jvm/jdk-21.0.5-oracle-x64 python3 tools/hub/check_local.py",
+    "javac --release 17 -d target/hub-rebased/classes src/main/java/dev/jayms/launcher/*.java",
+    "javac --release 17 -cp target/hub-rebased/classes -d target/hub-rebased/classes tools/hub/HubPlaytest.java",
+    "java -Djava.io.tmpdir=<assigned-worktree>/target/hub-tmp -cp target/hub-rebased/classes HubPlaytest target/hub-rebased/media target/hub-rebased/profile"
+  ],
+  "environment": "Linux; JDK21 compiling Java17; inherited assigned DISPLAY/XAUTHORITY; synthetic profile and writable Maven/tmp under assigned worktree. Authentication cookie not read.",
+  "Playtest": "Passed Home/Games/detail/tools/downloads/settings, empty search, light theme, keyboard navigation, refresh, synthetic catalog entry and empty catalog; new library image inspected. Native gameplay/browser publication not qualified by this UI test.",
+  "diffAudit": "No deletions against 71612f09bfec4549456b3317676e76cdced085a4. Combat/HCF source and Main/GameIdentity match integrated master a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef. LoginDialog retains Practice/HCF and Hub handoff.",
+  "pending": [
+    "exact-source hosted Windows/macOS packaged checks",
+    "Mac native rendering",
+    "physical GPU/Windows DPI/performance",
+    "independent review",
+    "two published shell generations",
+    "deployed web provenance/cache upgrade"
+  ],
+  "fullQualificationPassed": false
+}

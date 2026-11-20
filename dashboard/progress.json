@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:22:08+00:00",
+  "updatedAt": "2026-11-20T13:24:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Building the catalog-driven desktop hub around verified client updates. Platform packaging and playtests remain required.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Fixed stale publication-pass reports: verification now resets before bundle parsing. Actual malformed CLI and 14 regressions pass. Public delivery check: catalog matches candidate; shell metadata differs and preview-2 asset returns 404. No public upgrade pass claimed.",
-      "updatedAt": "2026-11-19T16:43:32+00:00"
+      "note": "Rebase cee2fbbd verified locally: 24 Java and 14 Python tests pass; fresh Hub playtest/media cover pages, keyboard and catalog edges. Master combat/HCF retained, no unrelated deletions. Hosted/physical/publication gates remain pending.",
+      "updatedAt": "2026-11-20T13:24:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
