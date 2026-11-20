@@ -101,10 +101,12 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
     }
     private static final class Capture {
         final Ticket ticket;final ModelLibrary models;final Iterator<Protocol.Edit> edits;
+        final boolean preview;
         final List<WorldSkyVisibility.Geometry> chunks=new ArrayList<>();
         final List<WorldSkyVisibility.EditedCell> cells=new ArrayList<>();
         final Set<String> seen=new HashSet<>();int chunk;
         Capture(World w,ChunkPos column,ModelLibrary models) {
+            preview=w.isPreviewColumn(column);
             var positions=new ArrayList<>(w.skyMembers(column));var references=new ArrayList<Chunk>();long[] revisions=new long[positions.size()];
             for(int i=0;i<positions.size();i++){Chunk c=w.getLoadedChunks().get(positions.get(i));references.add(c);revisions[i]=c.geometryVersion();}
             ticket=new Ticket(w,column,positions,references,revisions,w.skyEditRevision(column),w.models().revision(),w.geometryRevision(column.chunkX(),column.chunkZ()),w.terrain().stressGrid(),w.skyTerrainEquivalent(column));
@@ -122,7 +124,7 @@ public final class SkyVisibilityScheduler implements AutoCloseable {
 
         }finally{dev.jayms.OwnerTrace.end(trace,chunk);}
     }
-        WorldSkyVisibility.Input input(){return new WorldSkyVisibility.Input(List.copyOf(chunks),List.copyOf(cells),models);}
+        WorldSkyVisibility.Input input(){return new WorldSkyVisibility.Input(List.copyOf(chunks),List.copyOf(cells),models,preview);}
     }
     private final Map<ChunkPos,Cached> cache=new ConcurrentHashMap<>();
     /** A generation-bounded view freezes membership without an owner-thread cache copy. */

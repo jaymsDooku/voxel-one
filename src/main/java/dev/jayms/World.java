@@ -18,9 +18,14 @@ public class World implements AutoCloseable {
 
     public long previewMeshRevision() { return previewMeshRevision; }
 
+    public boolean isPreviewColumn(ChunkPos column) {
+        return column.chunkX()>=0 && column.chunkX()<previewColumnsX &&
+                column.chunkZ()>=0 && column.chunkZ()<previewColumnsZ;
+    }
+
     private void sceneChanged(ChunkPos p) {
         sceneRevision++;
-        if (p.chunkX()>=0 && p.chunkX()<previewColumnsX && p.chunkZ()>=0 && p.chunkZ()<previewColumnsZ)
+        if (isPreviewColumn(p))
             previewMeshRevision++;
     }
 

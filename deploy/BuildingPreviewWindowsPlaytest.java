@@ -31,6 +31,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean clockLighting;
     private boolean facadeLighting;
     private boolean roofLighting;
+    private boolean shaftShadow;
     private PreviewFlickerPlaytest flicker;
     private DistantGridMotion distantGrid;
     private int clockFrames;
@@ -53,6 +54,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         probe.roofLighting=probe.grand && args.length==3 && args[2].equals("roof-lighting");
+        probe.shaftShadow=probe.grand && args.length==3 && args[2].equals("shaft-shadow");
         if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
         if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
@@ -61,7 +63,9 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
         if (probe.roofLighting) checkRoofLighting(output);
+        if (probe.shaftShadow) checkShaftShadow(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.shaftShadow ? "Captured the east and west sides of Elizabeth Tower and the approach at fixed daylight.\n" :
                 probe.roofLighting ? "Captured the sunlit central spire, slate dormers and stone facade at rest and in motion.\n" :
                 probe.distantGrid!=null ? "Captured the Palace grid at rest and over a cross-tile flight.\n" :
                 probe.flicker!=null ? "Captured settled Palace, flight, and clock detail under fixed daylight.\n" :
@@ -75,14 +79,15 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (roofLighting) glfwSetWindowSize(window,1280,720);
+        if (roofLighting || shaftShadow) glfwSetWindowSize(window,1280,720);
         else if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (roofLighting) placeFlying(game,99,75,-8,57,-5);
+        if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
+        else if (roofLighting) placeFlying(game,99,75,-8,57,-5);
         else if (clockLighting) placeFlying(game,49,77,-3,127,0);
         else if (grand) {
             player=(Player)field("player").get(game);
@@ -98,6 +103,13 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (shaftShadow) {
+            if (stage==1) {
+                float t=Math.min(1,(clockFrames+1)/96f);
+                placeFlying(game,56-15*t,59+3*t,-26+12*t,110+3*t,-6);
+            }
+            return;
+        }
         if (roofLighting) {
             if (stage==1) {
                 float t=Math.min(1,(clockFrames+1)/72f);
@@ -146,6 +158,22 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (shaftShadow) {
+            clockFrames++;
+            if (stage==0 && clockFrames==144) {
+                capture(game,"east-shaft.png");
+                pressRecord();
+            } else if (stage==1 && clockFrames==96) {
+                capture(game,"east-approach.png");
+                pressRecord();
+                placeFlying(game,-20,65,-18,57,-9);
+            } else if (stage==2 && clockFrames==96) {
+                capture(game,"west-shaft.png");
+                glfwSetWindowShouldClose(window,true);
+            } else return;
+            stage++;clockFrames=0;
+            return;
+        }
         if (roofLighting) {
             clockFrames++;
             if (stage==0 && clockFrames==144) {
@@ -271,6 +299,30 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             stage=3;
             glfwSetWindowShouldClose(window,true);
         }
+    }
+
+    private static void checkShaftShadow(Path output) throws Exception {
+        BufferedImage east=ImageIO.read(output.resolve("east-shaft.png").toFile());
+        BufferedImage approach=ImageIO.read(output.resolve("east-approach.png").toFile());
+        BufferedImage west=ImageIO.read(output.resolve("west-shaft.png").toFile());
+        for (BufferedImage image:new BufferedImage[]{east,approach,west})
+            if (image.getWidth()!=1280 || image.getHeight()!=720)
+                throw new AssertionError("Shaft measurements require the 1280 x 720 route");
+        // Compare the same sandstone and orientation above and below the old daylight cutoff.
+        int upper=pixelMedianLuma(east,674,238,700,255);
+        int lower=pixelMedianLuma(east,674,353,698,453);
+        int nearerUpper=pixelMedianLuma(approach,556,252,581,271);
+        int nearerLower=pixelMedianLuma(approach,557,383,583,485);
+        int front=pixelMedianLuma(east,724,467,793,522);
+        int window=pixelMedianLuma(east,576,285,584,313);
+        int opposite=pixelMedianLuma(west,689,488,725,538);
+        String report=String.format(Locale.ROOT,
+                "East shaft upper/lower %d/%d, approach %d/%d%nSunlit front %d, recessed gable window %d, west shaft %d%n",
+                upper,lower,nearerUpper,nearerLower,front,window,opposite);
+        Files.writeString(output.resolve("shaft-shadow.txt"),report);
+        if (lower<.65*upper || nearerLower<.65*nearerUpper || upper<65 || nearerUpper<65
+                || front-lower<45 || lower-window<25 || opposite<100)
+            throw new AssertionError(report);
     }
 
     private static void checkRoofLighting(Path output) throws Exception {

@@ -122,6 +122,37 @@ class WorldSkyVisibilityTest {
         }
     }
 
+    @Test void courtyardDetailPreservesVerticalSkyAroundTheColumnLimit()throws Exception{
+        // The two glass panes, small overhang and full ceiling use four segments.
+        // Isolated ledges below the ceiling take the preview through its column cap.
+        for(int ledges:new int[]{1,WorldSkyVisibility.MAX_COLUMN_SEGMENTS-4,WorldSkyVisibility.MAX_COLUMN_SEGMENTS-3}){
+            try(var lower=new Chunk();var upper=new Chunk()){
+                for(int i=0;i<ledges;i++){
+                    int leafY=i*2;
+                    lower.apply(new Protocol.Edit(8,leafY/16,8,Blocks.STONE,4,0,leafY%16,0));
+                }
+                upper.setBlock(8,0,8,Blocks.STONE);
+                upper.setBlock(8,2,8,Blocks.GLASS);
+                upper.setBlock(8,4,8,Blocks.GLASS);
+                upper.apply(new Protocol.Edit(8,22,8,Blocks.STONE,4,0,0,0));
+                var chunks=java.util.List.of(
+                        new WorldSkyVisibility.Geometry(new ChunkPos(0,0,0),lower.snapshot()),
+                        new WorldSkyVisibility.Geometry(new ChunkPos(0,1,0),upper.snapshot()));
+                for(boolean preview:new boolean[]{false,true}){
+                    var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(chunks,java.util.List.of(),
+                            new dev.jayms.net.model.ModelLibrary(),preview));
+                    String profile="ledges="+ledges+", preview="+preview;
+                    assertEquals(0,sky.sample(8.5f,15.75f,8.5f),profile);
+                    assertEquals(.49f,sky.sample(8.5f,17.25f,8.5f),.00001f,profile);
+                    assertEquals(.7f,sky.sample(8.5f,19.25f,8.5f),.00001f,profile);
+                    assertEquals(1,sky.sample(8.5f,21.25f,8.5f),profile);
+                    assertEquals(0,sky.sample(8.01f,21.25f,8.01f),profile);
+                    assertEquals(1,sky.sample(8.01f,22.0625f,8.01f),profile);
+                }
+            }
+        }
+    }
+
     @Test void boundedRowDirectoryKeepsSparseAndNegativeColumnsExact()throws Exception{
         try(var world=new World()){
             for(int[] p:new int[][]{{-2,-3},{-2,-2},{-1,-3},{-1,-1},{1,4}})world.apply(new Protocol.Edit(p[0],10,p[1],Blocks.GLASS));
