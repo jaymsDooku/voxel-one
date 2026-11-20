@@ -53,6 +53,13 @@ public final class BasaltCourtyard {
         return x >= MIN_X && x < MAX_X && z >= MIN_Z && z < MAX_Z && y >= FLOOR_Y;
     }
 
+    /** The faction owning this Z coordinate, or -1 for neutral ground. */
+    public static int factionTerritory(double z) {
+        if (z >= 11.5) return 0;
+        if (z <= -11.5) return 1;
+        return -1;
+    }
+
     /** Pearls and splash potions can arc above the court's player ceiling. */
     public static boolean throwableSolid(int x, int y, int z) {
         return containsThrowable(x, y, z) && block(x, y, z) != Blocks.AIR;

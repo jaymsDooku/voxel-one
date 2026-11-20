@@ -96,11 +96,12 @@ public final class CombatEngine {
     public record Stats(int hits, int longestCombo, int potsUsed, int potsRemaining) {}
     public record ProjectileState(long id, int ownerId, Item item, Vec3 position) {}
     public record Event(EventType type, int actorId, int targetId, Item item, Vec3 position, double amount) {}
+    /** Velocity describes the last step. A hit impulse is the carried motion for the next step. */
     public record PlayerState(int id, Vec3 feet, Vec3 velocity, float yaw, float pitch, boolean grounded,
                               boolean sprinting, double health, int food, int slot, List<Stack> inventory,
                               List<Integer> durability, Map<Effect, Integer> effects, int pearlCooldownTicks,
                               Stats stats, int killerId, long sequence, long hurtTick, long motionEpoch,
-                              long lastHorizontalWallTick) {}
+                              long lastHorizontalWallTick, long impulseTick, Vec3 hitImpulse) {}
 
     private static final Stack EMPTY = new Stack(Item.EMPTY, 0);
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
@@ -446,10 +447,11 @@ public final class CombatEngine {
             actor.sprinting = false;
             actor.lastHorizontalWallTick = arenaTick;
         }
-        if (actor.velocity.y < 0) actor.fallDistance -= actor.velocity.y;
         if (actor.grounded) {
-            if (actor.fallDistance > 3.5) applyDamage(actor, 0, Math.floor(actor.fallDistance - 3));
+            applyFallDamage(actor, 0, Math.ceil(actor.fallDistance - 3));
             actor.fallDistance = 0;
+        } else if (actor.velocity.y < 0) {
+            actor.fallDistance -= actor.velocity.y;
         }
     }
 
@@ -470,10 +472,12 @@ public final class CombatEngine {
             motion = motion.scale(HIT_MOTION_RETENTION).add(incoming);
             motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z);
         }
-        // Apply the sprint impulse after base knockback. Limit added lift for PotPvP,
-        // while preserving a jump already moving upward faster than the hit cap.
-        double lift = Math.max(motion.y, Math.min(rules.lift(), motion.y + sprintPush.y));
-        actor.motion = new Vec3(motion.x + sprintPush.x, lift, motion.z + sprintPush.z);
+        // Paper caps base lift before applying the independent sprint impulse.
+        actor.motion = motion.add(sprintPush);
+        if (incoming != null || sprintPush.y > 0) {
+            actor.impulseTick = currentTick;
+            actor.hitImpulse = actor.motion;
+        }
     }
 
     private void melee(Actor attacker, Click click) {
@@ -536,11 +540,9 @@ public final class CombatEngine {
 
     private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
-        // Only a larger raw strike gets through during Paper's protected half of the hurt window.
         boolean fullHit = target.hurtTicks == 0;
-        double acceptedDamage = fullHit ? rawDamage : rawDamage - target.lastDamage;
+        double acceptedDamage = acceptRawDamage(target, rawDamage);
         if (acceptedDamage <= 0) return false;
-        target.lastDamage = rawDamage;
 
         double armorDamage = target.useHeld && target.selected() == Item.SWORD
                 ? (acceptedDamage + 1) * .5 : acceptedDamage;
@@ -579,8 +581,27 @@ public final class CombatEngine {
     }
 
     private void beginHitMotion(Actor target, Vec3 away) {
-        target.hurtTicks = rules.hurtTicks();
         target.pendingKnockback = away.scale(rules.knockback()).add(0, rules.lift(), 0);
+    }
+
+    private double acceptRawDamage(Actor target, double amount) {
+        if (target.hurtTicks == 0) {
+            target.hurtTicks = rules.hurtTicks();
+            target.lastDamage = amount;
+            return amount;
+        }
+        // Only a larger raw hit gets through during Paper's protected half of the hurt window.
+        double difference = amount - target.lastDamage;
+        if (difference > 0) target.lastDamage = amount;
+        return difference;
+    }
+
+    private void applyFallDamage(Actor target, int sourceId, double amount) {
+        if (amount <= 0) return;
+        boolean fullHit = target.hurtTicks == 0;
+        double damage = acceptRawDamage(target, amount);
+        if (target.has(Effect.RESISTANCE)) damage *= .8;
+        applyDamage(target, sourceId, damage, fullHit);
     }
 
     private void applyDamage(Actor target, int sourceId, double amount) {
@@ -726,7 +747,7 @@ public final class CombatEngine {
     private void pearlHit(Actor owner, Actor target, Vec3 contact) {
         if (target == null || target == owner || target.hurtTicks != 0 || !arena.canHarm(owner.id, target.id)) return;
         // Paper's zero-damage hit still causes a fresh hurt reaction and attributes it to the thrower.
-        target.lastDamage = 0;
+        acceptRawDamage(target, 0);
         target.hurtTick = currentTick;
         target.recentAttacker = owner.id;
         target.lastDamageTick = currentTick;
@@ -783,10 +804,12 @@ public final class CombatEngine {
         owner.jumpCooldown = 0;
         owner.pendingKnockback = null;
         owner.pendingSprintPush = ZERO;
+        owner.impulseTick = -1;
+        owner.hitImpulse = ZERO;
         owner.history.clear();
         owner.motionEpoch++;
         emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
-        applyDamage(owner, owner.id, rules.pearlDamage());
+        applyFallDamage(owner, owner.id, rules.pearlDamage());
     }
 
     private Vec3 pearlDestination(Actor owner, Vec3 previousPosition, Vec3 velocity) {
@@ -831,12 +854,13 @@ public final class CombatEngine {
         List<Stack> kit;
         Vec3 feet, motion = ZERO, velocity = ZERO;
         Vec3 pendingKnockback;
-        Vec3 pendingSprintPush = ZERO;
+        Vec3 pendingSprintPush = ZERO, hitImpulse = ZERO;
         final ArrayDeque<Pose> history = new ArrayDeque<>();
         Intent intent;
         Click attack;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
+        long impulseTick = -1;
         long lastSprintReleaseSequence = -1, lastSprintHitSequence = -1, lastHorizontalWallTick = -1;
         float yaw, pitch;
         boolean grounded, sprinting, slowAfterSprintHit, hitHorizontalWall;
@@ -871,7 +895,8 @@ public final class CombatEngine {
             return new PlayerState(id, feet, velocity, yaw, pitch, grounded, sprinting, health, food, slot,
                     List.copyOf(inventory), List.of(armor[0], armor[1], armor[2], armor[3]), Map.copyOf(effects),
                     pearlCooldown, new Stats(hits, longestCombo, potsUsed, potsRemaining), killerId, sequence,
-                    hurtTick, motionEpoch, lastHorizontalWallTick);
+                    hurtTick, motionEpoch, lastHorizontalWallTick, alive() ? impulseTick : -1,
+                    alive() ? hitImpulse : ZERO);
         }
     }
 

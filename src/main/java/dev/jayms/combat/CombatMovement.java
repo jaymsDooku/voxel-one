@@ -30,8 +30,8 @@ final class CombatMovement {
         Vec3 carried = state.motion();
         double x = clean(carried.x()), y = clean(carried.y()), z = clean(carried.z());
         int cooldown = input.jump() ? Math.max(0, state.jumpCooldown() - 1) : 0;
-        // An existing upward impulse takes priority over the ground jump.
-        boolean jumped = input.jump() && state.grounded() && y <= 0 && cooldown == 0;
+        // Paper handles a grounded jump before travel, even if a hit already supplied upward motion.
+        boolean jumped = input.jump() && state.grounded() && cooldown == 0;
         Vec3 heading = CombatGeometry.direction(input.yaw(), 0);
         if (jumped) {
             cooldown = JUMP_COOLDOWN;
@@ -49,9 +49,7 @@ final class CombatMovement {
         x += (heading.x() * input.forward() - heading.z() * input.strafe()) * strength;
         z += (heading.z() * input.forward() + heading.x() * input.strafe()) * strength;
 
-        Vec3 next = CombatGeometry.move(arena, id, feet, y, 1);
-        next = CombatGeometry.move(arena, id, next, x, 0);
-        next = CombatGeometry.move(arena, id, next, z, 2);
+        Vec3 next = CombatGeometry.clipMovement(arena, id, feet, new Vec3(x, y, z));
         Vec3 displacement = next.minus(feet);
         boolean blockedX = clipped(x, displacement.x());
         boolean blockedY = clipped(y, displacement.y());
