@@ -1,0 +1,270 @@
+{
+  "schema": 1,
+  "source_head": "16d7b4433488cbb21e7665d49f262bdcec043cc9",
+  "review_base": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "publication": "Local evidence pending controller publication",
+  "status": "Available final-source functional checks passed. Required implementation and qualification remain pending; not ready.",
+  "source_changes_this_validation": "No production Java or harness edits. Rebase preserved all prior 580 production/test Java files and added two arena Java files plus its preview from the updated review base.",
+  "audit": {
+    "source_head": "16d7b4433488cbb21e7665d49f262bdcec043cc9",
+    "review_base": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+    "base_identical_paths": [
+      ".github/workflows/hub-preview-registration-test.yml",
+      ".github/workflows/hub-publication-prepare.yml",
+      "deploy/tests/test_hub_preview_registration.py",
+      "deploy/MusicMp3DecodeSmoke.java",
+      "deploy/MusicMp3Smoke.java",
+      "deploy/generate_music_mp3_fixtures.py",
+      "deploy/run_music_mp3_smoke.py",
+      "src/test/java/dev/jayms/MusicMp3Test.java",
+      "src/test/resources/music/cbr-stereo.mp3",
+      "src/test/resources/music/vbr-mono.mp3",
+      "dashboard/evidence/asset-manager-catalog.png",
+      "dashboard/evidence/asset-manager-invalid.png",
+      "dashboard/evidence/asset-manager-skyscraper.png",
+      "dashboard/evidence/asset-manager-upload.png"
+    ],
+    "combat_files_identical_to_base": [
+      "src/main/java/dev/jayms/combat/CombatEvent.java",
+      "src/main/java/dev/jayms/combat/CombatIntent.java",
+      "src/main/java/dev/jayms/combat/CombatRules.java",
+      "src/main/java/dev/jayms/combat/CombatSimulation.java",
+      "src/main/java/dev/jayms/combat/CombatWorld.java",
+      "src/main/java/dev/jayms/combat/KitProfile.java",
+      "src/main/java/dev/jayms/combat/Vec3.java",
+      "src/main/java/dev/jayms/combat/arena/BasaltCourtyard.java",
+      "src/main/java/dev/jayms/combat/package-info.java",
+      "src/test/java/dev/jayms/combat/CombatBoundaryTest.java",
+      "src/test/java/dev/jayms/combat/CombatFoundationPlaytest.java",
+      "src/test/java/dev/jayms/combat/CombatSimulationTest.java",
+      "src/test/java/dev/jayms/combat/TestCombatWorld.java",
+      "src/test/java/dev/jayms/combat/arena/BasaltCourtyardTest.java"
+    ],
+    "preview_identical_to_base": "deploy/BasaltCourtyardPreview.java",
+    "unchanged_prior_java_sources": 580,
+    "new_java_sources": [
+      "src/main/java/dev/jayms/combat/arena/BasaltCourtyard.java",
+      "src/test/java/dev/jayms/combat/arena/BasaltCourtyardTest.java"
+    ],
+    "deleted_paths": []
+  },
+  "diff_path_counts": {
+    "M": 40,
+    "A": 1409
+  },
+  "intended_removed_lines": "Replay/model/save/wire/render changes replace prior paths, and protocol 31 retains city command/frame IDs. Compatibility assertions follow that protocol change. Functional scheduler tests separate bounded ticket capture from performance qualification. No unrelated file deletion is intended.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest",
+      "test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 274.108182689175,
+    "suites": 54,
+    "tests": 260,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 9.61270316131413,
+    "status": "passed",
+    "discovery_patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra_discovery": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Inline Python unittest loader; fresh TestLoader per discovery, run after Maven completed"
+  },
+  "initial_python_attempt": {
+    "result": {
+      "tests": 39,
+      "failures": 3,
+      "errors": 1,
+      "skips": 0,
+      "elapsed_seconds": 9.710104938596487,
+      "status": "failed",
+      "discovery_patterns": [
+        "test_admission.py",
+        "test_fixtures.py",
+        "test_handoff.py",
+        "test_probe.py",
+        "test_qualification.py",
+        "test_undo_storage.py"
+      ],
+      "extra_discovery": "deploy/tests/test_hub_preview_registration.py",
+      "method": "Inline python3 unittest runner; fresh TestLoader per discovery"
+    },
+    "cause": "Class-dependent Python checks ran concurrently with Maven compilation; target/classes was being rebuilt. Three NoClassDefFoundError failures and one javac error occurred. Serial rerun after Maven passed without changing source or tests.",
+    "status": "failed; not counted as a pass"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "status": "passed",
+    "production_classes_match": 749,
+    "jar_sha256": "856390c2e7506839cd314e501d695e8b4443df5a3231e0c40797b14fee9cc8b3",
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "replay": {
+    "command": "python3 tools/structures/run_replay_sky_frame_check.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-16d7-replay",
+    "status": "passed",
+    "report": "structure-integrated-16d7-replay.json",
+    "source_files": 582,
+    "compiled_classes": 1193,
+    "all_source_class_helper_driver_image_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12207877177,
+      "planar_lighting_nanos": 1642489379,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12234505649,
+      "planar_lighting_nanos": 721722009,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "media_inspected": [
+      "structure-integrated-16d7-replay-pending-optics.png",
+      "structure-integrated-16d7-replay-pending.png",
+      "structure-integrated-16d7-replay-optics.png",
+      "structure-integrated-16d7-replay-regression.png"
+    ],
+    "scope": "Actual source-worker save/paging cancellation/cleanup integration checks and lit planar/pending/ordinary/model/water GPU regressions; single-run software diagnostics, not city/GPU/network qualification."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "opengl": "4.5 (Core Profile) Mesa 22.3.6",
+    "compilation": "release 17; execution JDK25",
+    "display": "Inherited assigned role DISPLAY and XAUTHORITY; authentication cookie was not read or emitted."
+  },
+  "remaining": [
+    "Atomic World/source/view installation and reconciliation, model rebasing, live tail coordination and Main large-world paging remain unfinished.",
+    "Current geometry/chunk caps cannot admit required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU and shaped-network synchronization to 32 clients, memory/frame/tick/traffic/upload budgets remain pending.",
+    "Visible custom-model colour/lighting investigation remains pending.",
+    "Fresh exact-source hosted checks and independent review remain required."
+  ],
+  "claims": "No supported-city, supported-limit, stable-rollout, frame-time, physical-GPU or 32-client qualification pass.",
+  "main": {
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 605883,
+      "timeout_seconds": 900
+    },
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-integrated-16d7-main-structure-native-source.json",
+      "source_manifest_sha256": "4662d334f978157b93b9d006df849b5fec9f37124f1c78590155814b0d21b1f4",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-integrated-16d7-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "matched_source_files": 266,
+    "expected": "Complete named capture, long-path import, browsing, four rotations, footprint/anchor/conflict preview, occupied/player overlap rejection, empty-space preservation, atomic cancellation and undo, repeated placement, restart/dependency recovery, inventory and model editor checks.",
+    "observed": "All functional assertions reached workflow-passed; world/save checks and regressions completed. This is not city, visible colour/lighting or performance qualification."
+  },
+  "video": {
+    "decodedFrames": 23,
+    "durationSeconds": 48.005,
+    "bytes": 434762,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 11,
+    "videoSha256": "fc61c0b40c02e5a7ea35d974b9a141f095e8c0e0da44019853ccbc396b6a7fc7",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "command": "java -Djava.io.tmpdir=\"$PWD/target/reviewer-tmp\" -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/InspectStreamingVideo.java dashboard/evidence/structure-integrated-16d7-main-structure-workflow.mp4 dashboard/evidence/structure-integrated-16d7-video-midpoint.png dashboard/evidence/structure-integrated-16d7-video.json"
+  },
+  "visual_inspection": {
+    "images": [
+      "structure-integrated-16d7-main-structure-preview-conflict.png",
+      "structure-integrated-16d7-main-structure-preview-3.png",
+      "structure-integrated-16d7-main-structure-import-cancelled.png",
+      "structure-integrated-16d7-main-structure-component-closeup.png",
+      "structure-integrated-16d7-video-midpoint.png"
+    ],
+    "observed": "Red blocked and green 270-degree footprints, anchor, cancellation feedback and placed house visible. Custom-model surfaces and held hand remain very dark/black. Main HUD shows 0\u20131 FPS. Every video frame decoded; midpoint visually inspected. No visible colour/lighting or frame-time qualification pass."
+  },
+  "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions. Native desktop execution on inherited assigned DISPLAY with isolated synthetic profile, LOW/detail32/horizon512/scale0.5, shadows/AA/dynamic resolution OFF, LP_NUM_THREADS=2. Browser playtesting does not apply to this Java/GLFW client. The source-worker replay/paging/save/cancellation integration CLI also ran before native rendering checks.",
+  "qualification": false,
+  "artifacts": {
+    "structure-integrated-16d7-main-structure-component-closeup.png": "b9059a7e244f98f42b864d7ce72633bf2d8d91c359bbb0bf3cc8befea0d27691",
+    "structure-integrated-16d7-main-structure-export-cancelled.png": "4070b0e11c347d5022acb3dedc59d0bdc536ff06b3d7b8f1afe51034e80e74d6",
+    "structure-integrated-16d7-main-structure-import-cancelled.png": "b59df8977afa5d587f5e25324bc471a31d96d27b917565437d345c403eba7ea3",
+    "structure-integrated-16d7-main-structure-invalid-anchor.png": "fbcfc856764f18a66ad7c32999025cbf50b49ad64469ba1dcb33e9d78f2ce982",
+    "structure-integrated-16d7-main-structure-library-capture.png": "8b6f30a8280a01fda615288ca52019d04229cfdd7f4dc7d2ec3957863957fe95",
+    "structure-integrated-16d7-main-structure-native-execution.json": "32371e04d619447d0e3812c8aca4d2404e2d6721a3f6b902ff333a3003753bda",
+    "structure-integrated-16d7-main-structure-native-result.json": "c4dfc13fd3318654b4b29492b252f13fd4e7785f9115ffd35ad5821caf090bb0",
+    "structure-integrated-16d7-main-structure-native-source.json": "dcf5a40e3b5b8f9333eb591e2dc24e6693c842535f02343db6abbd526c82a832",
+    "structure-integrated-16d7-main-structure-native-stage.json": "41915ddffc00d69d7957eddbf96677dfc08a5256ef545fd057974ceeb70ae858",
+    "structure-integrated-16d7-main-structure-placed.png": "9a55b91955ee1243f47a49b492ccc942383548b65a57fc090ada2fecffffbd95",
+    "structure-integrated-16d7-main-structure-player-conflict.png": "0c730721dc4bc0670e608bbc0d5eb443c1ec351e56ebe5c62ca6feabbcb6aa15",
+    "structure-integrated-16d7-main-structure-preview-0.png": "312cd323a7f96f14e1321b1301d92d20e38c3d4a83927c5ee455489c8ce0adb2",
+    "structure-integrated-16d7-main-structure-preview-1.png": "a47256edca2aa53dd990964037f3150a0633f3816677213fe7878561cf8b2534",
+    "structure-integrated-16d7-main-structure-preview-2.png": "6acce5bbc0a735b73e99528ceaa528f7d78c084b6f38a248414398229c22fcee",
+    "structure-integrated-16d7-main-structure-preview-3.png": "4c9fc07c85553c83100d84826f609cc1f0a7144f9de0ac06e90861ed7493ed34",
+    "structure-integrated-16d7-main-structure-preview-conflict.png": "39f5d450e29e167f7c71761af5328310fb1c2ee869305afce470a8fe0f3401e0",
+    "structure-integrated-16d7-main-structure-undo-cancelled.png": "b637055b4069232385203b5552ffe3da7bff62e2348deec9345ce3f14e320f4d",
+    "structure-integrated-16d7-main-structure-workflow.mp4": "fc61c0b40c02e5a7ea35d974b9a141f095e8c0e0da44019853ccbc396b6a7fc7",
+    "structure-integrated-16d7-main-structure-world-placed.png": "115b321e7e3c9c8a263960d0fbb0b51c40de171a1b3d87aa0fdfe2a1ab7a7345",
+    "structure-integrated-16d7-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-integrated-16d7-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-integrated-16d7-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-integrated-16d7-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-integrated-16d7-replay.json": "0f149fed5ded6388b09b082b19062335e1e0646e087ffbe959ab3672d287ec92",
+    "structure-integrated-16d7-video-midpoint.png": "fc72c5b62b1ab8108f3434cb2fa18c603f67a22e2b4d57eca8b7786e650ea802",
+    "structure-integrated-16d7-video.json": "be1acd9ec0ed229b63485c51227c4584c4b61e0775dc7905bfd944ecf502b989"
+  }
+}
