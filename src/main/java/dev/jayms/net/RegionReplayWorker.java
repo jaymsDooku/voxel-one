@@ -237,6 +237,7 @@ final class RegionReplayWorker implements AutoCloseable {
     }
     // Owner-only transfer/binding receipts, never read by the worker.
     private LocalGame transferredMetadata;
+    private boolean preparingScene;
     private ModelLibrary transferredModels;
     private long transferredModelsRevision;
     private Binding targetBinding;
@@ -246,7 +247,7 @@ final class RegionReplayWorker implements AutoCloseable {
     LocalGame metadataResult(Revision current)throws IOException {
         owner();Objects.requireNonNull(current);
         synchronized(gate) {
-            if(stopping.get()||status.state()!=State.RUNNING)throw new IOException("Replay metadata not available");
+            if(stopping.get()||preparingScene||status.state()!=State.RUNNING)throw new IOException("Replay metadata not available");
             if(!current.equals(sourceRevision))throw new IOException("Replay metadata revision changed");
             if(metadata==null)throw new IOException("Replay metadata unavailable or already transferred");
             var result=metadata.transfer();metadata=null;
@@ -259,11 +260,48 @@ final class RegionReplayWorker implements AutoCloseable {
             RegionReplayOverlay pending,LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
         owner();Objects.requireNonNull(current);Objects.requireNonNull(pending);Objects.requireNonNull(expectedTarget);
         synchronized(gate) {
-            if(stopping.get()||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null
+            if(stopping.get()||preparingScene||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null
                     ||!Objects.equals(expectedFingerprint,fingerprint)||!expectedTarget.toAbsolutePath().normalize().equals(sourceTarget)
                     ||sourceOverlay!=pending)throw new IOException("Replay live-tail source mismatch");
             var result=metadata.transferCurrentTail(live,inventory,drops,health);metadata=null;
             transferredMetadata=result;transferredModels=result.models;transferredModelsRevision=result.models.revision();return result;
+        }
+    }
+    /** Fresh private scene and metadata transfer as one owner result. The caller
+     * owns this World/scene; the worker remains separately owned. No Main,
+     * editing, complete coverage or writable partial-save authority is granted. */
+    record PagingSession(LocalGame local,World world,Binding binding,RegionReplayScene scene) implements AutoCloseable {
+        @Override public void close()throws Exception {world.close();}
+    }
+    @FunctionalInterface interface OwnerGuard {void validate()throws IOException;}
+    PagingSession metadataResultCurrentScene(Revision current,String expectedFingerprint,Path expectedTarget,
+            RegionReplayOverlay pending,LocalGame live,Inventory inventory,Map<Integer,ItemDrop> drops,int health,
+            int sceneCapacity,int maxCellLeaves,OwnerGuard guard)throws IOException {
+        owner();Objects.requireNonNull(current);Objects.requireNonNull(pending);Objects.requireNonNull(expectedTarget);Objects.requireNonNull(guard);
+        if(sceneCapacity<1||sceneCapacity>2||maxCellLeaves<0||maxCellLeaves>RegionReplayChunk.MAX_CELL_LEAVES)
+            throw new IllegalArgumentException("Replay scene budget");
+        synchronized(gate) {
+            if(stopping.get()||preparingScene||status.state()!=State.RUNNING||!current.equals(sourceRevision)||metadata==null||targetBinding!=null
+                    ||!Objects.equals(expectedFingerprint,fingerprint)||!expectedTarget.toAbsolutePath().normalize().equals(sourceTarget)
+                    ||sourceOverlay!=pending)throw new IOException("Replay live-tail scene source mismatch");
+            World world=null;preparingScene=true;
+            try {
+                var capturedMetadata=metadata;var prepared=capturedMetadata.prepareCurrentTail(live,inventory,drops,health);var local=prepared.local();
+                world=new World(local.seed,local.models,local.generatorVersion);
+                var binding=new Binding(local,world);
+                var pump=binding.new ChunkPump(sceneCapacity,maxCellLeaves);binding.chunkPump=pump;
+                var scene=new RegionReplayScene(binding,pump,world,sceneCapacity);
+                world.attachReplayReadView(scene.readView());binding.baseline=world.beginReplayFence();
+                var session=new PagingSession(local,world,binding,scene);var models=local.models;long modelRevision=models.revision();
+                guard.validate();binding.baseline.validate(world);
+                if(stopping.get()||status.state()!=State.RUNNING||metadata!=capturedMetadata||targetBinding!=null)
+                    throw new IOException("Replay scene source changed during preparation");
+                // All staging is private and complete. No callbacks, allocation
+                // or cancellation after consuming the prepared metadata.
+                prepared.commit();metadata=null;transferredMetadata=local;transferredModels=models;transferredModelsRevision=modelRevision;targetBinding=binding;return session;
+            }catch(IOException|RuntimeException|Error failure) {
+                if(world!=null)try{world.close();}catch(Exception|Error cleanup){failure.addSuppressed(cleanup);}throw failure;
+            }finally{preparingScene=false;}
         }
     }
     /** Private detached-target session. This does not mark coverage loaded,

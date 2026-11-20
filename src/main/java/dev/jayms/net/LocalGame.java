@@ -70,10 +70,27 @@ public final class LocalGame {
         /** Caller supplies already validated, independent tail copies. Only the
          * private publication owner may reconcile a newly reopened source. */
         synchronized LocalGame transferCurrentTail(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
+            return prepareCurrentTail(current,inventory,drops,health).commit();
+        }
+        /** Allocates a private candidate without consuming this metadata. Caller
+         * still validates the source and independent tail copies before commit. */
+        synchronized PreparedTail prepareCurrentTail(LocalGame current,Inventory inventory,Map<Integer,ItemDrop> drops,int health)throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");
             if(current.replayComplete||current.city!=null||current.seed!=seed||current.generatorVersion!=generator)throw new IOException("Replay baseline owner mismatch");
-            var result=new LocalGame(this,current,inventory,drops,health);
-            transferred=true;models=null;this.inventory=null;this.drops=null;return result;
+            return new PreparedTail(new LocalGame(this,current,inventory,drops,health));
+        }
+        final class PreparedTail {
+            private final Thread owner=Thread.currentThread();
+            private final LocalGame local;
+            private PreparedTail(LocalGame local){this.local=local;}
+            LocalGame local()throws IOException {if(Thread.currentThread()!=owner)throw new IOException("Replay prepared tail owner required");return local;}
+            LocalGame commit()throws IOException {
+                if(Thread.currentThread()!=owner)throw new IOException("Replay prepared tail owner required");
+                synchronized(ReadbackMetadata.this) {
+                    if(transferred)throw new IOException("Replay metadata already transferred");
+                    transferred=true;models=null;inventory=null;drops=null;return local;
+                }
+            }
         }
         synchronized LocalGame transfer()throws IOException {
             if(transferred)throw new IOException("Replay metadata already transferred");

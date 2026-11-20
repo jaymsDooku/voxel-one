@@ -298,6 +298,28 @@ final class ReadbackSaveSnapshot {
                 }
             }finally{pagingAdopting=false;}
         }
+        /** Allocate and attach a fresh read-only World/scene before consuming
+         * metadata or acknowledging the saved journal prefix. Returns one
+         * coherent owner bundle; old World ownership and Main remain unchanged. */
+        RegionReplayWorker.PagingSession adoptPagingScene(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,int capacity,int maxCellLeaves,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                try(var acknowledgement=journal.prepareAcknowledgement(pending,cancel)) {
+                    validateGeometry(true);current.validate();
+                    var session=replacement.metadataResultCurrentScene(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health,capacity,maxCellLeaves,()->{
+                        StructurePackage.cancelled(cancel);validateGeometry(true);current.validate();
+                    });
+                    acknowledgement.commit();
+                    tailAdopted=true;overlayAcknowledged=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return session;
+                }
+            }finally{pagingAdopting=false;}
+        }
         /** Explicit saved-prefix acknowledgement after the matching owner transfer.
          * World edit reconciliation and source installation remain caller-owned. */
         RegionReplayOverlay acknowledgePagingOverlay(RegionReplayWorker replacement,BooleanSupplier cancel)throws IOException {
