@@ -49,7 +49,8 @@ public final class Controls {
         CHEAT_MISSILE("Cheats: drop city missile at view centre", GLFW_KEY_DELETE),
         CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
         ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11),
-        DROP_ITEM("Drop one held item", GLFW_KEY_Q);
+        DROP_ITEM("Drop one held item", GLFW_KEY_Q),
+        AUTO_CLICK("Toggle arena auto-click (9 CPS)", GLFW_KEY_G);
         public final String label;
         public final int defaultCode;
 

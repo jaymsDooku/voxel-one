@@ -73,6 +73,7 @@ public final class PracticeGame {
     private final Camera camera = new Camera();
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
     private final ArenaSprintToggle sprintToggle = new ArenaSprintToggle();
+    private final ArenaAutoClicker autoClicker = new ArenaAutoClicker();
     private final ArenaMotionTimeline motion = new ArenaMotionTimeline();
     private final String[] hotbarLabels = new String[SLOTS.length];
     private final Matrix4f projection = new Matrix4f();
@@ -226,6 +227,10 @@ public final class PracticeGame {
             while (!window.shouldClose()) {
                 window.pollEvents();
                 long now = System.nanoTime();
+                if (autoClicker.enabled() && autoClicker.poll(now, !inventory && canAnimateCombat()
+                        && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE && !useHeld())) {
+                    attack(now);
+                }
                 if (now >= frameInput) {
                     sendInput(observer, now);
                     if (offline == null) frameInput = Math.max(frameInput + STEP, now);
@@ -375,15 +380,21 @@ public final class PracticeGame {
     }
 
     private void combatPress(int key) {
-        if (controls.matches(BREAK, key) && canAnimateCombat()) {
-            hand.attack(selectedItem(), useHeld(), System.nanoTime());
-            sendCombatEdge(true, useHeld() || selectedItem() != Item.SWORD && usePressed);
+        if (controls.matches(AUTO_CLICK, key)) {
+            autoClicker.toggle();
+            return;
         }
+        if (controls.matches(BREAK, key) && !autoClicker.enabled() && canAnimateCombat()) attack(System.nanoTime());
         if (controls.matches(PLACE, key)) {
             usePressed = selectedItem() != Item.SWORD;
             if (canAnimateCombat()) hand.use(selectedItem(), System.nanoTime());
             if (selectedItem() == Item.SWORD && canAnimateCombat()) sendCombatEdge(false, true);
         }
+    }
+
+    private void attack(long now) {
+        hand.attack(selectedItem(), useHeld(), now);
+        sendCombatEdge(true, useHeld() || selectedItem() != Item.SWORD && usePressed);
     }
 
     private void releaseSwordBlock(int code) {
@@ -749,7 +760,8 @@ public final class PracticeGame {
         return switch (view.phase()) {
             case WAITING -> actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
             case COUNTDOWN -> "Get ready";
-            case FIGHT -> "Fight  /  " + (view.ticksLeft() / 20) + "s";
+            case FIGHT -> "Fight  /  " + (view.ticksLeft() / 20) + "s  |  "
+                    + Controls.keyName(controls.code(AUTO_CLICK)) + "  Auto-click " + (autoClicker.enabled() ? "ON (9 CPS)" : "off");
             case RESULT -> view.ticksLeft() > 0 ? "Round complete" : "Enter: ready for another round";
         };
     }

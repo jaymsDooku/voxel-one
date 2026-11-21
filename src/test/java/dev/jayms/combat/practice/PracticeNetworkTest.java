@@ -88,8 +88,8 @@ class PracticeNetworkTest {
             assertEquals(self(bob).hurtTick(), fighter(alice.view(), bob.id()).hurtTick());
             assertEquals(self(bob).hurtTick(), self(bob).impulseTick());
             assertEquals(self(bob).impulseTick(), fighter(alice.view(), bob.id()).impulseTick());
-            assertEquals(-.211457f, self(bob).impulseZ(), .0001f);
-            assertEquals(.3208f, self(bob).impulseY(), .0001f);
+            assertEquals(-.211457f * .546f, self(bob).impulseZ(), .0001f);
+            assertEquals((.3208f - .08f) * .98f, self(bob).impulseY(), .0001f);
             await(() -> {
                 var own = self(bob);
                 var remote = fighter(alice.view(), bob.id());

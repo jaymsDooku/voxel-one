@@ -1,12 +1,14 @@
 package dev.jayms.combat.client;
 
 import dev.jayms.combat.CombatEngine.Intent;
+import dev.jayms.Camera;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.practice.PracticeClient;
 import dev.jayms.combat.practice.PracticeMatch.*;
 import dev.jayms.combat.practice.PracticeServer;
+import dev.jayms.player.PlayerDimensions;
 import dev.jayms.net.SecureTransport;
 import dev.jayms.recording.ScreenRecorder;
 import dev.jayms.window.Window;
@@ -16,6 +18,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.List;
 import java.util.Locale;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
@@ -42,9 +45,7 @@ public final class PracticeNativePlaytest {
              var first = new PracticeClient("127.0.0.1", server.port(), identity.fingerprint(), "Aster");
              var second = new PracticeClient("127.0.0.1", server.port(), identity.fingerprint(), "Rowan")) {
             var peer = Executors.newSingleThreadScheduledExecutor();
-            long[] sequence = {0};
-            peer.scheduleAtFixedRate(() -> second.input(intent(second.view(), second.id(), ++sequence[0], false)),
-                    0, 50, TimeUnit.MILLISECONDS);
+            peer.scheduleAtFixedRate(new CounterPlayer(second, first.id()), 0, 16_666_667, TimeUnit.NANOSECONDS);
             try {
                 Observer observer = new Observer(first, second, output, args.length == 1);
                 try {
@@ -62,6 +63,44 @@ public final class PracticeNativePlaytest {
         }
     }
 
+    /** Hold W and use the same nine-CPS clock and rendered targeting as the visible client. */
+    private static final class CounterPlayer implements Runnable {
+        private final PracticeClient client;
+        private final int opponent;
+        private final ArenaMotionTimeline timeline = new ArenaMotionTimeline();
+        private final Camera camera = new Camera();
+        private final ArenaAutoClicker clicks = new ArenaAutoClicker();
+        private long frameNumber, sequence;
+
+        CounterPlayer(PracticeClient client, int opponent) {
+            this.client = client;
+            this.opponent = opponent;
+            clicks.toggle();
+        }
+
+        @Override public void run() {
+            var view = client.view();
+            long now = System.nanoTime();
+            timeline.observe(view.tick(), view.fighters(), now);
+            var frame = timeline.frame(now);
+            var local = timeline.sampleLocal(client.id(), frame.local(), now, false, view.phase() == Phase.FIGHT);
+            var target = timeline.sample(opponent, frame.remote());
+            boolean fighting = view.phase() == Phase.FIGHT && local != null && target != null;
+            boolean swing = clicks.poll(now, fighting);
+            if (++frameNumber % 3 != 0 && !swing || !fighting) return;
+            Vec3 feet = local.point();
+            Vec3 offset = new Vec3(target.x(), target.y(), target.z()).minus(feet);
+            camera.position().set((float) feet.x(), (float) (feet.y() + PlayerDimensions.EYE_HEIGHT), (float) feet.z());
+            float yaw = (float) Math.toDegrees(Math.atan2(offset.z(), offset.x()));
+            float pitch = aimPitch(offset.y(), Math.hypot(offset.x(), offset.z()));
+            camera.setYaw(yaw);
+            camera.setPitch(pitch);
+            sequence++;
+            client.input(new Intent(sequence, yaw, pitch, 1, 0, false, true, swing, false, 0,
+                    swing ? PracticeGame.displayedTarget(camera, CombatRules.NO_DEBUFF, local.pose(), List.of(target)) : null));
+        }
+    }
+
     private static final class Observer implements PracticeGame.FrameObserver {
         private final PracticeClient first, second;
         private final Path output;
@@ -71,6 +110,9 @@ public final class PracticeNativePlaytest {
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
         private double peakKnockbackHorizontal, peakKnockbackUp;
         private long lastSprintHit = -1, sampledLaunch = -1;
+        private final ArenaAutoClicker clicks = new ArenaAutoClicker();
+        private int previousHits;
+        private Vec3 displayedFeet;
         private double sampledLaunchSpeed;
         private int sprintHits, carriedLaunches, immediateImpulseCues, groundedSprintCues;
         private int betweenSnapshotFrames;
@@ -82,13 +124,21 @@ public final class PracticeNativePlaytest {
             this.second = second;
             this.output = output;
             this.captureMedia = captureMedia;
+            clicks.toggle();
         }
 
         @Override public Intent input(Intent controls, View view) {
-            return intent(view, first.id(), controls.sequence(), true);
+            Fighter self = fighter(view, first.id());
+            Vec3 offset = displayedFeet == null ? new Vec3(0, 0, 0)
+                    : new Vec3(presentX, presentY, presentZ).minus(displayedFeet);
+            Intent input = intent(view, first.id(), controls.sequence(), offset, clicks.poll(System.nanoTime(), view.phase() == Phase.FIGHT),
+                    self != null && self.hits() > previousHits);
+            if (self != null) previousHits = self.hits();
+            return input;
         }
 
         @Override public void sampled(long now, View view, double x, double y, double z, Vec3 confirmed) {
+            displayedFeet = new Vec3(x, y, z);
             trace.sample(now, view, first.id(), second.id(), x, y, z, confirmed);
         }
 
@@ -123,21 +173,21 @@ public final class PracticeNativePlaytest {
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.impulseTick() == view.tick() && sprintImpulse(b)) {
                 immediateImpulseCues++;
-                if (Math.abs(b.impulseY() - .4208) < .001) groundedSprintCues++;
+                if (Math.abs(b.vy() - .4208) < .001) groundedSprintCues++;
             }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
-                    && b.impulseTick() >= 0 && view.tick() > b.impulseTick() && view.tick() <= b.impulseTick() + 3) {
+                    && b.impulseTick() >= 0 && view.tick() >= b.impulseTick() && view.tick() <= b.impulseTick() + 2) {
                 double horizontal = Math.hypot(b.vx(), b.vz());
                 peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, horizontal);
                 peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
-                if (view.tick() == b.impulseTick() + 1 && sprintImpulse(b) && horizontal > 0) {
+                if (view.tick() == b.impulseTick() && sprintImpulse(b) && horizontal > 0) {
                     if (b.impulseTick() > lastSprintHit) {
                         lastSprintHit = b.impulseTick();
                         sprintHits++;
                     }
                     sampledLaunch = b.impulseTick();
                     sampledLaunchSpeed = horizontal;
-                } else if (view.tick() == b.impulseTick() + 2 && sampledLaunch == b.impulseTick()
+                } else if (view.tick() == b.impulseTick() + 1 && sampledLaunch == b.impulseTick()
                         && horizontal >= .45 * sampledLaunchSpeed) {
                     carriedLaunches++;
                 }
@@ -204,28 +254,33 @@ public final class PracticeNativePlaytest {
         }
     }
 
-    private static Intent intent(View view, int id, long sequence, boolean primary) {
+    private static Intent intent(View view, int id, long sequence, Vec3 displayedOffset, boolean swing, boolean wTap) {
         Fighter self = fighter(view, id);
         Fighter other = view.fighters().stream().filter(f -> f.id() != id).findFirst().orElse(null);
         if (self == null || other == null || view.phase() != Phase.FIGHT)
             return new Intent(sequence, id == 1 ? -90 : 90, 0, 0, 0, false, false, false, false, 0);
-        double dx = other.x() - self.x(), dz = other.z() - self.z(), range = Math.hypot(dx, dz);
+        double dx = displayedOffset.x(), dz = displayedOffset.z(), range = Math.hypot(dx, dz);
         float yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
-        float pitch = (float) Math.max(-89, Math.min(89, Math.toDegrees(Math.atan2(other.y() - self.y() - .68, range))));
-        boolean heal = primary && self.health() < 17 && self.used() == 0;
+        float pitch = aimPitch(displayedOffset.y(), range);
+        boolean heal = self.health() < 17 && self.used() == 0;
         int slot = 0;
         if (heal) {
             for (int i = 0; i < 9; i++) {
                 if (view.inventory().get(i).item() == Item.HEALING) { slot = i; break; }
             }
         }
-        boolean combo = primary && self.used() > 0;
-        boolean wTap = combo && other.impulseTick() >= 0 && view.tick() - other.impulseTick() < 2;
-        boolean advance = !wTap && range > (combo ? 2.75 : 2.35);
-        float forward = heal ? -.2f : advance ? 1 : 0;
-        boolean swing = !primary || combo && !wTap;
+        boolean advance = self.hits() == 0 || other.hits() == 0 || range >= 3.55
+                || swing && range - PlayerDimensions.RADIUS - .1 <= CombatRules.NO_DEBUFF.reach();
+        float forward = heal ? -.2f : wTap ? 0 : advance ? 1 : -1;
         return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0,
-                !heal && swing && sequence % 3 == 0, heal, slot);
+                swing && !heal, heal, slot);
+    }
+
+    private static float aimPitch(double elevation, double range) {
+        double eyeY = PlayerDimensions.EYE_HEIGHT;
+        double aimY = Math.max(elevation + .1, Math.min(eyeY, elevation + PlayerDimensions.HEIGHT));
+        float pitch = (float) Math.toDegrees(Math.atan2(aimY - eyeY, Math.max(.001, range - PlayerDimensions.RADIUS - .1)));
+        return Math.max(-89, Math.min(89, pitch));
     }
 
     private static Fighter fighter(View view, int id) {
@@ -234,7 +289,7 @@ public final class PracticeNativePlaytest {
 
     private static boolean sprintImpulse(Fighter fighter) {
         // A stronger hit during hurt protection can apply the sprint bonus on its own.
-        return fighter.impulseTick() > fighter.hurtTick() || fighter.impulseY() > (float) CombatRules.NO_DEBUFF.lift();
+        return fighter.impulseTick() > fighter.hurtTick() || fighter.vy() > (float) CombatRules.NO_DEBUFF.lift();
     }
 
     static void screenshot(Path destination, int width, int height) throws Exception {

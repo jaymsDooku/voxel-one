@@ -68,8 +68,16 @@ def bout(path, clicks_path, times, counts, phases, intervals):
         # A previous knockback can still be descending on screen at the next hit.
         # Only attribute a rise if the rendered feet were near launch height before this hit.
         launch_y = float(r["remoteY"])
+        displacement_y = float(r["remoteVy"])
+        carried_y = float(r["remoteImpulseY"])
+        # Older recordings held the launch for the following tick. New melee snapshots
+        # already contain the first displacement and publish its post-gravity remainder.
+        stepped = (abs(displacement_y - .4208) < .001
+                   and abs(carried_y - (.4208 - .08) * .98) < .001)
+        if stepped:
+            launch_y -= displacement_y
         if (int(r["tick"]) == hurt == int(r["remoteImpulseTick"])
-                and abs(float(r["remoteImpulseY"]) - .4208) < .001):
+                and (stepped or abs(carried_y - .4208) < .001)):
             counts["grounded"] += 1
             if (i < 1 or not rows[i-1]["remoteDisplayY"]
                     or abs(float(rows[i-1]["remoteDisplayY"]) - launch_y) > .025):

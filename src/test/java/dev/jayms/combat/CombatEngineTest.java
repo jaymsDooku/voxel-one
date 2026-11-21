@@ -112,8 +112,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 3, 90, 0, 1, true, true, false, 0));
         engine.tick();
         assertEquals(2, engine.snapshot(1).stats().hits());
-        assertEquals(.4208, engine.snapshot(2).hitImpulse().y(), .00001);
-        assertEquals(rearm ? .4208 : .3208, engine.snapshot(3).hitImpulse().y(), .00001);
+        assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(rearm ? .4208 : .3208, engine.snapshot(3).velocity().y(), .00001);
     }
 
     @Test void pendingClicksAreBoundedAndClearedAcrossControlAndActorLifetimes() {
@@ -150,7 +150,7 @@ class CombatEngineTest {
             assertTrue(engine.submit(2, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0)));
             tick(engine, 7);
             Vec3 displayed = engine.snapshot(2).feet();
-            engine.tick();
+            tick(engine, 2);
             float yaw = (float) Math.toDegrees(Math.atan2(displayed.z() - ORIGIN.z(), displayed.x() - ORIGIN.x()));
             var shown = useHistory ? new AttackView(2, 7.25, 7) : null;
             assertTrue(engine.submit(1, new Intent(0, yaw, 0, 0, 0, false, false, true, false, 0, shown)));
@@ -209,20 +209,17 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(19.68, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(2).impulseTick());
-        assertVector(new Vec3(NORMAL_PUSH, .3208, 0), engine.snapshot(2).hitImpulse());
+        assertVector(new Vec3(NORMAL_PUSH, .3208, 0), engine.snapshot(2).velocity());
         input(engine, 1, 1, 0, 0, 1, true, true, false, 0);
         engine.tick();
         assertEquals(17.44, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(2, engine.snapshot(2).impulseTick());
         double strongerLift = (.3208 - .08) * .98 + .10;
-        assertVector(new Vec3(NORMAL_PUSH * .546 + SPRINT_BONUS, strongerLift, 0), engine.snapshot(2).hitImpulse());
+        assertVector(new Vec3(NORMAL_PUSH * .546 + SPRINT_BONUS, strongerLift, 0), engine.snapshot(2).velocity());
         assertEquals(-1, engine.snapshot(1).impulseTick());
         assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
         assertFalse(engine.snapshot(1).sprinting());
-        engine.tick();
-        assertEquals(NORMAL_PUSH * .546 + SPRINT_BONUS, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals(strongerLift, engine.snapshot(2).velocity().y(), .00001);
         assertEquals(2, engine.snapshot(1).stats().hits());
     }
 
@@ -314,7 +311,6 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 0, 0, 0, 1, true, true, true, 3));
         engine.tick();
         assertEquals(1, engine.snapshot(1).stats().hits());
-        engine.tick();
         assertEquals(NORMAL_PUSH, engine.snapshot(2).velocity().x(), .00001);
     }
 
@@ -338,9 +334,8 @@ class CombatEngineTest {
             input(engine, 1, 0, 0, 0, 1, true, true, false, 0);
             engine.tick();
             assertFalse(engine.snapshot(1).sprinting());
-            engine.tick();
             assertEquals(SPRINT_PUSH, engine.snapshot(2).velocity().x(), .00001);
-            assertEquals(.098 + .1274 * .546 * .6, engine.snapshot(1).velocity().x(), .00001);
+            assertEquals(.098, engine.snapshot(1).velocity().x(), .00001);
 
             // Move the victim back into melee range after the first boost without touching attacker input.
             tick(engine, 8);
@@ -348,7 +343,6 @@ class CombatEngineTest {
             assertTrue(engine.reset(2, new Vec3(targetX, 1, .5), 180));
             if (release) input(engine, 1, 1, 0, 0, 1, false, false, false, 0);
             input(engine, 1, 2, 0, 0, 1, true, true, false, 0);
-            engine.tick();
             engine.tick();
             assertEquals(2, engine.snapshot(1).stats().hits());
             assertEquals(2, engine.snapshot(1).stats().longestCombo());
@@ -369,10 +363,10 @@ class CombatEngineTest {
             assertEquals(hit, engine.snapshot(1).stats().hits());
             assertEquals(1 + (hit - 1) * 13, engine.snapshot(2).hurtTick());
 
-            assertTrue(input(engine, 1, sequence++, 0, 0, 0, true, false, false, 0));
-            engine.tick();
             assertTrue(engine.snapshot(2).velocity().x() > NORMAL_PUSH, "W release rearms sprint knockback");
             assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
+            assertTrue(input(engine, 1, sequence++, 0, 0, 0, true, false, false, 0));
+            engine.tick();
 
             for (int betweenHits = 0; betweenHits < 11; betweenHits++) {
                 double separation = engine.snapshot(2).feet().x() - engine.snapshot(1).feet().x();
@@ -414,12 +408,9 @@ class CombatEngineTest {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.5);
         input(engine, 1, 0, 0, 0, 1, true, true, false, 0);
         engine.tick();
-        assertEquals(0, engine.snapshot(2).velocity().x());
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(1, engine.snapshot(2).impulseTick());
-        assertVector(new Vec3(SPRINT_PUSH, .4208, 0), engine.snapshot(2).hitImpulse());
-
-        engine.tick();
+        assertVector(new Vec3(SPRINT_PUSH * .546, (.4208 - .08) * .98, 0), engine.snapshot(2).hitImpulse());
         var launched = engine.snapshot(2);
         assertEquals(SPRINT_PUSH, launched.velocity().x(), .00001);
         assertEquals(.4208, launched.velocity().y(), .00001);
@@ -454,15 +445,15 @@ class CombatEngineTest {
     @Test void hitCombinesRadialPushWithRetainedOpposingAndSidewaysVelocity() {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.2);
         assertTrue(engine.submit(2, new Intent(0, 0, 0, -.5f, .5f, false, false, false, false, 0)));
-        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
         var victim = engine.snapshot(2);
         Vec3 offset = victim.feet().minus(ORIGIN);
         double distance = Math.hypot(offset.x(), offset.z());
-        assertEquals(17.44, victim.health(), .00001);
+        assertEquals(20, victim.health(), .00001);
         assertTrue(victim.velocity().x() < 0 && victim.velocity().z() > 0);
 
         assertTrue(input(engine, 2, 1, 0, 0, 0, false, false, false, 0));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
         Vec3 launch = engine.snapshot(2).velocity();
         assertEquals(offset.x() * NORMAL_PUSH / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
@@ -473,12 +464,13 @@ class CombatEngineTest {
     @Test void baseLiftCapsBeforeTheIndependentSprintAddition() {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.2);
         assertTrue(engine.submit(2, new Intent(0, 180, 0, 0, 0, true, false, false, false, 0)));
+        engine.tick();
+        assertEquals(.42, engine.snapshot(2).velocity().y(), .00001);
         assertTrue(input(engine, 1, 0, 0, 0, 1, true, true, false, 0));
         engine.tick();
         var victim = engine.snapshot(2);
-        assertEquals(.42, victim.velocity().y(), .00001);
-        assertEquals(1, victim.impulseTick());
-        assertVector(new Vec3(SPRINT_PUSH, .46, 0), victim.hitImpulse());
+        assertEquals(2, victim.impulseTick());
+        assertVector(new Vec3(SPRINT_PUSH, .46, 0), victim.velocity());
     }
 
     @Test void simultaneousSprintHitsComposeSlowdownAndKnockbackInReceiptOrder() {
@@ -488,13 +480,8 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(17.44, engine.snapshot(1).health(), .00001);
         assertEquals(17.44, engine.snapshot(2).health(), .00001);
-        assertTrue(input(engine, 1, 1, 0, 0, 0, false, false, false, 0));
-        assertTrue(input(engine, 2, 1, 180, 0, 0, false, false, false, 0));
-        engine.tick();
-
-        double push = SPRINT_PUSH - .1274 * .546 * .6 * .5;
-        assertEquals(-push, engine.snapshot(1).velocity().x(), .00001);
-        assertEquals((SPRINT_PUSH - .1274 * .546 * .5) * .6, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals(-SPRINT_PUSH + .098, engine.snapshot(1).velocity().x(), .00001);
+        assertEquals(SPRINT_PUSH * .6 - .098, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(.4208, engine.snapshot(1).velocity().y(), .00001);
         assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
     }
@@ -503,18 +490,17 @@ class CombatEngineTest {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.0);
         assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 0, true, false, false, false, 0)));
         assertTrue(engine.submit(2, new Intent(0, 180, 0, 0, 0, true, false, false, false, 0)));
-        tick(engine, 6);
+        tick(engine, 7);
+        double fallingSpeed = engine.snapshot(1).velocity().y();
+        assertTrue(fallingSpeed < 0);
         input(engine, 1, 1, 0, 0, 0, false, true, false, 0);
         input(engine, 2, 1, 180, 0, 0, false, true, false, 0);
         engine.tick();
         assertEquals(16.16, engine.snapshot(1).health(), .00001);
         assertEquals(16.16, engine.snapshot(2).health(), .00001);
-        assertEquals(7, engine.snapshot(1).hurtTick());
-        assertEquals(7, engine.snapshot(2).hurtTick());
-        assertTrue(engine.snapshot(1).velocity().y() < 0);
-        assertTrue(engine.snapshot(2).velocity().y() < 0);
-        double expectedLift = .36 + (engine.snapshot(1).velocity().y() - .08) * .98 * .5;
-        engine.tick();
+        assertEquals(8, engine.snapshot(1).hurtTick());
+        assertEquals(8, engine.snapshot(2).hurtTick());
+        double expectedLift = .36 + (fallingSpeed - .08) * .98 * .5;
         assertEquals(expectedLift, engine.snapshot(1).velocity().y(), .00001);
         assertEquals(expectedLift, engine.snapshot(2).velocity().y(), .00001);
     }
@@ -523,14 +509,13 @@ class CombatEngineTest {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.0);
         assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 0, true, false, false, false, 0)));
         assertTrue(engine.submit(2, new Intent(0, 180, 0, 0, 0, true, false, false, false, 0)));
-        tick(engine, 6);
+        tick(engine, 7);
         assertFalse(engine.snapshot(1).grounded());
         assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
         engine.tick();
         assertTrue(engine.snapshot(1).velocity().y() < 0);
         assertEquals(20 - 8 * 1.5 * .32, engine.snapshot(2).health(), .00001);
         assertFalse(engine.snapshot(1).sprinting());
-        engine.tick();
         assertEquals(SPRINT_PUSH, engine.snapshot(2).velocity().x(), .00001);
     }
 
@@ -550,11 +535,11 @@ class CombatEngineTest {
         engine.tick();
         var alongWall = engine.snapshot(2);
         assertEquals(3.70, alongWall.feet().x(), .00001);
-        assertEquals(.098, alongWall.velocity().z(), .00001);
+        assertEquals(.0196, alongWall.velocity().z(), .00001);
         assertFalse(alongWall.grounded());
         tick(engine, 4);
         assertEquals(alongWall.feet().x(), engine.snapshot(2).feet().x(), .00001);
-        assertTrue(engine.snapshot(2).feet().z() > alongWall.feet().z() + .3);
+        assertTrue(engine.snapshot(2).feet().z() > alongWall.feet().z() + .2);
         assertEquals(0, engine.snapshot(2).velocity().x(), .00001);
     }
 

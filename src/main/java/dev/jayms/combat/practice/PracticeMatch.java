@@ -306,8 +306,10 @@ public final class PracticeMatch implements ArenaMatch {
                 break;
             }
         boolean recover = bot.health() < 11 && heal >= 0 && tick % 9 < 2;
+        boolean swing = tick * CombatRules.AUTO_CLICK_CPS / TICKS_PER_SECOND
+                > (tick - 1) * CombatRules.AUTO_CLICK_CPS / TICKS_PER_SECOND;
         input(BOT, new Intent(tick, yaw, recover ? -80 : pitch, recover ? -.65f : range > 2.15 ? 1 : .15f,
                 range < 3 && !recover ? (tick % 40 < 20 ? .38f : -.38f) : 0, false, !recover && tick % 12 > 1,
-                !recover && range < 3.1 && tick % 4 == 0, recover, recover ? heal : 0));
+                !recover && swing, recover, recover ? heal : 0));
     }
 }
