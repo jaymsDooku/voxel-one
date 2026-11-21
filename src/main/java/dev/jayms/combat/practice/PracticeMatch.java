@@ -2,15 +2,14 @@ package dev.jayms.combat.practice;
 
 import dev.jayms.combat.CombatEngine;
 import dev.jayms.combat.CombatEngine.*;
-import dev.jayms.combat.CombatGeometry;
 import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.arena.BasaltCourtyard;
-import dev.jayms.player.PlayerDimensions;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.random.RandomGenerator;
 
 /** Owns one isolated, first-to-one practice match and its spectators. */
 public final class PracticeMatch implements ArenaMatch {
@@ -75,7 +74,6 @@ public final class PracticeMatch implements ArenaMatch {
                        long lastHit, long lastSplash, List<String> status) { }
 
     private static final int BOT = 2;
-    private static final float BOT_YAW_STEP = 30, BOT_PITCH_STEP = 22.5f;
     private static final int COUNTDOWN = 3 * TICKS_PER_SECOND;
     private static final int ROUND = 8 * 60 * TICKS_PER_SECOND;
     private static final int RESULT_DELAY = 2 * TICKS_PER_SECOND;
@@ -86,7 +84,8 @@ public final class PracticeMatch implements ArenaMatch {
     private final CombatEngine engine;
     private final boolean offline;
     private int nextId = 1;
-    private long tick, lastSimulationStep, lastSplash = -1, botHealReadyTick;
+    private long tick, lastSimulationStep, lastSplash = -1;
+    private SparringPartner sparringPartner;
     private int ticksLeft, winner;
     private Phase phase = Phase.WAITING;
     private Result result = Result.NONE;
@@ -192,7 +191,7 @@ public final class PracticeMatch implements ArenaMatch {
                 }
             }
             case FIGHT -> {
-                if (offline) driveBot();
+                if (offline) input(BOT, sparringPartner.input(tick, engine.snapshot(BOT), engine.snapshot(1)));
                 engine.tick(tick);
                 lastSimulationStep = tick;
                 for (Event event : engine.drainEvents()) {
@@ -286,7 +285,7 @@ public final class PracticeMatch implements ArenaMatch {
     private void spawn(int id, int side, boolean reset) {
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
-        if (offline && id == BOT) botHealReadyTick = tick;
+        if (offline && id == BOT) sparringPartner = new SparringPartner(rules.reach(), RandomGenerator.getDefault());
         float yaw = BasaltCourtyard.spawn(side).yaw();
         if (reset) engine.reset(id, feet(side), yaw);
         else engine.join(id, feet(side), yaw);
@@ -295,47 +294,5 @@ public final class PracticeMatch implements ArenaMatch {
     private static Vec3 feet(int side) {
         var spawn = BasaltCourtyard.spawn(side);
         return new Vec3(spawn.x(), spawn.y(), spawn.z());
-    }
-
-    private void driveBot() {
-        var bot = engine.snapshot(BOT);
-        var player = engine.snapshot(1);
-        double dx = player.feet().x() - bot.feet().x(), dz = player.feet().z() - bot.feet().z();
-        double range = Math.hypot(dx, dz);
-        int heal = -1;
-        for (int i = 0; i < 9; i++)
-            if (bot.inventory().get(i).item() == Item.HEALING && bot.inventory().get(i).count() > 0) {
-                heal = i;
-                break;
-            }
-        boolean recover = bot.health() < 11 && heal >= 0 && tick >= botHealReadyTick;
-        double targetYaw = range == 0 ? bot.yaw() : Math.toDegrees(Math.atan2(dz, dx));
-        double targetPitch = Math.toDegrees(Math.atan2(player.feet().y() - bot.feet().y() - .25, range));
-        float yaw = turnToward(bot.yaw(), targetYaw, BOT_YAW_STEP);
-        float pitch = turnToward(bot.pitch(), recover ? -80 : targetPitch, BOT_PITCH_STEP);
-        boolean throwPotion = recover && pitch <= -80;
-        if (throwPotion) botHealReadyTick = tick + 9;
-        boolean clickDue = tick * CombatRules.AUTO_CLICK_CPS / TICKS_PER_SECOND
-                > (tick - 1) * CombatRules.AUTO_CLICK_CPS / TICKS_PER_SECOND;
-        // A turn must already be visible in the previous pose before it can produce a hit.
-        var eye = bot.feet().add(0, PlayerDimensions.EYE_HEIGHT, 0);
-        boolean swing = !recover && clickDue
-                && aimedAt(eye, bot.yaw(), bot.pitch(), player.feet(), rules.reach())
-                && aimedAt(eye, yaw, pitch, player.feet(), rules.reach());
-        input(BOT, new Intent(tick, yaw, pitch, recover ? -.65f : range > 2.15 ? 1 : .15f,
-                range < 3 && !recover ? (tick % 40 < 20 ? .38f : -.38f) : 0, false, !recover && tick % 12 > 1,
-                swing, throwPotion, recover ? heal : 0));
-    }
-
-    private static float turnToward(float from, double to, float maxStep) {
-        double delta = Math.IEEEremainder(to - from, 360);
-        return from + (float) Math.max(-maxStep, Math.min(maxStep, delta));
-    }
-
-    static boolean aimedAt(Vec3 eye, float yaw, float pitch, Vec3 target, double reach) {
-        Vec3 ray = CombatGeometry.direction(yaw, pitch).scale(reach);
-        // An eye inside the expanded hitbox can register a ray in any direction.
-        double forward = (target.x() - eye.x()) * ray.x() + (target.z() - eye.z()) * ray.z();
-        return forward > 0 && Double.isFinite(CombatGeometry.firstMeleeBody(eye, ray, target));
     }
 }
