@@ -48,7 +48,7 @@ public final class ArenaCombatTrace {
             maxError = Math.max(maxError, error);
             if (samples) print("{\"kind\":\"tick\",\"tick\":%d,\"engine\":%s,\"paper\":%s,\"errorBlocks\":%.9f}", tick, xyz(victim.feet()), xyz(paper.point()), error);
         }
-        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":%.2f,\"baseHorizontalPush\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":%.3f,\"baseHorizontalPush\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
                 truth.size(), CombatRules.NO_DEBUFF.lift(), CombatRules.NO_DEBUFF.knockback(), maxError);
         var replays = new ArrayList<Replay>();
         for (int fps : List.of(60, 144)) {
@@ -56,7 +56,7 @@ public final class ArenaCombatTrace {
             for (int phase = 0; phase < JITTER_MS.length; phase++) replays.add(replay(packets, truth, fps, phase, samples, report));
         }
         double sprintError = sprintTrajectory(samples);
-        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":%.2f,\"sprintHorizontalBonus\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":%.3f,\"sprintHorizontalBonus\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
                 END + 1, CombatRules.NO_DEBUFF.lift(), CombatRules.NO_DEBUFF.sprintKnockback(), sprintError);
         if (maxError > .00001 || sprintError > .00001) throw new AssertionError("Arena profile diverged from Paper travel by " + Math.max(maxError, sprintError));
         return new Run(maxError, sprintError, List.copyOf(replays));

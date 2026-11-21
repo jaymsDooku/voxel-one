@@ -7,6 +7,10 @@ from collections import defaultdict
 from pathlib import Path
 
 
+# Grounded sprint launches before and after the practice lift reduction.
+GROUNDED_SPRINT_STEPS = (.4208, .4088)
+
+
 def read(path):
     with path.open(newline="") as stream:
         return list(csv.DictReader(stream))
@@ -72,12 +76,14 @@ def bout(path, clicks_path, times, counts, phases, intervals):
         carried_y = float(r["remoteImpulseY"])
         # Older recordings held the launch for the following tick. New melee snapshots
         # already contain the first displacement and publish its post-gravity remainder.
-        stepped = (abs(displacement_y - .4208) < .001
-                   and abs(carried_y - (.4208 - .08) * .98) < .001)
+        stepped = any(abs(displacement_y - step) < .001
+                      and abs(carried_y - (step - .08) * .98) < .001
+                      for step in GROUNDED_SPRINT_STEPS)
+        pending = any(abs(carried_y - step) < .001 for step in GROUNDED_SPRINT_STEPS)
         if stepped:
             launch_y -= displacement_y
         if (int(r["tick"]) == hurt == int(r["remoteImpulseTick"])
-                and (stepped or abs(carried_y - .4208) < .001)):
+                and (stepped or pending)):
             counts["grounded"] += 1
             if (i < 1 or not rows[i-1]["remoteDisplayY"]
                     or abs(float(rows[i-1]["remoteDisplayY"]) - launch_y) > .025):
