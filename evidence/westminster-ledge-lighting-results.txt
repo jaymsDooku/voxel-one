@@ -1,0 +1,105 @@
+Windows 11 / NVIDIA GeForce RTX 3060 / OpenGL / 1280 x 720 fixed daylight.
+Original 4e884e60
+Clock tower upper ledge 52, lower ledge 50, front face 223
+Gable sill 15, recessed wood 24
+Hall sill 26, cast shadow 68, adjacent wall 176
+
+Final fd848def
+Clock tower upper ledge 196, lower ledge 198, front face 223
+Gable sill 165, recessed wood 24
+Hall sill 133, cast shadow 69, adjacent wall 176
+
+Final checked Maven run
+[INFO] Tests run: 88, Failures: 0, Errors: 0, Skipped: 0
+[INFO] BUILD SUCCESS
+Actual directional and sky visibility and all prior wall tests
+Windows 11 / NVIDIA GeForce RTX 3060/PCIe/SSE2
+East cornice zenith=0.0 diffuse=0.5 slantedSun=1.0 verticalSun=0.0 sunBehindWall=0.0
+West cornice zenith=0.0 diffuse=0.5 slantedSun=1.0 verticalSun=0.0 sunBehindWall=0.0
+South cornice zenith=0.0 diffuse=0.75 slantedSun=1.0 verticalSun=0.0 sunBehindWall=0.0
+North cornice zenith=0.0 diffuse=0.75 slantedSun=1.0 verticalSun=0.0 sunBehindWall=0.0
+Window sill zenith=0.0 diffuse=0.5 slantedSun=1.0 verticalSun=0.0 sunBehindWall=0.0
+Sill direct sun behind/beside thin bar 0.0/1.0
+Diagonal sill rays behind/beside thin bar 0.0/1.0, missing cascade direct/diffuse 0.0/0.5
+Uppermost ledge zenith/direct/diffuse [1.0, 1.0, 1.0, 1.0]
+Enclosed shaft floor zenith/direct/diffuse [0.0, 0.0, 0.0, 1.0]
+Ledge below glass zenith/direct/diffuse [0.7, 0.7, 0.7, 1.0]
+Diagonal sun through side opening near=1.0 near+landmark=1.0 missing landmark=0.0 diffuse=0.0
+Vertical sun blocked by ceiling near=1.0 near+landmark=0.0 missing landmark=0.0 diffuse=0.0
+
+Windows 11 / NVIDIA GeForce RTX 3060/PCIe/SSE2
+Open side beneath relief vertical=0.0 near=1.0 exterior=1.0 courtyard=0.97071666
+Fractional intervening wall vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+East shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.8138435
+West shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+North shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+South shaft below cornice vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant east wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.8138435
+Sky above distant west wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant north wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+Sky above distant south wing vertical=0.0 near=0.0 exterior=1.0 courtyard=0.81384337
+East cornice face vertical=1.0 near=1.0 exterior=1.0 courtyard=1.0
+Shaft behind thin stone screen vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Shaft behind glass screen vertical=0.0 near=0.0 exterior=1.0 courtyard=0.49507383
+Inside sealed shaft vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Chamber behind a distant thin shutter vertical=0.0 near=0.0 exterior=0.0 courtyard=0.0
+Open gap opposite gable Gap[face=east, x=9.001, z=7.25, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=east, x=9.001, z=7.5, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=east, x=9.001, z=7.625, nx=1, nz=0] exterior daylight=0.8138435
+Open gap opposite gable Gap[face=west, x=4.999, z=7.5, nx=-1, nz=0] exterior daylight=0.81384337
+Open gap opposite gable Gap[face=north, x=6.5, z=6.999, nx=0, nz=-1] exterior daylight=0.81384337
+Open gap opposite gable Gap[face=south, x=6.5, z=10.001, nx=0, nz=1] exterior daylight=0.81384337
+Approach to cornice y=3.5 diffuse exposure=0.8138435
+Approach to cornice y=5.5 diffuse exposure=0.5146471
+Approach to cornice y=6.5 diffuse exposure=0.19619162
+
+Directional regression
+NVIDIA GeForce RTX 3060/PCIe/SSE2: 62208 plane probes; 0 falsely shadowed; 0 missed blockers.
+
+Contact regression
+NVIDIA GeForce RTX 3060/PCIe/SSE2
+distance 10 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 10 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 30 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 30 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 75 normal (0.94,0.00,0.34) jitter 0.000 trim false: 0/41392 shadowed
+distance 75 normal (0.94,0.00,0.34) jitter 0.375 trim false: 0/41392 shadowed
+distance 10 normal (0.94,0.00,0.34) jitter 0.000 trim true: 398/398 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 30 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 30 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 75 normal (0.72,0.61,0.34) jitter 0.000 trim false: 0/42901 shadowed
+distance 75 normal (0.72,0.61,0.34) jitter 0.375 trim false: 0/42901 shadowed
+distance 10 normal (0.72,0.61,0.34) jitter 0.000 trim true: 668/668 shadowed
+
+Earlier tower and roof routes
+East shaft upper/lower 105/96, approach 110/91
+Sunlit front 199, recessed gable window 29, west shaft 214
+
+Horizontal luma ripple (0-255 scale): spire 0.45, dormer 1.78
+Median slate luma: shaded 50, sunlit 136
+
+Stationary tower benchmark. Frame number, smoothed GPU frame ms, terrain GPU ms. One 600-frame run per version. Five samples at intervals of 120 frames.
+Original
+120 16.844 11.124
+240 17.486 11.320
+360 16.634 12.287
+480 16.323 12.346
+600 15.522 12.827
+
+Rejected per-pixel ray version
+120 54.504 46.844
+240 57.668 53.477
+360 56.511 53.712
+480 57.849 52.564
+600 57.377 53.479
+
+Final
+120 20.328 11.562
+240 15.611 11.403
+360 16.903 11.040
+480 15.571 12.611
+600 15.176 12.850
+
+Median smoothed frame ms: original 16.634, rejected 57.377, final 15.611.
