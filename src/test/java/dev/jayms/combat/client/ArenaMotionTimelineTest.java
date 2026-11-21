@@ -304,6 +304,89 @@ class ArenaMotionTimelineTest {
     }
 
     @Test
+    void targetedSprintClickReducesTheCurrentHorizontalCameraImpulseEvenWithoutHitConfirmation() {
+        var predicted = incomingImpulse();
+        var original = incomingImpulse();
+        localFrame(predicted, 85);
+        localFrame(original, 85);
+
+        predicted.submitSprintInput(1, true, false, ms(85));
+        assertEquals(localFrame(original, 90), localFrame(predicted, 90), "A swing into the air keeps momentum");
+        assertNull(predicted.predictedSprintOffset());
+        var before = localFrame(predicted, 90);
+        predicted.submitSprintInput(1, true, true, ms(90));
+
+        var normal = localFrame(original, 95);
+        var slowed = localFrame(predicted, 95);
+        assertNotNull(predicted.predictedSprintOffset());
+        assertEquals((normal.point().x() - before.point().x()) * .6, slowed.point().x() - before.point().x(), .00001);
+        assertEquals((normal.point().z() - before.point().z()) * .6, slowed.point().z() - before.point().z(), .00001);
+        assertEquals(normal.point().y(), slowed.point().y());
+        assertEquals(normal.pose(), slowed.pose());
+        assertEquals(normal.confirmedPoint(), slowed.confirmedPoint());
+    }
+
+    @Test
+    void authoritativeSlowdownStopsPredictionAndExplicitReleaseAllowsAnotherClick() {
+        var motion = incomingImpulse();
+        localFrame(motion, 85);
+        motion.submitSprintInput(1, true, true, ms(85));
+        localFrame(motion, 95);
+        assertNotNull(motion.predictedSprintOffset());
+
+        // The server already advanced using multiplied horizontal carry. Retire the preview
+        // as soon as its new segment is displayed, before the 50 ms prediction timeout.
+        motion.observe(102, List.of(withImpulse(.74f, .12f, 1, 101, .54f, .40f, .12f)), ms(100));
+        motion.sampleLocal(1, cursor(101.25), ms(110), false, true);
+        assertNull(motion.predictedSprintOffset());
+        var settled = motion.sampleLocal(1, cursor(102), ms(211), false, true);
+        assertEquals(settled.confirmedPoint(), settled.point());
+
+        motion.submitSprintInput(1, true, true, ms(212));
+        assertNull(motion.predictedSprintOffset(), "Held sprint cannot apply a second prediction");
+        motion.submitSprintInput(1, false, false, ms(213));
+        motion.submitSprintInput(1, true, true, ms(214));
+        assertNotNull(motion.predictedSprintOffset(), "A released sprint permits the next prediction");
+    }
+
+    @Test
+    void laterIncomingKnockbackReplacesTheOlderPredictedSlowdown() {
+        var predicted = incomingImpulse();
+        var original = incomingImpulse();
+        localFrame(predicted, 85);
+        localFrame(original, 85);
+        predicted.submitSprintInput(1, true, true, ms(85));
+        var previous = localFrame(predicted, 95);
+        var originalPrevious = localFrame(original, 95);
+        var offset = previous.point().minus(originalPrevious.point());
+        var next = withImpulse(1.10f, .20f, 1, 102, .8f, .40f, .15f);
+        predicted.observe(102, List.of(next), ms(100));
+        original.observe(102, List.of(next), ms(100));
+        var received = localFrame(predicted, 100);
+        var originalReceived = localFrame(original, 100);
+        assertEquals(offset.x(), received.point().x() - originalReceived.point().x(), .00001);
+        assertNull(predicted.predictedSprintOffset());
+        var advanced = localFrame(predicted, 120);
+        var originalAdvanced = localFrame(original, 120);
+        assertEquals(originalAdvanced.point().x() - originalReceived.point().x(), advanced.point().x() - received.point().x(), .00001);
+        assertEquals(originalAdvanced.point().y(), advanced.point().y());
+    }
+
+    private static ArenaMotionTimeline incomingImpulse() {
+        var motion = new ArenaMotionTimeline();
+        motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));
+        localFrame(motion, 0);
+        motion.observe(101, List.of(withImpulse(.20f, 0, 1, 101, .90f, .40f, .20f)), ms(50));
+        localFrame(motion, 50);
+        return motion;
+    }
+
+    private static ArenaMotionTimeline.LocalView localFrame(ArenaMotionTimeline motion, int millis) {
+        long now = ms(millis);
+        return motion.sampleLocal(1, motion.frame(now).local(), now, false, true);
+    }
+
+    @Test
     void aPlayerTakingKnockbackPicksFromTheRenderedEyeAndSendsOnlyConfirmedPoseTimes() {
         var motion = new ArenaMotionTimeline();
         motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));

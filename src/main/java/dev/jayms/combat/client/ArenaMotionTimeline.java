@@ -8,6 +8,7 @@ import dev.jayms.combat.CombatGeometry.PosePath;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 
+import static dev.jayms.combat.CombatEngine.SPRINT_ATTACK_RETENTION;
 import static dev.jayms.combat.practice.PracticeMatch.SWING_TICKS;
 
 import java.util.ArrayDeque;
@@ -64,6 +65,8 @@ final class ArenaMotionTimeline {
     private record Sample(long tick, Fighter fighter, Vec3 point, Cue hurt, Cue swing, double stride, PosePath fromPrevious) {}
     private record ImpulsePreview(long tick, long receivedAt, double startTick, double approachRate, PosePath path) {}
     private record Reconciliation(long receivedAt, Vec3 offset) {}
+    private record SprintClick(long tick, long impulseTick, long startedAt, Vec3 point, Vec3 priorOffset) {}
+    private static final Vec3 NO_OFFSET = new Vec3(0, 0, 0);
 
     private static final class Track {
         final ArrayDeque<Sample> samples = new ArrayDeque<>();
@@ -91,6 +94,27 @@ final class ArenaMotionTimeline {
     private Vec3 localVisualPoint;
     private ImpulsePreview impulsePreview;
     private Reconciliation reconciliation;
+    private boolean sprintClickSpent;
+    private SprintClick sprintClick;
+    private Reconciliation sprintClickReconciliation;
+    private Vec3 sprintClickOffset = NO_OFFSET;
+
+    void submitSprintInput(int id, boolean sprint, boolean targetedAttack, long now) {
+        if (!sprint) {
+            sprintClickSpent = false;
+            return;
+        }
+        if (!targetedAttack || sprintClickSpent || localVisualPoint == null || id != localId) return;
+        var track = tracks.get(id);
+        if (track == null || track.latest.motionEpoch() != localEpoch) return;
+        sprintClickSpent = true;
+        sprintClick = new SprintClick(latestTick, track.latest.impulseTick(), now, localVisualPoint, sprintClickOffset);
+        sprintClickReconciliation = null;
+    }
+
+    Vec3 predictedSprintOffset() {
+        return sprintClick != null && sprintClickReconciliation == null ? sprintClickOffset : null;
+    }
 
     void observe(long tick, List<Fighter> fighters, long now) {
         observe(tick, fighters, now, -1, -1);
@@ -205,12 +229,14 @@ final class ArenaMotionTimeline {
         boolean continuous = fighting && id == localId && epoch == localEpoch
                 && (localObservedTick == latest.tick || track.samples.size() > 1 && latest.fromPrevious != null && latest.tick - localObservedTick <= MAX_BRIDGE_TICKS);
         if (!continuous) {
+            if (!fighting || id != localId || epoch != localEpoch) sprintClickSpent = false;
             localId = id;
             localEpoch = epoch;
             localVisualTick = cursor.tick;
             localVisualPoint = null;
             impulsePreview = null;
             reconciliation = null;
+            clearSprintClick();
         } else if (latest.tick != localObservedTick) {
             if (impulsePreview != null && latest.tick > impulsePreview.tick) {
                 // Continue from the point the camera already reached as the server catches up.
@@ -272,10 +298,51 @@ final class ArenaMotionTimeline {
                 visualPoint = candidate;
             }
         }
+        Vec3 displayed = previewSprintClick(latest, confirmed.pose, visualPoint, now, factions);
         localVisualTick = visualTick;
         localVisualPoint = visualPoint;
         localRenderedAt = now;
-        return new LocalView(visualPoint, confirmedPoint, confirmed.pose);
+        return new LocalView(displayed, confirmedPoint, confirmed.pose);
+    }
+
+    private Vec3 previewSprintClick(Sample latest, PoseView pose, Vec3 point, long now, boolean factions) {
+        if (sprintClick == null) return point;
+        if (sprintClickReconciliation == null && latest.fighter.impulseTick() > sprintClick.impulseTick) {
+            // A fresh impulse moves at its full rate. Keep the current positional offset
+            // through its first step, then fade it without jumping the camera on receipt.
+            sprintClickReconciliation = new Reconciliation(now + (long) NANOS_PER_TICK, sprintClickOffset);
+        }
+        if (sprintClickReconciliation == null && (elapsedTicks(now, sprintClick.startedAt) >= 1
+                || pose.last() > sprintClick.tick)) {
+            // The next server movement segment already includes the authoritative slowdown if accepted.
+            sprintClickReconciliation = new Reconciliation(now, sprintClickOffset);
+        }
+        Vec3 offset;
+        if (sprintClickReconciliation != null) {
+            double factor = 1 - elapsedTicks(now, sprintClickReconciliation.receivedAt) / RECONCILE_TICKS;
+            if (factor <= 0) {
+                clearSprintClick();
+                return point;
+            }
+            offset = sprintClickReconciliation.offset.scale(factor);
+        } else {
+            Vec3 delta = point.minus(sprintClick.point);
+            offset = sprintClick.priorOffset.add(delta.x() * (SPRINT_ATTACK_RETENTION - 1), 0,
+                    delta.z() * (SPRINT_ATTACK_RETENTION - 1));
+        }
+        Vec3 candidate = point.add(offset);
+        Vec3 prior = localVisualPoint.add(sprintClickOffset);
+        boolean safe = allowProjection(point, candidate, factions)
+                && CombatGeometry.posePath(TERRAIN, point, candidate, 1) != null
+                && CombatGeometry.posePath(TERRAIN, prior, candidate, 1) != null;
+        sprintClickOffset = safe ? offset : NO_OFFSET;
+        return safe ? candidate : point;
+    }
+
+    private void clearSprintClick() {
+        sprintClick = null;
+        sprintClickReconciliation = null;
+        sprintClickOffset = NO_OFFSET;
     }
 
     private static boolean allowProjection(Vec3 start, Vec3 end, boolean factions) {

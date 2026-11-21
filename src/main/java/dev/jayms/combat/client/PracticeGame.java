@@ -107,6 +107,7 @@ public final class PracticeGame {
         }
         default void sampled(long now, View view, double x, double y, double z, Vec3 confirmed) {}
         default void hitFeedback(long tick, float received, float dealt, float rollRadians) {}
+        default void sprintClickPreview(long now, View view, double offsetX, double offsetZ) {}
         default void submitted(long now, Intent intent) {}
     }
 
@@ -585,9 +586,24 @@ public final class PracticeGame {
     }
 
     private boolean submitInput(Intent intent) {
-        if (remote != null) return remote.input(intent);
-        offline.input(id, intent);
+        if (remote != null) {
+            if (!remote.input(intent)) return false;
+        } else {
+            offline.input(id, intent);
+        }
+        boolean sprint = intent.sprint() && intent.forward() > 0;
+        motion.submitSprintInput(id, sprint, sprint && canPreviewSprintClick(intent), System.nanoTime());
         return true;
+    }
+
+    private boolean canPreviewSprintClick(Intent intent) {
+        var target = intent.attackView();
+        if (!intent.attack() || intent.use() || target == null || target.targetId() == 0
+                || inventory || !canAnimateCombat() || view.food() <= 6) return false;
+        var actor = self();
+        return actor.lastHorizontalWallTick() != view.tick()
+                && (!factions || view.fighters().stream().anyMatch(fighter ->
+                        fighter.id() == target.targetId() && fighter.side() != actor.side()));
     }
 
     private int axis(long window, Controls.Action positive, Controls.Action negative) {
@@ -620,7 +636,11 @@ public final class PracticeGame {
         Vec3 feet = spectator ? new Vec3(gallery.x(), gallery.y(), gallery.z())
                 : local == null ? new Vec3(actor.x(), actor.y(), actor.z()) : local.point();
         camera.position().set((float) feet.x(), (float) (feet.y() + PlayerDimensions.EYE_HEIGHT), (float) feet.z());
-        if (observer != null) observer.sampled(now, view, feet.x(), feet.y(), feet.z(), local == null ? feet : local.confirmedPoint());
+        if (observer != null) {
+            observer.sampled(now, view, feet.x(), feet.y(), feet.z(), local == null ? feet : local.confirmedPoint());
+            Vec3 sprintOffset = local == null ? null : motion.predictedSprintOffset();
+            if (sprintOffset != null) observer.sprintClickPreview(now, view, sprintOffset.x(), sprintOffset.z());
+        }
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 
