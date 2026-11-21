@@ -319,6 +319,11 @@ public final class PracticeGame {
             } else if (controls.matches(RECORD, key)) recorder.toggle(width, height);
             else if (inventory && organiseWithHotbar(key)) return;
             else if (key == GLFW_KEY_ENTER) {
+                if (offline != null && !inventory && (mods & GLFW_MOD_CONTROL) != 0
+                        && controls.matches(SPARRING_STATS, key)) {
+                    combatPress(key);
+                    return;
+                }
                 setInventory(false);
                 if (remote != null) remote.ready();
                 else offline.ready(id);
@@ -783,7 +788,8 @@ public final class PracticeGame {
 
     private void drawSparringStats(Overlay ui) {
         float top = showHitboxes ? 44 : 13;
-        String key = Controls.keyName(controls.code(SPARRING_STATS));
+        int binding = controls.code(SPARRING_STATS);
+        String key = (binding == GLFW_KEY_ENTER ? "Ctrl+" : "") + Controls.keyName(binding);
         if (!showSparringStats) {
             if (view.phase() == Phase.WAITING) {
                 String hint = key + "  Partner stats";

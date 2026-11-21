@@ -93,7 +93,7 @@ Use **Knockback Lab** on the desktop Play screen to spar offline, or pass `--gam
 
 Both fighters start with a sword and empty reserve slots. They can trade indefinitely, with no health loss, armor wear, hunger drain or round timer. Hit confirmations, the hurt protection window, base and sprint knockback, and targeted sprint-click slowdown follow the standard practice rules. The HUD shows hits, best combo, and the last tick's horizontal and vertical movement in blocks per tick. Press Enter to ready up, and use F12 for the practice hitbox overlay.
 
-In offline PotPvP or Knockback Lab, press **F3** to toggle the sparring partner's stats panel. It shows landed hits, best combo, horizontal and vertical movement per tick, and the held item. Timed PotPvP also shows health and healing potions used and remaining. The key is rebindable in Controls.
+In offline PotPvP or Knockback Lab, press **F3** to toggle the sparring partner's stats panel. It shows landed hits, best combo, horizontal and vertical movement per tick, and the held item. Timed PotPvP also shows health and healing potions used and remaining. The key is rebindable in Controls. If bound to Enter, use **Ctrl+Enter** to toggle the panel.
 
 ## Reproduce
 
