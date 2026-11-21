@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T00:39:20+00:00",
+  "updatedAt": "2026-11-21T00:48:44+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4561,8 +4561,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Graphics rebuild and complete cube tests pass. A repeat of the packaged camera regression caught an intermittent 13-level south-ledge drop. Tracing the outlier before signoff.",
-      "updatedAt": "2026-11-21T00:39:20+00:00"
+      "note": "Verified final Windows build 8bcc61a3. Full orbit worst tower step 20 to 4. Three focused runs passed. Parked volume handoff 13.49 before and at most 0.19 after. Independent review passed. PR 99 awaits CI.",
+      "updatedAt": "2026-11-21T00:48:44+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
