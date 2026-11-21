@@ -25,7 +25,8 @@ public final class CombatEngine {
     // The arena uses diamond piece proportions for its custom full-set reductions, in NMS inventory order.
     private static final int[] ARMOR_POINTS = {3, 6, 8, 3}; // boots, leggings, chestplate, helmet
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
-    private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6, SPRINT_HIT_LIFT = .10;
+    public static final double SPRINT_ATTACK_RETENTION = .6;
+    private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_LIFT = .10;
     private static final double USE_MOVEMENT_SCALE = .2;
 
     public interface Arena {
@@ -515,19 +516,22 @@ public final class CombatEngine {
             }
         }
         if (target == null || shown != null && target.id != shown.targetId()
-                || !withinMeleePacketRange(arena, attacker.feet, target.feet)) return;
+                || !withinMeleePacketRange(arena, attacker.feet, target.feet)
+                || !arena.canHarm(attacker.id, target.id)) return;
         boolean startingUse = input.use() && startsTimedUse(selected, attacker.food);
         boolean sprinting = input.sprint() && input.forward() > 0 && attacker.food > 6
                 && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
         if (attacker.has(Effect.STRENGTH)) damage *= 2.3;
         if (!attacker.grounded && attacker.fallDistance > 0) damage *= 1.5;
-        boolean sprintHit = sprinting && (attacker.lastSprintHitSequence < 0 || click.sprintReleaseSequence() > attacker.lastSprintHitSequence);
-        Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()).add(0, SPRINT_HIT_LIFT, 0) : ZERO;
-        if (strike(attacker, target, damage, rules.knockback(), sprintPush, weapon, click.blocking().get(target)) && sprintHit) {
-            attacker.lastSprintHitSequence = input.sequence();
+        boolean sprintAttack = sprinting && click.sprintReleaseSequence() >= attacker.lastSprintAttackSequence;
+        Vec3 sprintPush = sprintAttack ? direction(input.yaw(), 0).scale(rules.sprintKnockback()).add(0, SPRINT_HIT_LIFT, 0) : ZERO;
+        strike(attacker, target, damage, rules.knockback(), sprintPush, weapon, click.blocking().get(target));
+        // The 1.7.10 client slows itself after a targeted sprint attack even when the server rejects damage.
+        if (sprintAttack) {
+            attacker.lastSprintAttackSequence = input.sequence();
             Vec3 motion = attacker.motion;
-            attacker.motion = new Vec3(motion.x * SPRINT_HIT_RETENTION, motion.y, motion.z * SPRINT_HIT_RETENTION);
+            attacker.motion = new Vec3(motion.x * SPRINT_ATTACK_RETENTION, motion.y, motion.z * SPRINT_ATTACK_RETENTION);
             attacker.sprinting = false;
             if (attacker.impulseTick == currentTick) attacker.hitImpulse = attacker.motion;
         }
@@ -548,12 +552,11 @@ public final class CombatEngine {
         return null;
     }
 
-    private boolean strike(Actor attacker, Actor target, double rawDamage, double basePush, Vec3 sprintPush,
-                           Item weapon, boolean blocking) {
-        if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
+    private void strike(Actor attacker, Actor target, double rawDamage, double basePush, Vec3 sprintPush,
+                        Item weapon, boolean blocking) {
         boolean fullHit = target.hurtTicks == 0;
         double acceptedDamage = acceptRawDamage(target, rawDamage);
-        if (acceptedDamage <= 0) return false;
+        if (acceptedDamage <= 0) return;
 
         double armorDamage = blocking ? (acceptedDamage + 1) * .5 : acceptedDamage;
         int armorPoints = 0;
@@ -588,7 +591,6 @@ public final class CombatEngine {
         }
         emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
         applyDamage(target, attacker.id, dealt, fullHit);
-        return true;
     }
 
     private Vec3 knockbackDirection(Actor attacker, Actor target) {
@@ -751,7 +753,7 @@ public final class CombatEngine {
                     landPearl(owner, shot.position, hit, shot.velocity);
                 }
                 case ARROW -> {
-                    if (target != null && target != owner) {
+                    if (target != null && target != owner && arena.canHarm(owner.id, target.id)) {
                         strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), rules.projectileKnockback(), ZERO, Item.ARROW,
                                 target.useHeld && target.selected() == Item.SWORD);
                     }
@@ -889,7 +891,7 @@ public final class CombatEngine {
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
         long impulseTick = -1;
-        long lastSprintReleaseSequence = -1, lastSprintHitSequence = -1, lastHorizontalWallTick = -1;
+        long lastSprintReleaseSequence = -1, lastSprintAttackSequence = -1, lastHorizontalWallTick = -1;
         float yaw, pitch;
         boolean grounded, sprinting, hitHorizontalWall;
         boolean useHeld, submittedUse, usePressed, useReleased;
@@ -908,7 +910,7 @@ public final class CombatEngine {
         }
 
         boolean alive() { return health > 0; }
-        boolean sprintReady() { return lastSprintHitSequence < 0 || lastSprintReleaseSequence > lastSprintHitSequence; }
+        boolean sprintReady() { return lastSprintReleaseSequence >= lastSprintAttackSequence; }
         boolean has(Effect effect) { return effects.containsKey(effect); }
         Item selected() { return inventory.get(slot).item(); }
         void cancelUse() { useItem = Item.EMPTY; useTicks = 0; }

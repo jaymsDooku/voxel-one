@@ -148,6 +148,76 @@ class CombatEngineTest {
         assertEquals(rearm ? .4208 : .3208, engine.snapshot(3).velocity().y(), .00001);
     }
 
+    @Test void protectedTargetedClickSlowsTheAttackerAndRequiresFreshSprintInput() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(input(engine, 1, 0, 0, 0, 1, false, true, false, 0));
+        engine.tick();
+        var defender = engine.snapshot(2);
+        double previousTravel = engine.snapshot(1).velocity().x();
+        assertTrue(previousTravel > 0);
+        engine.drainEvents();
+
+        assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
+        engine.tick();
+        var attacker = engine.snapshot(1);
+        assertEquals(previousTravel * .546 * .6 + .098, attacker.velocity().x(), .00001);
+        assertFalse(attacker.sprinting());
+        assertEquals(1, attacker.stats().hits());
+        assertEquals(defender.health(), engine.snapshot(2).health());
+        assertEquals(defender.durability(), engine.snapshot(2).durability());
+        assertEquals(defender.hurtTick(), engine.snapshot(2).hurtTick());
+        assertEquals(defender.impulseTick(), engine.snapshot(2).impulseTick());
+        assertEquals(List.of(EventType.SWING), engine.drainEvents().stream().map(CombatEngine.Event::type).toList());
+
+        assertTrue(input(engine, 1, 2, 0, 0, 1, true, false, false, 0));
+        engine.tick();
+        assertFalse(engine.snapshot(1).sprinting());
+        assertTrue(input(engine, 1, 3, 0, 0, 0, false, false, false, 0));
+        assertTrue(input(engine, 1, 4, 0, 0, 1, true, false, false, 0));
+        engine.tick();
+        assertTrue(engine.snapshot(1).sprinting());
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void protectedClickScalesOnlyIncomingMotionThatArrivedBeforeIt(boolean incomingFirst) {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        if (incomingFirst) assertTrue(input(engine, 2, 0, 180, -10, 0, false, true, false, 0));
+        assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
+        if (!incomingFirst) assertTrue(input(engine, 2, 0, 180, -10, 0, false, true, false, 0));
+        engine.tick();
+
+        var attacker = engine.snapshot(1);
+        var defender = engine.snapshot(2);
+        double travel = .098 - NORMAL_PUSH * (incomingFirst ? .6 : 1);
+        assertVector(new Vec3(travel, .3208, 0), attacker.velocity());
+        assertVector(new Vec3(travel * .546, (.3208 - .08) * .98, 0), attacker.hitImpulse());
+        assertEquals(2, attacker.impulseTick());
+        assertEquals(1, defender.impulseTick());
+        assertEquals(18.5, attacker.health(), .00001);
+        assertEquals(18.5, defender.health(), .00001);
+        assertEquals(1, attacker.stats().hits());
+        assertEquals(1, defender.stats().hits());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2})
+    void airOcclusionAndTeamProtectionDoNotSpendSprint(int scenario) {
+        var engine = duel(CombatRules.NO_DEBUFF, field(scenario == 1, scenario != 2), scenario == 0 ? 6 : 2.5);
+        assertTrue(engine.submit(1, new Intent(0, 0, 0, 0, 1, false, false, false, false, 0)));
+        engine.tick();
+        double sidewaysTravel = engine.snapshot(1).velocity().z();
+        assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
+        engine.tick();
+        var attacker = engine.snapshot(1);
+        assertTrue(attacker.sprinting());
+        assertEquals(0, attacker.stats().hits());
+        assertEquals(.098 * 1.3, attacker.velocity().x(), .00001);
+        assertEquals(sidewaysTravel * .546, attacker.velocity().z(), .00001);
+    }
+
     @Test void pendingClicksAreBoundedAndClearedAcrossControlAndActorLifetimes() {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
         for (int i = 0; i < 24; i++) assertTrue(input(engine, 1, i, 180, 0, 0, false, true, false, 0));

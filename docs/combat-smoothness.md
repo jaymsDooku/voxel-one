@@ -77,6 +77,16 @@ When the fighters’ horizontal centers are less than 0.01 blocks apart, Paper s
 
 The mirrored Basalt test sends both fighters forward from spawn, swaps which fighter submits first, and samples separation and time back in reach. At 8, 9 and 10 CPS both fighters registered the opening three exchanges on the same server tick as their opponent. They returned to sword reach 10, 10 and 12 ticks after the first impact, respectively. On the opening exchange the first sender moved 0.419 blocks outward and the second moved 0.194. This asymmetry follows the order of Paper’s velocity updates: an incoming hit retains half the prior motion and a successful sprint attack multiplies the attacker’s horizontal motion by 0.6. The arena retains its calibrated three-block eye reach and one- and three-block settled horizontal travel.
 
+## Targeted sprint clicks at 8–10 CPS
+
+In the vanilla 1.7.10 client, selecting a remote player and clicking while sprinting runs the attack locally as well as sending the attack packet. The remote-player damage handler reports success locally, so the client retains 60% of its horizontal motion and drops sprint even when the server's hurt protection rejects the damage. The visual swing into empty air follows a different path. Paper's server-side attack dampens the attacker only after accepting a hit with a knockback bonus. [Mojang 1.7.10 client jar](https://launcher.mojang.com/v1/objects/e80d9b3bf5085002218d4be59e668bac718abbc6/client.jar) · [PaperMC 1.7 source revision](https://github.com/PaperMC/Paper-1.7/tree/ab9e48b010f9658c96fdca68b711714bedb42e82)
+
+Voxel One validates a hostile player target against the same melee ray, reach and arena checks as a damaging swing. A valid sprint click consumes the current sprint and multiplies the attacker's carried X and Z velocity by 0.6. The damage check still controls defender knockback, armor wear and hit credit. A subsequent sprint bonus requires a forward or sprint release.
+
+The local view can preview the horizontal slowdown for up to one 50 ms tick while it waits for confirmed movement. It eases out any remaining visual offset as confirmed positions arrive. If a new incoming impulse arrives during that preview, the new motion plays at full speed while the earlier offset is reconciled.
+
+In Basalt Courtyard, paired runs at 8, 9 and 10 CPS covered both spawn orientations and receipt orders. When a protected targeted click followed an incoming hit on the same tick, the horizontal contribution from that hit fell from 0.211457 to 0.126874 blocks for a normal hit and from 0.562670 to 0.337602 blocks for a sprint hit. These are first-step contributions with steering removed. Vertical displacement, health and hit counts matched the controls. An incoming hit processed afterward carried its full new impulse. An air swing matched the no-click control.
+
 ## Reproduce
 
 These PowerShell commands use the current build’s desktop dependencies. Set up a graphics-capable desktop for the native run. The deterministic tests run headless.
@@ -84,6 +94,7 @@ These PowerShell commands use the current build’s desktop dependencies. Set up
 ```powershell
 mvn "-Dtest=ArenaCombatTraceTest,ArenaMotionTimelineTest,ArenaSwingTimelineTest,PracticeWireTest" test
 mvn "-Dtest=PracticeTradeResponseTest,ContestedPracticeTest,CombatEngineTest" test
+mvn "-Dtest=PracticeClickSlowdownTest,ArenaMotionTimelineTest,SparringPartnerTest" test
 java -cp "target/test-classes;target/classes" dev.jayms.combat.client.ArenaCombatTrace --samples > target/arena-trajectory.jsonl
 mvn -DskipTests package
 java -cp "target/test-classes;target/voxel-one-1.0-SNAPSHOT-client.jar" dev.jayms.combat.client.PracticeNativePlaytest target/arena-round --trace-only

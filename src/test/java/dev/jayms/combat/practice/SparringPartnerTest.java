@@ -82,6 +82,34 @@ class SparringPartnerTest {
         assertFalse(input.use());
     }
 
+    @Test void partnerRearmsSprintAfterItsTargetedClickIsHurtProtected() {
+        var engine = trainingPair();
+        var partner = new SparringPartner(RULES, ARENA, new Random(41));
+        double floor = BasaltCourtyard.spawn(0).y();
+        assertTrue(engine.join(3, new Vec3(-1, floor, 1), 0));
+        assertTrue(engine.submit(3, new Intent(1, 0, 0, 0, 0, false, false, true, false, 0)));
+        engine.tick();
+
+        for (long tick = 2; tick < 7; tick++) {
+            var input = partner.input(tick, engine.snapshot(2), engine.snapshot(1));
+            assertTrue(engine.submit(2, input));
+            engine.tick();
+            if (!input.attack()) continue;
+            var bot = engine.snapshot(2);
+            var victim = engine.snapshot(1);
+            assertEquals(0, bot.stats().hits());
+            assertFalse(bot.sprinting());
+            var release = partner.input(tick + 1, bot, victim);
+            assertEquals(0, release.forward());
+            assertFalse(release.sprint());
+            assertTrue(engine.submit(2, release));
+            engine.tick();
+            assertTrue(partner.input(tick + 2, engine.snapshot(2), engine.snapshot(1)).sprint());
+            return;
+        }
+        fail("No targeted click while the third fighter's hit protected the target");
+    }
+
     @Test void retreatsBeforePottingAndRunsIntoTheSplash(TestReporter reporter) {
         var engine = trainingPair();
         var partner = new SparringPartner(RULES, ARENA, new Random(41));

@@ -26,6 +26,7 @@ final class SparringPartner {
     private final Arena arena;
     private final RandomGenerator random;
     private int lastHits;
+    private long lastSprintClick = -1;
     private long healReadyTick, healSetupTick = -1, healFollowThroughUntil;
     private float healingYaw, healingPitch;
     private int clickRate, cadenceTicks, clickProgress;
@@ -44,10 +45,12 @@ final class SparringPartner {
         double targetYaw = range == 0 ? bot.yaw() : Math.toDegrees(Math.atan2(offset.z(), offset.x()));
         double targetPitch = Math.toDegrees(Math.atan2(offset.y() - .25, range));
 
-        // Only a confirmed hit releases W. The normal forward input resumes on the next tick.
+        // A targeted click can stop sprint even when the damage is rejected.
         int hits = bot.stats().hits();
-        boolean wTap = hits > lastHits;
+        boolean sprintStopped = lastSprintClick >= 0 && bot.sequence() == lastSprintClick && !bot.sprinting();
+        boolean wTap = hits > lastHits || sprintStopped;
         lastHits = hits;
+        lastSprintClick = -1;
         boolean click = clickDue();
         Intent recovery = recoveryInput(tick, bot, opponent, targetYaw);
         if (recovery != null) {
@@ -65,6 +68,7 @@ final class SparringPartner {
         boolean swing = click
                 && aimedAt(eye, bot.yaw(), bot.pitch(), opponent.feet(), rules.reach())
                 && aimedAt(eye, yaw, pitch, opponent.feet(), rules.reach());
+        if (swing && forward > 0 && bot.food() > 6) lastSprintClick = tick;
         return new Intent(tick, yaw, pitch, forward, sideways, false, forward > 0,
                 swing, false, 0);
     }
