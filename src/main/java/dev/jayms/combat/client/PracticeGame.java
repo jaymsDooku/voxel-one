@@ -103,6 +103,11 @@ public final class PracticeGame {
         default Intent input(Intent controls, View view) { return controls; }
         /** The world pose and confirmed flash strength submitted for each visible remote fighter. */
         default void presented(int id, float x, float y, float z, float hurtTint) {}
+        default void presented(int id, float x, float y, float z, float hurtTint, float swingProgress) {
+            presented(id, x, y, z, hurtTint);
+        }
+        default void sampled(long now, View view, double x, double y, double z, Vec3 confirmed) {}
+        default void submitted(long now, Intent intent) {}
     }
 
     public PracticeGame(PracticeClient remote, PracticeMatch.Kit kit, boolean factions, Path recordings) {
@@ -215,7 +220,7 @@ public final class PracticeGame {
                 if (entry.getKey().chunkY() >= 2) entry.getValue().checkMesh();
             bind(recorder);
             view = snapshot();
-            updatePresentation(System.nanoTime());
+            updatePresentation(System.nanoTime(), observer);
             window.show();
             glViewport(0, 0, width, height);
             frameInput = System.nanoTime();
@@ -235,13 +240,13 @@ public final class PracticeGame {
                     }
                 }
                 view = snapshot();
-                updatePresentation(now);
+                updatePresentation(now, observer);
                 if (width == 0 || height == 0) { glfwWaitEventsTimeout(.1); continue; }
                 render(world, shader, rendering, models, avatars, hitboxes, now);
                 drawHud(overlay, recorder);
                 if (observer != null) {
                     for (var fighter : remoteActors)
-                        observer.presented(fighter.fighter().id(), fighter.x(), fighter.y(), fighter.z(), fighter.hurt());
+                        observer.presented(fighter.fighter().id(), fighter.x(), fighter.y(), fighter.z(), fighter.hurt(), fighter.swingProgress());
                     observer.frame(window, recorder, view, width, height);
                 }
                 recorder.capture(width, height);
@@ -554,7 +559,10 @@ public final class PracticeGame {
                 }
             }
         }
-        if (submitInput(intent)) usePressed = sprintReleased = false;
+        if (submitInput(intent)) {
+            if (observer != null && intent.attack()) observer.submitted(now, intent);
+            usePressed = sprintReleased = false;
+        }
     }
 
     private boolean submitInput(Intent intent) {
@@ -569,7 +577,7 @@ public final class PracticeGame {
 
     private Fighter self() { return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null); }
 
-    private void updatePresentation(long now) {
+    private void updatePresentation(long now, FrameObserver observer) {
         motion.observe(view.tick(), view.fighters(), now);
         var frame = motion.frame(now);
         remoteActors.clear();
@@ -594,6 +602,7 @@ public final class PracticeGame {
         Vec3 confirmed = local == null ? feet : local.confirmedPoint();
         confirmedLocalEye = confirmed.add(0, PlayerDimensions.EYE_HEIGHT, 0);
         camera.position().set((float) feet.x(), (float) (feet.y() + PlayerDimensions.EYE_HEIGHT), (float) feet.z());
+        if (observer != null) observer.sampled(now, view, feet.x(), feet.y(), feet.z(), confirmed);
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 
@@ -620,7 +629,7 @@ public final class PracticeGame {
             Fighter fighter = actor.fighter();
             var pose = new Protocol.Pose(fighter.id(), actor.x(), actor.y(), actor.z(), actor.yaw(),
                     actor.pitch(), actor.walkPhase(), actor.walkAmount(), false,
-                    fighter.swinging() ? .36f : 1, renderItem(fighter.held()));
+                    actor.swingProgress(), renderItem(fighter.held()));
             avatars.renderPracticeAvatar(pose, shader, models,
                     fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()], actor.hurt());
         }

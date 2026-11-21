@@ -2,6 +2,7 @@ package dev.jayms.combat.client;
 
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
+import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.practice.PracticeClient;
 import dev.jayms.combat.practice.PracticeMatch.*;
 import dev.jayms.combat.practice.PracticeServer;
@@ -30,10 +31,13 @@ public final class PracticeNativePlaytest {
     private PracticeNativePlaytest() { }
 
     public static void main(String[] args) throws Exception {
+        if (args.length < 1 || args.length > 2 || args.length == 2 && !args[1].equals("--trace-only"))
+            throw new IllegalArgumentException("Expected output directory and optional --trace-only");
         Path output = Path.of(args[0]).toAbsolutePath();
         Files.createDirectories(output);
         var identity = SecureTransport.server(Files.createTempDirectory(output.getParent(), "practice-tls-"));
-        try (var server = new PracticeServer("127.0.0.1", 0, identity.context(), Kit.NO_DEBUFF);
+        var match = new MeasuredPracticeMatch();
+        try (var server = new PracticeServer("127.0.0.1", 0, identity.context(), match, null);
              var first = new PracticeClient("127.0.0.1", server.port(), identity.fingerprint(), "Aster");
              var second = new PracticeClient("127.0.0.1", server.port(), identity.fingerprint(), "Rowan")) {
             var peer = Executors.newSingleThreadScheduledExecutor();
@@ -41,13 +45,18 @@ public final class PracticeNativePlaytest {
             peer.scheduleAtFixedRate(() -> second.input(intent(second.view(), second.id(), ++sequence[0], false)),
                     0, 50, TimeUnit.MILLISECONDS);
             try {
-                Observer observer = new Observer(first, second, output);
-                new PracticeGame(first, Kit.NO_DEBUFF, false, output).run(observer);
+                Observer observer = new Observer(first, second, output, args.length == 1);
+                try {
+                    new PracticeGame(first, Kit.NO_DEBUFF, false, output).run(observer);
+                } finally {
+                    observer.trace.save(output);
+                }
                 if (observer.report == null) throw new IllegalStateException("Desktop playtest ended before exchanging hits and healing");
                 Files.writeString(output.resolve("desktop-playtest.txt"), observer.report);
                 System.out.println(observer.report);
             } finally {
                 peer.shutdownNow();
+                match.save(output);
             }
         }
     }
@@ -55,6 +64,7 @@ public final class PracticeNativePlaytest {
     private static final class Observer implements PracticeGame.FrameObserver {
         private final PracticeClient first, second;
         private final Path output;
+        private final boolean captureMedia;
         private long start, recordedAt, previousTick = -1;
         private boolean ready, captured, capturedFlash, stopped, remotePresented;
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
@@ -64,19 +74,30 @@ public final class PracticeNativePlaytest {
         private int sprintHits, carriedLaunches, immediateImpulseCues, groundedSprintCues;
         private int betweenSnapshotFrames;
         private String report;
+        private final NativeFrameTrace trace = new NativeFrameTrace();
 
-        Observer(PracticeClient first, PracticeClient second, Path output) {
+        Observer(PracticeClient first, PracticeClient second, Path output, boolean captureMedia) {
             this.first = first;
             this.second = second;
             this.output = output;
+            this.captureMedia = captureMedia;
         }
 
         @Override public Intent input(Intent controls, View view) {
             return intent(view, first.id(), controls.sequence(), true);
         }
 
-        @Override public void presented(int id, float x, float y, float z, float hurtTint) {
+        @Override public void sampled(long now, View view, double x, double y, double z, Vec3 confirmed) {
+            trace.sample(now, view, first.id(), second.id(), x, y, z, confirmed);
+        }
+
+        @Override public void submitted(long now, Intent intent) {
+            trace.click(now, intent);
+        }
+
+        @Override public void presented(int id, float x, float y, float z, float hurtTint, float swingProgress) {
             if (id != second.id()) return;
+            trace.presented(x, y, z, hurtTint, swingProgress);
             remotePresented = true;
             presentX = x;
             presentY = y;
@@ -86,13 +107,14 @@ public final class PracticeNativePlaytest {
 
         @Override public void frame(Window window, ScreenRecorder recorder, View view, int width, int height) throws Exception {
             long now = System.nanoTime();
+            trace.rendered(now);
             if (start == 0) start = now;
             if (!ready && view.fighters().size() == 2) {
                 first.ready();
                 second.ready();
                 ready = true;
             }
-            if (view.phase() == Phase.FIGHT && recordedAt == 0) {
+            if (captureMedia && view.phase() == Phase.FIGHT && recordedAt == 0) {
                 recorder.toggle(width * 2 / 3, height * 2 / 3);
                 recordedAt = now;
             }
@@ -124,7 +146,7 @@ public final class PracticeNativePlaytest {
                         + Math.abs(presentZ - previousZ);
                 if (previousTick == view.tick() && moved > .005) betweenSnapshotFrames++;
                 if (!capturedFlash && a != null && a.pitch() > -40 && hurtTint > .5f) {
-                    screenshot(output.resolve("hit-flash.png"), width, height);
+                    if (captureMedia) screenshot(output.resolve("hit-flash.png"), width, height);
                     capturedFlash = true;
                 }
             }
@@ -135,7 +157,7 @@ public final class PracticeNativePlaytest {
             remotePresented = false;
             if (!captured && a != null && b != null && a.hits() > 0 && b.hits() > 0 && a.used() > 0
                     && a.pitch() > -40) {
-                screenshot(output.resolve("basalt-courtyard.png"), width, height);
+                if (captureMedia) screenshot(output.resolve("basalt-courtyard.png"), width, height);
                 captured = true;
             }
             if (view.phase() == Phase.RESULT && captured && !stopped) {
@@ -157,11 +179,11 @@ public final class PracticeNativePlaytest {
                         throw new IllegalStateException("No adjacent sprint launch snapshots retained momentum");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
-                    report = "Windows native Voxel One renderer and two TLS clients in Basalt Courtyard.\n"
+                    report = "Native Voxel One renderer and two TLS clients in Basalt Courtyard on " + System.getProperty("os.name") + ".\n"
                             + "Both clients agreed on " + view.result() + " and winner " + view.winner() + ".\n"
                             + a.name() + " hits " + a.hits() + ", longest combo " + a.combo() + ", pots used " + a.used() + ".\n"
                             + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n"
-                            + "Captured the opponent's red flash and observed " + betweenSnapshotFrames
+                            + "Observed the opponent's red flash and " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
                             + immediateImpulseCues + " sprint impulses reached the client on their hit tick.\n"
@@ -172,7 +194,7 @@ public final class PracticeNativePlaytest {
                             peakKnockbackHorizontal, peakKnockbackUp);
                 }
             }
-            if (stopped && recorder.status("F10").startsWith("Recording saved"))
+            if (stopped && (!captureMedia || recorder.status("F10").startsWith("Recording saved")))
                 glfwSetWindowShouldClose(window.getHandle(), true);
             if (now - start > TimeUnit.SECONDS.toNanos(32)) {
                 if (recorder.active()) recorder.toggle(width, height);

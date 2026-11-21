@@ -37,10 +37,12 @@ class PracticeWireTest {
             assertEquals(view.fighters().get(0).hurtTick(), previous.hurtTick());
             assertEquals(view.fighters().get(0).motionEpoch(), previous.motionEpoch());
             assertEquals(version >= PracticeWire.WALL_VERSION ? 43 : -1, previous.lastHorizontalWallTick());
-            assertEquals(-1, previous.impulseTick());
-            assertEquals(0, previous.impulseX());
-            assertEquals(0, previous.impulseY());
-            assertEquals(0, previous.impulseZ());
+            boolean impulse = version >= PracticeWire.IMPULSE_VERSION;
+            assertEquals(-1, previous.swingTick());
+            assertEquals(impulse ? 44 : -1, previous.impulseTick());
+            assertEquals(impulse ? .9f : 0, previous.impulseX());
+            assertEquals(impulse ? .46f : 0, previous.impulseY());
+            assertEquals(impulse ? -.08f : 0, previous.impulseZ());
         }
         var fighter = roundTrip(view, PracticeWire.LEGACY_VERSION).fighters().get(0);
         assertEquals(view.fighters().get(0).health(), fighter.health());
@@ -147,7 +149,7 @@ class PracticeWireTest {
 
     private static View fixture() {
         var fighter = new Fighter(1, "Aster", 1, 73, 2, -90, 0, 16, true, false, false, Item.SWORD,
-                2, 2, 0, 31, -1, "", .4f, .22f, -.12f, 42, 3, 43, 44, .9f, .46f, -.08f);
+                2, 2, 0, 31, -1, "", .4f, .22f, -.12f, 42, 3, 43, 44, .9f, .46f, -.08f, 41);
         return new View(Phase.FIGHT, Kit.NO_DEBUFF, Result.NONE, 0, 140, 0, 44,
                 List.of(fighter), List.of(), 20, 0, Map.of(), List.of(), List.of(), 42, -1, List.of());
     }
