@@ -49,6 +49,8 @@ When the server is stopped, add `--season end` at startup to preserve standings 
 
 ## Design references
 
+The combat benchmark measures hit feedback latency, frame-to-frame movement and Paper trajectory error in Basalt Courtyard. [Combat smoothness measurements](combat-smoothness.md)
+
 - Shotbow’s published class loadouts and `gg` arena announcement informed the class roles and the separation between practice and faction stakes. [Shotbow class list](https://shotbow.net/forum/threads/hcf-classes.937/) · [Shotbow practice announcement](https://www.shotbow.net/forum/portal/?page=173)
 - HCTeams Map 12 documented a Protection II, Sharpness II, Power IV profile. Kohi Practice 2 documented ranked No Debuff duels. [HCTeams Map 12](https://www.youtube.com/watch?v=6hmShHIljFw) · [Kohi No Debuff](https://www.youtube.com/watch?v=YWJeDdMLtcE)
 - HCFRevival described restoring sprint resets, fast hit registration, and throwable timing on a newer engine. Minemen’s match report informed the arena stats. [HCFRevival developer account](https://www.reddit.com/r/mcservers/comments/141l73e) · [Minemen No Debuff results](https://minemen.club/match/f7a41388-b901-31f6-bcb1-65e340076aea)

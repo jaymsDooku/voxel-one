@@ -5,6 +5,7 @@ import dev.jayms.combat.CombatEngine.*;
 import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.practice.ArenaMatch;
+import dev.jayms.combat.practice.PracticeMatch;
 import dev.jayms.combat.practice.PracticeMatch.*;
 
 import java.io.IOException;
@@ -292,8 +293,8 @@ public final class FactionMatch implements ArenaMatch {
             if (seat.side < 0) continue;
             PlayerState fighter = engine.snapshot(fighterId);
             if (fighter == null) continue;
-            fighters.add(Fighter.fromCombat(fighter, seat.display, seat.lastSwing >= 0 && tick - seat.lastSwing < 5,
-                    seat.ready, seat.side, seat.role.title, engine.currentTick(), lastSimulationStep));
+            fighters.add(Fighter.fromCombat(fighter, seat.display, seat.lastSwing >= 0 && tick - seat.lastSwing < PracticeMatch.SWING_TICKS,
+                    seat.ready, seat.side, seat.role.title, engine.currentTick(), lastSimulationStep, seat.lastSwing));
         }
         Seat seat = seats.get(id);
         PlayerState self = seat == null || !seat.online || seat.side < 0 || seat.eliminated
@@ -348,7 +349,7 @@ public final class FactionMatch implements ArenaMatch {
                 Seat actor = seats.get(event.actorId());
                 Seat target = seats.get(event.targetId());
                 switch (event.type()) {
-                    case SWING -> { if (actor != null) actor.lastSwing = tick; }
+                    case SWING -> { if (actor != null) actor.lastSwing = PracticeMatch.restartSwing(actor.lastSwing, tick); }
                     case HIT -> hit(event, actor, target);
                     case DEBUFF -> tag(actor, target);
                     case SPLASH -> lastSplash = tick;

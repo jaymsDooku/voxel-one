@@ -8,6 +8,8 @@ import dev.jayms.combat.CombatGeometry.PosePath;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 
+import static dev.jayms.combat.practice.PracticeMatch.SWING_TICKS;
+
 import java.util.ArrayDeque;
 import java.util.HashMap;
 import java.util.List;
@@ -23,11 +25,13 @@ final class ArenaMotionTimeline {
     private static final double HURT_TICKS = 5;
     private static final double RECONCILE_TICKS = 2;
 
-    record Cursor(double tick, double fadeTick) {}
+    record Cursor(double tick, double fadeTick, double receiptTime) {
+        Cursor(double tick, double fadeTick) { this(tick, fadeTick, Double.NaN); }
+    }
     record Frame(Cursor local, Cursor remote) {}
     record LocalView(Vec3 point, Vec3 confirmedPoint, PoseView pose) {}
     record Presented(Fighter fighter, float x, float y, float z, float yaw, float pitch,
-                     float walkPhase, float walkAmount, float hurt, PoseView pose) {
+                     float walkPhase, float walkAmount, float hurt, float swingProgress, PoseView pose) {
         boolean visible() { return fighter.health() > 0 || hurt > 0; }
     }
 
@@ -36,28 +40,40 @@ final class ArenaMotionTimeline {
         @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
     };
 
-    private record Sample(long tick, Fighter fighter, Vec3 point, long hurtTick, double stride, PosePath fromPrevious) {}
+    private record Cue(long tick, double received, long packetTick) {
+        double age(Cursor cursor) {
+            if (Double.isNaN(cursor.receiptTime)) return cursor.fadeTick - tick;
+            if (cursor.receiptTime < received) return -1;
+            return Math.max(cursor.tick - tick, packetTick - tick + (cursor.receiptTime - received));
+        }
+    }
+
+    private record Sample(long tick, Fighter fighter, Vec3 point, Cue hurt, Cue swing, double stride, PosePath fromPrevious) {}
     private record ImpulsePreview(long tick, long receivedAt, double startTick, PosePath path) {}
-    private record Reconciliation(long receivedAt, double lead, Vec3 offset) {}
+    private record Reconciliation(long receivedAt, Vec3 offset) {}
 
     private static final class Track {
         final ArrayDeque<Sample> samples = new ArrayDeque<>();
         Fighter latest;
+        Cue hurtCue, swingCue;
+        long confirmedSwing = -1, skippedSwing = -1;
         long confirmedHurt = -1, skippedHurt = -1;
 
         void skipStaleHistory() {
             samples.clear();
-            // Reanchoring can move effect time backward, so previously observed hits must not replay.
+            // Repeated metadata after a gap must not restart an old cue.
             skippedHurt = confirmedHurt;
+            skippedSwing = confirmedSwing;
         }
     }
 
     private final Map<Integer, Track> tracks = new HashMap<>();
-    private long latestTick = -1, anchorNanos;
-    private double anchorTick, localTick, remoteTick, localFade, remoteFade, deliveryJitter;
+    private long latestTick = -1, anchorNanos, lastFrameNanos;
+    private double anchorTick, localTick, remoteTick, effectTick, deliveryJitter;
     private int localId;
     private long localEpoch = -1, localObservedTick = -1;
     private double localVisualTick;
+    private long localRenderedAt;
     private Vec3 localVisualPoint;
     private ImpulsePreview impulsePreview;
     private Reconciliation reconciliation;
@@ -68,13 +84,13 @@ final class ArenaMotionTimeline {
                 || now - anchorNanos >= STALE_NANOS;
         if (reanchor) {
             tracks.values().forEach(Track::skipStaleHistory);
+            lastFrameNanos = now;
             anchorTick = tick;
             deliveryJitter = 0;
             // A late packet can be older than the clock after a stall. Keep frame time from rewinding.
             localTick = latestTick < 0 ? tick - LOCAL_DELAY : Math.max(localTick, tick - LOCAL_DELAY);
             remoteTick = latestTick < 0 ? tick - 1 : Math.max(remoteTick, tick - 1);
-            localFade = localTick;
-            remoteFade = remoteTick;
+            effectTick = latestTick < 0 ? localTick : Math.max(effectTick, localTick);
         } else {
             double intervalError = Math.abs((now - anchorNanos) / NANOS_PER_TICK - (tick - latestTick));
             deliveryJitter += (Math.min(2, intervalError) - deliveryJitter) * .2;
@@ -90,15 +106,28 @@ final class ArenaMotionTimeline {
 
     Frame frame(long now) {
         double estimated = clock(now);
-        // Reserve a second remote tick only for jitter. Local movement never adds more than one.
-        double remoteDelay = 1 + Math.max(0, Math.min(1, (deliveryJitter - .12) * 2.5));
+        // Keep one tick of history on clean delivery and up to half a tick more during jitter.
+        double remoteDelay = 1 + Math.max(0, Math.min(.5, deliveryJitter - .12));
         double localTarget = Math.max(latestTick, estimated) - LOCAL_DELAY;
         double remoteTarget = estimated - remoteDelay;
         localTick = Math.max(localTick, Math.min(latestTick, localTarget));
-        remoteTick = Math.max(remoteTick, Math.min(latestTick, remoteTarget));
-        localFade = Math.max(localFade, Math.min(latestTick + HURT_TICKS, localTarget));
-        remoteFade = Math.max(remoteFade, Math.min(latestTick + HURT_TICKS, remoteTarget));
-        return new Frame(new Cursor(localTick, localFade), new Cursor(remoteTick, remoteFade));
+        double elapsed = elapsedTicks(now, lastFrameNanos);
+        lastFrameNanos = Math.max(now, lastFrameNanos);
+        if (deliveryJitter > .12 && elapsed < 1) {
+            // Pace clock corrections over several frames. As the buffer empties, spend
+            // the last fraction of a confirmed tick more slowly until a packet arrives.
+            double error = remoteTarget - (remoteTick + elapsed);
+            double rate = Math.max(.75, Math.min(1.45, 1 + .8 * error));
+            rate = Math.min(rate, Math.max(.12, (latestTick - remoteTick) * 1.9));
+            remoteTick = Math.min(latestTick, remoteTick + elapsed * rate);
+        } else {
+            remoteTick = Math.max(remoteTick, Math.min(latestTick, remoteTarget));
+        }
+        double effectTarget = Math.max(latestTick, estimated);
+        effectTick = Math.max(effectTick, Math.min(latestTick + Math.max(HURT_TICKS, SWING_TICKS), effectTarget));
+
+        return new Frame(new Cursor(localTick, effectTick, now / NANOS_PER_TICK),
+                new Cursor(remoteTick, effectTick, now / NANOS_PER_TICK));
     }
 
     Presented sample(int id, Cursor cursor) {
@@ -106,9 +135,10 @@ final class ArenaMotionTimeline {
         if (track == null || track.samples.isEmpty()) return null;
         Sample left = track.samples.peekFirst(), right = left;
         double tick = Math.max(cursor.tick, left.tick);
-        long hurtTick = -1;
+        Cue hurtCue = null, swingCue = null;
         for (Sample candidate : track.samples) {
-            if (candidate.hurtTick <= tick) hurtTick = Math.max(hurtTick, candidate.hurtTick);
+            if (candidate.swing != null && candidate.swing.age(cursor) >= 0) swingCue = candidate.swing;
+            if (candidate.hurt != null && candidate.hurt.age(cursor) >= 0) hurtCue = candidate.hurt;
             if (candidate.tick <= tick) left = candidate;
             if (right.tick < tick) right = candidate;
         }
@@ -127,9 +157,10 @@ final class ArenaMotionTimeline {
             amount += (float) ((walkAmount(right.fighter) - amount) * progress);
         }
         // The pose holds at the freshest sample during a stall. Visual feedback keeps expiring.
-        float hurt = hurtTick < 0 ? 0 : injuryStrength(Math.max(tick, cursor.fadeTick) - hurtTick);
+        float hurt = hurtCue == null ? 0 : injuryStrength(hurtCue.age(cursor));
+        float swingProgress = swingCue == null ? 1 : (float) Math.min(1, swingCue.age(cursor) / SWING_TICKS);
         return new Presented(discrete, (float) point.x(), (float) point.y(), (float) point.z(), yaw, pitch,
-                (float) (stride % (2 * Math.PI)), amount, hurt, pose);
+                (float) (stride % (2 * Math.PI)), amount, hurt, swingProgress, pose);
     }
 
     LocalView sampleLocal(int id, Cursor cursor, long now, boolean factions, boolean fighting) {
@@ -138,7 +169,7 @@ final class ArenaMotionTimeline {
         Sample latest = track.samples.getLast();
         long epoch = latest.fighter.motionEpoch();
         boolean continuous = fighting && id == localId && epoch == localEpoch
-                && (localObservedTick == latest.tick || track.samples.size() > 1 && latest.tick - localObservedTick <= MAX_BRIDGE_TICKS);
+                && (localObservedTick == latest.tick || track.samples.size() > 1 && latest.fromPrevious != null && latest.tick - localObservedTick <= MAX_BRIDGE_TICKS);
         if (!continuous) {
             localId = id;
             localEpoch = epoch;
@@ -151,7 +182,7 @@ final class ArenaMotionTimeline {
                 // Continue from the point the camera already reached as the server catches up.
                 var confirmed = sample(id, new Cursor(localVisualTick, cursor.fadeTick));
                 var offset = localVisualPoint.minus(point(confirmed));
-                reconciliation = new Reconciliation(now, Math.max(0, localVisualTick - cursor.tick), offset);
+                reconciliation = new Reconciliation(localRenderedAt, offset);
                 impulsePreview = null;
             }
             if (latest.fighter.health() > 0 && latest.fighter.impulseTick() == latest.tick) {
@@ -170,7 +201,7 @@ final class ArenaMotionTimeline {
 
         if (impulsePreview != null && now - impulsePreview.receivedAt >= STALE_NANOS) {
             // A stalled connection cannot confirm the predicted endpoint. Ease back to the last pose.
-            reconciliation = new Reconciliation(impulsePreview.receivedAt + STALE_NANOS, 0,
+            reconciliation = new Reconciliation(impulsePreview.receivedAt + STALE_NANOS,
                     localVisualPoint.minus(latest.point));
             impulsePreview = null;
             localVisualTick = latest.tick;
@@ -180,13 +211,17 @@ final class ArenaMotionTimeline {
         double correctionFactor = 0;
         if (reconciliation != null) {
             correctionFactor = Math.max(0, 1 - elapsedTicks(now, reconciliation.receivedAt) / RECONCILE_TICKS);
-            visualTick += reconciliation.lead * correctionFactor;
-            if (correctionFactor == 0) reconciliation = null;
+            // Give back the preview lead gradually while advancing through confirmed motion.
+            double recoveryTick = localVisualTick + .8 * elapsedTicks(now, localRenderedAt);
+            visualTick = Math.max(visualTick, recoveryTick);
+            if (correctionFactor == 0 && (cursor.tick >= recoveryTick || cursor.tick >= latest.tick)) reconciliation = null;
         }
         visualTick = Math.min(latest.tick, Math.max(localVisualTick, visualTick));
         if (impulsePreview != null) {
-            double progress = Math.min(1, elapsedTicks(now, impulsePreview.receivedAt));
-            double runningTick = impulsePreview.startTick + (impulsePreview.tick + 1 - impulsePreview.startTick) * progress;
+            double elapsed = elapsedTicks(now, impulsePreview.receivedAt);
+            double approach = (impulsePreview.tick - impulsePreview.startTick) / 2;
+            double runningTick = elapsed <= approach ? impulsePreview.startTick + 2 * elapsed
+                    : impulsePreview.tick + Math.min(1, elapsed - approach);
             visualTick = Math.max(visualTick, runningTick);
         }
         Presented confirmed = sample(id, new Cursor(Math.min(latest.tick, visualTick), cursor.fadeTick));
@@ -203,6 +238,7 @@ final class ArenaMotionTimeline {
         }
         localVisualTick = visualTick;
         localVisualPoint = visualPoint;
+        localRenderedAt = now;
         return new LocalView(visualPoint, confirmedPoint, confirmed.pose);
     }
 
@@ -221,18 +257,30 @@ final class ArenaMotionTimeline {
         Fighter prior = track.latest;
         if (prior != null && prior.motionEpoch() != fighter.motionEpoch()) {
             track.samples.clear();
+            track.skippedSwing = Math.max(track.confirmedSwing, tick - 1);
             prior = null;
         }
         Sample previous = track.samples.peekLast();
         Vec3 next = new Vec3(fighter.x(), fighter.y(), fighter.z());
         long hurt = fighter.hurtTick() > 0 && fighter.hurtTick() <= tick ? fighter.hurtTick() : -1;
         if (prior != null && fighter.motionEpoch() == 0 && hurt < 0 && fighter.health() < prior.health()) hurt = tick;
-        track.confirmedHurt = Math.max(track.confirmedHurt, hurt);
+        if (hurt > track.confirmedHurt) {
+            track.confirmedHurt = hurt;
+            track.hurtCue = new Cue(hurt, anchorNanos / NANOS_PER_TICK, tick);
+        }
         if (hurt <= track.skippedHurt) hurt = -1;
         PosePath route = previous == null ? null : CombatGeometry.posePath(TERRAIN, previous.point, next, tick - previous.tick);
         double stride = route == null ? 0 : previous.stride
                 + Math.hypot(next.x() - previous.point.x(), next.z() - previous.point.z()) * 2.5;
-        track.samples.addLast(new Sample(tick, fighter, next, hurt, stride, route));
+        long swing = fighter.swingTick();
+        if (swing < 0 && fighter.swinging() && (prior == null || !prior.swinging())) swing = tick;
+        if (swing > track.confirmedSwing && swing <= tick) {
+            track.confirmedSwing = swing;
+            track.swingCue = new Cue(swing, anchorNanos / NANOS_PER_TICK, tick);
+        }
+        swing = track.confirmedSwing > track.skippedSwing ? track.confirmedSwing : -1;
+        track.samples.addLast(new Sample(tick, fighter, next, hurt < 0 ? null : track.hurtCue,
+                swing < 0 ? null : track.swingCue, stride, route));
         if (track.samples.size() > MAX_SAMPLES) track.samples.removeFirst();
         track.latest = fighter;
     }

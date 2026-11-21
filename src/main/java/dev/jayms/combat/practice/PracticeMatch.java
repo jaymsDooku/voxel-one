@@ -13,6 +13,12 @@ import java.util.Map;
 /** Owns one isolated, first-to-one practice match and its spectators. */
 public final class PracticeMatch implements ArenaMatch {
     public static final int TICKS_PER_SECOND = 20;
+    public static final int SWING_TICKS = 6;
+
+    public static long restartSwing(long previous, long tick) {
+        return previous < 0 || tick - previous >= SWING_TICKS / 2 ? tick : previous;
+    }
+
     public enum Phase { WAITING, COUNTDOWN, FIGHT, RESULT }
     public enum Kit { NO_DEBUFF, DEBUFF }
     public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
@@ -21,10 +27,26 @@ public final class PracticeMatch implements ArenaMatch {
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
                           int hits, int combo, int used, int remaining, int side, String role,
                           float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick,
+                          long impulseTick, float impulseX, float impulseY, float impulseZ, long swingTick) {
+        public Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
+                          float health, boolean moving, boolean swinging, boolean ready, Item held,
+                          int hits, int combo, int used, int remaining, int side, String role,
+                          float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick,
                           long impulseTick, float impulseX, float impulseY, float impulseZ) {
+            this(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready, held, hits, combo,
+                    used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch, lastHorizontalWallTick,
+                    impulseTick, impulseX, impulseY, impulseZ, -1);
+        }
+
         public static Fighter fromCombat(PlayerState state, String name, boolean swinging,
                                          boolean ready, int side, String role,
                                          long simulationTick, long matchTickAtSimulationTick) {
+            return fromCombat(state, name, swinging, ready, side, role, simulationTick, matchTickAtSimulationTick, -1);
+        }
+
+        public static Fighter fromCombat(PlayerState state, String name, boolean swinging,
+                                         boolean ready, int side, String role,
+                                         long simulationTick, long matchTickAtSimulationTick, long swingTick) {
             Vec3 p = state.feet(), v = state.velocity();
             Stats stats = state.stats();
             // Keep combat cues in match time even while the simulation is frozen at the result screen.
@@ -37,7 +59,7 @@ public final class PracticeMatch implements ArenaMatch {
                     state.inventory().get(state.slot()).item(), stats.hits(), stats.longestCombo(),
                     stats.potsUsed(), stats.potsRemaining(), side, role,
                     (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch(), state.lastHorizontalWallTick(),
-                    impulseTick, wireImpulse(impulse.x()), wireImpulse(impulse.y()), wireImpulse(impulse.z()));
+                    impulseTick, wireImpulse(impulse.x()), wireImpulse(impulse.y()), wireImpulse(impulse.z()), swingTick);
         }
 
         private static float wireImpulse(double component) {
@@ -172,7 +194,7 @@ public final class PracticeMatch implements ArenaMatch {
                 for (Event event : engine.drainEvents()) {
                     Member actor = members.get(event.actorId()), target = members.get(event.targetId());
                     if (event.type() == EventType.HIT && target != null) target.lastHit = tick;
-                    if (event.type() == EventType.SWING && actor != null) actor.lastSwing = tick;
+                    if (event.type() == EventType.SWING && actor != null) actor.lastSwing = restartSwing(actor.lastSwing, tick);
                     if (event.type() == EventType.SPLASH) lastSplash = tick;
                 }
                 var fighters = engine.snapshots();
@@ -197,8 +219,8 @@ public final class PracticeMatch implements ArenaMatch {
             Member member = entry.getValue();
             if (member.side < 0) continue;
             PlayerState f = engine.snapshot(fighterId);
-            fighters.add(Fighter.fromCombat(f, member.name, member.lastSwing >= 0 && tick - member.lastSwing < 5,
-                    member.ready, -1, "", engine.currentTick(), lastSimulationStep));
+            fighters.add(Fighter.fromCombat(f, member.name, member.lastSwing >= 0 && tick - member.lastSwing < SWING_TICKS,
+                    member.ready, -1, "", engine.currentTick(), lastSimulationStep, member.lastSwing));
         }
         Member member = members.get(id);
         PlayerState self = member == null || member.side < 0 ? null : engine.snapshot(id);

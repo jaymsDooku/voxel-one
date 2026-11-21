@@ -49,6 +49,20 @@ class ArenaMotionTimelineTest {
     }
 
     @Test
+    void aLatePacketCannotMakeTheRemoteClockJumpOnReceipt() {
+        var motion = new ArenaMotionTimeline();
+        var actor = List.of(fighter(0, 0, 0, 0, 20, -1, 1));
+        motion.observe(100, actor, ms(0));
+        motion.observe(101, actor, ms(50));
+        double before = motion.frame(ms(185)).remote().tick();
+        motion.observe(103, actor, ms(186));
+        double after = motion.frame(ms(186)).remote().tick();
+        assertTrue(after > before);
+        assertTrue(after - before <= 1.45 / 50 + 1e-9);
+        assertEquals(after, motion.frame(ms(186)).remote().tick());
+    }
+
+    @Test
     void oneTickBridgeFollowsTheAxisMoveAroundArenaCover() {
         var motion = route(1);
         var corner = motion.sample(1, cursor(100.5));
@@ -110,14 +124,17 @@ class ArenaMotionTimelineTest {
     }
 
     @Test
-    void confirmedHurtWaitsForPresentationAndExpiresWithoutARefresh() {
+    void confirmedHurtShowsOnReceiptAndExpiresWithoutARefresh() {
         var motion = new ArenaMotionTimeline();
         motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));
         motion.observe(101, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(50));
-        assertEquals(0, motion.sample(1, motion.frame(ms(99)).remote()).hurt());
+        var received = motion.frame(ms(50)).remote();
+        assertTrue(received.tick() < 101);
+        assertEquals(1, motion.sample(1, received).hurt());
+        assertEquals(0, motion.sample(1, cursor(100)).hurt());
         motion.observe(102, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(100));
         assertEquals(1, motion.sample(1, motion.frame(ms(100)).remote()).hurt());
-        assertEquals(2f / 3, motion.sample(1, motion.frame(ms(250)).remote()).hurt(), .0001f);
+        assertEquals(1f / 3, motion.sample(1, motion.frame(ms(250)).remote()).hurt(), .0001f);
         assertEquals(0, motion.sample(1, motion.frame(ms(350)).remote()).hurt());
     }
 
@@ -174,8 +191,8 @@ class ArenaMotionTimelineTest {
         long duringImpulse = ms(87) + 500_000;
         var frame = motion.frame(duringImpulse);
         var local = motion.sampleLocal(1, frame.local(), duringImpulse, false, true);
-        assertEquals(.65, local.point().x(), .0001);
-        assertEquals(73.20, local.point().y(), .0001);
+        assertEquals(.425, local.point().x(), .0001);
+        assertEquals(73.10, local.point().y(), .0001);
         assertEquals(.20, local.confirmedPoint().x(), .0001);
         assertEquals(101, local.pose().first());
         assertEquals(101, local.pose().last());
@@ -201,11 +218,34 @@ class ArenaMotionTimelineTest {
 
         motion.observe(102, List.of(withImpulse(1.05f, 0, 1, 101, .90f, 0, 0)), ms(100));
         var after = motion.sampleLocal(1, motion.frame(ms(100)).local(), ms(100), false, true);
-        assertEquals(before.point().x(), after.point().x(), .0001);
+        double handoffStep = after.point().x() - before.point().x();
+        assertTrue(handoffStep > .10 && handoffStep < .18, "camera should advance at near impulse speed through confirmation");
+        var next = motion.sampleLocal(1, motion.frame(ms(110)).local(), ms(110), false, true);
+        assertEquals(handoffStep, next.point().x() - after.point().x(), .005);
         assertTrue(after.pose().last() <= 102);
         var caughtUp = motion.sampleLocal(1, motion.frame(ms(240)).local(), ms(240), false, true);
         assertEquals(1.05, caughtUp.point().x(), .0001);
         assertEquals(102, caughtUp.pose().tick());
+    }
+
+    @Test
+    void predictedImpulseAdvancesAtOneTickOfTravelPerServerTickAcrossRenderRates() {
+        for (int fps : List.of(60, 144)) {
+            var motion = new ArenaMotionTimeline();
+            motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));
+            motion.sampleLocal(1, motion.frame(ms(0)).local(), ms(0), false, true);
+            motion.observe(101, List.of(withImpulse(0, 0, 1, 101, .90f, 0, 0)), ms(50));
+            motion.sampleLocal(1, motion.frame(ms(50)).local(), ms(50), false, true);
+            // After the buffered half-tick approach, each frame consumes its share of the impulse.
+            long interval = 1_000_000_000L / fps;
+            var previous = motion.sampleLocal(1, motion.frame(ms(75)).local(), ms(75), false, true);
+            for (long now = ms(75) + interval; now < ms(125); now += interval) {
+                var current = motion.sampleLocal(1, motion.frame(now).local(), now, false, true);
+                assertEquals(.90 * interval / ms(50), current.point().x() - previous.point().x(), .0001);
+                assertEquals(101, current.pose().tick());
+                previous = current;
+            }
+        }
     }
 
     @Test
@@ -215,11 +255,11 @@ class ArenaMotionTimelineTest {
         motion.sampleLocal(1, motion.frame(ms(0)).local(), ms(0), false, true);
         motion.observe(101, List.of(withImpulse(7.60f, 7, 1, 101, .90f, 0, 0)), ms(50));
         motion.sampleLocal(1, motion.frame(ms(50)).local(), ms(50), false, true);
-        var clipped = motion.sampleLocal(1, motion.frame(ms(110)).local(), ms(110), false, true);
+        var clipped = motion.sampleLocal(1, motion.frame(ms(140)).local(), ms(140), false, true);
         assertEquals(7.70, clipped.point().x(), .0001);
         assertEquals(7.60, clipped.confirmedPoint().x(), .0001);
 
-        motion.observe(102, List.of(withImpulse(2, 0, 2, 101, .90f, 0, 0)), ms(120));
+        motion.observe(102, List.of(withImpulse(2, 0, 2, 101, .90f, 0, 0)), ms(150));
         var teleported = motion.sampleLocal(1, motion.frame(ms(160)).local(), ms(160), false, true);
         assertEquals(2, teleported.point().x(), .0001);
         assertEquals(102, teleported.pose().tick());
