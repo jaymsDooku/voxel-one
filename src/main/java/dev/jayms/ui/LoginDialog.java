@@ -122,8 +122,9 @@ public final class LoginDialog {
         buttons.add(login);
         buttons.add(register);
         buttons.add(offline);
+        JPanel practiceButtons = new JPanel();
         if (!gameExplicit) {
-            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB, Kit.TEAMFIGHTING_LAB}) {
+            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB, Kit.TEAMFIGHTING_LAB, Kit.TEAMFIGHTING_30V30}) {
                 JButton practice = new JButton(kit == Kit.NO_DEBUFF ? "PotPvP Practice" : kit.title());
                 practice.addActionListener(e -> {
                     practiceKit = kit;
@@ -131,20 +132,24 @@ public final class LoginDialog {
                     result.complete(null);
                     frame.dispose();
                 });
-                buttons.add(practice);
+                practiceButtons.add(practice);
             }
         }
         c.gridx = 0;
         c.gridy = 6;
         c.gridwidth = 2;
         panel.add(buttons, c);
-        c.gridy = 7;
+        if (!gameExplicit) {
+            c.gridy++;
+            panel.add(practiceButtons, c);
+        }
+        c.gridy++;
         panel.add(status, c);
         JLabel hint = new JLabel("Usernames: 3-16 letters/numbers/_ | Passwords: 10+ characters");
         hint.setFont(hint.getFont().deriveFont(11f));
-        c.gridy = 8;
+        c.gridy++;
         panel.add(hint, c);
-        c.gridy = 9;
+        c.gridy++;
         panel.add(description, c);
         game.addActionListener(e -> {
             boolean music = game.getSelectedItem() == GameIdentity.MUSIC;

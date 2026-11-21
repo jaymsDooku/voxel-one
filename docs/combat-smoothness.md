@@ -101,6 +101,8 @@ Select **Teamfighting Lab** on the Play screen or launch with `--game practice -
 
 Both sides use the No Debuff kit with the standard combat rules and healing potions. Teammates cannot damage or knock each other back, and a teammate in the way can intercept your melee ray. A potion splash can heal nearby fighters on either team. A knocked-out fighter spectates while their teammate stays in the round. The round ends when a whole team is eliminated or the standard eight-minute timer expires.
 
+Select **Teamfighting Lab 30v30** for **Basalt Battlefield**, a 144 × 112-block arena with covered flanks, open approach lanes and two spawn rows per team. Offline, one player joins 59 sparring bots. For a dedicated lobby start `--practice-server --kit teamfighting-30v30` and use current practice clients. The lobby holds up to 60 fighters and four spectators. The round starts when all 60 fighters are ready.
+
 ## Reproduce
 
 These PowerShell commands use the current build’s desktop dependencies. Set up a graphics-capable desktop for the native run. The deterministic tests run headless.
