@@ -34,6 +34,7 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean shaftShadow;
     private boolean ledgeShadow;
     private CorniceOrbit corniceOrbit;
+    private boolean doublePalace, scaleReference;
     private PreviewFlickerPlaytest flicker;
     private DistantGridMotion distantGrid;
     private int clockFrames;
@@ -51,8 +52,10 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         field("gameConfig").set(game,new GameConfig(false,false,1200,16));
         field("renderOnlyReplay").setBoolean(game,true);
         var probe=new BuildingPreviewWindowsPlaytest(output);
+        probe.doublePalace=building.name().equals("westminster-double");
         probe.cedar=building.name().equals("cedar-court-entry");
         probe.grand=building.name().equals("westminster-grand");
+        probe.scaleReference=probe.grand && args.length==3 && args[2].equals("scale-reference");
         probe.clockLighting=probe.grand && args.length==3 && args[2].equals("clock-lighting");
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         probe.roofLighting=probe.grand && args.length==3 && args[2].equals("roof-lighting");
@@ -64,6 +67,12 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
+        if (probe.scaleReference && probe.stage==1) return;
+        if (probe.doublePalace) {
+            if (probe.stage!=3 || Files.exists(output.resolve("unused.dat")))
+                throw new AssertionError("Double Palace inspection did not finish cleanly");
+            return;
+        }
         if (probe.corniceOrbit!=null) {
             if (Files.exists(output.resolve("unused.dat"))) throw new AssertionError("Orbit wrote a world save");
             probe.corniceOrbit.verify(output);
@@ -91,18 +100,24 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (roofLighting || shaftShadow || ledgeShadow || corniceOrbit!=null) glfwSetWindowSize(window,1280,720);
+        if (roofLighting || shaftShadow || ledgeShadow || corniceOrbit!=null || doublePalace || scaleReference) glfwSetWindowSize(window,1280,720);
         else if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (ledgeShadow || corniceOrbit!=null) {
+        if (ledgeShadow || corniceOrbit!=null || doublePalace || scaleReference) {
             // A background test window must keep rendering the scene when focus shifts.
             var focus=glfwSetWindowFocusCallback(window,null);
             if (focus!=null) focus.free();
-            placeFlying(game,-47,109,37,0,-30);
+            if (scaleReference) {
+                // Match the double Palace spawn offset from the riverfront centre and its ground level.
+                float distance=(float)(.58*(600/(16f/9))/Math.tan(Math.toRadians(35)));
+                int grade=world.terrain().stressGrid().grade();
+                placeFlying(game,150,grade+204*.8f,-distance-16,90,-10);
+            } else if (doublePalace) overviewStart=new Vector3f(((Player)field("player").get(game)).position());
+            else placeFlying(game,-47,109,37,0,-30);
         }
         else if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
         else if (roofLighting) placeFlying(game,99,75,-8,57,-5);
@@ -121,6 +136,11 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (scaleReference) return;
+        if (doublePalace) {
+            if (stage>0) flyDoublePalace(game);
+            return;
+        }
         if (corniceOrbit!=null) {
             // Keep the approach and camera history leading into the suspect angle.
             int angle=Math.max(0,clockFrames-35);
@@ -194,6 +214,32 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (scaleReference) {
+            if (++clockFrames==120) {
+                capture(game,"grand-scale-reference.png");
+                stage=1;
+                glfwSetWindowShouldClose(window,true);
+            }
+            return;
+        }
+        if (doublePalace) {
+            if (++clockFrames==120) {
+                if (stage==0) {
+                    checkDoublePalace(game);
+                    capture(game,"double-palace.png");
+                    pressRecord();
+                } else if (stage==1) {
+                    capture(game,"double-clock.png");
+                } else {
+                    capture(game,"double-riverfront.png");
+                    pressRecord();
+                    glfwSetWindowShouldClose(window,true);
+                }
+                stage++;
+                clockFrames=0;
+            }
+            return;
+        }
         if (corniceOrbit!=null) {
             int angle=clockFrames++-35;
             if (angle>=CorniceOrbit.FIRST) {
@@ -353,6 +399,48 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
                 glfwSetWindowShouldClose(window,true);
             }
         }
+    }
+
+    private void flyDoublePalace(Main game) throws Exception {
+        int base=world.terrain().stressGrid().grade()+1;
+        var clockView=new Vector3f(99,base+150,-12);
+        var facadeView=new Vector3f(250,base+81,-26);
+        float t=Math.min(1,(clockFrames+1)/100f);
+        t=t*t*(3-2*t);
+        Vector3f position=new Vector3f(stage==1 ? overviewStart : clockView)
+                .lerp(stage==1 ? clockView : facadeView,t);
+        float yaw=stage==1 ? 90+38*t : 128-48*t;
+        float pitch=stage==1 ? -10-5*t : -15-4*t;
+        placeFlying(game,position.x,position.y,position.z,yaw,pitch);
+    }
+
+    private void checkDoublePalace(Main game) throws Exception {
+        int base=world.terrain().stressGrid().grade()+1;
+        var camera=(Camera)field("camera").get(game);
+        var vp=new Matrix4f((Matrix4f)field("projection").get(game)).mul(camera.createViewMatrix());
+        var report=new StringBuilder();
+        // Interior points on the three uppermost caps, above the former preview ceiling.
+        int[][] caps={{34,192,78},{298,184,150},{542,196,182}};
+        String[] names={"Elizabeth","Central","Victoria"};
+        for (int i=0;i<caps.length;i++) {
+            int[] cap=caps[i];
+            int y=base+cap[1]-1;
+            var chunk=world.getLoadedChunks().get(ChunkPos.fromBlock(cap[0],y,cap[2]));
+            if (chunk==null || chunk.getMesh()==null || world.getBlock(cap[0],y,cap[2])==ChunkGenerator.AIR
+                    || world.getBlock(cap[0],y+1,cap[2])!=ChunkGenerator.AIR)
+                throw new AssertionError(names[i]+" tower cap missing at world y="+y);
+            Vector3f screen=vp.transformProject(new Vector3f(cap[0]+.5f,y+.5f,cap[2]+.5f));
+            if (!(Math.abs(screen.x)<1 && Math.abs(screen.y)<1 && Math.abs(screen.z)<1))
+                throw new AssertionError(names[i]+" tower lies outside opening view: "+screen);
+            report.append(names[i]).append(" tower cap loaded, meshed and in opening view at world y=").append(y).append('\n');
+        }
+        for (int x:new int[]{200,380}) {
+            if (world.getBlock(x,base,175)==ChunkGenerator.AIR
+                    || world.getBlock(x,base+20,175)!=ChunkGenerator.AIR)
+                throw new AssertionError("Missing court floor or blocked courtyard at x="+x);
+        }
+        report.append("Both courtyard floors have open space above.\n");
+        Files.writeString(output.resolve("results.txt"),report);
     }
 
     private void inspectWestminster(Main game,long elapsed) throws Exception {

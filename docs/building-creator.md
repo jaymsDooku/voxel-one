@@ -66,7 +66,7 @@ The [Westminster study](westminster-build-plan.md) shows how to plan a larger co
 
 ### Monument-scale walls
 
-Append `grid16 monument` to opt into a 512-block compiler envelope, 1,200,000 placement edits and 16,000,000 units of octree fill work. Both the authenticated compile endpoint and CLI emit the existing version 2 placement format. Read `occupied` into a 64-bit integer. The native inspection plot lowers its ground for tall buildings. Its streamed vertical range reaches world Y=127.
+Append `grid16 monument` to opt into a 512-block compiler envelope, 1,200,000 placement edits and 16,000,000 units of octree fill work. Both the authenticated compile endpoint and CLI emit the existing version 2 placement format. Read `occupied` into a 64-bit integer. The native inspection plot lowers its ground for tall buildings. The preview retains occupied upper tower sections above the ordinary terrain streaming range.
 
 ```text
 building arcade 4800 96 32 grid16 monument
@@ -91,6 +91,13 @@ java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/bui
 ```
 
 Large previews open in flight with the camera framing the building. For the full-scale Palace, the preview draws detailed geometry out to 600 blocks and keeps the occupied building columns loaded as you move. Fly above the Thames range to see the standing seams and open ridge cresting, or across the courts for the two louvred lanterns over Westminster Hall. Press **F** to switch between flying and walking.
+
+The double-scale Palace occupies a 600 × 304 block site and has a 204-block recipe height. Victoria Tower, the tallest built part, reaches 196 blocks above the base. The recipe uses `grid16 monument large`, which allows a 1,024-block axis and up to 3,500,000 edits with the same 16,000,000-unit octree work limit. [Build plan and tower elevations](westminster-build-plan.md#double-scale-palace).
+
+```sh
+python deploy/author_westminster_double.py
+java -Xmx6g -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/buildings/westminster-double.vbuild
+```
 
 While flying, tap **[** to halve your cruising speed or **]** to double it. Flight starts at 8 blocks per second and ranges from 2 to 64. Hold **Left Shift** for a temporary 1.75Ã— boost. The flight HUD shows the selected cruising speed and your current bindings.
 

@@ -166,6 +166,54 @@ class OctreeBuildingTest {
         assertTrue(building.edits().stream().anyMatch(edit->edit.depth()==4));
     }
 
+    @Test void largeMonumentKeepsSparseCornersAndRequiresAnExplicitOptIn() {
+        String recipe="""
+                building sparse 16384 16384 16384 grid16 monument large
+                part all 0 0 0 16384 16384 16384
+                box WOOD 16368 16368 16368 16384 16384 16384
+                box SAND 0 0 0 16 16 16
+                end
+                """;
+        var building=BuildingCompiler.compile(recipe);
+        assertEquals(8192,building.occupied());
+        assertEquals(2,building.edits().size());
+        assertEquals(0,building.edits().get(0).x());
+        assertEquals(1023,building.edits().get(1).x());
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(recipe.replace(" monument large"," monument")));
+        assertThrows(IllegalArgumentException.class,()->BuildingCompiler.compile(recipe.replace("16384","16385")));
+    }
+
+    @Test void doubledPalaceRetainsAllMaterialsAndArchitecturalOpenings() throws Exception {
+        var grand=BuildingCompiler.compile(BuildingApi.readRecipe(Path.of("assets/buildings/westminster-grand.vbuild")));
+        var doubled=BuildingCompiler.compile(BuildingApi.readRecipe(Path.of("assets/buildings/westminster-double.vbuild")));
+        assertEquals("westminster-double",doubled.name());
+        assertEquals(grand.width()*2,doubled.width());
+        assertEquals(grand.height()*2,doubled.height());
+        assertEquals(grand.depth()*2,doubled.depth());
+        assertEquals(grand.occupied()*8,doubled.occupied());
+        var materialVolumes=volumesByMaterial(grand);
+        materialVolumes.replaceAll((material,volume)->volume*8);
+        assertEquals(materialVolumes,volumesByMaterial(doubled));
+
+        // Source and destination coordinates are in sixteenths of a block.
+        // Sample the four clock faces, finials, masonry joint, roof and open court.
+        int[][] witnesses={{260,864,426},{260,864,820},{76,864,620},{468,864,620},
+                {272,1504,624},{4320,1536,1440},{960,79,512},{1600,512,1760},{1600,320,1376}};
+        for (var point:witnesses) {
+            assertEquals(materialAt(grand,point[0],point[1],point[2]),
+                    materialAt(doubled,2*point[0]+1,2*point[1]+1,2*point[2]+1));
+        }
+    }
+
+    private static java.util.Map<Integer,Long> volumesByMaterial(BuildingCompiler.Building building) {
+        var result=new java.util.HashMap<Integer,Long>();
+        for (var edit:building.edits()) {
+            int side=16>>edit.depth();
+            result.merge(Blocks.material(edit.type()),(long)side*side*side,Long::sum);
+        }
+        return result;
+    }
+
     private static int materialAt(BuildingCompiler.Building building,int x,int y,int z) {
         for (var edit : building.edits()) {
             int side=16>>edit.depth();

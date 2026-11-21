@@ -72,6 +72,11 @@ public class Chunk implements AutoCloseable {
         return dev.jayms.net.WorldVoxels.decode(blocks.uniform(x * 16, y * 16, z * 16, 16));
     }
 
+    /** Initialize a detached, uniformly filled terrain chunk without 4096 individual tree edits. */
+    void fillTerrain(int material) {
+        blocks.fill(0,0,0,256,256,256,dev.jayms.net.WorldVoxels.encode(material));
+    }
+
     public void setBlock(int x, int y, int z, int color) {
         if (!inside(x, y, z)) {
             throw new IndexOutOfBoundsException("Block outside chunk: " + x + ", " + y + ", " + z);

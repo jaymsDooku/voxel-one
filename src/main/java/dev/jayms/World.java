@@ -11,9 +11,23 @@ public class World implements AutoCloseable {
     private long previewMeshRevision;
     private int previewColumnsX, previewColumnsZ;
 
-    void trackPreviewMeshes(int width, int depth) {
+    static final int MIN_CHUNK_Y = -2;
+    private int maxChunkY = 7;
+
+    int streamCeilingY() {
+        return (maxChunkY+1)*16-1;
+    }
+
+    private int columnHeight() {
+        return maxChunkY - MIN_CHUNK_Y + 1;
+    }
+
+    int trackPreviewMeshes(int width, int depth, int roofY) {
+        // Leave room to fly above the highest finial, including outside the plot.
+        if (roofY >= 127) maxChunkY = Math.floorDiv(roofY + 32, 16);
         previewColumnsX = (width+15)/16;
         previewColumnsZ = (depth+15)/16;
+        return maxChunkY;
     }
 
     public long previewMeshRevision() { return previewMeshRevision; }
@@ -47,7 +61,7 @@ public class World implements AutoCloseable {
     void meshDirty(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){if(c.takeGeometryChange()){changedSky(column(p));if(!c.terrainEquivalent&&!canonicalMutation)columnGeometryVersions.put(column(p),++geometryEpoch);}dirtyMeshes.put(p,c);dirtyColumns.add(column(p));}}
     void meshClean(ChunkPos p,Chunk c){if(loadedChunks.get(p)==c){dirtyMeshes.remove(p);dirtyColumns.add(column(p));sceneChanged(p);}}
     Map<ChunkPos,Chunk> dirtyMeshes(){return dirtyMeshes;}
-    private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||columnMembers.get(p).size()==10);for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
+    private void updateColumns(){for(ChunkPos p:dirtyColumns){boolean complete=columnMembers.containsKey(p)&&(!streamingColumns.contains(p)||columnMembers.get(p).size()==columnHeight());for(ChunkPos member:columnMembers.getOrDefault(p,Set.of())){Chunk c=loadedChunks.get(member);if(!c.isEmpty()&&c.getMesh()==null){complete=false;break;}}boolean changed=complete?completeColumns.add(p):completeColumns.remove(p);if(changed)columnGeneration++;}dirtyColumns.clear();}
 
     private final Map<ChunkPos, Map<String, Protocol.Edit>> edits = new HashMap<>();
     public record EditedCell(int x,int y,int z,SparseVoxelOctree voxels) {}
@@ -58,8 +72,8 @@ public class World implements AutoCloseable {
     /** Natural terrain ends at95. Only actual higher overrides can occlude the GI top boundary. */
     public boolean isClosed(){return closed;}
     public boolean skyTerrainEquivalent(ChunkPos column){
-        if(closed||columnMembers.getOrDefault(column,Set.of()).size()!=10)return false;
-        for(int y=-2;y<=7;y++){var p=new ChunkPos(column.chunkX(),y,column.chunkZ());var c=loadedChunks.get(p);if(c==null||!c.terrainEquivalent||!c.matchesTerrain(terrain,p))return false;}return true;
+        if(closed||columnMembers.getOrDefault(column,Set.of()).size()!=columnHeight())return false;
+        for(int y=MIN_CHUNK_Y;y<=maxChunkY;y++){var p=new ChunkPos(column.chunkX(),y,column.chunkZ());var c=loadedChunks.get(p);if(c==null||!c.terrainEquivalent||!c.matchesTerrain(terrain,p))return false;}return true;
     }
     public boolean requiresSkyCeiling(int x,int z){
         var column=new ChunkPos(x,0,z);if(editedCeilings.contains(column))return true;
@@ -96,7 +110,7 @@ public class World implements AutoCloseable {
     private final java.util.concurrent.ConcurrentHashMap<ChunkPos,Boolean> skyPositions=new java.util.concurrent.ConcurrentHashMap<>();
     public Collection<ChunkPos> skyColumns(){return skyPositions.keySet();}
     public Collection<ChunkPos> skyMembers(ChunkPos p){return columnMembers.getOrDefault(p,Set.of());}
-    public boolean skyColumnReady(ChunkPos p){return !streamingColumns.contains(p)||columnMembers.getOrDefault(p,Set.of()).size()==10;}
+    public boolean skyColumnReady(ChunkPos p){return !streamingColumns.contains(p)||columnMembers.getOrDefault(p,Set.of()).size()==columnHeight();}
     public long skyEditRevision(ChunkPos p){return skyEditVersions.getOrDefault(p,0L);}
     public Iterator<Protocol.Edit> skyEdits(ChunkPos p){return skyEditChunks.getOrDefault(p,Set.of()).stream().flatMap(c->edits.get(c).values().stream()).iterator();}
     private final Terrain terrain;
@@ -292,17 +306,23 @@ public class World implements AutoCloseable {
         // A detached replay may span frames. Restart from current authoritative history if
         // edits changed; newer covering edits erase any older replayed regions.
         if(preparing!=null&&preparing.position().equals(p))replay=null;
-        voxels.apply(e);
+        Chunk resident = loadedChunks.get(p);
+        boolean fixedPlot = resident != null && previewColumns.contains(skyColumn);
+        // A fixed plot is its own immutable-until-edited terrain source. Apply the
+        // edit to its actual octree so carving cannot erase the rest of a detail cell.
+        if (fixedPlot) applyCanonical(resident,e); else voxels.apply(e);
+        var edited = fixedPlot ? resident.cell(Math.floorMod(e.x(),16),Math.floorMod(e.y(),16),Math.floorMod(e.z(),16)) : voxels.cell(e.x(),e.y(),e.z());
         editedCells.computeIfAbsent(p,k->new LinkedHashMap<>()).put(e.cellKey(),
-                new EditedCell(e.x(),e.y(),e.z(),voxels.cell(e.x(),e.y(),e.z()).copy().freeze()));
+                new EditedCell(e.x(),e.y(),e.z(),edited.copy().freeze()));
         WorldVoxels.remember(edits.computeIfAbsent(p, k -> new WorldVoxels.History()), e);
-        var c = loadedChunks.get(p);
-        if (c != null)applyCanonical(c,e);
+        if (!fixedPlot && resident != null) applyCanonical(resident,e);
         dirtyNeighbors(p);
     }
 
     /** Remove resident geometry while retaining authoritative edits for reload. */
     public void unloadChunk(ChunkPos position)throws Exception {
+        // Compiled building columns form the resident base terrain for this preview.
+        if (previewColumns.contains(column(position))) return;
         if(terrainScheduler!=null)terrainScheduler.cancel(position);
         if(preparing!=null&&preparing.position().equals(position)){preparing=null;replay=null;}
         var chunk=loadedChunks.get(position);
@@ -324,8 +344,8 @@ public class World implements AutoCloseable {
                 for (int b = -ring; b <= ring; b++) {
                     if (Math.max(Math.abs(a), Math.abs(b)) != ring) continue;
                     var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-                    if (members!=null&&members.size()==10) continue;
-                    for (int y = -2; y <= 7; y++) {
+                    if (members!=null&&members.size()==columnHeight()) continue;
+                    for (int y = MIN_CHUNK_Y; y <= maxChunkY; y++) {
                         ChunkPos p = new ChunkPos(cx + a, y, cz + b);
                         if(!loadedChunks.containsKey(p))addChunk(p, ChunkGenerator.generate(p, terrain));
                     }
@@ -338,14 +358,14 @@ public class World implements AutoCloseable {
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
         for(int a=-radius;a<=radius;a++)for(int b=-radius;b<=radius;b++) {
             var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-            if(members==null||members.size()!=10)return false;
+            if(members==null||members.size()!=columnHeight())return false;
         }
         return true;
     }
 
     /** Per-chunk preparation, incremental edit replay and deadline-limited owner work.
      * Missing collision cells remain solid via VoxelQueries; distant coverage stays until all
-     * ten vertical chunks are resident and meshed. No worker can reach this World instance.
+     * vertical chunks are resident and meshed. No worker can reach this World instance.
      */
     public void streamAsync(float x,float y,float z,long budgetNanos) throws Exception {
         if(closed)throw new IllegalStateException("World closed");
@@ -353,7 +373,7 @@ public class World implements AutoCloseable {
         streamAttached=streamUnloaded=0;
         long deadline=System.nanoTime()+Math.max(0,budgetNanos);
         int cx=Math.floorDiv((int)Math.floor(x),16),cz=Math.floorDiv((int)Math.floor(z),16);
-        int cy=Math.max(-2,Math.min(7,Math.floorDiv((int)Math.floor(y),16)));
+        int cy=Math.max(MIN_CHUNK_Y,Math.min(maxChunkY,Math.floorDiv((int)Math.floor(y),16)));
         streamDirectionX=streamHistory?Float.compare(x,lastStreamX):0;streamDirectionZ=streamHistory?Float.compare(z,lastStreamZ):0;
         lastStreamX=x;lastStreamZ=z;streamHistory=true;
         if(terrainScheduler==null)terrainScheduler=new TerrainScheduler(terrain.seed,terrain.version);
@@ -371,7 +391,7 @@ public class World implements AutoCloseable {
             while(replay.hasNext()&&System.nanoTime()<deadline)preparing.chunk().apply(replay.next());
             streamReplayNanos+=System.nanoTime()-stage;
             if(replay.hasNext()||System.nanoTime()>=deadline)break;
-            if(loadedChunks.size()>=1690+10*previewColumns.size())break;
+            if(loadedChunks.size()>=columnHeight()*(169+previewColumns.size()))break;
             preparing.chunk().terrainEquivalent=true;
             stage=System.nanoTime();attachChunk(p,preparing.chunk(),false);streamAttachNanos+=System.nanoTime()-stage;
             streamAttached++;preparing=null;replay=null;
@@ -406,12 +426,12 @@ public class World implements AutoCloseable {
             boolean eligible=switch(pass){case 0->collision;case 1->!collision&&predicted;case 2->!collision&&!predicted&&playable;default->!collision&&!predicted&&!playable;};
             if(!eligible)continue;
             // A complete column cannot contain a missing request. Avoid rescanning
-            // all ten heights twice per frame in the resident world.
+            // all heights twice per frame in the resident world.
             var members=columnMembers.get(new ChunkPos(cx+a,0,cz+b));
-            if(members!=null&&members.size()==10)continue;
-            for(int d=0;d<=9;d++)for(int sign=d==0?0:-1;sign<=1;sign+=2) {
+            if(members!=null&&members.size()==columnHeight())continue;
+            for(int d=0;d<columnHeight();d++)for(int sign=d==0?0:-1;sign<=1;sign+=2) {
                 if(System.nanoTime()>=deadline||terrainScheduler.pending()>=TerrainScheduler.CAPACITY)break outer;
-                int yy=cy+d*sign;if(yy< -2||yy>7)continue;
+                int yy=cy+d*sign;if(yy<MIN_CHUNK_Y||yy>maxChunkY)continue;
                 ChunkPos p=new ChunkPos(cx+a,yy,cz+b);
                 if(!loadedChunks.containsKey(p)&&(preparing==null||!preparing.position().equals(p))&&terrainScheduler.request(p,terrain.stressGrid()))streamingColumns.add(column(p));
             }
