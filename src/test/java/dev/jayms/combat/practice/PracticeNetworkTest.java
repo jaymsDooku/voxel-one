@@ -88,16 +88,14 @@ class PracticeNetworkTest {
             assertEquals(self(bob).hurtTick(), fighter(alice.view(), bob.id()).hurtTick());
             assertEquals(self(bob).hurtTick(), self(bob).impulseTick());
             assertEquals(self(bob).impulseTick(), fighter(alice.view(), bob.id()).impulseTick());
-            assertTrue(self(bob).impulseZ() < -.25f);
+            assertEquals(-.211457f, self(bob).impulseZ(), .0001f);
             assertEquals(.3208f, self(bob).impulseY(), .0001f);
-            await(() -> self(bob).vz() < -.12f, "authoritative knockback velocity");
-
             await(() -> {
                 var own = self(bob);
                 var remote = fighter(alice.view(), bob.id());
-                return own.z() < bobBefore.z() - .3 && remote.z() < bobBefore.z() - .3
-                        && !own.moving() && !remote.moving() && Math.abs(own.z() - remote.z()) < .15;
-            }, "remote knockback and pose agreement");
+                return own.vz() == 0 && remote.vz() == 0 && Math.abs(own.z() - remote.z()) < .001
+                        && Math.abs(bobBefore.z() - own.z() - 1) < .001;
+            }, "one block of normal knockback on both clients");
             assertTrue(input(alice, sequence++, -90, 0, 0, false, false, false, 8));
             assertTrue(input(bob, sequence++, 90, -89, 0, false, false, true, 5));
             await(() -> bob.view().lastSplash() >= 0 && alice.view().lastSplash() == bob.view().lastSplash()
@@ -162,7 +160,7 @@ class PracticeNetworkTest {
             if (System.nanoTime() >= deadline) fail("Timed out approaching the central trading lane");
             Thread.sleep(25);
         }
-        await(() -> !self(alice).moving() && !self(bob).moving(), "both fighters stop after sprinting");
+        await(() -> self(alice).vz() == 0 && self(bob).vz() == 0, "both fighters coast to rest after sprinting");
         return sequence;
     }
 

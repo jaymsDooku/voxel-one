@@ -32,7 +32,7 @@ class ArenaCombatTraceTest {
                 }
             }
             assertEquals(8, phases);
-            assertEquals(8 * (fps == 60 ? 41 : 101), active);
+            assertEquals(8 * (fps == 60 ? 38 : 94), active);
             // Pool equal-duration schedules. A missing first movement snapshot stalls phase zero longer.
             assertTrue(remotePauses / (double)active <= (fps == 60 ? .05 : .07), "Remote moving-window pauses at " + fps);
             assertTrue(localPauses / (double)active <= (fps == 60 ? .13 : .18), "Local moving-window pauses at " + fps);

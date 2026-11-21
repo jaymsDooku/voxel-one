@@ -86,7 +86,6 @@ public final class PracticeGame {
     private boolean sprintReleased, showHitboxes, hitboxShortcutNeedsControl;
     private final ArrayDeque<Intent> pendingCombatInputs = new ArrayDeque<>();
     private PoseView localPose;
-    private Vec3 confirmedLocalEye;
     private Boolean scriptedUse;
     private int width, height, slot, source = -1;
     private long frameInput, sequence;
@@ -412,12 +411,20 @@ public final class PracticeGame {
 
     private AttackView displayedTarget() {
         CombatRules rules = view.kit() == PracticeMatch.Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
+        return displayedTarget(camera, rules, localPose, remoteActors);
+    }
+
+    static AttackView displayedTarget(Camera camera, CombatRules rules, PoseView localPose,
+                                      List<ArenaMotionTimeline.Presented> remoteActors) {
+        // The camera can already have moved in response to a hit. Select what its crosshair sees.
+        Vector3f position = camera.position();
+        Vec3 eye = new Vec3(position.x, position.y, position.z);
         Vec3 ray = CombatGeometry.direction(camera.yaw(), camera.pitch()).scale(rules.reach());
         ArenaMotionTimeline.Presented target = null;
-        double closest = CombatGeometry.firstBlock(ArenaMotionTimeline.TERRAIN, confirmedLocalEye, ray);
+        double closest = CombatGeometry.firstBlock(ArenaMotionTimeline.TERRAIN, eye, ray);
         for (var candidate : remoteActors) {
             if (candidate.fighter().health() <= 0) continue;
-            double hit = CombatGeometry.firstMeleeBody(confirmedLocalEye, ray,
+            double hit = CombatGeometry.firstMeleeBody(eye, ray,
                     new Vec3(candidate.x(), candidate.y(), candidate.z()));
             if (hit < closest) {
                 closest = hit;
@@ -599,10 +606,8 @@ public final class PracticeGame {
         localPose = local == null ? new PoseView(view.tick(), view.tick(), view.tick()) : local.pose();
         Vec3 feet = spectator ? new Vec3(gallery.x(), gallery.y(), gallery.z())
                 : local == null ? new Vec3(actor.x(), actor.y(), actor.z()) : local.point();
-        Vec3 confirmed = local == null ? feet : local.confirmedPoint();
-        confirmedLocalEye = confirmed.add(0, PlayerDimensions.EYE_HEIGHT, 0);
         camera.position().set((float) feet.x(), (float) (feet.y() + PlayerDimensions.EYE_HEIGHT), (float) feet.z());
-        if (observer != null) observer.sampled(now, view, feet.x(), feet.y(), feet.z(), confirmed);
+        if (observer != null) observer.sampled(now, view, feet.x(), feet.y(), feet.z(), local == null ? feet : local.confirmedPoint());
         positioned = true; wasSpectator = spectator; lastPhase = view.phase();
     }
 

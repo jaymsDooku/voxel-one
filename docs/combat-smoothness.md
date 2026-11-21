@@ -11,6 +11,23 @@ The reference is PaperMC/Paper-1.7 at `ab9e48b010f9658c96fdca68b711714bedb42e82`
 3. Run the native renderer and two loopback TLS clients in a No Debuff duel. Record the exact render clock, server positions and impulses, presented positions, red tint, arm phase, and scripted attack sequence. Only attribute a click when the server drained one matching attack and confirmed its result. Count missed visual cues in the denominator. Run multiple rounds.
 4. Replay each recorded stream with the other presentation build on **the same snapshot and frame timestamps**. Compare matched hit ticks. Repeat live to expose interactions that replay cannot cover. Use `--trace-only` for timing measurements and a separate recorded run to inspect the motion visually.
 
+## Reach and contested knockback
+
+Practice measures sword reach along a three-block ray from the rendered eye to the first visible surface of the selectable hitbox. The server checks the claimed opponent against its own recorded eye and target poses. A target's center can therefore be farther than three blocks away. While the camera previews incoming knockback, a swing at the edge also needs to be in range from the confirmed eye.
+
+The horizontal speeds below are Voxel One arena settings. They use Paper's velocity retention, travel order, ground and air drag, and the arena's 0.36 lift cap. For calibration, a settled opponent on the flat center of Basalt Courtyard takes one hit and supplies no movement input. Measure horizontal travel until the opponent stops.
+
+| Sword hit | Launch speed (blocks/tick) | Previous travel | Tuned travel straight ahead | Tuned travel at 45° |
+|---|---:|---:|---:|---:|
+| Normal | 0.211457 | 1.901 blocks | 1.000 blocks | 1.000 blocks |
+| Sprint hit, including a re-armed W-tap | 0.562670 | 4.799 blocks | 3.000 blocks | 2.995 blocks |
+
+Diagonal variation comes from the per-axis velocity cutoff. A moving defender retains momentum, can steer in the air and can collide with terrain, so their actual travel can differ.
+
+In a contested No Debuff match, both players tracked each other and clicked from spawn. After trading, one player controlled spacing and reset sprint while clicking seven times per second. The opponent kept approaching and clicking eight times per second. The first player landed full hits on fight ticks 92 and 106 from 2.47 and 2.95–2.96 blocks. The opponent could have dealt damage on ticks 100, 103 and 105, but even the nearest selectable surface was out of range. Both spawn assignments and both input receipt orders reproduced the follow-up. With identical approaches and click timing, the first three exchanges were mutual trades in both receipt orders.
+
+Replaying those same inputs on the previous build (`595c83c8`) passed both equal-input controls and missed the contested follow-up in all four cases. Reproduce the current checks with `mvn "-Dtest=ContestedPracticeTest,CombatEngineTest,MeleeTargetingTest,PracticeNetworkTest" test`. The network test also measures one full block of normal knockback on two clients with 0, 80 and 150 ms of added round-trip delay.
+
 ## Measurements and acceptance
 
 | Measurement | How to read it |
@@ -23,7 +40,7 @@ The reference is PaperMC/Paper-1.7 at `ab9e48b010f9658c96fdca68b711714bedb42e82`
 
 ## Basalt Courtyard results
 
-Three recorded baseline duels, three recorded updated duels, and three additional updated duels with media capture disabled ran on Windows. The comparison below replays the previous and final presentation code on the same three capture-disabled traces. Times cover the loopback client and renderer up to the pre-swap callback. The physics reference comes from the Paper server source.
+These historical presentation measurements used the previous horizontal speeds. Three recorded baseline duels, three recorded updated duels, and three additional updated duels with media capture disabled ran on Windows. The comparison below replays the previous and final presentation code on the same three capture-disabled traces. Times cover the loopback client and renderer up to the pre-swap callback. The physics reference comes from the Paper server source.
 
 | Matched input stream | Previous presentation | Updated presentation |
 |---|---:|---:|

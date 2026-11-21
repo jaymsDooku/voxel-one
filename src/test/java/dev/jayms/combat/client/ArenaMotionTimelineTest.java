@@ -1,7 +1,10 @@
 package dev.jayms.combat.client;
 
+import dev.jayms.Camera;
 import dev.jayms.combat.CombatEngine.Item;
+import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
+import dev.jayms.player.PlayerDimensions;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -205,6 +208,38 @@ class ArenaMotionTimelineTest {
         var expired = motion.sampleLocal(1, motion.frame(ms(400)).local(), ms(400), false, true);
         assertEquals(expired.confirmedPoint(), expired.point());
         assertEquals(101, expired.pose().tick());
+    }
+
+    @Test
+    void aPlayerTakingKnockbackPicksFromTheRenderedEyeAndSendsOnlyConfirmedPoseTimes() {
+        var motion = new ArenaMotionTimeline();
+        motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));
+        motion.sampleLocal(1, motion.frame(ms(0)).local(), ms(0), false, true);
+        motion.observe(101, List.of(withImpulse(0, 0, 1, 101, .5f, 0, 0)), ms(50));
+        motion.sampleLocal(1, motion.frame(ms(50)).local(), ms(50), false, true);
+        long now = ms(87) + 500_000;
+        var local = motion.sampleLocal(1, motion.frame(now).local(), now, false, true);
+        assertEquals(.125, local.point().x() - local.confirmedPoint().x(), .0001);
+        Camera camera = new Camera();
+        camera.position().set((float) local.point().x(), (float) (local.point().y() + PlayerDimensions.EYE_HEIGHT), 0);
+        camera.setPitch(0);
+
+        camera.setYaw(180);
+        assertEquals(0, PracticeGame.displayedTarget(camera, CombatRules.NO_DEBUFF, local.pose(),
+                List.of(opponentAt(-3.35f))).targetId());
+        camera.setYaw(0);
+        var approaching = PracticeGame.displayedTarget(camera, CombatRules.NO_DEBUFF, local.pose(),
+                List.of(opponentAt(3.45f)));
+        assertEquals(2, approaching.targetId());
+        assertEquals(local.pose(), approaching.attacker());
+    }
+
+    private static ArenaMotionTimeline.Presented opponentAt(float x) {
+        var timeline = new ArenaMotionTimeline();
+        var fighter = new Fighter(2, "Opponent", x, 73, 0, 0, 0, 20, false, false, false, Item.SWORD,
+                0, 0, 0, 0, -1, "", 0, 0, 0, -1, 1, -1, -1, 0, 0, 0);
+        timeline.observe(101, List.of(fighter), 0);
+        return timeline.sample(2, cursor(101));
     }
 
     @Test
