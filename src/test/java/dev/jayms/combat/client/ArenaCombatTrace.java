@@ -24,7 +24,7 @@ public final class ArenaCombatTrace {
     }
 
     record Run(double physicsError, double sprintError, List<Replay> replays) {}
-    record Replay(int fps, int phase, Metrics local, Metrics remote) {}
+    record Replay(int fps, int phase, boolean droppedImpact, Metrics local, Metrics remote) {}
 
     static Run run(boolean samples, boolean report) {
         var engine = new CombatEngine(CombatRules.NO_DEBUFF, ArenaMotionTimeline.TERRAIN);
@@ -43,7 +43,7 @@ public final class ArenaCombatTrace {
             truth.add(victim.feet());
             packets.add(List.of(Fighter.fromCombat(engine.snapshot(1), "attacker", tick == HIT, true, 1, "", tick, tick),
                     Fighter.fromCombat(victim, "victim", false, true, 2, "", tick, tick)));
-            if (tick > HIT) paper.advance();
+            if (tick >= HIT) paper.advance();
             double error = victim.feet().minus(paper.point()).length();
             maxError = Math.max(maxError, error);
             if (samples) print("{\"kind\":\"tick\",\"tick\":%d,\"engine\":%s,\"paper\":%s,\"errorBlocks\":%.9f}", tick, xyz(victim.feet()), xyz(paper.point()), error);
@@ -64,7 +64,7 @@ public final class ArenaCombatTrace {
 
     // PaperSpigot 1.7.10 EntityLiving.a(Entity,float,double,double), e(float,float) and e().
     // Use the arena horizontal profile and lift with the independent Paper travel equations.
-    // Stationary target already carries the previous grounded tick's gravity when hit after travel.
+    // A settled target carries the previous grounded tick's gravity into the strike.
     private static final class PaperTravel {
         double x = START.x(), y = FLOOR, vx = CombatRules.NO_DEBUFF.knockback(), vy = .36 + (-.08 * (double).98F) / 2;
         boolean grounded = true;
@@ -82,8 +82,8 @@ public final class ArenaCombatTrace {
         }
     }
 
-    // Both fighters step forward on the hit tick. The victim releases forward on the next
-    // tick, so knockback retains half of its already-dragged walking velocity.
+    // The defender steps forward before contact and releases on impact. The strike
+    // retains half of the already-dragged walking velocity before the launch step.
     private static double sprintTrajectory(boolean samples) {
         var engine = new CombatEngine(CombatRules.NO_DEBUFF, ArenaMotionTimeline.TERRAIN);
         engine.join(1, START.add(-2, 0, 0), 0);
@@ -91,8 +91,7 @@ public final class ArenaCombatTrace {
         var paper = new PaperTravel();
         double maxError = 0;
         for (int tick = 0; tick <= END; tick++) {
-            if (tick == HIT) {
-                engine.submit(1, new Intent(0, 0, 0, 1, 0, false, true, true, false, 0));
+            if (tick == HIT - 1) {
                 engine.submit(2, new Intent(0, 0, 0, 1, 0, false, false, false, false, 0));
                 float friction = .6F * .91F;
                 float acceleration = .1F * (.16277136F / (friction * friction * friction));
@@ -101,8 +100,11 @@ public final class ArenaCombatTrace {
                 paper.vx = forward * friction / 2 + CombatRules.NO_DEBUFF.knockback() + CombatRules.NO_DEBUFF.sprintKnockback();
                 paper.vy += .1;
             }
-            if (tick == HIT + 1) engine.submit(2, new Intent(1, 0, 0, 0, 0, false, false, false, false, 0));
-            if (tick > HIT) paper.advance();
+            if (tick == HIT) {
+                engine.submit(1, new Intent(0, 0, 0, 1, 0, false, true, true, false, 0));
+                engine.submit(2, new Intent(1, 0, 0, 0, 0, false, false, false, false, 0));
+            }
+            if (tick >= HIT) paper.advance();
             if (tick > 0) engine.tick();
             var victim = engine.snapshot(2);
             if (tick == HIT && victim.impulseTick() != HIT) throw new AssertionError("Sprint hit missed");
@@ -135,7 +137,7 @@ public final class ArenaCombatTrace {
             int left = (int)t;
             Vec3 delta = truth.get(left + 1).minus(truth.get(left));
             Vec3 reference = truth.get(left).add(delta.scale(t - left));
-            boolean moving = delta.length() > .005 && t > HIT;
+            boolean moving = delta.length() > .005 && t > HIT - 1;
             local.measure(camera, reference, moving, now);
             remote.measure(avatar, reference, moving, now);
             maxGap = Math.max(maxGap, camera.minus(avatar).length());
@@ -145,7 +147,7 @@ public final class ArenaCombatTrace {
             local.report("local", fps, phase, maxGap);
             remote.report("remote", fps, phase, maxGap);
         }
-        return new Replay(fps, phase, local, remote);
+        return new Replay(fps, phase, phase >= 0 && (HIT + phase) % 9 == 0, local, remote);
     }
 
     private static long arrival(int tick, int phase) {

@@ -11,6 +11,7 @@ final class CombatMovement {
     private static final double SPRINT_MULTIPLIER = 1.3, INPUT_DAMPING = .98;
     private static final double JUMP_SPEED = .42, SPRINT_JUMP_PUSH = .2;
     private static final double GRAVITY = .08, VERTICAL_DRAG = .98;
+    static final Vec3 RESTING_ON_GROUND = new Vec3(0, -GRAVITY * VERTICAL_DRAG, 0);
     private static final double MOTION_DEADZONE = .005, COLLISION_EPSILON = 1e-7;
     private static final int JUMP_COOLDOWN = 10;
 

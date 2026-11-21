@@ -15,6 +15,7 @@ public record CombatRules(
 
     // Lower Paper's base vertical lift and cap slightly for arena combos before the sprint bonus.
     private static final double ARENA_BASE_LIFT = 0.36;
+    public static final int AUTO_CLICK_CPS = 9;
     // Launch speeds in blocks/tick. With this lift and Paper ground/air drag a settled
     // opponent coasts one block after a normal hit and three after an aligned sprint hit.
     private static final double NORMAL_PUSH = .211457;

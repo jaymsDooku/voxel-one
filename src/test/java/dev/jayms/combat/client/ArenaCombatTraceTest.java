@@ -27,8 +27,12 @@ class ArenaCombatTraceTest {
                     assertEquals(local.movingFrames, remote.movingFrames);
                     localPauses += local.pauses;
                     remotePauses += remote.pauses;
-                    assertTrue(local.maxError <= .33 && remote.maxError <= .71, "Jitter pose error" + scenario);
-                    assertTrue(local.maxStep <= .40 && remote.maxStep <= (fps == 60 ? .23 : .11), "Jitter pose jump" + scenario);
+                    // When the impact packet is lost, the first visible step is already in flight
+                    // before either client has received evidence that the target moved.
+                    assertTrue(local.maxError <= (replay.droppedImpact() ? .51 : .34) && remote.maxError <= .71,
+                            "Jitter pose error" + scenario);
+                    assertTrue(local.maxStep <= (fps == 60 ? .20 : .085) && remote.maxStep <= (fps == 60 ? .23 : .11),
+                            "Jitter pose jump" + scenario);
                 }
             }
             assertEquals(8, phases);

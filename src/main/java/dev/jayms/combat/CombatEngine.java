@@ -133,7 +133,7 @@ public final class CombatEngine {
             return false;
         }
         Actor actor = new Actor(playerId, feet, yaw, rules.openingKit(), rules.armorReduction());
-        actor.grounded = supported(arena, feet);
+        settleAtSpawn(actor);
         actors.put(playerId, actor);
         return true;
     }
@@ -148,7 +148,7 @@ public final class CombatEngine {
         Actor old = actors.get(playerId);
         if (old == null || !spawnValid(playerId, feet, yaw)) return false;
         Actor replacement = new Actor(playerId, feet, yaw, old.kit, old.startingArmorReduction);
-        replacement.grounded = supported(arena, feet);
+        settleAtSpawn(replacement);
         replacement.sequence = old.sequence;
         replacement.motionEpoch = old.motionEpoch + 1;
         clearClicks(old);
@@ -174,7 +174,7 @@ public final class CombatEngine {
         actor.intent = intent;
         if (!intent.sprint() || intent.forward() <= 0) actor.lastSprintReleaseSequence = intent.sequence();
         if (intent.attack() && actor.queuedClicks < MAX_CLICKS_PER_ACTOR_PER_TICK) {
-            // Target selection uses the movement phase, but a later packet cannot raise or lower a prior block.
+            // A later packet cannot raise or lower a prior block.
             var blocking = new IdentityHashMap<Actor, Boolean>();
             for (Actor other : actors.values()) {
                 if (other != actor && other.alive()) {
@@ -376,18 +376,23 @@ public final class CombatEngine {
         arenaTick = matchTick;
         currentTick++;
         for (Actor actor : actors.values()) {
-            if (actor.alive()) {
-                tickEffects(actor);
-                if (actor.alive()) move(actor);
-            }
+            if (actor.alive()) tickEffects(actor);
         }
-        // Paper handles attack packets in receipt order, including lethal hits in a single tick.
+        // Resolve received swings before either fighter can walk farther through the contact.
+        // Both eyes still describe the same step, even when two live clicks trade.
         for (Click click : pendingMelee) {
             Actor actor = click.attacker();
             if (actor.alive()) melee(actor, click);
             actor.queuedClicks--;
         }
         pendingMelee.clear();
+        for (Actor actor : actors.values()) {
+            if (actor.alive()) {
+                move(actor);
+                // This launch has already advanced the feet. The local camera previews the next step.
+                if (actor.impulseTick == currentTick) actor.hitImpulse = actor.motion;
+            }
+        }
         for (Actor actor : actors.values()) {
             if (actor.alive()) use(actor);
             actor.usePressed = false;
@@ -812,10 +817,9 @@ public final class CombatEngine {
             return;
         }
         owner.feet = feet;
-        owner.motion = ZERO;
         owner.velocity = ZERO;
         owner.fallDistance = 0;
-        owner.grounded = supported(arena, feet);
+        settleAtSpawn(owner);
         owner.hitHorizontalWall = false;
         owner.lastHorizontalWallTick = -1;
         owner.jumpCooldown = 0;
@@ -825,6 +829,11 @@ public final class CombatEngine {
         owner.motionEpoch++;
         emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
         applyUnarmoredDamage(owner, owner.id, rules.pearlDamage());
+    }
+
+    private void settleAtSpawn(Actor actor) {
+        actor.grounded = supported(arena, actor.feet);
+        actor.motion = actor.grounded ? CombatMovement.RESTING_ON_GROUND : ZERO;
     }
 
     private Vec3 pearlDestination(Actor owner, Vec3 previousPosition, Vec3 velocity) {

@@ -17,7 +17,6 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -32,48 +31,67 @@ class ContestedPracticeTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void equalApproachAndClicksTradeInEitherReceiptOrder(boolean reverse) {
-        var exchanges = duel(1, reverse, false).stream().filter(t -> t.hit || t.counterHit).toList();
+        var exchanges = duel(1, reverse, false, 9, 9, 0).stream().filter(t -> t.hit || t.counterHit).toList();
         assertTrue(exchanges.size() >= 3);
         assertTrue(exchanges.subList(0, 3).stream().allMatch(t -> t.hit && t.counterHit), () -> exchanges.subList(0, 3).toString());
     }
 
     @ParameterizedTest
     @CsvSource({"1,false", "1,true", "2,false", "2,true"})
-    void wTapperCanFollowUpAgainstAnOpponentWhoKeepsSwinging(int attacker, boolean reverse, TestReporter reporter) {
-        boolean traded = false;
-        Tick opener = null;
-        var missedCounters = new ArrayList<String>();
-        for (Tick t : duel(attacker, reverse, true)) {
+    void fourFullWTapHitsAgainstAnOpponentWhoKeepsSwinging(int attacker, boolean reverse, TestReporter reporter) {
+        var hits = new ArrayList<Integer>();
+        int eligibleMisses = 0;
+        for (Tick t : duel(attacker, reverse, true, 9, 9, 10)) {
             if (t.counterHit) {
-                traded |= t.fullHit;
-                opener = null;
-                missedCounters.clear();
+                hits.clear();
+                eligibleMisses = 0;
                 continue;
             }
-            if (!traded) continue;
-            if (opener != null && t.counter.intent.attack() && t.counterVulnerable && t.counter.horizontalLowerBound > RULES.reach()) {
-                missedCounters.add(String.format(Locale.ROOT, "%d (%.2f blocks)", t.number, t.counter.distance));
+            if (!t.exchanged) continue;
+            if (t.counter.intent.attack() && t.counterVulnerable && t.counter.horizontalLowerBound > RULES.reach()) {
+                eligibleMisses++;
             }
             if (!t.fullHit) continue; // A stronger critical inside the hurt window is not a fresh knockback.
-            if (opener != null && !missedCounters.isEmpty() && t.receiverSprintLift && t.bothAlive
-                    && t.number - opener.number <= 26) {
-                assertTrue(t.number - opener.number >= RULES.hurtTicks());
-                reporter.publishEntry("Basalt Courtyard", String.format(Locale.ROOT,
-                        "Full hits %d (%.2f blocks) and %d (%.2f blocks). Eligible counter swings out of reach at %s.",
-                        opener.number, opener.attack.distance, t.number, t.attack.distance, missedCounters));
+            if (!hits.isEmpty()) {
+                int gap = t.number - hits.get(hits.size() - 1);
+                if (gap > 26 || eligibleMisses == 0) hits.clear();
+                assertTrue(gap >= RULES.hurtTicks());
+            }
+            eligibleMisses = 0;
+            if (!t.receiverSprintLift || !t.bothAlive) {
+                hits.clear();
+                continue;
+            }
+            assertTrue(t.attack.distance <= RULES.reach());
+            hits.add(t.number);
+            if (hits.size() == 4) {
+                reporter.publishEntry("Basalt Courtyard", "Unanswered full sprint hits on fight ticks " + hits);
                 return;
             }
-            opener = t;
-            missedCounters.clear();
         }
-        fail("Expected a live sprint follow-up after a real trade and an out-of-reach counter swing");
+        fail("Expected four live sprint hits with an eligible out-of-range counter between each pair");
     }
 
     private record Aim(Intent intent, double distance, double horizontalLowerBound) {}
-    private record Tick(int number, Aim attack, Aim counter, boolean hit, boolean fullHit, boolean counterHit,
+    private record Tick(int number, Aim attack, Aim counter, boolean exchanged, boolean hit, boolean fullHit, boolean counterHit,
                         boolean counterVulnerable, boolean receiverSprintLift, boolean bothAlive) {}
 
-    private static List<Tick> duel(int attacker, boolean reverse, boolean useSpacing) {
+    @ParameterizedTest
+    @CsvSource({"8,8","8,9","8,10","9,8","9,9","9,10","10,8","10,9","10,10"})
+    void bothClickClocksContinueDuringKnockbackAndMisses(int cps, int counterCps) {
+        for (int phase : new int[]{0, 5, 10, 15}) {
+            for (boolean reverse : List.of(false, true)) {
+                var trace = duel(1, reverse, true, cps, counterCps, phase);
+                assertTrue(trace.stream().anyMatch(Tick::exchanged));
+                assertEquals(trace.size() * cps / 20, trace.stream().filter(t -> t.attack.intent.attack()).count());
+                assertEquals((trace.size() * counterCps + phase) / 20,
+                        trace.stream().filter(t -> t.counter.intent.attack()).count());
+                assertTrue(trace.stream().allMatch(t -> t.counter.intent.forward() == 1));
+            }
+        }
+    }
+
+    private static List<Tick> duel(int attacker, boolean reverse, boolean useSpacing, int cps, int counterCps, int phase) {
         var match = new PracticeMatch(PracticeMatch.Kit.NO_DEBUFF, false);
         match.ready(match.join("West"));
         match.ready(match.join("East"));
@@ -88,10 +106,10 @@ class ContestedPracticeTest {
             if (view.phase() != Phase.FIGHT) break;
             var self = view.fighters().get(attacker - 1);
             var other = view.fighters().get(defender - 1);
-            // Fixed click clocks start at spawn and run through misses, releases and incoming hits.
-            var attack = aim(view.tick(), number, self, other, useSpacing ? 7 : 8,
-                    useSpacing, useSpacing && self.hits() > previousHits);
-            var counter = aim(view.tick(), number, other, self, 8, false, false);
+            boolean exchanged = self.hits() > 0 && other.hits() > 0;
+            var attack = aim(view.tick(), number, self, other, useSpacing && exchanged,
+                    self.hits() > previousHits, cps, 0);
+            var counter = aim(view.tick(), number, other, self, false, false, counterCps, phase);
             previousHits = self.hits();
             int firstSender = reverse ? 2 : 1;
             if (firstSender == attacker) {
@@ -107,17 +125,19 @@ class ContestedPracticeTest {
             var nextOther = outcome.fighters().get(defender - 1);
             boolean hit = nextSelf.hits() > self.hits();
             boolean fullHit = hit && nextOther.hurtTick() == outcome.tick();
-            // Only the sprint bonus can exceed the base vertical cap on a fresh hit.
-            trace.add(new Tick(number, attack, counter, hit, fullHit, nextOther.hits() > other.hits(),
+            // The defender never jumps. Account for downward momentum on an airborne catch.
+            double carriedY = other.y() == BasaltCourtyard.FLOOR_Y + 1 ? -.0784 : (other.vy() - .08) * .98;
+            double sprintLift = Math.min(RULES.lift(), RULES.lift() + carriedY / 2) + .10;
+            trace.add(new Tick(number, attack, counter, exchanged, hit, fullHit, nextOther.hits() > other.hits(),
                     self.hurtTick() < 0 || outcome.tick() - self.hurtTick() >= RULES.hurtTicks(),
-                    nextOther.impulseTick() == outcome.tick() && nextOther.impulseY() > (float) RULES.lift(),
+                    nextOther.impulseTick() == outcome.tick() && Math.abs(nextOther.vy() - sprintLift) < .001,
                     nextOther.health() > 0 && nextSelf.health() > 0));
         }
         return trace;
     }
 
     private static Aim aim(long tick, int number, Fighter self, Fighter other,
-                           int cps, boolean useSpacing, boolean release) {
+                           boolean useSpacing, boolean release, int cps, int phase) {
         double dx = other.x() - self.x(), dz = other.z() - self.z();
         double gap = Math.hypot(dx, dz);
         double eyeY = self.y() + PlayerDimensions.EYE_HEIGHT;
@@ -135,10 +155,15 @@ class ContestedPracticeTest {
                 ? other.id() : 0;
         // Even an optimally pitched ray must cover this much along one horizontal axis.
         double horizontalLowerBound = Math.max(Math.abs(dx), Math.abs(dz)) - PlayerDimensions.RADIUS - .1F;
-        boolean swing = number * cps / 20 > (number - 1) * cps / 20;
-        // After contact, back up inside 3.2 center blocks and chase outside. Release W once on each confirmed hit.
-        float forward = release ? 0 : useSpacing && self.hits() > 0 && gap < 3.2 ? -1 : 1;
-        return new Aim(new Intent(number, yaw, pitch, forward, 0, false, !release, swing, false, 0,
+        // Both players keep clicking even when out of reach or releasing W.
+        boolean swing = (number * cps + phase) / 20 > ((number - 1) * cps + phase) / 20;
+        float forward = 1;
+        if (useSpacing) {
+            // Step in to swing, release W after contact, and back up if the gap is already closing.
+            boolean advance = swing && nearFace <= RULES.reach() || gap >= 3.55;
+            forward = release ? 0 : advance ? 1 : -1;
+        }
+        return new Aim(new Intent(number, yaw, pitch, forward, 0, false, forward > 0, swing, false, 0,
                 new AttackView(selected, tick, tick)), distance, horizontalLowerBound);
     }
 }

@@ -49,7 +49,7 @@ final class ArenaMotionTimeline {
     }
 
     private record Sample(long tick, Fighter fighter, Vec3 point, Cue hurt, Cue swing, double stride, PosePath fromPrevious) {}
-    private record ImpulsePreview(long tick, long receivedAt, double startTick, PosePath path) {}
+    private record ImpulsePreview(long tick, long receivedAt, double startTick, double approachRate, PosePath path) {}
     private record Reconciliation(long receivedAt, Vec3 offset) {}
 
     private static final class Track {
@@ -110,9 +110,14 @@ final class ArenaMotionTimeline {
         double remoteDelay = 1 + Math.max(0, Math.min(.5, deliveryJitter - .12));
         double localTarget = Math.max(latestTick, estimated) - LOCAL_DELAY;
         double remoteTarget = estimated - remoteDelay;
-        localTick = Math.max(localTick, Math.min(latestTick, localTarget));
         double elapsed = elapsedTicks(now, lastFrameNanos);
         lastFrameNanos = Math.max(now, lastFrameNanos);
+        // Catch up to a delayed snapshot over frames instead of moving a tick or
+        // more on the single frame that received it.
+        if (deliveryJitter > .12 && elapsed < 1) {
+            localTarget = Math.min(localTarget, localTick + 1.45 * elapsed);
+        }
+        localTick = Math.max(localTick, Math.min(latestTick, localTarget));
         if (deliveryJitter > .12 && elapsed < 1) {
             // Pace clock corrections over several frames. As the buffer empties, spend
             // the last fraction of a confirmed tick more slowly until a packet arrives.
@@ -192,8 +197,10 @@ final class ArenaMotionTimeline {
                 PosePath route = allowProjection(latest.point, end, factions)
                         ? CombatGeometry.posePath(TERRAIN, latest.point, end, 1) : null;
                 if (route != null && !latest.point.equals(end)) {
+                    // A melee snapshot already shows the first upward step. Play that
+                    // interval at real speed; only catch up faster when the lift is still pending.
                     impulsePreview = new ImpulsePreview(latest.tick, now,
-                            Math.min(latest.tick, Math.max(cursor.tick, localVisualTick)), route);
+                            Math.min(latest.tick, Math.max(cursor.tick, localVisualTick)), f.vy() > 0 ? 1 : 2, route);
                 }
             }
         }
@@ -219,8 +226,8 @@ final class ArenaMotionTimeline {
         visualTick = Math.min(latest.tick, Math.max(localVisualTick, visualTick));
         if (impulsePreview != null) {
             double elapsed = elapsedTicks(now, impulsePreview.receivedAt);
-            double approach = (impulsePreview.tick - impulsePreview.startTick) / 2;
-            double runningTick = elapsed <= approach ? impulsePreview.startTick + 2 * elapsed
+            double approach = (impulsePreview.tick - impulsePreview.startTick) / impulsePreview.approachRate;
+            double runningTick = elapsed <= approach ? impulsePreview.startTick + impulsePreview.approachRate * elapsed
                     : impulsePreview.tick + Math.min(1, elapsed - approach);
             visualTick = Math.max(visualTick, runningTick);
         }
