@@ -91,8 +91,7 @@ public final class PracticeGame {
     private int width, height, slot, source = -1;
     private long frameInput, sequence;
     private double mouseX, mouseY;
-    private long confirmedAt = -1;
-    private int confirmedHits;
+    private ArenaMotionTimeline.HitFeedback hitFeedback = ArenaMotionTimeline.HitFeedback.NONE;
     private Phase lastPhase;
     private boolean wasSpectator;
 
@@ -107,6 +106,7 @@ public final class PracticeGame {
             presented(id, x, y, z, hurtTint);
         }
         default void sampled(long now, View view, double x, double y, double z, Vec3 confirmed) {}
+        default void hitFeedback(long tick, float received, float dealt, float rollRadians) {}
         default void submitted(long now, Intent intent) {}
     }
 
@@ -249,6 +249,7 @@ public final class PracticeGame {
                 render(world, shader, rendering, models, avatars, hitboxes, now);
                 drawHud(overlay, recorder);
                 if (observer != null) {
+                    observer.hitFeedback(view.tick(), hitFeedback.received(), hitFeedback.dealt(), hitFeedback.rollRadians());
                     for (var fighter : remoteActors)
                         observer.presented(fighter.fighter().id(), fighter.x(), fighter.y(), fighter.z(), fighter.hurt(), fighter.swingProgress());
                     observer.frame(window, recorder, view, width, height);
@@ -596,7 +597,7 @@ public final class PracticeGame {
     private Fighter self() { return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null); }
 
     private void updatePresentation(long now, FrameObserver observer) {
-        motion.observe(view.tick(), view.fighters(), now);
+        motion.observe(view.tick(), view.fighters(), now, id, view.lastHit());
         var frame = motion.frame(now);
         remoteActors.clear();
         for (Fighter fighter : view.fighters()) {
@@ -606,6 +607,7 @@ public final class PracticeGame {
         }
         Fighter actor = self();
         boolean spectator = actor == null || view.spectatorId() == id;
+        hitFeedback = spectator ? ArenaMotionTimeline.HitFeedback.NONE : motion.hitFeedback(id, frame.local());
         var gallery = BasaltCourtyard.spectator();
         boolean respawn = !positioned || spectator != wasSpectator || view.phase() == Phase.COUNTDOWN && lastPhase != Phase.COUNTDOWN;
         if (respawn) {
@@ -626,7 +628,7 @@ public final class PracticeGame {
                         PlayerModel avatars, PracticeHitboxes hitboxes, long now) {
         Vector3f eye = camera.position();
         projection.identity().perspective((float) Math.toRadians(73), (float) width / height, .06f, 180);
-        Matrix4f matrix = camera.createViewMatrix();
+        Matrix4f matrix = practiceViewMatrix(camera, hitFeedback.rollRadians());
         clipFromWorld.set(projection).mul(matrix);
         frustum.set(clipFromWorld);
         pipeline.time(GameConfig.sandbox(), 0);
@@ -673,6 +675,11 @@ public final class PracticeGame {
         }
     }
 
+    static Matrix4f practiceViewMatrix(Camera camera, float rollRadians) {
+        // Rotate in eye space so the projected center, authoritative facing, and crosshair all stay aligned.
+        return camera.createViewMatrix().rotateLocalZ(rollRadians);
+    }
+
     private static int renderItem(Item item) {
         return switch (item) {
             case EMPTY -> 0;
@@ -690,26 +697,22 @@ public final class PracticeGame {
     private void drawHud(Overlay ui, ScreenRecorder recorder) {
         ui.begin(width, height);
         Fighter actor = self();
-        if (actor != null && actor.hits() != confirmedHits) {
-            if (view.phase() == Phase.FIGHT && actor.hits() > confirmedHits) confirmedAt = view.tick();
-            confirmedHits = actor.hits();
-        }
         if (!inventory) {
             ui.rectangle(width / 2f - 6, height / 2f, 12, 2, 1, 1, 1, .85f);
             ui.rectangle(width / 2f - 1, height / 2f - 5, 2, 12, 1, 1, 1, .85f);
-            if (confirmedAt >= 0 && view.tick() - confirmedAt < 4) {
+            if (hitFeedback.dealt() > 0) {
                 float x = width / 2f, y = height / 2f;
-                ui.line(x - 10, y - 10, x - 5, y - 5, 2, 1, .45f, .20f, 1);
-                ui.line(x + 10, y - 10, x + 5, y - 5, 2, 1, .45f, .20f, 1);
-                ui.line(x - 10, y + 10, x - 5, y + 5, 2, 1, .45f, .20f, 1);
-                ui.line(x + 10, y + 10, x + 5, y + 5, 2, 1, .45f, .20f, 1);
+                float alpha = hitFeedback.dealt();
+                ui.line(x - 10, y - 10, x - 5, y - 5, 2, 1, .45f, .20f, alpha);
+                ui.line(x + 10, y - 10, x + 5, y - 5, 2, 1, .45f, .20f, alpha);
+                ui.line(x - 10, y + 10, x - 5, y + 5, 2, 1, .45f, .20f, alpha);
+                ui.line(x + 10, y + 10, x + 5, y + 5, 2, 1, .45f, .20f, alpha);
             }
         }
-        // Version 1 snapshots only carry the last-hit timestamp for the local fighter.
-        long hurtAt = actor != null && actor.hurtTick() >= 0 ? actor.hurtTick() : view.lastHit();
-        if (hurtAt >= 0 && view.tick() - hurtAt < 5) {
-            ui.rectangle(0, 0, width, 8, 1, .16f, .12f, .75f);
-            ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, .75f);
+        if (hitFeedback.received() > 0) {
+            float alpha = .75f * hitFeedback.received();
+            ui.rectangle(0, 0, width, 8, 1, .16f, .12f, alpha);
+            ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, alpha);
         }
         if (factions) drawTeamLabels(ui);
         String title = factions ? "Faction Arena" : view.kit() == PracticeMatch.Kit.DEBUFF ? "Debuff" : "No Debuff";

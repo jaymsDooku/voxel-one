@@ -67,15 +67,27 @@ The maximum server trajectory error was 0.000001466 blocks for the stationary vi
 
 For a human comparison, alternate attacker and defender on the same machine in a Paper 1.7.10 duel and a Voxel One duel with matched frame cap, network delay and kit. Include a single grounded hit, a strafing trade, and a W-tap. Review unlabeled clips in shuffled order and mark the frame of any delayed reaction, freeze or camera reversal before revealing the build. This pass covers automated trajectories and native rendering. Human ratings and a recording from a Minecraft client are still outstanding.
 
+## Two-way sword trades
+
+Paper's `EntityLiving.damageEntity` starts a ten-tick hurt reaction and broadcasts entity status 2 on a fresh hit. During the protected part of the damage window, a stronger hit can deal the difference without starting another reaction. Voxel One uses that distinction for the opponent’s red tint and the local injury cue. Its four-tick outgoing hit marker has its own clock, so the player can see both sides of a trade on the same frame. On a replay of the same Basalt round, the opponent was still visibly red on 44 of 44 rendered frames six to eight ticks after injury, compared with zero on the previous build. [PaperMC 1.7 source revision](https://github.com/PaperMC/Paper-1.7/tree/ab9e48b010f9658c96fdca68b711714bedb42e82)
+
+On receiving a full hit, the first-person world briefly tilts around the crosshair. Voxel One caps the tilt at six degrees about 80 ms into the reaction. Paper supplies the hurt timing, while the angle and curve are local presentation choices. In a recorded two-client 9 CPS duel, the renderer showed incoming and outgoing cues together on 37 frames and reached a peak roll of six degrees. Both clients agreed on the knockout.
+
+When the fighters’ horizontal centers are less than 0.01 blocks apart, Paper samples a direction for each full hit. At and beyond that threshold, the direction follows the fighters’ actual separation. The sprint bonus still follows the attacker’s aim. In a seeded stationary trade with identical starting positions and facing, the old engine pushed both fighters 0.211 blocks along the same axis. The corrected first step separated their X positions by 0.368 blocks while preserving each impact’s horizontal magnitude.
+
+The mirrored Basalt test sends both fighters forward from spawn, swaps which fighter submits first, and samples separation and time back in reach. At 8, 9 and 10 CPS both fighters registered the opening three exchanges on the same server tick as their opponent. They returned to sword reach 10, 10 and 12 ticks after the first impact, respectively. On the opening exchange the first sender moved 0.419 blocks outward and the second moved 0.194. This asymmetry follows the order of Paper’s velocity updates: an incoming hit retains half the prior motion and a successful sprint attack multiplies the attacker’s horizontal motion by 0.6. The arena retains its calibrated three-block eye reach and one- and three-block settled horizontal travel.
+
 ## Reproduce
 
 These PowerShell commands use the current build’s desktop dependencies. Set up a graphics-capable desktop for the native run. The deterministic tests run headless.
 
 ```powershell
 mvn "-Dtest=ArenaCombatTraceTest,ArenaMotionTimelineTest,ArenaSwingTimelineTest,PracticeWireTest" test
+mvn "-Dtest=PracticeTradeResponseTest,ContestedPracticeTest,CombatEngineTest" test
 java -cp "target/test-classes;target/classes" dev.jayms.combat.client.ArenaCombatTrace --samples > target/arena-trajectory.jsonl
 mvn -DskipTests package
 java -cp "target/test-classes;target/voxel-one-1.0-SNAPSHOT-client.jar" dev.jayms.combat.client.PracticeNativePlaytest target/arena-round --trace-only
+java -cp "target/test-classes;target/voxel-one-1.0-SNAPSHOT-client.jar" dev.jayms.combat.client.PracticeNativePlaytest target/trade-round --trade
 python deploy/arena_frame_metrics.py target/arena-round/native-frames.csv
 ```
 

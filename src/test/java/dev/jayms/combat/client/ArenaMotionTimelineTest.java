@@ -5,6 +5,7 @@ import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 import dev.jayms.player.PlayerDimensions;
+import org.joml.Vector3f;
 import org.junit.jupiter.api.Test;
 
 import java.util.List;
@@ -137,8 +138,100 @@ class ArenaMotionTimelineTest {
         assertEquals(0, motion.sample(1, cursor(100)).hurt());
         motion.observe(102, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(100));
         assertEquals(1, motion.sample(1, motion.frame(ms(100)).remote()).hurt());
-        assertEquals(1f / 3, motion.sample(1, motion.frame(ms(250)).remote()).hurt(), .0001f);
-        assertEquals(0, motion.sample(1, motion.frame(ms(350)).remote()).hurt());
+        assertEquals(.75f, motion.sample(1, motion.frame(ms(250)).remote()).hurt(), .0001f);
+        assertEquals(.5f, motion.sample(1, motion.frame(ms(350)).remote()).hurt(), .0001f);
+        assertEquals(0, motion.sample(1, motion.frame(ms(550)).remote()).hurt());
+    }
+
+    @Test
+    void mutualTradeShowsIncomingAndOutgoingConfirmationTogetherAndFadesThemIndependently() {
+        var motion = new ArenaMotionTimeline();
+        motion.observe(100, List.of(trader(1, 20, 0, -1), trader(2, 20, 0, -1)), ms(0));
+        motion.observe(101, List.of(trader(1, 17, 1, 101), trader(2, 17, 1, 101)), ms(50));
+        var frame = motion.frame(ms(50));
+        for (int id : List.of(1, 2)) {
+            assertFeedback(1, 1, motion.hitFeedback(id, frame.local()));
+            assertEquals(1, motion.sample(id, frame.remote()).hurt());
+        }
+        // A stronger hit inside protection deals extra damage without a new Paper hurt status.
+        motion.observe(104, List.of(trader(1, 17, 2, 101), trader(2, 15, 1, 101)), ms(200));
+        frame = motion.frame(ms(200));
+        assertFeedback(.875f, 1, motion.hitFeedback(1, frame.local()));
+        assertFeedback(.875f, .25f, motion.hitFeedback(2, frame.local()));
+        assertEquals(.875f, motion.sample(2, frame.remote()).hurt());
+        // A stalled pose stream can recover while the original reaction is still visible.
+        motion.observe(105, List.of(trader(1, 17, 2, 101), trader(2, 15, 1, 101)), ms(450));
+        frame = motion.frame(ms(450));
+        assertFeedback(.25f, 0, motion.hitFeedback(1, frame.local()));
+        assertEquals(.25f, motion.sample(2, frame.remote()).hurt());
+        assertEquals(ArenaMotionTimeline.HitFeedback.NONE, motion.hitFeedback(2, motion.frame(ms(550)).local()));
+    }
+
+    private static Fighter trader(int id, float health, int hits, long hurtTick) {
+        return new Fighter(id, "Trader", 0, 73, 0, 0, 0, health, false, false, false, Item.SWORD,
+                hits, 0, 0, 0, -1, "", 0, 0, 0, hurtTick, 1, -1, -1, 0, 0, 0);
+    }
+
+    private static void assertFeedback(float received, float dealt, ArenaMotionTimeline.HitFeedback feedback) {
+        assertEquals(received, feedback.received(), .0001f);
+        assertEquals(dealt, feedback.dealt(), .0001f);
+    }
+
+    @Test
+    void hurtRollTipsThenRecoversThroughAStallAndOnlyFreshFullHitsRestartIt() {
+        var motion = new ArenaMotionTimeline();
+        motion.observe(100, List.of(trader(1, 20, 0, -1)), ms(0));
+        motion.observe(101, List.of(trader(1, 17, 0, 101)), ms(50));
+        assertEquals(0, motion.hitFeedback(1, motion.frame(ms(50)).local()).rollRadians());
+        float rising = motion.hitFeedback(1, motion.frame(ms(75)).local()).rollRadians();
+        float peak = motion.hitFeedback(1, motion.frame(ms(130)).local()).rollRadians();
+        assertTrue(rising < 0 && peak < rising);
+        assertEquals(-Math.toRadians(6), peak, .0001);
+
+        motion.observe(104, List.of(trader(1, 15, 1, 101)), ms(200));
+        float afterProtectedHit = motion.hitFeedback(1, motion.frame(ms(200)).local()).rollRadians();
+        assertTrue(peak < afterProtectedHit && afterProtectedHit < rising);
+        float stalled = motion.hitFeedback(1, motion.frame(ms(450)).local()).rollRadians();
+        assertTrue(afterProtectedHit < stalled && stalled < 0);
+        motion.observe(105, List.of(trader(1, 15, 1, 101)), ms(450));
+        assertEquals(stalled, motion.hitFeedback(1, motion.frame(ms(450)).local()).rollRadians());
+        assertEquals(0, motion.hitFeedback(1, motion.frame(ms(550)).local()).rollRadians());
+
+        motion.observe(112, List.of(trader(1, 12, 1, 112)), ms(600));
+        assertEquals(rising, motion.hitFeedback(1, motion.frame(ms(625)).local()).rollRadians(), .0001);
+    }
+
+    @Test
+    void hurtRollTiltsTheWorldAroundTheThreeBlockAimRay() {
+        Camera camera = new Camera();
+        camera.position().set(4.5f, 73.62f, -12.25f);
+        camera.setYaw(37);
+        camera.setPitch(-22);
+        Vector3f direction = camera.getDirection();
+        Vector3f target = direction.mul(3, new Vector3f()).add(camera.position());
+        Vector3f offset = direction.cross(new Vector3f(0, 1, 0), new Vector3f()).normalize().add(target);
+        float roll = (float) -Math.toRadians(6);
+        var matrix = PracticeGame.practiceViewMatrix(camera, roll);
+        Vector3f center = matrix.transformPosition(new Vector3f(target));
+        assertEquals(0, center.x, .00002);
+        assertEquals(0, center.y, .00002);
+        assertEquals(-3, center.z, .00002);
+        Vector3f edge = matrix.transformPosition(new Vector3f(offset));
+        assertEquals(Math.cos(roll), edge.x, .00002);
+        assertEquals(Math.sin(roll), edge.y, .00002);
+        assertEquals(-3, edge.z, .00002);
+        assertEquals(direction, camera.getDirection());
+    }
+
+    @Test
+    void legacyLocalHurtTickSurvivesPacketStallWithoutAnObservedHealthChange() {
+        var motion = new ArenaMotionTimeline();
+        var fighters = List.of(fighter(0, 0, 0, 0, 20, -1, 0));
+        motion.observe(100, fighters, ms(0), 1, -1);
+        motion.observe(101, fighters, ms(50), 1, 101);
+        assertFeedback(1, 0, motion.hitFeedback(1, motion.frame(ms(50)).local()));
+        motion.observe(102, fighters, ms(350), 1, 101);
+        assertFeedback(.5f, 0, motion.hitFeedback(1, motion.frame(ms(350)).local()));
     }
 
     @Test
@@ -147,14 +240,14 @@ class ArenaMotionTimelineTest {
         motion.observe(100, List.of(fighter(0, 0, 0, 0, 20, -1, 1)), ms(0));
         motion.observe(101, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(50));
         assertEquals(1, motion.sample(1, motion.frame(ms(100)).remote()).hurt());
-        assertEquals(0, motion.sample(1, motion.frame(ms(420)).remote()).hurt());
-        motion.observe(102, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(450));
-        assertEquals(0, motion.sample(1, motion.frame(ms(450)).remote()).hurt());
-        motion.observe(103, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(500));
-        assertEquals(0, motion.sample(1, motion.frame(ms(525)).remote()).hurt());
+        assertEquals(0, motion.sample(1, motion.frame(ms(600)).remote()).hurt());
+        motion.observe(102, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(650));
+        assertEquals(0, motion.sample(1, motion.frame(ms(650)).remote()).hurt());
+        motion.observe(103, List.of(fighter(0, 0, 0, 0, 17, 101, 1)), ms(700));
+        assertEquals(0, motion.sample(1, motion.frame(ms(725)).remote()).hurt());
 
-        motion.observe(104, List.of(fighter(0, 0, 0, 0, 14, 104, 1)), ms(900));
-        assertEquals(1, motion.sample(1, motion.frame(ms(900)).remote()).hurt());
+        motion.observe(104, List.of(fighter(0, 0, 0, 0, 14, 104, 1)), ms(1100));
+        assertEquals(1, motion.sample(1, motion.frame(ms(1100)).remote()).hurt());
     }
 
     @Test
@@ -170,7 +263,7 @@ class ArenaMotionTimelineTest {
         assertEquals(0, lethal.fighter().health());
         assertEquals(1, lethal.hurt());
         assertTrue(lethal.visible());
-        assertFalse(motion.sample(1, new ArenaMotionTimeline.Cursor(106, 111)).visible());
+        assertFalse(motion.sample(1, new ArenaMotionTimeline.Cursor(106, 116)).visible());
     }
 
     @Test

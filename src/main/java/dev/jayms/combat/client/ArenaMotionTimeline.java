@@ -22,13 +22,26 @@ final class ArenaMotionTimeline {
     private static final int MAX_BRIDGE_TICKS = 3;
     private static final long STALE_NANOS = 250_000_000;
     private static final double LOCAL_DELAY = 1;
-    private static final double HURT_TICKS = 5;
+    // Paper 1.7 EntityLiving starts a fresh hurt reaction at ten ticks.
+    private static final double HURT_TICKS = 10;
+    private static final double HIT_MARKER_TICKS = 4;
     private static final double RECONCILE_TICKS = 2;
 
     record Cursor(double tick, double fadeTick, double receiptTime) {
         Cursor(double tick, double fadeTick) { this(tick, fadeTick, Double.NaN); }
     }
     record Frame(Cursor local, Cursor remote) {}
+    record HitFeedback(double hurtAge, float dealt) {
+        static final HitFeedback NONE = new HitFeedback(-1, 0);
+        float received() { return injuryStrength(hurtAge); }
+
+        float rollRadians() {
+            if (hurtAge <= 0 || hurtAge >= HURT_TICKS) return 0;
+            // Voxel camera tuning on Paper's ten-tick clock: a six-degree tip with a quick onset and soft return.
+            double remaining = 1 - hurtAge / HURT_TICKS;
+            return (float) (-Math.toRadians(6) * Math.sin(Math.PI * Math.pow(remaining, 4)));
+        }
+    }
     record LocalView(Vec3 point, Vec3 confirmedPoint, PoseView pose) {}
     record Presented(Fighter fighter, float x, float y, float z, float yaw, float pitch,
                      float walkPhase, float walkAmount, float hurt, float swingProgress, PoseView pose) {
@@ -55,14 +68,15 @@ final class ArenaMotionTimeline {
     private static final class Track {
         final ArrayDeque<Sample> samples = new ArrayDeque<>();
         Fighter latest;
-        Cue hurtCue, swingCue;
+        Cue hurtCue, swingCue, hitMarker;
         long confirmedSwing = -1, skippedSwing = -1;
         long confirmedHurt = -1, skippedHurt = -1;
 
-        void skipStaleHistory() {
+        void skipStaleHistory(double receiptTime) {
             samples.clear();
             // Repeated metadata after a gap must not restart an old cue.
-            skippedHurt = confirmedHurt;
+            if (hurtCue == null || hurtCue.packetTick - hurtCue.tick + receiptTime - hurtCue.received >= HURT_TICKS)
+                skippedHurt = confirmedHurt;
             skippedSwing = confirmedSwing;
         }
     }
@@ -79,11 +93,15 @@ final class ArenaMotionTimeline {
     private Reconciliation reconciliation;
 
     void observe(long tick, List<Fighter> fighters, long now) {
+        observe(tick, fighters, now, -1, -1);
+    }
+
+    void observe(long tick, List<Fighter> fighters, long now, int self, long lastHit) {
         if (tick <= latestTick) return;
         boolean reanchor = latestTick < 0 || tick - latestTick > MAX_BRIDGE_TICKS
                 || now - anchorNanos >= STALE_NANOS;
         if (reanchor) {
-            tracks.values().forEach(Track::skipStaleHistory);
+            for (var track : tracks.values()) track.skipStaleHistory(now / NANOS_PER_TICK);
             lastFrameNanos = now;
             anchorTick = tick;
             deliveryJitter = 0;
@@ -101,7 +119,7 @@ final class ArenaMotionTimeline {
         anchorNanos = now;
         latestTick = tick;
         tracks.keySet().removeIf(id -> fighters.stream().noneMatch(fighter -> fighter.id() == id));
-        for (Fighter fighter : fighters) append(tick, fighter);
+        for (Fighter fighter : fighters) append(tick, fighter, fighter.id() == self ? lastHit : -1);
     }
 
     Frame frame(long now) {
@@ -166,6 +184,17 @@ final class ArenaMotionTimeline {
         float swingProgress = swingCue == null ? 1 : (float) Math.min(1, swingCue.age(cursor) / SWING_TICKS);
         return new Presented(discrete, (float) point.x(), (float) point.y(), (float) point.z(), yaw, pitch,
                 (float) (stride % (2 * Math.PI)), amount, hurt, swingProgress, pose);
+    }
+
+    HitFeedback hitFeedback(int id, Cursor cursor) {
+        Track track = tracks.get(id);
+        if (track == null) return HitFeedback.NONE;
+        double hurtAge = track.hurtCue == null || track.hurtCue.tick <= track.skippedHurt
+                ? -1 : track.hurtCue.age(cursor);
+        double age = track.hitMarker == null ? -1 : track.hitMarker.age(cursor);
+        float dealt = age < 0 ? 0 : (float) Math.max(0, 1 - age / HIT_MARKER_TICKS);
+        if (hurtAge < 0 || hurtAge >= HURT_TICKS) hurtAge = -1;
+        return hurtAge < 0 && dealt == 0 ? HitFeedback.NONE : new HitFeedback(hurtAge, dealt);
     }
 
     LocalView sampleLocal(int id, Cursor cursor, long now, boolean factions, boolean fighting) {
@@ -259,23 +288,28 @@ final class ArenaMotionTimeline {
 
     private static double elapsedTicks(long now, long since) { return Math.max(0, now - since) / NANOS_PER_TICK; }
 
-    private void append(long tick, Fighter fighter) {
+    private void append(long tick, Fighter fighter, long lastHit) {
         var track = tracks.computeIfAbsent(fighter.id(), ignored -> new Track());
         Fighter prior = track.latest;
         if (prior != null && prior.motionEpoch() != fighter.motionEpoch()) {
             track.samples.clear();
             track.skippedSwing = Math.max(track.confirmedSwing, tick - 1);
+            track.skippedHurt = tick - 1;
+            track.hitMarker = null;
             prior = null;
         }
         Sample previous = track.samples.peekLast();
         Vec3 next = new Vec3(fighter.x(), fighter.y(), fighter.z());
         long hurt = fighter.hurtTick() > 0 && fighter.hurtTick() <= tick ? fighter.hurtTick() : -1;
+        // Version 1 reports a local last-hit tick but has no per-fighter hurt timestamp.
+        if (fighter.motionEpoch() == 0 && hurt < 0 && lastHit > 0 && lastHit <= tick) hurt = lastHit;
         if (prior != null && fighter.motionEpoch() == 0 && hurt < 0 && fighter.health() < prior.health()) hurt = tick;
         if (hurt > track.confirmedHurt) {
             track.confirmedHurt = hurt;
             track.hurtCue = new Cue(hurt, anchorNanos / NANOS_PER_TICK, tick);
         }
-        if (hurt <= track.skippedHurt) hurt = -1;
+        if (prior != null && fighter.hits() > prior.hits())
+            track.hitMarker = new Cue(tick, anchorNanos / NANOS_PER_TICK, tick);
         PosePath route = previous == null ? null : CombatGeometry.posePath(TERRAIN, previous.point, next, tick - previous.tick);
         double stride = route == null ? 0 : previous.stride
                 + Math.hypot(next.x() - previous.point.x(), next.z() - previous.point.z()) * 2.5;
@@ -286,7 +320,7 @@ final class ArenaMotionTimeline {
             track.swingCue = new Cue(swing, anchorNanos / NANOS_PER_TICK, tick);
         }
         swing = track.confirmedSwing > track.skippedSwing ? track.confirmedSwing : -1;
-        track.samples.addLast(new Sample(tick, fighter, next, hurt < 0 ? null : track.hurtCue,
+        track.samples.addLast(new Sample(tick, fighter, next, track.confirmedHurt > track.skippedHurt ? track.hurtCue : null,
                 swing < 0 ? null : track.swingCue, stride, route));
         if (track.samples.size() > MAX_SAMPLES) track.samples.removeFirst();
         track.latest = fighter;
