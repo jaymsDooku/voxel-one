@@ -31,7 +31,7 @@ final class ArenaMotionTimeline {
         boolean visible() { return fighter.health() > 0 || hurt > 0; }
     }
 
-    private static final Arena TERRAIN = new Arena() {
+    static final Arena TERRAIN = new Arena() {
         @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
         @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
     };

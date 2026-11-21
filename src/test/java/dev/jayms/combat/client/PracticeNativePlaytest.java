@@ -139,6 +139,8 @@ public final class PracticeNativePlaytest {
                 captured = true;
             }
             if (view.phase() == Phase.RESULT && captured && !stopped) {
+                if (view.result() != Result.KNOCKOUT)
+                    throw new IllegalStateException("Expected a knockout, got " + view.result());
                 var acknowledged = second.view();
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
@@ -186,7 +188,7 @@ public final class PracticeNativePlaytest {
             return new Intent(sequence, id == 1 ? -90 : 90, 0, 0, 0, false, false, false, false, 0);
         double dx = other.x() - self.x(), dz = other.z() - self.z(), range = Math.hypot(dx, dz);
         float yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
-        float pitch = (float) Math.toDegrees(Math.atan2(other.y() - self.y() - .68, range));
+        float pitch = (float) Math.max(-89, Math.min(89, Math.toDegrees(Math.atan2(other.y() - self.y() - .68, range))));
         boolean heal = primary && self.health() < 17 && self.used() == 0;
         int slot = 0;
         if (heal) {

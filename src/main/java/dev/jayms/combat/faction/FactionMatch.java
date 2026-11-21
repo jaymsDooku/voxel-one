@@ -438,7 +438,8 @@ public final class FactionMatch implements ArenaMatch {
         if (!eligible(seat) || !seat.online || !classActive(seat)) return;
         if (seat.role == Role.BARD) {
             seat.energy = Math.min(BARD_MAX_ENERGY, seat.energy + 1);
-            if (tick % 10 == 0) buffAllies(id, seat, Effect.REGENERATION, 25);
+            // Refresh on the Bard's healing cadence. Regen I pulses at 50 remaining ticks.
+            if (tick % 25 == 0) buffAllies(id, seat, Effect.REGENERATION, 50);
         } else if (seat.role == Role.ROGUE && tick % 15 == 0) {
             engine.applyEffect(id, Effect.SPEED, 22);
         } else if (seat.role == Role.MINER && tick % 15 == 0 && safeTerritory(id, seat)) {

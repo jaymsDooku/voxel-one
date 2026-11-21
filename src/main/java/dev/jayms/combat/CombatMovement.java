@@ -44,10 +44,15 @@ final class CombatMovement {
 
         double acceleration = state.grounded() ? GROUND_ACCELERATION * input.groundSpeedMultiplier() : AIR_ACCELERATION;
         if (input.sprinting()) acceleration *= SPRINT_MULTIPLIER;
-        double inputLength = Math.max(1, Math.hypot(input.forward(), input.strafe()));
-        double strength = acceleration * INPUT_DAMPING * input.inputScale() / inputLength;
-        x += (heading.x() * input.forward() - heading.z() * input.strafe()) * strength;
-        z += (heading.z() * input.forward() + heading.x() * input.strafe()) * strength;
+        // EntityLiving damps the input axes before Entity applies its deadzone and length cap.
+        double forward = input.forward() * input.inputScale() * INPUT_DAMPING;
+        double strafe = input.strafe() * input.inputScale() * INPUT_DAMPING;
+        double lengthSquared = forward * forward + strafe * strafe;
+        if (lengthSquared >= 1e-4) {
+            double strength = acceleration / Math.max(1, Math.sqrt(lengthSquared));
+            x += (heading.x() * forward - heading.z() * strafe) * strength;
+            z += (heading.z() * forward + heading.x() * strafe) * strength;
+        }
 
         Vec3 next = CombatGeometry.clipMovement(arena, id, feet, new Vec3(x, y, z));
         Vec3 displacement = next.minus(feet);

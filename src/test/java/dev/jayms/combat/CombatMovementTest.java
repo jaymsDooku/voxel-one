@@ -47,12 +47,30 @@ class CombatMovementTest {
     }
 
     @Test
-    void diagonalInputKeepsWalkingSpeedAndUsesCameraYaw() {
+    void fullDiagonalReachesAccelerationCapAndUsesCameraYaw() {
         State state = new State(SPAWN, ZERO, true, 0);
         var diagonal = CombatMovement.step(FLOOR, 1, state, new Input(90, 1, 1, false, false, 1, 1));
-        assertEquals(-.098 / Math.sqrt(2), diagonal.displacement().x(), EPSILON);
-        assertEquals(.098 / Math.sqrt(2), diagonal.displacement().z(), EPSILON);
-        assertEquals(.098, Math.hypot(diagonal.displacement().x(), diagonal.displacement().z()), EPSILON);
+        assertEquals(-.1 / Math.sqrt(2), diagonal.displacement().x(), EPSILON);
+        assertEquals(.1 / Math.sqrt(2), diagonal.displacement().z(), EPSILON);
+        assertEquals(.1, Math.hypot(diagonal.displacement().x(), diagonal.displacement().z()), EPSILON);
+    }
+
+    @Test
+    void usingAnItemDampsBothAxesBeforeTheDiagonalLengthCap() {
+        State state = new State(SPAWN, ZERO, true, 0);
+        var diagonal = CombatMovement.step(FLOOR, 1, state, new Input(0, 1, 1, false, false, 1, .2));
+        assertEquals(.0196, diagonal.displacement().x(), EPSILON);
+        assertEquals(.0196, diagonal.displacement().z(), EPSILON);
+    }
+
+    @Test
+    void steeringDeadzoneUsesTheCombinedDampedAxesAndPreservesMomentum() {
+        State moving = new State(SPAWN, new Vec3(.2, 0, 0), true, 0);
+        var straight = CombatMovement.step(FLOOR, 1, moving, input(.01f, 0, false, false));
+        assertEquals(.2, straight.displacement().x(), EPSILON);
+        var diagonal = CombatMovement.step(FLOOR, 1, moving, input(.008f, .008f, false, false));
+        assertEquals(.200784, diagonal.displacement().x(), EPSILON);
+        assertEquals(.000784, diagonal.displacement().z(), EPSILON);
     }
 
     @Test

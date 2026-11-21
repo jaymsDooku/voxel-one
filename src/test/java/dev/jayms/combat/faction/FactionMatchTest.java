@@ -62,6 +62,27 @@ class FactionMatchTest {
     }
 
     @Test
+    void bardHealsEveryTwentyFiveTicksAndLeavingTheAuraStopsHealing() throws Exception {
+        var lobby = new FactionMatch(null, DEFAULT, new TestClock());
+        int bard = lobby.join("Bard");
+        int enemy = lobby.join("Slate");
+        int ally = lobby.join("Ally");
+        int opponent = lobby.join("Opponent");
+        lobby.action(bard, 2);
+        start(lobby, bard, enemy, ally, opponent);
+        send(lobby, ally, 0, -89, 0, false, true, 1);
+        advance(lobby, 5);
+        assertEquals(15, fighter(lobby, ally).health());
+        advance(lobby, 18);
+        assertEquals(16, fighter(lobby, ally).health());
+        advance(lobby, 25);
+        assertEquals(17, fighter(lobby, ally).health());
+        lobby.leave(bard);
+        advance(lobby, 25);
+        assertEquals(17, fighter(lobby, ally).health());
+    }
+
+    @Test
     void contestedHillResetsThenCapturesForTheSoleHoldingFaction() throws Exception {
         var lobby = new FactionMatch(null, settings(26), new TestClock());
         int ember = lobby.join("Ember");

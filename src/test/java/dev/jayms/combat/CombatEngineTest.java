@@ -76,9 +76,57 @@ class CombatEngineTest {
         assertEquals(20, distant.snapshot(2).health());
 
         CombatEngine unaimed = duel(CombatRules.NO_DEBUFF, field(false, true), 2.5);
-        input(unaimed, 1, 0, 12, 0, 0, false, true, false, 0);
+        input(unaimed, 1, 0, 18, 0, 0, false, true, false, 0);
         unaimed.tick();
         assertEquals(20, unaimed.snapshot(2).health());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1, 2, 3, 4})
+    void blockAndHeldSlotAreSampledInClickReceiptOrder(int scenario) {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        boolean initiallyBlocking = scenario != 0;
+        assertTrue(input(engine, 2, 0, 180, 0, 0, false, false, initiallyBlocking, 0));
+        engine.tick();
+        if (scenario == 4) tick(engine, 12); // The abandoned block expires at the input timeout.
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        if (scenario != 3 && scenario != 4) {
+            assertTrue(input(engine, 2, 1, 180, 0, 0, false, false, scenario != 1, scenario == 2 ? 5 : 0));
+        }
+        engine.tick();
+        assertEquals(initiallyBlocking && scenario != 4 ? 18.56 : 17.44, engine.snapshot(2).health(), .00001);
+    }
+
+    @ParameterizedTest
+    @ValueSource(booleans = {false, true})
+    void separateClicksResolveInOrderAndOnlyARearmedSprintAddsAnotherBonus(boolean rearm) {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(engine.join(3, new Vec3(.5, 1, 2.5), 0));
+        assertTrue(input(engine, 1, 0, 180, 0, 1, true, true, false, 0)); // Miss.
+        assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
+        if (rearm) assertTrue(input(engine, 1, 2, 0, 0, 0, false, false, false, 0));
+        assertTrue(input(engine, 1, 3, 90, 0, 1, true, true, false, 0));
+        engine.tick();
+        assertEquals(2, engine.snapshot(1).stats().hits());
+        assertEquals(.4208, engine.snapshot(2).hitImpulse().y(), .00001);
+        assertEquals(rearm ? .4208 : .3208, engine.snapshot(3).hitImpulse().y(), .00001);
+    }
+
+    @Test void pendingClicksAreBoundedAndClearedAcrossControlAndActorLifetimes() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        for (int i = 0; i < 24; i++) assertTrue(input(engine, 1, i, 180, 0, 0, false, true, false, 0));
+        engine.tick();
+        assertEquals(16, engine.drainEvents().stream().filter(event -> event.type() == EventType.SWING).count());
+        assertTrue(input(engine, 1, 24, 0, 0, 0, false, true, false, 0));
+        engine.clearInput(1);
+        assertTrue(input(engine, 1, 25, 0, 0, 0, false, true, false, 0));
+        assertTrue(engine.reset(1, ORIGIN, 0));
+        assertTrue(input(engine, 1, 26, 0, 0, 0, false, true, false, 0));
+        engine.leave(2);
+        assertTrue(engine.join(2, new Vec3(2, 1, .5), 180));
+        engine.tick();
+        assertEquals(0, engine.snapshot(1).stats().hits());
+        assertEquals(1, engine.drainEvents().stream().filter(event -> event.type() == EventType.SWING).count());
     }
 
     @Test void laterMovementPacketDoesNotReplaceTheClickAimOrSlot() {
@@ -142,7 +190,7 @@ class CombatEngineTest {
             tick(engine, 2);
             double last = engine.snapshot(2).feet().z();
             double displayed = first + (last - first) / 3;
-            float yaw = (float) Math.toDegrees(Math.atan2(displayed - .25 - ORIGIN.z(), 2));
+            float yaw = (float) Math.toDegrees(Math.atan2(displayed - .35 - ORIGIN.z(), 2));
             var view = new AttackView(2, new PoseView(8, 8, 8),
                     useGap ? new PoseView(7, 10, 8) : new PoseView(8, 8, 8));
             assertTrue(engine.submit(1, new Intent(0, yaw, 0, 0, 0, false, false, true, false, 0, view)));
@@ -195,11 +243,66 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 2, 0, 0, 0, false, false, true, 0));
         assertTrue(input(engine, 1, 2, 0, 0, 0, false, true, false, 0));
         engine.tick();
-        double extraRaw = 8 * 1.28 - 8;
+        double extraRaw = 10.4; // Strength I adds 130% of the eight-point sword hit.
         assertEquals(initialHealth - (1 + extraRaw) * .5 * .32, engine.snapshot(2).health(), .00001);
         assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(2, engine.snapshot(1).stats().hits());
+    }
+
+    @ParameterizedTest
+    @ValueSource(ints = {1, 2})
+    void firstReceivedLethalClickWinsRegardlessOfActorId(int first) {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        int second = 3 - first;
+        for (int id : List.of(first, second)) {
+            assertTrue(engine.damage(0, id, 18));
+            assertTrue(input(engine, id, 0, id == 1 ? 0 : 180, 0, 0, false, true, false, 0));
+        }
+        engine.tick();
+        assertEquals(2, engine.snapshot(first).health());
+        assertEquals(0, engine.snapshot(second).health());
+        assertEquals(1, engine.snapshot(first).stats().hits());
+        assertEquals(0, engine.snapshot(second).stats().hits());
+    }
+
+    @Test void chestplateAndResistanceMitigateAfterBlockingAndWearUsesBlockedDamage() {
+        var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
+        assertTrue(engine.equipArmor(2, .80, List.of(0, 0, 1, 0)));
+        assertTrue(engine.applyEffect(2, Effect.RESISTANCE, 20));
+        assertTrue(input(engine, 2, 0, 180, 0, 0, false, false, true, 0));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        // Eight raw, 4.5 blocked, eight diamond chestplate points, then Resistance I.
+        assertEquals(17.552, engine.snapshot(2).health(), .00001);
+        assertEquals(List.of(0, 0, 0, 0), engine.snapshot(2).durability());
+    }
+
+    @Test void effectsPulseOnRemainingDurationAndPoisonParticipatesInHurtImmunity() {
+        var engine = duel(CombatRules.DEBUFF, field(false, true), 2);
+        tick(engine, 7);
+        assertTrue(engine.damage(0, 1, 5));
+        assertTrue(engine.applyEffect(1, Effect.REGENERATION, 51));
+        assertTrue(engine.applyEffect(2, Effect.POISON, 26));
+        engine.tick();
+        assertEquals(15, engine.snapshot(1).health());
+        assertEquals(20, engine.snapshot(2).health());
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        assertEquals(16, engine.snapshot(1).health());
+        // One poison damage grants immunity, so the sword's remaining seven raw points reach armor.
+        assertEquals(16.76, engine.snapshot(2).health(), .00001);
+        assertEquals(-1, engine.snapshot(2).impulseTick());
+    }
+
+    @Test void speedAndSlownessCombineAsLevelOneAttributeMultipliers() {
+        var engine = duel(CombatRules.DEBUFF, field(false, true), 6);
+        assertTrue(engine.applyEffect(2, Effect.SPEED, 40));
+        assertTrue(engine.applyEffect(2, Effect.SLOWNESS, 40));
+        for (int id : List.of(1, 2)) assertTrue(input(engine, id, 0, 0, 0, 1, false, false, false, 0));
+        engine.tick();
+        assertEquals((engine.snapshot(1).feet().x() - .5) * 1.02,
+                engine.snapshot(2).feet().x() - 6, .00001);
     }
 
     @Test void aClickThatStartsUsingAnItemCannotAddSprintKnockback() {
@@ -348,7 +451,7 @@ class CombatEngineTest {
         assertVector(new Vec3(.90, .46, 0), victim.hitImpulse());
     }
 
-    @Test void simultaneousSprintHitsApplySelfSlowdownBeforeIncomingKnockback() {
+    @Test void simultaneousSprintHitsComposeSlowdownAndKnockbackInReceiptOrder() {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2.2);
         assertTrue(input(engine, 1, 0, 0, 0, 1, true, true, false, 0));
         assertTrue(input(engine, 2, 0, 180, 0, 1, true, true, false, 0));
@@ -361,7 +464,7 @@ class CombatEngineTest {
 
         double push = .90 - .1274 * .546 * .6 * .5;
         assertEquals(-push, engine.snapshot(1).velocity().x(), .00001);
-        assertEquals(push, engine.snapshot(2).velocity().x(), .00001);
+        assertEquals((.90 - .1274 * .546 * .5) * .6, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(.4208, engine.snapshot(1).velocity().y(), .00001);
         assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
     }
@@ -542,11 +645,13 @@ class CombatEngineTest {
         input(debuff, 1, 0, 0, -10, 0, false, false, true, 5);
         tick(debuff, 7);
         assertTrue(debuff.snapshot(2).effects().containsKey(Effect.POISON));
-        tick(debuff, 20);
-        assertEquals(1, debuff.snapshot(2).health(), .0001);
-        assertEquals(25, debuff.snapshot(2).hurtTick());
-        tick(debuff, 23);
-        assertEquals(25, debuff.snapshot(2).hurtTick());
+        int poisonDuration = debuff.snapshot(2).effects().get(Effect.POISON);
+        tick(debuff, poisonDuration % 25 + 1);
+        assertEquals(.5, debuff.snapshot(2).health(), .0001);
+        long poisonHit = debuff.currentTick();
+        assertEquals(poisonHit, debuff.snapshot(2).hurtTick());
+        tick(debuff, 25);
+        assertEquals(poisonHit, debuff.snapshot(2).hurtTick());
         assertEquals(0, debuff.snapshot(2).killerId());
 
         CombatEngine team = duel(CombatRules.DEBUFF, field(false, false), 2);

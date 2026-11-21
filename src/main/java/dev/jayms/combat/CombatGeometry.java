@@ -8,6 +8,7 @@ public final class CombatGeometry {
     static final double BODY_RADIUS = PlayerDimensions.RADIUS;
     static final double BODY_HEIGHT = PlayerDimensions.HEIGHT;
     static final double EYE_HEIGHT = PlayerDimensions.EYE_HEIGHT;
+    private static final double MELEE_TARGET_MARGIN = .1F;
     private static final double THROWABLE_TARGET_MARGIN = .3F;
     private static final double EPSILON = 1e-7;
     private static final double CONTACT_EPSILON = .0001;
@@ -81,7 +82,7 @@ public final class CombatGeometry {
     }
 
     /** Walk the crossed voxels and return the first impact fraction in [0,1]. */
-    static double firstBlock(Arena arena, Vec3 start, Vec3 delta) {
+    public static double firstBlock(Arena arena, Vec3 start, Vec3 delta) {
         return firstBlock(start, delta, arena::solid);
     }
 
@@ -124,6 +125,21 @@ public final class CombatGeometry {
     public static double firstBody(Vec3 start, Vec3 delta, Vec3 feet) {
         return firstBox(start, delta, feet.add(-BODY_RADIUS, 0, -BODY_RADIUS),
                 feet.add(BODY_RADIUS, BODY_HEIGHT, BODY_RADIUS), true);
+    }
+
+    /** Survival crosshair selection uses Entity.af() around all six physical faces. */
+    public static double firstMeleeBody(Vec3 start, Vec3 delta, Vec3 feet) {
+        double radius = BODY_RADIUS + MELEE_TARGET_MARGIN;
+        return firstBox(start, delta, feet.add(-radius, -MELEE_TARGET_MARGIN, -radius),
+                feet.add(radius, BODY_HEIGHT + MELEE_TARGET_MARGIN, radius), true);
+    }
+
+    /** Paper's use-entity packet check uses current positions and eye-to-eye visibility. */
+    static boolean withinMeleePacketRange(Arena arena, Vec3 attacker, Vec3 target) {
+        Vec3 delta = target.minus(attacker);
+        double squaredDistance = delta.x() * delta.x() + delta.y() * delta.y() + delta.z() * delta.z();
+        if (squaredDistance < 9) return true;
+        return squaredDistance < 36 && !Double.isFinite(firstBlock(arena, attacker.add(0, EYE_HEIGHT, 0), delta));
     }
 
     static double firstThrowableBody(Vec3 start, Vec3 delta, Vec3 feet) {

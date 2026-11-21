@@ -8,6 +8,7 @@ import dev.jayms.combat.practice.PracticeMatch.View;
 import dev.jayms.combat.practice.PracticeServer;
 import dev.jayms.net.SecureTransport;
 import dev.jayms.recording.ScreenRecorder;
+import dev.jayms.ui.Controls;
 import dev.jayms.window.Window;
 
 import java.nio.file.Files;
@@ -17,8 +18,7 @@ import java.util.List;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
 
-import static org.lwjgl.glfw.GLFW.glfwSetWindowShouldClose;
-import static org.lwjgl.glfw.GLFW.glfwSetWindowSize;
+import static org.lwjgl.glfw.GLFW.*;
 
 /** Captures the real first-person layers in a live Basalt Courtyard match. */
 public final class PracticeHandNativePlaytest {
@@ -49,21 +49,21 @@ public final class PracticeHandNativePlaytest {
     private static final class Observer implements PracticeGame.FrameObserver {
         private final PracticeClient first, second;
         private final Path output;
+        private final Controls bindings;
         private final List<String> notes = new ArrayList<>();
         private long firstFrame, fight, swing, guard, release, lowered, pearlAt, raise;
-        private boolean ready, idle, swung, blocked, recovered, equipped, pearlIdle, pearlUsed, resized, stopped, complete;
+        private boolean ready, idle, swung, swingConfirmed, blocked, recovered, equipped, pearlIdle, pearlUsed, resized, stopped, complete;
 
-        Observer(PracticeClient first, PracticeClient second, Path output) {
+        Observer(PracticeClient first, PracticeClient second, Path output) throws java.io.IOException {
             this.first = first;
             this.second = second;
             this.output = output;
+            bindings = new Controls(Controls.directory().resolve("controls.properties"));
         }
 
         @Override public Intent input(Intent controls, View view) {
             long now = System.nanoTime();
             long elapsed = fight == 0 ? 0 : TimeUnit.NANOSECONDS.toMillis(now - fight);
-            boolean attack = view.phase() == Phase.FIGHT && elapsed >= 720 && swing == 0;
-            if (attack) swing = now;
             boolean blocking = swing != 0 && elapsed >= 1_350 && elapsed < 2_150;
             if (blocking && guard == 0) guard = now;
             if (!blocking && guard != 0 && release == 0) release = now;
@@ -72,7 +72,7 @@ public final class PracticeHandNativePlaytest {
             boolean throwing = slot == 1 && elapsed >= 3_140 && elapsed < 3_270;
             if (throwing && pearlAt == 0) pearlAt = now;
             if (slot == 0 && lowered != 0 && raise == 0) raise = now;
-            return new Intent(controls.sequence(), -90, 0, 0, 0, false, false, attack, blocking || throwing, slot);
+            return new Intent(controls.sequence(), -90, 0, 0, 0, false, false, false, blocking || throwing, slot);
         }
 
         @Override public void frame(Window window, ScreenRecorder recorder, View view, int width, int height)
@@ -95,6 +95,19 @@ public final class PracticeHandNativePlaytest {
             if (!idle && after(now, fight, 450)) {
                 grab("idle", width, height);
                 idle = true;
+            }
+            if (swing == 0 && after(now, fight, 720)) {
+                long handle = window.getHandle();
+                invokeBinding(handle, bindings.code(Controls.Action.PLACE), GLFW_PRESS);
+                invokeBinding(handle, bindings.code(Controls.Action.PLACE), GLFW_RELEASE);
+                invokeBinding(handle, bindings.code(Controls.Action.BREAK), GLFW_PRESS);
+                invokeBinding(handle, bindings.code(Controls.Action.BREAK), GLFW_RELEASE);
+                swing = now;
+            }
+            if (!swingConfirmed && swing != 0 && view.fighters().stream()
+                    .anyMatch(fighter -> fighter.id() == first.id() && fighter.swinging())) {
+                swingConfirmed = true;
+                notes.add("Server confirmed a swing after sword block press and release in the same input interval.");
             }
             if (!swung && after(now, swing, 88)) {
                 grab("swing", width, height);
@@ -134,11 +147,23 @@ public final class PracticeHandNativePlaytest {
                 stopped = true;
             }
             if (stopped && recorder.status("F10").startsWith("Recording saved")) {
-                complete = idle && swung && blocked && recovered && equipped && pearlIdle && pearlUsed && resized;
+                complete = idle && swung && swingConfirmed && blocked && recovered && equipped && pearlIdle && pearlUsed && resized;
                 glfwSetWindowShouldClose(window.getHandle(), true);
             }
             if (now - firstFrame > TimeUnit.SECONDS.toNanos(24)) {
                 throw new IllegalStateException("Timed out capturing hand and sword poses");
+            }
+        }
+
+        private static void invokeBinding(long handle, int binding, int action) {
+            if (binding < 0) {
+                var callback = glfwSetMouseButtonCallback(handle, null);
+                glfwSetMouseButtonCallback(handle, callback);
+                callback.invoke(handle, -binding - 1, action, 0);
+            } else {
+                var callback = glfwSetKeyCallback(handle, null);
+                glfwSetKeyCallback(handle, callback);
+                callback.invoke(handle, binding, 0, action, 0);
             }
         }
 
