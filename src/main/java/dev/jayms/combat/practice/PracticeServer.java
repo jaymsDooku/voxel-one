@@ -110,6 +110,12 @@ public final class PracticeServer implements AutoCloseable {
             if (in.readInt() != PracticeWire.MAGIC) return;
             int version = in.readInt();
             if (version < PracticeWire.LEGACY_VERSION || version > PracticeWire.VERSION) return;
+            if (version < PracticeWire.KNOCKBACK_LAB_VERSION
+                    && match instanceof PracticeMatch practice && practice.kit() == PracticeMatch.Kit.KNOCKBACK_LAB) {
+                out.writeInt(-2);
+                out.flush();
+                return;
+            }
             int length = in.readUnsignedByte();
             if (length < 1 || length > 16) return;
             byte[] name = new byte[length];

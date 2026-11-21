@@ -862,6 +862,18 @@ class CombatEngineTest {
         assertEquals(List.of(200, 200, 200, 200), landed.durability());
     }
 
+    @Test void knockbackLabIgnoresEnvironmentalDamage() {
+        var engine = new CombatEngine(CombatRules.KNOCKBACK_LAB, field(false, true));
+        assertTrue(engine.join(1, new Vec3(.5, 7, .5), 0));
+        assertFalse(engine.damage(0, 1, 20));
+        assertFalse(engine.burn(1, 5));
+        tick(engine, 25);
+        var landed = engine.snapshot(1);
+        assertTrue(landed.grounded());
+        assertEquals(20, landed.health());
+        assertEquals(-1, landed.hurtTick());
+    }
+
     @Test void aWeakerFallDoesNotDamageOrRefreshHurtAfterAnAirborneSwordHit() {
         var engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, true));
         assertTrue(engine.join(1, new Vec3(.5, 5.1, .5), 0));

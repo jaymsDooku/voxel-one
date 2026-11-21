@@ -6,6 +6,7 @@ import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.CombatGeometry;
 import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
+import dev.jayms.combat.practice.PracticeMatch.Kit;
 import dev.jayms.player.PlayerDimensions;
 import org.junit.jupiter.api.TestReporter;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -24,8 +25,8 @@ class PracticeTradeResponseTest {
     @ParameterizedTest
     @ValueSource(ints = {8, 9, 10})
     void headOnHitsSeparateBothBodiesAndPermitTheNextTrade(int cps, TestReporter reporter) {
-        var forward = trade(cps, 1);
-        var mirror = trade(cps, 2);
+        var forward = trade(cps, 1, startDuel(Kit.NO_DEBUFF));
+        var mirror = trade(cps, 2, startDuel(Kit.NO_DEBUFF));
         assertEquals(forward.size(), mirror.size());
 
         // Swap senders across the arena center. Receipt order may distinguish roles, actor ID may not.
@@ -83,15 +84,51 @@ class PracticeTradeResponseTest {
                 peakGap, regained.tick - opening.tick));
     }
 
+    @ParameterizedTest
+    @ValueSource(ints = {8, 9, 10})
+    void knockbackLabKeepsNormalPracticeTrajectoriesWithoutDamageOrATimeLimit(int cps) {
+        var lab = startDuel(Kit.KNOCKBACK_LAB);
+        var normal = trade(cps, 1, startDuel(Kit.NO_DEBUFF));
+        var training = trade(cps, 1, lab);
+        for (int tick = 0; tick < normal.size(); tick++) {
+            Step expected = normal.get(tick), actual = training.get(tick);
+            compareKnockback(expected.first, actual.first);
+            compareKnockback(expected.second, actual.second);
+        }
+        assertTrue(training.get(training.size() - 1).first.hits() >= 3);
+        for (int i = 0; i < 8 * 60 * PracticeMatch.TICKS_PER_SECOND; i++) lab.tick();
+        var view = lab.view(1);
+        assertEquals(PracticeMatch.Phase.FIGHT, view.phase());
+        assertEquals(0, view.ticksLeft());
+        assertTrue(view.fighters().stream().allMatch(fighter -> fighter.health() == 20));
+    }
+
+    private static void compareKnockback(Fighter expected, Fighter actual) {
+        assertEquals(expected.z(), actual.z(), .00001);
+        assertEquals(expected.y(), actual.y(), .00001);
+        assertEquals(expected.vz(), actual.vz(), .00001);
+        assertEquals(expected.vy(), actual.vy(), .00001);
+        assertEquals(expected.hurtTick(), actual.hurtTick());
+        assertEquals(expected.impulseTick(), actual.impulseTick());
+        assertEquals(expected.hits(), actual.hits());
+        assertEquals(expected.combo(), actual.combo());
+        assertEquals(20, actual.health());
+        assertEquals(0, actual.remaining());
+    }
+
     private record Step(int number, long tick, Fighter first, Fighter second) {
         double gap() { return Math.abs(first.z() - second.z()); }
     }
 
-    private static List<Step> trade(int cps, int firstId) {
-        var match = new PracticeMatch(PracticeMatch.Kit.NO_DEBUFF, false);
+    private static PracticeMatch startDuel(Kit kit) {
+        var match = new PracticeMatch(kit, false);
         match.ready(match.join("North"));
         match.ready(match.join("South"));
-        while (match.view(firstId).phase() == PracticeMatch.Phase.COUNTDOWN) match.tick();
+        while (match.view(1).phase() == PracticeMatch.Phase.COUNTDOWN) match.tick();
+        return match;
+    }
+
+    private static List<Step> trade(int cps, int firstId, PracticeMatch match) {
         var trace = new ArrayList<Step>();
         for (int n = 1; n <= 85; n++) {
             var before = match.view(firstId);

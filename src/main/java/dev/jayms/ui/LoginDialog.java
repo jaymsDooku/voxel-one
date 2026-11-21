@@ -2,6 +2,7 @@ package dev.jayms.ui;
 
 import dev.jayms.net.MultiplayerClient;
 import dev.jayms.GameIdentity;
+import dev.jayms.combat.practice.PracticeMatch.Kit;
 import dev.jayms.net.SecureTransport;
 
 import java.awt.*;
@@ -18,7 +19,7 @@ import javax.swing.*;
 public final class LoginDialog {
     public static volatile boolean citySelected = false;
     public static volatile boolean musicSelected = false;
-    public static volatile boolean practiceSelected = false;
+    public static volatile Kit practiceKit;
 
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin)
             throws Exception {
@@ -28,7 +29,7 @@ public final class LoginDialog {
     public static MultiplayerClient open(String initialHost, int initialPort, String explicitPin,
             boolean gameExplicit, boolean portExplicit) throws Exception {
         musicSelected = false;
-        practiceSelected = false;
+        practiceKit = null;
         CompletableFuture<MultiplayerClient> result = new CompletableFuture<>();
         SwingUtilities.invokeLater(() -> show(initialHost, initialPort, explicitPin, gameExplicit, portExplicit, result));
         return result.get();
@@ -122,14 +123,16 @@ public final class LoginDialog {
         buttons.add(register);
         buttons.add(offline);
         if (!gameExplicit) {
-            JButton practice = new JButton("PotPvP Practice");
-            practice.addActionListener(e -> {
-                practiceSelected = true;
-                musicSelected = false;
-                result.complete(null);
-                frame.dispose();
-            });
-            buttons.add(practice);
+            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB}) {
+                JButton practice = new JButton(kit == Kit.NO_DEBUFF ? "PotPvP Practice" : kit.title());
+                practice.addActionListener(e -> {
+                    practiceKit = kit;
+                    musicSelected = false;
+                    result.complete(null);
+                    frame.dispose();
+                });
+                buttons.add(practice);
+            }
         }
         c.gridx = 0;
         c.gridy = 6;

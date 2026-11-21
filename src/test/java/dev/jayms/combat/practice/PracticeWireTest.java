@@ -38,7 +38,7 @@ class PracticeWireTest {
             assertEquals(view.fighters().get(0).motionEpoch(), previous.motionEpoch());
             assertEquals(version >= PracticeWire.WALL_VERSION ? 43 : -1, previous.lastHorizontalWallTick());
             boolean impulse = version >= PracticeWire.IMPULSE_VERSION;
-            assertEquals(-1, previous.swingTick());
+            assertEquals(version >= PracticeWire.SWING_VERSION ? 41 : -1, previous.swingTick());
             assertEquals(impulse ? 44 : -1, previous.impulseTick());
             assertEquals(impulse ? .9f : 0, previous.impulseX());
             assertEquals(impulse ? .46f : 0, previous.impulseY());
@@ -50,6 +50,20 @@ class PracticeWireTest {
         assertEquals(-1, fighter.hurtTick());
         assertEquals(0, fighter.motionEpoch());
         assertEquals(-1, fighter.impulseTick());
+    }
+
+    @Test @Timeout(15)
+    void olderClientIsToldToUpgradeBeforeJoiningTheLab() throws Exception {
+        var identity = SecureTransport.server(temporary.resolve("tls"));
+        try (var server = new PracticeServer(HOST, 0, identity.context(), Kit.KNOCKBACK_LAB);
+             var client = SecureTransport.connect(HOST, server.port(), identity.fingerprint())) {
+            var out = new DataOutputStream(client.getOutputStream());
+            var in = new DataInputStream(client.getInputStream());
+            out.writeInt(PracticeWire.MAGIC);
+            out.writeInt(PracticeWire.SWING_VERSION);
+            out.flush();
+            assertEquals(-2, in.readInt());
+        }
     }
 
     @Test void attackViewRoundTripsWithoutChangingLegacyControls() throws Exception {

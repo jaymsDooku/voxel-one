@@ -1937,8 +1937,9 @@ public class Main {
                     do {
                         game.network = LoginDialog.open(host, port, pin, gameExplicit || engineWorkspace, explicitPort != null);
                         if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
-                        if (LoginDialog.practiceSelected) {
-                            dev.jayms.combat.client.PracticeGame.launch(new String[]{"--offline"});
+                        if (LoginDialog.practiceKit != null) {
+                            dev.jayms.combat.client.PracticeGame.launch(
+                                    new String[]{"--offline", "--kit", LoginDialog.practiceKit.name()});
                             return;
                         }
                     } while (LoginDialog.musicSelected);
