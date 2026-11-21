@@ -107,16 +107,19 @@ bool previewSunReachesLedge(vec3 point){
     q.xy*=vec2(size);
     return shadowDepthGap(layer,q,slope,vec2(0),size)<=.00004;
 }
-vec2 previewLedgeVisibility(vec3 point,float overhead,float sunShadow,bool sunMapCovered){
-    // Transparent roofs already carry an explicit sky transmission. The
-    // depth views contain only opaque casters, so preserve that attenuation.
-    if(overhead>0.||skyHeader(ivec2(floor(point.xz)))<0)return vec2(sunShadow*overhead,overhead);
+float previewLedgeOpening(vec3 point){
     vec3 span=uPreviewMax-uPreviewMin,p=(point-uPreviewMin)/span;
     float east=previewInclinedExposure(0,1.-p.z,p.y,1.-p.x,span.y,span.x,true);
     float west=previewInclinedExposure(1,p.z,p.y,p.x,span.y,span.x,true);
     float south=previewInclinedExposure(2,p.x,p.y,1.-p.z,span.y,span.z,true);
     float north=previewInclinedExposure(3,1.-p.x,p.y,p.z,span.y,span.z,true);
-    float opening=.25*(east+west+north+south);
+    return .25*(east+west+north+south);
+}
+vec2 previewLedgeVisibility(vec3 point,float overhead,float sunShadow,bool sunMapCovered){
+    // Transparent roofs already carry an explicit sky transmission. The
+    // depth views contain only opaque casters, so preserve that attenuation.
+    if(overhead>0.||skyHeader(ivec2(floor(point.xz)))<0)return vec2(sunShadow*overhead,overhead);
+    float opening=previewLedgeOpening(point);
     // An exterior opening admits diffuse illumination from its part of the sky.
     // The independent sun projection determines whether the solar disk is visible.
     bool sunPath=sunMapCovered && sunShadow>0. && previewSunReachesLedge(point);

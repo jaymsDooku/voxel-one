@@ -587,6 +587,11 @@ final class CorniceOrbit {
     private boolean published;
     private double previousLuma,maxRefreshStep;
     private dev.jayms.render.ReflectionProbes probes;
+    private static final int TRANSPORT_PHASE=32;
+    private final double[] transportLuma=new double[3*TRANSPORT_PHASE];
+    private int transportFrames,transportAttempts;
+    private Field transportField,readyField;
+    private dev.jayms.render.VoxelTransport parkedTransport;
 
     void sample(int angle,Matrix4f vp,World world,Vector3f eye) {
         brightness[angle-FIRST]=measurePatch(angle,vp,world,eye);
@@ -618,6 +623,7 @@ final class CorniceOrbit {
     // refresh triggered by streaming. Sampling the bound texture proves replacement.
     boolean checkRefresh(int holdFrame,Matrix4f vp,World world,Vector3f eye,
                          dev.jayms.render.RenderPipeline renderer,ShaderProgram voxel) throws Exception {
+        if (holdFrame>540) throw new AssertionError("Parked cornice lighting checks timed out");
         if (probes==null) {
             var f=dev.jayms.render.RenderPipeline.class.getDeclaredField("probes");
             f.setAccessible(true);
@@ -629,8 +635,8 @@ final class CorniceOrbit {
             // should keep the last complete cube visible throughout.
             int rebuiltFrames=holdFrame-refreshStart-30;
             if (probes.ready() && rebuiltFrames<6) throw new AssertionError("Published incomplete reflection");
-            if (rebuiltFrames>20) throw new AssertionError("Invalidated reflection did not recover");
-            return probes.ready();
+            if (transportAttempts==0 && rebuiltFrames>20) throw new AssertionError("Invalidated reflection did not recover");
+            return probes.ready() && checkTransport(renderer,vp,world,eye);
         }
         int program=glGetInteger(GL_CURRENT_PROGRAM),active=glGetInteger(GL_ACTIVE_TEXTURE);
         voxel.bind();
@@ -668,6 +674,36 @@ final class CorniceOrbit {
         return false;
     }
 
+    // Toggle availability of the real baked SDF field while the camera and
+    // masonry stay fixed. This reproduces a camera-centered volume reaching
+    // this ledge even when asynchronous bake timing differs between runs.
+    private boolean checkTransport(dev.jayms.render.RenderPipeline renderer,Matrix4f vp,World world,Vector3f eye) throws Exception {
+        if (++transportAttempts>360) throw new AssertionError("No settled transport field covered the south cornice");
+        if (transportField==null) {
+            transportField=renderer.getClass().getDeclaredField("transport");
+            transportField.setAccessible(true);
+            readyField=dev.jayms.render.VoxelTransport.class.getDeclaredField("ready");
+            readyField.setAccessible(true);
+        }
+        var active=(dev.jayms.render.VoxelTransport)transportField.get(renderer);
+        if (active!=parkedTransport) {
+            if (parkedTransport!=null) readyField.setBoolean(parkedTransport,true);
+            parkedTransport=null;
+            transportFrames=0;
+            var volumeField=renderer.getClass().getDeclaredField("volume");
+            volumeField.setAccessible(true);
+            var volume=(dev.jayms.render.LightVolume)volumeField.get(renderer);
+            if (!renderer.lightingReady() || !readyField.getBoolean(active) || volume==null
+                    || volume.x>16 || volume.x+volume.width<=18 || volume.y>92 || volume.y+volume.height<=92
+                    || volume.z>50.5f || volume.z+volume.length<=50.5f) return false;
+            parkedTransport=active;
+        }
+        transportLuma[transportFrames++]=measurePatch(HOLD_ANGLE,vp,world,eye);
+        if (transportFrames==TRANSPORT_PHASE) readyField.setBoolean(active,false);
+        if (transportFrames==2*TRANSPORT_PHASE) readyField.setBoolean(active,true);
+        return transportFrames==transportLuma.length;
+    }
+
     private boolean seesLedge(Matrix4f inverse,World world,Vector3f eye,int x,int y) {
         // Reject interpolation footprints containing another face or an occluder.
         for (int j=0;j<2;j++) for (int i=0;i<2;i++) {
@@ -690,10 +726,18 @@ final class CorniceOrbit {
         boolean east=verifyPatch("East",FIRST,SOUTH_START-1,csv,report);
         boolean south=verifyPatch("South",SOUTH_START,LAST,csv,report);
         report.append(String.format(Locale.ROOT,"South cornice parked at %d degrees: largest step %.2f / 255 during an observed reflection probe replacement%n",HOLD_ANGLE,maxRefreshStep));
+        if (transportFrames!=transportLuma.length) throw new AssertionError("Incomplete parked transport handoff");
+        double[] settled=new double[3];
+        for (int phase=0;phase<settled.length;phase++) {
+            int end=(phase+1)*TRANSPORT_PHASE;
+            settled[phase]=java.util.Arrays.stream(transportLuma,end-8,end).average().orElseThrow();
+        }
+        double coverageDifference=Math.abs(settled[1]-(settled[0]+settled[2])*.5);
+        report.append(String.format(Locale.ROOT,"Parked SDF coverage present / absent / restored: %.2f / %.2f / %.2f, difference %.2f / 255%n",settled[0],settled[1],settled[2],coverageDifference));
         Files.writeString(output.resolve("cornice-orbit.csv"),csv);
         Files.writeString(output.resolve("results.txt"),report);
         System.out.print(report);
-        if (!east || !south || !published || maxRefreshStep>8) throw new AssertionError("Unstable cornice lighting");
+        if (!east || !south || !published || maxRefreshStep>8 || coverageDifference>4) throw new AssertionError("Unstable cornice lighting");
     }
 
     private boolean verifyPatch(String name,int start,int end,StringBuilder csv,StringBuilder report) {

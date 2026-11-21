@@ -132,11 +132,14 @@ void main(){
     bool shadowCovered;
     float sunShadow=shadowAt(vWorldPosition,geometricNormal,L,shadowCovered);
     float sunVisibility=sunShadow*skyVisibility;
+    vec3 landmarkAmbient=vec3(0);
     if(uPlanetLighting==1&&uHeld==0){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
         // Inspection fill follows the surface consistently as the local volume moves.
+        bool previewTop=uBuildingPreview==1&&geometricNormal.y>.999&&inPreviewBounds(point);
         if(uBuildingPreview==1){
-            indirect+=vec3(.048,.046,.042);
+            vec3 fill=vec3(.048,.046,.042);
+            if(previewTop)landmarkAmbient=fill;else indirect+=fill;
             skyVisibility=max(skyVisibility,previewSideExposure(point,geometricNormal));
             skyVisibility=previewWallSky(point,geometricNormal,skyVisibility);
             if(skyVisibility==0.&&!inPreviewBounds(point)&&(uHasIrradiance==0||!volumeInside(point))
@@ -151,7 +154,15 @@ void main(){
                 sunVisibility=ledge.x;diffuseVisibility=ledge.y;
             }else diffuseVisibility=max(skyVisibility,previewCourtyardSky(point,geometricNormal));
         }
-        indirect+=skyDiffuse*diffuseVisibility;
+        if(previewTop){
+            if(uVoxelAO==1&&skyVisibility>=1.){
+                // Cosine-weight the zenith and the four baked sky directions
+                // (one block of rise per two across) on an open top face.
+                float inclinedWeight=4.*inversesqrt(5.);
+                diffuseVisibility=(1.+inclinedWeight*previewLedgeOpening(point))/(1.+inclinedWeight);
+            }
+            landmarkAmbient+=skyDiffuse*diffuseVisibility;
+        }else indirect+=skyDiffuse*diffuseVisibility;
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){
@@ -165,6 +176,9 @@ void main(){
         indirect+=cones*.025+(uLocalReflection==1?probeIrradiance(point,N)*.08:vec3(0));}
         if(uContactTransport==1)sdfVisibility=distanceShadow(point+N*.6,L);
     }
+    // Landmark sky already includes stable geometric occlusion. Only local
+    // irradiance on a ledge depends on the camera's moving transport field.
+    indirect+=landmarkAmbient;
     vec3 V=uHeld==1?normalize(-vWorldPosition):normalize(uCameraPosition-vWorldPosition);
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
