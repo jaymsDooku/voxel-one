@@ -89,7 +89,7 @@ public final class PracticeClient implements AutoCloseable {
                 throw new UnsupportedVersion();
             }
             if (id == -1) throw new IOException("Arena sign-in rejected. Check credentials and server mode.");
-            if (id == -2) throw new IOException("Update Voxel One to join Knockback Lab.");
+            if (id == -2) throw new IOException("Update Voxel One to join this practice mode.");
             if (id <= 0) throw new IOException("Practice lobby is full or that name is in use");
             return new Login(socket, in, out, id, PracticeWire.readView(in, version));
         } catch (IOException | RuntimeException failed) {

@@ -123,7 +123,7 @@ public final class LoginDialog {
         buttons.add(register);
         buttons.add(offline);
         if (!gameExplicit) {
-            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB}) {
+            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB, Kit.TEAMFIGHTING_LAB}) {
                 JButton practice = new JButton(kit == Kit.NO_DEBUFF ? "PotPvP Practice" : kit.title());
                 practice.addActionListener(e -> {
                     practiceKit = kit;

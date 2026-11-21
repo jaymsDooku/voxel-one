@@ -24,7 +24,8 @@ public final class PracticeMatch implements ArenaMatch {
     public enum Kit {
         NO_DEBUFF(CombatRules.NO_DEBUFF, "No Debuff"),
         DEBUFF(CombatRules.DEBUFF, "Debuff"),
-        KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab");
+        KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab"),
+        TEAMFIGHTING_LAB(CombatRules.NO_DEBUFF, "Teamfighting Lab");
 
         private final CombatRules rules;
         private final String title;
@@ -36,6 +37,7 @@ public final class PracticeMatch implements ArenaMatch {
 
         public CombatRules rules() { return rules; }
         public String title() { return title; }
+        public boolean teamBased() { return this == TEAMFIGHTING_LAB; }
     }
     public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
 
@@ -86,15 +88,18 @@ public final class PracticeMatch implements ArenaMatch {
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
                        Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
-                       long lastHit, long lastSplash, List<String> status) { }
+                       long lastHit, long lastSplash, List<String> status) {
+        /** Teamfighting Lab publishes the winning side plus one in place of a fighter ID. */
+        public int winningTeam() { return kit.teamBased() ? winner - 1 : -1; }
+    }
 
-    private static final int BOT = 2;
     private static final int COUNTDOWN = 3 * TICKS_PER_SECOND;
     private static final int ROUND = 8 * 60 * TICKS_PER_SECOND;
     private static final int RESULT_DELAY = 2 * TICKS_PER_SECOND;
     private static final int MAX_PEERS = 8;
     private final Map<Integer, Member> members = new LinkedHashMap<>();
     private final Kit kit;
+    private final int fighterCapacity;
     private final CombatRules rules;
     private final CombatEngine.Arena arena = new CombatEngine.Arena() {
         @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
@@ -103,66 +108,87 @@ public final class PracticeMatch implements ArenaMatch {
         @Override public boolean containsThrowable(Vec3 position) {
             return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
         }
+        @Override public boolean canHarm(int attacker, int target) {
+            return !kit.teamBased() || opposingTeams(attacker, target);
+        }
     };
     private final CombatEngine engine;
     private final boolean offline;
     private int nextId = 1;
     private long tick, lastSimulationStep, lastSplash = -1;
-    private SparringPartner sparringPartner;
     private int ticksLeft, winner;
     private Phase phase = Phase.WAITING;
     private Result result = Result.NONE;
 
     private static final class Member {
         final String name;
-        int side;
+        final boolean automated;
+        int seat, target;
+        SparringPartner bot;
         boolean ready;
         long lastHit = -1, lastSwing = -1;
-        Member(String name, int side) { this.name = name; this.side = side; }
+        Member(String name, int seat, boolean automated) {
+            this.name = name;
+            this.seat = seat;
+            this.automated = automated;
+            ready = automated;
+        }
+        int team() { return seat % 2; }
     }
 
     public PracticeMatch(Kit kit, boolean offline) {
         this.kit = kit;
+        fighterCapacity = kit.teamBased() ? 4 : 2;
         this.offline = offline;
         rules = kit.rules();
         engine = new CombatEngine(rules, arena);
         if (offline) {
             join("You");
-            join("Sparring partner");
-            members.get(BOT).ready = true;
+            if (kit.teamBased()) {
+                addMember("Rowan", true);
+                addMember("Aster", true);
+                addMember("Briar", true);
+            } else {
+                addMember("Sparring partner", true);
+            }
         }
     }
 
     public Kit kit() { return kit; }
 
     public synchronized int join(String name) {
+        return addMember(name, false);
+    }
+
+    private int addMember(String name, boolean automated) {
         if (members.size() >= MAX_PEERS || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
                 || name.isBlank() || members.values().stream().anyMatch(m -> m.name.equalsIgnoreCase(name)))
             return 0;
         int id = nextId++;
-        int side = phase == Phase.WAITING ? freeSide() : -1;
-        members.put(id, new Member(name, side));
-        if (side >= 0) spawn(id, side, false);
+        int seat = phase == Phase.WAITING ? freeSeat() : -1;
+        members.put(id, new Member(name, seat, automated));
+        if (seat >= 0) spawn(id, false);
         return id;
     }
 
     public synchronized void leave(int id) {
         Member member = members.remove(id);
-        if (member == null || member.side < 0) return;
+        if (member == null || member.seat < 0) return;
         engine.leave(id);
-        if (phase == Phase.FIGHT) finish(otherId(id), Result.FORFEIT);
+        if (phase == Phase.FIGHT) finishIfTeamEliminated(Result.FORFEIT);
         else if (phase == Phase.COUNTDOWN) waitForReady();
         if (phase == Phase.WAITING) promoteSpectators();
     }
 
     public synchronized void ready(int id) {
         Member member = members.get(id);
-        if (member == null || member.side < 0) return;
+        if (member == null || member.seat < 0 || member.automated) return;
         if (phase == Phase.RESULT && ticksLeft == 0) waitForReady();
         if (phase == Phase.WAITING) member.ready = !member.ready;
-        if (phase == Phase.WAITING && members.values().stream().filter(m -> m.side >= 0 && m.ready).count() == 2) {
+        if (phase == Phase.WAITING
+                && members.values().stream().filter(m -> m.seat >= 0 && m.ready).count() == fighterCapacity) {
             for (var entry : members.entrySet())
-                if (entry.getValue().side >= 0) spawn(entry.getKey(), entry.getValue().side, true);
+                if (entry.getValue().seat >= 0) spawn(entry.getKey(), true);
             phase = Phase.COUNTDOWN;
             ticksLeft = COUNTDOWN;
         }
@@ -170,12 +196,12 @@ public final class PracticeMatch implements ArenaMatch {
 
     public synchronized boolean swap(int id, int first, int second) {
         Member member = members.get(id);
-        if (member == null || member.side < 0 || first < 0 || second < 0 || first >= 36 || second >= 36)
+        if (member == null || member.seat < 0 || first < 0 || second < 0 || first >= 36 || second >= 36)
             return false;
         if (phase == Phase.FIGHT) return engine.swapInventory(id, first, second);
         if (phase == Phase.WAITING && !member.ready) {
             engine.swapKit(id, first, second);
-            engine.reset(id, feet(member.side), BasaltCourtyard.spawn(member.side).yaw());
+            spawn(id, true);
             return true;
         }
         return false;
@@ -183,16 +209,16 @@ public final class PracticeMatch implements ArenaMatch {
 
     @Override public synchronized boolean quickMove(int id, int source) {
         Member member = members.get(id);
-        if (member == null || member.side < 0) return false;
+        if (member == null || member.seat < 0) return false;
         if (phase == Phase.FIGHT) return engine.quickMoveInventory(id, source);
         if (phase != Phase.WAITING || member.ready || !engine.quickMoveKit(id, source)) return false;
-        engine.reset(id, feet(member.side), BasaltCourtyard.spawn(member.side).yaw());
+        spawn(id, true);
         return true;
     }
 
     public synchronized void input(int id, Intent intent) {
         Member member = members.get(id);
-        if (member == null || member.side < 0 || phase != Phase.FIGHT) return;
+        if (member == null || member.seat < 0 || phase != Phase.FIGHT) return;
         engine.submit(id, intent);
     }
 
@@ -207,7 +233,7 @@ public final class PracticeMatch implements ArenaMatch {
                 }
             }
             case FIGHT -> {
-                if (offline) input(BOT, sparringPartner.input(tick, engine.snapshot(BOT), engine.snapshot(1)));
+                if (offline) driveBots();
                 engine.tick(tick);
                 lastSimulationStep = tick;
                 for (Event event : engine.drainEvents()) {
@@ -215,41 +241,51 @@ public final class PracticeMatch implements ArenaMatch {
                     if (event.type() == EventType.HIT && target != null) target.lastHit = tick;
                     if (event.type() == EventType.SWING && actor != null) actor.lastSwing = restartSwing(actor.lastSwing, tick);
                     if (event.type() == EventType.SPLASH) lastSplash = tick;
-                    if (offline && event.actorId() == BOT && event.type() == EventType.THROW && event.item() == Item.HEALING) {
-                        restockBotPotion();
+                    if (actor != null && actor.automated && event.type() == EventType.THROW && event.item() == Item.HEALING) {
+                        restockBotPotion(event.actorId());
                     }
                 }
                 if (!rules.knockbackOnly()) updateRoundResult();
             }
             case RESULT -> {
                 if (ticksLeft > 0) ticksLeft--;
-                if (ticksLeft == 0 && members.values().stream().noneMatch(m -> m.side >= 0)) waitForReady();
+                if (ticksLeft == 0 && members.values().stream().noneMatch(m -> m.seat >= 0)) waitForReady();
             }
         }
     }
 
     private void updateRoundResult() {
-        var fighters = engine.snapshots();
-        var survivors = fighters.stream().filter(f -> f.health() > 0).toList();
-        if (survivors.size() < fighters.size()) {
-            finish(survivors.size() == 1 ? survivors.get(0).id() : 0, Result.KNOCKOUT);
-        } else if (--ticksLeft == 0) {
+        if (!finishIfTeamEliminated(Result.KNOCKOUT) && --ticksLeft == 0) {
             finish(0, Result.TIMEOUT);
         }
     }
 
+    private boolean finishIfTeamEliminated(Result cause) {
+        int[] survivors = new int[2];
+        for (PlayerState fighter : engine.snapshots()) {
+            if (fighter.health() > 0) survivors[members.get(fighter.id()).team()] = fighter.id();
+        }
+        if (survivors[0] != 0 && survivors[1] != 0) return false;
+        int survivingId = Math.max(survivors[0], survivors[1]);
+        int winner = kit.teamBased() && survivingId != 0 ? members.get(survivingId).team() + 1 : survivingId;
+        finish(winner, cause);
+        return true;
+    }
+
     public synchronized View view(int id) {
-        var fighters = new ArrayList<Fighter>(2);
+        var fighters = new ArrayList<Fighter>(fighterCapacity);
         for (var entry : members.entrySet()) {
             int fighterId = entry.getKey();
             Member member = entry.getValue();
-            if (member.side < 0) continue;
+            if (member.seat < 0) continue;
             PlayerState f = engine.snapshot(fighterId);
             fighters.add(Fighter.fromCombat(f, member.name, member.lastSwing >= 0 && tick - member.lastSwing < SWING_TICKS,
-                    member.ready, -1, "", engine.currentTick(), lastSimulationStep, member.lastSwing));
+                    member.ready, kit.teamBased() ? member.team() : -1, "",
+                    engine.currentTick(), lastSimulationStep, member.lastSwing));
         }
         Member member = members.get(id);
-        PlayerState self = member == null || member.side < 0 ? null : engine.snapshot(id);
+        PlayerState self = member == null || member.seat < 0 ? null : engine.snapshot(id);
+        if (kit.teamBased() && phase == Phase.FIGHT && self != null && self.health() <= 0) self = null;
         List<Missile> missiles = phase == Phase.FIGHT ? engine.projectiles().stream().limit(64).map(p ->
                 new Missile(p.id(), p.item(), (float) p.position().x(), (float) p.position().y(),
                         (float) p.position().z())).toList() : List.of();
@@ -260,22 +296,22 @@ public final class PracticeMatch implements ArenaMatch {
                 lastSplash, List.of());
     }
 
-    private int freeSide() {
-        for (int side = 0; side < 2; side++) {
+    private int freeSeat() {
+        for (int seat = 0; seat < fighterCapacity; seat++) {
             boolean used = false;
-            for (Member m : members.values()) if (m.side == side) used = true;
-            if (!used) return side;
+            for (Member m : members.values()) if (m.seat == seat) used = true;
+            if (!used) return seat;
         }
         return -1;
     }
 
     private void promoteSpectators() {
         for (var entry : members.entrySet()) {
-            if (entry.getValue().side >= 0) continue;
-            int side = freeSide();
-            if (side < 0) return;
-            entry.getValue().side = side;
-            spawn(entry.getKey(), side, false);
+            if (entry.getValue().seat >= 0) continue;
+            int seat = freeSeat();
+            if (seat < 0) return;
+            entry.getValue().seat = seat;
+            spawn(entry.getKey(), false);
         }
     }
 
@@ -288,8 +324,8 @@ public final class PracticeMatch implements ArenaMatch {
         promoteSpectators();
         for (var entry : members.entrySet()) {
             Member m = entry.getValue();
-            if (m.side >= 0) spawn(entry.getKey(), m.side, true);
-            m.ready = offline && entry.getKey() == BOT;
+            if (m.seat >= 0) spawn(entry.getKey(), true);
+            m.ready = m.automated;
         }
     }
 
@@ -300,31 +336,49 @@ public final class PracticeMatch implements ArenaMatch {
         ticksLeft = RESULT_DELAY;
     }
 
-    private int otherId(int id) {
-        for (var entry : members.entrySet()) if (entry.getKey() != id && entry.getValue().side >= 0) return entry.getKey();
-        return 0;
-    }
-
-    private void spawn(int id, int side, boolean reset) {
+    private void spawn(int id, boolean reset) {
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
-        if (offline && id == BOT) sparringPartner = new SparringPartner(rules, arena, RandomGenerator.getDefault());
-        float yaw = BasaltCourtyard.spawn(side).yaw();
-        if (reset) engine.reset(id, feet(side), yaw);
-        else engine.join(id, feet(side), yaw);
+        member.target = 0;
+        if (member.automated) member.bot = new SparringPartner(rules, arena, RandomGenerator.getDefault());
+        var spawn = BasaltCourtyard.teamSpawn(member.team(), member.seat / 2);
+        var feet = new Vec3(spawn.x(), spawn.y(), spawn.z());
+        if (reset) engine.reset(id, feet, spawn.yaw());
+        else engine.join(id, feet, spawn.yaw());
     }
 
-    private static Vec3 feet(int side) {
-        var spawn = BasaltCourtyard.spawn(side);
-        return new Vec3(spawn.x(), spawn.y(), spawn.z());
+    private boolean opposingTeams(int attacker, int target) {
+        Member first = members.get(attacker), second = members.get(target);
+        return first != null && second != null && first.seat >= 0 && second.seat >= 0 && first.team() != second.team();
     }
 
-    private void restockBotPotion() {
-        var bot = engine.snapshot(BOT);
+    private void driveBots() {
+        var fighters = engine.snapshots();
+        for (PlayerState bot : fighters) {
+            Member member = members.get(bot.id());
+            if (!member.automated || bot.health() <= 0) continue;
+            PlayerState opponent = null;
+            double bestDistance = Double.POSITIVE_INFINITY;
+            for (PlayerState candidate : fighters) {
+                if (candidate.health() <= 0 || !opposingTeams(bot.id(), candidate.id())) continue;
+                // Keep chasing a selected opponent until another target is clearly closer.
+                double distance = candidate.feet().minus(bot.feet()).length() - (candidate.id() == member.target ? 1 : 0);
+                if (distance >= bestDistance) continue;
+                bestDistance = distance;
+                opponent = candidate;
+            }
+            if (opponent == null) continue;
+            member.target = opponent.id();
+            input(bot.id(), member.bot.input(tick, bot, opponent));
+        }
+    }
+
+    private void restockBotPotion(int id) {
+        var bot = engine.snapshot(id);
         if (bot.inventory().get(bot.slot()).item() != Item.EMPTY) return;
         for (int slot = CombatEngine.HOTBAR_SIZE; slot < bot.inventory().size(); slot++) {
             if (bot.inventory().get(slot).item() == Item.HEALING) {
-                engine.swapInventory(BOT, bot.slot(), slot);
+                engine.swapInventory(id, bot.slot(), slot);
                 return;
             }
         }
