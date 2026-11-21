@@ -1,0 +1,13 @@
+Westminster Double | local Windows verification
+Feature revision 6d0a3a19fa880d52ee00e8dcdc9ac41b9cd6336f
+16 authored parts. Width x depth x height: Grand 300 x 152 x 102 blocks; Double 600 x 304 x 204 blocks.
+Geometry and native recording captured on afb93a4d. The follow-up revision changes only preview edit validation, saving and its regression.
+All 3,339,359 compiled leaves match exactly in position, side length and material. No extra or missing solids. Grand 1,501,750,672 / double 12,014,005,376 fine cells.
+Elizabeth tower cap loaded, meshed and in opening view at world y=192
+Central tower cap loaded, meshed and in opening view at world y=184
+Victoria tower cap loaded, meshed and in opening view at world y=196
+Both courtyard floors have open space above.
+The comparison places each palace at the same distance from its riverfront. The 13.63-second flythrough visits the opening vista, clock, and river facade. Published H.264 video decoded end to end.
+Independent code review approved revision 6d0a3a19 after verifying that controls and offline edit validation share the preview ceiling.
+Full local Maven verification on the geometry revision: 785 tests, 0 failures, 0 errors, 1 skipped.
+Packaged the final reviewed revision and reran 55 relevant tests: 55 passed, including building preview, compiler/API, streaming, upper-level edits and multiplayer validation.
