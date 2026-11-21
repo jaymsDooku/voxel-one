@@ -177,6 +177,35 @@ class PracticeNetworkTest {
         }
     }
 
+    @Test @Timeout(20)
+    void teamfightingLabSharesTheFourPlayerMatchAndTeamMembershipOverTls() throws Exception {
+        var tls = SecureTransport.server(temporary.resolve("tls"));
+        try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), Kit.TEAMFIGHTING_LAB);
+             var alice = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Alice");
+             var bob = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Bob");
+             var carol = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Carol");
+             var dan = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Dan")) {
+            var clients = List.of(alice, bob, carol, dan);
+            for (var client : clients) {
+                assertEquals(Kit.TEAMFIGHTING_LAB, client.view().kit());
+                assertTrue(client.ready());
+            }
+            await(() -> clients.stream().allMatch(c -> c.view().phase() == Phase.FIGHT), "four-player lab");
+            for (var client : clients) {
+                assertEquals(List.of(0, 1, 0, 1), client.view().fighters().stream().map(Fighter::side).toList());
+                assertEquals(Item.HEALING, client.view().inventory().get(5).item());
+            }
+            assertTrue(input(alice, 0, 0, 0, 0, false, true, false, 0));
+            await(() -> self(alice).swingTick() > 0, "swing on a teammate");
+            assertEquals(0, self(alice).hits());
+            assertEquals(20, self(carol).health());
+            var sequence = approach(alice, bob);
+            assertTrue(input(alice, sequence, -90, 0, 0, false, true, false, 0));
+            await(() -> clients.stream().allMatch(c -> fighter(c.view(), alice.id()).hits() == 1
+                    && fighter(c.view(), bob.id()).health() == 18.5f), "enemy hit synchronized to all four clients");
+        }
+    }
+
     private static long approach(PracticeClient alice, PracticeClient bob) throws InterruptedException {
         long sequence = 1;
         long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);

@@ -611,7 +611,7 @@ public final class PracticeGame {
                 || inventory || !canAnimateCombat() || view.food() <= 6) return false;
         var actor = self();
         return actor.lastHorizontalWallTick() != view.tick()
-                && (!factions || view.fighters().stream().anyMatch(fighter ->
+                && (!showTeams() || view.fighters().stream().anyMatch(fighter ->
                         fighter.id() == target.targetId() && fighter.side() != actor.side()));
     }
 
@@ -743,9 +743,10 @@ public final class PracticeGame {
             ui.rectangle(0, 0, width, 8, 1, .16f, .12f, alpha);
             ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, alpha);
         }
-        if (factions) drawTeamLabels(ui);
+        if (showTeams()) drawTeamLabels(ui);
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
-        ui.text("Basalt Courtyard  /  " + (factions ? "Faction Arena" : view.kit().title()), 27, 24, 1.4f);
+        String heading = "Basalt Courtyard  /  " + (factions ? "Faction Arena" : view.kit().title());
+        ui.text(heading, 27, 24, Math.min(1.4f, 303f / ui.textWidth(heading, 1f)));
         if (showHitboxes) {
             String label = "Hitboxes  /  " + (hitboxShortcutNeedsControl ? "Ctrl+F12" : "F12");
             float labelWidth = ui.textWidth(label, 1.1f) + 20;
@@ -761,6 +762,10 @@ public final class PracticeGame {
             ui.text(actions, 22, height - 11, 1.05f);
         }
         int line = 0;
+        if (view.kit().teamBased()) {
+            drawTeamCounts(ui, actor);
+            line++;
+        }
         for (String status : view.status()) {
             ui.rectangle(16, 76 + line * 19, ui.textWidth(status, 1f) + 22, 19, .031f, .05f, .065f, .86f);
             ui.text(status, 27, 81 + line++ * 19, 1);
@@ -786,6 +791,25 @@ public final class PracticeGame {
         ui.end();
     }
 
+    private boolean showTeams() {
+        return factions || view.kit().teamBased();
+    }
+
+    private void drawTeamCounts(Overlay ui, Fighter actor) {
+        int[] living = new int[2];
+        for (Fighter fighter : view.fighters())
+            if (fighter.side() >= 0 && fighter.health() > 0) living[fighter.side()]++;
+        float x = 27;
+        ui.rectangle(16, 76, 250, 19, .031f, .05f, .065f, .90f);
+        for (int side = 0; side < TEAM_NAMES.length; side++) {
+            String team = TEAM_NAMES[side] + " " + living[side] + "/2" + (actor != null && actor.side() == side ? " (you)" : "");
+            int color = TEAM_JERSEYS[side];
+            ui.text(team, x, 81, 1f, (color >> 16 & 255) / 255f, (color >> 8 & 255) / 255f,
+                    (color & 255) / 255f, 1);
+            x += ui.textWidth(team, 1f) + 20;
+        }
+    }
+
     private void drawSparringStats(Overlay ui) {
         float top = showHitboxes ? 44 : 13;
         int binding = controls.code(SPARRING_STATS);
@@ -799,7 +823,9 @@ public final class PracticeGame {
             }
             return;
         }
-        Fighter partner = view.fighters().stream().filter(fighter -> fighter.id() != id).findFirst().orElse(null);
+        Fighter actor = self();
+        Fighter partner = view.fighters().stream().filter(fighter -> fighter.id() != id
+                && (!view.kit().teamBased() || actor != null && fighter.side() == actor.side())).findFirst().orElse(null);
         if (partner == null) return;
 
         boolean lab = view.kit().rules().knockbackOnly();
@@ -828,9 +854,14 @@ public final class PracticeGame {
 
     private String stateText(Fighter actor) {
         if (remote != null && !remote.connected()) return "Disconnected  /  Esc to exit";
-        if (view.spectatorId() == id) return "Spectating";
+        if (view.spectatorId() == id) {
+            return view.kit().teamBased() && actor != null && actor.health() <= 0
+                    ? "Eliminated  |  Spectating" : "Spectating";
+        }
         return switch (view.phase()) {
-            case WAITING -> actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
+            case WAITING -> view.kit().teamBased() && view.fighters().size() < 4
+                    ? "Waiting for players  /  " + view.fighters().size() + "/4"
+                    : actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
             case COUNTDOWN -> "Get ready";
             case FIGHT -> (view.kit().rules().knockbackOnly() ? "Trading  |  "
                     : "Fight  /  " + (view.ticksLeft() / 20) + "s  |  ")
@@ -841,7 +872,11 @@ public final class PracticeGame {
 
     private String title() {
         if (factions) return "Voxel One | Faction Arena";
-        return snapshot().kit().rules().knockbackOnly() ? "Voxel One | Knockback Lab" : "Voxel One | PotPvP Practice";
+        var kit = snapshot().kit();
+        return switch (kit) {
+            case KNOCKBACK_LAB, TEAMFIGHTING_LAB -> "Voxel One | " + kit.title();
+            default -> "Voxel One | PotPvP Practice";
+        };
     }
 
     private String resultText() {
@@ -858,7 +893,7 @@ public final class PracticeGame {
             if (clip.w <= 0 || Math.abs(clip.x) > clip.w || Math.abs(clip.y) > clip.w || Math.abs(clip.z) > clip.w) continue;
             float x = (clip.x / clip.w * .5f + .5f) * width;
             float y = (.5f - clip.y / clip.w * .5f) * height;
-            String text = fighter.name() + " / " + fighter.role();
+            String text = fighter.role().isEmpty() ? fighter.name() : fighter.name() + " / " + fighter.role();
             float boxWidth = ui.textWidth(text, 1.15f) + 14;
             int color = TEAM_JERSEYS[fighter.side()];
             ui.rectangle(x - boxWidth / 2, y - 3, boxWidth, 16, .031f, .05f, .065f, .83f);

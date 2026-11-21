@@ -95,6 +95,12 @@ Both fighters start with a sword and empty reserve slots. They can trade indefin
 
 In offline PotPvP or Knockback Lab, press **F3** to toggle the sparring partner's stats panel. It shows landed hits, best combo, horizontal and vertical movement per tick, and the held item. Timed PotPvP also shows health and healing potions used and remaining. The key is rebindable in Controls. If bound to Enter, use **Ctrl+Enter** to toggle the panel.
 
+## Teamfighting Lab
+
+Select **Teamfighting Lab** on the Play screen or launch with `--game practice --offline --kit teamfighting-lab`. Offline you and Aster fight Rowan and Briar. To host a four-player lobby, use `--practice-server --kit teamfighting-lab` and connect four current practice clients. The lobby fills Ember and Slate alternately as players join.
+
+Both sides use the No Debuff kit with the standard combat rules and healing potions. Teammates cannot damage or knock each other back, and a teammate in the way can intercept your melee ray. A potion splash can heal nearby fighters on either team. A knocked-out fighter spectates while their teammate stays in the round. The round ends when a whole team is eliminated or the standard eight-minute timer expires.
+
 ## Reproduce
 
 These PowerShell commands use the current build’s desktop dependencies. Set up a graphics-capable desktop for the native run. The deterministic tests run headless.
