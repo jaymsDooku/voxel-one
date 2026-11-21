@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T23:51:41+00:00",
+  "updatedAt": "2026-11-21T00:04:32+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4523,10 +4523,31 @@
       "id": "voxel-ledge-shadow",
       "title": "Westminster cornice and window sill shadows",
       "description": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Ledge lighting PR 99",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/99"
+        },
+        {
+          "kind": "image",
+          "label": "westminster ledge lighting comparison.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-comparison.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster ledge lighting flight.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-flight.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster ledge lighting results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-results.txt"
+        }
+      ],
       "status": "in_progress",
-      "note": "Matched cornices and window sills receive slanted sun. Reworking an expensive per-pixel search caught by native GPU timing.",
-      "updatedAt": "2026-11-20T23:51:41+00:00"
+      "note": "PR 99 submitted and independently reviewed. Tower cornice, gable sill and Hall sill pass the matched Windows GPU checks. Recessed wood and cast shadows remain shaded. Awaiting repository checks and merge.",
+      "updatedAt": "2026-11-21T00:04:32+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
