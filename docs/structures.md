@@ -2652,3 +2652,36 @@ rendering, placement and saving. The 20 samples per mode, exact commands,
 hardware, hashes, correctness results and pending gates are recorded in
 `dashboard/evidence/structure-sparse-snapshot-validation.json` and its samples.
 No supported city or maximum-limit claim follows from this sparse probe.
+
+
+### Lowest-free dependency ID index
+
+`ModelLibrary` now keeps a transient lowest-free structure-ID cursor instead of
+restarting the same scan at 1024 for each new dependency. All admissions still
+use the existing fingerprint lookup and validation before insertion. The cursor
+advances only across occupied IDs, including out-of-order imports and aliases.
+Copies carry an independent cursor; replacement and rollback copy it with the
+maps. Deserialization rebuilds it through normal insertion. It is not serialized.
+IDs, authors, names, definition bytes, revisions and save formats keep the same
+behavior. Legacy inventory IDs and publishing limits remain separate. The 2,048
+world-component count, 128 MiB dependency byte budget, model mesh/size limits and
+all structure placement gates remain unchanged. This grants no paging remap or
+partial-world edit authority.
+
+A headless component probe stages 512 distinct tiny 8-cube-resolution model
+definitions through the production library, with either no structure definitions
+or a 1,536-definition prefix. Baseline and cursor use separate sequential JVMs,
+one warmup for each occupancy and 20 measured batches per occupancy. Prefix
+construction, output-byte checks and duplicate lookups are outside the timed
+batch. Every new ID is checked against the old sequential choice. Entire library
+bytes match across versions for both cases.
+
+Baseline median/p95/worst: empty 23.158892/30.126898/41.150050 ms;
+prefilled 37.708971/51.529042/60.535450 ms. Cursor: empty
+20.714402/25.675179/35.695679 ms; prefilled
+21.238556/25.391044/28.669482 ms. Used heap before/after shares JVM carryover;
+it is not peak memory or incremental allocation. Host load and OS caches are
+uncontrolled. These measurements cover dependency staging only. They do not
+qualify the required city/maximum fixtures, frame/tick responsiveness, rendered
+model complexity, cold loading or 32-client networking. Supported limits and
+rollout remain gated.

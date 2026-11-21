@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T22:58:46+00:00",
+  "updatedAt": "2026-11-21T00:09:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4337,8 +4337,8 @@
       "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
       "evidence": [],
       "status": "in_progress",
-      "note": "Occupied destination snapshots passed 46 focused tests, 707 Java regressions, 40 Python checks, packaging and shipped MP3 checks. Separate Main workflows passed: standard 582.150 s; sparse 65.969 s. All 19 images inspected; both F10 clips fully decoded and inspected. A 20-run four-cell component probe measured p95 127.089/1.214 ms and 514/3 owner requests. This is not city/maximum qualification. Fresh source/media await controller publication and exact-head CI. Writable paging, remapping and full GPU/network qualification remain unfinished; gates stay closed.",
-      "updatedAt": "2026-11-20T22:58:46+00:00"
+      "note": "Fresh native sparse workflow passed in 64.970 s on retained 687-file source; three images and all 33 video frames inspected/decoded. Standard retry ended with tool exit 143; last stage command-undo at 271.758 s, no final receipt or assigned process remains. Existing bounded execution repair stays pending; no immediate further retry. 713 Java/40 Python/packaged MP3/component results remain source-matched. Local edits and completed sparse media need controller publication and exact-head CI. Full implementation and qualification remain unfinished; gates closed.",
+      "updatedAt": "2026-11-21T00:09:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -27,6 +27,9 @@ public final class ModelLibrary {
     private long revision;
     private long structureBytes;
     private int structureCount;
+    // Lowest free extended ID. Admission and codecs keep their existing limits;
+    // this transient index avoids restarting the same scan for each dependency.
+    private int nextStructureId=1024;
     public long revision(){return revision;}
     private Map<Integer, Entry> entries = new LinkedHashMap<>();
     private Map<String, Integer> fingerprints = new HashMap<>();
@@ -112,6 +115,7 @@ public final class ModelLibrary {
         revision++;
         entries.put(entry.id, entry);
         fingerprints.put(fingerprint, entry.id);identities.put(entry.id,fingerprint);
+        while(nextStructureId<66560&&entries.containsKey(nextStructureId))nextStructureId++;
     }
 
     /** Stable stored IDs/authors/definitions, independent of local revision counters.
@@ -148,7 +152,7 @@ public final class ModelLibrary {
         fingerprints.putAll(source.fingerprints);
         identities.putAll(source.identities);
         revision = source.revision;
-        structureBytes=source.structureBytes;structureCount=source.structureCount;
+        structureBytes=source.structureBytes;structureCount=source.structureCount;nextStructureId=source.nextStructureId;
     }
 
     public void write(DataOutputStream out) throws IOException {
@@ -173,7 +177,7 @@ public final class ModelLibrary {
         var buffer=new ByteArrayOutputStream();definition.write(new DataOutputStream(buffer));
         if(structureCount>=2048||structureBytes+buffer.size()>128L*1024*1024)throw new IOException("Experimental world dependency budget");
         ModelMesher.count(definition.voxels());
-        for(int id=1024;id<66560;id++)if(!entries.containsKey(id)) {
+        int id=nextStructureId;if(id<66560) {
             var entry=new Entry(id,"structure",new ModelDefinition(definition.name(),definition.voxels().copy().freeze()));putUnchecked(entry);structureCount++;structureBytes+=buffer.size();return entry;
         }
         throw new IOException("Structure dependency IDs exhausted");
@@ -183,7 +187,7 @@ public final class ModelLibrary {
     public void replaceWith(ModelLibrary prepared) {
         if(entries.equals(prepared.entries))return;
         entries=new LinkedHashMap<>(prepared.entries);fingerprints=new HashMap<>(prepared.fingerprints);identities=new HashMap<>(prepared.identities);revision++;
-        structureBytes=prepared.structureBytes;structureCount=prepared.structureCount;
+        structureBytes=prepared.structureBytes;structureCount=prepared.structureCount;nextStructureId=prepared.nextStructureId;
     }
 
     public void writeAll(DataOutputStream out) throws IOException {

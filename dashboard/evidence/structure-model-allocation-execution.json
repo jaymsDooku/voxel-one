@@ -1,0 +1,2038 @@
+{
+  "schema": 1,
+  "parent_head": "cae17fcecfa6ee1b818c8784043e128c505cdc2c",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Short sparse Main workflow completed on retained source. Standard retry interrupted with exit 143; no overall standard pass. Pending edits need exact-head hosted validation. Full implementation and qualification remain unfinished. Not ready.",
+  "publication": "Local edits, completed sparse evidence and retained partial diagnostics pending controller publication",
+  "change": "Transient lowest-free structure ID cursor replaces repeated scans from 1024. Every insertion updates it; copy and replacement carry it with the maps. Import rebuilds it, rollback restores holes, and aliases retain existing fingerprint choices. No saved field/codec/version change, cap change, paging ID remap or new edit authority.",
+  "source_files_verified": 687,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "78a3b3b1583b6609b200af49447972706f265d34cfd58bea6c97f9141924d1a1",
+    "src/test/java/dev/jayms/net/model/ModelAllocationTest.java": "bfa7ccdfdacd00704fb3030a32ec8338a6517bff10e222968325459e70709195",
+    "tools/structures/ModelAllocationBenchmark.java": "b9ca9a43fda6b7ab84902001a50b4b31cb6a701b9dfba9648f230b3363f1d622"
+  },
+  "java": {
+    "focused": {
+      "command": [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-Dtest=ModelAllocationTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,StructureTest,StructureMultiplayerTest,VoxelModelTest,MusicMp3Test",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 34.38461378030479,
+      "suites": [
+        {
+          "name": "dev.jayms.net.model.ModelAllocationTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingModelBindingTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MusicMp3Test",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.model.ModelLibraryBindingTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.VoxelModelTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ],
+      "tests": 52
+    },
+    "broader": {
+      "command": [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest,SavedWorldInspectorTest,CameraMovementTest,StructurePartitionedCaptureTest,SavedRegionCaptureTest,SavedRegionCapturePanelTest,StructureSparseSnapshotTest,ModelAllocationTest",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 392.73062577471137,
+      "suites": [
+        {
+          "name": "dev.jayms.net.structure.StructurePartitionedCaptureTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureBufferedCodecTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.hcf.HcfTransportTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsTransactionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayEditorTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingJournalTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadbackSaveSnapshotTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.model.ModelAllocationTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureEncodeCancellationTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOccupancyTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePlacementAdmissionTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureLeafCountTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.duel.DuelTransportTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReplayColumnSkyInputTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsDisplayRecoveryTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayLightingPumpTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOfflineStampTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingModelBindingTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingSessionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePreparedUndoTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadbackTailAdoptionTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayLightingWorkerTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayJointLightingCoverageTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureModelAdmissionTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCellReadTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedCellReadTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureChunkMeshCountTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StagedReplayOverlaySaveTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.PublicationProgressTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureDecodedContentsTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StagedWorldSaveTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCellReplayTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.CombatBoundaryTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayWorkerTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.EngineEditorTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+          "tests": "19",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldStreamingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOfflineHistoryStagingTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplaySkyWorldBridgeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BlockRaycasterTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CameraMovementTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadOnlyWorldSessionTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureWirePositionsTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureSparseSnapshotTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureGeometryDecodeTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.PreparedPagingSceneTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HistoryProtocolCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MobileGatewayTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedRegionCaptureTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldPackedCellImageTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplaySkyMergeWorkerTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.JournalTailAdoptionTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.PendingReplayOverlayTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplaySkyPumpTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadbackWorkerPublicationTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureRollbackImagesTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadbackMetadataTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePackageAdmissionTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingRetirementTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureOrderTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCaptureModelTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.LocalGameSaveIsolationTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.PerformanceRecorderTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.WorkerPublicationQueueTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.duel.DuelLifecycleTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StagedReplaySourceSaveTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StagedSaveDropCountTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureModelCodecTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityHistoryIntegrationTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePackedGeometryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.LocalGameSaveRowsTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplaySkyCoverageTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CitySavesTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReplayColumnSpoolTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCaptureChunkTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePreparedCellPublicationTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingTailTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.WorldSavePublicationTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.CombatSimulationTest",
+          "tests": "19",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplaySkyWorkerTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingWarmupTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyMergeBudgetTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureFileReadTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayJournalTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingFactoryTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.LocalGameSaveLimitTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayLightingCoverageTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.OfflineGameLoadTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.LocalLightingCaptureTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.VerticalLightingTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.OfflineWorldReplayTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsProfileTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureUniformCellsTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SealedStagedSaveTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureWorkerUndoTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SavedWorldInspectorTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayLightingCaptureTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedOctreeQueryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GpuTimestampRingTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayLightingBakeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureUniformCacheTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureLeafVisitorTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureDecodeCancellationTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SparseVoxelPackedCellTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StructureOfflineSaveTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyBuildBudgetTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedCellRotationTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.hcf.HcfSessionTest",
+          "tests": "14",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingReplacementTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.WorldSaveGenerationTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.OctreeValueComparisonTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedLeafVisitorTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.arena.BasaltCourtyardTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayCacheTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureRotationTreeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureSaveStagingTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePreviewTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReplayColumnGeometryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.WorkerSaveStagingTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.InventoryHudTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureMenuAnchorTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.StagedCleanupQueueTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityHistoryTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MusicMp3Test",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructureBufferedWireTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SavedRegionCapturePanelTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePublicationStagingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.model.ModelLibraryBindingTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ColdReplaySceneTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadOnlyWorldNavigationTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.duel.DuelSessionTest",
+          "tests": "14",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadbackRepeatSaveTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureRegionSnapshotTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.RegionReplayChunkTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedModelSnapshotTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplaySkyReadinessTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedPagingOwnerTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.VoxelModelTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.LightingPriorityTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.TransportMipTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureValidationStampTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.combat.hcf.HcfStoreTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ],
+      "tests": 713
+    }
+  },
+  "test_repair": {
+    "overall_pass": false,
+    "issue": "Alias fixture expected the next free ID 1027 after it had just allocated 1027; correct next free ID is 1028.",
+    "repair": "Correct only the assertion; production code unchanged.",
+    "rerun": "All seven focused suites and broader checks required."
+  },
+  "python": {
+    "command": [
+      "python3",
+      "target/model-allocation-validation/run-python.py"
+    ],
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.669459007680416,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery."
+  },
+  "package": {
+    "results": [
+      {
+        "command": [
+          "mvn",
+          "--batch-mode",
+          "-q",
+          "-o",
+          "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+          "-DskipTests",
+          "package"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 7.691521417349577
+      },
+      {
+        "command": [
+          "java",
+          "-cp",
+          "target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "deploy/MusicMp3DecodeSmoke.java"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 1.2728157714009285
+      }
+    ],
+    "production_classes_match_jar": 839,
+    "shaders_match_jar": 29,
+    "obsolete_reservation_absent": true
+  },
+  "benchmark": {
+    "summary": {
+      "status": "passed",
+      "runs_per_mode_per_version": 20,
+      "qualifies_city_maximum": false,
+      "identical_library_bytes": true,
+      "summary": {
+        "baseline": {
+          "empty": {
+            "median_ms": 23.1588915,
+            "p95_ms": 30.126898,
+            "worst_ms": 41.15005,
+            "world_library_sha256": "348c5912979a38cb05bef6fe81d249cad24f14b685bc7aa5f959e900ea4956da"
+          },
+          "prefilled": {
+            "median_ms": 37.708971000000005,
+            "p95_ms": 51.529042,
+            "worst_ms": 60.53545,
+            "world_library_sha256": "10e70c7a2149365ce25cde5e369eb4cc7a5ff90b4ba1938ac71d61a2f3273170"
+          }
+        },
+        "cursor": {
+          "empty": {
+            "median_ms": 20.714402,
+            "p95_ms": 25.675179,
+            "worst_ms": 35.695679,
+            "world_library_sha256": "348c5912979a38cb05bef6fe81d249cad24f14b685bc7aa5f959e900ea4956da"
+          },
+          "prefilled": {
+            "median_ms": 21.238556,
+            "p95_ms": 25.391044,
+            "worst_ms": 28.669482,
+            "world_library_sha256": "10e70c7a2149365ce25cde5e369eb4cc7a5ff90b4ba1938ac71d61a2f3273170"
+          }
+        }
+      },
+      "scope": "512 tiny model definitions staged through actual ModelLibrary. Fresh empty or1536-model prefix. Prefix setup, hash/serialization checks and duplicate retries outside timed batch. Independent sequential baseline/cursor JVMs with two warmup operations each; shared host and carryover heap not controlled."
+    },
+    "baseline_commands": [
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/test-classes:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "-d",
+        "target/model-allocation-validation/classes",
+        "tools/structures/ModelAllocationBenchmark.java"
+      ],
+      [
+        "java",
+        "-Xmx256m",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-cp",
+        "target/model-allocation-validation/classes:target/test-classes:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "dev.jayms.ModelAllocationBenchmark",
+        "target/model-allocation-validation/baseline-samples.json"
+      ]
+    ],
+    "cursor_command": [
+      "java",
+      "-Xmx256m",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-cp",
+      "target/model-allocation-validation/classes:target/test-classes:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+      "dev.jayms.ModelAllocationBenchmark",
+      "target/model-allocation-validation/cursor-samples.json"
+    ],
+    "baseline_execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 3.9292214680463076
+    },
+    "cursor_execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 2.9241846334189177
+    },
+    "baseline_source_sha256": "c92738f9acdc6b4212977d737be94421b57e301ab31586e7f05e7a70828f0568",
+    "baseline_compiled_library_binding": {
+      "file": "target/classes/dev/jayms/net/model/ModelLibrary.class",
+      "sha256": "fff5097c3de9fcfbdea69ae28db1f2f1be44ead1cd1a0ad14be76ee3f510691b"
+    },
+    "cursor_compiled_bindings": {
+      "target/classes/dev/jayms/net/model/ModelLibrary$Entry.class": "90467f1fe67facfd2f66789d174835d627527781be04c7e646cd53237cb324a4",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$LeafVisitor.class": "a91ce8fc831a75ba1438bf413255c6f4760c4b1e88deee9de14e2bb9da79d530",
+      "target/classes/dev/jayms/net/model/ModelDefinition.class": "4f7e53c32a7d6d24f1d151815ea87bbd23cf19940fcd4baf062e73b2bcf31b49",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$Leaf.class": "63ef3744a92b8906f80794db9ec1ad0113edccc1daf5c17c4367972f8760b594",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$PackedModel.class": "3fc54cfe3ad3d72301a80fdf9d17fd518a821af0233b681b9201d9d4ac244c1e",
+      "target/classes/dev/jayms/net/model/ModelMesher$Geometry.class": "887d13dade5b59d55094f5753497f6e563a61dc5993ac61e6c6d909087ce3a7c",
+      "target/classes/dev/jayms/net/model/ModelGenerators.class": "7c5f5cc4deefff8a4d907122d506c102b06483606406596368b447d08fb06185",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree.class": "da703bd7617bfec9fa321b7fec725ac4899d18a4e80177f9b20cadc2946efdc9",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$Node.class": "564ca62fb3fb113813d1bd35451144b40f984be563417b892d828c6eebc555ce",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$PackedCell.class": "c9a3cc98130edc613e4ab4aee69573fd236f21bd42ad6a0b6e43a3431a858e72",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$PackedCellRotation.class": "d98acd75b320e80bab07637b23bd525e573187623e82baa7346b90d5f6e1cbda",
+      "target/classes/dev/jayms/net/model/ModelLibrary.class": "bed09812cfb6fd94088b9b3331c4d9cdf261d1c090ed1fb85b634148cd7112fb",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$PackedCellReader.class": "19856fa92486d691ecfc94fb336a53e0908e3ba5636357ea7381b79bd946038f",
+      "target/classes/dev/jayms/net/model/ModelMesher$VoxelSampler.class": "ff2046ca98a9f362d09f56af4bd1b9e752cfb00db773c5286eeedbb0d5c83498",
+      "target/classes/dev/jayms/net/model/ModelMesher.class": "7406bdb6cd0cdb2b5fb228b3ddacc6c5d608b68b7771e56c173699e566d120d7",
+      "target/classes/dev/jayms/net/model/SparseVoxelOctree$Hit.class": "0fe87d3daaad3d860d5323bd97ef9b258b718655665e6c2e784821959ae6fe64"
+    },
+    "scope": "20 batches of 512 tiny 8-resolution models per occupancy per version; empty or 1536-model prefix. Separate sequential 256 MiB JVMs. Prefix setup, byte hashing and duplicate lookups outside measured batch. Used heap before/after is not peak memory/incremental allocation. Shared-host load and OS cache uncontrolled. No city/maximum/frame/tick/GPU/network qualification."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "qualification": false,
+    "gpu": "Not used by this headless dependency staging probe",
+    "network": "Not measured",
+    "os_cache": "Uncontrolled",
+    "source_files": 687
+  },
+  "native": {
+    "command": [
+      "python3",
+      "deploy/run_structure_playtest.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-allocation-standard",
+      "--timeout-seconds",
+      "600",
+      "--workflow",
+      "standard"
+    ],
+    "interruption": {
+      "state": "interrupted",
+      "tool_exit_code": 143,
+      "overall_pass": false,
+      "final_receipt_written": false,
+      "observed_wrapper_receipt": "running; no completed return code",
+      "last_stage": {
+        "current": "command-place",
+        "elapsed_ms": 395243,
+        "frames": 227
+      },
+      "anchored_assigned_process_counts": [
+        0,
+        0,
+        0
+      ],
+      "source_unchanged": true,
+      "required_repair": "Controller must inspect the assigned execution termination, preserve this source/profile/artifacts, confirm a current execution lease and arrange bounded native validation on this exact source. Do not infer qualification or rerun past an execution stop."
+    },
+    "standard_overall_pass": false,
+    "sparse_run": {
+      "command": [
+        "python3",
+        "deploy/run_structure_playtest.py",
+        "--display",
+        ":121",
+        "--evidence-prefix",
+        "structure-allocation-repair-sparse",
+        "--timeout-seconds",
+        "240",
+        "--workflow",
+        "sparse"
+      ],
+      "execution": {
+        "command": [
+          "python3",
+          "deploy/run_structure_playtest.py",
+          "--display",
+          ":121",
+          "--evidence-prefix",
+          "structure-allocation-repair-sparse",
+          "--timeout-seconds",
+          "240",
+          "--workflow",
+          "sparse"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 64.97034157626331,
+        "prefix": "structure-allocation-repair-sparse"
+      },
+      "result": {
+        "status": "passed",
+        "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; sparse maximum-bounds four-cell preview/place/save/undo with distant model/high geometry offsets, preserved empty source space and unrelated later edits. Normal regression workflow runs separately.",
+        "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+        "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+        "workflow": "sparse",
+        "source_manifest": "structure-allocation-repair-sparse-structure-native-source.json",
+        "source_manifest_sha256": "c125460c296998a958a14946ec9a4b344fc03ef5c4c7545f84936f9ecf31bb17",
+        "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-allocation-repair-sparse --timeout-seconds 240 --workflow sparse",
+        "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+        "publication": "Local evidence pending controller publication"
+      },
+      "source_matches": true,
+      "terminal": {
+        "schema": 1,
+        "state": "completed",
+        "return_code": 0,
+        "elapsed_ms": 62228,
+        "timeout_seconds": 240
+      }
+    },
+    "scope": "Fresh authorized execution completed the bounded sparse workflow. The standard retry again stopped with tool exit 143 without a final result/failure receipt; cause remains unknown. No timeout/quota/lease/assertion cause or standard pass is inferred. Existing bounded controller repair remains needed; no immediate further retry or controls change.",
+    "standard_retry_command": [
+      "python3",
+      "deploy/run_structure_playtest.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-allocation-repair-standard",
+      "--timeout-seconds",
+      "600",
+      "--workflow",
+      "standard"
+    ],
+    "standard_retry_interrupted": {
+      "state": "interrupted",
+      "observed_at": "2026-11-21T00:07:39.425541+00:00",
+      "tool_exit_code": 143,
+      "overall_pass": false,
+      "last_stage": {
+        "current": "command-undo",
+        "elapsed_ms": 271758,
+        "frames": 155
+      },
+      "wrapper_receipt": {
+        "state": "running",
+        "return_code": null,
+        "elapsed_ms": 0,
+        "timeout_seconds": 600
+      },
+      "final_result_exists": false,
+      "failure_receipt_exists": false,
+      "anchored_assigned_process_counts": [
+        0,
+        0,
+        0
+      ],
+      "source_files_verified": 687,
+      "short_sparse_workflow": {
+        "command": [
+          "python3",
+          "deploy/run_structure_playtest.py",
+          "--display",
+          ":121",
+          "--evidence-prefix",
+          "structure-allocation-repair-sparse",
+          "--timeout-seconds",
+          "240",
+          "--workflow",
+          "sparse"
+        ],
+        "exit_code": 0,
+        "elapsed_seconds": 64.97034157626331,
+        "prefix": "structure-allocation-repair-sparse"
+      },
+      "cause": "Unknown; no timeout, quota, lease or game assertion is inferred.",
+      "recovery": "Existing bounded controller execution repair remains needed for long standard completion. No immediate retry or controls change. Required hosted validation of pending edits can proceed separately; no review readiness or qualification pass."
+    }
+  },
+  "playtest": "Playtest: python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-allocation-repair-sparse --timeout-seconds 240 --workflow sparse completed in 64.970 s. Actual argv in receipt. Preview/place/save/undo across 1024x256x1024 bounds with four occupied cells passed; near stone, distant custom model and high distant stone kept their offsets. Glass under empty source space and a later brick survived undo. Three new screenshots inspected. All 33 F10 frames decoded and midpoint inspected. The standard retry used --evidence-prefix structure-allocation-repair-standard --timeout-seconds 600 --workflow standard; its last recorded stage was command-undo, 271758 ms/frame 155, followed by tool exit 143 and no completed receipt. No overall standard pass; browser playtesting does not apply to this native desktop flow. Software rendering does not qualify GPU/frame/tick/network budgets.",
+  "media": {
+    "completed_sparse_images": [
+      "structure-allocation-repair-sparse-structure-sparse-placed.png",
+      "structure-allocation-repair-sparse-structure-sparse-preview.png",
+      "structure-allocation-repair-sparse-structure-sparse-undone.png"
+    ],
+    "completed_sparse_video_command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-allocation-repair-sparse-structure-workflow.mp4",
+      "target/model-allocation-validation/sparse-midpoint.png",
+      "target/model-allocation-validation/sparse-video-check.json"
+    ],
+    "completed_sparse_video": {
+      "decodedFrames": 33,
+      "durationSeconds": 33.36,
+      "bytes": 646824,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 16,
+      "videoSha256": "6e18cbdce1189c8d67143364249bc6fda2acfa2896cd4714f3194f7b3790f79f",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+      "visually_inspected": true,
+      "visual_note": "Actual Main shows sparse placement with stone beside glass, the structure menu and a synthetic world. No private account data."
+    },
+    "scope": "Fresh final-source completed sparse workflow, synthetic profile only. Earlier incomplete images/video remain in structure-model-allocation-checkpoint.json and its artifacts; they are not counted as a completed standard workflow."
+  },
+  "parent_hosted_pr": {
+    "conclusion": "success",
+    "event": "pull_request",
+    "headSha": "cae17fcecfa6ee1b818c8784043e128c505cdc2c",
+    "jobs": [
+      {
+        "completedAt": "2026-11-20T23:32:12Z",
+        "conclusion": "success",
+        "databaseId": 136624299998,
+        "name": "build (ubuntu-latest, linux)",
+        "startedAt": "2026-11-20T23:01:11Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-java@v4",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run mvn --batch-mode -U verify",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check structure validation tooling",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check bundled MP3 decoder in shipped client",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Summarize Maven tests without runtime data",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Package desktop update",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-java@v4",
+            "number": 21,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44833580625/job/136624299998"
+      },
+      {
+        "completedAt": "2026-11-20T23:32:12Z",
+        "conclusion": "success",
+        "databaseId": 136624300336,
+        "name": "build (macos-15-intel, mac-intel)",
+        "startedAt": "2026-11-20T23:07:40Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-java@v4",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run mvn --batch-mode -U verify",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check structure validation tooling",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check bundled MP3 decoder in shipped client",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Summarize Maven tests without runtime data",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Package desktop update",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-java@v4",
+            "number": 21,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44833580625/job/136624300336"
+      },
+      {
+        "completedAt": "2026-11-20T23:32:12Z",
+        "conclusion": "success",
+        "databaseId": 136624300361,
+        "name": "build (macos-latest, mac-arm)",
+        "startedAt": "2026-11-20T23:15:30Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-java@v4",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run mvn --batch-mode -U verify",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check structure validation tooling",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check bundled MP3 decoder in shipped client",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Summarize Maven tests without runtime data",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Package desktop update",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-java@v4",
+            "number": 21,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44833580625/job/136624300361"
+      },
+      {
+        "completedAt": "2026-11-20T23:32:12Z",
+        "conclusion": "success",
+        "databaseId": 136624300603,
+        "name": "build (windows-latest, windows)",
+        "startedAt": "2026-11-20T23:01:12Z",
+        "status": "completed",
+        "steps": [
+          {
+            "conclusion": "success",
+            "name": "Set up job",
+            "number": 1,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/checkout@v4",
+            "number": 2,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/setup-java@v4",
+            "number": 3,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run mvn --batch-mode -U verify",
+            "number": 4,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check structure validation tooling",
+            "number": 5,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Check bundled MP3 decoder in shipped client",
+            "number": 6,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Summarize Maven tests without runtime data",
+            "number": 7,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 8,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 9,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Package desktop update",
+            "number": 10,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Run actions/upload-artifact@v4",
+            "number": 11,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/setup-java@v4",
+            "number": 21,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Post Run actions/checkout@v4",
+            "number": 22,
+            "status": "completed"
+          },
+          {
+            "conclusion": "success",
+            "name": "Complete job",
+            "number": 23,
+            "status": "completed"
+          }
+        ],
+        "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44833580625/job/136624300603"
+      },
+      {
+        "completedAt": "2026-11-20T23:32:12Z",
+        "conclusion": "skipped",
+        "databaseId": 136637480632,
+        "name": "publish",
+        "startedAt": "2026-11-20T23:32:12Z",
+        "status": "completed",
+        "steps": [],
+        "url": "https://github.com/jaymsDooku/voxel-one/actions/runs/44833580625/job/136637480632"
+      }
+    ],
+    "status": "completed"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "merged_paths_preserved": 70,
+    "deleted_files": [],
+    "unmerged_paths": [],
+    "paths_with_removed_lines": [
+      {
+        "path": ".github/workflows/build.yml",
+        "removed_lines": 1
+      },
+      {
+        "path": "dashboard/progress.json",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/Chunk.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/Main.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/MeshDataGenerator.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/World.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Blocks.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/LocalGame.java",
+        "removed_lines": 57
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerClient.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerServer.java",
+        "removed_lines": 49
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Protocol.java",
+        "removed_lines": 30
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Terrain.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/WorldVoxels.java",
+        "removed_lines": 36
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/city/CityHistory.java",
+        "removed_lines": 54
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelDefinition.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelLibrary.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelMesher.java",
+        "removed_lines": 26
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/ReflectionProbes.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/RenderPipeline.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SceneLightingUpload.java",
+        "removed_lines": 7
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SkyVisibilityScheduler.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WaterRenderer.java",
+        "removed_lines": 31
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldLighting.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldSkyVisibility.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/ui/InventoryHud.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/resources/shaders/voxel.frag",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/CityFormat16RegressionTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/HistoryProtocolCompatibilityTest.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/MarketEconomyTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwaySaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayShippingCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RoadBaseCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/render/SkyVisibilitySchedulerTest.java",
+        "removed_lines": 15
+      }
+    ],
+    "intended_removals": "Only replace repeated ID scan with its transient lowest-free index; copy/replacement keep that index with maps. Existing codecs/validation/assertions remain. Earlier world/history/render/save/protocol changes remain documented. No unrelated deletion intended."
+  },
+  "qualification": false,
+  "remaining": [
+    "Complete standard native workflow through existing bounded controller execution repair. Two interrupted attempts remain incomplete; no immediate repeated run. Preserve unchanged source, scratch/profile archives and partial evidence.",
+    "Publish pending feature edits for required exact-head hosted checks; latest-master integration and independent review remain required. This is not readiness or stable rollout.",
+    "Writable paging, source/owner reconciliation and true paging model-ID remapping remain unfinished.",
+    "City/maximum still reject under provisional geometry/surface/chunk/mesh/persistence gates. Required 20-run whole-workflow reference client/server/network, physical GPU, controlled cold caches, 32-client sync and memory/frame/tick/traffic/upload qualification remain pending."
+  ],
+  "artifacts": {
+    "structure-allocation-repair-sparse-structure-native-execution.json": "e6807b6952fff6c6371f4505d62d34d551454b96427928831668290f15824758",
+    "structure-allocation-repair-sparse-structure-native-lighting.json": "cf64902448c3b1148fc712617c1f410168e02ac36986f1a528ed457e9d2969e0",
+    "structure-allocation-repair-sparse-structure-native-result.json": "ec8d511f9a5d27f662378d0e4955deffe07f719eda3b43b54d664f4e6d8d651b",
+    "structure-allocation-repair-sparse-structure-native-source.json": "d9e29137a5e343e6bf9389cb42ed1fab5482011da0844fa5bdef53d22b9ccc4d",
+    "structure-allocation-repair-sparse-structure-native-stage.json": "93c6eab8b538345866ee6dc7ed2a0d03395f454136aa30d3ebb5a1c5333ba358",
+    "structure-allocation-repair-sparse-structure-sparse-placed.png": "65565de5736c0d0b732c74e485aad707ae187573b03235a720e70a8fcbf6d69e",
+    "structure-allocation-repair-sparse-structure-sparse-preview.png": "bbfc3d0edbc0702548517295c2e90f368e06623fe0ee6967d4f975f77af66dce",
+    "structure-allocation-repair-sparse-structure-sparse-undone.png": "60edc144f53f681beb8ddc44a8ede75c66ad8434f2a2f9d3b51e4b4a2a3af34b",
+    "structure-allocation-repair-sparse-structure-workflow.mp4": "6e18cbdce1189c8d67143364249bc6fda2acfa2896cd4714f3194f7b3790f79f",
+    "structure-model-allocation-baseline.json": "5636daa728be4c357c94178d2c414530176df8882b694a15e5335d7dc478fad3",
+    "structure-model-allocation-cursor.json": "88e0d5db04c509ad3ea12d9a74f77bd9b83fa56108a332ced719c9bbfe993bb6"
+  },
+  "earlier_checkpoint": "structure-model-allocation-checkpoint.json"
+}
