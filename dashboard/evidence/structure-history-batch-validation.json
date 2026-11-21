@@ -1,0 +1,136 @@
+{
+  "status": "local_53_tests_diagnostic_and_native_passed_pending_controller_publication",
+  "parent": "a2bf03d116bcb83dc3c8836a3f0d1c46a20c3911",
+  "reviewBase": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "change": "Read server structure history through revision-checked 1024-entry batches under monitor, rebuild detached index outside. Preserve identity/revision final guards; offline History.copyOf unchanged.",
+  "source": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "057ad0123223a0c7b0bf3c165824a691ebcbe7fa779795f9c5b6f6785f08c2e0",
+    "src/main/java/dev/jayms/net/MultiplayerServer.java": "1dbf8ee6e6e7be292c6a1eb2bc893d930d2772e3a7a13deca3c443e99d8281d5",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "9669148a9d80d582801c68d3ccc7d85030dde3f8f74f652aa12cd4e0a622cf9c",
+    "src/test/java/dev/jayms/StructureSaveStagingTest.java": "3cb4d68cfd6ff72bbd4474e3bb8fa75eeae0b1bbd1215ffac4835a5e3666bb36",
+    "tools/structures/HistoryBatchProbe.java": "9f5fceaa227af4ce721e360daba73a38a8b2588c0c18f41f539fcb6156689d70"
+  },
+  "suites": [
+    {
+      "suite": "WorldHistoryIndexTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureSaveStagingTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StagedWorldSaveTest",
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureMultiplayerTest",
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructureTest",
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "StructurePublicationStagingTest",
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "suite": "WorldVoxelSnapshotTest",
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=WorldHistoryIndexTest,StructureSaveStagingTest,StagedWorldSaveTest,StructureMultiplayerTest,StructureTest,StructurePublicationStagingTest,WorldVoxelSnapshotTest test",
+    "javac --release 17 -cp target/classes -d target tools/structures/HistoryBatchProbe.java",
+    "java -Xmx1g -cp target:target/classes HistoryBatchProbe target/structure-history-batch-probe.json"
+  ],
+  "expectedAndObserved": "Exact batch bound/order/immutable references, source independence, empty/end revision checks, puts including equal replacements, compute/remove/clear/complete-cell invalidation pass. Production copy helper releases monitor while paused; concurrent outside edit acquires monitor and rejects resume before save staging. Stable helper copy matches source; cancellation leaves history and disk unchanged. Existing actual save/reopen, temp cleanup, TLS multiplayer and native-engine regressions pass.",
+  "diagnostic": {
+    "scope": "262144 whole-cell history entries; no competing threads, server, geometry, save, network, rendering or system qualification. Three warmups, 20 measured runs, clone first. Guarded timings include monitor entry and timer overhead; batch totals include rebuilding index outside monitor. Exact replay order and source independence checked outside timing. Thread allocation is not peak memory.",
+    "clone_guarded_ms": {
+      "median": 50.540579,
+      "p95": 193.049155,
+      "worst": 207.736418
+    },
+    "batch_total_ms": {
+      "median": 299.527839,
+      "p95": 385.274064,
+      "worst": 398.501998
+    },
+    "maximum_batch_guarded_ms": {
+      "median": 0.075254,
+      "p95": 0.146869,
+      "worst": 0.157552
+    },
+    "sum_batch_guarded_ms": {
+      "median": 8.454132,
+      "p95": 11.9095,
+      "worst": 13.481683
+    },
+    "clone_thread_allocated_bytes": {
+      "median": 23068952.0,
+      "p95": 23068952.0,
+      "worst": 23068952.0
+    },
+    "batch_thread_allocated_bytes": {
+      "median": 72337480.0,
+      "p95": 72337480.0,
+      "worst": 72337480.0
+    }
+  },
+  "tradeoffs": "Higher total CPU and allocation from rebuilding index and keys. Per-batch bounded work is not a wall-clock bound: GC, scheduling, final engine validation, tail serialization and fsync still need qualification. Busy-world retries retain existing conservative staging policy. No geometry/persistence/admission cap raised.",
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "architecture": "x86_64",
+    "vcpus": 4,
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "hypervisor": "KVM",
+    "probeContention": "No local test/native process ran during copy diagnostic; shared VPS contention remains possible."
+  },
+  "qualification": "Full city/max fixtures, 20-run system measurements, physical-GPU, shaped 32-client, peak-memory/frame/tick/traffic budgets remain pending. Stable rollout gated.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "45631c34560306ac80111940958a65bf0dce11e2512c818a575da682c954ab45",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication",
+    "observed": "Fresh decoded video frame, placed-world and player-conflict images inspected. Native llvmpipe 0\u20131 FPS: functional only. Server history behavior exercised through actual production helper/authority and TLS integration; browser playtesting does not apply to this native Java/server change."
+  },
+  "media": {
+    "file": "dashboard/evidence/structure-workflow.mp4",
+    "bytes": 397463,
+    "sha256": "eecfe2177af82fd295cd188984da4aeb72f02ee090f23af33442e0af840a212a",
+    "codec": "H264",
+    "frames": 15,
+    "durationSeconds": 25.413,
+    "sourceFilesMatched": 217,
+    "publication": "Pending controller publication"
+  },
+  "diffAudit": "No deleted paths against recorded review base. MP3 fixtures/smokes, Hub workflows/registration tests and merged AssetManager features retained."
+}

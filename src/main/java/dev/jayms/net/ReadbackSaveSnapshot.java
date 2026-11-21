@@ -1,0 +1,500 @@
+package dev.jayms.net;
+
+import dev.jayms.World;
+import dev.jayms.net.model.ModelLibrary;
+import dev.jayms.net.structure.StructurePackage;
+import java.io.IOException;
+import java.nio.file.Path;
+import java.util.*;
+import java.util.function.*;
+import java.util.concurrent.CancellationException;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.concurrent.atomic.AtomicLong;
+import java.util.concurrent.atomic.AtomicBoolean;
+
+/** Private owner capture -> worker staging -> owner authorization -> worker
+ * publication, plus a strict blocking reference commit. Neither is connected to
+ * Main. Does not grant partial LocalGame save authority or
+ * exclude foreign writers/path aliases/independent city-sidecar changes. */
+final class ReadbackSaveSnapshot {
+    private final Thread owner=Thread.currentThread();
+    private final LocalGame local;private final World world;private final World.ReplayFence fence;
+    private final ModelLibrary liveModels,models;private final long modelRevision;
+    private final WorldSavePublication.Generation generation;private final String fingerprint;
+    private final long seed;private final int generator,health;
+    private final Inventory inventory;private final Map<Integer,ItemDrop> drops;
+    private final RegionReplayOverlay overlay;
+    private final RegionReplayJournal.Snapshot journal;
+    private ReadbackSaveSnapshot(LocalGame local,World world,World.ReplayFence fence,RegionReplayOverlay overlay,
+            Inventory inventory,Map<Integer,ItemDrop> drops,RegionReplayJournal.Snapshot journal) {
+        this.journal=journal;this.local=local;this.world=world;this.fence=fence;this.overlay=overlay;
+        liveModels=local.models;modelRevision=liveModels.revision();models=liveModels.copy();
+        generation=local.readbackGeneration();fingerprint=local.readbackFingerprint();
+        seed=local.seed;generator=local.generatorVersion;health=local.health;this.inventory=inventory;this.drops=drops;
+    }
+    static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel)throws IOException {
+        return capture(local,world,overlay,cancel,null);
+    }
+    static ReadbackSaveSnapshot captureJournal(LocalGame local,World world,RegionReplayJournal.Snapshot journal,BooleanSupplier cancel)throws IOException {
+        Objects.requireNonNull(journal);journal.validateWorld(world,cancel,false);return capture(local,world,journal.overlay(),cancel,journal);
+    }
+    private static ReadbackSaveSnapshot capture(LocalGame local,World world,RegionReplayOverlay overlay,BooleanSupplier cancel,RegionReplayJournal.Snapshot journal)throws IOException {
+        Objects.requireNonNull(local);Objects.requireNonNull(world);Objects.requireNonNull(overlay);Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+        if(local.city!=null||local.replayComplete()||local.readbackGeneration()==null||local.readbackFingerprint().isEmpty()
+                ||world.models()!=local.models||world.terrain().seed!=local.seed||world.terrain().version!=local.generatorVersion)
+            throw new IOException("Readback save source/World mismatch");
+        var fence=world.beginReplayFence();
+        if(local.health<0||local.health>20)throw new IOException("Readback save health");
+        var inventory=Objects.requireNonNull(local.inventory).copy();
+        for(int i=0;i<Inventory.SIZE;i++)if(!local.models.has(inventory.type(i)))throw new IOException("Readback save inventory dependency");
+        int count=local.drops.size();if(count>Crafting.MAX_DROPS)throw new IOException("Readback save drop budget");
+        var drops=new LinkedHashMap<Integer,ItemDrop>();
+        for(var entry:local.drops.entrySet()) {
+            StructurePackage.cancelled(cancel);if(drops.size()>=count)throw new IOException("Readback save drops changed");
+            var d=entry.getValue();
+            if(d==null||entry.getKey()==null||entry.getKey()!=d.id()||d.id()<=0||d.type()<=0||!Items.valid(d.type())
+                    ||!local.models.has(d.type())||d.count()<0||d.count()>Items.stackLimit(d.type())
+                    ||!Float.isFinite(d.x())||!Float.isFinite(d.y())||!Float.isFinite(d.z())||drops.put(d.id(),d)!=null)
+                throw new IOException("Invalid readback save drop");
+        }
+        if(drops.size()!=count)throw new IOException("Readback save drops changed");
+        for(var edit:overlay.rows()){StructurePackage.cancelled(cancel);if(!local.models.has(edit.type()))throw new IOException("Readback save overlay dependency");}
+        var snapshot=new ReadbackSaveSnapshot(local,world,fence,overlay,inventory,Collections.unmodifiableMap(drops),journal);
+        snapshot.validate();if(journal!=null)journal.validate(cancel);StructurePackage.cancelled(cancel);return snapshot;
+    }
+    private void owner()throws IOException{if(Thread.currentThread()!=owner)throw new IOException("Readback save owner required");}
+    private void validateGeometry()throws IOException {validateGeometry(false);}
+    private void validateGeometry(boolean journalEdits)throws IOException {
+        owner();
+        try{if(journalEdits)fence.validateSource(world);else fence.validate(world);}catch(IllegalStateException|ConcurrentModificationException changed){throw new IOException("Readback save World changed",changed);}
+        if(local.city!=null||local.replayComplete()||local.readbackGeneration()!=generation||!fingerprint.equals(local.readbackFingerprint())
+                ||local.models!=liveModels||world.models()!=liveModels||liveModels.revision()!=modelRevision)
+            throw new IOException("Readback save owner geometry/models changed");
+    }
+    private void validate()throws IOException {
+        validateGeometry();
+        if(local.health!=health||!drops.equals(local.drops))throw new IOException("Readback save owner state changed");
+        var current=local.inventory;if(current==null)throw new IOException("Readback save inventory changed");
+        for(int i=0;i<Inventory.SIZE;i++)if(current.type(i)!=inventory.type(i)||current.count(i)!=inventory.count(i))throw new IOException("Readback save inventory changed");
+    }
+    void validatePagingCapture(LocalGame expected)throws IOException {
+        owner();if(local!=expected)throw new IOException("Paging save owner metadata mismatch");validate();
+    }
+    /** Uses only immutable captured values; spool enforces its owning thread.
+     * Source identity is the metadata generation object, not a caller-supplied tag. */
+    Prepared stage(RegionReplayWorker.Source source,BooleanSupplier cancel,IntConsumer progress)throws IOException {
+        Objects.requireNonNull(source);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+        StructurePackage.cancelled(cancel);
+        if(source.metadata()==null||source.metadata().generation()!=generation||!fingerprint.equals(source.fingerprint())
+                ||source.terrain().seed!=seed||source.terrain().version!=generator||!source.metadata().matchesTerrain(source.terrain()))
+            throw new IOException("Readback save staging source changed");
+        source.metadata().validateModelBindings(models);StructurePackage.cancelled(cancel);
+        var pending=source.overlay().rows();
+        if(pending.size()>overlay.rows().size())throw new IOException("Readback save must retain pending source overlay");
+        for(int i=0;i<pending.size();i++){StructurePackage.cancelled(cancel);if(!pending.get(i).equals(overlay.rows().get(i)))throw new IOException("Readback save pending overlay prefix changed");}
+        var prefix=StagedOfflineSave.stageRegions(generation.target(),seed,generator,models,source.spool(),overlay,
+                edit->models.has(edit.type()),cancel,progress);
+        try {
+            prefix.sealTail(inventory,health,drops.values(),drops.size(),cancel);
+            if(!source.metadata().matchesTerrain(source.terrain()))throw new IOException("Readback save source terrain changed");
+            String sealedFingerprint=prefix.sealedFingerprint(cancel);
+            StructurePackage.cancelled(cancel);return new Prepared(prefix,sealedFingerprint,source.revision(),source.overlay());
+        }catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+    }
+    final class Prepared implements AutoCloseable {
+        private final StagedOfflineSave prefix;
+        private final Thread producer=Thread.currentThread();
+        private boolean consumed,transferred,cleanupTransferred;
+        private final String sealedFingerprint;
+        private final RegionReplayWorker.Revision sourceRevision;
+        private final RegionReplayOverlay sourceOverlay;
+        private Prepared(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision,RegionReplayOverlay sourceOverlay){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;this.sourceOverlay=sourceOverlay;}
+        /** Owner-blocking reference integration only. No frame-time guarantee;
+         * live integration still needs dirty-state and sidecar coordination. */
+        void commit(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);claim();
+            try{StructurePackage.cancelled(cancel);validate();prefix.publishSealed(generation,cancel);}
+            catch(IOException|RuntimeException|Error failure){try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+        }
+        private void claim()throws IOException{if(consumed)throw new IOException("Readback save already consumed");consumed=true;}
+        /** Authorizes this captured snapshot, not later owner edits. No I/O here.
+         * Caller must retain dirty state until worker completion and revalidation. */
+        Publication authorize(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);
+            if(consumed)throw new IOException("Readback save already consumed");
+            StructurePackage.cancelled(cancel);validate();StructurePackage.cancelled(cancel);
+            var publication=new Publication(prefix,sealedFingerprint,sourceRevision,sourceOverlay);claim();transferred=true;return publication;
+        }
+        /** Transfer only owned temporary output; stale live state does not
+         * prevent cleanup. This cannot authorize publication. */
+        void claimCleanup(LocalGame expected,RegionReplayWorker.Revision revision,String expectedFingerprint,
+                Path expectedTarget,RegionReplayOverlay pending,Thread expectedProducer)throws IOException {
+            owner();Objects.requireNonNull(expectedTarget);
+            if(consumed||transferred||cleanupTransferred||local!=expected||producer!=expectedProducer
+                    ||!sourceRevision.equals(revision)||!fingerprint.equals(expectedFingerprint)||sourceOverlay!=pending
+                    ||!generation.target().equals(expectedTarget.toAbsolutePath().normalize()))
+                throw new IOException("Paging cleanup source mismatch or already consumed");
+            consumed=true;cleanupTransferred=true;
+        }
+        void discardOnProducer()throws IOException {
+            if(Thread.currentThread()!=producer||transferred)throw new IOException("Staged save producer cleanup required");
+            prefix.close();consumed=true;
+        }
+        @Override public void close()throws IOException{owner();if(!transferred&&!cleanupTransferred){consumed=true;prefix.close();}}
+    }
+    enum Phase {AUTHORIZED,WORKING,COMMITTING,PUBLISHED,CANCELLED,FAILED}
+    /** Verification progress only; bytes reaching total does not imply commit. */
+    record PublicationProgress(Phase phase,long verifiedBytes,long totalBytes) {}
+    /** Private one-worker transfer. No executor, dirty-state clearing, generation
+     * refresh, Main integration or sidecar transaction is supplied by this API. */
+    final class Publication implements AutoCloseable {
+        private final StagedOfflineSave prefix;
+        private final AtomicReference<Phase> phase=new AtomicReference<>(Phase.AUTHORIZED);
+        private final AtomicLong verifiedBytes=new AtomicLong();
+        private Thread worker;
+        private final String sealedFingerprint;
+        private final RegionReplayWorker.Revision sourceRevision;
+        private boolean sourceTransferred;
+        private volatile RegionReplayWorker.Source reopenedSource;
+        private boolean tailAdopted,overlayAcknowledged;
+        private final RegionReplayOverlay sourceOverlay;
+        private Publication(StagedOfflineSave prefix,String sealedFingerprint,RegionReplayWorker.Revision sourceRevision,RegionReplayOverlay sourceOverlay){this.prefix=prefix;this.sealedFingerprint=sealedFingerprint;this.sourceRevision=sourceRevision;this.sourceOverlay=sourceOverlay;}
+        Phase phase(){return phase.get();}
+        PublicationProgress progress(){return new PublicationProgress(phase.get(),verifiedBytes.get(),generation.bytes());}
+        private synchronized void worker()throws IOException {
+            if(Thread.currentThread()==owner)throw new IOException("Readback publication worker required");
+            if(worker==null)worker=Thread.currentThread();
+            else if(worker!=Thread.currentThread())throw new IOException("Readback publication worker changed");
+        }
+        /** Owner transfers publication to one exact source worker before enqueue.
+         * Authorization already captured the permitted snapshot; later edits stay dirty. */
+        synchronized void claimPagingWorker(LocalGame expected,RegionReplayWorker.Revision revision,
+                String expectedFingerprint,Path expectedTarget,RegionReplayOverlay pending,Thread producer)throws IOException {
+            owner();Objects.requireNonNull(producer);Objects.requireNonNull(expectedTarget);
+            if(local!=expected||phase.get()!=Phase.AUTHORIZED||worker!=null||producer==owner
+                    ||!sourceRevision.equals(revision)||!fingerprint.equals(expectedFingerprint)||sourceOverlay!=pending
+                    ||!generation.target().equals(expectedTarget.toAbsolutePath().normalize()))
+                throw new IOException("Paging publication source mismatch or already claimed");
+            worker=producer;
+        }
+        /** True means cancellation won before the durable commit boundary. */
+        boolean cancel()throws IOException {
+            owner();
+            for(;;){var prior=phase.get();if(prior==Phase.CANCELLED)return true;
+                if(prior!=Phase.AUTHORIZED&&prior!=Phase.WORKING)return false;
+                if(phase.compareAndSet(prior,Phase.CANCELLED))return true;}
+        }
+        void publish()throws IOException {
+            worker();
+            if(!phase.compareAndSet(Phase.AUTHORIZED,Phase.WORKING)) {
+                if(phase.get()==Phase.CANCELLED){prefix.close();throw new CancellationException("Readback publication cancelled");}
+                throw new IOException("Readback publication already consumed");
+            }
+            try {
+                prefix.publishSealed(generation,()->phase.get()==Phase.CANCELLED,
+                        ()->phase.compareAndSet(Phase.WORKING,Phase.COMMITTING),
+                        bytes->verifiedBytes.set(Math.min(bytes,generation.bytes())));
+                phase.set(Phase.PUBLISHED);
+            }catch(IOException|RuntimeException|Error failure){
+                phase.compareAndSet(Phase.WORKING,Phase.FAILED);phase.compareAndSet(Phase.COMMITTING,Phase.FAILED);
+                try{prefix.close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;
+            }
+        }
+        /** Worker-only complete readback of this publication, with a fresh
+         * destination generation. Caller owns the returned spool. This does not
+         * replace live state, clear later edits or grant Main save authority.
+         * Failed/cancelled opens may retry; successful transfer is one-shot. */
+        RegionReplayWorker.Source reopenPublished(Path directory,RegionReplayWorker.Revision revision,
+                BooleanSupplier cancel,IntConsumer progress)throws IOException {
+            worker();Objects.requireNonNull(directory);Objects.requireNonNull(revision);Objects.requireNonNull(cancel);Objects.requireNonNull(progress);
+            if(phase.get()!=Phase.PUBLISHED||sourceTransferred)throw new IOException("Readback publication source unavailable");
+            var source=LocalGame.openRegionalReadback(generation.target(),directory,revision,cancel,progress);
+            try {
+                if(!sealedFingerprint.equals(source.fingerprint()))throw new IOException("Published snapshot replaced before readback");
+                StructurePackage.cancelled(cancel);sourceTransferred=true;reopenedSource=source;return source;
+            }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+        }
+        /** Prepare a new metadata-only baseline retaining current survival
+         * state. Geometry/model edits still need rebasing and reject here.
+         * Does not install a World read view, clear edits or promote Main. */
+        LocalGame adoptCurrentTail(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            return adoptTail(source,cancel,false);
+        }
+        /** Allows later edits only when this save's journal is bound to this
+         * World and its guard proves current coverage. Does not acknowledge the
+         * journal or install a source; remaining edits stay live and unsaved. */
+        LocalGame adoptJournalTail(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            return adoptTail(source,cancel,true);
+        }
+        private LocalGame adoptTail(RegionReplayWorker.Source source,BooleanSupplier cancel,boolean journalEdits)throws IOException {
+            requirePreparedCleanup();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||tailAdopted||pagingAdopting||preparedPagingScene!=null||source==null||source!=reopenedSource)throw new IOException("Readback baseline candidate mismatch");
+            if(journalEdits){if(journal==null)throw new IOException("Readback baseline requires bound journal");journal.validateWorld(world,cancel,true);}
+            validateGeometry(journalEdits);
+            var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+            var currentDrops=new LinkedHashMap<>(current.drops);
+            StructurePackage.cancelled(cancel);
+            if(journalEdits)journal.validateWorld(world,cancel,true);
+            validateGeometry(journalEdits);current.validate();
+            var result=source.metadata().transferCurrentTail(local,current.inventory,currentDrops,current.health);
+            tailAdopted=true;return result;
+        }
+        /** Acknowledge only the saved ordered prefix after exact readback.
+         * Caller still owns source installation and World edit reconciliation. */
+        RegionReplayOverlay acknowledgeOverlay(RegionReplayWorker.Source source,BooleanSupplier cancel)throws IOException {
+            requirePreparedCleanup();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||pagingAdopting||preparedPagingScene!=null||source==null||source!=reopenedSource||journal==null||overlayAcknowledged)
+                throw new IOException("Replay overlay acknowledgement unavailable");
+            var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
+        }
+        boolean matchesOwner(LocalGame expectedLocal,World expectedWorld)throws IOException {
+            owner();return phase.get()==Phase.PUBLISHED&&!tailAdopted&&!pagingAdopting&&expectedLocal==local&&expectedWorld==world;
+        }
+        /** Preallocate an exact old-owner receipt before source transfer. Closing
+         * remains an explicit caller action after installation, never part of ack. */
+        WorldRetirement prepareWorldRetirement(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);
+            if(phase.get()!=Phase.PUBLISHED||tailAdopted||pagingAdopting||journal==null)
+                throw new IOException("Previous World retirement unavailable");
+            pagingAdopting=true;
+            try {
+                journal.validateWorld(world,cancel,true);validateGeometry(true);
+                return new WorldRetirement(ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel));
+            }finally{pagingAdopting=false;}
+        }
+        enum RetirementState {READY,CLEANUP_FAILED,CLOSED}
+        record RetirementStatus(RetirementState state,boolean closeStarted,Exception failure) {}
+        final class WorldRetirement {
+            private final ReadbackSaveSnapshot captured;
+            private boolean closing,done,busy;
+            private Exception failure;
+            private WorldRetirement(ReadbackSaveSnapshot captured){this.captured=captured;}
+            RetirementStatus status()throws IOException {
+                owner();return new RetirementStatus(done?RetirementState.CLOSED:failure==null?RetirementState.READY:RetirementState.CLEANUP_FAILED,closing,failure);
+            }
+            /** Exact World/owner and unchanged state required before first close.
+             * After partial close, only explicit same-World cleanup retries run.
+             * Cancellation never reverses an already started close. */
+            void retire(World expected,BooleanSupplier cancel)throws Exception {
+                owner();Objects.requireNonNull(cancel);
+                if(expected!=world||busy||!tailAdopted||!overlayAcknowledged)throw new IOException("Previous World retirement mismatch or reentry");
+                if(done)return;busy=true;
+                try {
+                    StructurePackage.cancelled(cancel);if(!closing)captured.validate();
+                    StructurePackage.cancelled(cancel);if(!closing)captured.validate();
+                    try {world.close();closing=true;done=true;failure=null;}
+                    catch(Exception error){closing=world.isClosed();failure=error;throw error;}
+                    catch(Error error){closing=world.isClosed();failure=new IOException("Previous World cleanup failed",error);throw error;}
+                }finally{busy=false;}
+            }
+        }
+        private RegionReplayWorker adoptedPagingWorker;
+        private RegionReplayOverlay adoptedPagingOverlay;
+        private boolean pagingAdopting;
+        private PreparedPagingScene preparedPagingScene;
+        private RegionReplayWorker retiringPreparedWorker;
+        private void requirePreparedCleanup()throws IOException {
+            owner();if(retiringPreparedWorker==null)return;
+            var state=retiringPreparedWorker.status().state();
+            if(state!=RegionReplayWorker.State.CLOSED&&state!=RegionReplayWorker.State.FAILED)
+                throw new IOException("Prepared paging cleanup pending");
+            retiringPreparedWorker=null;
+        }
+        private void beginPagingAdoption()throws IOException {
+            requirePreparedCleanup();if(pagingAdopting||preparedPagingScene!=null)throw new IOException("Saved paging adoption reentry");pagingAdopting=true;
+        }
+        /** Candidate metadata is consumed privately, but the live tail and old
+         * journal stay untouched. Caller may warm bounded scene resources before
+         * commit. Abandonment closes this candidate and needs a fresh worker. */
+        PreparedPagingScene preparePagingScene(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,int capacity,int maxCellLeaves,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                var prepared=new PreparedPagingScene(replacement,revision,pending);
+                prepared.session=replacement.metadataResultCurrentScene(revision,sealedFingerprint,generation.target(),pending,local,
+                        current.inventory,currentDrops,current.health,capacity,maxCellLeaves,()->{
+                            StructurePackage.cancelled(cancel);validateGeometry(true);current.validate();
+                        },true);
+                preparedPagingScene=prepared;return prepared;
+            }finally{pagingAdopting=false;}
+        }
+        final class PreparedPagingScene implements AutoCloseable {
+            private final RegionReplayWorker replacement;
+            private final RegionReplayWorker.Revision revision;
+            private final RegionReplayOverlay pending;
+            private RegionReplayWorker.PagingSession session;
+            private boolean done;
+            private PreparedPagingScene(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,RegionReplayOverlay pending) {
+                this.replacement=replacement;this.revision=revision;this.pending=pending;
+            }
+            private void check()throws IOException {
+                owner();if(done||pagingAdopting||preparedPagingScene!=this)throw new IOException("Prepared paging scene unavailable");
+            }
+            World world()throws IOException {check();return session.world();}
+            RegionReplayScene scene()throws IOException {check();return session.scene();}
+            RegionReplayWorker.Binding binding()throws IOException {check();return session.binding();}
+            /** Keeps warmed geometry/model/mesh identities. All new tail/session
+             * allocations and final guards precede the joint transfer/ack. */
+            RegionReplayWorker.PagingSession commit(BooleanSupplier cancel)throws IOException {
+                Objects.requireNonNull(cancel);check();pagingAdopting=true;
+                try {
+                    StructurePackage.cancelled(cancel);
+                    if(tailAdopted||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))throw new IOException("Saved paging pending geometry changed");
+                    var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                    var currentDrops=new LinkedHashMap<>(current.drops);
+                    try(var acknowledgement=journal.prepareAcknowledgement(pending,cancel)) {
+                        validateGeometry(true);current.validate();
+                        var tail=session.binding().prepareLiveTail(session,revision,local,current.inventory,currentDrops,current.health);
+                        StructurePackage.cancelled(cancel);validateGeometry(true);current.validate();
+                        var result=tail.commit();acknowledgement.commit();
+                        tailAdopted=true;overlayAcknowledged=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;
+                        done=true;preparedPagingScene=null;return result;
+                    }
+                }finally{pagingAdopting=false;}
+            }
+            /** No joins. Keep this owner handle for an explicit cleanup retry
+             * if either resource close fails; successful commit transfers ownership.
+             * Caller retains the worker for its terminal cleanup receipt/retry. */
+            /** Coordinator retirement may signal cleanup once, but never retries
+             * an already failed worker cleanup. Explicit close retains that right. */
+            void retire()throws Exception {close(false);}
+            @Override public void close()throws Exception {close(true);}
+            private void close(boolean retryCleanup)throws Exception {
+                owner();if(done)return;check();pagingAdopting=true;
+                try {
+                    try{session.close();}finally {
+                        if(retryCleanup||replacement.status().state()!=RegionReplayWorker.State.CLEANUP_FAILED)replacement.close();
+                    }
+                    done=true;preparedPagingScene=null;retiringPreparedWorker=replacement;
+                }finally{pagingAdopting=false;}
+            }
+        }
+        /** Advisory change receipt only. Adoption still validates complete rows. */
+        RegionReplayJournal.TailStamp pendingPagingStamp(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||journal==null||overlayAcknowledged)throw new IOException("Saved paging journal unavailable");
+            validateGeometry(true);return journal.tailStamp(world);
+        }
+        /** Capture only the unsaved suffix; neither edits nor the journal change. */
+        RegionReplayOverlay pendingPagingOverlay(BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(cancel);StructurePackage.cancelled(cancel);
+            if(phase.get()!=Phase.PUBLISHED||journal==null||overlayAcknowledged)throw new IOException("Saved paging journal unavailable");
+            journal.validateWorld(world,cancel,true);validateGeometry(true);return journal.remaining(cancel);
+        }
+        /** Reconcile live survival state with a fresh worker's exact saved source.
+         * Does not install its view, acknowledge edits or promote Main readiness. */
+        LocalGame adoptPagingTail(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                if(!pending.rows().equals(pendingPagingOverlay(cancel).rows()))throw new IOException("Saved paging pending geometry changed");
+                StructurePackage.cancelled(cancel);current.validate();
+                var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
+                tailAdopted=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+            }finally{pagingAdopting=false;}
+        }
+        /** One owner operation for live-tail transfer and exact saved-prefix
+         * acknowledgement. Preparation may cancel or fail without consuming
+         * metadata. No callbacks or cancellation after metadata transfer. This
+         * does not install a World/view, reconcile World edits or promote Main. */
+        LocalGame adoptAndAcknowledgePagingTail(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                try(var acknowledgement=journal.prepareAcknowledgement(pending,cancel)) {
+                    // Preparation called the last cancellation hook and locked
+                    // the journal. Revalidate its live state before transfer.
+                    validateGeometry(true);current.validate();
+                    var result=replacement.metadataResultCurrentTail(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health);
+                    acknowledgement.commit();
+                    tailAdopted=true;overlayAcknowledged=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return result;
+                }
+            }finally{pagingAdopting=false;}
+        }
+        /** Allocate and attach a fresh read-only World/scene before consuming
+         * metadata or acknowledging the saved journal prefix. Returns one
+         * coherent owner bundle; old World ownership and Main remain unchanged. */
+        RegionReplayWorker.PagingSession adoptPagingScene(RegionReplayWorker replacement,RegionReplayWorker.Revision revision,
+                RegionReplayOverlay pending,int capacity,int maxCellLeaves,BooleanSupplier cancel)throws IOException {
+            owner();Objects.requireNonNull(replacement);Objects.requireNonNull(revision);Objects.requireNonNull(pending);Objects.requireNonNull(cancel);
+            beginPagingAdoption();
+            try {
+                if(tailAdopted||revision.equals(sourceRevision)||!pending.rows().equals(pendingPagingOverlay(cancel).rows()))
+                    throw new IOException("Saved paging pending geometry changed");
+                var current=ReadbackSaveSnapshot.capture(local,world,RegionReplayOverlay.empty(),cancel);
+                var currentDrops=new LinkedHashMap<>(current.drops);
+                try(var acknowledgement=journal.prepareAcknowledgement(pending,cancel)) {
+                    validateGeometry(true);current.validate();
+                    var session=replacement.metadataResultCurrentScene(revision,sealedFingerprint,generation.target(),pending,local,current.inventory,currentDrops,current.health,capacity,maxCellLeaves,()->{
+                        StructurePackage.cancelled(cancel);validateGeometry(true);current.validate();
+                    });
+                    acknowledgement.commit();
+                    tailAdopted=true;overlayAcknowledged=true;adoptedPagingWorker=replacement;adoptedPagingOverlay=pending;return session;
+                }
+            }finally{pagingAdopting=false;}
+        }
+        /** Explicit saved-prefix acknowledgement after the matching owner transfer.
+         * World edit reconciliation and source installation remain caller-owned. */
+        RegionReplayOverlay acknowledgePagingOverlay(RegionReplayWorker replacement,BooleanSupplier cancel)throws IOException {
+            requirePreparedCleanup();Objects.requireNonNull(cancel);
+            if(pagingAdopting||preparedPagingScene!=null)throw new IOException("Saved paging adoption reentry");
+            StructurePackage.cancelled(cancel);
+            if(!tailAdopted||replacement!=adoptedPagingWorker||overlayAcknowledged||adoptedPagingOverlay==null
+                    ||!adoptedPagingOverlay.rows().equals(pendingPagingOverlay(cancel).rows()))
+                throw new IOException("Saved paging acknowledgement unavailable");
+            var remaining=journal.acknowledge(cancel);overlayAcknowledged=true;return remaining;
+        }
+        /** Owner-created one-shot factory for a replacement paging worker.
+         * Old cleanup must finish first. Opens a new worker-owned spool instead
+         * of transferring one across threads. Saved metadata is not live-state
+         * adoption: callers still reconcile later edits and install a new view. */
+        RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision)throws IOException {
+            return pagingFactory(previous,directory,revision,RegionReplayOverlay.empty());
+        }
+        /** Pending geometry remains separate from physical source identity.
+         * All bounded paging consumers compose the same immutable overlay. */
+        RegionReplayWorker.Factory pagingFactory(RegionReplayWorker previous,Path directory,RegionReplayWorker.Revision revision,RegionReplayOverlay pending)throws IOException {
+            Objects.requireNonNull(pending);requirePreparedCleanup();Objects.requireNonNull(previous);Objects.requireNonNull(directory);Objects.requireNonNull(revision);
+            if(phase.get()!=Phase.PUBLISHED||pagingAdopting||preparedPagingScene!=null||revision.equals(sourceRevision)
+                    ||!previous.retiredSourceMatches(generation.target(),fingerprint,sourceRevision,sourceOverlay))
+                throw new IOException("Saved paging source requires matching retired worker and fresh revision");
+            Path target=generation.target();String expected=sealedFingerprint;var opened=new AtomicBoolean();Thread requestOwner=owner;
+            // Capture only immutable source fields and the owner thread, not this
+            // publication/snapshot and its retired live World.
+            return (cancel,progress)->{
+                if(Thread.currentThread()==requestOwner)throw new IOException("Saved paging factory requires worker thread");
+                Objects.requireNonNull(cancel);Objects.requireNonNull(progress);StructurePackage.cancelled(cancel);
+                if(!opened.compareAndSet(false,true))throw new IOException("Saved paging factory already consumed");
+                var source=LocalGame.openRegionalReadback(target,directory,revision,cancel,progress);
+                try {
+                    if(!expected.equals(source.fingerprint()))throw new IOException("Saved paging snapshot replaced before open");
+                    StructurePackage.cancelled(cancel);return new RegionReplayWorker.Source(source.spool(),source.terrain(),source.allowed(),source.revision(),source.fingerprint(),source.metadata(),pending);
+                }catch(IOException|RuntimeException|Error failure){try{source.spool().close();}catch(IOException cleanup){failure.addSuppressed(cleanup);}throw failure;}
+            };
+        }
+        /** Owner completion check only. False never rolls back a published file. */
+        boolean snapshotCurrent()throws IOException {
+            owner();if(phase.get()!=Phase.PUBLISHED)return false;
+            try{validate();return true;}catch(IOException changed){return false;}
+        }
+        /** Worker cleanup only, including cancellation before work starts. */
+        @Override public void close()throws IOException {
+            worker();phase.compareAndSet(Phase.AUTHORIZED,Phase.CANCELLED);prefix.close();
+        }
+    }
+}

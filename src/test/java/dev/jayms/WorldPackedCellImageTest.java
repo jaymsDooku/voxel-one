@@ -1,0 +1,88 @@
+package dev.jayms;
+
+import dev.jayms.net.*;
+import dev.jayms.net.model.SparseVoxelOctree;
+import org.junit.jupiter.api.Test;
+import static org.junit.jupiter.api.Assertions.*;
+
+class WorldPackedCellImageTest {
+    @Test void installedImageStaysPackedAcrossSnapshotsAndIndependentEdits() throws Exception {
+        var source=SparseVoxelPackedCellTest.fixture();var expected=SparseVoxelPackedCellTest.bytes(source);
+        var image=WorldVoxels.prepareCellImage(source);
+        assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(image.tree()));
+        assertArrayEquals(expected,SparseVoxelPackedCellTest.bytes(image.tree()));
+        var world=new WorldVoxels(new Terrain(42));world.installCellImage(-17,180,-1,image);
+        var snapshot=world.snapshot();assertSame(image.tree(),snapshot.cell(-17,180,-1));
+        source.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        assertArrayEquals(expected,SparseVoxelPackedCellTest.bytes(world.cell(-17,180,-1)));
+        world.apply(new Protocol.Edit(-17,180,-1,Blocks.piece(Blocks.BRICKS,4),4,0,0,0));
+        assertEquals(WorldVoxels.encode(Blocks.BRICKS),world.cell(-17,180,-1).get(0,0,0));
+        assertArrayEquals(expected,SparseVoxelPackedCellTest.bytes(snapshot.cell(-17,180,-1)));
+        assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(snapshot.cell(-17,180,-1)));
+        assertThrows(IllegalStateException.class,()->image.tree().set(0,0,0,0));
+    }
+    @Test void preparedWorldReplacementKeepsCanonicalBackingPackedAndReplayEquivalent() throws Exception {
+        var source=SparseVoxelPackedCellTest.fixture();var expected=source.copy();
+        var replacement=World.prepareCellReplacement(-17,180,-1,source);
+        try(var world=new World(42)) {world.replaceCell(replacement);
+        var cell=world.cell(-17,180,-1);
+        assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));assertTrue(expected.sameValues(cell));
+        var replay=new WorldVoxels(new Terrain(42));for(var edit:replacement.replayState().edits())replay.apply(edit);
+        assertTrue(replay.cell(-17,180,-1).sameValues(cell));
+        source.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        assertTrue(expected.sameValues(cell));assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+        assertSame(cell,world.editedCellsInChunk(ChunkPos.fromBlock(-17,180,-1)).iterator().next().voxels());
+        }
+    }
+    @Test void airUniformValidationAndCancellationKeepPriorWorldIntact() throws Exception {
+        var world=new WorldVoxels(new Terrain(42));var air=WorldVoxels.prepareCellImage(new SparseVoxelOctree(16));
+        world.installCellImage(0,0,0,air);assertTrue(world.cell(0,0,0).isEmpty());
+        var solid=new SparseVoxelOctree(16);solid.fill(0,0,0,16,16,16,WorldVoxels.encode(Blocks.STONE));
+        var image=WorldVoxels.prepareCellImage(solid);world.installCellImage(1,180,0,image);
+        assertFalse(SparseVoxelPackedCellTest.packedWithoutGraph(image.tree()));assertEquals(4096,image.tree().occupied());
+        assertThrows(IllegalArgumentException.class,()->WorldVoxels.prepareCellImage(new SparseVoxelOctree(32)));
+        assertThrows(NullPointerException.class,()->WorldVoxels.prepareCellImage(null));
+        Thread.currentThread().interrupt();try {
+            assertThrows(java.util.concurrent.CancellationException.class,()->WorldVoxels.prepareCellImage(SparseVoxelPackedCellTest.fixture()));
+        } finally {Thread.interrupted();}
+        assertTrue(world.cell(0,0,0).isEmpty());assertEquals(Blocks.STONE,world.type(1,180,0));
+    }
+    @Test void privateStartupSharesPackedGeometryWithEditedCellIndexAndForksOnLaterEdits() throws Exception {
+        var rows=WorldInitialReplayHistoryTest.fixture();
+        try(var expected=new World(42);var actual=new World(42)) {
+            rows.forEach(expected::apply);actual.replayInitial(rows,()->false,n->{});
+            WorldInitialReplayHistoryTest.same(expected,actual);
+            var cell=actual.cell(-17,180,-1);
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            var before=SparseVoxelPackedCellTest.bytes(cell);
+            var indexed=actual.editedCellsInChunk(ChunkPos.fromBlock(-17,180,-1)).stream()
+                    .filter(c->c.x()==-17&&c.y()==180&&c.z()==-1).findFirst().orElseThrow();
+            assertSame(cell,indexed.voxels());
+            assertThrows(IllegalStateException.class,()->cell.fill(0,0,0,16,16,16,0));
+            // Queries and serialization must not leave a decoded graph cached in the image.
+            for(int x=0;x<16;x++)for(int y=0;y<16;y++)for(int z=0;z<16;z++)
+                assertEquals(expected.cell(-17,180,-1).get(x,y,z),cell.get(x,y,z));
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            var edit=new Protocol.Edit(-17,180,-1,0,1,0,0,0);
+            expected.apply(edit);actual.apply(edit);WorldInitialReplayHistoryTest.same(expected,actual);
+            assertArrayEquals(before,SparseVoxelPackedCellTest.bytes(cell));
+            assertTrue(SparseVoxelPackedCellTest.packedWithoutGraph(cell));
+            assertNotSame(cell,actual.cell(-17,180,-1));
+        }
+    }
+    @Test void privateStartupExplicitAirAndUniformCellsKeepTerrainOverridesAndIndexIdentity() throws Exception {
+        var rows=java.util.List.of(new Protocol.Edit(-1,0,-1,0),new Protocol.Edit(0,180,0,Blocks.STONE));
+        try(var expected=new World(42);var actual=new World(42)) {
+            rows.forEach(expected::apply);actual.replayInitial(rows,()->false,n->{});
+            for(var row:rows) {
+                var cell=actual.cell(row.x(),row.y(),row.z());
+                assertTrue(cell.sameValues(expected.cell(row.x(),row.y(),row.z())));
+                assertSame(cell,actual.editedCellsInChunk(ChunkPos.fromBlock(row.x(),row.y(),row.z()))
+                        .iterator().next().voxels());
+            }
+            assertEquals(0,actual.cell(-1,0,-1).occupied());
+            assertEquals(expected.editsSnapshot(),actual.editsSnapshot());
+        }
+    }
+
+}

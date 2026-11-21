@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "parent_head": "65fee8e91ca6ca3b01d118630533aa9388cdb5c3",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "scope": "Windows source-encoding fix for private synthetic region-tool integration wrapper",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17
+  },
+  "source_sha256": {
+    "tools/structures/test_region_history.py": "91c8877de886ee8aae74aabed1822dadbfc13b867581ac326a3283cdd2886e8a"
+  },
+  "failure": {
+    "hosted_job": "https://github.com/jaymsDooku/voxel-one/actions/runs/41207457017/job/124555351395",
+    "step": "Check structure validation tooling",
+    "test": "test_server_metadata",
+    "local_reproduction": "Compile existing region integration source list with javac -encoding windows-1252, then run RegionServerMetadataCheck",
+    "observed_exit": 1,
+    "observed_error": "java.io.IOException: Invalid/duplicate server player",
+    "cause": "UTF-8 omega literal decoded with Windows-1252 becomes two characters. Repeating sixteen times exceeds existing sixteen-character limit."
+  },
+  "fix": "Explicit javac -encoding UTF-8; assert child exit with at most 4000 characters of synthetic stderr. Existing Unicode fixture, limits and assertions retained.",
+  "tests": [
+    {
+      "command": "JAVA_TOOL_OPTIONS=-Dfile.encoding=windows-1252 python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+      "exit": 0,
+      "summary": "............\n----------------------------------------------------------------------\nRan 12 tests in 47.274s\n\nOK"
+    },
+    {
+      "command": "java -cp target:target/classes RegionGenerationEvidence RegionServerMetadataCheck",
+      "child_exit": 0,
+      "result": "34 rejection cases and restart checks passed; maximum metadata 2610020 bytes; 10000 synthetic players and 100000 drops",
+      "viewer_cleanup_exit": 130
+    },
+    {
+      "command": "git diff --check 71612f09bfec4549456b3317676e76cdced085a4",
+      "exit": 0,
+      "deleted_paths": []
+    }
+  ],
+  "playtest": "Playtest: actual CLI capture/roundtrip/private generation restart, malformed/stale/mode-change rejection, and retained offline/generation integration regressions. Expected preservation and rejection behavior; observed passed. Fresh actual child CLI own-window image inspected. Browser/native game playtesting does not apply to this test-wrapper change; all 224 native source hashes unchanged.",
+  "image": {
+    "path": "dashboard/evidence/structure-server-encoding-cli.png",
+    "bytes": 6341,
+    "sha256": "493f6f72a6938b5865afabfd337ba894f24583d8cb04f7173355d81c73407f51",
+    "publication": "pending controller publication"
+  },
+  "limitations": [
+    "Local default-charset simulation is not a hosted Windows pass. Fixed exact-source platform builds remain required.",
+    "No multiplayer server started; all identities synthetic; no authentication data read.",
+    "Production region persistence integration and full city/maximum physical-GPU, shaped-network 32-client qualification remain pending. Rollout gates retained."
+  ],
+  "qualification": false,
+  "ready": false
+}

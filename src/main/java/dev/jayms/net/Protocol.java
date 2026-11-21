@@ -2,10 +2,12 @@ package dev.jayms.net;
 
 import java.io.*;
 
-/** Protocol 30 adds bounded authenticated history queries; city/save frames remain unchanged. */
+/** Protocol 31 adds world-only component definitions and atomic structure publications. */
 public final class Protocol {
+    public static final int MIN_BUILD_Y=-1024, MAX_BUILD_Y=1023;
     public static final int CITY_STATE = 16, CITY_COMMAND = 17, CITY_WORLD = 18, CITY_RESULT = 19;
-    public static final int MAGIC = 0x564F5831, VERSION = 30, PORT = 25565;
+    public static final int MAGIC = 0x564F5831, VERSION = 31, PORT = 25565;
+    public static final int STRUCTURE_REQUEST=23, STRUCTURE_COMMIT=24, STRUCTURE_RESULT=25;
     public static final int CITY_BASE_VERSION = 14, SPECIAL_BUILDINGS_VERSION = 15;
     public static final int MOVE = 1, BLOCK = 2, LEAVE = 3, READY = 4, JOIN = 5, EDIT_RESULT = 6;
     public static final int INVENTORY = 7, DROP = 8, SWAP = 9, RESPAWN = 10;
@@ -154,8 +156,8 @@ public final class Protocol {
                     && x <= Terrain.LIMIT
                     && z >= -Terrain.LIMIT
                     && z <= Terrain.LIMIT
-                    && y >= Terrain.MIN_Y
-                    && y <= Terrain.MAX_Y + 32
+                    && y >= MIN_BUILD_Y
+                    && y <= MAX_BUILD_Y + 32
                     && Math.abs(pitch) <= 89;
         }
     }
@@ -278,8 +280,8 @@ public final class Protocol {
                     && (type == 0 || Blocks.depth(type) == depth)
                     && Math.abs((long) x) <= Terrain.LIMIT
                     && Math.abs((long) z) <= Terrain.LIMIT
-                    && y >= Terrain.MIN_Y
-                    && y <= Terrain.MAX_Y
+                    && y >= MIN_BUILD_Y
+                    && y <= MAX_BUILD_Y
                     && Blocks.valid(type);
         }
 
@@ -302,43 +304,52 @@ public final class Protocol {
 
         public static CellState read(DataInputStream in) throws IOException {
             int x = in.readInt(), y = in.readInt(), z = in.readInt();
-            var tree = dev.jayms.net.model.SparseVoxelOctree.read(in);
+            var tree = dev.jayms.net.model.SparseVoxelOctree.read(in,16);
             if (tree.size() != 16) throw new IOException("Invalid world cell");
-            for (var leaf : tree.leaves()) {
-                int material = WorldVoxels.decode(leaf.color());
+            tree.forEachLeaf((lx,ly,lz,side,color)->{
+                int material = WorldVoxels.decode(color);
                 if (!Blocks.valid(material)
                         || Blocks.isPiece(material)
                         || material == 0
-                        || Blocks.isModel(material) && leaf.side() != 16)
+                        || Blocks.isModel(material) && side != 16)
                     throw new IOException("Invalid world material");
-            }
+            });
             if (!new Edit(x, y, z, 0).valid()) throw new IOException("Invalid world cell position");
             return new CellState(x, y, z, tree.freeze());
         }
 
+        /** Emit canonical replay order without temporary leaf/replay lists.
+         * The caller must not change the source tree during the visit. */
+        public void forEachEdit(java.util.function.Consumer<Edit> visitor) {
+            java.util.Objects.requireNonNull(visitor);
+            visitor.accept(new Edit(x, y, z, 0));
+            try {
+                tree.forEachLeaf((lx,ly,lz,side,color)->{
+                    int depth = Integer.numberOfTrailingZeros(16)
+                            - Integer.numberOfTrailingZeros(side);
+                    int material = WorldVoxels.decode(color);
+                    visitor.accept(new Edit(x, y, z, Blocks.piece(material, depth),
+                            depth, lx / side, ly / side, lz / side,
+                            material == Blocks.LED ? WorldVoxels.lightColor(color) : 0));
+                });
+            } catch (IOException impossible) {
+                // The checked leaf visitor above performs no I/O.
+                throw new AssertionError(impossible);
+            }
+        }
+
+        /** Count canonical replay records with the same material preflight as emission,
+         * without retaining an edit list. Source must remain unchanged during the visit. */
+        public int replayEditCount() {
+            int[] count={0};forEachEdit(edit->count[0]++);return count[0];
+        }
+
         public java.util.List<Edit> edits() {
             var out = new java.util.ArrayList<Edit>();
-            out.add(new Edit(x, y, z, 0));
-            for (var leaf : tree.leaves()) {
-                int depth =
-                        Integer.numberOfTrailingZeros(16)
-                                - Integer.numberOfTrailingZeros(leaf.side());
-                out.add(
-                        new Edit(
-                                x,
-                                y,
-                                z,
-                                Blocks.piece(WorldVoxels.decode(leaf.color()), depth),
-                                depth,
-                                leaf.x() / leaf.side(),
-                                leaf.y() / leaf.side(),
-                                leaf.z() / leaf.side(),
-                                WorldVoxels.decode(leaf.color()) == Blocks.LED
-                                        ? WorldVoxels.lightColor(leaf.color())
-                                        : 0));
-            }
+            forEachEdit(out::add);
             return out;
         }
+
     }
 
     public record BlockRequest(int requestId, Pose pose, Edit edit, int slot) {

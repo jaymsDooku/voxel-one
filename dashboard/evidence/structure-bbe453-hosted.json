@@ -1,0 +1,110 @@
+{
+  "review_base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "feature_head": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+  "observations": [
+    {
+      "run": 39865392122,
+      "head": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+      "event": "push",
+      "status": "in_progress",
+      "conclusion": null,
+      "summaries": [
+        {
+          "artifact": 12464431506,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12464086847,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12463414990,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ]
+    },
+    {
+      "run": 39865393942,
+      "head": "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c",
+      "event": "pull_request",
+      "status": "completed",
+      "conclusion": "success",
+      "summaries": [
+        {
+          "artifact": 12464550667,
+          "name": "maven-test-summary-linux",
+          "sourceHead": "c68c3593244e699caa63bf685f0e7eb653106361",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12464102272,
+          "name": "maven-test-summary-mac-intel",
+          "sourceHead": "c68c3593244e699caa63bf685f0e7eb653106361",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12463902599,
+          "name": "maven-test-summary-mac-arm",
+          "sourceHead": "c68c3593244e699caa63bf685f0e7eb653106361",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        },
+        {
+          "artifact": 12463014761,
+          "name": "maven-test-summary-windows",
+          "sourceHead": "c68c3593244e699caa63bf685f0e7eb653106361",
+          "totals": {
+            "tests": 811,
+            "failures": 0,
+            "errors": 0,
+            "skipped": 1
+          }
+        }
+      ]
+    }
+  ],
+  "qualification": "Build summaries only. Full city/max and reference GPU/network/system qualification remain pending.",
+  "merge_source": {
+    "head": "c68c3593244e699caa63bf685f0e7eb653106361",
+    "verified_parents": [
+      "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+      "bbe453df99ebe2e96895ebc64bd6ece0bb40bb5c"
+    ]
+  },
+  "scope_note": "Seven available summaries inspected: three feature platforms and four PR merge platforms. Live feature Intel Mac was still running despite controller success observation. No Intel feature pass inferred."
+}

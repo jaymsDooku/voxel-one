@@ -1,0 +1,713 @@
+{
+  "schema": 1,
+  "parent_head": "85aa4ca0e805608a33747b77457454e74f12e07f",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Occupied destination-chunk snapshots, measured sparse component and actual Main workflow passed. Full implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "Preview and offline placement capture only complete destination chunks touched by occupied asset cells. Undo captures chunks from its immutable before-image keys. The visible footprint and whole-footprint preflight remain unchanged; ordinary named capture still uses the full region. Worker grouping reads positions without decoding source geometry. It deduplicates/sorts chunks, retains 128-chunk owner batches and rejects unselected reads. Source/model/terrain/owner/cancellation fences and all placement caps remain.",
+  "limits": {
+    "selected_positions": 4000000,
+    "distinct_snapshot_chunks": 71825,
+    "derivation": "65x17x65 is the maximum chunk intersection count of existing 1024x256x1024 bounds when unaligned. It is a snapshot work cap, not a placement allowance.",
+    "owner_chunks_per_request": 128,
+    "placement_chunks": 256,
+    "placement_leaves": 131072,
+    "scope": "No geometry, model, package, mesh, persistence or qualification gate raised. No partial-World edit/save authority granted."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest,SavedWorldInspectorTest,CameraMovementTest,StructurePartitionedCaptureTest,SavedRegionCaptureTest,SavedRegionCapturePanelTest,StructureSparseSnapshotTest",
+      "test"
+    ],
+    "tests": 707,
+    "suites": 145,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 389.4863168783486,
+    "focused": {
+      "command": [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-Dtest=StructureSparseSnapshotTest,StructureRegionSnapshotTest,StructureTest,StructurePreviewTest,StructureWorkerUndoTest,StructurePlacementAdmissionTest",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 26.815613323822618,
+      "tests": 46,
+      "suites": [
+        {
+          "name": "dev.jayms.StructureSparseSnapshotTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureRegionSnapshotTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePreviewTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureWorkerUndoTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePlacementAdmissionTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    "source_binding": "Final production/test/shader inputs match the broader compile. Only the standalone native harness and its wrapper changed after that run began; both final bounded modes were freshly compiled/executed and source-bound. Production/test/shader inputs did not change.",
+    "harness_extension": {
+      "changed_after_broad_started": [
+        "deploy/StructurePlaytest.java",
+        "deploy/run_structure_playtest.py"
+      ],
+      "production_test_shader_sources_unchanged": true,
+      "required_execution": "Native wrapper freshly compiles and executes the final harness in both bounded modes, checks its exact source and binds fresh media.",
+      "reason": "Add actual Main sparse maximum-bounds preview/place/save/undo and separate complete standard/sparse modes after an interrupted combined session. Production/test/shader inputs unchanged."
+    }
+  },
+  "python": {
+    "command": [
+      "python3",
+      "target/sparse-snapshot-validation/run-python.py"
+    ],
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.761235123500228,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery; final standalone run after both native modes."
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 839,
+    "shaders_match": 29,
+    "obsolete_reservation_class_absent": true,
+    "mp3": "Original shipped CBR/VBR fixtures decoded to 44,100 Hz / 6.060 s PCM."
+  },
+  "assumptions": [
+    "Input position collections remain stable during worker selection; engine asset and before-image keys are immutable. Size/count changes reject before owner reads.",
+    "Grouping adds one bounded occupied-position scan; the sparse probe does not establish dense-city performance.",
+    "The snapshot chunk cap derives from unaligned format dimensions and does not raise placement admission."
+  ],
+  "component_benchmark": {
+    "commands": [
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/test-classes:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "-d",
+        "target/sparse-snapshot-validation/classes",
+        "tools/structures/SparseSnapshotBenchmark.java"
+      ],
+      [
+        "java",
+        "-Xmx256m",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-cp",
+        "target/sparse-snapshot-validation/classes:target/test-classes:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "dev.jayms.SparseSnapshotBenchmark",
+        "target/sparse-snapshot-validation/benchmark-samples.json"
+      ]
+    ],
+    "summary": {
+      "status": "passed",
+      "elapsed_seconds": 4.115185065194964,
+      "scope": "Headless snapshot component only: maximum bounds with four occupied cells, not the required maximum-limit fragmented fixture",
+      "bounds": [
+        1024,
+        256,
+        1024
+      ],
+      "occupied_cells": 4,
+      "runs_per_mode": 20,
+      "warmup_operations": 2,
+      "alternating_order": true,
+      "heap_sample_period_ms": 2,
+      "summary": {
+        "bounding": {
+          "runs": 20,
+          "median_ms": 93.242262,
+          "p95_ms": 127.089151,
+          "worst_ms": 130.943096,
+          "owner_calls": [
+            514
+          ],
+          "worst_owner_call_ms": 0.81256,
+          "peak_sampled_heap_bytes": 86122056
+        },
+        "occupied": {
+          "runs": 20,
+          "median_ms": 0.7899125,
+          "p95_ms": 1.21428,
+          "worst_ms": 4.018134,
+          "owner_calls": [
+            3
+          ],
+          "worst_owner_call_ms": 0.125216,
+          "peak_sampled_heap_bytes": 84024904
+        }
+      },
+      "environment": {
+        "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+        "cpu": "Intel Core Processor (Haswell, no TSX)",
+        "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+        "max_heap_bytes": 268435456,
+        "available_processors": 4,
+        "gpu_used": false,
+        "scope": "One headless JVM, synthetic empty destination, uncontrolled scheduler/heap/OS caches, no frame/network/server budgets; worker grouping and owner snapshot component only."
+      },
+      "qualification": false
+    },
+    "samples_file": "structure-sparse-snapshot-samples.json",
+    "source_class_bindings_verified": true,
+    "scope": "Maximum bounds with four occupied cells in a synthetic empty destination, not the required maximum-limit fragmented fixture. 20 runs per mode, alternating after two warmup operations. Used-heap samples share a JVM and include prior-mode carryover; no incremental memory saving or memory-budget pass. Idle pump sleep 0.1 ms; owner-request body timings exclude rendering/physics/frames/ticks. No controlled OS cold cache, GPU, traffic, upload or 32-client measurement."
+  },
+  "native": {
+    "phases": [
+      {
+        "workflow": "standard",
+        "command": [
+          "python3",
+          "deploy/run_structure_playtest.py",
+          "--display",
+          ":121",
+          "--evidence-prefix",
+          "structure-sparse-standard",
+          "--timeout-seconds",
+          "600",
+          "--workflow",
+          "standard"
+        ],
+        "execution": {
+          "command": [
+            "python3",
+            "deploy/run_structure_playtest.py",
+            "--display",
+            ":121",
+            "--evidence-prefix",
+            "structure-sparse-standard",
+            "--timeout-seconds",
+            "600",
+            "--workflow",
+            "standard"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 582.1501743756235,
+          "prefix": "structure-sparse-standard"
+        },
+        "result": {
+          "status": "passed",
+          "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; normal capture/browse/import/export, four rotations, overlap/player/empty-space policy, cancellation and atomic failure, undo/repeat, storage/placement gates, dependencies/restart, inventory and model editor regression. Sparse maximum-bounds workflow runs separately.",
+          "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+          "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+          "workflow": "standard",
+          "source_manifest": "structure-sparse-standard-structure-native-source.json",
+          "source_manifest_sha256": "dbc818d12ff97afed8d5d83123b3993a0c1bc596aea41a907ee13fa603ce63c3",
+          "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-sparse-standard --timeout-seconds 600 --workflow standard",
+          "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+          "publication": "Local evidence pending controller publication"
+        },
+        "source_manifest_matches": true,
+        "video": {
+          "decodedFrames": 24,
+          "durationSeconds": 44.303,
+          "bytes": 419217,
+          "width": 960,
+          "height": 544,
+          "midpointIndex": 12,
+          "videoSha256": "c603ea1d26de81a618097c2c93e46f78e99e1046ba854afc213fbc1c2d8ce28d",
+          "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+          "visually_inspected": true,
+          "visual_note": "Actual Main structure menu with green bounds and staging progress at 10 percent; synthetic terrain, preserved destination block and HUD. No private account data."
+        },
+        "video_command": [
+          "java",
+          "-cp",
+          "target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "deploy/InspectStreamingVideo.java",
+          "dashboard/evidence/structure-sparse-standard-structure-workflow.mp4",
+          "target/sparse-snapshot-validation/standard-midpoint.png",
+          "target/sparse-snapshot-validation/standard-video-check.json"
+        ],
+        "images": [
+          "structure-sparse-standard-structure-component-closeup.png",
+          "structure-sparse-standard-structure-export-cancelled.png",
+          "structure-sparse-standard-structure-import-cancelled.png",
+          "structure-sparse-standard-structure-invalid-anchor.png",
+          "structure-sparse-standard-structure-library-capture.png",
+          "structure-sparse-standard-structure-placed.png",
+          "structure-sparse-standard-structure-placement-limit.png",
+          "structure-sparse-standard-structure-player-conflict.png",
+          "structure-sparse-standard-structure-preview-0.png",
+          "structure-sparse-standard-structure-preview-1.png",
+          "structure-sparse-standard-structure-preview-2.png",
+          "structure-sparse-standard-structure-preview-3.png",
+          "structure-sparse-standard-structure-preview-conflict.png",
+          "structure-sparse-standard-structure-storage-limit.png",
+          "structure-sparse-standard-structure-undo-cancelled.png",
+          "structure-sparse-standard-structure-world-placed.png"
+        ]
+      },
+      {
+        "workflow": "sparse",
+        "command": [
+          "python3",
+          "deploy/run_structure_playtest.py",
+          "--display",
+          ":121",
+          "--evidence-prefix",
+          "structure-sparse-case",
+          "--timeout-seconds",
+          "240",
+          "--workflow",
+          "sparse"
+        ],
+        "execution": {
+          "command": [
+            "python3",
+            "deploy/run_structure_playtest.py",
+            "--display",
+            ":121",
+            "--evidence-prefix",
+            "structure-sparse-case",
+            "--timeout-seconds",
+            "240",
+            "--workflow",
+            "sparse"
+          ],
+          "exit_code": 0,
+          "elapsed_seconds": 65.96905264817178,
+          "prefix": "structure-sparse-case"
+        },
+        "result": {
+          "status": "passed",
+          "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; sparse maximum-bounds four-cell preview/place/save/undo with distant model/high geometry offsets, preserved empty source space and unrelated later edits. Normal regression workflow runs separately.",
+          "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+          "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+          "workflow": "sparse",
+          "source_manifest": "structure-sparse-case-structure-native-source.json",
+          "source_manifest_sha256": "dbc818d12ff97afed8d5d83123b3993a0c1bc596aea41a907ee13fa603ce63c3",
+          "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-sparse-case --timeout-seconds 240 --workflow sparse",
+          "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+          "publication": "Local evidence pending controller publication"
+        },
+        "source_manifest_matches": true,
+        "video": {
+          "decodedFrames": 33,
+          "durationSeconds": 33.1,
+          "bytes": 656638,
+          "width": 960,
+          "height": 544,
+          "midpointIndex": 16,
+          "videoSha256": "beb47dfeebc191fcaae4788655a5205a57552680b272ca7c8dd347504d8ae1a5",
+          "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+          "visually_inspected": true,
+          "visual_note": "Actual Main structure menu: placed sparse selection, near stone and preserved glass, synthetic terrain and HUD. No private account data."
+        },
+        "video_command": [
+          "java",
+          "-cp",
+          "target/voxel-one-1.0-SNAPSHOT-client.jar",
+          "deploy/InspectStreamingVideo.java",
+          "dashboard/evidence/structure-sparse-case-structure-workflow.mp4",
+          "target/sparse-snapshot-validation/sparse-midpoint.png",
+          "target/sparse-snapshot-validation/sparse-video-check.json"
+        ],
+        "images": [
+          "structure-sparse-case-structure-sparse-placed.png",
+          "structure-sparse-case-structure-sparse-preview.png",
+          "structure-sparse-case-structure-sparse-undone.png"
+        ]
+      }
+    ],
+    "source_manifest_matches": true,
+    "expected": "Normal Main capture/import/rotation/preview/placement/cancel/undo workflows and a sparse four-cell maximum-bounds selection preserve geometry offsets, empty-source terrain and unrelated later edits.",
+    "observed": "Both bounded sessions returned successful final receipts. Normal regressions passed. The sparse session previewed/placed/saved/undid 1024x256x1024 bounds with four occupied cells. Near stone, distant custom model and high distant stone kept exact coordinates; existing glass and a later brick remained after undo.",
+    "scope": "Two independent final-source executions; no interrupted or failed combined attempt is counted as an overall pass."
+  },
+  "playtest": "Playtest: production Main, GLFW/X11 keyboard, inherited display and isolated synthetic profiles. python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-sparse-case --timeout-seconds 240 --workflow sparse, then the same wrapper with --evidence-prefix structure-sparse-standard --timeout-seconds 600 --workflow standard. Normal F12 capture/browse/export/import, all four rotations, occupied/empty-space/player conflicts, cancellation, malformed imports, enforced geometry/chunk/storage gates, repeated placement, dependencies/restart and inventory/editor checks passed. The separate sparse selection used typed at/preview/place/undo, authoritative saving and empty-space/later-edit preservation. All fresh images and both F10 video midpoints inspected; every frame decoded. Browser testing does not apply. Software rendering does not qualify city/maximum, physical-GPU, frame/tick or network budgets.",
+  "correctness": [
+    "Four-cell maximum bounds produce exactly four complete chunks and three owner reads; selected chunks include preexisting geometry outside the footprint. Unselected cells reject and stamps stay unknown.",
+    "All four rotations match whole-snapshot conflicts and values. Duplicate keys coalesce; 129 chunks use two batches and four total owner requests.",
+    "Wrong-thread calls reject before grouping; invalid bounds/positions, early cancellation, stale World/model state and terrain changes reject without publication; retry works.",
+    "Actual StructureMenu preview/place/save/undo preserves empty source space and unrelated later edits, including durable reload."
+  ],
+  "earlier_native_attempt": {
+    "overall_pass": false,
+    "sanitized_failure": "AssertionError: Sparse maximum-bounds placement: Structure would overlap a player; nothing changed",
+    "cause": "F12 initializes the target from the crosshair after the harness had assigned it. The new sparse attempt consequently overlapped the player and correctly rejected.",
+    "repair": "Type at 12 136 34 after opening F12 and assert the target; orient the camera toward the near cell.",
+    "production_collision_code_changed": false,
+    "rerun": "Full Main workflow on final harness required."
+  },
+  "interrupted_combined_attempt": {
+    "state": "interrupted",
+    "tool_exit_code": 143,
+    "final_receipt_written": false,
+    "last_stage": "command-undo",
+    "last_stage_elapsed_ms": 633243,
+    "normal_assertions_completed_before_sparse": true,
+    "overall_pass": false,
+    "repair": "Run standard and sparse workflows as separately bounded, exact-source checked native sessions. No test process remains; no lease/sandbox/approval controls changed."
+  },
+  "media": {
+    "inspection": {
+      "images": [
+        "structure-sparse-case-structure-sparse-placed.png",
+        "structure-sparse-case-structure-sparse-preview.png",
+        "structure-sparse-case-structure-sparse-undone.png",
+        "structure-sparse-standard-structure-component-closeup.png",
+        "structure-sparse-standard-structure-export-cancelled.png",
+        "structure-sparse-standard-structure-import-cancelled.png",
+        "structure-sparse-standard-structure-invalid-anchor.png",
+        "structure-sparse-standard-structure-library-capture.png",
+        "structure-sparse-standard-structure-placed.png",
+        "structure-sparse-standard-structure-placement-limit.png",
+        "structure-sparse-standard-structure-player-conflict.png",
+        "structure-sparse-standard-structure-preview-0.png",
+        "structure-sparse-standard-structure-preview-1.png",
+        "structure-sparse-standard-structure-preview-2.png",
+        "structure-sparse-standard-structure-preview-3.png",
+        "structure-sparse-standard-structure-preview-conflict.png",
+        "structure-sparse-standard-structure-storage-limit.png",
+        "structure-sparse-standard-structure-undo-cancelled.png",
+        "structure-sparse-standard-structure-world-placed.png"
+      ],
+      "video_midpoints_inspected": [
+        "standard",
+        "sparse"
+      ],
+      "observed": "Fresh Main synthetic workflows; four orientations, blocked/player/invalid input and cancelled operations, placement gates, brick constructions with custom detailed model, sparse placed/undone geometry with glass and later brick preserved. Standard images inspected in the current run and hashes matched copied evidence. Both video midpoint checks are separately recorded. No private account data."
+    },
+    "videos": {
+      "standard": {
+        "decodedFrames": 24,
+        "durationSeconds": 44.303,
+        "bytes": 419217,
+        "width": 960,
+        "height": 544,
+        "midpointIndex": 12,
+        "videoSha256": "c603ea1d26de81a618097c2c93e46f78e99e1046ba854afc213fbc1c2d8ce28d",
+        "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+        "visually_inspected": true,
+        "visual_note": "Actual Main structure menu with green bounds and staging progress at 10 percent; synthetic terrain, preserved destination block and HUD. No private account data."
+      },
+      "sparse": {
+        "decodedFrames": 33,
+        "durationSeconds": 33.1,
+        "bytes": 656638,
+        "width": 960,
+        "height": 544,
+        "midpointIndex": 16,
+        "videoSha256": "beb47dfeebc191fcaae4788655a5205a57552680b272ca7c8dd347504d8ae1a5",
+        "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+        "visually_inspected": true,
+        "visual_note": "Actual Main structure menu: placed sparse selection, near stone and preserved glass, synthetic terrain and HUD. No private account data."
+      }
+    },
+    "scope": "Fresh implementation captures and engine F10 video. Synthetic data only; no private prompts, answers, credentials or account records."
+  },
+  "environment": {
+    "headless_component": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "max_heap_bytes": 268435456,
+      "available_processors": 4,
+      "gpu_used": false,
+      "scope": "One headless JVM, synthetic empty destination, uncontrolled scheduler/heap/OS caches, no frame/network/server budgets; worker grouping and owner snapshot component only."
+    },
+    "native_renderers": {
+      "standard": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "sparse": "llvmpipe (LLVM 15.0.6, 256 bits)"
+    },
+    "software_rendering": true,
+    "native_heap_limit": "1 GiB",
+    "graphics_profile": "Isolated synthetic LOW preset, scale 0.5, shadows/AA/dynamic off.",
+    "os_cache_controlled": false
+  },
+  "parent_hosted": {
+    "head": "85aa4ca0e805608a33747b77457454e74f12e07f",
+    "run_id": 44821339239,
+    "jobs": {
+      "build (ubuntu-latest, linux)": "success",
+      "build (windows-latest, windows)": "success",
+      "build (macos-latest, mac-arm)": "success",
+      "build (macos-15-intel, mac-intel)": "success",
+      "publish": "skipped"
+    },
+    "method": "Actual job/step summaries inspected via GitHub connector; no runtime logs.",
+    "new_source_validation": false
+  },
+  "source_files_fixed": 685,
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureRegionSnapshot.java": "9c29d543ff9eda183a4c041707a63a063c5eb811c3bc614f690a461a08dcaac2",
+    "src/main/java/dev/jayms/net/structure/StructureOwnerQueue.java": "c1e5566f707331032ec803a415022ac4fe78667b7ad3e18c7a5bc9580d5c73a0",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "5285dd6e9fdf4906a4f78e785df39ac2552a1085f9e2d7ae2087da08ee96504a",
+    "src/test/java/dev/jayms/StructureSparseSnapshotTest.java": "15ff575c0b8e16192f6acbe2e06d4d5f2f467619ac94318c58c852f618a9d310",
+    "tools/structures/SparseSnapshotBenchmark.java": "75f4083fe8044e5b4a7b90940ad2fac6d12f6ce6bb94628d1878a1283455a91c",
+    "deploy/StructurePlaytest.java": "3b1723a3ba9063ceefb55132d026019229504bc582d07ffaaf0eda458091a12a"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "paths_with_removed_lines": [
+      {
+        "path": ".github/workflows/build.yml",
+        "removed_lines": 1
+      },
+      {
+        "path": "dashboard/progress.json",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/Chunk.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/Main.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/MeshDataGenerator.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/World.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Blocks.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/LocalGame.java",
+        "removed_lines": 57
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerClient.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerServer.java",
+        "removed_lines": 49
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Protocol.java",
+        "removed_lines": 30
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Terrain.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/WorldVoxels.java",
+        "removed_lines": 36
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/city/CityHistory.java",
+        "removed_lines": 54
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelDefinition.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelLibrary.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelMesher.java",
+        "removed_lines": 26
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/ReflectionProbes.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/RenderPipeline.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SceneLightingUpload.java",
+        "removed_lines": 7
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SkyVisibilityScheduler.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WaterRenderer.java",
+        "removed_lines": 31
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldLighting.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldSkyVisibility.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/ui/InventoryHud.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/resources/shaders/voxel.frag",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/CityFormat16RegressionTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/HistoryProtocolCompatibilityTest.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/MarketEconomyTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwaySaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayShippingCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RoadBaseCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/render/SkyVisibilitySchedulerTest.java",
+        "removed_lines": 15
+      }
+    ],
+    "intended_removals": "Replace only preview/place/undo bounding-box snapshot calls with occupied-chunk capture. Extract the same guarded Source wrapper for both paths; ordinary capture behavior stays. Extract the same owner-thread guard into requireWorker for early grouping rejection. Existing tests/assertions and source/geometry/placement gates remain. Native harness adds a sparse scenario and separate bounded modes; its wrapper records the selected mode. Prior world/history/render/save and protocol31 changes stay documented; all restored MP3/Hub/Asset Manager/combat/preview and merged HCF/practice paths match the base."
+  },
+  "remaining": [
+    "Editable partial-world gameplay, writable paging, source/owner reconciliation and true model-ID remapping remain unfinished.",
+    "City/maximum still reject under existing placement geometry/surface/chunk/mesh/persistence gates. A four-cell maximum-bounds selection is not the required 4-million-cell fragmented fixture.",
+    "Required 20-run whole-workflow reference client/server/network qualification, physical GPU, controlled cold OS caches, synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Sparse snapshot component and available native/CLI functional checks only. No supported-city/limit, stable rollout, 30 FPS, 20 Hz, editable partial-world or GPU/network qualification pass.",
+  "artifacts": {
+    "structure-sparse-case-structure-native-execution.json": "659ee16effca710357cfa70d4473f6793d049897a3738d2ca693c5636fcf2a91",
+    "structure-sparse-case-structure-native-lighting.json": "cb2ed3ac6db79da4dde80c23b815d94c03cdd6c38ce65c7233ca9da3a23a4757",
+    "structure-sparse-case-structure-native-result.json": "32572330f85f53c5585b0e8bbf203bf435e65c7a957a7c78f89241ed6b76de51",
+    "structure-sparse-case-structure-native-source.json": "0fc24284bb0acdfeca2a907078e89f56e5ff7933c9ba36e3b360a60c1cb6ac80",
+    "structure-sparse-case-structure-native-stage.json": "43d7c26d0eb5275bf4ed08d557f929e8eb637d25fa52db637921afcd3d151093",
+    "structure-sparse-case-structure-sparse-placed.png": "6becb502f9c20059b7c23006aa1fa5b42fef10431aef59a4b84a6293917b1dcf",
+    "structure-sparse-case-structure-sparse-preview.png": "d51b20145e1fbe607824369a5799b5b1ef9903eca5791cf9065ec06c813d7efb",
+    "structure-sparse-case-structure-sparse-undone.png": "091911760c60e97952ba6ed910ca6bf80e6e6c5e17dba75122bd22da5fa7dac8",
+    "structure-sparse-case-structure-workflow.mp4": "beb47dfeebc191fcaae4788655a5205a57552680b272ca7c8dd347504d8ae1a5",
+    "structure-sparse-snapshot-samples.json": "96c6e5a4d78873f675f670853210ecb714c99c4a9a56e607b230495321d3bc3c",
+    "structure-sparse-standard-structure-component-closeup.png": "c1113ede18e032d1f6e507974e18851fed865e14654b34dcbdde2b9144420c5f",
+    "structure-sparse-standard-structure-export-cancelled.png": "56a0563c5e53d9558c73f0c1307408219389d5bc3c8cd5562e67fd826677c7bf",
+    "structure-sparse-standard-structure-import-cancelled.png": "9d3ad2c4345e6f7d0b9d1b9e6c06d47623e187d1b8c567264efb3939d385fd9f",
+    "structure-sparse-standard-structure-invalid-anchor.png": "97a9ccd8ea540cd6b74927f6dc42d9b9c5f71d46fce25176f51353162b2321b6",
+    "structure-sparse-standard-structure-library-capture.png": "4dcdf303d65bd0102969298db3f2d4fee694438a91b61a714d09ff3610f0a9ab",
+    "structure-sparse-standard-structure-native-execution.json": "b67256918145b7135579b798c767b68a12357c10f6ab1966d3455dcb8f4e1ac7",
+    "structure-sparse-standard-structure-native-lighting.json": "a565f66befe0bb107faf278a88d4ccfa1653c86085dfe8e0b436789727ac926d",
+    "structure-sparse-standard-structure-native-result.json": "f5ac8ccc3fefca5bb9ee2c6f882153e50af945d3eb7826a5f734106208bc9fda",
+    "structure-sparse-standard-structure-native-source.json": "0fc24284bb0acdfeca2a907078e89f56e5ff7933c9ba36e3b360a60c1cb6ac80",
+    "structure-sparse-standard-structure-native-stage.json": "f17695efe7c432269da778d72440d1b08b9bfd4f50f89256f04c21678ff80466",
+    "structure-sparse-standard-structure-placed.png": "83cd3ef9d8ca639325d6466ba17165b26dcdb93b9dff5fd8b3f72b5f8706e7d2",
+    "structure-sparse-standard-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-sparse-standard-structure-player-conflict.png": "8fae303662db313b31e9b4b7da45f8e57a75c753809264cf88d4be9cb5abf04e",
+    "structure-sparse-standard-structure-preview-0.png": "95ffbd760a0ab4e7fd3a256d56f803bdd49f650f5d958063725200d05a9eb131",
+    "structure-sparse-standard-structure-preview-1.png": "921345cd669ff1cf6c42c475f92201d1a415660bab3e865762e9212c1a3d8646",
+    "structure-sparse-standard-structure-preview-2.png": "076af00e48a20adfd9dc6c4ee109274be24df6ff8846a63cb4193b2ae3e26b6c",
+    "structure-sparse-standard-structure-preview-3.png": "e3c2bdb416d29df47b20520b5326252d64c7b8dd36fa4d94abcbd529bbc5cdee",
+    "structure-sparse-standard-structure-preview-conflict.png": "35312a904c684b8cf3dc228b5bfc2dd1a0de6286ab7c15cfc7bbf6a93215cdc4",
+    "structure-sparse-standard-structure-storage-limit.png": "550bdb8ab9b6b1238215bea423d9c9daa51b3db280385fc4cd187a174a26b8b9",
+    "structure-sparse-standard-structure-undo-cancelled.png": "f0eca7841cb4323f98b18c7a5160f33056c0e887fdacecbea2f7af6027dc3990",
+    "structure-sparse-standard-structure-workflow.mp4": "c603ea1d26de81a618097c2c93e46f78e99e1046ba854afc213fbc1c2d8ce28d",
+    "structure-sparse-standard-structure-world-placed.png": "f4b28e0599a7493efa345959f37bae2255722be269caa15dbe72ee4ec4e8cc7d"
+  }
+}

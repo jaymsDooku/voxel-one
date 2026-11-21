@@ -1,0 +1,290 @@
+{
+  "schema": 1,
+  "parent_head": "66be60fcac894c3f36c278231e1025b1f0b487e5",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available read-only navigation checks passed; full structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "ReadOnlyWorldSession now exposes bounded query-only trace and visible-chunk/ray-boundary demand union. Full preflight and deduplication precede scene desired changes, keeping CPU/GPU demand coherent. Ready flags are ignored; evicted data reloads. Owner/reentry/closed/source/model fences remain. No worker submission, tick or upload is implicit. The ordinary gameplay raycaster and Main are unchanged.",
+  "limits": {
+    "total_input_hints": 64,
+    "ray_reach_world_cells_inclusive": [
+      0,
+      64
+    ],
+    "scene_chunks": "Existing configured one or two; no cap increase",
+    "geometry_leaves_per_chunk": "Existing default 8192 / maximum 131072 aggregate per chunk",
+    "worker_cache_bytes": 4194304,
+    "worker_request_rows": 32768,
+    "scope": "No package, per-model, geometry/surface/chunk/mesh/persistence or qualification cap raised. Valid demand eviction may dispose GPU resources; no owner stall or frame-time guarantee."
+  },
+  "focused": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=ReadOnlyWorldNavigationTest,ReadOnlyWorldSessionTest,RegionReplayDemandTest,RegionReplayChunkPumpTest,ReplayRayBoundaryTest",
+      "test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 21.619690895080566,
+    "suites": [
+      {
+        "name": "dev.jayms.net.ReadOnlyWorldNavigationTest",
+        "tests": "8",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadOnlyWorldSessionTest",
+        "tests": "9",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayDemandTest",
+        "tests": "4",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayChunkPumpTest",
+        "tests": "6",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ReplayRayBoundaryTest",
+        "tests": "4",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 31
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest",
+      "test"
+    ],
+    "tests": 664,
+    "suites": 139,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 371.0113377664238
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.96871867403388,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 824,
+    "shaders_match": 28,
+    "mp3": "Both original shipped CBR/VBR fixtures decode to 44,100 Hz / 6.060 s PCM.",
+    "obsolete_reservation_class_absent": true
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-navigation-replay"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 88.10493099316955,
+      "prefix": "structure-navigation-replay"
+    },
+    "receipt": "structure-navigation-replay-native.json",
+    "navigation_result": {
+      "status": "passed",
+      "cpu_chunks": 2,
+      "gpu_chunks": 2,
+      "resident_world_chunks": 0,
+      "unknown_then_cpu_then_gpu_hit": true,
+      "known_miss": true,
+      "invalid_demand_preserved_scene": true,
+      "eviction_and_stale_hint_reload": true,
+      "cancel_preserved_scene": true,
+      "edits_reject": true,
+      "saved_bytes_unchanged": true,
+      "cleanup_complete": true,
+      "qualification": false
+    },
+    "cold_result": {
+      "status": "passed",
+      "checked_rows": 6,
+      "cpu_chunks": 1,
+      "gpu_chunks": 1,
+      "resident_world_chunks": 0,
+      "unknown_cells_reject": true,
+      "edits_reject": true,
+      "saved_bytes_unchanged": true,
+      "cleanup_complete": true,
+      "os_cache_controlled": false,
+      "qualification": false
+    },
+    "owner_result": {
+      "status": "passed",
+      "installed_bundles": 2,
+      "stale_views_rejected": true,
+      "active_model_map_matches_world": true,
+      "new_gpu_entries": 1
+    },
+    "retirement_result": {
+      "status": "passed",
+      "old_root_closed": true,
+      "old_paged_world_closed": true,
+      "new_gpu_entries": 1,
+      "mesh_bytes_before_retirement": 14448,
+      "mesh_bytes_after_retirement": 7224
+    },
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11939156057,
+      "planar_lighting_nanos": 1348741366,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11605506706,
+      "planar_lighting_nanos": 774447541,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "source_class_helper_driver_hashes_match": true
+  },
+  "playtest": "Playtest: actual Java/GLFW/OpenGL integration CLI on inherited DISPLAY with isolated synthetic offline v10 sources. Expected trace to stop on an unknown cell, demand to load exactly the bounded visible/boundary union, CPU-only data to remain unavailable for hits, and GPU upload to allow the saved-cell hit. Observed unknown then CPU-only boundary then hit at 0 / 160 / 0 after two chunks became GPU-ready, plus a known-air miss. Invalid oversized demand and cancelled upload preserved both ready entries. Eviction restored an unknown boundary; a held CPU-ready hint loaded and meshed it again. Saved bytes stayed unchanged, edits/capture rejected, zero resident World chunks, and full scratch/Mesh cleanup completed. Seven fresh framebuffers include actual navigation draw and engine Overlay text after assertions. Existing cold startup, two guarded owner-slot installs, save/reopen, old-World retirement, latest-tail/model-counter/source-sky, ordinary/pending geometry, lighting/roof-clear sky and planar/model/water resource regressions passed. Browser testing does not apply to this native engine API integration. Main was not rerun because no Main path changed and the read-only API remains unwired there.",
+  "media": {
+    "inspected": [
+      "structure-navigation-replay-navigation.png",
+      "structure-navigation-replay-cold.png",
+      "structure-navigation-replay-session.png",
+      "structure-navigation-replay-optics.png",
+      "structure-navigation-replay-pending-optics.png",
+      "structure-navigation-replay-pending.png",
+      "structure-navigation-replay-regression.png"
+    ],
+    "observations": [
+      "Navigation frame shows the engine-rendered ray-resumed saved-cell hit and two-ready-chunk text above blue-grey, blue, red and teal saved geometry.",
+      "Cold and installed-session captures show the same saved geometry without navigation text.",
+      "Ordinary and pending optics show the lit white/blue isolated block against sky.",
+      "Pending geometry retains separate blue/red/grey blocks and lit lower surfaces.",
+      "Ordinary regression retains the dark upper model/geometry against the same background."
+    ],
+    "scope": "Seven fresh implementation-native framebuffers. Navigation HUD is rendered by the actual engine Overlay, after successful query/demand/upload/evict/reload assertions. Software rendering only; uncontrolled OS caches."
+  },
+  "source_files_fixed": 671,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/ReadOnlyWorldSession.java": "c766f7c3d1eca4515f561921fee2aed05f5baa5a7500a8c1dfd4f314528cb6f1",
+    "src/test/java/dev/jayms/net/ReadOnlyWorldNavigationTest.java": "16e8e8106a130dd3eb410a70eb031b35e2d0fbc3e9df2f76f2ea3f654faa4872",
+    "tools/structures/SavedPagingSessionFrame.java": "3bb810b3e2aba4ccfa324e5998e7e7851750854e43d338abb0ed1f3668abbc20",
+    "tools/structures/ReplaySkyFrameCheck.java": "df6a76922d9ce5003793c49f053bf5ce414f14c3f93755f12f06597a25d5169c",
+    "tools/structures/run_replay_sky_frame_check.py": "3539e889a49c4d5d019d868074e7c99b1b9208d1730c933e1947d71282520cb2"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true,
+    "os_cache_controlled": false
+  },
+  "parent_hosted": {
+    "head": "66be60fcac894c3f36c278231e1025b1f0b487e5",
+    "run_id": 44790809868,
+    "method": "Inspected actual job and step summaries via GitHub connector; no runtime logs.",
+    "jobs": {
+      "build (ubuntu-latest, linux)": "success",
+      "build (macos-15-intel, mac-intel)": "success",
+      "build (windows-latest, windows)": "success",
+      "build (macos-latest, mac-arm)": "success",
+      "publish": "skipped"
+    },
+    "new_source_validation": false
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "paths_with_removed_lines": 37,
+    "intended_removed_lines": "Add the bounded public API without replacing existing demand/query behavior. Move the existing render glFinish/error assertion after optional engine Overlay drawing; preserve the ordinary renderer and all old assertions. Add fresh-output cold/navigation overwrite guards and receipt hashes. Prior base-diff world/history/render replacements and protocol compatibility changes remain documented. No unrelated deletion or removed regression assertion intended."
+  },
+  "remaining": [
+    "Main gameplay wiring and owner-state reconciliation, writable paging and true model-ID remapping remain unfinished. Navigation queries do not schedule movement or physics.",
+    "City/maximum still fail placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only runs do not qualify full workflows.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, controlled cold OS caches, physical GPU, shaped synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Bounded read-only navigation and available native/CLI functional regressions only. No Main gameplay, edit/save authority, supported-city/limit, stable rollout, 30 FPS, controlled cold-cache, whole-workflow or physical-GPU/network qualification pass.",
+  "artifacts": {
+    "structure-navigation-replay-cold.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f",
+    "structure-navigation-replay-native.json": "92a3a382573dd7cdac9869345bf8ef35be24baa4ba5f82112916cc4262df1894",
+    "structure-navigation-replay-navigation.png": "2541947fe332c38311dc9cfad6d2f704285528c1b69556634beb2edde4c0843d",
+    "structure-navigation-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-navigation-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-navigation-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-navigation-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-navigation-replay-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}

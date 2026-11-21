@@ -6,6 +6,8 @@ flat in vec3 vSurface;
 out vec4 fragColor;
 uniform float uDaylight;
 uniform int uVertexColor,uFog,uLightingEnabled,uShadowEnabled,uHeld;
+// Held geometry is in view space; scene lighting and the environment are world space.
+uniform mat3 uHeldToWorld=mat3(1.);
 uniform int uShadowCascades,uVoxelAO,uVoxelGI,uContactTransport,uLocalReflection;
 uniform vec3 uColor,uLightDirection,uCameraPosition;
 uniform float uModelEmission,uTransparency,uOutputExposure;
@@ -121,7 +123,7 @@ vec3 probeIrradiance(vec3 p,vec3 N){
 }
 void main(){
     if(vSurface.z==-2.)discard;
-    vec3 N=normalize(vNormal),L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
+    vec3 N=normalize(uHeld==1?uHeldToWorld*vNormal:vNormal),L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
     if(uLightingEnabled==0){fragColor=vec4(albedo*(.35+.65*max(dot(N,L),0.)),1.-uTransparency);return;}
     if(uVertexColor==1&&vSurface.z>=0.){
         vec3 weight=pow(abs(N),vec3(4));weight/=max(.0001,weight.x+weight.y+weight.z);
@@ -139,10 +141,10 @@ void main(){
     albedo=pow(max(albedo,vec3(0)),vec3(2.2));
     vec3 point=uHeld==1?uCameraPosition:vWorldPosition+N*.001;
     vec3 indirect=vec3(.24,.32,.45)*uAmbient;
-    float skyVisibility=uPlanetLighting==1&&uHeld==0?0.:1.;
-    if(uPlanetLighting==1&&uHeld==0)indirect=vec3(0);
-    if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
-    if(uPlanetLighting==1&&uHeld==0){
+    float skyVisibility=uPlanetLighting==1?0.:1.;
+    if(uPlanetLighting==1)indirect=vec3(0);
+    if(uHasIrradiance==1||(uPlanetLighting==1&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
+    if(uPlanetLighting==1){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
         indirect+=textureLod(uEnvironment,N,7.).rgb*skyVisibility;
     }
@@ -158,7 +160,7 @@ void main(){
         indirect+=cones*.025+(uLocalReflection==1?probeIrradiance(point,N)*.08:vec3(0));}
         if(uContactTransport==1)sdfVisibility=distanceShadow(point+N*.6,L);
     }
-    vec3 V=uHeld==1?normalize(-vWorldPosition):normalize(uCameraPosition-vWorldPosition);
+    vec3 V=uHeld==1?normalize(uHeldToWorld*(-vWorldPosition)):normalize(uCameraPosition-vWorldPosition);
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
     vec3 reflection=uLocalReflection==1?textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.):vec3(0);

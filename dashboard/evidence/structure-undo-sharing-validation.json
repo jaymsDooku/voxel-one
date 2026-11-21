@@ -1,0 +1,394 @@
+{
+  "schema": 1,
+  "production_head": "f7742adf5c1a9d5a788057fd49cb01e45ec15039",
+  "scope": "Reproducible undo-storage diagnostics only. Integrated packing default rejected; submitted production and native harness remain byte-for-byte at the tested parent.",
+  "decision": "retain_existing_undo_maps",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)"
+  },
+  "reason": "WorldVoxels.replaceCell copies wrappers and shares immutable SVO nodes. Counting undo storage without the live world overstates net savings. With actual WorldVoxels alive, packing added retained bytes in both fixtures and adds reconstruction work. Canonical world storage needs attention first.",
+  "source_evidence": [
+    {
+      "url": "https://github.com/jaymsDooku/voxel-one/blob/f7742adf5c1a9d5a788057fd49cb01e45ec15039/src/main/java/dev/jayms/net/WorldVoxels.java#L312",
+      "fact": "World cell replacement copies/freezes SVO wrapper."
+    },
+    {
+      "url": "https://github.com/jaymsDooku/voxel-one/blob/f7742adf5c1a9d5a788057fd49cb01e45ec15039/src/main/java/dev/jayms/net/model/SparseVoxelOctree.java#L254",
+      "fact": "SVO copy shares immutable root."
+    }
+  ],
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DskipTests compile > target/structure-undo-diagnostic-compile.log 2>&1",
+      "python3 -m unittest discover -s tools/structures -p 'test_*.py' -v > target/structure-undo-diagnostic-tests.log 2>&1",
+      "javac --release 17 -cp target/classes -d target/structure-undo-diagnostics/classes tools/structures/undo-prototype/UndoPrototypeCells.java tools/structures/undo-prototype/UndoPrototypeImage.java tools/structures/undo-prototype/UndoPrototypeChecks.java tools/structures/UndoImageProbe.java tools/structures/UndoLiveRetentionProbe.java",
+      "java -Xmx128m -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoPrototypeChecks",
+      "java -Xmx1g -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoImageProbe map > target/structure-undo-diagnostics/map.jsonl",
+      "java -Xmx1g -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoImageProbe packed > target/structure-undo-diagnostics/packed.jsonl",
+      "java -Xmx1g -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoLiveRetentionProbe world > target/structure-undo-diagnostics/world-only.jsonl",
+      "java -Xmx1g -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoLiveRetentionProbe map > target/structure-undo-diagnostics/world-map.jsonl",
+      "java -Xmx1g -cp target/structure-undo-diagnostics/classes:target/classes dev.jayms.net.structure.UndoLiveRetentionProbe packed > target/structure-undo-diagnostics/world-packed.jsonl"
+    ],
+    "compile_exit_code": 0,
+    "tool_tests": 33,
+    "failures": 0,
+    "errors": 0,
+    "exit_code": 0,
+    "observed": "All 33 tooling tests passed. Java CLI checks passed four invariant groups: physical/frozen/detached values and immutable empty view; no source octree/map references; transformed orientations without double rotation; cancellation and invalid/count/bounds input. All five retained-state/probe commands completed successfully.",
+    "expected": "Keep submitted game undo unchanged and make the rejected packed candidate reproducible outside game sources.",
+    "measurement_repair": "Initial development live probe used the wrong Terrain import and failed compilation/launch. Corrected before measurements; complete outputs only are used here."
+  },
+  "playtest": {
+    "entry": "Playtest: noninteractive diagnostic CLI populated actual WorldVoxels with 50000 cells through replaceCell and retained world-only, world-plus-map and world-plus-packed states. It checked world-cell values before reporting. Browser/native execution does not apply to this tooling-only submitted change.",
+    "observed": "Mixed retained-state medians: world-only 34449384 B, world-plus-map 35139288 B, world-plus-packed 38417160 B. Packing added 3277872 B versus existing maps with world alive.",
+    "unchanged_native_regression": "All 220 production/harness source hashes match retained passed native manifest. Published parent video verified byte-for-byte and a frame decoded/inspected. No game tests or native playtest rerun claimed for unchanged submitted production source."
+  },
+  "storage_only": {
+    "results": {
+      "map": [
+        {
+          "storage": "map",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "operation": "retain_or_capture",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 381688,
+          "median_ms": 0.0,
+          "p95_ms": 0.0,
+          "worst_ms": 0.001,
+          "median_thread_allocated_bytes": 0
+        },
+        {
+          "storage": "map",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 381688,
+          "median_ms": 1.327,
+          "p95_ms": 5.083,
+          "worst_ms": 7.566,
+          "median_thread_allocated_bytes": 524272
+        },
+        {
+          "storage": "map",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "retain_or_capture",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 29264480,
+          "median_ms": 0.0,
+          "p95_ms": 0.001,
+          "worst_ms": 0.121,
+          "median_thread_allocated_bytes": 0
+        },
+        {
+          "storage": "map",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 29264480,
+          "median_ms": 19.293,
+          "p95_ms": 21.655,
+          "worst_ms": 23.035,
+          "median_thread_allocated_bytes": 24
+        }
+      ],
+      "packed": [
+        {
+          "storage": "packed",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "operation": "retain_or_capture",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 523576,
+          "median_ms": 3.359,
+          "p95_ms": 5.862,
+          "worst_ms": 8.969,
+          "median_thread_allocated_bytes": 2065984
+        },
+        {
+          "storage": "packed",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 523576,
+          "median_ms": 1.246,
+          "p95_ms": 3.435,
+          "worst_ms": 3.454,
+          "median_thread_allocated_bytes": 1200000
+        },
+        {
+          "storage": "packed",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "retain_or_capture",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 4039080,
+          "median_ms": 35.155,
+          "p95_ms": 40.078,
+          "worst_ms": 45.593,
+          "median_thread_allocated_bytes": 6833592
+        },
+        {
+          "storage": "packed",
+          "fixture": "mixed",
+          "cells": 50000,
+          "operation": "visit",
+          "runs": 20,
+          "warmups": 3,
+          "retained_heap_delta_bytes": 4039080,
+          "median_ms": 44.24,
+          "p95_ms": 52.094,
+          "worst_ms": 66.993,
+          "median_thread_allocated_bytes": 32800000
+        }
+      ]
+    },
+    "method": "Separate JVMs, map first, three warmups then 20 capture/visit runs. No concurrent Maven/native playtest. One post-GC retained-heap estimate per fixture. Excludes world storage and record/empty-view overhead. Existing-map retention is a reference assignment. Visits check each cell position, position-derived color at (1,2,3), and occupied count; they are not guarded-undo timings.",
+    "limitation": "This comparison alone cannot establish a net game-memory saving."
+  },
+  "live_world": {
+    "results": {
+      "world-only": [
+        {
+          "storage": "world",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 5512400
+        },
+        {
+          "storage": "world",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 5543784
+        },
+        {
+          "storage": "world",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 5473768
+        },
+        {
+          "storage": "world",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 34439576
+        },
+        {
+          "storage": "world",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 34496768
+        },
+        {
+          "storage": "world",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 34449384
+        }
+      ],
+      "world-map": [
+        {
+          "storage": "map",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 5912576
+        },
+        {
+          "storage": "map",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 5953856
+        },
+        {
+          "storage": "map",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 6001296
+        },
+        {
+          "storage": "map",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 35166576
+        },
+        {
+          "storage": "map",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 34789464
+        },
+        {
+          "storage": "map",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 35139288
+        }
+      ],
+      "world-packed": [
+        {
+          "storage": "packed",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 6011200
+        },
+        {
+          "storage": "packed",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 6009528
+        },
+        {
+          "storage": "packed",
+          "fixture": "shared_uniform",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 6055688
+        },
+        {
+          "storage": "packed",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 1,
+          "retained_heap_delta_bytes": 38417160
+        },
+        {
+          "storage": "packed",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 2,
+          "retained_heap_delta_bytes": 38532152
+        },
+        {
+          "storage": "packed",
+          "fixture": "mixed",
+          "cells": 50000,
+          "run": 3,
+          "retained_heap_delta_bytes": 38210544
+        }
+      ]
+    },
+    "summary": {
+      "world-only": {
+        "shared_uniform": {
+          "samples": 3,
+          "median_bytes": 5512400,
+          "min_bytes": 5473768,
+          "max_bytes": 5543784
+        },
+        "mixed": {
+          "samples": 3,
+          "median_bytes": 34449384,
+          "min_bytes": 34439576,
+          "max_bytes": 34496768
+        }
+      },
+      "world-map": {
+        "shared_uniform": {
+          "samples": 3,
+          "median_bytes": 5953856,
+          "min_bytes": 5912576,
+          "max_bytes": 6001296
+        },
+        "mixed": {
+          "samples": 3,
+          "median_bytes": 35139288,
+          "min_bytes": 34789464,
+          "max_bytes": 35166576
+        }
+      },
+      "world-packed": {
+        "shared_uniform": {
+          "samples": 3,
+          "median_bytes": 6011200,
+          "min_bytes": 6009528,
+          "max_bytes": 6055688
+        },
+        "mixed": {
+          "samples": 3,
+          "median_bytes": 38417160,
+          "min_bytes": 38210544,
+          "max_bytes": 38532152
+        }
+      }
+    },
+    "method": "Separate JVMs in that order; one warmup and three post-GC heap-delta samples per fixture/mode. Actual WorldVoxels populated using replaceCell. World and selected undo representation remain reachable during measurement. No concurrent tests/native playtest.",
+    "limitation": "Diagnostic retained-heap estimates, not peak memory or 20-run memory qualification. Source sharing supports the decision; absolute heap values include GC/JIT noise."
+  },
+  "fixtures": {
+    "cells": 50000,
+    "footprint_dimensions": [
+      512,
+      1,
+      128
+    ],
+    "origin": [
+      -256,
+      128,
+      -128
+    ],
+    "uniform": "Two shared uniform SVOs, matching placement interning.",
+    "mixed": "Unique two-leaf SVOs. No city or maximum-package corpus claim."
+  },
+  "native_evidence": {
+    "status": "Retained verified evidence from unchanged production implementation.",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/f7742adf5c1a9d5a788057fd49cb01e45ec15039/dashboard/evidence/structure-workflow.mp4",
+    "bytes": 376781,
+    "sha256": "655bd7ce9b8950a9cb770cb6e56bd84f04d9fcbab59265b0b9e26d3f0fbdb8d4",
+    "codec": "H264",
+    "frames": 16,
+    "duration_s": 27.442,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_count": 220,
+    "manifest_sha256": "601493e9c123fe7345d99d976d96c2777cb106a653c87c771ac2863463da5042",
+    "inspection_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-undo-diagnostics/current-source-frame.png"
+  },
+  "source_sha256": {
+    "tools/structures/undo-prototype/UndoPrototypeCells.java": "ab01d5ef4ba477bf03efc54999498fac9d999ef376a4b5c6cb84a272a7d45a95",
+    "tools/structures/undo-prototype/UndoPrototypeChecks.java": "4ac2a99505e9ad860cdf51732708b15626a217ef45f3996fe9874c1c221a1d8a",
+    "tools/structures/undo-prototype/UndoPrototypeImage.java": "dfe8ff37c39c7c5a8ad0e9811423fad18b432827a3318540f7717d4b746d7cf1",
+    "tools/structures/UndoImageProbe.java": "2791adbc2c1b95c55911caedb17721b6707b17db44c6ef65c7043bc7f5e374ec",
+    "tools/structures/UndoLiveRetentionProbe.java": "5a477878a0a4065ac3c38f13503739bfb2e55fde6b900f9f9f708e6e249fd5b0",
+    "tools/structures/test_undo_storage.py": "029bea612437b6377cd37fd2b6f8105408677e92e75c38bf393df0f33e4314c1"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "diff_check": "passed",
+    "deleted_paths": [],
+    "production_diff": "empty",
+    "intended_deletions": "None. Trial production edits were restored before submission; diagnostic candidate is outside game sources."
+  },
+  "remaining": [
+    "Canonical-region and history storage, partitioned persistence/publication/transfer, owner-thread work and rendering.",
+    "Full city/maximum admission and 20-run physical-GPU, shaped-network, 32-rendered-client, memory/frame/tick/traffic and latency qualification remain pending.",
+    "New tooling exact-head CI and independent review pending. Supported-city and stable-rollout gates remain."
+  ]
+}

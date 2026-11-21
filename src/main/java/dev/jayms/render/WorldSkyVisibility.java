@@ -98,19 +98,77 @@ public final class WorldSkyVisibility {
         }
         return pack(paths);
     }
-    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths) {
-        cancelled();
-        paths.replaceAll((column,segments)->compact(segments));
+    /** Private replay-worker limits, not benchmark-qualified supported limits. */
+    public record BuildLimits(int columns,int leaves,int segments) {
+        public BuildLimits {
+            if(columns<0||columns>256||leaves<0||leaves>131072||segments<0||segments>131072)
+                throw new IllegalArgumentException("Sky build budget");
+        }
+    }
+    private static final class Budget {
+        final BuildLimits limits;final java.util.function.BooleanSupplier cancel;int leaves,segments,roots;
+        Budget(BuildLimits limits,java.util.function.BooleanSupplier cancel){this.limits=Objects.requireNonNull(limits);this.cancel=Objects.requireNonNull(cancel);}
+        void check(){cancelled();if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();}
+        void root(SparseVoxelOctree root,int size) {
+            check();if(++roots>4105||root.size()!=size||!root.isFrozen())throw new IllegalArgumentException("Invalid sky build root");
+            int n=root.leafCount();if(n>limits.leaves-leaves)throw new IllegalStateException("Sky geometry leaf budget");leaves+=n;
+        }
+        List<Segment> column(Map<Column,List<Segment>> paths,Column column) {
+            check();var list=paths.get(column);if(list!=null)return list;
+            if(paths.size()==limits.columns)throw new IllegalStateException("Sky column budget");
+            list=new ArrayList<>();paths.put(column,list);return list;
+        }
+        void add(Map<Column,List<Segment>> paths,Segment a) {
+            check();
+            for(int x=(int)Math.floor(a.x0);x<(int)Math.ceil(a.x1);x++)for(int z=(int)Math.floor(a.z0);z<(int)Math.ceil(a.z1);z++) {
+                check();if(segments==limits.segments)throw new IllegalStateException("Sky expanded segment budget");
+                var list=column(paths,new Column(x,z));
+                list.add(new Segment(Math.max(x,a.x0),a.y0,Math.max(z,a.z0),Math.min(x+1,a.x1),a.y1,Math.min(z+1,a.z1),a.transmission));segments++;
+            }
+        }
+    }
+    /** Opt-in bounded worker path. No live World, publication or coverage authority.
+     * Raw expanded column segments are counted before compaction, including repeats.
+     * Existing resident construction retains its current contract. */
+    public static WorldSkyVisibility buildBounded(Input input,BuildLimits limits,java.util.function.BooleanSupplier cancel) {
+        Objects.requireNonNull(input);Objects.requireNonNull(input.models);var budget=new Budget(limits,cancel);budget.check();
+        if((long)input.chunks.size()+input.edits.size()>4105)throw new IllegalArgumentException("Sky input root budget");
+        var paths=new TreeMap<Column,List<Segment>>();
+        for(var geometry:input.chunks) {
+            budget.root(geometry.root,256);var p=geometry.position;
+            if(16L*p.chunkX()<Integer.MIN_VALUE||16L*p.chunkX()+15>Integer.MAX_VALUE||16L*p.chunkY()<Integer.MIN_VALUE||16L*p.chunkY()+15>Integer.MAX_VALUE||16L*p.chunkZ()<Integer.MIN_VALUE||16L*p.chunkZ()+15>Integer.MAX_VALUE)
+                throw new IllegalArgumentException("Sky input coordinate");
+            if(!new Protocol.Edit(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,0).valid()||!new Protocol.Edit(p.chunkX()*16+15,p.chunkY()*16+15,p.chunkZ()*16+15,0).valid())throw new IllegalArgumentException("Sky input outside world");
+            for(int x=0;x<16;x++)for(int z=0;z<16;z++)budget.column(paths,new Column(p.chunkX()*16+x,p.chunkZ()*16+z));
+            for(var leaf:geometry.root.leavesInterruptibly()) {
+                budget.check();int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
+                expand(input.models,type,p.chunkX()*16+leaf.x()/16f,p.chunkY()*16+leaf.y()/16f,p.chunkZ()*16+leaf.z()/16f,leaf.side()/16f,a->budget.add(paths,a));
+            }
+        }
+        for(var cell:input.edits) {
+            budget.root(cell.root,16);
+            if(!new Protocol.Edit(cell.x,cell.y,cell.z,0).valid())throw new IllegalArgumentException("Sky input outside world");
+            for(var leaf:cell.root.leavesInterruptibly()) {
+                budget.check();int type=WorldVoxels.decode(leaf.color());if(type==Blocks.AIR)continue;
+                expand(input.models,type,cell.x+leaf.x()/16f,cell.y+leaf.y()/16f,cell.z+leaf.z()/16f,leaf.side()/16f,a->budget.add(paths,a));
+            }
+        }
+        budget.check();var result=pack(paths,budget::check);budget.check();return result;
+    }
+    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths) {return pack(paths,WorldSkyVisibility::cancelled);}
+    private static WorldSkyVisibility pack(TreeMap<Column,List<Segment>> paths,Runnable check) {
+        check.run();
+        paths.replaceAll((column,segments)->compact(segments,check));
         int count=paths.size(),length=count*4;
-        for(var segments:paths.values()){cancelled();length=Math.addExact(length,segments.size()<=MAX_COLUMN_SEGMENTS?segments.size()*7:0);}
+        for(var segments:paths.values()){check.run();length=Math.addExact(length,segments.size()<=MAX_COLUMN_SEGMENTS?segments.size()*7:0);}
         if(length>MAX_INTS)throw new IllegalStateException("Loaded sky visibility exceeds bounded buffer capacity");
         int[] packed=new int[Math.max(1,length)];int header=0,offset=count*4;
-        for(var entry:paths.entrySet()){cancelled();
-            var segments=entry.getValue();segments.sort((a,b)->{cancelled();return Float.compare(b.y1,a.y1);});
+        for(var entry:paths.entrySet()){check.run();
+            var segments=entry.getValue();segments.sort((a,b)->{check.run();return Float.compare(b.y1,a.y1);});
             packed[header++]=entry.getKey().x;packed[header++]=entry.getKey().z;packed[header++]=offset;
             if(segments.size()>MAX_COLUMN_SEGMENTS){packed[header-1]=Float.floatToRawIntBits(segments.get(0).y1);packed[header++]=-1;continue;} // Conservative overflow, never an open roof.
             packed[header++]=segments.size();
-            for(var a:segments){cancelled();for(float value:new float[]{a.x0,a.y0,a.z0,a.x1,a.y1,a.z1,a.transmission})packed[offset++]=Float.floatToRawIntBits(value);}
+            for(var a:segments){check.run();for(float value:new float[]{a.x0,a.y0,a.z0,a.x1,a.y1,a.z1,a.transmission})packed[offset++]=Float.floatToRawIntBits(value);}
         }
         return new WorldSkyVisibility(packed,count);
     }
@@ -132,35 +190,84 @@ public final class WorldSkyVisibility {
         }
         return new WorldSkyVisibility(data,count);
     }
+    /** Bounded worker-only merge. Copies at most MAX_INTS input payload integers
+     * before validation; optional directories are rebuilt, never trusted. Caller
+     * source/world/model fences and exclusive input publication remain separate. */
+    public static WorldSkyVisibility mergeBounded(List<WorldSkyVisibility> parts,int maxInts,java.util.function.BooleanSupplier cancel) {
+        Objects.requireNonNull(parts);Objects.requireNonNull(cancel);
+        if(maxInts<0||maxInts>MAX_INTS||parts.size()>36)throw new IllegalArgumentException("Sky merge budget");
+        Runnable check=()->{cancelled();if(cancel.getAsBoolean())throw new java.util.concurrent.CancellationException();};check.run();
+        record Part(int[] data,int columns) {}
+        var copies=new ArrayList<Part>();int inputInts=0,count=0;
+        for(var p:parts) {
+            check.run();Objects.requireNonNull(p);if(copies.size()==36||p.columns<0||p.columns>256)throw new IllegalArgumentException("Sky merge tile budget");
+            int length=p.columns==0?0:p.payloadLength();
+            if(length<4*p.columns||length>p.data.length||length>maxInts-inputInts)throw new IllegalArgumentException("Sky merge input payload");
+            inputInts+=length;count+=p.columns;copies.add(new Part(Arrays.copyOf(p.data,length),p.columns));
+        }
+        var known=new TreeSet<Column>();int length=count*4;float[] v=new float[7];
+        for(var p:copies) {
+            check.run();Column previous=null;int cursor=p.columns*4;
+            for(int i=0;i<p.columns;i++) {
+                check.run();int h=i*4,x=p.data[h],z=p.data[h+1],n=p.data[h+3];var column=new Column(x,z);
+                if(Math.abs((long)x)>Terrain.LIMIT||Math.abs((long)z)>Terrain.LIMIT||previous!=null&&previous.compareTo(column)>=0||!known.add(column))throw new IllegalArgumentException("Sky merge overlapping or unordered coverage");previous=column;
+                if(n==-1) {
+                    float ceiling=Float.intBitsToFloat(p.data[h+2]);if(!Float.isFinite(ceiling)||ceiling < -Terrain.LIMIT||ceiling>Terrain.LIMIT+1)throw new IllegalArgumentException("Sky merge ceiling");continue;
+                }
+                if(n<0||n>MAX_COLUMN_SEGMENTS||p.data[h+2]!=cursor||(long)cursor+n*7>p.data.length)throw new IllegalArgumentException("Sky merge segment range");
+                float lastTop=Float.POSITIVE_INFINITY;
+                for(int j=0;j<n;j++) {
+                    check.run();int a=cursor+j*7;for(int k=0;k<7;k++){v[k]=Float.intBitsToFloat(p.data[a+k]);if(!Float.isFinite(v[k]))throw new IllegalArgumentException("Sky merge nonfinite segment");}
+                    if(v[0]<x||v[3]>x+1f||v[2]<z||v[5]>z+1f||v[3]<=v[0]||v[5]<=v[2]||v[4]<=v[1]||v[1]<-Terrain.LIMIT||v[4]>Terrain.LIMIT+1||v[6]<0||v[6]>1||v[4]>lastTop)throw new IllegalArgumentException("Sky merge malformed segment");lastTop=v[4];
+                }
+                cursor+=n*7;length=Math.addExact(length,n*7);
+            }
+            if(cursor!=p.data.length)throw new IllegalArgumentException("Sky merge trailing payload");
+        }
+        long span=known.isEmpty()?0:(long)known.last().x-known.first().x+1;
+        long directory=span>0&&span<=512&&(long)length+span*3<=MAX_INTS?span*3:0;
+        if(Math.max(1L,length)+directory>maxInts)throw new IllegalStateException("Sky merge output budget");
+        check.run();int[] data=new int[Math.max(1,length)];
+        final class Cursor {final Part part;int i;Cursor(Part part){this.part=part;}}
+        var queue=new PriorityQueue<Cursor>(Comparator.<Cursor>comparingInt(c->c.part.data[c.i]).thenComparingInt(c->c.part.data[c.i+1]));
+        for(var p:copies)if(p.columns>0)queue.add(new Cursor(p));int header=0,offset=count*4;
+        while(!queue.isEmpty()) {
+            check.run();var c=queue.remove();int n=c.part.data[c.i+3];data[header++]=c.part.data[c.i];data[header++]=c.part.data[c.i+1];data[header++]=n<0?c.part.data[c.i+2]:offset;data[header++]=n;
+            if(n>=0){System.arraycopy(c.part.data,c.part.data[c.i+2],data,offset,n*7);offset+=n*7;}
+            c.i+=4;if(c.i<c.part.columns*4)queue.add(c);
+        }
+        check.run();var result=new WorldSkyVisibility(data,count);check.run();return result;
+    }
     /** Same model footprint contract for streamed chunks and persisted edits. */
-    private static void expand(Map<Column,List<Segment>> paths,ModelLibrary models,int type,float x,float y,float z,float size){
+    private static void expand(Map<Column,List<Segment>> paths,ModelLibrary models,int type,float x,float y,float z,float size){expand(models,type,x,y,z,size,a->add(paths,a));}
+    private static void expand(ModelLibrary models,int type,float x,float y,float z,float size,java.util.function.Consumer<Segment> emit){
         if(Blocks.isModel(type)){
             var model=models.get(type);
-            if(model==null){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
+            if(model==null){emit.accept(new Segment(x,y,z,x+size,y+size,z+size,0));return;}
             // A merged uniform octree leaf can contain several repeated model cells.
-            if(size<1){add(paths,new Segment(x,y,z,x+size,y+size,z+size,0));return;}
+            if(size<1){emit.accept(new Segment(x,y,z,x+size,y+size,z+size,0));return;}
             float scale=1f/model.definition().voxels().size();
             var leaves=model.definition().voxels().leavesInterruptibly();
             for(int dx=0;dx<(int)size;dx++)for(int dy=0;dy<(int)size;dy++)for(int dz=0;dz<(int)size;dz++)
-                for(var cell:leaves)add(paths,new Segment(x+dx+cell.x()*scale,y+dy+cell.y()*scale,z+dz+cell.z()*scale,x+dx+(cell.x()+cell.side())*scale,y+dy+(cell.y()+cell.side())*scale,z+dz+(cell.z()+cell.side())*scale,0));
-        }else add(paths,new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
+                for(var cell:leaves)emit.accept(new Segment(x+dx+cell.x()*scale,y+dy+cell.y()*scale,z+dz+cell.z()*scale,x+dx+(cell.x()+cell.side())*scale,y+dy+(cell.y()+cell.side())*scale,z+dz+(cell.z()+cell.side())*scale,0));
+        }else emit.accept(new Segment(x,y,z,x+size,y+size,z+size,type==Blocks.GLASS||type==Blocks.WATER?.7f:0));
     }
-    private static List<Segment> compact(List<Segment> source){
-        cancelled();
+    private static List<Segment> compact(List<Segment> source,Runnable check){
+        check.run();
         // Octrees split a 1/32 planar roof into many cubes. Merge only touching
         // rectangles with identical height/transmission; retain every real gap.
         // A full-column opaque ceiling blocks every lower sky ray, even across
         // caves. Keep layers and fractional footprints above it exactly.
         Segment ceiling=null;
-        for(var a:source){cancelled();if(a.transmission==0&&a.x1-a.x0==1&&a.z1-a.z0==1&&(ceiling==null||a.y1>ceiling.y1))ceiling=a;}
+        for(var a:source){check.run();if(a.transmission==0&&a.x1-a.x0==1&&a.z1-a.z0==1&&(ceiling==null||a.y1>ceiling.y1))ceiling=a;}
         List<Segment> result=source;
-        if(ceiling!=null){result=new ArrayList<>();for(var a:source){cancelled();if(a==ceiling||a.y1>ceiling.y1)result.add(a);}}
+        if(ceiling!=null){result=new ArrayList<>();for(var a:source){check.run();if(a==ceiling||a.y1>ceiling.y1)result.add(a);}}
         for(boolean axisX:new boolean[]{true,false}){
             Comparator<Segment> order=Comparator.comparingDouble(Segment::y0).thenComparingDouble(Segment::y1).thenComparingDouble(Segment::transmission)
                 .thenComparingDouble(a->axisX?a.z0:a.x0).thenComparingDouble(a->axisX?a.z1:a.x1).thenComparingDouble(a->axisX?a.x0:a.z0);
-            result.sort((a,b)->{cancelled();return order.compare(a,b);});
+            result.sort((a,b)->{check.run();return order.compare(a,b);});
             var merged=new ArrayList<Segment>();
-            for(var a:result){cancelled();
+            for(var a:result){check.run();
                 if(!merged.isEmpty()){
                     var b=merged.get(merged.size()-1);
                     if(a.y0==b.y0&&a.y1==b.y1&&a.transmission==b.transmission&&(axisX?a.z0==b.z0&&a.z1==b.z1&&a.x0==b.x1:a.x0==b.x0&&a.x1==b.x1&&a.z0==b.z1)){

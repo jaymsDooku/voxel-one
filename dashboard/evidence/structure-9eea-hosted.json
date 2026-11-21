@@ -1,0 +1,83 @@
+{
+  "sourceHead": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "summaries": [
+    {
+      "run": 39663460698,
+      "artifact": 12377082618,
+      "head": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663460698,
+      "artifact": 12376447067,
+      "head": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663460698,
+      "artifact": 12376348051,
+      "head": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663460698,
+      "artifact": 12375333728,
+      "head": "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663464837,
+      "artifact": 12377396395,
+      "head": "8cbd6b7344be15d042d2e715dfc75dd1335ca382",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663464837,
+      "artifact": 12377367541,
+      "head": "8cbd6b7344be15d042d2e715dfc75dd1335ca382",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663464837,
+      "artifact": 12376822141,
+      "head": "8cbd6b7344be15d042d2e715dfc75dd1335ca382",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39663464837,
+      "artifact": 12375378776,
+      "head": "8cbd6b7344be15d042d2e715dfc75dd1335ca382",
+      "tests": 794,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "9eea982587a4b3f4cb8bc9faaa2f7a4eea556712"
+  ],
+  "scope": "Hosted build/test summaries only. Full city/max and reference GPU/network/system qualification remain pending."
+}

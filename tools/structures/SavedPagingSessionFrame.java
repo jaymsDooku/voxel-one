@@ -1,0 +1,156 @@
+package dev.jayms.net;
+
+import dev.jayms.*;
+import org.joml.Matrix4f;
+import org.lwjgl.system.MemoryUtil;
+import java.awt.image.BufferedImage;
+import java.nio.file.*;
+import java.util.*;
+import java.util.concurrent.*;
+import static org.lwjgl.opengl.GL33.*;
+import static org.junit.jupiter.api.Assertions.*;
+
+/** Actual repeat-save/reopen, then CPU/GPU paging through the returned session. */
+final class SavedPagingSessionFrame {
+    static void warm(World world,RegionReplayScene scene)throws Exception {
+        assertTrue(world.hasReplayReadView());scene.desired(List.of(new ChunkPos(0,10,0)));long end=System.nanoTime()+10_000_000_000L;
+        while(scene.status().data().ready()!=1&&System.nanoTime()<end){scene.tick();Thread.sleep(5);}
+        assertEquals(1,scene.status().data().ready());assertEquals(scene.status().gpuEntries()==1,world.isLoaded(0,160,0));
+        for(int step=0;scene.status().gpuEntries()!=1&&step<10000;step++)scene.pumpGpu(64,System.nanoTime()+100_000_000L,()->false);
+        assertEquals(1,scene.status().gpuEntries());assertTrue(world.isLoaded(0,160,0));
+    }
+    static void render(RegionReplayWorker.PagingSession session,Path image)throws Exception {
+        warm(session.world(),session.scene());assertFalse(session.local().replayComplete());assertThrows(java.io.IOException.class,session.local()::save);render(session.world(),image);
+    }
+    static void render(World world,Path image)throws Exception {
+        render(world,image,null);
+    }
+    static void render(World world,Path image,String navigation)throws Exception {
+        try(var shader=new ShaderProgram("shaders/voxel.vert","shaders/planar.frag");var models=new VoxelModelRenderer(world.models())) {
+            glViewport(0,0,640,480);glEnable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);glClearColor(.04f,.07f,.12f,1);glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);
+            shader.bind();shader.setMatrix4("uProjection",ReplaySkyFrameCheck.projection());shader.setMatrix4("uView",new Matrix4f().translation(0,-160,0));shader.setMatrix4("uModel",new Matrix4f());
+            shader.setInt("uVertexColor",1);shader.setInt("uInstanced",0);shader.setFloat("uAmbient",2);shader.setFloat("uDaylight",1);shader.setVector3("uSun",0,1,0);
+            assertEquals(1,world.renderReplayGeometry(ReplaySkyFrameCheck.visible(),shader));models.render(world,ReplaySkyFrameCheck.visible(),shader);
+            if(navigation!=null)try(var overlay=new dev.jayms.ui.Overlay()) {
+                overlay.begin(640,480);overlay.text(navigation,16,24,1.2f);overlay.text("2 chunks ready; saved world unchanged",16,44,1.2f);overlay.end();
+            }
+            glFinish();assertEquals(GL_NO_ERROR,glGetError());
+            var pixels=MemoryUtil.memAlloc(640*480*4);
+            try {
+                glReadPixels(0,0,640,480,GL_RGBA,GL_UNSIGNED_BYTE,pixels);var output=new BufferedImage(640,480,BufferedImage.TYPE_INT_RGB);int red=0,blue=0;
+                for(int y=0;y<480;y++)for(int x=0;x<640;x++) {int i=(y*640+x)*4,r=pixels.get(i)&255,g=pixels.get(i+1)&255,b=pixels.get(i+2)&255;if(r>b*2&&r>50)red++;if(b>r*2&&b>50)blue++;output.setRGB(x,479-y,(r<<16)|(g<<8)|b);}
+                assertTrue(red>100&&blue>10,"Reloaded session renders saved coloured geometry: red="+red+", blue="+blue);assertTrue(javax.imageio.ImageIO.write(output,"png",image.toFile()));
+            }finally{MemoryUtil.memFree(pixels);}
+        }
+    }
+    static void coldCapture(Path root,Path file,Path image)throws Exception {
+        long baseline=Mesh.estimatedResidentBytes();byte[] disk=Files.readAllBytes(file);var scratch=root.resolve("cold-source");int rows;
+        try(var session=new ReadOnlyWorldSession(file,scratch)) {
+            ReadOnlyWorldSessionTest.ready(session);rows=session.status().checkedRows();assertTrue(rows>0);var world=session.world();assertTrue(world.hasReplayReadView());assertTrue(world.getLoadedChunks().isEmpty());
+            session.desired(List.of(new ChunkPos(0,10,0)));ReadOnlyWorldSessionTest.cpu(session);assertEquals(0,session.status().readyGpuChunks());assertFalse(world.isLoaded(0,160,0));
+            for(int step=0;session.status().readyGpuChunks()!=1&&step<10000;step++)session.pumpGpu(64,System.nanoTime()+100_000_000L,()->{
+                assertTrue(assertDoesNotThrow(session::status).ownerStepActive());assertThrows(java.io.IOException.class,session::world);assertThrows(java.io.IOException.class,session::close);return false;
+            });
+            assertEquals(1,session.status().readyGpuChunks());assertTrue(world.isLoaded(0,160,0));assertTrue(world.getLoadedChunks().isEmpty());assertFalse(world.replayDataReady(64,160,0));assertThrows(World.UnloadedReplayCellException.class,()->world.cell(64,160,0));
+            assertThrows(IllegalStateException.class,()->world.apply(new Protocol.Edit(10,160,0,Blocks.STONE)));assertThrows(IllegalStateException.class,world::beginStructureSnapshot);
+            render(world,image);assertArrayEquals(disk,Files.readAllBytes(file));ReadOnlyWorldSessionTest.closed(session);assertTrue(world.isClosed());assertThrows(java.io.IOException.class,session::world);
+        }
+        assertEquals(baseline,Mesh.estimatedResidentBytes());try(var files=Files.list(scratch)){assertEquals(0,files.count());}
+        Files.writeString(root.resolve("cold-result.json"),"{\"status\":\"passed\",\"checked_rows\":"+rows+",\"cpu_chunks\":1,\"gpu_chunks\":1,\"resident_world_chunks\":0,\"unknown_cells_reject\":true,\"edits_reject\":true,\"saved_bytes_unchanged\":true,\"cleanup_complete\":true,\"os_cache_controlled\":false,\"qualification\":false}\n");
+    }
+    static void navigationCapture(Path root,Path file,Path image)throws Exception {
+        long baseline=Mesh.estimatedResidentBytes();byte[] disk=Files.readAllBytes(file);var scratch=root.resolve("navigation-source");
+        var here=new ChunkPos(0,10,0);var left=new ChunkPos(-1,10,0);var origin=new org.joml.Vector3f(-.5f,160.5f,.5f);var direction=new org.joml.Vector3f(1,0,0);
+        try(var session=new ReadOnlyWorldSession(file,scratch,2,8192)) {
+            ReadOnlyWorldSessionTest.ready(session);var world=session.world();var stopped=session.trace(origin,direction,6);assertNull(stopped.hit());assertEquals(-1,stopped.unavailable().x());assertFalse(stopped.unavailable().replayDataReady());
+            session.demand(List.of(here),Collections.nCopies(8,stopped.unavailable()));assertEquals(0,session.status().readyCpuChunks());ReadOnlyWorldNavigationTest.cpu(session,2);
+            var cpu=session.trace(origin,direction,6);assertNull(cpu.hit());assertTrue(cpu.unavailable().replayDataReady());assertFalse(world.isLoaded(-1,160,0));
+            for(int step=0;session.status().readyGpuChunks()!=2&&step<20000;step++)session.pumpGpu(64,System.nanoTime()+100_000_000L,()->false);
+            assertEquals(2,session.status().readyGpuChunks());var hit=session.trace(origin,direction,6);assertNull(hit.unavailable());assertNotNull(hit.hit());assertEquals(0,hit.hit().x());assertEquals(160,hit.hit().y());assertEquals(0,hit.hit().z());
+            var miss=session.trace(new org.joml.Vector3f(10.5f,160.5f,10.5f),new org.joml.Vector3f(0,0,1),2);assertNull(miss.hit());assertNull(miss.unavailable());
+            assertThrows(IllegalArgumentException.class,()->session.demand(List.of(here,left,new ChunkPos(1,10,0)),List.of()));assertEquals(2,session.status().readyGpuChunks());
+            assertThrows(IllegalArgumentException.class,()->session.trace(origin,direction,65));assertThrows(java.util.concurrent.CancellationException.class,()->session.pumpGpu(0,System.nanoTime()+1_000_000L,()->true));assertEquals(2,session.status().readyGpuChunks());
+            session.demand(List.of(here),List.of());assertEquals(1,session.status().readyGpuChunks());assertFalse(session.trace(origin,direction,6).unavailable().replayDataReady());
+            session.demand(List.of(here),List.of(cpu.unavailable()));ReadOnlyWorldNavigationTest.cpu(session,2);
+            for(int step=0;session.status().readyGpuChunks()!=2&&step<20000;step++)session.pumpGpu(64,System.nanoTime()+100_000_000L,()->false);
+            assertEquals(2,session.status().readyGpuChunks());assertNotNull(session.trace(origin,direction,6).hit());assertTrue(world.getLoadedChunks().isEmpty());
+            assertThrows(IllegalStateException.class,()->world.apply(new Protocol.Edit(0,160,0,Blocks.AIR)));assertThrows(IllegalStateException.class,world::beginStructureSnapshot);
+            render(world,image,"Ray resumed: hit saved cell 0 / 160 / 0");assertArrayEquals(disk,Files.readAllBytes(file));ReadOnlyWorldSessionTest.closed(session);assertTrue(world.isClosed());
+        }
+        assertEquals(baseline,Mesh.estimatedResidentBytes());try(var files=Files.list(scratch)){assertEquals(0,files.count());}
+        Files.writeString(root.resolve("navigation-result.json"),"{\"status\":\"passed\",\"cpu_chunks\":2,\"gpu_chunks\":2,\"resident_world_chunks\":0,\"unknown_then_cpu_then_gpu_hit\":true,\"known_miss\":true,\"invalid_demand_preserved_scene\":true,\"eviction_and_stale_hint_reload\":true,\"cancel_preserved_scene\":true,\"edits_reject\":true,\"saved_bytes_unchanged\":true,\"cleanup_complete\":true,\"qualification\":false}\n");
+    }
+    static void capture(Path root,Path image)throws Exception {
+        long baseline=Mesh.estimatedResidentBytes();var tests=new ReadbackSaveSnapshotTest();tests.folder=Files.createDirectories(root.resolve("contexts"));
+        try(var c=tests.new Context("frame")) {
+            int[] added=SavedPagingModelBindingTest.addModelsInOneRevision(c.local.models);
+            var editor=new RegionReplayEditor(c.world,new RegionReplayJournal());editor.apply(new Protocol.Edit(2,160,2,Blocks.STONE),()->false);editor.apply(new Protocol.Edit(8,160,0,added[0]),()->false);
+            var snapshot=ReadbackSaveSnapshot.captureJournal(c.local,c.world,editor.capture(()->false),()->false);var old=c.fixture.worker(c.path);ReadbackMetadataTest.ready(old);RegionReplayWorkerTest.closed(old);
+            try(var prepared=c.stage(snapshot)) {
+                var publication=prepared.authorize(()->false);editor.apply(PendingReplayOverlayTest.fraction(),()->false);
+                c.worker.submit(()->{publication.publish();publication.close();return null;}).get(10,TimeUnit.SECONDS);
+                var spool=Files.createDirectories(c.fixture.folder.resolve("paging"));
+                try(var owner=new SavedPagingOwner(c.local,c.world);var replacement=new SavedPagingReplacement(publication,old,spool,SavedPagingFactoryTest.NEXT,1,8192,()->false)) {
+                    SavedPagingReplacementTest.ready(replacement);replacement.prepare(()->false);
+                    warm(replacement.warmingWorld(),replacement.warmingScene());var abandonedWorld=replacement.warmingWorld();
+                    // Edit after the first candidate warmed: the red geometry
+                    // must survive its retirement, fresh source and repeat save.
+                    editor.apply(new Protocol.Edit(6,160,2,Blocks.LED).withColor(0xed593c),()->false);
+                    assertEquals(SavedPagingReplacement.State.RETIRING,replacement.poll(()->false));SavedPagingReplacementTest.ready(replacement);
+                    assertThrows(IllegalStateException.class,()->abandonedWorld.cell(0,160,0));
+                    assertEquals(2,replacement.status().attempts());var pending=publication.pendingPagingOverlay(()->false);
+                    replacement.prepare(()->false);var firstWorld=replacement.warmingWorld();var firstScene=replacement.warmingScene();var firstBinding=replacement.warmingBinding();warm(firstWorld,firstScene);
+                    long firstWarmBytes=Mesh.estimatedResidentBytes();c.local.health--;c.local.inventory.add(Blocks.STONE,1);c.local.drops.put(91,new ItemDrop(91,Blocks.STONE,1,1,2,3));
+                    assertFalse(editor.capture(()->false).overlay().rows().isEmpty());
+                    var rootView=owner.view();var transfer=replacement.takeInto(owner,()->false);var worker=transfer.worker();var revision=transfer.revision();
+                    assertThrows(java.io.IOException.class,rootView::world);
+                    long rows=worker.status().sourceRows();
+                    try(transfer) {
+                        var installed=owner.view();var session=installed.transfer().session();assertSame(transfer,installed.transfer());assertSame(session.local(),installed.local());assertSame(session.world(),installed.world());
+                        assertSame(firstWorld,session.world());assertSame(firstScene,session.scene());assertSame(firstBinding,session.binding());assertEquals(1,session.scene().status().gpuEntries());assertEquals(firstWarmBytes,Mesh.estimatedResidentBytes());
+                        assertEquals(c.local.health,session.local().health);assertEquals(c.local.drops,session.local().drops);assertNotSame(c.local.drops,session.local().drops);assertNotSame(c.local.inventory,session.local().inventory);
+                        assertNotSame(c.local.models,session.local().models);
+                        assertNotEquals(c.local.models.revision(),session.local().models.revision());assertTrue(session.local().models.sameBindings(c.local.models));
+                        var sky=session.binding().submitSky(0,0,RegionReplaySkyWorkerTest.LIMITS,session.world());RegionReplayWorkerTest.done(sky);
+                        assertEquals(session.local().models.revision(),session.binding().skyResult(sky,session.world()).modelRevision());
+                        assertFalse(c.world.isClosed());transfer.retirePrevious(c.world,()->false);assertTrue(c.world.isClosed());
+                        assertEquals(ReadbackSaveSnapshot.Publication.RetirementState.CLOSED,transfer.previousStatus().state());assertEquals(1,session.scene().status().gpuEntries());
+                        var retiredTree=new dev.jayms.net.model.SparseVoxelOctree(8);retiredTree.set(0,0,0,0xff73519b);
+                        int retiredId=c.local.models.stageStructureModel(new dev.jayms.net.model.ModelDefinition("Retired World only",retiredTree)).id();
+                        assertFalse(session.local().models.has(retiredId));
+                        assertEquals(1,session.scene().status().data().ready());session.local().health--;
+                        var second=SavedPagingJournalTest.stage(worker,session,revision);SavedPagingJournalTest.publish(worker,second,revision);
+                        var nextPending=second.pendingPagingOverlay(()->false);assertTrue(nextPending.rows().isEmpty());RegionReplayWorkerTest.closed(worker);
+                        var nextRevision=new RegionReplayWorker.Revision(revision.world()+1,revision.models(),revision.terrain());
+                        var nextSpool=Files.createDirectories(c.fixture.folder.resolve("reloaded"));
+                        try(var nextReplacement=new SavedPagingReplacement(second,worker,nextSpool,nextRevision,1,8192,()->false)) {
+                            SavedPagingReplacementTest.ready(nextReplacement);assertEquals(rows+pending.rows().size(),nextReplacement.status().worker().sourceRows());nextReplacement.prepare(()->false);
+                            assertFalse(session.journal().capture(()->false).overlay().rows().isEmpty());
+                            var warmWorld=nextReplacement.warmingWorld();var warmScene=nextReplacement.warmingScene();var warmBinding=nextReplacement.warmingBinding();warm(warmWorld,warmScene);
+                            long warmBytes=Mesh.estimatedResidentBytes();session.local().health--;session.local().inventory.add(Blocks.STONE,1);session.local().drops.put(99,new ItemDrop(99,Blocks.STONE,1,1,2,3));
+                            var previousView=owner.view();var previousWorld=previousView.world();var nextTransfer=nextReplacement.takeInto(owner,()->false);
+                            try(nextTransfer) {
+                                var current=owner.view();var next=current.transfer().session();assertSame(nextTransfer,current.transfer());assertSame(next.local(),current.local());assertSame(next.world(),current.world());assertThrows(java.io.IOException.class,previousView::local);assertThrows(java.io.IOException.class,previousView::world);
+                                assertSame(warmWorld,next.world());assertSame(warmScene,next.scene());assertSame(warmBinding,next.binding());assertEquals(1,next.scene().status().gpuEntries());assertEquals(warmBytes,Mesh.estimatedResidentBytes());
+                                assertTrue(session.journal().capture(()->false).overlay().rows().isEmpty());
+                                nextTransfer.retirePrevious(previousWorld,()->false);assertTrue(previousWorld.isClosed());assertFalse(current.world().isClosed());assertEquals(1,next.scene().status().gpuEntries());
+                                long retiredBytes=Mesh.estimatedResidentBytes();assertTrue(retiredBytes<warmBytes,"Old paged GPU resources released without closing new scene");
+                                assertEquals(session.local().drops,next.local().drops);assertNotSame(session.local().drops,next.local().drops);assertNotSame(session.local().inventory,next.local().inventory);
+                                for(int i=0;i<Inventory.SIZE;i++){assertEquals(session.local().inventory.type(i),next.local().inventory.type(i));assertEquals(session.local().inventory.count(i),next.local().inventory.count(i));}
+                                assertNotSame(session.local().models,next.local().models);assertFalse(next.local().models.has(retiredId));assertSame(current.local().models,current.world().models());
+                                assertThrows(java.io.IOException.class,()->session.journal().capture(()->false));assertTrue(next.journal().capture(()->false).overlay().rows().isEmpty());assertEquals(session.local().health,next.local().health);
+                                byte[] disk=Files.readAllBytes(c.path);render(current.transfer().session(),image);assertArrayEquals(disk,Files.readAllBytes(c.path));
+                                assertThrows(java.io.IOException.class,()->editor.capture(()->false));assertFalse(c.world.hasReplayReadView());
+                                Files.writeString(root.resolve("retirement-result.json"),"{\"status\":\"passed\",\"old_root_closed\":true,\"old_paged_world_closed\":true,\"new_gpu_entries\":1,\"mesh_bytes_before_retirement\":"+warmBytes+",\"mesh_bytes_after_retirement\":"+retiredBytes+"}\n");
+                                Files.writeString(root.resolve("owner-result.json"),"{\"status\":\"passed\",\"installed_bundles\":2,\"stale_views_rejected\":true,\"active_model_map_matches_world\":true,\"new_gpu_entries\":1}\n");
+                            }finally{RegionReplayWorkerTest.closed(nextTransfer.worker());}
+                        }
+                    }finally{RegionReplayWorkerTest.closed(worker);}
+                    assertEquals(baseline,Mesh.estimatedResidentBytes());
+                }
+            }
+            coldCapture(root,c.path,image.resolveSibling(image.getFileName().toString().replace("-session.png","-cold.png")));
+            navigationCapture(root,c.path,image.resolveSibling(image.getFileName().toString().replace("-session.png","-navigation.png")));
+        }
+    }
+}

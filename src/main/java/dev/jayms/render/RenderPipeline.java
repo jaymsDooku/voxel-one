@@ -36,6 +36,13 @@ public final class RenderPipeline implements AutoCloseable {
     private ShadowRevision shadowRevision;
     private WorldSkyVisibility worldSky;
     private int skyBufferOffset;
+    private final Thread replaySkyOwner=Thread.currentThread();
+    private World replaySkyWorld;
+    private World.ReplaySkySnapshot activeReplaySky,pendingReplaySky;
+    private SceneLightingUpload replaySkyUpload,replayVolumeUpload;
+    private WorldLighting.Capture replayVolumeFence;
+    private int replaySkyAtlas;
+    private boolean replaySkyClosed,replayFrameMode;
     private World sceneWorld;
     private long sceneRevision=Long.MIN_VALUE;
     public int visibleChunks, occludedChunks;
@@ -83,6 +90,11 @@ public final class RenderPipeline implements AutoCloseable {
     private boolean giFirst;
     private int lightingPriorityTurn;
     private long previousFocusTime,lastVolumeLatency;private boolean focusPrepared;
+    public void prepareFocus(World world,float x,float y,float z){
+        if(!world.hasReplayReadView())lighting.focusHeight(y);
+        prepareFocus(world,x,z);
+    }
+    private boolean heightCurrent(World world,LightVolume value){return value!=null&&(world.hasReplayReadView()||value.y==lighting.originY());}
     public void prepareFocus(World world,float x,float z){
         long now=System.nanoTime();float dx=focusWorld==world?x-previousFocusX:0,dz=focusWorld==world?z-previousFocusZ:0;
         double elapsed=previousFocusTime==0?0:(now-previousFocusTime)/1e9;
@@ -94,7 +106,7 @@ public final class RenderPipeline implements AutoCloseable {
         if(!SkyVisibilityScheduler.ceilingReady(desiredSky,world,requestedX,requestedZ)&&SkyVisibilityScheduler.ceilingReady(desiredSky,world,x,z)){requestedX=x;requestedZ=z;}
         // Bound lead relative to the current camera. Clamping against the OLD
         // field center can request terrain behind a moving camera near its edge.
-        if(volume!=null&&x>=volume.x&&x<volume.x+volume.width&&z>=volume.z&&z<volume.z+volume.length&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)){
+        if(heightCurrent(world,volume)&&x>=volume.x&&x<volume.x+volume.width&&z>=volume.z&&z<volume.z+volume.length&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)){
             requestedX=Math.max(x-32,Math.min(x+32,requestedX));
             requestedZ=Math.max(z-32,Math.min(z+32,requestedZ));
         }else{requestedX=x;requestedZ=z;} // Missing/stale coverage needs the camera's area first.
@@ -109,9 +121,10 @@ public final class RenderPipeline implements AutoCloseable {
     }
     /** First playable area and per-frame budget use the same bounded readiness check. */
     public boolean nearLightingReady(World world,float x,float z){
-        if(!hasIrradiance||!nearCovered(volume,x,z)||activeVolumeFence==null||!activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)||worldSky==null||activeSky!=null&&!activeSky.belongsTo(world))return false;
+        if(!hasIrradiance||!heightCurrent(world,volume)||!nearCovered(volume,x,z)||activeVolumeFence==null||!activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)||worldSky==null||activeSky!=null&&!activeSky.belongsTo(world))return false;
         return nearSkyCovered(x,z);
     }
+    public boolean nearLightingReady(World world,float x,float y,float z){return WorldLighting.heightCovered(volume,y)&&nearLightingReady(world,x,z);}
     private boolean nearSkyCovered(float x,float z){return skyCovered(worldSky,x,z);}
     private static boolean skyCovered(WorldSkyVisibility sky,float x,float z){
         if(sky==null)return false;int x0=(int)Math.floor(x-24),x1=(int)Math.floor(x+24),z0=(int)Math.floor(z-24),z1=(int)Math.floor(z+24),width=z1-z0+1;
@@ -205,7 +218,7 @@ public final class RenderPipeline implements AutoCloseable {
 
     public boolean initialLightingBudget(){return !lightingBootstrapped&&initialLightingUpdates<FrameBudget.INITIAL_LIGHTING_UPDATES;}
     public boolean lightingReady() {
-        return hasIrradiance;
+        return replaySkyWorld==null?hasIrradiance:replayVolumeReady(replaySkyWorld);
     }
 
     /** World mutations carry a stamp; do not scan/copy every resident chunk per frame. */
@@ -242,20 +255,28 @@ public final class RenderPipeline implements AutoCloseable {
     private void updateScene(World world,float x,float z,long deadline) {
         int trace=dev.jayms.OwnerTrace.begin("render.prepare");try{
         long stage=System.nanoTime();
+        if(!world.hasReplayReadView()&&desiredVolume!=volume&&desiredVolume!=null&&!heightCurrent(world,desiredVolume)){
+            if(lightingUpload!=null&&lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;}
+            desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
+        }
         if(desiredVolume!=volume&&desiredVolume!=null){
             float cx=desiredVolume.x+48,cz=desiredVolume.z+48;boolean outside=x<desiredVolume.x||x>=desiredVolume.x+desiredVolume.width||z<desiredVolume.z||z>=desiredVolume.z+desiredVolume.length;
-            boolean toward=(cx-x)*motionX+(cz-z)*motionZ>0;boolean oldGood=nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z);
+            boolean toward=(cx-x)*motionX+(cz-z)*motionZ>0;boolean oldGood=heightCurrent(world,volume)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z);
             if(Math.abs(cx-x)>80||Math.abs(cz-z)>80||(outside&&!toward)||(!toward&&!nearCovered(desiredVolume,x,z)&&oldGood)||(motionX==0&&motionZ==0&&!nearCovered(desiredVolume,x,z)&&oldGood)){
                 if(lightingUpload!=null&&lightingUpload.replaceVolume){lightingUpload.close();lightingUpload=null;}
                 desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
             }
         }
-        if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
+        if (!world.hasReplayReadView()&&clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
         boolean changed=sceneChanged(world) || worldRevision != world.editsVersion();
         sceneNanos=System.nanoTime()-stage;
+        if(world.hasReplayReadView()) {
+            if(changed){hiZ.invalidate();temporal.reset();worldRevision=world.editsVersion();}
+            pumpLighting(world,x,z,deadline);return;
+        }
         SkyVisibilityScheduler.Prepared rebuilt=null;
-        boolean uncovered=volume==null||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
-        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        boolean uncovered=!heightCurrent(world,volume)||x<volume.x||x>=volume.x+volume.width||z<volume.z||z>=volume.z+volume.length;
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&(!heightCurrent(world,volume)||!nearCovered(volume,x,z));
         // Missing camera sky is visible as darkness outside GI. Keep its capture
         // lane active even while a completed GI bake waits for upload.
         boolean missingCameraSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
@@ -308,17 +329,129 @@ public final class RenderPipeline implements AutoCloseable {
         }
         return sent;
     }
+    private void replaySkyOwner(){if(Thread.currentThread()!=replaySkyOwner)throw new IllegalStateException("Replay sky pipeline owner required");}
+    private void dropReplaySkyUpload(){if(replaySkyUpload!=null){replaySkyUpload.close();replaySkyUpload=null;pendingReplaySky=null;glFlush();}}
+    /** Opt-in private replay atlas lane. Does not admit local lighting, start
+     * Main, or promote a readback world. Shares existing stores and row budgets. */
+    public int pumpReplaySky(World world,long deadline,int bytes) {
+        replaySkyOwner();java.util.Objects.requireNonNull(world);
+        if(replaySkyClosed||world.isClosed())throw new IllegalStateException("Replay sky pipeline closed");
+        if(bytes<0||bytes>256*1024)throw new IllegalArgumentException("Replay sky pipeline byte budget");
+        if(!world.hasReplayReadView())throw new IllegalArgumentException("Replay sky pipeline requires private view");
+        if(replaySkyWorld!=null&&replaySkyWorld!=world||sceneWorld!=null&&sceneWorld!=world)throw new IllegalStateException("Replay sky pipeline world changed");
+        replaySkyWorld=world;
+        try {
+            if(replaySkyUpload!=null&&!replaySkyUpload.valid(world))dropReplaySkyUpload();
+            var latest=world.replaySkySnapshot();
+            if(latest==null){dropReplaySkyUpload();return 0;}
+            // A combined resident root/sky atlas cannot be replaced by sky-only data.
+            if(hasIrradiance&&!activeRootBuffer){dropReplaySkyUpload();return 0;}
+            if(replaySkyUpload!=null&&pendingReplaySky.key()!=latest.key())dropReplaySkyUpload();
+            if(activeReplaySky!=null&&activeReplaySky.current(world)&&activeReplaySky.key()==latest.key())return 0;
+            if(bytes==0||System.nanoTime()>=deadline)return 0;
+            if(replaySkyUpload==null){if(!lightingStores.available(false))return 0;pendingReplaySky=latest;replaySkyUpload=SceneLightingUpload.replaySky(world,latest,lightingStores);}
+            int sent=replaySkyUpload.pump(deadline,bytes,64*1024);
+            if(replaySkyUpload.ready()&&pendingReplaySky.current(world)) {
+                var candidate=pendingReplaySky;var data=replaySkyUpload.take();
+                if(!candidate.current(world)){lightingStores.releaseTexture(data.atlas());glFlush();throw new IllegalStateException("Replay sky publication changed");}
+                int prior=replaySkyAtlas;replaySkyAtlas=data.atlas();activeReplaySky=candidate;
+                replaySkyUpload.close();replaySkyUpload=null;pendingReplaySky=null;
+                lightingStores.releaseTexture(prior);glFlush();probes.invalidate();
+            }
+            return sent;
+        }catch(RuntimeException|Error failure){dropReplaySkyUpload();throw failure;}
+    }
+    /** Atlas validity only, not near-field or irradiance readiness. */
+    public boolean replaySkyAtlasReady(World world){replaySkyOwner();return !replaySkyClosed&&world==replaySkyWorld&&replaySkyAtlas!=0&&activeReplaySky!=null&&activeReplaySky.current(world)&&(!hasIrradiance||activeRootBuffer);}
+    private void dropReplayVolumeUpload(){if(replayVolumeUpload!=null){replayVolumeUpload.close();replayVolumeUpload=null;glFlush();}replayVolumeFence=null;}
+    private void retireReplayVolumeState(){
+        dropReplayVolumeUpload();
+        if(activeVolumeFence!=null&&activeVolumeFence.replayCoverage!=null){volume=desiredVolume=null;activeVolumeFence=desiredVolumeFence=null;hasIrradiance=activeRootBuffer=false;lighting.invalidateAccepted();}
+    }
+    /** Explicit private CPU-bake/GPU-publication lane; not frame scheduling or
+     * Main/save admission. Shares stores and at most 256 KiB per call. */
+    public int pumpReplayVolume(World world,int x,int z,long deadline,int bytes) {
+        replaySkyOwner();java.util.Objects.requireNonNull(world);
+        if(replaySkyClosed||world.isClosed())throw new IllegalStateException("Replay volume pipeline closed");
+        if(bytes<0||bytes>256*1024)throw new IllegalArgumentException("Replay volume pipeline byte budget");
+        if(!world.hasReplayReadView()||world!=replaySkyWorld||sceneWorld!=null&&sceneWorld!=world)throw new IllegalStateException("Replay volume requires bound private sky World");
+        if(bytes==0||System.nanoTime()>=deadline)return 0;
+        try {
+            if(replayVolumeUpload!=null&&(!replayVolumeUpload.valid(world)||replayVolumeFence.x!=x||replayVolumeFence.z!=z))dropReplayVolumeUpload();
+            boolean slotFree=replayVolumeUpload==null;
+            long cpuStart=System.nanoTime();
+            var next=slotFree?lighting.updateReplay(world,x,z,1,true,deadline,replaySkyAtlasReady(world)):null;
+            lightingNanos+=System.nanoTime()-cpuStart;
+            if(next!=null) {
+                var fence=lighting.acceptedFence();
+                if(fence!=null&&fence.valid(world,x,z)&&replaySkyAtlasReady(world)&&fence.replayCoverage.skyKey()==activeReplaySky.key()) {
+                    if(lightingStores.available(true,false)){replayVolumeFence=fence;replayVolumeUpload=SceneLightingUpload.replayVolume(world,next,lightingStores,fence);}
+                    else lighting.invalidateAccepted();
+                }else lighting.invalidateAccepted();
+            }
+            if(replayVolumeUpload==null)return 0;
+            int sent=replayVolumeUpload.pump(deadline,bytes);
+            if(replayVolumeUpload.ready()) {
+                var fence=replayVolumeFence;
+                if(!fence.valid(world,x,z)||!replaySkyAtlasReady(world)||fence.replayCoverage.skyKey()!=activeReplaySky.key()){dropReplayVolumeUpload();lighting.invalidateAccepted();return sent;}
+                var data=replayVolumeUpload.take();
+                if(!fence.valid(world,x,z)) {
+                    lightingStores.releaseTexture(data.irradiance());lightingStores.releaseTexture(data.fineTexture());lightingStores.releaseBuffer(data.fineBuffer());if(data.transport()!=null)data.transport().close();
+                    throw new IllegalStateException("Replay volume publication changed");
+                }
+                lightingStores.releaseTexture(irradiance);lightingStores.releaseTexture(fineLight);lightingStores.releaseBuffer(fineBuffer);transport.close();
+                irradiance=data.irradiance();fineLight=data.fineTexture();fineBuffer=data.fineBuffer();transport=data.transport();
+                volume=replayVolumeUpload.volume;activeVolumeFence=fence;activeRootBuffer=true;hasIrradiance=true;
+                dropReplayVolumeUpload();probes.invalidate();glFlush();
+            }
+            return sent;
+        }catch(RuntimeException|Error failure){dropReplayVolumeUpload();lighting.invalidateAccepted();throw failure;}
+    }
+    /** Current separate-root volume and the matching published sky generation. */
+    public boolean replayVolumeReady(World world) {
+        replaySkyOwner();return (sceneWorld==null||sceneWorld==world)&&hasIrradiance&&activeRootBuffer&&volume!=null&&activeVolumeFence!=null&&activeVolumeFence.replayCoverage!=null
+                &&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z)&&replaySkyAtlasReady(world)
+                &&activeVolumeFence.replayCoverage.skyKey()==activeReplaySky.key();
+    }
     private void pumpLighting(World world,float x,float z,long deadline) {
         int trace=dev.jayms.OwnerTrace.begin("lighting.update");try{
         lightingUploadBytes=skyGpuBytes=skyGpuNanos=0;
         if(System.nanoTime()>=deadline)return;
         int byteBudget=(initialLightingFrame?8:4)*1024*1024;
+        if(world.hasReplayReadView()) {
+            replaySkyOwner();
+            if(replaySkyWorld!=null&&replaySkyWorld!=world) {
+                retireReplayVolumeState();dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);glFlush();replaySkyAtlas=0;
+                activeReplaySky=null;replaySkyWorld=null;
+            }
+            if(!replayFrameMode) {
+                dropReplayVolumeUpload();lighting.invalidateAccepted();
+                if(lightingUpload!=null){lightingUpload.close();lightingUpload=null;}
+                if(skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
+                lightingStores.releaseTexture(fineRoots);fineRoots=glGenTextures();glFlush();
+                worldSky=null;activeSky=desiredSky=null;volume=desiredVolume=null;activeVolumeFence=desiredVolumeFence=null;
+                hasIrradiance=activeRootBuffer=lightingBootstrapped=false;particles.emitters(java.util.List.of());replayFrameMode=true;
+            }
+            int replayBytes=256*1024;
+            long skyStart=System.nanoTime();skyGpuBytes=pumpReplaySky(world,deadline,replayBytes/2);skyGpuNanos=System.nanoTime()-skyStart;
+            lightingUploadBytes=skyGpuBytes;
+            int cx=Math.floorDiv((int)Math.floor(x),16)*16,cz=Math.floorDiv((int)Math.floor(z),16)*16;
+            // A full neighbourhood cannot exist beyond the world edge.
+            if(Math.abs((long)cx)<=dev.jayms.net.Terrain.LIMIT-48&&Math.abs((long)cz)<=dev.jayms.net.Terrain.LIMIT-48)
+                lightingUploadBytes+=pumpReplayVolume(world,cx,cz,deadline,replayBytes-(int)skyGpuBytes);
+            else retireReplayVolumeState();
+            return;
+        }
+        if(replaySkyWorld!=null) {
+            replaySkyOwner();retireReplayVolumeState();dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);glFlush();replaySkyAtlas=0;
+            activeReplaySky=null;replaySkyWorld=null;replayFrameMode=false;
+        }
         boolean independentSky=activeRootBuffer&&(desiredVolume==volume||pendingRootBuffer());
         boolean missingNearSky=needsSkyCoverage(worldSky,x,z,motionX,motionZ);
         if(!independentSky&&skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}
         // Alternate first service: a single non-preemptible GL copy may consume its
         // share, but cannot prevent the other lane from starting on the next frame.
-        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&!nearCovered(volume,x,z);
+        boolean missingNearGi=desiredVolume!=volume&&pendingRootBuffer()&&(!heightCurrent(world,volume)||!nearCovered(volume,x,z));
         boolean nearGiPriority=independentSky&&prioritizeNearGi(missingNearGi,missingNearSky,++lightingPriorityTurn);
         // Three urgent turns may use the remaining slice; every fourth starts
         // sky first. Both lanes keep the same shared deadline and byte ceiling.
@@ -349,8 +482,8 @@ public final class RenderPipeline implements AutoCloseable {
         if(!lightingUpload.valid(world)){lightingUpload.close();lightingUpload=null;return;}
         if(!lightingUpload.skyCurrent(world))return;
         if(lightingUpload.replaceVolume&&lightingUpload.volume!=null){
-            var next=lightingUpload.volume;if(x<next.x||x>=next.x+next.width||z<next.z||z>=next.z+next.length)return;
-            if(!nearCovered(next,x,z)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z))return;
+            var next=lightingUpload.volume;if(!heightCurrent(world,next)||x<next.x||x>=next.x+next.width||z<next.z||z>=next.z+next.length)return;
+            if(!nearCovered(next,x,z)&&heightCurrent(world,volume)&&nearCovered(volume,x,z)&&activeVolumeFence!=null&&activeVolumeFence.valid(world,activeVolumeFence.x,activeVolumeFence.z))return;
         }
         var resources=lightingUpload.take();
         if(!lightingUpload.separateRoots){lightingStores.releaseTexture(fineRoots);fineRoots=resources.atlas();}
@@ -403,6 +536,7 @@ public final class RenderPipeline implements AutoCloseable {
                 shadow.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));
                 entry.getValue().getMesh().render();
             }
+            world.renderReplayGeometry(f,shadow);
             models.render(world, f, shadow);
         }
         glBindFramebuffer(GL_FRAMEBUFFER, 0);
@@ -501,10 +635,15 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uLightingEnabled", 1);
         shader.setInt("uVoxelAO",settings.ao?1:0);shader.setInt("uVoxelGI",settings.screenGi?1:0);
         shader.setInt("uContactTransport",settings.contactShadows?1:0);shader.setInt("uLocalReflection",settings.reflections?1:0);
-        shader.setInt("uHasIrradiance", hasIrradiance ? 1 : 0);
+        shader.setInt("uHasIrradiance", (replaySkyWorld==null?hasIrradiance:replayVolumeReady(replaySkyWorld)) ? 1 : 0);
         shader.setInt("uRootBuffer",activeRootBuffer?(volume!=null&&volume.uniformRoots()?2:1):0);shader.setInt("uFineOffset",activeRootBuffer&&volume!=null&&!volume.uniformRoots()?volume.roots.length:0);
-        shader.setInt("uSkyColumns",worldSky==null?0:worldSky.columns);shader.setInt("uSkyOffset",skyBufferOffset);
-        shader.setInt("uSkyIndexOrigin",worldSky==null?0:worldSky.indexOrigin);shader.setInt("uSkyIndexSpan",worldSky==null?0:worldSky.indexSpan);shader.setInt("uSkyIndexOffset",worldSky==null?0:worldSky.indexOffset);
+        WorldSkyVisibility boundSky=worldSky;int boundOffset=skyBufferOffset,boundAtlas=fineRoots;
+        if(replaySkyWorld!=null&&(sceneWorld==null||sceneWorld==replaySkyWorld)) {
+            boundSky=null;boundOffset=0;
+            if(replaySkyAtlasReady(replaySkyWorld)){boundSky=activeReplaySky.data();boundAtlas=replaySkyAtlas;}
+        }
+        shader.setInt("uSkyColumns",boundSky==null?0:boundSky.columns);shader.setInt("uSkyOffset",boundOffset);
+        shader.setInt("uSkyIndexOrigin",boundSky==null?0:boundSky.indexOrigin);shader.setInt("uSkyIndexSpan",boundSky==null?0:boundSky.indexSpan);shader.setInt("uSkyIndexOffset",boundSky==null?0:boundSky.indexOffset);
         shader.setInt("uShadowEnabled",settings.shadows?1:0);
         shader.setInt("uShadowCascades",settings.shadowCascades);
         shader.setInt("uHeld", 0);shader.setInt("uOutputTone",0);
@@ -523,11 +662,11 @@ public final class RenderPipeline implements AutoCloseable {
         shader.setInt("uShadow", 1);
         shader.setInt("uMaterials", 2);
         shader.setInt("uIrradiance", 3);
-        bind(4, GL_TEXTURE_3D, fineRoots);
+        bind(4, GL_TEXTURE_3D, boundAtlas);
         bind(5, GL_TEXTURE_BUFFER, fineLight);
         shader.setInt("uFineRoots", 4);
         shader.setInt("uFineLight", 5);
-        transport.bind(shader); clusters.bind(shader);
+        transport.bind(shader); clusters.bind(shader);if(replaySkyWorld!=null&&sceneWorld==replaySkyWorld)shader.setInt("uClusterReady",0);
     }
 
     public void distant(
@@ -590,6 +729,8 @@ public final class RenderPipeline implements AutoCloseable {
     public long estimatedTargetBytes(){return lightingStores.retainedBytes()+(long)width*height*(samples*12+12)+(long)width*height*24+(long)shadowResolution*shadowResolution*3*4+settings.atmosphereQuality.bytes();}
     public void prepareTargets(int w,int h){int rw=Math.max(1,Math.round(w*settings.renderScale)),rh=Math.max(1,Math.round(h*settings.renderScale));resize(rw,rh);temporal.prepare(w,h);}
     public boolean gpuDriven() { return gpuDraw.enabled(); }
+    /** Replay scene owns its meshes; no resident or occlusion-cache promotion. */
+    public void replay(World world,FrustumIntersection frustum,ShaderProgram shader){visibleChunks+=world.renderReplayGeometry(frustum,shader);}
     public void chunk(Chunk chunk, ChunkPos p) {
         if (chunk.getMesh() == null) return;
         float x=p.chunkX()*16,y=p.chunkY()*16,z=p.chunkZ()*16;
@@ -598,7 +739,13 @@ public final class RenderPipeline implements AutoCloseable {
     }
 
     public void prepareHeld(ShaderProgram shader) {
+        prepareHeld(shader,new Matrix4f());
+    }
+    /** The rigid camera view rotation maps held normals/view vectors back to
+     * the world frame used by sunlight and the sky environment. */
+    public void prepareHeld(ShaderProgram shader,Matrix4f view) {
         shader.bind();
+        shader.setMatrix3("uHeldToWorld",new org.joml.Matrix3f(view).transpose());
         // The grading pass uses unit 4 for a floating-point LUT; restore integer fine roots.
         bind(3,GL_TEXTURE_3D,irradiance);bind(4,GL_TEXTURE_3D,fineRoots);bind(5,GL_TEXTURE_BUFFER,fineLight);
         glActiveTexture(GL_TEXTURE0);
@@ -688,6 +835,8 @@ public final class RenderPipeline implements AutoCloseable {
 
     @Override
     public void close() {
+        if(replaySkyWorld!=null)replaySkyOwner();
+        replaySkyClosed=true;dropReplayVolumeUpload();dropReplaySkyUpload();lightingStores.releaseTexture(replaySkyAtlas);replaySkyAtlas=0;activeReplaySky=null;
         if(lightingUpload!=null){lightingUpload.close();lightingUpload=null;}
         if(skyLightingUpload!=null){skyLightingUpload.close();skyLightingUpload=null;}activeSky=null;skyVisibility.close();desiredSky=null;desiredVolume=null;volume=null;worldSky=null;desiredVolumeFence=activeVolumeFence=null;lightingBootstrapped=false;initialLightingUpdates=0;initialLightingFrame=false;hasIrradiance=false;activeRootBuffer=false;focusPrepared=false;focusWorld=null;previousFocusTime=lastVolumeLatency=0;
         lighting.close();

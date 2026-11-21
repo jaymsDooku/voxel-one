@@ -1,0 +1,572 @@
+{
+  "schema": 1,
+  "parent_head": "bc74fa37970db627a037c8fc159f1baacb375ac9",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available saved-region capture integration and regressions passed. Full structures implementation and qualification unfinished. Not ready.",
+  "publication": "Local source, report and media pending controller publication",
+  "change": "SavedRegionCapture captures physical construction from a fixed validated version10 saved snapshot on a single synchronous worker, without full resident World replay or playable metadata transfer. Each clipped world chunk is visited once through the existing bounded private row cache. New capturePartitioned normalizes private model IDs to earliest logical y/z/x encounter order, retaining byte-identical ordinary package encoding. Existing ordinary capture is unchanged. Successful return follows full cleanup and final cancellation; failed cleanup remains owned for explicit close retry.",
+  "limits": {
+    "version": 10,
+    "cached_region_roots": 2,
+    "cached_row_bytes": 4194304,
+    "raw_history_rows_per_region": 32768,
+    "single_cell_rows": 4097,
+    "model_permutation_entries": 512,
+    "scope": "Existing bounded initial cache/work budgets. Dense source histories may reject. No per-model, package, placement or qualification cap raised."
+  },
+  "focused": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=StructurePartitionedCaptureTest,SavedRegionCaptureTest,RegionReplayCacheTest,StructureTest,StructureCaptureModelTest,StructureCaptureChunkTest",
+      "test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 33.8218789100647,
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructurePartitionedCaptureTest",
+        "tests": "6",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedRegionCaptureTest",
+        "tests": "9",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayCacheTest",
+        "tests": "7",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureModelTest",
+        "tests": "3",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureChunkTest",
+        "tests": "5",
+        "errors": "0",
+        "failures": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 55
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest,SavedWorldInspectorTest,CameraMovementTest,StructurePartitionedCaptureTest,SavedRegionCaptureTest",
+      "test"
+    ],
+    "tests": 692,
+    "suites": 143,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 389.6545318812132
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 7.9062675554305315,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 833,
+    "shaders_match": 29,
+    "mp3": "Original shipped CBR and VBR fixtures decoded to 44,100 Hz / 6.060 s PCM.",
+    "obsolete_reservation_class_absent": true
+  },
+  "capture_native": {
+    "command": [
+      "python3",
+      "tools/structures/run_saved_world_inspector_playtest.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-saved-capture",
+      "--captured-region"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 9.160433055832982,
+      "prefix": "structure-saved-capture"
+    },
+    "receipt": "structure-saved-capture-native.json",
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "main_dispatch": true,
+      "camera_crossed_chunk": true,
+      "loading_then_hit": true,
+      "maximum_observed_gpu_chunks": 1,
+      "resident_chunks": 0,
+      "source_bytes_unchanged": true,
+      "invalid_source_isolated": true,
+      "cancel_before_poll": true,
+      "observer_failure_cleanup": true,
+      "scratch_mesh_cleanup": true,
+      "qualification": false
+    },
+    "saved_capture_result": {
+      "status": "passed",
+      "cells": 195,
+      "models": 1,
+      "visited_chunks": 2,
+      "cell_reads": 960,
+      "peak_cached_regions": 2,
+      "peak_cached_bytes": 5460,
+      "capture_ns": 213310486,
+      "export_ns": 3807108,
+      "placement_save_ns": 70817080,
+      "full_replay_package_bytes_match": true,
+      "source_bytes_unchanged": true,
+      "dependency_empty_destination_restored": true,
+      "durable_restart": true,
+      "undo_and_repeat": true,
+      "scratch_cleanup": true,
+      "qualification": false
+    },
+    "timing_scope": "Single small synthetic fixture, 195 occupied cells and one model. Capture/export/placement-save component observations only; no median/p95/worst, frame/tick/network or full-workflow qualification."
+  },
+  "replay_native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-saved-capture-replay"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 88.73661376908422
+    },
+    "receipt": "structure-saved-capture-replay-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11619356337,
+      "planar_lighting_nanos": 1115098348,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "navigation": {
+      "status": "passed",
+      "cpu_chunks": 2,
+      "gpu_chunks": 2,
+      "resident_world_chunks": 0,
+      "unknown_then_cpu_then_gpu_hit": true,
+      "known_miss": true,
+      "invalid_demand_preserved_scene": true,
+      "eviction_and_stale_hint_reload": true,
+      "cancel_preserved_scene": true,
+      "edits_reject": true,
+      "saved_bytes_unchanged": true,
+      "cleanup_complete": true,
+      "qualification": false
+    },
+    "cold": {
+      "status": "passed",
+      "checked_rows": 6,
+      "cpu_chunks": 1,
+      "gpu_chunks": 1,
+      "resident_world_chunks": 0,
+      "unknown_cells_reject": true,
+      "edits_reject": true,
+      "saved_bytes_unchanged": true,
+      "cleanup_complete": true,
+      "os_cache_controlled": false,
+      "qualification": false
+    },
+    "owner": {
+      "status": "passed",
+      "installed_bundles": 2,
+      "stale_views_rejected": true,
+      "active_model_map_matches_world": true,
+      "new_gpu_entries": 1
+    },
+    "retirement": {
+      "status": "passed",
+      "old_root_closed": true,
+      "old_paged_world_closed": true,
+      "new_gpu_entries": 1,
+      "mesh_bytes_before_retirement": 14448,
+      "mesh_bytes_after_retirement": 7224
+    },
+    "pending": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12127400142,
+      "planar_lighting_nanos": 800777678,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    }
+  },
+  "playtest": "Playtest: saved-capture harness used actual version10 synthetic saved construction on a worker, compared captured package bytes against independent full replay, exported/imported the self-contained package, restored one model into an empty-dependency destination using real StructureEngine/LocalGame authoritative placement and durable save, reopened saved state, and exercised one-operation undo/repeat. A separate test-only version10 serialization of the placed construction then rendered in actual Main --inspect-world on inherited DISPLAY with an isolated profile. Expected and observed red/grey wall, blue model/water, green fractional piece, camera chunk crossing, loading then hit, F10 recording, generic malformed-file status, cancel-before-poll and observer/cleanup failure isolation. Source bytes stayed unchanged, scratch/Mesh resources cleaned and no edit/capture authority opened in the inspector. The separate real GLFW/OpenGL replay suite exercised cache/worker/source, owner/replacement/save, read-only paging, model, lighting/sky/water rendering and GPU lifecycle regressions. Browser testing does not apply to this native desktop integration. The ordinary full Main capture/menu workflow was not rerun this phase; its prior exact-source run and media remain in structure-inspector-client-validation.json at the parent head. This phase does not add a menu entry for saved-file capture.",
+  "edge_and_regression_cases": [
+    "Byte-equal legacy package output when chunk encounter order reverses model order, shared-definition aliases, negative/unaligned bounds, fractional colours, water, holes and explicit air in natural terrain.",
+    "Cancel at every phase including final DONE callback; source mutation during opening rejects; replacement after spooling preserves the original snapshot; unchanged input bytes.",
+    "Foreign owner and reentry reject; cleanup failures retain a private owned child until explicit retry; queries never retry or recursively delete.",
+    "1024-cell road visits exactly 64 clipped chunks, reads 1024 cells and retains only 2 cached roots. More than 32768 raw rows in one regional history rejects without package publication."
+  ],
+  "media": {
+    "inspected": [
+      "structure-saved-capture-ready.png",
+      "structure-saved-capture-moved.png",
+      "structure-saved-capture-invalid.png"
+    ],
+    "observations": {
+      "ready": "Red/grey wall, blue detailed model, green fractional piece and blue water visible; read-only HUD and one ready region.",
+      "moved": "Camera crossed to saved cell -3/161/0; nearby grey wall visible; recorder active.",
+      "invalid": "Generic saved-world unavailable status, zero ready regions and no source path or raw error.",
+      "video": "All 32 frames decoded; midpoint inspected. Actual camera crossing recording, 816x544, 3.007 s, 467458 bytes."
+    },
+    "replay_images_inspected": {
+      "inspected": [
+        "structure-saved-capture-replay-navigation.png",
+        "structure-saved-capture-replay-cold.png",
+        "structure-saved-capture-replay-session.png",
+        "structure-saved-capture-replay-optics.png",
+        "structure-saved-capture-replay-pending-optics.png",
+        "structure-saved-capture-replay-pending.png",
+        "structure-saved-capture-replay-regression.png"
+      ],
+      "observations": {
+        "navigation": "Two saved chunks ready; resumed saved-cell hit. Coloured geometry retained.",
+        "cold": "Saved coloured/model geometry drawn from selected source; scene outside selected chunks stays unknown.",
+        "session": "Installed/reopened source geometry renders with independent model map.",
+        "optics_and_pending_optics": "Lit planar reflected geometry visible; source and pending variants keep the same expected scene.",
+        "pending": "Grey/red geometry and blue water/model pieces show lit top/bottom faces.",
+        "regression": "Ordinary saved/model/water scene retained; no stale pending blue piece."
+      },
+      "qualification": false
+    },
+    "video": {
+      "decodedFrames": 32,
+      "durationSeconds": 3.007,
+      "bytes": 467458,
+      "width": 816,
+      "height": 544,
+      "midpointIndex": 16,
+      "videoSha256": "413af544a56083537ff0100813280641ab119bb9d32b1e90941857b610c521d5",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+      "visually_inspected": true
+    },
+    "video_command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-saved-capture-workflow.mp4",
+      "target/saved-capture-validation/video-middle.png",
+      "target/saved-capture-validation/video-check.json"
+    ],
+    "scope": "Fresh captures from this implementation; every video frame decoded and midpoint inspected. Synthetic source/profile only. No private prompts, answers, account data or credentials."
+  },
+  "source_files_fixed": 681,
+  "unchanged_parent_frontend": {
+    "src/main/java/dev/jayms/Main.java": true,
+    "src/main/java/dev/jayms/SavedWorldInspector.java": true,
+    "src/main/resources/shaders/inspection.frag": true,
+    "src/test/java/dev/jayms/SavedWorldInspectorTest.java": true,
+    "tools/structures/SavedWorldInspectorFixture.java": true
+  },
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/RegionReplayCache.java": "072784694769a52e3cdd4c6660a72cdc18f2194901fb078d3ff6cc3c98513b6d",
+    "src/main/java/dev/jayms/net/SavedRegionCapture.java": "581dd077dbbf33018799ba420b43a8c57f766f8cb3b00293815f4f84e8e19abb",
+    "src/main/java/dev/jayms/net/structure/StructureCells.java": "36a29971d382b1de9071d0ea9f811d5e3dcc1dc26d4657548706328b0574dc14",
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "fd8ea697253edd887146a8546f1a2141768d8d499d8b90364144ce30baa8c9dc",
+    "src/test/java/dev/jayms/net/RegionReplayCacheTest.java": "908b2f367dacf611fb7a50cab96e50d239cb84abaa76712afdea6d4ab1c16e47",
+    "src/test/java/dev/jayms/net/SavedRegionCaptureTest.java": "27229d008c590d5eb071abe9bb78d2f05954a9ea70347487a1018f8f5c40586f",
+    "src/test/java/dev/jayms/net/structure/StructurePartitionedCaptureTest.java": "fe1c345701b75a2b48942ebbc5d78d0ceeda68f517787ba8fe76ed821d507a81",
+    "tools/structures/SavedRegionCaptureWorkflowFixture.java": "8c8a7366dbf08ab1065b533501245ab584f09e6d6a5e018f8d70d370a542edf3",
+    "tools/structures/SavedWorldInspectorPlaytest.java": "7a073c5a276b2a6bb85436637435ce1ce2193968ab5c7628bb41daa9e8a3b8c8",
+    "tools/structures/run_saved_world_inspector_playtest.py": "a6b3353f107f3e833141860d65c0a415912d6e4e2daaea4ead956d9d7b654d86"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true,
+    "os_cache_controlled": false
+  },
+  "parent_hosted": {
+    "head": "bc74fa37970db627a037c8fc159f1baacb375ac9",
+    "run_id": 44805964766,
+    "method": "Actual job/step summaries inspected via GitHub connector; no runtime logs.",
+    "jobs": {
+      "build (ubuntu-latest, linux)": "success",
+      "build (macos-15-intel, mac-intel)": "success",
+      "build (windows-latest, windows)": "success",
+      "build (macos-latest, mac-arm)": "success",
+      "publish": "skipped"
+    },
+    "new_source_validation": false
+  },
+  "earlier_attempts": {
+    "repairs": {
+      "initial_focused_compile_passed": false,
+      "focused_repair": "Correct test LED encoding to use the existing Protocol.Edit overload.",
+      "initial_native_compile_passed": false,
+      "native_repair": "Snapshot the fixture LocalGame.edits Map through WorldVoxels.History.copyOf before the version10 test writer.",
+      "production_behavior_changed_by_repairs": false
+    },
+    "interrupted_broader_attempt": {
+      "state": "interrupted",
+      "exit_code": 143,
+      "final_receipt_written": false,
+      "fresh_suites_before_retry": 11,
+      "tests_completed_before_retry": 84,
+      "observed_failures": 0,
+      "observed_errors": 0,
+      "complete_check_pass": false,
+      "retry": "run-checks.py rerun from start; initial interruption cause unknown"
+    }
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "paths_with_removed_lines": [
+      {
+        "path": ".github/workflows/build.yml",
+        "removed_lines": 1
+      },
+      {
+        "path": "dashboard/progress.json",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/Chunk.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/Main.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/MeshDataGenerator.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/World.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Blocks.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/LocalGame.java",
+        "removed_lines": 57
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerClient.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerServer.java",
+        "removed_lines": 49
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Protocol.java",
+        "removed_lines": 30
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Terrain.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/WorldVoxels.java",
+        "removed_lines": 36
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/city/CityHistory.java",
+        "removed_lines": 54
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelDefinition.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelLibrary.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelMesher.java",
+        "removed_lines": 26
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/ReflectionProbes.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/RenderPipeline.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SceneLightingUpload.java",
+        "removed_lines": 7
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SkyVisibilityScheduler.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WaterRenderer.java",
+        "removed_lines": 31
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldLighting.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldSkyVisibility.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/ui/InventoryHud.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/resources/shaders/voxel.frag",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/CityFormat16RegressionTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/HistoryProtocolCompatibilityTest.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/MarketEconomyTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwaySaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayShippingCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RoadBaseCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/render/SkyVisibilitySchedulerTest.java",
+        "removed_lines": 15
+      }
+    ],
+    "intended_removals": "This phase extracts existing cache index allocation/LRU/admission/accounting into a shared private helper, preserving load behavior; ordinary capture and old assertions remain. All current test cases are additions. Full inherited diff retains documented world/history/render/save replacements and protocol31 compatibility updates. The CI Maven command adds -U, without removing verify or MP3/Hub checks. Prior sky tests preserve cursor/follow-up assertions, use a functional capture timeout rather than a performance claim, and check exact cumulative counter deltas over two rounds. No unrelated file deletion is intended."
+  },
+  "remaining": [
+    "Editable partial-world gameplay, writable paging, source/owner reconciliation and true model-ID remapping remain unfinished. New saved-file capture is a worker API; it is not yet a menu flow.",
+    "City/maximum remain rejected by existing placement geometry/surface/chunk/mesh/persistence gates. Storage or small-fixture component passes do not complete acceptance.",
+    "Required 20-run reference client/server/network whole-workflow benchmarks, physical GPU, controlled cold OS caches, shaped synchronization to 32 rendered clients, and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Saved-region capture and available native/CLI functional regressions only. No editable partial-world, supported-city/limit, stable rollout, 30 FPS, 20 Hz, controlled cold-cache, whole-workflow or physical-GPU/network qualification pass.",
+  "artifacts": {
+    "structure-saved-capture-invalid.png": "f466f7bd517e3dcc0976cf9499a90e0ae40d1a4952f2d1917e1234c4979016ae",
+    "structure-saved-capture-moved.png": "585a564532f8b0b11f585bea774037d76c8724f8651a0a7c8771e24617953c0f",
+    "structure-saved-capture-native.json": "b88ac2d05dc9de28786f3bc87860424f9e8249b14a639d9464f859d173a99642",
+    "structure-saved-capture-ready.png": "5d758f1b93eca76abab83041381707e3bfe2a9778a476ab516e2a756c67515a1",
+    "structure-saved-capture-replay-cold.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f",
+    "structure-saved-capture-replay-native.json": "5808944db44bfccc93a5209cc7450c45df3fde69373dd44fab96d986ba4613f6",
+    "structure-saved-capture-replay-navigation.png": "2541947fe332c38311dc9cfad6d2f704285528c1b69556634beb2edde4c0843d",
+    "structure-saved-capture-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-saved-capture-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-saved-capture-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-saved-capture-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-saved-capture-replay-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f",
+    "structure-saved-capture-workflow.mp4": "413af544a56083537ff0100813280641ab119bb9d32b1e90941857b610c521d5"
+  }
+}

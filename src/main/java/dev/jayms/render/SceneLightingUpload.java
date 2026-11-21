@@ -12,6 +12,10 @@ final class SceneLightingUpload implements AutoCloseable {
     final boolean replaceVolume,separateRoots;
     int width,height,depth,offset;
     private final World owner;
+    private final World.ReplaySkySnapshot replaySky;
+    private final boolean replayVolume;
+    private final Thread replayOwner;
+    private boolean replayTaken,replayClosed;
     private final LightingStores stores;
     private final WorldLighting.Capture volumeFence;
     private final long edits,models;
@@ -35,10 +39,29 @@ final class SceneLightingUpload implements AutoCloseable {
         this(world,volume,sky,replaceVolume,stores,volumeFence,false);
     }
     SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores,WorldLighting.Capture volumeFence,boolean separateRoots) {
+        this(world,volume,sky,replaceVolume,stores,volumeFence,separateRoots,null);
+    }
+    static SceneLightingUpload replaySky(World world,World.ReplaySkySnapshot snapshot,LightingStores stores) {
+        java.util.Objects.requireNonNull(snapshot);return new SceneLightingUpload(world,null,null,false,stores,null,false,snapshot);
+    }
+    /** Source-fenced private volume staging only. Root buffers stay separate
+     * from the independently published replay sky atlas. */
+    static SceneLightingUpload replayVolume(World world,LightVolume volume,LightingStores stores,WorldLighting.Capture fence) {
+        java.util.Objects.requireNonNull(volume);java.util.Objects.requireNonNull(fence);
+        if(fence.replayCoverage==null||!fence.valid(world,fence.x,fence.z))throw new IllegalStateException("Replay volume source changed");
+        if(volume.x!=fence.x-48||volume.y!=-32||volume.z!=fence.z-48||volume.width!=96||volume.height!=128||volume.length!=96||volume.fine.length>1_048_576)
+            throw new IllegalArgumentException("Replay volume layout");
+        return new SceneLightingUpload(world,volume,null,true,stores,fence,true);
+    }
+    private SceneLightingUpload(World world,LightVolume volume,SkyVisibilityScheduler.Prepared sky,boolean replaceVolume,LightingStores stores,WorldLighting.Capture volumeFence,boolean separateRoots,World.ReplaySkySnapshot replaySky) {
+        this.replaySky=replaySky;this.replayVolume=volumeFence!=null&&volumeFence.replayCoverage!=null;
+        this.replayOwner=replaySky==null&&!replayVolume?null:Thread.currentThread();
+        if(replayVolume&&(!replaceVolume||!separateRoots||sky!=null||!volumeFence.valid(world,volumeFence.x,volumeFence.z)))throw new IllegalStateException("Replay volume staging requires current separate roots");
+        if(replaySky!=null&&!replaySky.current(world))throw new IllegalStateException("Replay sky upload source changed");
         this.separateRoots=separateRoots;
         this.volumeFence=volumeFence;
         this.stores=stores;this.owner=world;this.volume=volume;this.sky=sky;this.replaceVolume=replaceVolume;
-        edits=world.editsVersion();models=world.models().revision();skyData=sky==null?new int[0]:sky.data.data;
+        edits=world.editsVersion();models=world.models().revision();skyData=replaySky!=null?replaySky.data().data:sky==null?new int[0]:sky.data.data;
         int w=volume==null?64:volume.width,h=volume==null?64:volume.height,l=volume==null?0:volume.length;
         int limit=glGetInteger(GL_MAX_3D_TEXTURE_SIZE),d=l+(skyData.length+w*h-1)/(w*h);
         if(stores!=null){w=96;h=128;if(96+(WorldSkyVisibility.MAX_INTS+w*h-1)/(w*h)>limit){w=h=256;}d=l+(skyData.length+w*h-1)/(w*h);}
@@ -48,16 +71,23 @@ final class SceneLightingUpload implements AutoCloseable {
         try {
             atlas=separateRoots&&replaceVolume?0:stores==null?glGenTextures():stores.texture("sky");integers=stores==null?MemoryUtil.memAllocInt(512*1024):stores.integers;
             if(replaceVolume){irradiance=stores==null?glGenTextures():stores.texture("irradiance");fineTexture=stores==null?glGenTextures():stores.texture("fine");fineBuffer=stores==null?glGenBuffers():stores.buffer();if(volume!=null)pixels=stores==null?MemoryUtil.memAlloc(2*1024*1024):stores.pixels;}
+            if(replaySky!=null&&!replaySky.current(world)||replayVolume&&!volumeFence.valid(world,volumeFence.x,volumeFence.z))throw new IllegalStateException("Replay lighting upload source changed");
         }catch(RuntimeException e){close();throw e;}
     }
+    private void replayThread(){if(replayOwner!=null&&Thread.currentThread()!=replayOwner)throw new IllegalStateException("Replay sky upload owner required");}
+    private boolean replayMode(){return replaySky!=null||replayVolume;}
+    private boolean replaySourceCurrent(World world){return world==owner&&(replaySky!=null?replaySky.current(world):volumeFence!=null&&volumeFence.valid(world,volumeFence.x,volumeFence.z));}
+    private void replayCurrent(){replayThread();if(replayMode()&&(replayClosed||replayTaken||!replaySourceCurrent(owner)))throw new IllegalStateException("Replay lighting upload source changed");}
     boolean valid(World world){
+        replayThread();if(replayMode())return !replayClosed&&!replayTaken&&replaySourceCurrent(world);
         if(world!=owner||world.isClosed()||world.models().revision()!=models)return false;
         if(volumeFence!=null)return volumeFence.valid(world,volumeFence.x,volumeFence.z);
         return replaceVolume?world.editsVersion()==edits:sky==null||sky.valid(world);
     }
-    boolean skyCurrent(World world){return sky==null||sky.valid(world);}
+    boolean skyCurrent(World world){replayThread();return replayMode()?!replayClosed&&!replayTaken&&replaySourceCurrent(world):sky==null||sky.valid(world);}
     void refreshSky(World world,SkyVisibilityScheduler.Prepared latest) {refreshSky(world,latest,false);}
     void refreshSky(World world,SkyVisibilityScheduler.Prepared latest,boolean coverageUpgrade) {
+        replayThread();if(replayMode())return;
         if(separateRoots&&replaceVolume)return;
         if(latest==null||!latest.valid(world)||latest==sky)return;
         // Finish the independent volume first. A changed far column must not restart
@@ -75,7 +105,7 @@ final class SceneLightingUpload implements AutoCloseable {
     private static void configure(){glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_MAG_FILTER,GL_NEAREST);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_3D,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);}
     int pump(long deadline,int byteBudget) {return pump(deadline,byteBudget,64*1024);}
     int pump(long deadline,int byteBudget,int transferUnit) {
-        int trace=dev.jayms.OwnerTrace.begin("lighting.pump");try{
+        replayCurrent();int trace=dev.jayms.OwnerTrace.begin("lighting.pump");try{
         if(transferUnit<=0||transferUnit>LightingStores.PIXEL_UNIT_BYTES)throw new IllegalArgumentException("Lighting transfer unit");
         int bytes=0;
         while(phase<4&&System.nanoTime()<deadline) {
@@ -127,13 +157,13 @@ final class SceneLightingUpload implements AutoCloseable {
                 if(transportUpload.ready()){transport=transportUpload.take();transportUpload.close();transportUpload=null;phase=0;}else break;
             }
         }
-        if(stores!=null)stores.flushPixels();glActiveTexture(GL_TEXTURE0);return bytes;
+        if(stores!=null)stores.flushPixels();glActiveTexture(GL_TEXTURE0);replayCurrent();return bytes;
 
         }finally{dev.jayms.OwnerTrace.end(trace,byteBudget);}
     }
     private static final int[] EMPTY={0};
-    boolean ready(){return phase==4;}
-    Resources take(){if(!ready())throw new IllegalStateException("Lighting upload incomplete");var result=new Resources(atlas,irradiance,fineTexture,fineBuffer,transport);atlas=irradiance=fineTexture=fineBuffer=0;transport=null;return result;}
+    boolean ready(){replayThread();return phase==4&&(!replayMode()||!replayClosed&&!replayTaken&&replaySourceCurrent(owner));}
+    Resources take(){replayCurrent();if(!ready())throw new IllegalStateException("Lighting upload incomplete");var result=new Resources(atlas,irradiance,fineTexture,fineBuffer,transport);if(replayMode())replayTaken=true;atlas=irradiance=fineTexture=fineBuffer=0;transport=null;return result;}
     long estimatedBytes(){return width*(long)height*depth*4+(replaceVolume&&volume!=null?volume.rgba.length+volume.fine.length*4L+VoxelTransport.bytes(volume.transport):0);}
-    @Override public void close(){if(stores==null){if(atlas!=0)glDeleteTextures(atlas);if(irradiance!=0)glDeleteTextures(irradiance);if(fineTexture!=0)glDeleteTextures(fineTexture);if(fineBuffer!=0)glDeleteBuffers(fineBuffer);}else{stores.releaseTexture(atlas);stores.releaseTexture(irradiance);stores.releaseTexture(fineTexture);stores.releaseBuffer(fineBuffer);}atlas=irradiance=fineTexture=fineBuffer=0;if(transport!=null){transport.close();transport=null;}if(transportUpload!=null){transportUpload.close();transportUpload=null;}if(integers!=null){if(stores==null)MemoryUtil.memFree(integers);integers=null;}if(pixels!=null){if(stores==null)MemoryUtil.memFree(pixels);pixels=null;}}
+    @Override public void close(){replayThread();replayClosed=true;if(stores==null){if(atlas!=0)glDeleteTextures(atlas);if(irradiance!=0)glDeleteTextures(irradiance);if(fineTexture!=0)glDeleteTextures(fineTexture);if(fineBuffer!=0)glDeleteBuffers(fineBuffer);}else{stores.releaseTexture(atlas);stores.releaseTexture(irradiance);stores.releaseTexture(fineTexture);stores.releaseBuffer(fineBuffer);}atlas=irradiance=fineTexture=fineBuffer=0;if(transport!=null){transport.close();transport=null;}if(transportUpload!=null){transportUpload.close();transportUpload=null;}if(integers!=null){if(stores==null)MemoryUtil.memFree(integers);integers=null;}if(pixels!=null){if(stores==null)MemoryUtil.memFree(pixels);pixels=null;}}
 }

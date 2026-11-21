@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "parent_head": "ed651ba59cd10c531964fc175f0a7ec5d0f78137",
+  "review_base": "f446ad3f0c8332aa1002885468e1a20fa271018e",
+  "status": "Available local checks passed; full implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "A fresh read-only PagingSession now owns an independent source-only journal containing exactly its immutable pending overlay. The journal rejects append/reserve and validates owner and World/model fences. Worker snapshots can persist that prefix with current player state. Exact fresh-source adoption acknowledges it. Reopening uses an empty source journal; a later player-state-only save adds no geometry rows.",
+  "scope": "Private read-only recovery session and existing worker save/publication checks only. Main installation, old World edit reconciliation, later-tail forwarding, model rebasing and editable paging remain unfinished. No Main startup, complete coverage or LocalGame.save promotion. Existing resource caps remain.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest",
+      "test"
+    ],
+    "exit_code": 0,
+    "elapsed_seconds": 243.02720124460757,
+    "tests": 266,
+    "suites": 56,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0
+  },
+  "focused": {
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=SavedPagingJournalTest,SavedPagingSessionTest,SavedPagingTailTest,RegionReplayJournalTest,WorkerSaveStagingTest,WorkerPublicationQueueTest test",
+    "tests": 22,
+    "suites": 6,
+    "exit_code": 0,
+    "note": "Focused pass preceded the full run. The full-run XML independently verifies the same six suites."
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.367676066234708,
+    "status": "passed",
+    "discovery_patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra_discovery": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Serial Python unittest runner; fresh TestLoader per discovery after Maven completed"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "status": "passed",
+    "production_classes_match": 752,
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "native": {
+    "command": "python3 tools/structures/run_replay_sky_frame_check.py --display \"$DISPLAY\" --evidence-prefix structure-paging-journal",
+    "status": "passed",
+    "report": "structure-paging-journal.json",
+    "source_files": 584,
+    "compiled_classes": 1199,
+    "all_source_class_helper_driver_image_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11591495603,
+      "planar_lighting_nanos": 1013378094,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12096086480,
+      "planar_lighting_nanos": 678343543,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "qualification": false
+  },
+  "playtest": "Playtest: synthetic offline v10 sources and worker save/publication integration exercised before real GLFW/OpenGL on inherited DISPLAY. Expected: source-only journal contains the exact pending prefix, remains independent of the old editor and rejects append/reserve, foreign owner, wrong World, closed World and changed models. Cancellation, stale player state and a missing-prefix snapshot must preserve disk/journal state. Observed: all assertions passed. A valid save persisted pending fractional geometry once plus current health/inventory/drops. Physical source row count grew by exactly the pending-prefix length after reopen. The new journal was empty, and a later player-state-only save did not grow geometry rows. The native fixture repeated save/reopen before any CPU paging, then paged/uploaded/rendered the durable geometry with production planar shaders. CPU delivery alone stayed mesh-unready; GPU readiness was separate. Save bytes stayed unchanged during rendering, old World/journal stayed independent and mesh accounting returned to baseline. Existing replay/save/model/water/lighting regressions passed. Browser checks do not apply to this private Java API/native fixture. Main UI was not rerun; no new Main pass or lighting fix is claimed.",
+  "media": {
+    "inspected": [
+      "structure-paging-journal-session.png",
+      "structure-paging-journal-pending-optics.png",
+      "structure-paging-journal-pending.png",
+      "structure-paging-journal-optics.png",
+      "structure-paging-journal-regression.png"
+    ],
+    "observed": "The session capture shows saved geometry plus red/blue geometry after durable repeat save and reopen through the fresh read view/GPU scene. Four other images cover pending/ordinary/model/water/planar regressions. Fresh deterministic images match earlier framebuffer bytes, but this run has new source/class/helper hashes and a new save/reopen assertion path. Simplified planar rendering does not qualify Main lighting or physical-GPU performance."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "parent_hosted": {
+    "head": "ed651ba59cd10c531964fc175f0a7ec5d0f78137",
+    "run": 44667333254,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only. New source requires fresh exact-head hosted checks; this is not QA approval."
+  },
+  "audit": {
+    "restored_paths_match_base": 14,
+    "combat_paths_match_base": 14,
+    "arena_preview_matches_base": true,
+    "deleted_files": [],
+    "intended_removed_lines": "Adds a readOnly journal flag/factory and passes the source journal in PagingSession. Reworks only the native helper to save/reopen before rendering. No file deletions or unrelated feature/test deletions. The entire path inventory retains the prior reviewed structure/replay/render/save/wire changes, fixtures, tools and historical evidence; restored MP3/Hub and merged combat paths remain base-identical. Existing unique reports/media remain intact."
+  },
+  "remaining": [
+    "Main installation, old World reconciliation and later live tail coordination remain unwired. Model rebasing and editable paging remain unfinished.",
+    "Geometry/chunk caps still reject required city/maximum fixtures.",
+    "Required 20-run city/maximum benchmarks, physical-GPU, shaped-network 32-client synchronization and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Actual Main camera sky/irradiance diagnosis and visible colour/lighting qualification remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "No supported-city, supported-limit, stable-rollout, Main lighting, physical-GPU or 32-client qualification pass.",
+  "artifacts": {
+    "structure-paging-journal-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-journal-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-journal-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-journal-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-journal-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-paging-journal.json": "999b3f8b38d60bdb2e6b14e43a1f171ab92d6e4af74d8407faed9f658b6cf589"
+  }
+}

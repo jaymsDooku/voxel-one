@@ -1,0 +1,54 @@
+{
+  "sourceHead": "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "tool_sha256": "c140191c132814cb6d9f59da398adc031b927dfbf59b47b8dc97ac725f5ddefd",
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64",
+    "java": "25.0.3+9-LTS-195",
+    "converter_heap": "-Xmx1g",
+    "world": "none; target-only generated files"
+  },
+  "results": [
+    {
+      "fixture": "city",
+      "cells": 978288,
+      "decoded_bytes": 58000837,
+      "compressed_bytes": 38191053,
+      "sha256": "ed6b452ea7d9348fcce29b8802e5346aa410a68c125a5afeda1535877c06e47a",
+      "production_decode": "rejected: Experimental geometry cap",
+      "qualification": "native wire fixture only; no placement or performance qualification"
+    },
+    {
+      "fixture": "maximum",
+      "cells": 4000000,
+      "decoded_bytes": 309713208,
+      "compressed_bytes": 55607892,
+      "sha256": "830a315b629e78cc5db9a1742a799fd01c1f2e1e89b1f045db9b5ba519281889",
+      "production_decode": "rejected: Experimental geometry cap",
+      "qualification": "native wire fixture only; no placement or performance qualification"
+    }
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DskipTests compile",
+    "java -cp target/classes tools/structures/NativeFixture.java --self-test",
+    "python3 tools/structures/test_fixtures.py",
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java city target/structure-fixtures/city-v1.vxbf.gz target/structure-fixtures/city-v1.vstr",
+    "java -Xmx1g -cp target/classes tools/structures/NativeFixture.java maximum target/structure-fixtures/maximum-v1.vxbf.gz target/structure-fixtures/maximum-v1.vstr"
+  ],
+  "tests": [
+    "Current production compile passed.",
+    "Native wire self-test passed: production encoder byte identity; maximum section coordinates; whole, half and 1/16 LED geometry; model quarter turn; production decode roundtrip.",
+    "Six fixture-parser tests passed.",
+    "Python subprocess CLI checks used gzip fixtures with wrong magic, header length 4097 and truncated header. Each returned nonzero and left no destination file.",
+    "Both input files match their recorded original corpus SHA-256.",
+    "Both conversions repeated; all recorded fields and SHA-256 values match across two runs per corpus. This is reproducibility, not the required 20-run performance qualification."
+  ],
+  "Playtest": "Noninteractive CLI integration; browser playtesting does not apply. Expected full native fixtures to expose current admission gates. Both actual production loader calls reject Experimental geometry cap. No world is opened or changed. Production/harness source hashes match the existing native graphical run. Exact-head published video matches local SHA-256, decodes 16 frames / 25.467 seconds; a decoded frame was inspected. No fresh graphical run is claimed for this tool-only change.",
+  "gameplay_video": {
+    "head": "57c477db1f6f2512d678fc52a5d8215ea8e660b8",
+    "sha256": "4379208d5319d5cbfdf8f3dcad593f7de87810cd35ad78352915d6b23231118a",
+    "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/57c477db1f6f2512d678fc52a5d8215ea8e660b8/dashboard/evidence/structure-workflow.mp4"
+  },
+  "qualification": "NOT PASSED. Native city exceeds 32 MiB compressed. Both fixtures reject current geometry cap. No capture, preview, placement, durable save, cold load, synchronization, upload or system budget measured. Physical GPU and shaped-network qualification pending. Safety caps and rollout gates unchanged.",
+  "publication": "Report and tool pending controller publication; generated large binaries remain in target, reproducible from source."
+}

@@ -1,0 +1,75 @@
+{
+  "status": "81 structure tests, repeated-model capture diagnostic and fresh native workflow passed; exact-source hosted validation and full qualification pending",
+  "parent": "8c032a97bbe12b90455213ed6ca0a237f8d45836",
+  "change": "Capture-local IdentityHashMap caches at most 512 immutable ModelDefinition identities. Other identities still use fingerprint deduplication. Dependency encounter order, package bytes and all existing admission limits remain unchanged. No persistent or cross-capture cache.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=Structure*Test test",
+    "tests": 81,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "coverage": "Repeated/aliased definitions match a manually assembled reference package; first-encounter order and source-copy independence; same world ID with different definition identity; cancellation/retry without library mutation; existing structure regressions. A focused new-test run also passed."
+  },
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/structure/StructurePackage.java > target/structure-model-control/src/StructurePackage.java",
+      "javac --release 17 -cp target/classes -d target/structure-model-control/classes target/structure-model-control/src/StructurePackage.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/ModelCaptureProbe.java",
+      "java -Xmx1g -cp target/structure-model-control/classes:target:target/classes ModelCaptureProbe uncached-control",
+      "java -Xmx1g -cp target:target/classes ModelCaptureProbe memoized"
+    ],
+    "fixture": "512 x 1 x 20 cells, 10240 model instances, four differently named 16-resolution definitions with uniform opaque shells and seeded coloured 14-cube interiors; no ordinary geometry. Captured packages match an independently assembled reference on every run; byte checking outside timed capture. 30608 compressed bytes, not a populated city/maximum fixture.",
+    "warmups": 3,
+    "results": [
+      {
+        "implementation": "uncached-control",
+        "instances": 10240,
+        "models": 4,
+        "runs": 20,
+        "compressed_bytes": 30608,
+        "median_ms": 3467.099,
+        "p95_ms": 3557.839,
+        "worst_ms": 3647.257
+      },
+      {
+        "implementation": "memoized",
+        "instances": 10240,
+        "models": 4,
+        "runs": 20,
+        "compressed_bytes": 30608,
+        "median_ms": 11.154,
+        "p95_ms": 19.782,
+        "worst_ms": 23.855
+      }
+    ],
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "cpu": "Intel Core Processor (Haswell, no TSX)",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "heap": "-Xmx1g"
+    },
+    "limits": "Shared VPS, control first and current second; structure tests overlapped initial setup. Native playtest started after probes. No peak-memory, frame/tick, save/load, network or full-fixture qualification."
+  },
+  "Playtest": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "environment": "Inherited role DISPLAY/XAUTHORITY; isolated synthetic profile; LOW, detail 32, horizon 512, scale 0.5, shadows/AA/dynamic resolution OFF; renderer llvmpipe (LLVM 15.0.6, 256 bits)",
+    "expected": "Capture/export/import, all four rotations, conflicts, empty-source preservation, cancellation, atomic failure, undo, restart and inventory/model-editor regression pass.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "exit_code": 0,
+    "source_hashes": 219,
+    "manifest_sha256": "d28803b705d27733d7d2c7e99b9af1aaae319332bb9334248c40383690fda4a2",
+    "media_inspection": "Decoded and viewed a fresh video frame and placed-world screenshot. Preview/staging UI and two brick structures visible. Software rendering at 1 FPS is functional evidence only. Browser playtesting does not apply to this GLFW client."
+  },
+  "qualification": "Full populated city/maximum admission and 20-run full-system physical-GPU/shaped-network 32-rendered-client qualification remain pending. Existing caps and stable-rollout/readiness gates unchanged.",
+  "local_disk_cleanup": "Removed four byte-identical generated repeat fixture copies only after SHA-256 comparison against retained primary fixtures, freeing 177694740 bytes within assigned target/structure-fixtures. No source or evidence deleted.",
+  "video": {
+    "file": "structure-workflow.mp4",
+    "bytes": 373009,
+    "sha256": "3d4c8c78b722b7f918294191cb3ceb39affd722c185b7fe0a236de656fdab058",
+    "codec": "H264",
+    "frames": 17,
+    "duration_seconds": 26.954,
+    "publication": "Pending controller publication"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4; this change intends no deletions. Restored MP3 and Hub workflows/tests retained."
+}

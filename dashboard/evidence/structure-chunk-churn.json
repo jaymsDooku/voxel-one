@@ -1,0 +1,133 @@
+{
+  "parent_head": "0ba583deb32458689959492cdfcba8cce4a3210b",
+  "parent_ci": "Controller scoped result: four platform builds success; publish skipped. Not QA approval or qualification.",
+  "change": "World chunk map and History distinct-cell index use LinkedHashMap, including History COW copy constructor. Incremental iterators follow linked entries rather than scanning retained sparse hash table capacity. Per-bucket cell map unchanged. No wire/save format or caps changed.",
+  "environment": {
+    "cpu": "Intel Core Processor (Haswell, no TSX),4 vCPUs,1 thread/core,1 core/socket,4 sockets",
+    "os": "Linux6.1.0-50-cloud-amd64 x86_64 GNU/Linux",
+    "java": "25.0.3+9-LTS-195",
+    "cli_heap": "512 MiB",
+    "gpu": "Not used for diagnostic. Inherited managed role DISPLAY for synthetic CLI evidence window only."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "858e5bc9cf0d3cc7a7f2d7a6f7c24d0fd2762bd627afe3128dcb8c3a5b7099ee",
+    "tools/structures/ChunkCaptureChurnCheck.java": "bc13e2319da3bd161f6cfcfffa57fc7548933ba6dab4aaa4a738febc43566bf3",
+    "tools/structures/ChunkCaptureChurnEvidence.java": "18f8afc5ffc6ecb2fd4a3c6ae95d1670f526723c44f151ceba87471cbc9c9dc0",
+    "tools/structures/test_region_history.py": "3ab3e1ac3f83bf0bd624a6a5746117bce0aeffc718ab4952a6f33bd836ccad1b"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellSnapshotTest,WorldHistoryCellCursorTest,WorldHistoryIndexTest,StructureOfflineHistoryStagingTest,StructureValidationStampTest,WorldStreamingTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest test",
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-churn tools/structures/ChunkCaptureChurnCheck.java tools/structures/ChunkCaptureChurnEvidence.java",
+    "java -Xmx512m -cp target/structure-churn:target/classes ChunkCaptureChurnCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_chunk_capture_churn tools.structures.test_region_history.RegionHistoryIntegrationTest.test_dense_indexed_history tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_cell_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_complete_restore",
+    "java -Xmx512m -cp target/structure-churn:target/classes ChunkCaptureChurnEvidence",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-chunk-churn-cli.png"
+  ],
+  "production_tests": {
+    "tests": 78,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "tool_tests": "4 passed in19.341s. Initial tools attempted during Maven class rebuild failed missing classes; excluded. Final sequence ran only after Maven exit0. Maven reran after final constructor edit.",
+  "before_diagnostic": {
+    "status": "passed",
+    "warmups": 1,
+    "runs": 20,
+    "prior_chunks": 8192,
+    "final_chunks": 257,
+    "advances": 3,
+    "geometry_checked_each_run": true,
+    "stale_clear_rejected": true,
+    "wall": {
+      "median_ms": 1.01138,
+      "p95_ms": 2.298334,
+      "worst_ms": 2.386494
+    },
+    "max_advance_per_run": {
+      "median_ms": 0.13204,
+      "p95_ms": 0.163979,
+      "worst_ms": 0.17913
+    },
+    "qualification": false
+  },
+  "after_diagnostic": {
+    "status": "passed",
+    "warmups": 1,
+    "runs": 20,
+    "prior_chunks": 8192,
+    "final_chunks": 257,
+    "advances": 3,
+    "geometry_checked_each_run": true,
+    "stale_clear_rejected": true,
+    "wall": {
+      "median_ms": 0.863352,
+      "p95_ms": 1.849949,
+      "worst_ms": 2.491312
+    },
+    "max_advance_per_run": {
+      "median_ms": 0.054572,
+      "p95_ms": 0.064336,
+      "worst_ms": 0.075041
+    },
+    "wall_samples_ms": [
+      1.849949,
+      1.717402,
+      1.741788,
+      1.766679,
+      1.736717,
+      1.724616,
+      1.709287,
+      1.842915,
+      0.920076,
+      0.769928,
+      0.781304,
+      0.806627,
+      0.558784,
+      0.550824,
+      2.491312,
+      0.38419,
+      0.33634,
+      0.327252,
+      0.342997,
+      0.330336
+    ],
+    "max_advance_samples_ms": [
+      0.075041,
+      0.054501,
+      0.059206,
+      0.052863,
+      0.054645,
+      0.054642,
+      0.051301,
+      0.051639,
+      0.055162,
+      0.060449,
+      0.054329,
+      0.058711,
+      0.064336,
+      0.053086,
+      0.059151,
+      0.05502,
+      0.053119,
+      0.050525,
+      0.049622,
+      0.050014
+    ],
+    "qualification": false
+  },
+  "method": "8192 synthetic chunks and history cells inserted then cleared;257 current whole-glass chunks inserted. One warmup,20 measured runs. Each run captures3 owner batches, enumerates indexed positions and checks every frozen cell. Wall includes begin, advances, position iteration and geometry reads on owner. Max advance excludes begin/cursor/geometry reads. Nearest-rank p95=19th sorted value; median average of10th/11th. Wrapper independently recomputes final statistics from20 raw samples. Baseline summary only; baseline raw samples were not retained. Separate JVMs on shared VPS, no controlled CPU/GC/cache state.",
+  "Playtest:": "Expected correct cells after churn, three copy advances, unchanged source and stale partial rejection. All observed. Actual synthetic CLI image child exit0 inspected. Image is a separate rerun with different timings, not the standalone after sample. Media run wall median2.008968ms,p952.770358ms,worst3.428056ms; max-advance median0.098451ms,p950.206827ms,worst0.727128ms. Slower media rerun prevents a general speedup claim. Noninteractive persistence helper; browser/native game rendering does not apply.",
+  "limitations": [
+    "Linked maps add per-entry memory overhead; true peak memory unmeasured.",
+    "Iteration capacity scan removed; allocation/rehash,GC,metadata capture and all owner wall-time gates remain unqualified.",
+    "No production region backend/live installation. Both supplied full fixtures and20-run full operation budgets,physicalGPU,shaped32 rendered clients,frame/tick/traffic and directory durability remain pending.",
+    "Existing geometry/chunk/package limits and rollout gates retained. No stable supported limits published."
+  ],
+  "audit": "No deleted paths against71612f09bfec4549456b3317676e76cdced085a4; no intended deletions; git diff --check passed.",
+  "media": {
+    "file": "structure-chunk-churn-cli.png",
+    "sha256": "04f2e63b9283c85d205985f1e5808fe1061de8d8ba885fe38af0f89091f78424",
+    "publication": "pending controller publication"
+  }
+}

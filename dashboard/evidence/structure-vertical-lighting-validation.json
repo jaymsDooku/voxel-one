@@ -1,0 +1,457 @@
+{
+  "schema": 1,
+  "parent_head": "212f236382f9c0307e745a7fe61f1ed6dcee4fd2",
+  "review_base": "30a0687254a6afd731686402823952599d798a69",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Resident-world local lighting now uses a 16-cell-aligned vertical origin with 16-cell interior margins/hysteresis. Main supplies its player focus height. The 96x128x96 volume and 288 capture slots stay fixed. Capture/worker results retain their origin; obsolete-height CPU completions reject. Renderer readiness checks height and obsolete-height GPU work cannot publish. Main startup also checks vertical coverage. Old height-less callers retain the initial -32 origin; explicit private replay retains its fixed joint-coverage lane.",
+  "scope": "Bounded resident near-focus lighting only. It does not expand private replay coverage, promote Main paging/partial saves, change structure package limits or establish city performance.",
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest",
+      "test"
+    ],
+    "tests": 368,
+    "suites": 75,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "exit_code": 0,
+    "elapsed_seconds": 311.67859365046024
+  },
+  "focused": {
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=VerticalLightingTest,LocalLightingCaptureTest,ReplayLightingBakeTest,ReplayLightingCaptureTest,ReplayJointLightingCoverageTest test",
+    "tests": 25,
+    "suites": 5,
+    "status": "passed",
+    "cases": "Invalid heights, hysteresis, negative/high fractional capture without full-history scan, source invalidation, obsolete-height completion rejection, fixed array sizes, actual high LED bake and unchanged private replay joint coverage."
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.269564880058169,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 776,
+    "shaders_match": 28,
+    "mp3": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "main": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-vertical-lighting-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 523835,
+      "timeout_seconds": 900
+    },
+    "source_files": 302,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-vertical-lighting-main-structure-native-source.json",
+      "source_manifest_sha256": "b41f46ed3cd0a9930c272a5ac0d8e4784e6209cfe08302437cc136678c887c28",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-vertical-lighting-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "probe": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-vertical-lighting-probe --timeout-seconds 600 --lighting-probe-only",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 184697,
+      "timeout_seconds": 600
+    },
+    "source_files": 302,
+    "all_source_hashes_match": true,
+    "hand": {
+      "outdoor_luma": 226.381199999994,
+      "roof_luma": 235.96000000000024,
+      "restored_luma": 239.18459999999996,
+      "scope": "Mean display luma in fixed relative first-person patch; synthetic camera; outdoor/roof/return >5; sealed-roof sky visibility asserted separately; roof contains a physical white LED; not HDR radiance or performance qualification"
+    },
+    "transitions": [
+      {
+        "stage": "structure-library-capture",
+        "origin_y": 64,
+        "camera_y": 136.6,
+        "near_ready": true,
+        "model_cpu_rgba": [
+          1.5590551,
+          1.5590551,
+          1.5590551,
+          0.8031496
+        ],
+        "model_gpu_rgba": [
+          1.5590552,
+          1.5590552,
+          1.5590552,
+          0.8031497
+        ]
+      },
+      {
+        "stage": "structure-lighting-components",
+        "origin_y": 64,
+        "camera_y": 129.6,
+        "near_ready": true,
+        "model_cpu_rgba": [
+          1.5590551,
+          1.5590551,
+          1.5590551,
+          0.8031496
+        ],
+        "model_gpu_rgba": [
+          1.5590552,
+          1.5590552,
+          1.5590552,
+          0.8031497
+        ]
+      },
+      {
+        "stage": "structure-lighting-altitude",
+        "origin_y": 192,
+        "camera_y": 261.6,
+        "near_ready": true,
+        "model_cpu_rgba": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ],
+        "model_gpu_rgba": [
+          0.0,
+          0.0,
+          0.0,
+          0.0
+        ]
+      },
+      {
+        "stage": "structure-lighting-under-roof",
+        "origin_y": 64,
+        "camera_y": 130.6,
+        "near_ready": true,
+        "model_cpu_rgba": [
+          1.5590551,
+          1.5590551,
+          1.5590551,
+          0.0
+        ],
+        "model_gpu_rgba": [
+          1.5590552,
+          1.5590552,
+          1.5590552,
+          0.0
+        ]
+      },
+      {
+        "stage": "structure-lighting-restored-state",
+        "origin_y": 64,
+        "camera_y": 129.6,
+        "near_ready": true,
+        "model_cpu_rgba": [
+          1.5590551,
+          1.5590551,
+          1.5590551,
+          0.8031496
+        ],
+        "model_gpu_rgba": [
+          1.5590552,
+          1.5590552,
+          1.5590552,
+          0.8031497
+        ]
+      }
+    ],
+    "fixture": "A physical full-cell white LED at (5,130,15) lights the high detailed models; the existing fractional cyan LED remains. The short probe closes the room doorway before the sealed-roof capture, then reopens it. Roof pixels may be bright from local light: the edge assertion is zero sky with positive local RGB, not artificial darkness in a lit room. Altitude capture moves the player to Y260 and back without increasing volume dimensions."
+  },
+  "replay": {
+    "report": "structure-vertical-lighting-replay.json",
+    "source_files": 598,
+    "compiled_classes": 1231,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11824970102,
+      "planar_lighting_nanos": 1103218702,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11998312967,
+      "planar_lighting_nanos": 732103672,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "qualification": false
+  },
+  "colour_controls": {
+    "command": "python3 tools/structures/run_model_colour_check.py --display \"$DISPLAY\" --evidence-prefix structure-vertical-lighting-controls",
+    "source_files": 301,
+    "compiled_classes": 776,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "colour_pixels": [
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          6401,
+          4156,
+          6401
+        ],
+        [
+          6589,
+          3737,
+          6589
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ],
+        [
+          12018,
+          8968,
+          12018
+        ]
+      ],
+      "qualification": false
+    },
+    "rows": [
+      "unlit production shader",
+      "ambient/daylight, no irradiance",
+      "held path with known camera irradiance",
+      "held path with zero camera irradiance and zero sky",
+      "held path with missing irradiance and unknown sky"
+    ]
+  },
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected full capture/anchor/library, long-path export/import, four rotations, clear/blocked previews, empty-space preservation, player/occupied-cell rejection, atomic cancellation, single-operation undo, repeat placement, dependency/restart recovery and inventory/model-editor regressions. Observed all full-workflow assertions passed. Separate actual Main GPU probe waited for height-aware readiness, moved near Y130 -> Y262 -> back, and verified high-model local RGB plus zero sky in a sealed LED-lit room. CPU/GPU values agree within float precision. Native replay/save/paging/render and five-row production shader controls passed. Browser testing does not apply to this Java client. These are software functional checks, not physical-GPU/performance qualification.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-vertical-lighting-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-vertical-lighting-main-midpoint.png",
+      "dashboard/evidence/structure-vertical-lighting-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 25,
+      "durationSeconds": 45.903,
+      "bytes": 433472,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 12,
+      "videoSha256": "a8047f307bba66ec37691e11c71341d904b491742b8bc60b34bfdbf282a2a5c2",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-vertical-lighting-main-midpoint.png",
+      "structure-vertical-lighting-main-structure-preview-conflict.png",
+      "structure-vertical-lighting-main-structure-preview-3.png",
+      "structure-vertical-lighting-main-structure-import-cancelled.png",
+      "structure-vertical-lighting-main-structure-component-closeup.png",
+      "structure-vertical-lighting-probe-structure-lighting-components.png",
+      "structure-vertical-lighting-probe-structure-lighting-altitude.png",
+      "structure-vertical-lighting-probe-structure-lighting-under-roof.png",
+      "structure-vertical-lighting-probe-structure-lighting-restored-state.png",
+      "structure-vertical-lighting-controls.png",
+      "structure-vertical-lighting-replay-session.png",
+      "structure-vertical-lighting-replay-optics.png",
+      "structure-vertical-lighting-replay-pending-optics.png",
+      "structure-vertical-lighting-replay-pending.png",
+      "structure-vertical-lighting-replay-regression.png"
+    ],
+    "observed": "The 32-resolution component and dense coloured model are visibly lit by the real LED. Altitude and return captures show bounded height tracking. The sealed-room capture retains local light with zero sky. The full structure workflow and replay/colour controls were inspected. Software HUD FPS remains around 0\u20131; no performance pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "compile_release": 17,
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "212f236382f9c0307e745a7fe61f1ed6dcee4fd2",
+    "run": 44682882143,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; new source requires fresh hosted checks."
+  },
+  "audit": {
+    "review_base": "30a0687254a6afd731686402823952599d798a69",
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": [
+      "dashboard/evidence/practice-0ms-a.png",
+      "dashboard/evidence/practice-0ms-b.png",
+      "dashboard/evidence/practice-0ms-result.png",
+      "dashboard/evidence/practice-150ms-result.png",
+      "dashboard/evidence/practice-80ms-result.png",
+      "dashboard/evidence/practice-controls-live.png",
+      "dashboard/evidence/practice-controls-result.png",
+      "dashboard/evidence/practice-controls.mp4",
+      "dashboard/evidence/practice-input-kit-0ms-result.png",
+      "dashboard/evidence/practice-input-kit-150ms-result.png",
+      "dashboard/evidence/practice-input-kit-80ms-result.png",
+      "dashboard/evidence/practice-input-kit-duel.mp4",
+      "dashboard/evidence/practice-input-kit-edited.png",
+      "dashboard/evidence/practice-input-kit-frozen-result.png",
+      "dashboard/evidence/practice-input-kit-keyboard.mp4",
+      "dashboard/evidence/practice-input-kit-rematch.png",
+      "dashboard/evidence/practice-input-kit-result.png",
+      "dashboard/evidence/practice-input-kit-sprint.png",
+      "dashboard/evidence/practice-lifecycle-150ms-result.png",
+      "dashboard/evidence/practice-lifecycle-duel.mp4",
+      "dashboard/evidence/practice-lifecycle-ready-disconnect.png",
+      "dashboard/evidence/practice-lifecycle-recovered-live.png",
+      "dashboard/evidence/practice-lifecycle-recovery.mp4",
+      "dashboard/evidence/practice-lifecycle-replacement-ready.png",
+      "dashboard/evidence/practice-real-duel.mp4",
+      "docs/practice-duels-input-kit-validation.md",
+      "docs/practice-duels-lifecycle-validation.md",
+      "docs/practice-duels-validation.md",
+      "docs/practice-duels.md",
+      "src/main/java/dev/jayms/GameIdentity.java",
+      "src/main/java/dev/jayms/combat/CombatSimulation.java",
+      "src/main/java/dev/jayms/combat/duel/CourtyardCombatWorld.java",
+      "src/main/java/dev/jayms/combat/duel/DuelClient.java",
+      "src/main/java/dev/jayms/combat/duel/DuelServer.java",
+      "src/main/java/dev/jayms/combat/duel/DuelSession.java",
+      "src/main/java/dev/jayms/combat/duel/DuelWire.java",
+      "src/main/java/dev/jayms/combat/duel/PracticeApp.java",
+      "src/main/java/dev/jayms/combat/duel/PracticeView.java",
+      "src/main/java/dev/jayms/ui/LoginDialog.java",
+      "src/main/resources/shaders/practice.frag",
+      "src/main/resources/shaders/practice.vert",
+      "src/test/java/dev/jayms/combat/duel/DuelInputKitPlaytest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelLifecyclePlaytest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelLifecycleTest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelSessionTest.java",
+      "src/test/java/dev/jayms/combat/duel/DuelTransportTest.java",
+      "src/test/java/dev/jayms/combat/duel/PracticePlaytest.java"
+    ],
+    "shaded_production_classes_match": 776,
+    "shaders_match": 28,
+    "deleted_files": [],
+    "intended_removed_lines": "Fixed vertical offsets in resident lighting capture/bake become a height-fenced 16-cell-aligned origin. Main passes player focus height; renderer drops obsolete-height work. The diagnostic fixture adds a physical white LED, sealed-roof local-light checks and an altitude/return transition. No unrelated feature/test deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live tail coordination, model rebasing and editable paging remain unfinished.",
+    "Required city/maximum fixtures still exceed geometry/chunk caps.",
+    "Required 20-run city/maximum benchmarks, physical-GPU, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Bounded near-focus resident lighting functionality only. No supported-city, supported-limit, stable-rollout, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-vertical-lighting-controls.json": "215c45e37f1dd06da371abc5f23309ef8573cccc77a4401bdfc5a0dd100569a4",
+    "structure-vertical-lighting-controls.png": "f2720da8fcd4ac147239780e08d9ab2dbf4383d88e4521e5df913b3faf3fe7fe",
+    "structure-vertical-lighting-main-midpoint.png": "a190774a6d4bff8fc88cb39d69e2d6239dfba8ce6e83627aecb9f676aa868d74",
+    "structure-vertical-lighting-main-structure-component-closeup.png": "fbac4f5bb6d62b1b226cdec34d710eb834550dde3001a7a883a55e8ad26cebfa",
+    "structure-vertical-lighting-main-structure-export-cancelled.png": "b84debf8bc01d1cf799a79d4f6704ed196349bf36efdcc7a0f9c1444d57a0774",
+    "structure-vertical-lighting-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-vertical-lighting-main-structure-invalid-anchor.png": "e03e460ed2abdd50248b6fff419ab787871c75957db4ac910be7e1a5cd1cb4a9",
+    "structure-vertical-lighting-main-structure-library-capture.png": "37a6611837a3c7403d695ad6ac2fe03b82367f6f279d58fbae44c280af5dc3ea",
+    "structure-vertical-lighting-main-structure-native-execution.json": "c86cfb0039530204c6432b6cdeae007886a0db33299caf30f35e7525662bf8eb",
+    "structure-vertical-lighting-main-structure-native-lighting.json": "28710722231d2542b54e113219bd6ebbcdd156ca4cb619b86f59af72996f6b3c",
+    "structure-vertical-lighting-main-structure-native-result.json": "ebcff631948d366c8e6c3e7968c97d0a56e6f88ed8cb653cc3711f7c5b9ba1b3",
+    "structure-vertical-lighting-main-structure-native-source.json": "86fad29e42ac773ea414dcb2be6848ef52e0762b9aebd0ac4e35cccd30a4fd29",
+    "structure-vertical-lighting-main-structure-native-stage.json": "c347690fd4d93d09aa39de632efe3a1a5fb1c024ac546705af78f23c2793b719",
+    "structure-vertical-lighting-main-structure-placed.png": "e4b43d2b67e72df865a5a134640fa9c05f1f08ddbd5116cbae4d8741b79f20f3",
+    "structure-vertical-lighting-main-structure-player-conflict.png": "7836b57851a898cf2a7f0ab09f6df9200b1ca76f87404c6491167525ef8e6ad7",
+    "structure-vertical-lighting-main-structure-preview-0.png": "babfb6d31868482f9ada7c3a4dd69b9af2523549e9721235f02c40526fe081d5",
+    "structure-vertical-lighting-main-structure-preview-1.png": "921345cd669ff1cf6c42c475f92201d1a415660bab3e865762e9212c1a3d8646",
+    "structure-vertical-lighting-main-structure-preview-2.png": "076af00e48a20adfd9dc6c4ee109274be24df6ff8846a63cb4193b2ae3e26b6c",
+    "structure-vertical-lighting-main-structure-preview-3.png": "139d9d10e61c0d53834e6478fdbca685ba323bfe1af68b1aaf21ca9be1f7e556",
+    "structure-vertical-lighting-main-structure-preview-conflict.png": "9481d2e1d9c9049d4ebe6e95d38533caa8a5e585c12c0d38e150822fddd49ccb",
+    "structure-vertical-lighting-main-structure-undo-cancelled.png": "6b7727a8550741cb3e58caf2983293ec324c287c78e29ef17084394b376604be",
+    "structure-vertical-lighting-main-structure-workflow.mp4": "a8047f307bba66ec37691e11c71341d904b491742b8bc60b34bfdbf282a2a5c2",
+    "structure-vertical-lighting-main-structure-world-placed.png": "b4fbf14daf278e35e81216a63b5e521e39966ee1dc467ee2c33b2badad514e10",
+    "structure-vertical-lighting-main-video.json": "7f27aef0e09b78aae46eb7afe3f855acac4b72c429b026d25f525029c515ee93",
+    "structure-vertical-lighting-probe-structure-library-capture.png": "c767e8b7c415aa788c35079d59d95ab3017873c716756eecadb3e43af4c90209",
+    "structure-vertical-lighting-probe-structure-lighting-altitude.png": "8c0f4512dca75e1461e789494d45bfe28a1806d58c4ca462143305a75a9cacf6",
+    "structure-vertical-lighting-probe-structure-lighting-components.png": "1c0bfc84f5aa0f2722a678fd053a58bde1b858c418c35fc501bcf19932c635f5",
+    "structure-vertical-lighting-probe-structure-lighting-restored-state.png": "454e718eb7759937e02df7c32c14537f2e4a65e02cc6745d682778fe15ff7005",
+    "structure-vertical-lighting-probe-structure-lighting-under-roof.png": "4adc5e209ee533063a7b90c1b4f2a8401fe3c5e9694d2347951e33baf61dffa6",
+    "structure-vertical-lighting-probe-structure-native-execution.json": "f4d5c4f7c5d948b73f2fd9efb880adee5c3ed4450fdb5f1f4a3fa1f0e17cea17",
+    "structure-vertical-lighting-probe-structure-native-hand.json": "8367ea309f7f234e569aabef12361e7bde5797e8ca56c0c47c4b2c0bf6831272",
+    "structure-vertical-lighting-probe-structure-native-lighting.json": "92ec5845a4c0b8fbfbf2df4b43bfcd4f496ccfbf3e5d7829128e234de07cabc7",
+    "structure-vertical-lighting-probe-structure-native-result.json": "73a51726210bdff805df060718ecd8277eea5d58b75eed2b4f83ba69f3aa7092",
+    "structure-vertical-lighting-probe-structure-native-source.json": "86fad29e42ac773ea414dcb2be6848ef52e0762b9aebd0ac4e35cccd30a4fd29",
+    "structure-vertical-lighting-probe-structure-native-stage.json": "8e26edbd7aaaeecd843df8a4e92c424990cf11dc09014d57a524654960275473",
+    "structure-vertical-lighting-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-vertical-lighting-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-vertical-lighting-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-vertical-lighting-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-vertical-lighting-replay-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-vertical-lighting-replay.json": "eb18db63e5b0876d2019b8c009db94ffae125562ec153823b262579b91896289"
+  }
+}

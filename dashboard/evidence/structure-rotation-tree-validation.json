@@ -1,0 +1,245 @@
+{
+  "schema": 1,
+  "parent_head": "c9b52c3e047eca42ff58a96628b4c552bab3ce8f",
+  "scope": "Direct octant rotation for structure geometry and model dependencies; no admission-cap change.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "commands": [
+      "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest' test > target/structure-rotation-tree-tests.log 2>&1"
+    ],
+    "suites": [
+      {
+        "name": "dev.jayms.net.structure.StructureBufferedCodecTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureEncodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafCountTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOfflineStampTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCellReadTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructurePlacementCellsTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureOrderTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureModelTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureCaptureChunkTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureFileReadTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafVisitorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureDecodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureRotationTreeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureSaveStagingTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMenuAnchorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructurePublicationStagingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureValidationStampTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "totals": {
+      "tests": 108,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "exit_code": 0,
+    "coverage": "All four rotations match retained leaf-fill bytes and an independent coordinate oracle at resolutions 1,8,16,32,256. Tests cover mixed fractional/ARGB/air values, redundant legacy branches, frozen results, later source edits, four-turn identity, invalid turns and interruption. Existing structure/TLS integration and model regressions passed."
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target tools/structures/RotationTreeProbe.java",
+      "java -Xmx1g -cp target:target/classes RotationTreeProbe > target/structure-rotation-tree-probe.jsonl"
+    ],
+    "results": [
+      {
+        "implementation": "leaf_fill_reference",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 64,
+        "leaves": 2048,
+        "median_ms": 62.311,
+        "p95_ms": 84.953,
+        "worst_ms": 88.427,
+        "median_thread_allocated_bytes": 48290816
+      },
+      {
+        "implementation": "octant_rotation",
+        "runs": 20,
+        "warmups": 3,
+        "batch": 64,
+        "leaves": 2048,
+        "median_ms": 3.007,
+        "p95_ms": 3.944,
+        "worst_ms": 4.773,
+        "median_thread_allocated_bytes": 2697216
+      }
+    ],
+    "method": "Shared VPS; three warmups, 20 measured batches, 64 rotations per batch, alternating implementation order. Frozen 16-resolution, 2,048-leaf tree. Retained leaf-fill reference matches previous Engine algorithm. Byte equality checked before timing; occupied count and sample checked after each batch.",
+    "limitations": "Rotation component only. Cumulative current-thread allocation is not peak memory. No capture/export/placement/save/frame/tick/network budgets measured."
+  },
+  "native": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-rotation-tree-native.log 2>&1",
+    "exit_code": 0,
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_files_verified": 219,
+    "source_manifest_sha256": "0e7a1f3fb38307ac35679893eb52d7c9d678a7734e5c0d2874cbf96c31011233",
+    "video_bytes": 379552,
+    "video_sha256": "fa9867cae8b19732c90c537dc32ee308d2ec7baa163fd4c85e692ddaab7020d3",
+    "video_codec": "H264",
+    "video_frames": 15,
+    "video_duration_s": 24.311,
+    "media_inspected": [
+      "Decoded video frame: clear footprint preview and anchor; no private data.",
+      "Fresh structure-world-placed.png: two independently placed brick structures; software-rendered HUD shows 1 FPS, not performance qualification."
+    ],
+    "media_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-rotation-tree-frame.png",
+    "publication": "Local media pending controller publication"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "intended_removal": "The old leaf-list/fill rotation loop is replaced by direct octant remapping. Its behavior remains executable as the regression/probe reference.",
+    "deleted_paths": [],
+    "diff_check": "passed"
+  },
+  "pending": [
+    "City dependency-surface and maximum geometry admission still rejected.",
+    "256 affected-chunk and 2,000,000-edit persistence limits remain.",
+    "Required 20-run full-fixture physical-GPU, shaped-network, 32-rendered-client and memory/frame/tick/traffic qualification remain pending.",
+    "Independent review and final exact-source hosted checks remain required."
+  ]
+}

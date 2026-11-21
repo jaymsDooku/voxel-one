@@ -1,0 +1,107 @@
+{
+  "schema": 1,
+  "parentHead": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+  "change": "Cancellable encode/save overloads; capture/import/export and upload preparation pass operation flags/progress. Final capture validation now polls its flag. Save writes 64 KiB chunks to a temporary file, checks cancellation immediately before atomic replacement and skips cleanup after success. Successful UI save completion uses an uncancelled completion token so late Cancel cannot hide a committed file.",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureEncodeCancellationTest,StructureDecodeCancellationTest,StructureTest,StructureModelCodecTest,StructureMultiplayerTest test",
+    "suites": [
+      {
+        "name": "dev.jayms.StructureEncodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.076"
+      },
+      {
+        "name": "dev.jayms.StructureDecodeCancellationTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.065"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "24",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "3.346"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureModelCodecTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "0.17"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0",
+        "time": "13.625"
+      }
+    ],
+    "total": 38,
+    "coverage": "Encode cancellation at progress 0/25/62/99/100, interrupted entry, byte identity/default/cancellable roundtrip. Save cancellation before encoding/at staging preserves sentinel destination; temporary cleanup, fresh-file cancellation, callback exception before commit and successful retry. Existing decoder/offline/codec/actual TLS multiplayer regression."
+  },
+  "Playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "expected": "Heavy export cancellation produces no published package, then import cancellation and full existing workflow/regressions.",
+    "scope": "Native Main/GLFW/X11, inherited display/authentication, isolated synthetic profile. Browser testing does not apply.",
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "e62343f77d9672008e9c7f95b46d7f8bd28f6f91dc91cd1ef1888f3afe9754d5",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "observed": "Native harness exited 0. Heavy export cancellation left no published package; import cancellation and complete workflow/regressions passed. Fresh export-cancellation screenshot and decoded F10 frame inspected. All 213 production/harness source paths and hashes verified unchanged. llvmpipe about 1 FPS; no physical GPU or frame-time qualification.",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "codec": "H264",
+      "frames": 16,
+      "seconds": 24.874,
+      "bytes": 355502,
+      "sha256": "a3ade5feca837cf02b27ead3e2b5e845f058bda0c8925e34a51de07c33c43aec"
+    },
+    "image": {
+      "file": "structure-export-cancelled.png",
+      "sha256": "30f1787a997d0203ceb635a2a3ef8a6fa0cc6da5f929d54ad9f0069b93dd9def"
+    }
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": {
+      "Architecture": "x86_64",
+      "CPU(s)": "4",
+      "Model name": "Intel Core Processor (Haswell, no TSX)",
+      "Thread(s) per core": "1",
+      "Core(s) per socket": "1",
+      "Socket(s)": "4"
+    },
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "scope": "Development VPS; not reference physical GPU/network qualification."
+  },
+  "contract": "Save progress 0..99 describes preparation; return marks atomic file publication. UI successful completion sets 100. There are no callbacks or cancellation checks after replacement. Once final cancellation check passes and replacement succeeds, a later Cancel does not undo/hide the file. Filesystem errors before replacement preserve destination; failed staging cleans its temp file. No fallback weakens atomic replacement. No fsync/power-loss durability or latency budget claim.",
+  "limits": "Cancellation between bounded models/cells/output chunks, not inside a model codec or OS write/move. Resource caps, package/world formats and city admission unchanged.",
+  "qualification": "Full city/max admission, 2,000,000-edit history ceiling, atomic world chunk publication and reference physical GPU/shaped-network/32 rendered-client/20-run system budgets remain unfinished. Not ready; rollout gates closed.",
+  "delegate": "Helper failed without output; explicitly resolved self. Independently audited final move boundary, callback errors, cleanup and UI completion semantics; actual tests executed locally.",
+  "audit": "No files deleted against review base 4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a. Intended old unconditional encode/save calls replaced with cancellation-aware APIs; old overloads preserved. MP3/Hub/Asset Manager features retained.",
+  "publication": "Local source/report/media require controller publication and fresh exact-source checks. Parent completed checks are not requested again.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "f101474cd839bb9f0ec5a8aeb0bd0c4ce607dd1106616eec4a4429f575eaff45",
+    "src/main/java/dev/jayms/ui/StructureMenu.java": "7e43f0848f1997a01752f696af88e01cb6a92c222cae80d4c7b9df032ba3f4fd",
+    "deploy/StructurePlaytest.java": "076c641fc4e2ff0f1e65259ad1ebf57f57073a5fed2635aece2a6e10e60a7d82",
+    "src/test/java/dev/jayms/StructureEncodeCancellationTest.java": "dc721440f6fee5f56e60f9e2c9accdc5506f63b4706b8d39724744c2b5fb6b81"
+  }
+}

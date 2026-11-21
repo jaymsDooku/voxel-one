@@ -1,0 +1,80 @@
+{
+  "parent": "1c67f555fe9e75ce6b2179b8b158d507b378393c",
+  "change": "Normal offline saves now reject edit counts outside 0..2,000,000 before directory creation or temp opening. Reader, normal writer and structure-history admission share the existing limit. Prevents replacing prior world with a file its loader rejects.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "compile_release": 17,
+    "cli_heap": "512 MiB",
+    "display": "inherited assigned display; isolated own synthetic CLI window"
+  },
+  "commands": [
+    "mkdir -p target/reviewer-tmp",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=LocalGameSaveLimitTest,StructureOfflineSaveTest,StructureOfflineHistoryStagingTest,CitySavesTest test",
+    "javac -encoding UTF-8 --release 17 -cp target/classes -d target tools/structures/LocalGameSaveBoundsCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes LocalGameSaveBoundsCheck",
+    "python3 -m unittest tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_owner tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_import tools.structures.test_region_history.RegionHistoryIntegrationTest.test_offline_legacy",
+    "java -cp target:target/classes RegionGenerationEvidence LocalGameSaveBoundsCheck",
+    "import -display \"$DISPLAY\" -window 2097159 dashboard/evidence/structure-save-bounds-cli.png",
+    "gh pr view 76 --json headRefOid,statusCheckRollup"
+  ],
+  "production_tests": [
+    {
+      "class": "dev.jayms.net.LocalGameSaveLimitTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.net.StructureOfflineSaveTest",
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.StructureOfflineHistoryStagingTest",
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "class": "dev.jayms.CitySavesTest",
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    }
+  ],
+  "tool_tests": "3 integrations passed in 14.348 s; no skips.",
+  "cli": {
+    "status": "passed",
+    "rejected_saves": 3,
+    "save_versions": [
+      8,
+      9
+    ],
+    "prior_files_unchanged": true,
+    "retry_and_reload": true,
+    "large_fixture_qualification": false
+  },
+  "playtest": "Playtest: actual synthetic LocalGame normal save in versions8 and9 with generated CitySimulation/history. Replace edit map with synthetic reported count2,000,001 whose traversal throws, advance city, then save. Expected IOException before writes; world/city/history/temp sentinel bytes unchanged. Observed pass. Restore real history, add fractional glass cell, retry and reload; geometry, models, health12 and inventory3 stone retained, latest city frame restored, temp consumed. New-world oversize creates no directory. Direct CLI and displayed child exit0; fresh image inspected. Persistence-only path; browser/native rendering does not apply.",
+  "test_scope": "Overflow map reports size only; no claim of allocating or benchmarking 2,000,001 actual records. Real fixture exercises normal codec, fractional geometry, structure model definitions and generated city/history.",
+  "native_baseline": "Of224 historical native source files,222 unchanged. LocalGame.java and CityHistory.java differ. Historical native media is not exact-source proof for these persistence changes.",
+  "hosted": "Eight parent builds SUCCESS, two publication jobs SKIPPED. New source awaits controller publication and exact-head CI.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/LocalGame.java": "adb67d933708b09c6fa5aa954260d6a85a972f7b7c8179302cdbeb7e4daabfe9",
+    "src/test/java/dev/jayms/net/LocalGameSaveLimitTest.java": "27f8739d1bc31d19181bd6c2c6423f13e9856312a4870201728fb3063c457d35",
+    "tools/structures/LocalGameSaveBoundsCheck.java": "7f065de8a18b1e0c9442fdf191b9d7780e2e2c46de70795d211b5f4b1cceaa99",
+    "tools/structures/RegionGenerationEvidence.java": "24d57cf9b2156b2dc6c237ad148806d4937001c3d8ebe0b6c5cb799df662263f"
+  },
+  "media": {
+    "file": "structure-save-bounds-cli.png",
+    "sha256": "4a5e0cc130f22daa39c2af43a549315436d85067568e1756e2c50793f0f6daff",
+    "publication": "pending controller"
+  },
+  "audit": "No deleted paths against review base 71612f09bfec4549456b3317676e76cdced085a4. No intended deletions. git diff --check passed.",
+  "qualification": "No caps raised. Production region backend/owner integration, full city/maximum admission and20-run budgets, physical GPU, shaped32-client, stall/memory and directory durability remain pending. Rollout gated."
+}

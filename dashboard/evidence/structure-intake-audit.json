@@ -1,0 +1,30 @@
+{
+  "status": "historical_baseline",
+  "scope": "Source audit and existing regression baseline; no structure implementation or qualification",
+  "environment": {
+    "os": "Linux 6.1.0-50-cloud-amd64 x86_64 GNU/Linux",
+    "java": "25.0.3+9-LTS-195",
+    "gpu": "Not exercised; physical-GPU qualification pending"
+  },
+  "checks": [
+    {
+      "command": "mvn -q -Dtest=VoxelModelTest,FractionalWorldTest,ProtocolCompatibilityTest,ModelSculptorTest test",
+      "result": "Failed: 10 tests errored because /tmp is read-only; 10 passed."
+    },
+    {
+      "command": "mvn -q -Djava.io.tmpdir=\"$PWD/target/structure-audit-tmp\" -Dtest=VoxelModelTest,FractionalWorldTest,ProtocolCompatibilityTest,ModelSculptorTest test",
+      "result": "Failed: Maven property did not move forked JVM temp directory; same 10 temp-directory errors."
+    },
+    {
+      "command": "mvn -q -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=VoxelModelTest,FractionalWorldTest,ProtocolCompatibilityTest,ModelSculptorTest test",
+      "result": "Exit 0. 20 tests, zero failures/errors/skips: VoxelModelTest 7, FractionalWorldTest 7, ProtocolCompatibilityTest 3, ModelSculptorTest 3."
+    },
+    {
+      "command": "git diff --check",
+      "result": "Exit 0 before final report; rerun at handoff."
+    }
+  ],
+  "playtest": "Playtest: No interactive application run. Only audit documentation and progress metadata changed. Browser playtesting does not apply to these changes. CLI integration tests exercised offline custom-model save/load and immutable copies, malformed voxel data and fractional wire validation, and live server legacy-protocol compatibility. Expected: existing behavior preserved and invalid input rejected. Observed: all 20 tests passed after moving forked JVM temp directory. Structure workflow, UI edge cases, multiplayer transactions and new implementation media remain pending.",
+  "publication": "Local report pending controller publication; no image/video of structure behavior exists because feature implementation has not started.",
+  "pending": "See structure-fixture-validation.json for current prerequisite status; this earlier baseline predates fixture preparation."
+}

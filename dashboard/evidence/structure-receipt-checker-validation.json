@@ -1,0 +1,29 @@
+{
+  "schema": 1,
+  "source_head": "5f652c7e3e6fc1feb2fe9b326aa280c84e8b2039",
+  "scope": "Receipt checker CLI only; production game unchanged",
+  "qualification": "PENDING; full fixtures remain unadmitted and unqualified",
+  "tests": [
+    "python3 -m unittest discover -s tools/structures -p test_qualification.py -v: 6 tests passed; synthetic positive and negative receipt paths, including actual CLI subprocess execution.",
+    "Playtest: python3 tools/structures/check_qualification.py dashboard/evidence/structure-render-allocation-validation.json --head 5f652c7e3e6fc1feb2fe9b326aa280c84e8b2039 --environment-id required-reference: expected exit 1; observed NOT QUALIFIED: Source head mismatch. Component evidence cannot qualify a full fixture.",
+    "Browser playtesting does not apply to this CLI-only change. No production Java or native harness changes; all 219 manifest entries match the previously passed native workflow.",
+    "Published exact-head video verified byte-for-byte: 364085 bytes, SHA-256 b6efdfb474fb2d8ab01852b2da4ebd3fe229ce1f7b61952ae8d8a77bf8c6314c.",
+    "All eight push/PR platform builds for 5f652c7e passed. New tooling awaits hosted checks."
+  ],
+  "limitations": [
+    "Checker validates receipt structure and stated budgets, not truth of measurements.",
+    "Independent exact-source, fixture, hardware, media and measurement review remains required.",
+    "No synthetic passing receipt is game qualification.",
+    "City/maximum admission, 20-run full-pipeline and physical GPU/shaped-network qualification remain pending."
+  ],
+  "decoded_size_followup": {
+    "parent_head": "72e63d2a9c4b061c425d9da30b5b66e0431a12c6",
+    "change": "Require positive integer decoded_bytes <=512 MiB for both fixtures; missing/invalid/oversized sizes reject before receipt budget pass.",
+    "command": "python3 -m unittest discover -s tools/structures -p \"test_*.py\" -v",
+    "result": "25 tests passed, 0 failures/errors. Boundary 512 MiB accepted; above boundary and missing/zero/negative/boolean/string values rejected for both fixtures. Actual CLI subprocess rejected oversized maximum receipt. All data synthetic; not game qualification.",
+    "playtest": "Playtest: affected CLI integration exercised synthetic valid receipt and malformed/component/oversized receipt rejection. Browser playtesting does not apply to CLI-only change.",
+    "native": "Production Java and harness unchanged; all 219 manifest entries match. Published exact-parent workflow video matches local bytes/hash. No new native recording needed.",
+    "hosted": "All eight platform builds for parent passed; new tooling edits await hosted validation.",
+    "qualification": "PENDING; populated city/maximum admission and all physical/network performance gates remain unresolved."
+  }
+}

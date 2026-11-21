@@ -1,0 +1,332 @@
+{
+  "schema": 1,
+  "parent_head": "d2d3fe903ce2c085a31bfe94b59839dc1701a602",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Nonzero quarter turns of packed resolution16 world cells now permute immutable wire subtrees with 32 primitive child offsets and a bounded private output image. Equal children fold exactly like ordinary graph rotation; counters and complete output consumption are revalidated by the strict reader. Zero-turn sharing and general stream readers stay unchanged. Packed models retain their existing nonzero model path. Placement uses packed world cells for all four turns; constructor validation retains a direct graph.",
+  "rotation_resources": "32 primitive child offsets (four branch levels), a working byte buffer no larger than the validated input (at most 65536 bytes), and a compact owned result image no larger than that buffer. Strict reader revalidates counters/output without child-node graphs. These are per-cell bounds, not measured peak staging/process memory.",
+  "scope": "World-cell rotation staging only. No format/cap change, city admission, Main paging installation, save-authority or coverage promotion. Mutable copies, traversal and packed-model nonzero turns may still build graphs.",
+  "focused": {
+    "tests": 42,
+    "suites": [
+      {
+        "name": "dev.jayms.PackedCellRotationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PackedCellReadTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SparseVoxelPackedCellTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureRotationTreeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "status": "passed",
+    "earlier_failure": "One test mistook opaque-white (-1) for mixed topology. Corrected the representation assertion; exact byte/value/counter comparisons had passed.",
+    "scope": "42 algorithm-focused checks before final placement routing; the broader final-source selection includes routing, wire decode and multiplayer regressions."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest",
+      "test"
+    ],
+    "tests": 454,
+    "suites": 96,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 356.4449747465551
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.3588430266827345,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven",
+    "command": "python3 target/packed-rotation-validation/run-checks.py"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 809,
+    "shaders_match": 28,
+    "mp3": "Original CBR/VBR packaged fixtures both decoded to 44100 Hz, 6.060 s PCM."
+  },
+  "benchmark": "structure-packed-rotation-benchmark.json",
+  "main": {
+    "final_retry": {
+      "exit_code": 0,
+      "elapsed_seconds": 543.9031961746514
+    },
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-packed-rotation-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 541644,
+      "timeout_seconds": 900
+    },
+    "source_files": 311,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-packed-rotation-main-structure-native-source.json",
+      "source_manifest_sha256": "ec6c83614497d3f23d7c44bfead0626307766d6594711428e247e030f5c49dce",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-packed-rotation-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "replay": {
+    "receipt": "structure-packed-rotation-replay.json",
+    "source_files": 615,
+    "compiled_classes": 1275,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11186377379,
+      "planar_lighting_nanos": 1000778954,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 10727702851,
+      "planar_lighting_nanos": 851688933,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    }
+  },
+  "supplemental_commands": [
+    [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-packed-rotation-replay"
+    ],
+    [
+      "javac",
+      "--release",
+      "17",
+      "-cp",
+      "target/classes",
+      "-d",
+      "target/packed-rotation-validation",
+      "tools/structures/PackedCellReadProbe.java"
+    ],
+    [
+      "java",
+      "-Xmx512m",
+      "-cp",
+      "target/packed-rotation-validation:target/classes",
+      "dev.jayms.net.structure.PackedCellReadProbe"
+    ],
+    [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-packed-rotation-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-packed-rotation-main-midpoint.png",
+      "dashboard/evidence/structure-packed-rotation-main-video.json"
+    ]
+  ],
+  "supplemental_execution": [
+    {
+      "command_index": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 75.59182815253735
+    },
+    {
+      "command_index": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 1.1217466164380312
+    },
+    {
+      "command_index": 2,
+      "exit_code": 0,
+      "elapsed_seconds": 4.181529074907303
+    },
+    {
+      "command_index": 3,
+      "exit_code": 0,
+      "elapsed_seconds": 2.2221144028007984
+    }
+  ],
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected full capture/anchor/library, long-path export/import, all rotations, footprint/conflicts, empty-space preservation, player/occupied-cell rejection, cancellation, undo, repeated placement, 257-chunk rejection without save/dependency/geometry mutation, dependency/restart recovery and inventory/editor regressions. Observed all assertions passed. Separate actual replay/save/reopen/paging/GPU/lighting/sky/planar/model/water and cleanup workflow passed on the final source. Unit cases also verified dense/random cells, malformed/truncated/trailing/over-depth/colour/header failures, noncanonical air/uniform branches, legacy extended headers, input/output buffer isolation, interruption, immutable views, counters and wire identity. Browser checks do not apply to this native Java client.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-packed-rotation-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-packed-rotation-main-midpoint.png",
+      "dashboard/evidence/structure-packed-rotation-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 26,
+      "durationSeconds": 45.114,
+      "bytes": 486448,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "eed772f22b9ea364148df1dba977696ff191a7188fc34990ac8d47c2e448b13d",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-packed-rotation-main-midpoint.png",
+      "structure-packed-rotation-main-structure-placement-limit.png",
+      "structure-packed-rotation-main-structure-preview-conflict.png",
+      "structure-packed-rotation-main-structure-preview-3.png",
+      "structure-packed-rotation-main-structure-import-cancelled.png",
+      "structure-packed-rotation-main-structure-component-closeup.png",
+      "structure-packed-rotation-replay-session.png",
+      "structure-packed-rotation-replay-optics.png",
+      "structure-packed-rotation-replay-pending-optics.png",
+      "structure-packed-rotation-replay-pending.png",
+      "structure-packed-rotation-replay-regression.png"
+    ],
+    "scope": "Fresh native workflow and replay framebuffers, including correct lit detailed models. Software HUD remains around 0\u20131 FPS; no frame-time or physical-GPU pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "compile_release": 17,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "d2d3fe903ce2c085a31bfe94b59839dc1701a602",
+    "run": 44710617915,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh hosted validation."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Nonzero packed world cells bypass graph reconstruction; placement no longer selects a graph view by turn. The ordinary tree path and constructor validation remain intact. The diagnostic graph control is now explicit rather than coupled to production routing. No unrelated feature/test/file deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Provisional 131072-leaf, 256-placement-chunk and 16384-instance caps and dependency/instance surface caps still reject required city/maximum fixtures.",
+    "Agreed targets remain 1024x256x1024 cells, 4 million occupied cells, 64 MiB compressed, 512 MiB decoded and 512 dependencies.",
+    "Required 20-run city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Packed rotation/cell-view allocation diagnostics and functional checks only. No supported-city, supported-limit, stable-rollout, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-packed-rotation-benchmark.json": "e76c38c62c1100bb0a372d39582ea21c8cc0beb6d1d59ef201243c4d2b6edc02",
+    "structure-packed-rotation-main-midpoint.png": "f4407aecccb9d064636b149ae9b85499053edae102fd6c9cf320ae0e554ce737",
+    "structure-packed-rotation-main-structure-component-closeup.png": "c1113ede18e032d1f6e507974e18851fed865e14654b34dcbdde2b9144420c5f",
+    "structure-packed-rotation-main-structure-export-cancelled.png": "bc992b4e846cd22ca75a6f9b5ce558ffca3af845ba86fadb346c0e20d93e7de5",
+    "structure-packed-rotation-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-packed-rotation-main-structure-invalid-anchor.png": "c1fb9fe5cd5c4e28b53690307900643314921bea42de57699260813fbf5cd68f",
+    "structure-packed-rotation-main-structure-library-capture.png": "4964541262ccf4a46a6145b9ecdf3d8b94e69855ce795385aa94de09a1cbcd2e",
+    "structure-packed-rotation-main-structure-native-execution.json": "6b063fa284904582b891d9de32171250e00e547bc80c9086114965bf9c024924",
+    "structure-packed-rotation-main-structure-native-lighting.json": "e1879460f5f4ccfbfbd78e949b371ead49c5d3b5088f8fae8baf58ee064ecff7",
+    "structure-packed-rotation-main-structure-native-result.json": "245df877d0bc2fe66751a6787b5a9e7bc0b19e9f3befd7619364ec7774d052ef",
+    "structure-packed-rotation-main-structure-native-source.json": "e041d01ad44d918bb773fd2a0c32d09bb6c6dae106637828633a2d3e659197c3",
+    "structure-packed-rotation-main-structure-native-stage.json": "c82eaf269932265ec9f44c95160a6bd752572d90a571110f4391f851e377a77e",
+    "structure-packed-rotation-main-structure-placed.png": "8b3c099c76ab514f65fc4f9b6f73dc082dd03fd83d8a820df837b2e72c3a68d2",
+    "structure-packed-rotation-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-packed-rotation-main-structure-player-conflict.png": "29aca620956cde0ed4ec102dc586804d9f0bf14383ae9d6fb6ad4c5dce5e38c2",
+    "structure-packed-rotation-main-structure-preview-0.png": "898851976ea8463e196ef8a9b3a684e95926ab7073ad8643f6db682bb6f2a7c8",
+    "structure-packed-rotation-main-structure-preview-1.png": "921345cd669ff1cf6c42c475f92201d1a415660bab3e865762e9212c1a3d8646",
+    "structure-packed-rotation-main-structure-preview-2.png": "20e21d204cb2db5eb1912b1f3bd0539648519179b57d8338e463e2b94078da74",
+    "structure-packed-rotation-main-structure-preview-3.png": "51d5c04d3b54ac96ba326c5a7e44e6481623c0f188bd2c4396396d9cc94fa97d",
+    "structure-packed-rotation-main-structure-preview-conflict.png": "979f90c38cea749bb477b418624073633b5a58012651fd3c04b0e674fceff944",
+    "structure-packed-rotation-main-structure-undo-cancelled.png": "72434b241c55104d0a6a20f56c39e4b3ad2a19101bc6746a72fb88a11a8d6687",
+    "structure-packed-rotation-main-structure-workflow.mp4": "eed772f22b9ea364148df1dba977696ff191a7188fc34990ac8d47c2e448b13d",
+    "structure-packed-rotation-main-structure-world-placed.png": "b4fbf14daf278e35e81216a63b5e521e39966ee1dc467ee2c33b2badad514e10",
+    "structure-packed-rotation-main-video.json": "387d145178d5b9f977f2037fd954c33114223d8e52029928f18c06a0035b19ef",
+    "structure-packed-rotation-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-packed-rotation-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-packed-rotation-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-packed-rotation-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-packed-rotation-replay-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-packed-rotation-replay.json": "8b4360481d6f6f30a501a4e9da848a4efb9d54a68447be4ab9577523133dae0c"
+  }
+}

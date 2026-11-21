@@ -1,0 +1,32 @@
+{
+  "artifact": "maximum-v1.vxbf.gz",
+  "bounds": [
+    1024,
+    256,
+    1024
+  ],
+  "compressed_bytes": 54394399,
+  "compressed_sha256": "79ab475b835306b345528533262a496b766a1dccf2cdb3a1c5c83ec6336df1e3",
+  "decoded_bytes": 136019628,
+  "decoded_sha256": "315d8686d18044df38abb6ce7f64bcad47983d9fb0f6769ff01f512cc7f27a30",
+  "dependency_bytes": 8396288,
+  "fixture": "maximum",
+  "format": "VXBF",
+  "fractional_leaf_count": 7967232,
+  "generator_sha256": "e0ca1e17de564553f8d6e5a23696558ca2ec289fc438da5b33076b4e2d0e81cf",
+  "instances": 16384,
+  "leaves": 7967232,
+  "model_resolution": 16,
+  "model_surface_unit_faces": 786432,
+  "models": 512,
+  "occupied_cells": 4000000,
+  "publication": "Pending controller publication; regenerate binary from versioned source",
+  "python_version": "3.11.2",
+  "qualification": "Unqualified intermediate benchmark input; not a player package",
+  "seed": 87129111,
+  "source_url": "https://github.com/jaymsDooku/voxel-one/blob/feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437/tools/structures/fixtures.py",
+  "surface_quad_metric": "exposed geometry leaf faces before greedy merging; excludes model surfaces",
+  "surface_quads": 47803392,
+  "version": 1,
+  "zlib_version": "1.2.13"
+}

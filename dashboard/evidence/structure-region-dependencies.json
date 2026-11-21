@@ -1,0 +1,71 @@
+{
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionDependencyCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionDependencyCheck > target/structure-region-dependency-check.json",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'"
+  ],
+  "environment": {
+    "java_heap_cap": "-Xmx512m; cap only, not measured peak memory",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "workflow": "Detached synthetic Linux CLI geometry and model libraries"
+  },
+  "format": {
+    "definition_identity": "Existing ModelDefinition fingerprint includes name and voxel bytes; fixed32byte SHA256 digest on wire. Definitions are opaque8/16/32-resolution component assets.",
+    "fields": "Unique definition table, sorted source-ID/index bindings, length-bounded nested region-history payload, outer CRC32. No author or account fields.",
+    "magic": "0x56524450",
+    "maximum_alias_bindings": 1024,
+    "maximum_definition_bytes": 8388608,
+    "maximum_region_payload_bytes": 8388608,
+    "maximum_total_bytes": 16777216,
+    "maximum_unique_definitions": 512,
+    "per_model_bytes": 200000,
+    "per_model_mesh_quads": 8192,
+    "scope": "Private uncompressed diagnostic envelope, not a game importer or production save format",
+    "version": 1
+  },
+  "hosted_observation": "Controller reports required platform builds passed for this exact parent. Fresh PR observation matched it with seven successful entries and one additional Intel Mac build still running; publication skipped. No unchanged wait requested.",
+  "limitations": "Diagnostic byte/count caps do not establish peak heap or application performance. Decode checks accumulated definition bytes after each existing bounded ModelDefinition.read, so one additional record of at most200000body bytes plus4length bytes can parse before aggregate rejection. Cancellation inside existing model parsing/meshing has per-definition granularity. Encoding holds bounded definition/region byte arrays and a final envelope copy. Restore uses detached WorldVoxels and a copied ModelLibrary only; it does not implement live atomic generation publication, persistence or networking.512-definition cohort uses simple8-resolution models and512 cells, not the required city fixture.",
+  "next": "Integrate bounded region/dependency storage with versioned save/load, atomic world-generation publication, conflict-safe undo and late joining while keeping old saves readable. Measure geometry plus retained generations and undo together.",
+  "observed": {
+    "bindings": 4,
+    "full_512_definition_bytes": 50658,
+    "manifest_bytes": 9195,
+    "qualification": false,
+    "rejection_cases": 47,
+    "status": "passed",
+    "unique_definitions": 3
+  },
+  "parent_head": "7cf035c08ce0903fea263d028252c94d97d3e678",
+  "playtest": "Playtest: actual CLI restored a self-contained manifest into a fresh ModelLibrary and into a copied library with a conflicting ID, then compared dependency fingerprints and nonmodel world cells. Expected restored models, preserved aliases and untouched source library; observed all pass. The512-definition and1024-alias cohorts also round-trip successfully.47 rejection cases passed. Browser/native playtesting does not apply to this tools-only experiment; all224 existing native source-manifest paths remain unchanged, so published implementation workflow media still matches game source.",
+  "qualification": "Production history, formats, networking, model limits and structure admission caps are unchanged. Full city/maximum admission and20-run physical-GPU/shaped-network/32-rendered-client budgets remain pending. Readiness and stable rollout stay gated.",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/model/ModelDefinition.java": "5b7ddd49dc6908d4280e9e60b964f2ab733aa7905520d01230d36ce60b77e683",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "5177125851e07673657f52b09c45164a07b67388a745a2d0fef2a1d8a114aaef",
+    "src/main/java/dev/jayms/net/model/ModelMesher.java": "1b98f8aa13badcfa76a023637f11aceb43e0d720de18e176f062d3b67d4947b8",
+    "tools/structures/RegionDependencyCheck.java": "3becbcf8a7500dbd3353344d627a80dd1580bf1baad57273f37b6dd73bea926c",
+    "tools/structures/RegionDependencyPrototype.java": "de1a11bea57186181ff232b89c866eb065f17b4d26879a4fca7c89a2da2aa00c",
+    "tools/structures/RegionHistoryPrototype.java": "1f8ccbf6a078d6a1e14ffd129e6fd6fac86e52f34ebefe97cb3f8155979b8a00",
+    "tools/structures/test_region_history.py": "2922d928ba2b760eefc222afe2056499abccaa6b8a80e59febe3aae7c537b8e6"
+  },
+  "status": "private_dependency_manifest_checks_passed_production_integration_pending",
+  "tests": {
+    "broad_structure_tool_tests": 36,
+    "cases": [
+      "Capture only referenced models; deduplicate immutable definitions by existing fingerprint, including alias IDs.",
+      "Edit mutable source model after capture; captured fingerprint and restored geometry stay independent.",
+      "Round-trip bytes and restore into an empty dependency library.",
+      "Remap conflicting destination ID1024 in a private library copy; preserve the original library and shared alias identity.",
+      "Restore legacy custom ID9, built-in ID8,512 distinct definitions and1024 alias bindings; reject513 distinct definitions and1025 bindings.",
+      "Preserve nonmodel geometry, fractional LED colour and explicit air over seeded terrain.",
+      "Reject missing/extra dependencies, empty models, per-model meshing-cap violations, invalid fingerprint/duplicate/unused definition records, invalid/duplicate/unordered binding IDs and indices, malformed lengths, CRC/trailing/truncated data and oversized total input.",
+      "Independent golden outer container re-encodes byte-for-byte. Semantic malformed containers recompute outer CRC.",
+      "Cancel capture, encode, decode and private restore; mid-operation/final-return checks return no result; source destination library remains unchanged. Interrupt flag is preserved; retry succeeds."
+    ],
+    "errors": 0,
+    "failures": 0,
+    "focused_integration_tests": 3,
+    "skips": 0
+  }
+}

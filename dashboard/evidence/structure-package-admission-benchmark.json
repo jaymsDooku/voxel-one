@@ -1,0 +1,727 @@
+{
+  "scope": "Production package storage codec only. Both full physical reference inputs decoded/roundtripped; every placement rejected before authority reads. No World created. No capture/preview/placement/durable-save/cold-load/upload/render/frame/tick/network qualification.",
+  "qualification": false,
+  "method": "Serial city then maximum JVMs with 1 GiB heap, one full warmup and 20 measured decodes. System.gc, 100 ms pause, input hashing, count/complexity checks, placement rejections and exports are outside decode timing. All four rotations check common preflight and direct prepare with a forbidden source and released reservation. One export/second-decode/body-SHA comparison per fixture; export is not a p95 result. Heap sampled every 5 ms can miss instantaneous peaks; process RSS high water is cumulative and includes native/JIT memory. Shared VPS load is uncontrolled.",
+  "commands": {
+    "compile": [
+      "javac",
+      "--release",
+      "17",
+      "-cp",
+      "target/classes",
+      "-d",
+      "target/package-admission-validation/probe-classes",
+      "tools/structures/PackageStorageBenchmark.java"
+    ],
+    "fixtures": [
+      {
+        "fixture": "city",
+        "parent_control": [
+          "java",
+          "-Xmx1g",
+          "-cp",
+          "target/package-admission-validation/parent-classes:target/classes",
+          "CheckAdmission",
+          "target/structure-fixtures/city-v2.vstr",
+          "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6"
+        ],
+        "current": [
+          "java",
+          "-Xmx1g",
+          "-cp",
+          "target/package-admission-validation/probe-classes:target/classes",
+          "PackageStorageBenchmark",
+          "city",
+          "target/structure-fixtures/city-v2.vstr",
+          "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+          "20",
+          "target/package-admission-validation/city-storage"
+        ]
+      },
+      {
+        "fixture": "maximum",
+        "parent_control": [
+          "java",
+          "-Xmx1g",
+          "-cp",
+          "target/package-admission-validation/parent-classes:target/classes",
+          "CheckAdmission",
+          "target/structure-fixtures/maximum-v2.vstr",
+          "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+        ],
+        "current": [
+          "java",
+          "-Xmx1g",
+          "-cp",
+          "target/package-admission-validation/probe-classes:target/classes",
+          "PackageStorageBenchmark",
+          "maximum",
+          "target/structure-fixtures/maximum-v2.vstr",
+          "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+          "20",
+          "target/package-admission-validation/maximum-storage"
+        ]
+      }
+    ]
+  },
+  "execution": [
+    {
+      "fixture": "city",
+      "parent_control": {
+        "status": "rejected",
+        "admitted": false,
+        "identity_verified": true,
+        "package_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+        "compressed_bytes": 30258485,
+        "reason": "dependency_surface_cap",
+        "qualification": "NOT QUALIFIED"
+      },
+      "current_exit": 0,
+      "elapsed_seconds": 164.52632370963693
+    },
+    {
+      "fixture": "maximum",
+      "parent_control": {
+        "status": "rejected",
+        "admitted": false,
+        "identity_verified": true,
+        "package_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+        "compressed_bytes": 53637310,
+        "reason": "instance_surface_cap",
+        "qualification": "NOT QUALIFIED"
+      },
+      "current_exit": 0,
+      "elapsed_seconds": 307.5276621133089
+    }
+  ],
+  "parent_build": {
+    "parent": "d9d060953eda3bc8a70f61c422a9db6d95136e03",
+    "command": [
+      "javac",
+      "--release",
+      "17",
+      "-g",
+      "-cp",
+      "target/classes",
+      "-d",
+      "target/package-admission-validation/parent-classes",
+      "target/package-admission-validation/parent-src/dev/jayms/net/structure/StructurePackage.java",
+      "target/package-admission-validation/parent-src/CheckAdmission.java"
+    ],
+    "all_package_classes_match_published_parent": true,
+    "class_sha256": {
+      "target/classes/dev/jayms/net/structure/StructurePackage$BudgetOutput.class": "d946ba8a3292341e89e7a1e042f9f023350faba126519ccaa5b35733be69c1f0",
+      "target/classes/dev/jayms/net/structure/StructurePackage.class": "ce34eabb9424bff9a0562771673a8d391a420a8910a30906342c1a8f2923ba5f",
+      "target/classes/dev/jayms/net/structure/StructurePackage$Bounds.class": "f5010a673e1818328909b7ccdea0526bc4ac439acddf29d5bd3b7908836cd7c3",
+      "target/classes/dev/jayms/net/structure/StructurePackage$Position.class": "08fb2eca2964a6930cec14c567c2c6334729586b9063f67b7a780a15bb23f496",
+      "target/classes/dev/jayms/net/structure/StructurePackage$Cell.class": "9f49d660c0b785032476ffe897814cec7e80a5fb50abe770b96fdbfda8570a8a",
+      "target/classes/dev/jayms/net/structure/StructurePackage$BudgetInput.class": "eb224c56c9501c32ffd2e9bc0926210d62d5a4a6b97a714e7e4111c280a96dfb",
+      "target/classes/dev/jayms/net/structure/StructurePackage$Source.class": "d7bcba7ed4ba7f20d365b30ef5d60d548bc6fe1e63368af152360659e5da6195",
+      "target/classes/dev/jayms/net/structure/StructurePackage$DecodedContents.class": "a9e5ec70cf9cc3ba53b9656bde14ddef9e16c0da681cebbed8a7b6a7aceb3745"
+    },
+    "source_sha256": {
+      "target/package-admission-validation/parent-src/dev/jayms/net/structure/StructurePackage.java": "4f2f52e274c524393ff8bebc8d1e261e5249488bd125e4d2c9a9d4a8110ec583",
+      "target/package-admission-validation/parent-src/CheckAdmission.java": "71e4a972daa3296679090f25d37bad7a5701ff4a203a3589c88522976a625c06"
+    }
+  },
+  "current_classes_sha256": {
+    "target/classes/dev/jayms/net/structure/StructureEngine$Authority.class": "bf9f721275e4436790c647d8741f9ff233ba7690afa92afffed0a3fbac07dcb3",
+    "target/classes/dev/jayms/net/structure/StructureRegionSnapshot.class": "ddceac9d0d3625827fad5528acbdf41a15227dca7eaf59c8169a51b3256bc47a",
+    "target/classes/dev/jayms/net/structure/StructurePackage$BudgetOutput.class": "73bfff78ad83a1dbf022fabfbefe6eadfda4727b9af433755687adc7ebcd2dd9",
+    "target/classes/dev/jayms/net/structure/StructureCells$1.class": "e4d4d974d768f96a7ae3e7f75a136d186aebbda39a1abd9e3ad332c2ac73dc16",
+    "target/classes/dev/jayms/net/structure/StructurePackage.class": "40becf73fc05dea24f44d6a903520dcaf81317a4e3fdafe9a59ba18315a5bbef",
+    "target/classes/dev/jayms/net/structure/StructureCells$Builder.class": "ddcb519654a7de6748bd18e686fc0418413c8f8730377fa04848e52397c6162b",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$Builder$1.class": "261ccc6fa6dd0a497d8d4e61bf14dbd12ca0f8f2ac3baaa420757f2e2980f6ca",
+    "target/classes/dev/jayms/net/structure/StructureEngine$UndoPrepared.class": "22100320b0a1007ac31b0652be41753b94cdefb2a5853bea4ed0c45957692e45",
+    "target/classes/dev/jayms/net/structure/StructureEngine$1.class": "534e93c122b8991a1b36406a659cec59e702bd091d4781bb06d87073d3ebad33",
+    "target/classes/dev/jayms/net/structure/StructureImportStage$Payload.class": "f9b0417eb646a1ebd9258ef52dd15102f91ecd0c83c7d237cfb51917672b2000",
+    "target/classes/dev/jayms/net/structure/StructurePackage$Bounds.class": "f5010a673e1818328909b7ccdea0526bc4ac439acddf29d5bd3b7908836cd7c3",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$Decoded.class": "e63253257a2b19e688662c99e4ddfc6ca5c6b57cc16711ba9aaa4aedea2d629c",
+    "target/classes/dev/jayms/net/structure/StructureWirePositions.class": "a3b0aff20a4c2383a80aa5b390ff96732a89f2190405948511d384c046f7e7d6",
+    "target/classes/dev/jayms/net/structure/StructureEngine$Record.class": "d286b1a10f62c82ae863e53feb893b0f03f7ba8e1699debbaed627ddf359926e",
+    "target/classes/dev/jayms/net/structure/StructureOrder.class": "a2ae13ec9dc6214898c657f901bac1ca789342debf2017dbc317d467b7f460cb",
+    "target/classes/dev/jayms/net/structure/StructurePackage$Position.class": "08fb2eca2964a6930cec14c567c2c6334729586b9063f67b7a780a15bb23f496",
+    "target/classes/dev/jayms/net/structure/StructurePlacementCells$Builder.class": "62ff018deb76a88a929278e004b88a2a6ebe28ae2524681207b0778ef0a9eb85",
+    "target/classes/dev/jayms/net/structure/StructureEngine$Footprint.class": "bcb2b3b7b28b6153b5e0a434209c285fcf778b1dcfb63d238dc2e85c9c215dd3",
+    "target/classes/dev/jayms/net/structure/StructureImportStage.class": "25b33f45f0ae194c1290580ee00230cacc0248ab3c9d4c47e4cf20ea7ce12eea",
+    "target/classes/dev/jayms/net/structure/StructureCells$Builder$1.class": "066e2d8ab6386b5128781e0d145a91c50823ec9d5c3e1fe3cae40a7eba884d20",
+    "target/classes/dev/jayms/net/structure/StructurePackage$Cell.class": "9f49d660c0b785032476ffe897814cec7e80a5fb50abe770b96fdbfda8570a8a",
+    "target/classes/dev/jayms/net/structure/StructureWire$Limited.class": "77da41a67f97b25a84b5d717bdb7ed39888a857a452712c8424c2c624811d6d6",
+    "target/classes/dev/jayms/net/structure/StructurePreview.class": "db35639a794441e73f50fea2255514f57c36240e760eeee415751a1969be8715",
+    "target/classes/dev/jayms/net/structure/StructureEngine$Prepared.class": "1d77e4c609669815e8989fb9d09e86b837513bbd8138ed0d35ca1c8a405ec332",
+    "target/classes/dev/jayms/net/structure/StructurePackage$BudgetInput.class": "fcfdbfa4cf7bbda31502845620daac85e12be6aa8b5e1acc7a469f92e06b048f",
+    "target/classes/dev/jayms/net/structure/StructureEngine$Commit.class": "1d5a793b2548b5987c5e47b0451d2cd41b6c8808f8920672b211f43c86c9f2b6",
+    "target/classes/dev/jayms/net/structure/StructureEngine$1$1$1.class": "2ca109ff2f2fb7128b4062560f5196ccb020d5c38db1442030305d674fe6dfcd",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$Bytes.class": "a08a545ffa03f35a1f8b8fc993ff09c555ca96af1abc0b2a8e973e03cada065b",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$Builder.class": "de6bb3834a8dd99f33aa03a9c2c477602e4517c7afe1637ac73219de092599d5",
+    "target/classes/dev/jayms/net/structure/StructureEngine.class": "05272069cbb7320129c5814540c19d5b7874b5dd395f039a0d2704c3596ceaa0",
+    "target/classes/dev/jayms/net/structure/StructureWire.class": "8e82ea4b682d8d38adb12ba257849b9e7a2c831e668a23b367faa1f613343446",
+    "target/classes/dev/jayms/net/structure/StructurePlacementCells$1.class": "0d61b928f659eca930346e44434662d9d0e90175abc85faa9cbd0f50f05386bb",
+    "target/classes/dev/jayms/net/structure/StructurePackage$Source.class": "d7bcba7ed4ba7f20d365b30ef5d60d548bc6fe1e63368af152360659e5da6195",
+    "target/classes/dev/jayms/net/structure/StructurePlacementCells.class": "325ce5e2edebe54b25409957e14512b716f3592acce861002810e2579de94b92",
+    "target/classes/dev/jayms/net/structure/StructureOccupancy.class": "19329f9aaa52c16f734a3c5645266f552f239ee3d83143a8e9d2dfb2a52aa7d3",
+    "target/classes/dev/jayms/net/structure/StructureWire$Delta.class": "415e87997b2249be79ea60dd87f3214792ae5074f82a09730718b0bc4a0a1f4e",
+    "target/classes/dev/jayms/net/structure/StructureRegionSnapshot$1.class": "7c992c4e8218c422b8ee5e993b298660bac6654fd4958570368412e4eefd63b3",
+    "target/classes/dev/jayms/net/structure/StructurePlacementCells$1$1.class": "e6cd828d124a406373d1a75045a6ffec4c4935103b0fd977efb0385456df7f22",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$1.class": "77e21516db9a5d189664c43aa07d145b0e1e044d5f939df50d26e40bc9e2ae91",
+    "target/classes/dev/jayms/net/structure/StructureModelCodec.class": "f56a4909363e15c2b35fd47a80f7d9e7fdb90d77b2e3164e0860c00769ad1db1",
+    "target/classes/dev/jayms/net/structure/StructurePackage$DecodedContents.class": "c4c3f7dc117e6b285fe98d9ba74d27181ab21cc7e83eccaf69e6c48c07f44e1e",
+    "target/classes/dev/jayms/net/structure/StructureUniformCells.class": "45b961f2c2bb41921b75d3a760b81b2a0eb788c32dc2e08d6862b81c20f14961",
+    "target/classes/dev/jayms/net/structure/StructureCells.class": "1b90fc83a048ac3a367025a4145d8eb879113ab102cc8ec4040f364ef16e2f16",
+    "target/classes/dev/jayms/net/structure/StructureEngine$1$1.class": "c6e2abb71a0546e3e2d6969d6eeb8bc5e01d273c12aaa57dff3a85075e069234",
+    "target/classes/dev/jayms/net/structure/StructureGeometry$Input.class": "5338424a6a35ab412191d11c3a3fcd8ca07e6ec4ad46af6fe023b7ad823ddfe6",
+    "target/classes/dev/jayms/net/structure/StructureGeometry.class": "49506056c9a9561517f966291169df6af2bd8c647ab1a0576bdedd8e41eb919d",
+    "target/classes/dev/jayms/net/structure/StructureOwnerQueue.class": "3919c67757eb691afd07501a5d8ca7cce2cec7ab23843f82e3d01929864a64cd"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructurePackage.java": "d28a35872fbb96e44aed65ba2760689aa8f51250bfceca90752530dbf0113e21",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "2cea6ecfc29ddbe867b278373fbb72b445661d3ff2164a5ddfbbad7a44bb0eec",
+    "src/main/java/dev/jayms/net/structure/StructureUniformCells.java": "7137c58deb15d22ef37b375a75277b6dd6129114723ac4957e6b0670f4702d55",
+    "tools/structures/PackageStorageBenchmark.java": "b1ef546c057c649e78b3fb86c2a6c59873e698f9b99fc972c597d97cceec7ab0",
+    "tools/structures/CheckAdmission.java": "dd4255466e068c3b1f26ac7e8be7ed9a1740ef88e90d9aee8d990e53bf43fc30"
+  },
+  "current_storage_cli": {
+    "commands": [
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/classes",
+        "-d",
+        "target/package-admission-validation/probe-classes",
+        "tools/structures/CheckAdmission.java"
+      ],
+      [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/package-admission-validation/probe-classes:target/classes",
+        "CheckAdmission",
+        "target/structure-fixtures/city-v2.vstr",
+        "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6"
+      ],
+      [
+        "java",
+        "-Xmx1g",
+        "-cp",
+        "target/package-admission-validation/probe-classes:target/classes",
+        "CheckAdmission",
+        "target/structure-fixtures/maximum-v2.vstr",
+        "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+      ]
+    ],
+    "results": {
+      "city": {
+        "status": "admitted",
+        "admitted": true,
+        "identity_verified": true,
+        "package_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6",
+        "compressed_bytes": 30258485,
+        "scope": "package_storage",
+        "placement_preflight_admitted": false,
+        "placement_reason": "geometry_cap",
+        "decoded_bytes": 41073093,
+        "dimensions": [
+          512,
+          128,
+          512
+        ],
+        "cells": 978288,
+        "models": 256,
+        "geometry_leaves": 968048,
+        "instances": 10240,
+        "dependency_quads": 1572864,
+        "instance_quads": 62914560,
+        "qualification": "NOT QUALIFIED"
+      },
+      "maximum": {
+        "status": "admitted",
+        "admitted": true,
+        "identity_verified": true,
+        "package_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda",
+        "compressed_bytes": 53637310,
+        "scope": "package_storage",
+        "placement_preflight_admitted": false,
+        "placement_reason": "geometry_cap",
+        "decoded_bytes": 305479992,
+        "dimensions": [
+          1024,
+          256,
+          1024
+        ],
+        "cells": 4000000,
+        "models": 512,
+        "geometry_leaves": 7967232,
+        "instances": 16384,
+        "dependency_quads": 786432,
+        "instance_quads": 25165824,
+        "qualification": "NOT QUALIFIED"
+      }
+    }
+  },
+  "fixtures": {
+    "city": {
+      "result": {
+        "status": "passed",
+        "fixture": "city",
+        "runs": 20,
+        "warmups": 1,
+        "strict_crc_rejection": true,
+        "derived_complexity_verified": true,
+        "placement_rejected_before_authority_reads": true,
+        "mid_decode_cancellation": true,
+        "roundtrip": {
+          "export_ms": 3226.986162,
+          "export_bytes": 30258485,
+          "decoded_body_byte_exact": true,
+          "second_decode_verified": true,
+          "sampled_heap_peak_bytes": 336495480,
+          "process_rss_high_water_bytes": 556875776
+        },
+        "production_storage": true,
+        "placement_preflight_admitted": false,
+        "qualification": false
+      },
+      "samples": [
+        {
+          "run": -1,
+          "decode_ms": 6679.55535,
+          "sampled_heap_peak_bytes": 161817920,
+          "process_rss_high_water_bytes": 299761664,
+          "main_thread_allocated_bytes": 1145798896,
+          "gc_collections": 49,
+          "gc_ms": 85
+        },
+        {
+          "run": 0,
+          "decode_ms": 6550.018073,
+          "sampled_heap_peak_bytes": 180865392,
+          "process_rss_high_water_bytes": 327294976,
+          "main_thread_allocated_bytes": 1140881664,
+          "gc_collections": 47,
+          "gc_ms": 75
+        },
+        {
+          "run": 1,
+          "decode_ms": 6422.746178,
+          "sampled_heap_peak_bytes": 165946736,
+          "process_rss_high_water_bytes": 332820480,
+          "main_thread_allocated_bytes": 1140903280,
+          "gc_collections": 52,
+          "gc_ms": 84
+        },
+        {
+          "run": 2,
+          "decode_ms": 6485.635305,
+          "sampled_heap_peak_bytes": 163484488,
+          "process_rss_high_water_bytes": 343515136,
+          "main_thread_allocated_bytes": 1140903264,
+          "gc_collections": 62,
+          "gc_ms": 89
+        },
+        {
+          "run": 3,
+          "decode_ms": 6252.707875,
+          "sampled_heap_peak_bytes": 165341800,
+          "process_rss_high_water_bytes": 353656832,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 66,
+          "gc_ms": 97
+        },
+        {
+          "run": 4,
+          "decode_ms": 6305.15357,
+          "sampled_heap_peak_bytes": 191032824,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 45,
+          "gc_ms": 69
+        },
+        {
+          "run": 5,
+          "decode_ms": 6358.817537,
+          "sampled_heap_peak_bytes": 166794712,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 63,
+          "gc_ms": 89
+        },
+        {
+          "run": 6,
+          "decode_ms": 6201.856763,
+          "sampled_heap_peak_bytes": 166231128,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 61,
+          "gc_ms": 83
+        },
+        {
+          "run": 7,
+          "decode_ms": 6139.535577,
+          "sampled_heap_peak_bytes": 193046568,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 47,
+          "gc_ms": 72
+        },
+        {
+          "run": 8,
+          "decode_ms": 6138.382211,
+          "sampled_heap_peak_bytes": 182560808,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 47,
+          "gc_ms": 81
+        },
+        {
+          "run": 9,
+          "decode_ms": 6367.311044,
+          "sampled_heap_peak_bytes": 165086296,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903352,
+          "gc_collections": 67,
+          "gc_ms": 86
+        },
+        {
+          "run": 10,
+          "decode_ms": 6404.235198,
+          "sampled_heap_peak_bytes": 196585560,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 46,
+          "gc_ms": 71
+        },
+        {
+          "run": 11,
+          "decode_ms": 6437.888111,
+          "sampled_heap_peak_bytes": 162600408,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 60,
+          "gc_ms": 108
+        },
+        {
+          "run": 12,
+          "decode_ms": 6346.850912,
+          "sampled_heap_peak_bytes": 195633808,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 50,
+          "gc_ms": 101
+        },
+        {
+          "run": 13,
+          "decode_ms": 6387.962922,
+          "sampled_heap_peak_bytes": 185088680,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 47,
+          "gc_ms": 106
+        },
+        {
+          "run": 14,
+          "decode_ms": 6317.985834,
+          "sampled_heap_peak_bytes": 166306616,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 59,
+          "gc_ms": 91
+        },
+        {
+          "run": 15,
+          "decode_ms": 6164.037072,
+          "sampled_heap_peak_bytes": 163717464,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 51,
+          "gc_ms": 76
+        },
+        {
+          "run": 16,
+          "decode_ms": 6394.732799,
+          "sampled_heap_peak_bytes": 160821480,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 61,
+          "gc_ms": 99
+        },
+        {
+          "run": 17,
+          "decode_ms": 6154.528999,
+          "sampled_heap_peak_bytes": 164210792,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 64,
+          "gc_ms": 95
+        },
+        {
+          "run": 18,
+          "decode_ms": 6154.939457,
+          "sampled_heap_peak_bytes": 171712728,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140903160,
+          "gc_collections": 62,
+          "gc_ms": 88
+        },
+        {
+          "run": 19,
+          "decode_ms": 6168.099629,
+          "sampled_heap_peak_bytes": 169980840,
+          "process_rss_high_water_bytes": 353894400,
+          "main_thread_allocated_bytes": 1140905712,
+          "gc_collections": 67,
+          "gc_ms": 83
+        }
+      ],
+      "decode_ms": {
+        "median": 6332.418373,
+        "p95": 6485.635305,
+        "worst": 6550.018073
+      },
+      "main_thread_allocated_bytes": {
+        "median": 1140903160.0,
+        "p95": 1140903352,
+        "worst": 1140905712
+      },
+      "max_sampled_decode_heap_bytes": 196585560,
+      "max_decode_process_rss_high_water_bytes": 353894400,
+      "fixture_sha256": "6e9b606d0e3c8045db437dabad75d797a22843c39df6244c196e8e792d488ef6"
+    },
+    "maximum": {
+      "result": {
+        "status": "passed",
+        "fixture": "maximum",
+        "runs": 20,
+        "warmups": 1,
+        "strict_crc_rejection": true,
+        "derived_complexity_verified": true,
+        "placement_rejected_before_authority_reads": true,
+        "mid_decode_cancellation": true,
+        "roundtrip": {
+          "export_ms": 9674.81979,
+          "export_bytes": 53637310,
+          "decoded_body_byte_exact": true,
+          "second_decode_verified": true,
+          "sampled_heap_peak_bytes": 889323528,
+          "process_rss_high_water_bytes": 1194356736
+        },
+        "production_storage": true,
+        "placement_preflight_admitted": false,
+        "qualification": false
+      },
+      "samples": [
+        {
+          "run": -1,
+          "decode_ms": 12311.803978,
+          "sampled_heap_peak_bytes": 465436896,
+          "process_rss_high_water_bytes": 627761152,
+          "main_thread_allocated_bytes": 816324680,
+          "gc_collections": 36,
+          "gc_ms": 149
+        },
+        {
+          "run": 0,
+          "decode_ms": 11862.203719,
+          "sampled_heap_peak_bytes": 466579400,
+          "process_rss_high_water_bytes": 650211328,
+          "main_thread_allocated_bytes": 813611984,
+          "gc_collections": 23,
+          "gc_ms": 104
+        },
+        {
+          "run": 1,
+          "decode_ms": 11823.058173,
+          "sampled_heap_peak_bytes": 464912736,
+          "process_rss_high_water_bytes": 700440576,
+          "main_thread_allocated_bytes": 810907968,
+          "gc_collections": 28,
+          "gc_ms": 98
+        },
+        {
+          "run": 2,
+          "decode_ms": 11702.645538,
+          "sampled_heap_peak_bytes": 467748760,
+          "process_rss_high_water_bytes": 700502016,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 27,
+          "gc_ms": 80
+        },
+        {
+          "run": 3,
+          "decode_ms": 12316.338866,
+          "sampled_heap_peak_bytes": 469898424,
+          "process_rss_high_water_bytes": 700502016,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 27,
+          "gc_ms": 108
+        },
+        {
+          "run": 4,
+          "decode_ms": 11750.302289,
+          "sampled_heap_peak_bytes": 467933528,
+          "process_rss_high_water_bytes": 708464640,
+          "main_thread_allocated_bytes": 810906400,
+          "gc_collections": 28,
+          "gc_ms": 94
+        },
+        {
+          "run": 5,
+          "decode_ms": 12320.858244,
+          "sampled_heap_peak_bytes": 463536120,
+          "process_rss_high_water_bytes": 708632576,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 28,
+          "gc_ms": 89
+        },
+        {
+          "run": 6,
+          "decode_ms": 11655.193319,
+          "sampled_heap_peak_bytes": 463405272,
+          "process_rss_high_water_bytes": 708632576,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 28,
+          "gc_ms": 98
+        },
+        {
+          "run": 7,
+          "decode_ms": 11557.902387,
+          "sampled_heap_peak_bytes": 470693816,
+          "process_rss_high_water_bytes": 712052736,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 28,
+          "gc_ms": 93
+        },
+        {
+          "run": 8,
+          "decode_ms": 13011.444457,
+          "sampled_heap_peak_bytes": 466878760,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810906208,
+          "gc_collections": 28,
+          "gc_ms": 98
+        },
+        {
+          "run": 9,
+          "decode_ms": 12008.826574,
+          "sampled_heap_peak_bytes": 463143064,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810876328,
+          "gc_collections": 29,
+          "gc_ms": 89
+        },
+        {
+          "run": 10,
+          "decode_ms": 11804.888017,
+          "sampled_heap_peak_bytes": 470089784,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 27,
+          "gc_ms": 86
+        },
+        {
+          "run": 11,
+          "decode_ms": 11643.428679,
+          "sampled_heap_peak_bytes": 463274168,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 29,
+          "gc_ms": 115
+        },
+        {
+          "run": 12,
+          "decode_ms": 11383.311549,
+          "sampled_heap_peak_bytes": 463929432,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 27,
+          "gc_ms": 87
+        },
+        {
+          "run": 13,
+          "decode_ms": 11524.481787,
+          "sampled_heap_peak_bytes": 476250136,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 26,
+          "gc_ms": 71
+        },
+        {
+          "run": 14,
+          "decode_ms": 11707.843926,
+          "sampled_heap_peak_bytes": 480051384,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 24,
+          "gc_ms": 78
+        },
+        {
+          "run": 15,
+          "decode_ms": 11711.399743,
+          "sampled_heap_peak_bytes": 479330312,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 24,
+          "gc_ms": 66
+        },
+        {
+          "run": 16,
+          "decode_ms": 11897.975864,
+          "sampled_heap_peak_bytes": 463077512,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 29,
+          "gc_ms": 84
+        },
+        {
+          "run": 17,
+          "decode_ms": 11636.811107,
+          "sampled_heap_peak_bytes": 465043560,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 29,
+          "gc_ms": 114
+        },
+        {
+          "run": 18,
+          "decode_ms": 11633.814712,
+          "sampled_heap_peak_bytes": 462291144,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 28,
+          "gc_ms": 108
+        },
+        {
+          "run": 19,
+          "decode_ms": 11852.388856,
+          "sampled_heap_peak_bytes": 476905656,
+          "process_rss_high_water_bytes": 712220672,
+          "main_thread_allocated_bytes": 810697312,
+          "gc_collections": 26,
+          "gc_ms": 81
+        }
+      ],
+      "decode_ms": {
+        "median": 11730.851016,
+        "p95": 12320.858244,
+        "worst": 13011.444457
+      },
+      "main_thread_allocated_bytes": {
+        "median": 810786820.0,
+        "p95": 810907968,
+        "worst": 813611984
+      },
+      "max_sampled_decode_heap_bytes": 480051384,
+      "max_decode_process_rss_high_water_bytes": 712220672,
+      "fixture_sha256": "c76fcc00260e42370b9877f3ef4a00ed95e203a557b4e1e8dcb4e95a8f4a4eda"
+    }
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "logical_cpus": 4,
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "compile_release": 17,
+    "os_visible_memory_bytes": 8140382208
+  }
+}

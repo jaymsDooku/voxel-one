@@ -1,0 +1,312 @@
+{
+  "schema": 1,
+  "parent_head": "df24e1a76c26c3e50483427bc330f58bc09706ad",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "forEachLeaf visits exact stored packed-cell/model wire topology directly, without rebuilding nodes, allocating leaf lists or retaining a decoded cache. Recursive offsets are call-local, including reentrant callbacks. Ordinary trees keep their existing path. ModelDefinition uses this visitor for its unchanged opaque-colour rule, preserving name trim/validation, 8/16/32 sizes, empty models, voxel reference identity and serialized fingerprints. Callback checked/runtime/cancellation failures still stop traversal and preserve source bytes. No new thread-interruption policy was introduced.",
+  "scope": "Packed leaf traversal and model validation allocation only. Mutable copies, leaves() callers, raycasts and nonzero packed-model rotation may still build graphs. No format, model, structure, surface, instance or chunk caps changed. Main paging and supported city/maximum use remain unfinished.",
+  "focused": {
+    "tests": 47,
+    "suites": [
+      {
+        "name": "dev.jayms.PackedLeafVisitorTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureLeafVisitorTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.PackedModelSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.structure.StructureGeometryDecodeTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "status": "passed",
+    "earlier_failures": "Two initial test-helper assertions: PackedCell-only reflection missed PackedModel; sparse models may retain graph nodes by the existing heuristic. Corrected helper/representation expectations and added a dense invalid packed-model opacity case."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest",
+      "test"
+    ],
+    "tests": 458,
+    "suites": 97,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 334.39464271068573
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.287782838568091,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven",
+    "command": "python3 target/model-leaf-validation/run-checks.py"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 809,
+    "shaders_match": 28,
+    "mp3": "Original shipped CBR/VBR fixtures both decode to 44100 Hz, 6.060 s PCM."
+  },
+  "benchmark": "structure-model-leaf-benchmark.json",
+  "main": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-model-leaf-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 536523,
+      "timeout_seconds": 900
+    },
+    "source_files": 311,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-model-leaf-main-structure-native-source.json",
+      "source_manifest_sha256": "51e0bae604e4133f5327820ec590770ea3a7c8925960b278f55bcdcbb071ba41",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-model-leaf-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "replay": {
+    "earlier_attempt": {
+      "status": "incomplete",
+      "exit_code": 143,
+      "pass": false,
+      "cause": "Supplemental session terminated before any step receipt/media. No bounded error excerpt or surviving assigned replay process. Same-source retry follows; cause not established."
+    },
+    "receipt": "structure-model-leaf-replay.json",
+    "source_files": 616,
+    "compiled_classes": 1276,
+    "all_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12197888274,
+      "planar_lighting_nanos": 1070198599,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12049979090,
+      "planar_lighting_nanos": 733734267,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    }
+  },
+  "supplemental_commands": [
+    [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-model-leaf-replay"
+    ],
+    [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-model-leaf-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-model-leaf-main-midpoint.png",
+      "dashboard/evidence/structure-model-leaf-main-video.json"
+    ]
+  ],
+  "supplemental_execution": [
+    {
+      "command_index": 0,
+      "exit_code": 0,
+      "elapsed_seconds": 78.20335707813501
+    },
+    {
+      "command_index": 1,
+      "exit_code": 0,
+      "elapsed_seconds": 2.4232258070260286
+    }
+  ],
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected complete capture/anchor/library, long-path import/export, all four turns, footprint and conflicts, empty-space preservation, player/occupied-cell rejection, cancellation, atomic failure, one-operation undo, repeated placement, over-limit rejection without world/dependency/save mutation, dependency/restart recovery and inventory/editor regressions. Observed all assertions passed. Separate production replay/save/reopen/paging/GPU/lighting/sky/planar/model/water and cleanup assertions passed. Browser checks do not apply to this native Java client. New unit checks compare ordered leaves, coordinates, sizes, colours, counters, frozen snapshots and fingerprints across random/dense/world/redundant data; reentry and checked/runtime/cancellation callback short-circuit; sparse model heuristics; empty/name/opacity rules, including invalid dense PackedModel input.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-model-leaf-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-model-leaf-main-midpoint.png",
+      "dashboard/evidence/structure-model-leaf-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 26,
+      "durationSeconds": 45.28,
+      "bytes": 499201,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "88c2d5611d265e55e4d6d1b0f241dfbe9069752a9a09beae7df6ea3901b3947f",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-model-leaf-main-midpoint.png",
+      "structure-model-leaf-main-structure-placement-limit.png",
+      "structure-model-leaf-main-structure-preview-conflict.png",
+      "structure-model-leaf-main-structure-preview-3.png",
+      "structure-model-leaf-main-structure-import-cancelled.png",
+      "structure-model-leaf-main-structure-component-closeup.png",
+      "structure-model-leaf-replay-session.png",
+      "structure-model-leaf-replay-optics.png",
+      "structure-model-leaf-replay-pending-optics.png",
+      "structure-model-leaf-replay-pending.png",
+      "structure-model-leaf-replay-regression.png"
+    ],
+    "scope": "Fresh implementation-native framebuffer images and F10 video; software HUD remains around 0\u20131 FPS. No frame-time or physical-GPU pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "compile_release": 17,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "df24e1a76c26c3e50483427bc330f58bc09706ad",
+    "run": 44716843605,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh exact-head hosted validation."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Packed visitor calls bypass graph decoding. ModelDefinition replaces materialized leaf-list iteration with the equivalent primitive visitor. All opacity/name/size rules and unrelated features/tests remain intact."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Provisional 131072-leaf, 256-placement-chunk and 16384-instance caps and dependency/instance surface caps still reject required city/maximum fixtures.",
+    "Agreed targets remain 1024x256x1024 cells, 4 million occupied cells, 64 MiB compressed, 512 MiB decoded and 512 dependencies.",
+    "Required 20-run full city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Dependency validation/traversal component observations and functional checks only. No whole-fixture, supported-city/limit, stable-rollout, physical-GPU or 32-client qualification pass.",
+  "artifacts": {
+    "structure-model-leaf-benchmark.json": "d0c690179a98faa7e5f22293d6ef143cbf6547d6edf148ad9acabb4743693f89",
+    "structure-model-leaf-main-midpoint.png": "ef889fa025779ba6ce0a018016f385e787d2a791c12c529c7f2441237dd5142c",
+    "structure-model-leaf-main-structure-component-closeup.png": "b7362af3f15ed38968ac8f56783bc1c1626d97a9e18f9c927a48e06962e96fda",
+    "structure-model-leaf-main-structure-export-cancelled.png": "b84debf8bc01d1cf799a79d4f6704ed196349bf36efdcc7a0f9c1444d57a0774",
+    "structure-model-leaf-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-model-leaf-main-structure-invalid-anchor.png": "5893bad16c7ede5ce469e56d333bb37529c71eed2ff39219cd6823239bff8a85",
+    "structure-model-leaf-main-structure-library-capture.png": "a974cb208983d5735500763b0f8e812e42b283771b0f12dcfd4f2bdc64e4652a",
+    "structure-model-leaf-main-structure-native-execution.json": "0303266a8adf0aa9eaa69f4eb2c20822354313c4b7b1cbf893ef240b3fffb12a",
+    "structure-model-leaf-main-structure-native-lighting.json": "2355f6c84a4d50c51d0dfa47f7a335b5722b4ea5d91a91ed1350c405c7ce946f",
+    "structure-model-leaf-main-structure-native-result.json": "c7d889bb511963caa53dc1d38faca5c4fcd07439d1cb4de7296db5ad96a19737",
+    "structure-model-leaf-main-structure-native-source.json": "b642e926e1ce397807a629b580d7a18ca040bde3221ef1590bba395da46016dd",
+    "structure-model-leaf-main-structure-native-stage.json": "ab64b604acc1d8d6b37ff2c96d88730e13444ecde4f33b580cf80e5653f2e3d2",
+    "structure-model-leaf-main-structure-placed.png": "24dba17c758784e140a9ceaa714d5822e810d3ea4ab73c431da23e73e70e02c1",
+    "structure-model-leaf-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-model-leaf-main-structure-player-conflict.png": "0cf31e06bd3ed65c8943759c4a5ccfd8b9d4c417bd94dc7eedf56ba84bf013d7",
+    "structure-model-leaf-main-structure-preview-0.png": "927ac1130b0ded9deff49f3ba2fc31f22eea9b0a42a861839cf259062abe484f",
+    "structure-model-leaf-main-structure-preview-1.png": "8dc4f014ffb4b1990199e956bd67c5d245637b3c59f1f36e56179e751c980566",
+    "structure-model-leaf-main-structure-preview-2.png": "d7362c1f98b411f930c1d295d03bd5a6716ed4cebd4338f8396c18bbe551c72d",
+    "structure-model-leaf-main-structure-preview-3.png": "b0dd62bde8827f07d2fd5df5903b7a9ee55ebcf132f61e2809725d67103b5d24",
+    "structure-model-leaf-main-structure-preview-conflict.png": "3e2ce993bda836cbc2882417d184eaa470bcfee0493a2fb0513f5be19c33b3c5",
+    "structure-model-leaf-main-structure-undo-cancelled.png": "90d336ce24977affebefb4a25154c0eb059277d3e6cf9f5068fbffacb4ef0902",
+    "structure-model-leaf-main-structure-workflow.mp4": "88c2d5611d265e55e4d6d1b0f241dfbe9069752a9a09beae7df6ea3901b3947f",
+    "structure-model-leaf-main-structure-world-placed.png": "bcd0ad43e661f7d015807a9278bec98d11615bdc3c3d8368e67be576901a8100",
+    "structure-model-leaf-main-video.json": "bfff00984ab1ce53f477f2683cff0867950c09c8e0db2988d3a7071c26fe989d",
+    "structure-model-leaf-replay-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-model-leaf-replay-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-model-leaf-replay-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-model-leaf-replay-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-model-leaf-replay-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-model-leaf-replay.json": "2825171a2a4f0e0b3ff5da6cac57071250be8acc589193fd7660ea324b54aa69"
+  }
+}

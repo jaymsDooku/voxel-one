@@ -25,9 +25,17 @@ public final class ModelLibrary {
 
     private static final ModelDefinition POT = ModelGenerators.flowerPot();
     private long revision;
+    private long structureBytes;
+    private int structureCount;
+    // Lowest free extended ID. Admission and codecs keep their existing limits;
+    // this transient index avoids restarting the same scan for each dependency.
+    private int nextStructureId=1024;
     public long revision(){return revision;}
-    private final Map<Integer, Entry> entries = new LinkedHashMap<>();
-    private final Map<String, Integer> fingerprints = new HashMap<>();
+    private Map<Integer, Entry> entries = new LinkedHashMap<>();
+    private Map<String, Integer> fingerprints = new HashMap<>();
+    // Stored definitions are frozen. Share the hash already computed on
+    // admission instead of serializing models during source-binding checks.
+    private Map<Integer, String> identities = new HashMap<>();
 
     public ModelLibrary() {
         var pot = POT;
@@ -45,7 +53,7 @@ public final class ModelLibrary {
     }
 
     public boolean has(int type) {
-        return Items.valid(type) && (!Blocks.isModel(type) || entries.containsKey(type));
+        return (Items.valid(type)||Blocks.structureModel(type)) && (!Blocks.isModel(type) || entries.containsKey(type));
     }
 
     public String name(int type) {
@@ -58,7 +66,8 @@ public final class ModelLibrary {
     }
 
     public int find(ModelDefinition definition) {
-        return fingerprints.getOrDefault(definition.fingerprint(), -1);
+        int id=fingerprints.getOrDefault(definition.fingerprint(), -1);
+        return Items.valid(id)?id:-1;
     }
 
     public int nextId() throws IOException {
@@ -71,7 +80,7 @@ public final class ModelLibrary {
         if (existing >= 0) return get(existing);
         if (definition.voxels().occupied() == 0)
             throw new IOException("Add voxels before creating an item");
-        if (entries.values().stream().filter(e -> e.author.equals(author)).count() >= 16)
+        if (entries.values().stream().filter(e -> e.id>=9&&e.id<137&&e.author.equals(author)).count() >= 16)
             throw new IOException("Each player can publish up to 16 unique models per world");
         ModelMesher.mesh(definition.voxels());
         int id = nextId();
@@ -102,13 +111,38 @@ public final class ModelLibrary {
     }
 
     private void putUnchecked(Entry entry) {
+        String fingerprint=entry.definition.fingerprint();
         revision++;
         entries.put(entry.id, entry);
-        fingerprints.put(entry.definition.fingerprint(), entry.id);
+        fingerprints.put(fingerprint, entry.id);identities.put(entry.id,fingerprint);
+        while(nextStructureId<66560&&entries.containsKey(nextStructureId))nextStructureId++;
+    }
+
+    /** Stable stored IDs/authors/definitions, independent of local revision counters.
+     * Additional bindings are allowed. This grants no source or save authority. */
+    public boolean preservesBindings(ModelLibrary source) {
+        Objects.requireNonNull(source);
+        if(entries.size()<source.entries.size())return false;
+        for(var original:source.entries.values()) {
+            var current=entries.get(original.id);String identity=identities.get(original.id);
+            if(current==null||!Objects.equals(current.author,original.author)||identity==null
+                    ||!identity.equals(source.identities.get(original.id)))return false;
+        }
+        return true;
+    }
+    public boolean sameBindings(ModelLibrary other) {
+        Objects.requireNonNull(other);return entries.size()==other.entries.size()&&preservesBindings(other);
     }
 
     public ModelLibrary copy() {
         return new ModelLibrary(this);
+    }
+
+    /** Independent maps with the same frozen definition references, rebased to
+     * an exactly matching source's local counter. No live mutation or authority. */
+    public ModelLibrary copyForSource(ModelLibrary source) {
+        if(!sameBindings(source))throw new IllegalArgumentException("Model source bindings differ");
+        var result=copy();result.revision=source.revision;return result;
     }
 
     private ModelLibrary(ModelLibrary source) {
@@ -116,10 +150,13 @@ public final class ModelLibrary {
         // but must not validate and serialize every immutable model again.
         entries.putAll(source.entries);
         fingerprints.putAll(source.fingerprints);
+        identities.putAll(source.identities);
         revision = source.revision;
+        structureBytes=source.structureBytes;structureCount=source.structureCount;nextStructureId=source.nextStructureId;
     }
 
     public void write(DataOutputStream out) throws IOException {
+        if(hasStructureModels())throw new IOException("Structure components require versioned world model codec");
         out.writeInt(entries.size() - 1);
         for (var e : entries.values()) if (e.id != Blocks.FLOWER_POT) e.write(out);
     }
@@ -130,5 +167,57 @@ public final class ModelLibrary {
         ModelLibrary result = new ModelLibrary();
         for (int i = 0; i < count; i++) result.accept(Entry.read(in));
         return result;
+    }
+
+    public boolean hasStructureModels(){return entries.keySet().stream().anyMatch(Blocks::structureModel);}
+
+    /** Invoked on a private staging copy. Does not consume a player's legacy publishing allowance. */
+    public Entry stageStructureModel(ModelDefinition definition) throws IOException {
+        int existing=fingerprints.getOrDefault(definition.fingerprint(),-1);if(existing>=0)return get(existing);
+        var buffer=new ByteArrayOutputStream();definition.write(new DataOutputStream(buffer));
+        if(structureCount>=2048||structureBytes+buffer.size()>128L*1024*1024)throw new IOException("Experimental world dependency budget");
+        ModelMesher.count(definition.voxels());
+        int id=nextStructureId;if(id<66560) {
+            var entry=new Entry(id,"structure",new ModelDefinition(definition.name(),definition.voxels().copy().freeze()));putUnchecked(entry);structureCount++;structureBytes+=buffer.size();return entry;
+        }
+        throw new IOException("Structure dependency IDs exhausted");
+    }
+
+    /** Publish a fully prepared private copy on the authoritative owner thread. */
+    public void replaceWith(ModelLibrary prepared) {
+        if(entries.equals(prepared.entries))return;
+        entries=new LinkedHashMap<>(prepared.entries);fingerprints=new HashMap<>(prepared.fingerprints);identities=new HashMap<>(prepared.identities);revision++;
+        structureBytes=prepared.structureBytes;structureCount=prepared.structureCount;nextStructureId=prepared.nextStructureId;
+    }
+
+    public void writeAll(DataOutputStream out) throws IOException {
+        out.writeInt(entries.size()-1);
+        for(var entry:entries.values())if(entry.id!=Blocks.FLOWER_POT) {
+            out.writeInt(entry.id);out.writeUTF(entry.author);entry.definition.write(out);
+        }
+    }
+    public void acceptWorldEntry(Entry entry)throws IOException {
+        var old=get(entry.id);
+        if(old!=null) {if(!old.definition.fingerprint().equals(entry.definition.fingerprint()))throw new IOException("Model ID conflict");return;}
+        if(!Blocks.structureModel(entry.id)){accept(entry);return;}
+        var bytes=new ByteArrayOutputStream();entry.definition.write(new DataOutputStream(bytes));
+        if(structureCount>=2048||structureBytes+bytes.size()>128L*1024*1024||entry.definition.voxels().occupied()==0)throw new IOException("World dependency budget");
+        ModelMesher.count(entry.definition.voxels());putUnchecked(new Entry(entry.id,"structure",new ModelDefinition(entry.definition.name(),entry.definition.voxels().copy().freeze())));
+        structureCount++;structureBytes+=bytes.size();
+    }
+    public static ModelLibrary readAll(DataInputStream in) throws IOException {
+        int count=in.readInt();if(count<0||count>MAX_CUSTOM+2048)throw new IOException("World model count limit");
+        var result=new ModelLibrary();long bytes=0;int extended=0,custom=0;
+        for(int i=0;i<count;i++) {
+            int id=in.readInt();String author=Protocol.readText(in,16);var model=ModelDefinition.read(in);
+            if(result.entries.containsKey(id)||!(id>=9&&id<137||Blocks.structureModel(id))||model.voxels().occupied()==0)
+                throw new IOException("Invalid world model");
+            if(Blocks.structureModel(id)) {extended++;var encoded=new ByteArrayOutputStream();model.write(new DataOutputStream(encoded));bytes+=encoded.size();}
+            else custom++;
+            if(custom>MAX_CUSTOM||extended>2048||bytes>128L*1024*1024)throw new IOException("World dependency budget");
+            if(Blocks.structureModel(id))ModelMesher.count(model.voxels());else ModelMesher.mesh(model.voxels());
+            result.putUnchecked(new Entry(id,author,new ModelDefinition(model.name(),model.voxels().freeze())));
+        }
+        result.structureBytes=bytes;result.structureCount=extended;return result;
     }
 }

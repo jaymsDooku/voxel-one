@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:22:08+00:00",
+  "updatedAt": "2026-11-21T00:09:46+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4330,6 +4330,15 @@
       "status": "in_progress",
       "note": "CI follow-up confirmed: both exact-head runs passed Linux, Windows, Intel Mac and Apple Silicon Mac; publish skipped. Earlier cancelled run was superseded. Source hashes match validated playtests. Ready for independent review.",
       "updatedAt": "2026-10-08T15:02:53+00:00"
+    },
+    {
+      "id": "38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+      "title": "Reusable voxel structures alongside voxel models",
+      "description": "Experimental capture, self-contained packages, footprint previews, rotated placement and synchronization; final qualification remains gated.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Fresh native sparse workflow passed in 64.970 s on retained 687-file source; three images and all 33 video frames inspected/decoded. Standard retry ended with tool exit 143; last stage command-undo at 271.758 s, no final receipt or assigned process remains. Existing bounded execution repair stays pending; no immediate further retry. 713 Java/40 Python/packaged MP3/component results remain source-matched. Local edits and completed sparse media need controller publication and exact-head CI. Full implementation and qualification remain unfinished; gates closed.",
+      "updatedAt": "2026-11-21T00:09:46+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"

@@ -1,0 +1,417 @@
+{
+  "schema": 1,
+  "parent_head": "4f80b31d14631a17ba376ad84d0b07d69487be2a",
+  "scope": "Share immutable coordinate/edit strings already owned by canonical history; compute a complete cell key once per replay. No pooling, format, order, revision, public-validation or resource-cap changes.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-history-keys-tmp\" -Dtest='Structure*Test,WorldHistoryIndexTest,EditHistoryTest,WorldVoxelSnapshotTest,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test > target/structure-history-keys-tests.log 2>&1",
+    "exit_code": 0,
+    "results": {
+      "tests": 150,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "suites": [
+      "dev.jayms.EditHistoryTest",
+      "dev.jayms.ProtocolCompatibilityTest",
+      "dev.jayms.ShippingProtocolCompatibilityTest",
+      "dev.jayms.StructureCaptureChunkTest",
+      "dev.jayms.StructureCaptureModelTest",
+      "dev.jayms.StructureCellReadTest",
+      "dev.jayms.StructureCellReplayTest",
+      "dev.jayms.StructureDecodeCancellationTest",
+      "dev.jayms.StructureEncodeCancellationTest",
+      "dev.jayms.StructureFileReadTest",
+      "dev.jayms.StructureLeafCountTest",
+      "dev.jayms.StructureLeafVisitorTest",
+      "dev.jayms.StructureMenuAnchorTest",
+      "dev.jayms.StructureModelAdmissionTest",
+      "dev.jayms.StructureMultiplayerTest",
+      "dev.jayms.StructureOccupancyTest",
+      "dev.jayms.StructureOfflineStampTest",
+      "dev.jayms.StructurePublicationStagingTest",
+      "dev.jayms.StructureRotationTreeTest",
+      "dev.jayms.StructureSaveStagingTest",
+      "dev.jayms.StructureTest",
+      "dev.jayms.StructureValidationStampTest",
+      "dev.jayms.VoxelModelTest",
+      "dev.jayms.WorldHistoryIndexTest",
+      "dev.jayms.WorldVoxelSnapshotTest",
+      "dev.jayms.net.structure.StructureBufferedCodecTest",
+      "dev.jayms.net.structure.StructureBufferedWireTest",
+      "dev.jayms.net.structure.StructureChunkMeshCountTest",
+      "dev.jayms.net.structure.StructureModelCodecTest",
+      "dev.jayms.net.structure.StructureOrderTest",
+      "dev.jayms.net.structure.StructurePackedGeometryTest",
+      "dev.jayms.net.structure.StructurePlacementCellsTest",
+      "dev.jayms.net.structure.StructureWirePositionsTest"
+    ],
+    "expected": "Public key mismatch rejection, whole/fractional index transitions, replacement/removal, revision/cursor invalidation, ordered replay, COW snapshot isolation, model/protocol/placement regressions.",
+    "observed": "All 150 tests passed on final source. Existing history tests exercise 5000 mixed operations and 5000 operations over up to 12 independent forks, bounded copy cursors and mutation invalidation, full/fractional cell replacement, invalid keys/resolutions, source/copy isolation and canonical Edit bytes. Existing tests were reused; no new tests mirror the string-reuse implementation."
+  },
+  "integration_playtest": "Playtest: real TLS server with default three synthetic protocol clients passed structure rotations, empty dependency caches, conflicts/cancellation, undo, late joining and restart. Not shaped-network or 32 rendered clients.",
+  "probe": {
+    "commands": [
+      "git show HEAD:src/main/java/dev/jayms/net/WorldVoxels.java > target/structure-history-keys-control/src/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target/structure-history-keys-control/classes target/structure-history-keys-control/src/WorldVoxels.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/HistoryKeyProbe.java",
+      "java -Xmx1g -cp target/structure-history-keys-control/classes:target:target/classes HistoryKeyProbe cpu parent > target/structure-history-keys-parent-cpu.jsonl",
+      "java -Xmx1g -cp target:target/classes HistoryKeyProbe cpu current > target/structure-history-keys-current-cpu.jsonl",
+      "java -Xmx1g -cp target/structure-history-keys-control/classes:target:target/classes HistoryKeyProbe heap parent > target/structure-history-keys-parent-heap.jsonl",
+      "java -Xmx1g -cp target:target/classes HistoryKeyProbe heap current > target/structure-history-keys-current-heap.jsonl",
+      "java -Xmx1g -cp target/structure-history-keys-control/classes:target:target/classes HistoryKeyProbe heap-copy parent > target/structure-history-keys-parent-copy.jsonl",
+      "java -Xmx1g -cp target:target/classes HistoryKeyProbe heap-copy current > target/structure-history-keys-current-copy.jsonl"
+    ],
+    "parent_source_sha256": "b5371d37582ca5a77e60ffe0586862a1d2a071359bb13942bbba9ce67da43209",
+    "records": {
+      "cpu": {
+        "parent": [
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "cells": 50000,
+            "edits": 50000,
+            "replay_sha256": "c8fdbf60bbac5b8d234d7fea14825997b431d4b1c1cc2076ee3fba8b43763392",
+            "warmups": 3,
+            "runs": 20,
+            "median_ms": 69.911,
+            "p95_ms": 136.872,
+            "worst_ms": 152.52,
+            "median_thread_allocated_bytes": 29697640
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "cells": 50000,
+            "edits": 150000,
+            "replay_sha256": "0936ed8d12b0f67e2b29b706e7066d434e0d61ec0e869bf4f00d11efe46aa46a",
+            "warmups": 3,
+            "runs": 20,
+            "median_ms": 216.514,
+            "p95_ms": 279.648,
+            "worst_ms": 291.513,
+            "median_thread_allocated_bytes": 81546232
+          }
+        ],
+        "current": [
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "cells": 50000,
+            "edits": 50000,
+            "replay_sha256": "c8fdbf60bbac5b8d234d7fea14825997b431d4b1c1cc2076ee3fba8b43763392",
+            "warmups": 3,
+            "runs": 20,
+            "median_ms": 22.177,
+            "p95_ms": 77.927,
+            "worst_ms": 105.22,
+            "median_thread_allocated_bytes": 15697640
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "cells": 50000,
+            "edits": 150000,
+            "replay_sha256": "0936ed8d12b0f67e2b29b706e7066d434e0d61ec0e869bf4f00d11efe46aa46a",
+            "warmups": 3,
+            "runs": 20,
+            "median_ms": 148.425,
+            "p95_ms": 233.366,
+            "worst_ms": 241.328,
+            "median_thread_allocated_bytes": 50746232
+          }
+        ]
+      },
+      "heap": {
+        "parent": [
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 23297752
+          },
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 23629856
+          },
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 23325192
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 78762728
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 78794520
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 78700784
+          }
+        ],
+        "current": [
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 17645000
+          },
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 17834296
+          },
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 17852592
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 76080424
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 75879976
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_and_history",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 76013752
+          }
+        ]
+      },
+      "copy": {
+        "parent": [
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 29393656
+          },
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 29131136
+          },
+          {
+            "implementation": "parent",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 29265808
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 89485088
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 89531976
+          },
+          {
+            "implementation": "parent",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 89516992
+          }
+        ],
+        "current": [
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 23534064
+          },
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 23624792
+          },
+          {
+            "implementation": "current",
+            "fixture": "uniform",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 23411632
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 1,
+            "heap_delta_bytes": 86767864
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 2,
+            "heap_delta_bytes": 86532320
+          },
+          {
+            "implementation": "current",
+            "fixture": "mixed",
+            "retained": "world_history_and_copy",
+            "cells": 50000,
+            "run": 3,
+            "heap_delta_bytes": 86753888
+          }
+        ]
+      }
+    },
+    "retained_summary": [
+      {
+        "retained": "world_and_history",
+        "fixture": "uniform",
+        "parent_median_bytes": 23325192,
+        "current_median_bytes": 17834296
+      },
+      {
+        "retained": "world_and_history",
+        "fixture": "mixed",
+        "parent_median_bytes": 78762728,
+        "current_median_bytes": 76013752
+      },
+      {
+        "retained": "world_history_and_copy",
+        "fixture": "uniform",
+        "parent_median_bytes": 29265808,
+        "current_median_bytes": 23534064
+      },
+      {
+        "retained": "world_history_and_copy",
+        "fixture": "mixed",
+        "parent_median_bytes": 89516992,
+        "current_median_bytes": 86753888
+      }
+    ],
+    "cpu_method": "Separate parent/current JVMs, parent first, -Xmx1g, no concurrent assigned tests or native run. Two fixtures of 50000 frozen cells: uniform STONE or unique two-leaf geometry with LED and STONE. Three warmups and 20 measured complete-history builds. Fixture construction is outside timing. Timed interval includes history/edit/key/map construction. Ordered serialized Edit SHA256 and count checked after every build, outside timing. Current-thread allocated bytes are not retained or peak memory. Single ordered comparison; shared-host GC/JIT/interference remains possible.",
+    "heap_method": "Separate JVM for each implementation and retained mode. Actual WorldVoxels geometry stays alive with history, with an optional additional COW history copy. One warmup plus three post-GC heap-delta samples per fixture/mode; two System.gc calls and 100 ms pauses per heap reading. Measures combined retained state against a cleaned baseline, not peak memory. Source fixture lists are not retained. First world cell and history count are checked after each sample; copy replay hashes match. Samples run in a method whose locals leave scope before the next baseline. No 20-run full-system memory claim.",
+    "decision": "Keep final key reuse after live-world measurements show lower retained estimates both with and without a history copy. Serialized edit hashes match parent. CPU/allocation diagnostics also improved in both fixtures. This does not qualify full placement/save, maximum package admission, a 100 ms main-thread bound, or city support."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/WorldVoxels.java": "5099c7edf02e50111b99a08f9b25cc06211ef8333e6bff141eb4718155be67df",
+    "tools/structures/HistoryKeyProbe.java": "4b65ea203d6ee1d13396c7ca15510a5eb47b49492821a0d9df3286ec62b4cecf",
+    "src/test/java/dev/jayms/WorldHistoryIndexTest.java": "9f3027bddcf1de084b2de3c19f69d3d259e8ff5218eb94fa1d36831044ff755e",
+    "src/test/java/dev/jayms/EditHistoryTest.java": "e0ca03fe32e6e973b95c66070e0bfeeb65ef83343eaf27a6d8452e255e67b1bf",
+    "src/test/java/dev/jayms/WorldVoxelSnapshotTest.java": "6bbca8ee0e6fa5933bf221371c20895d0cda0b3d8de0af4ae1d3a30a574f7609",
+    "src/test/java/dev/jayms/StructureCellReplayTest.java": "0d6a1673cfbd78533cca484c40a2834b3ee69251d649c27c08e1bf34ebb7c63f"
+  },
+  "native_playtest": {
+    "status": "passed",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-history-keys-native-summary.json 2>&1",
+    "exit_code": 0,
+    "expected": "Production Main capture/library/import/export, all rotations, conflicts/empty-source preservation, cancellation/malformed failure, undo, repeat placement, restart and inventory/model-editor regressions.",
+    "observed": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "source_manifest": "structure-native-source.json",
+    "source_files": 221,
+    "source_manifest_sha256": "2f52cd36d6e280c885c5b2cf094168601da149eb36bffdfcac3259f9ebee5fe2",
+    "source_check": "Every production Java and harness path/hash matches after execution.",
+    "media_inspection": "Inspected fresh occupied-cell conflict screenshot: placed geometry with red bounds, anchor and 90-degree blocked-placement message. Decoded and inspected recording frame: clear green footprint/anchor with staging progress and world unchanged. HUD 1 FPS on software renderer; functional evidence only.",
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-history-keys-frame.png",
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 420903,
+      "sha256": "7c503a26253f5e8b8a24081995e9a9d7e1e9ba484c788214ca5210a06a3c7f8e",
+      "codec": "H264",
+      "frames": 17,
+      "duration_seconds": 26.66
+    },
+    "publication": "Local evidence pending controller publication",
+    "qualification": "Not physical-GPU, frame-time, city or shaped-network qualification."
+  },
+  "parent_hosted_checks": {
+    "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+    "head": "4f80b31d14631a17ba376ad84d0b07d69487be2a",
+    "successful_builds": 8,
+    "publish": "skipped",
+    "urls": [
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41174925793",
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41174923593"
+    ],
+    "scope": "Observed parent feature and PR comparison platform builds. New local source has not run hosted checks."
+  },
+  "remaining": [
+    "Full city/maximum packages still reject under provisional complexity and affected-chunk limits.",
+    "Edit records, maps and canonical geometry still have substantial retained costs; partitioned storage/publication/transfer and owner-thread history/save work remain unfinished.",
+    "Required 20-run reference physical-GPU, shaped-network and 32-rendered-client full-workflow budgets, peak memory, frame/tick/traffic, progress/cancellation and all latency bounds remain pending.",
+    "Supported-city claims and stable rollout stay gated. Independent exact-head review remains required."
+  ],
+  "audit": "git diff --check against 71612f09bfec4549456b3317676e76cdced085a4 passed; no deleted paths. Key handling is refined in existing history code; no files are intentionally deleted."
+}

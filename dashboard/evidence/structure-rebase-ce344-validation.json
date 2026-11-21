@@ -1,0 +1,1687 @@
+{
+  "schema": 1,
+  "created_at": "2026-11-20T00:24:51.098644+00:00",
+  "source_head": "ce344f09c99a3ef9bb60498e05832f785178dd4b",
+  "branch": "feature/queue-38386339653031612d356232622d343634362d616262332d383538623938346339346437",
+  "publication": "Local evidence pending controller publication",
+  "status": "incomplete; hosted validation and implementation/qualification work remain",
+  "qualification": false,
+  "commands": {
+    "targeted_java": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StagedCleanupQueueTest,WorkerPublicationQueueTest,WorkerSaveStagingTest,SavedPagingTailTest,SavedPagingFactoryTest,JournalTailAdoptionTest,ReadbackTailAdoptionTest,ReadbackRepeatSaveTest,PublicationProgressTest,ReadbackWorkerPublicationTest,SealedStagedSaveTest,ReadbackSaveSnapshotTest,ReadbackMetadataTest,WorldSaveGenerationTest,WorldSavePublicationTest,StagedWorldSaveTest,StagedSaveDropCountTest,StagedReplaySourceSaveTest,StagedReplayOverlaySaveTest,RegionReplayJournalTest,RegionReplayEditorTest,PendingReplayOverlayTest,ReplayColumnGeometryTest,ReplayColumnSpoolTest,ReplayColumnSkyInputTest,RegionReplaySkyWorkerTest,RegionReplaySkyMergeWorkerTest,RegionReplayLightingWorkerTest,RegionReplaySkyCoverageTest,RegionReplayLightingCoverageTest,RegionReplaySkyWorldBridgeTest,RegionReplaySkyPumpTest,RegionReplayLightingPumpTest,RegionReplayWorkerTest,RegionReplayCacheTest,RegionReplayChunkTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest,MusicMp3Test,VoxelModelTest,InventoryHudTest,EngineEditorTest,ProtocolCompatibilityTest,HistoryProtocolCompatibilityTest,CitySavesTest,CityHistoryTest,CityHistoryIntegrationTest,WorldStreamingTest,BlockRaycasterTest test",
+    "mobile": "timeout --signal=INT --kill-after=10s 360s mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=MobileGatewayTest test",
+    "package": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DskipTests package",
+    "mp3": "java -cp target/voxel-one-1.0-SNAPSHOT-client.jar deploy/MusicMp3DecodeSmoke.java",
+    "hub": "python3 -m unittest discover -s deploy/tests -p test_hub_preview_registration.py",
+    "tool_patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "replay": "python3 tools/structures/run_replay_sky_frame_check.py --display \"$DISPLAY\" --evidence-prefix structure-rebase-ce344-replay",
+    "main": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-rebase-ce344-main-verified --timeout-seconds 900",
+    "incomplete_broad": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" '-Dtest=*Test,!MobileGatewayTest' verify",
+    "incomplete_tools": "python3 -m unittest discover -s tools/structures -p 'test_*.py'"
+  },
+  "audit": {
+    "review_base": "8a53afce99e735a7574bffab70558252577b387b",
+    "source_head": "ce344f09c99a3ef9bb60498e05832f785178dd4b",
+    "base_identical_paths": [
+      ".github/workflows/hub-preview-registration-test.yml",
+      ".github/workflows/hub-publication-prepare.yml",
+      "deploy/tests/test_hub_preview_registration.py",
+      "deploy/MusicMp3DecodeSmoke.java",
+      "deploy/MusicMp3Smoke.java",
+      "deploy/generate_music_mp3_fixtures.py",
+      "deploy/run_music_mp3_smoke.py",
+      "src/test/java/dev/jayms/MusicMp3Test.java",
+      "src/test/resources/music/cbr-stereo.mp3",
+      "src/test/resources/music/vbr-mono.mp3",
+      "dashboard/evidence/asset-manager-catalog.png",
+      "dashboard/evidence/asset-manager-invalid.png",
+      "dashboard/evidence/asset-manager-skyscraper.png",
+      "dashboard/evidence/asset-manager-upload.png"
+    ],
+    "deleted_paths": [],
+    "unmerged_paths": [],
+    "replay_image_hashes_verified": 4
+  },
+  "java": {
+    "status": "passed",
+    "suites": [
+      {
+        "name": "dev.jayms.net.RegionReplayEditorTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackSaveSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReplayColumnSkyInputTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayLightingPumpTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackTailAdoptionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayLightingWorkerTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.StagedReplayOverlaySaveTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.PublicationProgressTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.StagedWorldSaveTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayWorkerTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.EngineEditorTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.WorldStreamingTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplaySkyWorldBridgeTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.BlockRaycasterTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.HistoryProtocolCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplaySkyMergeWorkerTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.JournalTailAdoptionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.PendingReplayOverlayTest",
+        "tests": "6",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplaySkyPumpTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackWorkerPublicationTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackMetadataTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.WorkerPublicationQueueTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.StagedReplaySourceSaveTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.StagedSaveDropCountTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityHistoryIntegrationTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplaySkyCoverageTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CitySavesTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReplayColumnSpoolTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingTailTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.WorldSavePublicationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplaySkyWorkerTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayJournalTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingFactoryTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayLightingCoverageTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SealedStagedSaveTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.ProtocolCompatibilityTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.WorldSaveGenerationTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayCacheTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReplayColumnGeometryTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.WorkerSaveStagingTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.InventoryHudTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.StagedCleanupQueueTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CityHistoryTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.MusicMp3Test",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackRepeatSaveTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.RegionReplayChunkTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 207,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0
+  },
+  "mobile": {
+    "name": "dev.jayms.MobileGatewayTest",
+    "tests": "12",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0",
+    "time": "201.423"
+  },
+  "python_tests": {
+    "hub_registration": 6,
+    "structure_tooling": 33,
+    "failures": 0,
+    "errors": 0
+  },
+  "package": {
+    "production_classes": 708,
+    "jar_sha256": "675bb4542253446cf4308d8bca4115560e681b672854a8c0f7c5759fb4aebe42",
+    "fixtures": {
+      "vbr-mono.mp3": "09332a3aa7997b2c42d2aea74d385a16e411baeecdc213e0ccff5a7e21a3c9a9",
+      "cbr-stereo.mp3": "e74935802f3ddc80fc8fc8593dbf30bee7e5bfa7277a5000fb6ddf0e25243dd4"
+    },
+    "decode_result": [
+      "PASS: shaded JAR cbr-stereo.mp3 -> 44100 Hz, 6.060 s PCM",
+      "PASS: shaded JAR vbr-mono.mp3 -> 44100 Hz, 6.060 s PCM"
+    ]
+  },
+  "main": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-rebase-ce344-main-verified-structure-native-source.json",
+    "source_manifest_sha256": "24b10892ad59e5d25fbdbb71aaa6b717197d5c4ee19a8a5edf72a16048e72b62",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-rebase-ce344-main-verified --timeout-seconds 900",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "main_execution": {
+    "schema": 1,
+    "state": "completed",
+    "return_code": 0,
+    "elapsed_ms": 628174,
+    "timeout_seconds": 900
+  },
+  "video": {
+    "decodedFrames": 24,
+    "durationSeconds": 42.668,
+    "bytes": 500493,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "52ccb842ad42011ae87ba127eb0b6cb72cf5ee6b5a8ca16430043992171ee0e1",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+  },
+  "replay_result": {
+    "status": "passed",
+    "published_chunks": 2,
+    "max_owned_uploads": 1,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "source_lighting_chunks": 288,
+    "source_lighting_leaves": 515884,
+    "source_lighting_nanos": 12307782028,
+    "planar_lighting_nanos": 1112626353,
+    "planar_lit_geometry_pixels": 1329,
+    "qualification": false
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "interrupted_checks": {
+    "broad_verify": {
+      "status": "interrupted",
+      "exit_code": 130,
+      "scope": "Broad Maven verify excluding MobileGatewayTest; incomplete run, no suite pass claim",
+      "suites": [
+        {
+          "name": "dev.jayms.WorldCellSnapshotTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HistoryStressGridTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsTransactionTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ItemCraftingTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HistoryAccountingWorkflowTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureEncodeCancellationTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOccupancyTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureLeafCountTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RenderingAlgorithmsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MarketEconomyTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsDisplayRecoveryTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IndustrialProgressionTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOfflineStampTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.EditHistoryTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMaterialsTest",
+          "tests": "13",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ManufacturingTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityAddressesTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ParcelPortfolioTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ReplayChunkPreparationTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HistoryChartStateTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayJointLightingCoverageTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCellReadTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PublishedFutureTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityToolsTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MayorDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.AtmosphereConfigTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityCapitalTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldReplayReadGateTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCellReplayTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DistantTerrainTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMissilesTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ActivePreparationShutdownTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldSkyVisibilityTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.PhysicsTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.EngineEditorTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyVisibilitySchedulerTest",
+          "tests": "19",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldHistoryReplacementSizeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RemotePlayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.JeepTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerCameraTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.WheelContactTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureOfflineHistoryStagingTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldHistoryIndexTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureTest",
+          "tests": "25",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SpecialBuildingsTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ExchangePermitCompositionTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BlockRaycasterTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMetricsTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTimeTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CitizenLifeTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CapitalSettlementLimitsTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.OwnerTraceTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BuildingInfoTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HistoryProtocolCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldCellBatchTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldPackedCellImageTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.HingeSwingTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.HingeInertiaTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.ContactTriggerTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CellReplayBoundaryTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ShippingRoutesTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.HeldToolPoseTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldCellPatchTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.ForceInertiaTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureRollbackImagesTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTypesTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityActionBarTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCaptureModelTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.PerformanceRecorderTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.DistanceLoadTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricOrbitDragTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadGuideHeightTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StressGridTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.DetailedMeshSchedulerTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadBaseCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CitySavesTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.AtmosphereLightingTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureCaptureChunkTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePreparedCellPublicationTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.UpdaterTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyMergeBudgetTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureFileReadTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.TerrainSchedulerTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadMarkingsTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ReadbackStartupFenceTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.LocalLightingCaptureTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.OfflineWorldReplayTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.FreightFallbackTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GraphicsProfileTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RailwayShippingCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SurvivalTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityBusinessTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureWorkerUndoTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RailwayAirportCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.LightOcclusionTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MultiplayerTest",
+          "tests": "15",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayLightingCaptureTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RailwayOwnershipCompatibilityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CapitalDashboardTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.FractionalWorldTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.MetricHistoryTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.GpuTimestampRingTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ReplayRayBoundaryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ChunkUnchangedWriteTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplayLightingBakeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StressGridDevelopmentTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldHistoryCellCursorTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SparseVoxelPackedCellTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RoadTrafficTest",
+          "tests": "26",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityTest",
+          "tests": "11",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SandboxIdentityTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.SkyBuildBudgetTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ProtocolCompatibilityTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.PlatformCarryTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SegmentedHistoryTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.OctreeValueComparisonTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.physics.CcdMotionTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldCellReplacementTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.BusinessCatalogTest",
+          "tests": "12",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StartupReplayBudgetTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ReplayMeshFenceTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.assets.AssetCatalogTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RecipeMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityEconomyTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldCellImageTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureMenuAnchorTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldInitialReplayTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.VehicleAudioTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructurePublicationStagingTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.WorldStreamingPriorityTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.CityHistoryNetworkTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.TerrainGenerationTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ShippingTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PlayerAnimationTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.AviationTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.assets.AssetManagerIntegrationTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "1"
+        },
+        {
+          "name": "dev.jayms.MusicLandscapeTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.PackedModelSnapshotTest",
+          "tests": "4",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.RegionalMultiplayerTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StressGridLightingTest",
+          "tests": "1",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.ReplaySkyReadinessTest",
+          "tests": "2",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.IsometricCameraTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.VoxelModelTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.LightingPriorityTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.render.TransportMipTest",
+          "tests": "5",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.ChunkCellReplacementTest",
+          "tests": "3",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.StructureValidationStampTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    "tool_discovery": {
+      "exit_code": 130,
+      "status": "interrupted; no pass claim"
+    },
+    "first_main": {
+      "exit_code": 124,
+      "elapsed_ms": 600116,
+      "last_stage": "capture-structure-component-closeup",
+      "status": "timeout; inventory/editor completion not reached"
+    }
+  },
+  "playtest": {
+    "method": "Playtest: production Main with real GLFW/X11 input on inherited assigned DISPLAY and isolated synthetic profile. Source-pinned private replay/save/cleanup CLI integration followed by native rendering regression. Browser playtesting does not apply to native Java/GLFW and file/authority CLI workflows.",
+    "expected": "Named capture and dependency round trip, path longer than 240 characters, saved browsing, anchor validation, footprint/anchor/orientation and blocking preview, four rotations, body/occupied overlap rejection, empty-source terrain preservation, independent geometry, one-operation undo, cancellation and malformed import atomicity, repeated placement, restart dependencies, inventory and model editor remain usable.",
+    "observed": "Full 900 s Main rerun passed in 628.174 s, including inventory and model editor regression assertions. Replay/save/cleanup integration passed. Four replay framebuffers, fresh Main blocking-conflict, 270-degree preview, import-cancel and component close-up, and the decoded F10 midpoint were visually inspected.",
+    "visual_limit": "Main custom-model surfaces appear very dark/black in the LOW/llvmpipe close-up. Model colour/orientation assertions compare data; visible model colour and lighting need investigation. Captured Main HUD shows 0\u20131 FPS; no frame-time or throughput qualification pass."
+  },
+  "pending": [
+    "Atomic source/view/World reconciliation and model rebasing",
+    "Main large-world paging integration",
+    "City and maximum fragmented package admission; current 131072-leaf and 256-chunk provisional caps reject required inputs",
+    "Required 20-run city/maximum physical-GPU performance qualification",
+    "Shaped-network synchronization to 32 rendered players, empty dependency caches, memory/frame/tick/traffic/upload/durable-save budgets",
+    "Visible model colour/lighting investigation in production Main",
+    "Full exact-source hosted CI and independent review"
+  ],
+  "intended_file_deletions": [],
+  "intended_source_replacements": [
+    "Immutable/packed chunk and model replay paths replace allocating copies while retaining model limits",
+    "Asynchronous startup and sceneReady save guards replace synchronous partial-load saving",
+    "Staged save/publication replaces monolithic output while preserving legacy reads and sidecars",
+    "Protocol 31 adds structure messages and integer component IDs; legacy client fallback and existing city frame IDs retained",
+    "Replay-aware geometry, sky, lighting and upload paths replace full live-world-only rendering assumptions"
+  ],
+  "artifacts": {
+    "structure-rebase-ce344-main-verified-structure-export-cancelled.png": {
+      "bytes": 288983,
+      "sha256": "f6ca06ca1ad96b2bebb5f3f439e5b4eef43c94b0a0fbc1db90e826a98dc02681"
+    },
+    "structure-rebase-ce344-main-verified-structure-component-closeup.png": {
+      "bytes": 382730,
+      "sha256": "b9059a7e244f98f42b864d7ce72633bf2d8d91c359bbb0bf3cc8befea0d27691"
+    },
+    "structure-rebase-ce344-main-verified-structure-preview-1.png": {
+      "bytes": 240274,
+      "sha256": "f7a4a151be611a52422b72389163f398ae63d15afa4eea4536d8897964b57317"
+    },
+    "structure-rebase-ce344-main-verified-structure-native-execution.json": {
+      "bytes": 100,
+      "sha256": "46ea4c71d379236ab2a908cdca3b36dcf1e01d7e2b3edafb086616d0189e2ff5"
+    },
+    "structure-rebase-ce344-video-midpoint.png": {
+      "bytes": 454702,
+      "sha256": "9cb47323e3b423949d4df984c0360c87806291cafa53cce9a9c1d7b9d1ddfa15"
+    },
+    "structure-rebase-ce344-main-verified-structure-preview-3.png": {
+      "bytes": 291178,
+      "sha256": "67aba82f1b399595600a2e3329849a4d4612221fa619db005235cdbeec147de9"
+    },
+    "structure-rebase-ce344-main-verified-structure-native-source.json": {
+      "bytes": 32098,
+      "sha256": "791f977cbe2e57693e437791957cc735983c82e119ab15b8cfd83bb5ccfad91f"
+    },
+    "structure-rebase-ce344-main-verified-structure-import-cancelled.png": {
+      "bytes": 288406,
+      "sha256": "eaaa1260e4dc1fe68f8f4ac26068cfe51097edf5d04faae9c6d427b4402b5205"
+    },
+    "structure-rebase-ce344-replay-regression.png": {
+      "bytes": 6538,
+      "sha256": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186"
+    },
+    "structure-rebase-ce344-main-verified-structure-invalid-anchor.png": {
+      "bytes": 212432,
+      "sha256": "1356f671c34dbe0b58d4b8aeff01990293e9408c19fda28ef9a0b084ba3c8cd3"
+    },
+    "structure-rebase-ce344-main-verified-structure-native-stage.json": {
+      "bytes": 6799,
+      "sha256": "23556646c8ef0539e7a4ad1654816fdfe7d6c46145470f68dbaf24bfaad9fed9"
+    },
+    "structure-rebase-ce344-main-verified-structure-undo-cancelled.png": {
+      "bytes": 299165,
+      "sha256": "95a0fd941e5ec42e29725c526ac20ff06931199e38e86bd74052ba57c13fce07"
+    },
+    "structure-rebase-ce344-main-verified-structure-player-conflict.png": {
+      "bytes": 157998,
+      "sha256": "950c2b3c1f6e871d12b2ab272e0e7a0485e05af2c7f265328bd62091a2113b79"
+    },
+    "structure-rebase-ce344-main-verified-structure-placed.png": {
+      "bytes": 295422,
+      "sha256": "c1ffd0b8ffb7046d2e3fc75d540ff9e7a59c3c072a954f6520bb7e8f20e97656"
+    },
+    "structure-rebase-ce344-main-verified-structure-preview-2.png": {
+      "bytes": 227544,
+      "sha256": "951c8c13dbee454a1780a275fdb2e957ef95b3d7ee1015c10127f01aaf6f6257"
+    },
+    "structure-rebase-ce344-replay.json": {
+      "bytes": 239370,
+      "sha256": "bdee14a219f9ddedb47fa3bbb25f105f9a3a400abc078653e69d71b104c59cac"
+    },
+    "structure-rebase-ce344-replay-pending-optics.png": {
+      "bytes": 3424,
+      "sha256": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1"
+    },
+    "structure-rebase-ce344-main-verified-structure-native-result.json": {
+      "bytes": 1217,
+      "sha256": "f2fd473057baf1ee959644c250b8afd6e766710a897d14baa34bfc35e5cf200a"
+    },
+    "structure-rebase-ce344-main-verified-structure-world-placed.png": {
+      "bytes": 340439,
+      "sha256": "b7e1fd39d86186e6e0a07cae0debd788767844e872fc790b826632e795e4fcc1"
+    },
+    "structure-rebase-ce344-main-verified-structure-library-capture.png": {
+      "bytes": 107828,
+      "sha256": "dd5f998fe69e89d393e216ed08d31e83c7c71179abea3ce56632481cf2a78b55"
+    },
+    "structure-rebase-ce344-replay-optics.png": {
+      "bytes": 3424,
+      "sha256": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1"
+    },
+    "structure-rebase-ce344-main-verified-structure-preview-0.png": {
+      "bytes": 204813,
+      "sha256": "83e2f9e98bbf6f4340e7b81f01260f02e9a37e1b9b33154d371d00afcc3a281b"
+    },
+    "structure-rebase-ce344-main-verified-structure-preview-conflict.png": {
+      "bytes": 290335,
+      "sha256": "2367f849c0e74cbb894b68ab95382b969be98109394bf7a05788ae94f0088498"
+    },
+    "structure-rebase-ce344-video.json": {
+      "bytes": 325,
+      "sha256": "8ff1b9114f6135916279a9b1b884201fac1455b24ffc4007792c5207288d2065"
+    },
+    "structure-rebase-ce344-replay-pending.png": {
+      "bytes": 6422,
+      "sha256": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699"
+    },
+    "structure-rebase-ce344-main-verified-structure-workflow.mp4": {
+      "bytes": 500493,
+      "sha256": "52ccb842ad42011ae87ba127eb0b6cb72cf5ee6b5a8ca16430043992171ee0e1"
+    }
+  }
+}

@@ -1,0 +1,154 @@
+{
+  "head_tested": "b1eac551c82db53462102cb968711df4b721e5be",
+  "base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "change": "Fresh native evidence for current production Java; no production source edits this turn. Prior media predates LocalGame,WorldVoxels,CityHistory changes and is historical.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "529cd64fd3c93fbf4ab00708107252d1ea08a50221eb6715cb5c470066f2b070",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "native_command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-current-native-summary.json 2>&1",
+  "environment": {
+    "os": "Linux6.1.0-50-cloud-amd64 x86_64",
+    "cpu": "Intel Core Processor (Haswell,no TSX),4 virtual CPUs",
+    "java": "25.0.3+9-LTS-195",
+    "renderer": "llvmpipe (LLVM15.0.6,256bits)",
+    "display": "Inherited managed role DISPLAY and XAUTHORITY. No authentication cookie read.",
+    "profile": "Synthetic isolated target/structure-native/home,LOW/detail32/horizon512/scale0.5/shadows,AA,dynamic resolution OFF",
+    "heap": "1 GiB game JVM",
+    "fps_observation": "HUD1FPS in inspected screenshots. Physical GPU30FPS requirement not qualified."
+  },
+  "Playtest:": "Expected named region capture preserving fractional geometry and custom models; saved browsing and long-path self-contained import/export; all four90-degree rotations; bounds/anchor/orientation/conflict previews; empty-space terrain preservation; occupied-cell and live-player rejection without mutation; one-operation undo retaining unrelated edits; placement/export/import cancellation with no partial state; malformed import rejection; repeated placement;32-resolution and packed model dependency geometry/colour preservation; restart recovery; inventory and model editor regressions. Observed harness exit0 and all assertions passed. Real GLFW/X11 input drove production Main. Tests use a synthetic offline profile; multiplayer/full fixtures are not exercised by this run.",
+  "additional_checks": {
+    "hub_command": "python3 -m unittest deploy.tests.test_hub_preview_registration > target/structure-current-hub-tests.txt 2>&1",
+    "hub_result": "6 passed in0.060s",
+    "mp3_command": [
+      "java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-cp",
+      "target/classes:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+      "deploy/MusicMp3DecodeSmoke.java"
+    ],
+    "mp3_result": "Exit0;CBR stereo and VBR mono decoded to44100Hz,6.060s PCM each. Uses current compiled classes plus cached SPI JARs,not a newly built shaded client JAR. The helper stdout label says shaded JAR;that label does not describe this invocation.",
+    "media_command": [
+      "java",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-cp",
+      "target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-workflow.mp4",
+      "dashboard/evidence/structure-current-native-midpoint.png",
+      "dashboard/evidence/structure-current-native-media.json"
+    ],
+    "media_result": {
+      "decodedFrames": 18,
+      "durationSeconds": 32.936,
+      "bytes": 423245,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 9,
+      "videoSha256": "611a2ec0e0e3c096ad262db8af3d38870cf28ef68f0fd4c2ee7b41e95ea0d432",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "media_visual": "Midpoint frame,270-degree preview and live-player conflict screenshot inspected.",
+    "unavailable_tool": "ffprobe absent;used bundled JCodec to decode every frame instead.",
+    "source": "All224 production Java/harness source hashes still match manifest after native run. Target production classes came from prior exact-source Maven validation;no production compile/mutation occurred during native run.",
+    "audit": "git diff --check passed;no deleted paths against review base;no intended deletions."
+  },
+  "hosted": {
+    "command": "gh pr view 76 --json headRefOid,statusCheckRollup",
+    "head": "b1eac551c82db53462102cb968711df4b721e5be",
+    "result": "8 platform builds SUCCESS;2 publication jobs SKIPPED",
+    "runs": [
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41237076287",
+      "https://github.com/jaymsDooku/voxel-one/actions/runs/41237073758"
+    ]
+  },
+  "artifacts": {
+    "structure-workflow.mp4": {
+      "bytes": 423245,
+      "sha256": "611a2ec0e0e3c096ad262db8af3d38870cf28ef68f0fd4c2ee7b41e95ea0d432"
+    },
+    "structure-library-capture.png": {
+      "bytes": 100787,
+      "sha256": "919da135608658a342d940237bd53aa146262ee0651c605189a098b705a4439c"
+    },
+    "structure-invalid-anchor.png": {
+      "bytes": 166105,
+      "sha256": "cf7767cee7d801c3008522ccbdf2e5d7bf3df183e4e344c3108a1ca0d18fb33e"
+    },
+    "structure-player-conflict.png": {
+      "bytes": 419642,
+      "sha256": "cd7d8fe843805eafb24a88367bcb892d69d7a9745d0997155b47c5147cf4d5ea"
+    },
+    "structure-preview-0.png": {
+      "bytes": 290156,
+      "sha256": "5ba1d2139623a7e2162be1e56b055c006c0cebf78104e1fa7082f35bea3687af"
+    },
+    "structure-preview-1.png": {
+      "bytes": 294084,
+      "sha256": "7e4b720f7b73d4c33fa2643f395554714138b9cfff0a0b133369e7cd2074f1ec"
+    },
+    "structure-preview-2.png": {
+      "bytes": 287951,
+      "sha256": "94b485da0ce13d0158273b7f02031ec8d6337932133ffd2bc43a19848757a0ff"
+    },
+    "structure-preview-3.png": {
+      "bytes": 292728,
+      "sha256": "92c16ac6194fdcd1109d015733927fe82561fee5c48a94e3bc1bcf962c73b2f2"
+    },
+    "structure-preview-conflict.png": {
+      "bytes": 291472,
+      "sha256": "10a9e8cb3f8c0e6e47f078af769aeaec43b9fc57d8f79717351af2c79e10ffbb"
+    },
+    "structure-export-cancelled.png": {
+      "bytes": 288821,
+      "sha256": "de70793bf16965dbae4b302286de9aa8895ed9468315b7f1dff952f5e3b32c10"
+    },
+    "structure-import-cancelled.png": {
+      "bytes": 288663,
+      "sha256": "a6440d7ef066eb9019a05412bff4d6b0213742ab5db99aa9dfafd9990a44a194"
+    },
+    "structure-placed.png": {
+      "bytes": 295206,
+      "sha256": "cb1e360a11a801fdc3be6df6543953e3d8eaa254d3b171a27e684bae3f22470b"
+    },
+    "structure-world-placed.png": {
+      "bytes": 339515,
+      "sha256": "0cddc39017e27b75cd33e23f0aa342abb149e2f1b1a561a3162effe9431c6414"
+    },
+    "structure-component-closeup.png": {
+      "bytes": 382738,
+      "sha256": "7498ae68c572478dadd022ab04846a423731c595889184defeb8f94379eb5670"
+    },
+    "structure-current-native-midpoint.png": {
+      "bytes": 473781,
+      "sha256": "07ce432c3fa4ebb18450dc0bc589ace87eedac280cdf78439c5fd9d2f6ba9bd8"
+    },
+    "structure-native-source.json": {
+      "bytes": 27911,
+      "sha256": "43b0866c88b8db4876d056560a1210f6b973d21e880c3d999ee16579a6288263"
+    },
+    "structure-native-result.json": {
+      "bytes": 1097,
+      "sha256": "1f640fafebb58383b120bfdb0ce9bff39ee98e40da6f728d2b36e607609cbc14"
+    },
+    "structure-current-native-media.json": {
+      "bytes": 324,
+      "sha256": "ad63b7bc563a78c218fcb6ef9747ebf240cca12f4f4ec6e73aa584f1caecab22"
+    }
+  },
+  "qualification_pending": [
+    "Production region backend/streaming/live owner installation.",
+    "Both supplied full fixtures still exceed provisional geometry/chunk/persistence caps.",
+    "20-run full city/maximum operation budgets,physical GPU,shaped32-client synchronization,true peak memory,frame/server-tick/traffic budgets and directory durability.",
+    "This native offline functional pass does not establish these missing gates;stable rollout remains gated."
+  ],
+  "publication": "Local evidence pending controller publication"
+}

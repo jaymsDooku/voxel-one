@@ -1,0 +1,111 @@
+{
+  "schema": 1,
+  "feature_head": "ea2c2a9356b00fcb5f9f4fa4928a89375f1623dc",
+  "results": [
+    {
+      "run": 39585879164,
+      "artifact": 12340365912,
+      "platform": "maven-test-summary-mac-arm",
+      "sourceHead": "ea2c2a9356b00fcb5f9f4fa4928a89375f1623dc",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585879164,
+      "artifact": 12340252088,
+      "platform": "maven-test-summary-mac-intel",
+      "sourceHead": "ea2c2a9356b00fcb5f9f4fa4928a89375f1623dc",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585879164,
+      "artifact": 12340166107,
+      "platform": "maven-test-summary-linux",
+      "sourceHead": "ea2c2a9356b00fcb5f9f4fa4928a89375f1623dc",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585879164,
+      "artifact": 12339626554,
+      "platform": "maven-test-summary-windows",
+      "sourceHead": "ea2c2a9356b00fcb5f9f4fa4928a89375f1623dc",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585882178,
+      "artifact": 12340996372,
+      "platform": "maven-test-summary-mac-intel",
+      "sourceHead": "4714a96af69bae56724cdf72fa3e66e65379affb",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585882178,
+      "artifact": 12340685770,
+      "platform": "maven-test-summary-linux",
+      "sourceHead": "4714a96af69bae56724cdf72fa3e66e65379affb",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585882178,
+      "artifact": 12340565713,
+      "platform": "maven-test-summary-windows",
+      "sourceHead": "4714a96af69bae56724cdf72fa3e66e65379affb",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "run": 39585882178,
+      "artifact": 12340461213,
+      "platform": "maven-test-summary-mac-arm",
+      "sourceHead": "4714a96af69bae56724cdf72fa3e66e65379affb",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    }
+  ],
+  "qualification": "Functional CI only. City/max implementation and full performance qualification remain unfinished."
+}

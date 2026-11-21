@@ -1,0 +1,140 @@
+{
+  "schema": 1,
+  "parent_head": "74e480d50873d886dfde7c1a5da2198e7a5c0131",
+  "scope": "Buffered structure synchronization and allocation-free stored leaf counting. No protocol, format, transfer-cap or rollout-gate changes. Leaf counting avoids leaf-list allocation; the full codec still allocates.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest='Structure*Test,VoxelModelTest,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest' test > target/structure-wire-buffer-tests.log 2>&1",
+    "exit_code": 0,
+    "results": {
+      "tests": 132,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    "expected": "Exact legacy wire bytes and dependencies/geometry across buffer boundaries; CRC, size, truncation, duplicate and trailing rejection; cancellation and decoded-budget enforcement; real TLS workflow and protocol regressions.",
+    "observed": "All 132 tests passed. Independent legacy writer matches byte-for-byte. Decoded model ID/author/fingerprint and physical cells including model markers and air match. Bad inputs reject. Encode cancellation leaves input reusable. Real limiter tested with shortened 65536-byte counter at 65535/65536/65537 bytes; no full 512 MiB allocation claimed."
+  },
+  "integration_playtest": "Playtest: StructureMultiplayerTest ran actual TLS server and protocol clients with synthetic profiles; server validated four rotations, empty dependency caches, overlap/cancellation, undo, late joining and restart. Default three clients: not 32 rendered clients or shaped-network qualification.",
+  "probe": {
+    "commands": [
+      "mkdir -p target/structure-wire-buffer-control/src target/structure-wire-buffer-control/classes",
+      "git show HEAD:src/main/java/dev/jayms/net/structure/StructureWire.java > target/structure-wire-buffer-control/src/StructureWire.java",
+      "javac --release 17 -cp target/classes -d target/structure-wire-buffer-control/classes target/structure-wire-buffer-control/src/StructureWire.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/WireBufferProbe.java",
+      "java -Xmx1g -cp target/structure-wire-buffer-control/classes:target:target/classes WireBufferProbe parent > target/structure-wire-buffer-parent.jsonl",
+      "java -Xmx1g -cp target:target/classes WireBufferProbe current > target/structure-wire-buffer-current.jsonl"
+    ],
+    "parent_source_sha256": "d7b6edf4e0116290759776b8b0bc62ac9e2629d6d7a5855246ab8b4ad63314d7",
+    "parent": [
+      {
+        "implementation": "parent",
+        "operation": "encode",
+        "cells": 64,
+        "geometry_leaves": 131072,
+        "models": 1,
+        "compressed_bytes": 192676,
+        "wire_sha256": "09f19df5b369cbe0c86debd89b89a9726cbcd4a84a04273b3d2e18cca9460e79",
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 229.507,
+        "p95_ms": 236.544,
+        "worst_ms": 249.087,
+        "median_thread_allocated_bytes": 7919896
+      },
+      {
+        "implementation": "parent",
+        "operation": "decode",
+        "cells": 64,
+        "geometry_leaves": 131072,
+        "models": 1,
+        "compressed_bytes": 192676,
+        "wire_sha256": "09f19df5b369cbe0c86debd89b89a9726cbcd4a84a04273b3d2e18cca9460e79",
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 144.3,
+        "p95_ms": 157.263,
+        "worst_ms": 164.123,
+        "median_thread_allocated_bytes": 13255528
+      }
+    ],
+    "current": [
+      {
+        "implementation": "current",
+        "operation": "encode",
+        "cells": 64,
+        "geometry_leaves": 131072,
+        "models": 1,
+        "compressed_bytes": 192676,
+        "wire_sha256": "09f19df5b369cbe0c86debd89b89a9726cbcd4a84a04273b3d2e18cca9460e79",
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 88.774,
+        "p95_ms": 96.959,
+        "worst_ms": 98.141,
+        "median_thread_allocated_bytes": 793952
+      },
+      {
+        "implementation": "current",
+        "operation": "decode",
+        "cells": 64,
+        "geometry_leaves": 131072,
+        "models": 1,
+        "compressed_bytes": 192676,
+        "wire_sha256": "09f19df5b369cbe0c86debd89b89a9726cbcd4a84a04273b3d2e18cca9460e79",
+        "warmups": 3,
+        "runs": 20,
+        "median_ms": 22.557,
+        "p95_ms": 29.997,
+        "worst_ms": 38.717,
+        "median_thread_allocated_bytes": 5926304
+      }
+    ],
+    "method": "Three warmups, 20 measured runs per operation, parent first in separate JVMs. No concurrent Maven/native checks during measurements. Construction, SHA-256 and all-cell physical/dependency comparisons are outside timing. Every encode and final decode/encode roundtrip retains the same wire hash.",
+    "limitations": "64-cell, 131072-leaf, one-model synthetic CPU codec diagnostic; 192676 compressed bytes. Thread allocation is not peak memory. No traffic, latency to all clients, rendering, frame/tick or full-fixture performance qualification."
+  },
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" > target/structure-wire-buffer-native.log 2>&1",
+    "exit_code": 0,
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_count": 220,
+    "source_manifest_sha256": "601493e9c123fe7345d99d976d96c2777cb106a653c87c771ac2863463da5042",
+    "source_verification": "Complete set and SHA-256 values of all 220 production/harness files match after playtest. Production source/harness fixed while Main ran; no Maven compilation during Main.",
+    "media": {
+      "filename": "structure-workflow.mp4",
+      "bytes": 376781,
+      "sha256": "655bd7ce9b8950a9cb770cb6e56bd84f04d9fcbab59265b0b9e26d3f0fbdb8d4",
+      "codec": "H264",
+      "frames": 16,
+      "duration_s": 27.442,
+      "publication": "Pending controller publication",
+      "inspection": "Decoded and inspected a clear footprint/anchor/staging frame, and inspected the occupied-cell conflict screenshot with red bounds. HUD 1 FPS is functional software-renderer evidence only."
+    },
+    "media_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-wire-buffer-frame.png"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureWire.java": "7b1da69323f6cc59bba8dcb1c1c8a4534c396dcc8a2577b5d9c71d64a984ee08",
+    "src/test/java/dev/jayms/net/structure/StructureBufferedWireTest.java": "f493a5acfd9dcd61e21610e0b5cb21208f5115fe627c56411aad9a637100e42a",
+    "tools/structures/WireBufferProbe.java": "24ce999009c316640d9dde0caaacdcd1a2e01524dd603ce2a23bd4f1443fbeb3"
+  },
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "diff_check": "passed",
+    "deleted_paths": [],
+    "intended_deletions": "None. MP3, Hub and other merged features preserved."
+  },
+  "remaining": [
+    "Transfer remains capped at two million cells/leaves, below full four-million occupied-cell target.",
+    "Partitioned transfer, publication and persistence; offline owner-thread history/save and placement/undo memory work remain.",
+    "Full city/maximum admission and 20-run physical-GPU, shaped-network, 32-rendered-client, memory/frame/tick/traffic and latency qualification pending.",
+    "New exact-head platform CI and independent review pending. Supported-city claims and stable rollout remain gated."
+  ]
+}

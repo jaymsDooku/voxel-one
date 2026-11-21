@@ -1,0 +1,136 @@
+{
+  "parent": "d55c2ce11d37cabd4936cee44eb322d2297ec9f3",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "hosted_parent": {
+    "run": 43033096062,
+    "platform_builds": "four succeeded",
+    "publish": "skipped"
+  },
+  "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-resume-main",
+  "execution": {
+    "schema": 1,
+    "state": "completed",
+    "return_code": 0,
+    "elapsed_ms": 537903,
+    "timeout_seconds": 600
+  },
+  "workflow": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-resume-main-structure-native-source.json",
+    "source_manifest_sha256": "e9b135f60ab2f37088c157cd4626d65ba49371a20f597ede795f695ec137cd61",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-resume-main",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "stage_count": 102,
+  "frame_count": 301,
+  "longest_diagnostic_intervals": [
+    {
+      "stage": "cancellation-fixture",
+      "elapsed_ms": 18127
+    },
+    {
+      "stage": "command-undo",
+      "elapsed_ms": 17627
+    },
+    {
+      "stage": "command-undo",
+      "elapsed_ms": 17111
+    },
+    {
+      "stage": "command-undo",
+      "elapsed_ms": 17040
+    },
+    {
+      "stage": "command-place",
+      "elapsed_ms": 16764
+    }
+  ],
+  "diagnostic_scope": "Fixed stage names, elapsed time and frame counts only. Intervals include harness synchronization and software rendering; not acceptance performance benchmarks. No raw input, private runtime logs or credentials published.",
+  "source_manifest_entries_verified": 254,
+  "artifact_sha256": {
+    "structure-resume-main-structure-component-closeup.png": "31c5d531763112d522c7f623fe9e5f61c878f73c135c23a758519637a11d53fc",
+    "structure-resume-main-structure-export-cancelled.png": "844eb840e79bf8ca3dfd08243f7bef5a7be006efb8757384f1a1e7cf7a032114",
+    "structure-resume-main-structure-import-cancelled.png": "af5adcd27278d2c95f70ded3b68d262a6deb56558b5349d7ff9fdb7acabca2fb",
+    "structure-resume-main-structure-invalid-anchor.png": "2f079abafc81251cf3435a5e2c3d0c357c810481c7a8d7322cc59df40cef211d",
+    "structure-resume-main-structure-library-capture.png": "6940d99780308cc1ef68ed154f7cb0b08eefa5c96047cba9bef89faa96dea5af",
+    "structure-resume-main-structure-native-execution.json": "2504bdc3e6438600750ee388b5cd58e0f7e3fa69c446823f0a3720b0ff854fad",
+    "structure-resume-main-structure-native-result.json": "13b176dfdadf8475dea92ff95ba8b9c4f62b9a5afbb5f01ac64f5a688c8a6769",
+    "structure-resume-main-structure-native-source.json": "44ef8f9d7c761003c93a71a69530812cd388ba4a5bc62a2440cbfd2fd9928f05",
+    "structure-resume-main-structure-native-stage.json": "692f1c40879bd226c2c01fbd3db8e6d1c2d02e8d9f42065c6f8dfde72ebe6453",
+    "structure-resume-main-structure-placed.png": "b29e9b6961f135ab38d50905eee59496104dc84c14533e083c5538e9728ffd64",
+    "structure-resume-main-structure-player-conflict.png": "f7f59c2affdbfa35d0a767c8bbe4ea8d47a020952a224b9a6fab554f550b9994",
+    "structure-resume-main-structure-preview-0.png": "f626aed99956ad7a680fedbf8392f4cc57ffdc07dba6e2342b5521ef551313e2",
+    "structure-resume-main-structure-preview-1.png": "c371480e098acd4c395104dbb50c9b43d3fbcf0c9c9e5f38908e31d8888ed802",
+    "structure-resume-main-structure-preview-2.png": "0943ec07773c0e97283e92f5de19909381157933e52b7daa1e448884e4fa2d50",
+    "structure-resume-main-structure-preview-3.png": "2f24a7dc5e3688746341851bb246a1bfed171ebe139e44f326032a7ae2f29cc5",
+    "structure-resume-main-structure-preview-conflict.png": "bb959e12d7516012e720df773701cf07734c96c563d050d469ec27443cec7a90",
+    "structure-resume-main-structure-undo-cancelled.png": "1f02271ca9e009dc6272dab9e811e3149d033b3471998bf2ab7f9ed2daf1ad19",
+    "structure-resume-main-structure-workflow.mp4": "617784e2ca00427399088a5bbd3034996ed9668de0fbe8ae0709db228ab75419",
+    "structure-resume-main-structure-world-placed.png": "ea46802d907bdc7b1069552643d32cc7770a782182110190199f9bec9f7db128"
+  },
+  "media": {
+    "codec": "H264",
+    "frames": 26,
+    "seconds": 45.602,
+    "width": 960,
+    "height": 544,
+    "all_frames_decoded": true,
+    "first_last_differ": true,
+    "bytes": 546281,
+    "dimensions": {
+      "width": 960,
+      "height": 540,
+      "decoded_padded_width": 960,
+      "decoded_padded_height": 544,
+      "cropped_width": 960,
+      "cropped_height": 540
+    }
+  },
+  "media_commands": [
+    "javac --release 17 -cp target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar -d target target/InspectReplayRenderVideo.java",
+    "java -cp target:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar InspectReplayRenderVideo dashboard/evidence/structure-resume-main-structure-workflow.mp4 target/structure-resume-main-video-frame.png",
+    "java -cp target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/ResumeVideoDimensions.java dashboard/evidence/structure-resume-main-structure-workflow.mp4"
+  ],
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "heap_limit": "-Xmx1g",
+    "software_threads": 2,
+    "display": "Inherited assigned role DISPLAY/XAUTHORITY; cookie not read or printed."
+  },
+  "harness_changes": "Bounded atomic fixed-name stage receipts; fixed execution states and owned-child cleanup with unchanged 600-second timeout; prior scratch run archived inside ignored assigned target. Existing assertions retained. Normal completion exercised; signal/timeout cleanup branches not exercised.",
+  "old_interruption": "Old partial media preserved; prior exit143 cause unproven. Fresh run completed normally without owner input or recursive repair.",
+  "prior_unit_tests": "103 tests/14 suites passed in prior phase; not rerun. Python py_compile and actual javac/native workflow executed.",
+  "audit": {
+    "restored_base_exact": [
+      ".github/workflows/hub-preview-registration-test.yml",
+      ".github/workflows/hub-publication-prepare.yml",
+      "deploy/tests/test_hub_preview_registration.py",
+      "deploy/MusicMp3DecodeSmoke.java",
+      "deploy/MusicMp3Smoke.java",
+      "deploy/generate_music_mp3_fixtures.py",
+      "deploy/run_music_mp3_smoke.py",
+      "src/test/java/dev/jayms/MusicMp3Test.java",
+      "src/test/resources/music/cbr-stereo.mp3",
+      "src/test/resources/music/vbr-mono.mp3"
+    ],
+    "deleted_paths": 0,
+    "unmerged_paths": 0,
+    "prior_tracked_evidence": "unchanged",
+    "diff_check": "passed"
+  },
+  "qualification": false,
+  "limitations": [
+    "HUD showed FPS1 on software rendering; no performance pass",
+    "Replay sky/Main lighting, nonblocking saves and city/max admission unfinished",
+    "Required 20-run physical-GPU and shaped-network32-client budgets pending",
+    "Controller latest-master integration and independent review required"
+  ]
+}

@@ -1,0 +1,21 @@
+{
+  "sourceHead": "4f961283c461b124caf85c3cbcf75ee2fd8c183c",
+  "status": "Local targeted tests and native workflow passed; hosted checks and full qualification pending",
+  "tests": [
+    {
+      "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=Structure*Test,MusicMp3Test test",
+      "tests": 79,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0
+    },
+    {
+      "command": "python3 -m unittest deploy.tests.test_hub_preview_registration",
+      "tests": 6,
+      "result": "passed"
+    }
+  ],
+  "audit": "No deleted paths against recorded review base; structure package/engine/harness unchanged from prior tested feature; merged music/render changes retained.",
+  "qualification": "Full populated city/max admission and 20-run performance, physical-GPU, shaped-network32-client, memory/frame/tick/traffic qualification pending. No rollout or stable supported-limit claim.",
+  "Playtest": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"; passed on inherited display/auth, isolated synthetic profile, software renderer. Capture/export/import, rotations, placement, conflicts, cancel, undo and inventory/model editor regression. All production/harness source hashes verified."
+}

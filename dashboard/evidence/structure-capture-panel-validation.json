@@ -1,0 +1,458 @@
+{
+  "schema": 1,
+  "parent_head": "6d6e3aa6b7d3d72f6d46fa258075495757b4b15f",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Saved-file capture panel and available regressions passed; full implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "F12 opens a bounded saved-region capture panel in Main inspection mode. Inclusive corners and anchor accept coordinates or the camera cell; a named self-contained .vstr saves to the existing structure library. Input is limited to 128 ASCII characters and names to 48 allowed characters. Frame owner admits one job and never reads source rows, encodes files or joins capture. A separate synchronous worker captures the validated viewed source SHA-256; mismatched valid files reject. Existing partial-World edit/capture/save gates remain closed.",
+  "lifecycle": "Single worker owns capture and cleanup. Owner messages and worker progress/terminal updates share synchronization, preventing stale cancel messages from resurrecting RUNNING. Cancel ends at atomic package replacement; a late cancel keeps SAVED. Close is nonblocking, cancels active work and waits with event polling in the existing closing view. Failed cleanup retains its owner and directory until explicit retry/close; status queries do no I/O. HUD hides source paths, identities and raw exceptions. Existing output aliases of the source reject.",
+  "limits": {
+    "input_characters": 128,
+    "name_characters": 48,
+    "simultaneous_capture_jobs": 1,
+    "cache_regions": 2,
+    "cache_bytes": 4194304,
+    "region_rows": 32768,
+    "single_cell_rows": 4097,
+    "scope": "Existing package/model/placement/qualification limits unchanged. Additional capture worker retains its own bounded cache and private spool; no supported-city or aggregate memory promise."
+  },
+  "java": {
+    "broad_command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest,SavedWorldInspectorTest,CameraMovementTest,StructurePartitionedCaptureTest,SavedRegionCaptureTest,SavedRegionCapturePanelTest",
+      "test"
+    ],
+    "broad_tests": 700,
+    "broad_suites": 144,
+    "broad_elapsed_seconds": 417.5976562406868,
+    "final_focused": {
+      "command": [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-Dtest=SavedRegionCapturePanelTest,SavedRegionCaptureTest,StructurePartitionedCaptureTest,SavedWorldInspectorTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest",
+        "test"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 19.98451428487897,
+      "tests": 48,
+      "suites": [
+        {
+          "name": "dev.jayms.SavedRegionCapturePanelTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.SavedRegionCaptureTest",
+          "tests": "10",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.structure.StructurePartitionedCaptureTest",
+          "tests": "6",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.SavedWorldInspectorTest",
+          "tests": "7",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadOnlyWorldSessionTest",
+          "tests": "9",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        },
+        {
+          "name": "dev.jayms.net.ReadOnlyWorldNavigationTest",
+          "tests": "8",
+          "failures": "0",
+          "errors": "0",
+          "skipped": "0"
+        }
+      ]
+    },
+    "final_unique_tests": 701,
+    "final_unique_suites": 144,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "source_binding": "Broad compilation preceded the final panel synchronization fix. Only panel production/test sources changed. Final focused invocation recompiles and replaces the six affected capture/viewer suite receipts; all other 681 source hashes match the broad input. Count each suite once. Fresh exact-source hosted verify still required.",
+    "late_repair": {
+      "changed_after_broad_compile": [
+        "src/main/java/dev/jayms/ui/SavedRegionCapturePanel.java",
+        "src/test/java/dev/jayms/SavedRegionCapturePanelTest.java"
+      ],
+      "reason": "Serialize owner message updates and worker progress/terminal receipts; add repeated cancellation coverage.",
+      "required_final_recheck": "Focused final-source invocation replaces earlier panel-suite results; all other 681 source hashes unchanged."
+    }
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.098977467045188,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 837,
+    "shaders_match": 29,
+    "obsolete_reservation_class_absent": true,
+    "mp3": "Original shipped CBR/VBR fixtures decoded to 44,100 Hz / 6.060 s PCM."
+  },
+  "native": {
+    "expected": "Capture the selected 195-cell construction into the library, preserve its anchor/model, reject invalid naming, cancel a large selection without publication, keep source bytes unchanged and retain read-only World gates.",
+    "observed": "The package loaded with 195 occupied cells, one model, 24x8x5 bounds and 8/0/0 anchor. Invalid name rejected, Cancelled region.vstr absent, source unchanged, zero resident World chunks and complete cleanup.",
+    "command": [
+      "python3",
+      "tools/structures/run_saved_world_inspector_playtest.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-capture-panel",
+      "--captured-region"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 8.820302283391356
+    },
+    "receipt": "structure-capture-panel-native.json",
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "main_dispatch": true,
+      "camera_crossed_chunk": true,
+      "loading_then_hit": true,
+      "maximum_observed_gpu_chunks": 1,
+      "resident_chunks": 0,
+      "source_bytes_unchanged": true,
+      "invalid_source_isolated": true,
+      "cancel_before_poll": true,
+      "observer_failure_cleanup": true,
+      "scratch_mesh_cleanup": true,
+      "saved_capture_panel": true,
+      "capture_cancel_no_file": true,
+      "qualification": false
+    },
+    "precursor_capture": {
+      "status": "passed",
+      "cells": 195,
+      "models": 1,
+      "visited_chunks": 2,
+      "cell_reads": 960,
+      "peak_cached_regions": 2,
+      "peak_cached_bytes": 5460,
+      "capture_ns": 207964203,
+      "export_ns": 2707570,
+      "placement_save_ns": 61975586,
+      "full_replay_package_bytes_match": true,
+      "source_bytes_unchanged": true,
+      "dependency_empty_destination_restored": true,
+      "durable_restart": true,
+      "undo_and_repeat": true,
+      "scratch_cleanup": true,
+      "qualification": false
+    }
+  },
+  "playtest": "Playtest: actual Main --inspect-world on inherited DISPLAY and an isolated synthetic profile/source. The captured-region precursor validates canonical full-replay bytes, export/import, empty dependency restoration, real authoritative placement/save, durable reopen and undo/repeat. In the running viewer the shared character/Enter command paths choose two corners and an anchor, capture Saved construction, validate the resulting library file (195 occupied cells, one model, 24x8x5 bounds, 8/0/0 anchor), reject an invalid name and cancel a maximum-dimension selection with no new file. Native render/recorder shows source geometry/model/fractional/water, camera crosses a chunk boundary with loading then hit, invalid source is isolated, cancel-before-first-poll and observer/cleanup failure paths retain original errors. Source bytes, zero resident chunks and complete scratch/Mesh cleanup asserted. F12 binding uses the same panel toggle; input was driven through the callback methods by the harness, not external X11 keyboard injection. Browser testing does not apply to this native client. Functional software rendering does not qualify frame/tick/performance budgets.",
+  "edge_cases": [
+    "Camera-cell default selection, canonical library bytes and repeated capture.",
+    "Invalid coordinates/anchor/name/input bound before filesystem work.",
+    "Malformed source, changed valid source SHA-256 and existing output hard-link alias reject without source mutation or saved claim.",
+    "Cancellation, asynchronous close and late cancellation; repeated owner cancel messages preserve terminal receipts.",
+    "Cold, reentrant and foreign-owner snapshot identity access reject; World edit/capture gates remain closed."
+  ],
+  "earlier_attempts": "First focused run selected an empty synthetic cell and correctly failed capture; the test now selects its model cell. The next compile used fingerprint() on PagingSession, which has no such accessor; the identity-only method now reads the validated worker after ready checks. Earlier logs and receipts remain in ignored scratch. A subsequent passing focused run preceded the synchronization repair; final 48-test receipts above cover that repair.",
+  "media": {
+    "inspection": {
+      "images": [
+        "structure-capture-panel-ready.png",
+        "structure-capture-panel-capture.png",
+        "structure-capture-panel-moved.png",
+        "structure-capture-panel-invalid.png"
+      ],
+      "video_midpoint_inspected": true,
+      "observations": {
+        "ready": "Saved red/grey wall, blue detailed model/water and green fractional piece visible; read-only HUD and F12 hint.",
+        "capture": "F12 panel shows chosen corners -8/160/0 and15/167/4, anchor0/160/0 and Saved Saved construction in the structure library. Source geometry remains visible.",
+        "moved": "Camera crossed to negative X; nearby grey saved wall, one ready region and F10 active.",
+        "invalid": "Generic unavailable status and zero regions; no source path or raw error.",
+        "video": "All33 frames decoded,3.008s,456756bytes,816x544; midpoint inspected. Actual recorded camera crossing; no retiming."
+      },
+      "qualification": false
+    },
+    "video": {
+      "decodedFrames": 33,
+      "durationSeconds": 3.008,
+      "bytes": 456756,
+      "width": 816,
+      "height": 544,
+      "midpointIndex": 16,
+      "videoSha256": "f2a17a1da42c521c7f9dab0caaf5bb228f649e3e9a9dd07acee647c801d276fa",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+      "visually_inspected": true
+    },
+    "video_command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-capture-panel-workflow.mp4",
+      "target/capture-panel-validation/video-middle.png",
+      "target/capture-panel-validation/video-check.json"
+    ],
+    "scope": "Four fresh implementation images and one engine F10 recording. Every video frame decoded, representative midpoint inspected. Only synthetic data; no private prompts, answers, credentials or account records."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true,
+    "os_cache_controlled": false
+  },
+  "parent_hosted": {
+    "head": "6d6e3aa6b7d3d72f6d46fa258075495757b4b15f",
+    "run_id": 44815137322,
+    "jobs": {
+      "build (ubuntu-latest, linux)": "success",
+      "build (windows-latest, windows)": "success",
+      "build (macos-latest, mac-arm)": "success",
+      "build (macos-15-intel, mac-intel)": "success",
+      "publish": "skipped"
+    },
+    "method": "Actual job/step summaries inspected via GitHub connector. No runtime logs.",
+    "new_source_validation": false
+  },
+  "source_files_fixed": 683,
+  "source_sha256": {
+    "src/main/java/dev/jayms/SavedWorldInspector.java": "99d7fbe9b06cd501554b374cef34bd342db0b135161383b4f5c1ee8cb3a69a63",
+    "src/main/java/dev/jayms/ui/SavedRegionCapturePanel.java": "77c7046a5e2368019d9c210d8a922cc99273cb0773109942b2880a14e8c3bf8c",
+    "src/main/java/dev/jayms/net/SavedRegionCapture.java": "055bc527b4413ce25fd5b883a74af19073d8737c99562b0c9c2b6d80b211636c",
+    "src/main/java/dev/jayms/net/ReadOnlyWorldSession.java": "028b0e5c55e88d7f6722b383495a77fabec84937ba4ffec0910621df55720664",
+    "src/test/java/dev/jayms/SavedRegionCapturePanelTest.java": "758824f77cd6018e7c0ccae77b1bb8adb49c4e869ff859f258f41c8288574bfb",
+    "src/test/java/dev/jayms/net/SavedRegionCaptureTest.java": "0ce6c79df7084e1f0027b20f1fe350386b91c11f481a318275b8e7848636dc8e",
+    "src/test/java/dev/jayms/net/ReadOnlyWorldSessionTest.java": "68dc1ff544cc202fdfedc6c391d9e58296e37922d096838b0252de362cf25bdc",
+    "tools/structures/SavedWorldInspectorPlaytest.java": "b3456882cab16e42fe638fc8507e45e96dc96a5fabc3e56bae813a3de413d5fd",
+    "tools/structures/run_saved_world_inspector_playtest.py": "1afadd79746c021d9e79b121921c75526d82dda20923468df58e552fb476b056"
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "paths_with_removed_lines": [
+      {
+        "path": ".github/workflows/build.yml",
+        "removed_lines": 1
+      },
+      {
+        "path": "dashboard/progress.json",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/Chunk.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/Main.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/MeshDataGenerator.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/World.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Blocks.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/LocalGame.java",
+        "removed_lines": 57
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerClient.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/MultiplayerServer.java",
+        "removed_lines": 49
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Protocol.java",
+        "removed_lines": 30
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/Terrain.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/WorldVoxels.java",
+        "removed_lines": 36
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/city/CityHistory.java",
+        "removed_lines": 54
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelDefinition.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelLibrary.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/ModelMesher.java",
+        "removed_lines": 26
+      },
+      {
+        "path": "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/ReflectionProbes.java",
+        "removed_lines": 3
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/RenderPipeline.java",
+        "removed_lines": 15
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SceneLightingUpload.java",
+        "removed_lines": 7
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/SkyVisibilityScheduler.java",
+        "removed_lines": 2
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WaterRenderer.java",
+        "removed_lines": 31
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldLighting.java",
+        "removed_lines": 16
+      },
+      {
+        "path": "src/main/java/dev/jayms/render/WorldSkyVisibility.java",
+        "removed_lines": 18
+      },
+      {
+        "path": "src/main/java/dev/jayms/ui/InventoryHud.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/main/resources/shaders/voxel.frag",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/AviationSaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/CityFormat16RegressionTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/HistoryProtocolCompatibilityTest.java",
+        "removed_lines": 6
+      },
+      {
+        "path": "src/test/java/dev/jayms/MarketEconomyTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayOwnershipCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwaySaveCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RailwayShippingCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/RoadBaseCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/ShippingProtocolCompatibilityTest.java",
+        "removed_lines": 1
+      },
+      {
+        "path": "src/test/java/dev/jayms/render/SkyVisibilitySchedulerTest.java",
+        "removed_lines": 15
+      }
+    ],
+    "intended_removals": "This phase changes the inspector caption/input/closing flow to expose separate saved-file capture, adds identity-only access and an optional expected source fingerprint. World edit/capture/save guards, ordinary capture and old regression assertions remain. New panel/tests are additions. Existing inherited world/history/render/save replacements and protocol31 updates remain documented; MP3/Hub/Asset Manager/combat/preview and merged HCF/practice paths are preserved."
+  },
+  "remaining": [
+    "Editable partial-world gameplay, writable paging, source/owner reconciliation and true model-ID remapping remain unfinished.",
+    "City/maximum remain rejected by current placement geometry/surface/chunk/mesh/persistence gates. Small-fixture or storage passes do not complete acceptance.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, physical GPU, controlled cold OS caches, synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Available native saved-file capture/viewer and CLI functional checks only. No supported-city/limit, stable rollout, 30 FPS, 20 Hz, editable partial-world or hardware/network qualification pass.",
+  "artifacts": {
+    "structure-capture-panel-capture.png": "139d63c8e90b4248adb7c81a827de75b5b50fd48863af9e9c20f5539e8ccc788",
+    "structure-capture-panel-invalid.png": "77644644e877dd7613bfb6c74ab10854de0797f8f754b0abbb1d7d448cd55083",
+    "structure-capture-panel-moved.png": "cbef3f5cd7d5a48e3710e277a3ad53d442790c0dba56c75b3fc66ff6775dde91",
+    "structure-capture-panel-native.json": "9fc2f389b0682eb404799b7eed5753514766796f548ef7bba999385c0d7eed40",
+    "structure-capture-panel-ready.png": "476d0c22ed95ab683dc7c749b28c9c74bdfdf25967a5aac2f8c4e722e760d057",
+    "structure-capture-panel-workflow.mp4": "f2a17a1da42c521c7f9dab0caaf5bb228f649e3e9a9dd07acee647c801d276fa"
+  }
+}

@@ -1,0 +1,91 @@
+{
+  "scope": "Production placement retains immutable bounded wire images for fractional cells without retained child-node graphs. Stable map value identity and shared uniform/model trees retained.",
+  "source_parent": "b87c1e7435a5f6153ef1961d112c6b40959f6e59",
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/model/SparseVoxelOctree.java": "a5cf38992d7a459c11460023671eeb7ba971a26aa5de715756c20b5fdf07c0f8",
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "99590ea5caac03536b1d918834b6c7dd75482ee21a436fcdff7833292adbc0a4",
+    "src/test/java/dev/jayms/SparseVoxelPackedCellTest.java": "ebcbc8d357c9cb03669cdf1f9fd2a52c6321ad27cb097cc51dddc7b1f62f9c1e"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "25.0.3+9-LTS-195",
+    "test_tmp": "target/reviewer-tmp"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "parent_hosted": {
+    "source": "controller scoped observation",
+    "four_platform_builds": "success",
+    "publish": "skipped"
+  },
+  "packed_cell_tests": {
+    "tests": 5,
+    "failures": 0,
+    "errors": 0,
+    "scope": "Final packed-root representation; included in full-suite totals."
+  },
+  "expected_observed": [
+    "Voxel values, logical counts, geometry queries, all rotations and byte-exact legacy layout preserved: passed.",
+    "Copy/region/world installation uses independent ordinary trees; frozen mutation rejects: passed.",
+    "Concurrent readers and hostile output-stream mutation cannot change packed bytes: passed.",
+    "Fully fragmented4096-leaf cell stays within65536-byte record; visitor failure stops correctly: passed.",
+    "Production prepare retains packed child-graph-free representation and stable map identity/equality/hash, preserves uniform sharing and source geometry: passed."
+  ],
+  "tradeoff": "Packed queries reconstruct a temporary per-cell graph. Normal octree wrappers and ordinary nodes gain no fields. This is not measured total peak memory, a speedup or full-fixture qualification.",
+  "preliminary_full_run": "Interrupted deliberately with exit130 after representation refinement. Not counted as passed.",
+  "full_java_suite": {
+    "tests": 970,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1,
+    "suites": 191,
+    "report_scope": "Current default-selected source test classes only; no stale removed classes",
+    "command_exit": 0,
+    "passed": 969,
+    "skipped_detail": {
+      "class": "dev.jayms.assets.AssetManagerIntegrationTest",
+      "test": "browserWorkflow",
+      "reason": "Opt-in Boolean system property asset.browser was not true; not executed."
+    }
+  },
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "d53bf8fdd9d40f1545fb42ef9f1079d273306982e6e23e21a0c11d5b3f283084",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "local_cleanup": "Removed only reproducible target/structure-handoff/structure-prerequisite-v1.tar (88002560bytes). Fixtures/source/evidence retained. Shared free space was343MiB; large-fixture runs are not repeated.",
+  "qualification": false,
+  "pending": [
+    "Production region persistence and full capture/placement scaling",
+    "Both full fixtures admitted through production",
+    "20-run operation budgets,physicalGPU,shaped32-client and frame/tick/traffic/peak-memory/stall/durability qualification"
+  ],
+  "publication": "pending controller publication",
+  "media": {
+    "decodedFrames": 19,
+    "durationSeconds": 34.679,
+    "bytes": 372938,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 9,
+    "videoSha256": "6713ba35f349080c5598fdbd996a00581f989b8efbdd82116b46878b6fbb2fc0",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "Every19 frames decoded; midpoint inspected. Software HUD0-1FPS is functional evidence only, not physical-GPU qualification."
+  },
+  "native_source_entries": 225,
+  "native_source_mismatches": 0,
+  "native_temporary_files_left": 0,
+  "review_base_audit": {
+    "base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deleted_paths": 0,
+    "intended_deletions": []
+  }
+}

@@ -1,0 +1,56 @@
+{
+  "schema": 1,
+  "feature_head": "5b655182c5cfe0d3392a0857796813417716905f",
+  "results": [
+    {
+      "label": "feature-linux",
+      "artifact": 12308054223,
+      "sourceHead": "5b655182c5cfe0d3392a0857796813417716905f",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "label": "pr-linux",
+      "artifact": 12308940026,
+      "sourceHead": "bdc2b869614394c672eaf843db7fe60d11a09414",
+      "totals": {
+        "tests": 763,
+        "failures": 0,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": []
+    },
+    {
+      "label": "pr-windows",
+      "artifact": 12308800486,
+      "sourceHead": "bdc2b869614394c672eaf843db7fe60d11a09414",
+      "totals": {
+        "tests": 763,
+        "failures": 1,
+        "errors": 0,
+        "skipped": 0
+      },
+      "failures": [
+        {
+          "suite": "dev.jayms.render.SkyVisibilitySchedulerTest",
+          "test": "loadedForwardAndSideEdgesDoNotWaitForGlobalFairnessScan",
+          "kind": "failure"
+        }
+      ]
+    }
+  ],
+  "qualification": "CI incomplete; Mac cancellations pending. City/max implementation and physical/network/performance qualification unfinished. No ready claim.",
+  "local_scheduler_recheck": {
+    "tests": "19",
+    "failures": "0",
+    "errors": "0",
+    "skipped": "0"
+  },
+  "local_command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=dev.jayms.render.SkyVisibilitySchedulerTest test"
+}

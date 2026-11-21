@@ -1,0 +1,35 @@
+{
+  "qualification": false,
+  "status": "preliminary",
+  "scope": "First actual-source native run completed loading and frame/planar integration. Its brightness assertion included background pixels; superseded by required geometry-versus-sky pixel check in the verified run. Images preserved as preliminary evidence.",
+  "result": {
+    "status": "passed",
+    "published_chunks": 2,
+    "max_owned_uploads": 1,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "source_lighting_chunks": 288,
+    "source_lighting_leaves": 515884,
+    "source_lighting_nanos": 11971769171,
+    "planar_lighting_nanos": 1264956364,
+    "qualification": false
+  },
+  "image_sha256": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+  "regression_image_sha256": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+  "cli_sha256": {
+    "tools/structures/ReplaySkyFrameCheck.java": "f67b65efe7c03828e483323bf182f7d4a902d1c543c989b84c8ca5390b243e24",
+    "tools/structures/ReplaySkyUploadAssertions.java": "247e1bc172d1f9544f97390e0bb64e7923a829fbf00e72caf55bd07cc9f29f59",
+    "tools/structures/ReplayVolumeUploadAssertions.java": "0f3c6cf1bed3b5ea813c80e1a5e3fa5851d8ea08ac7e7bc400ed82d050eaad93",
+    "tools/structures/ReplayVolumePipelineAssertions.java": "7ab2d484621c8723cbd0de792ff51273ab21f8a58b241b47a2103117524b0e34",
+    "tools/structures/ReplayVolumeFrameAssertions.java": "41fd14dfa5cde87b70fa5110e9799cd314cd866278d67ac69fa194ef093cbc86",
+    "tools/structures/ReplaySkyPipelineAssertions.java": "8ecfc7fc1e66ed277b6f86c42b2d801894daabad0bf8711469ad952d4154108d",
+    "tools/structures/ReplaySkyFrameAssertions.java": "3481e9016ed44fe8333452a4aa330e1a1658fc7cb85b87eb54de8604aab15c3d",
+    "tools/structures/ReplayWaterCheck.java": "7e98feddc29ed4fb13eed47c0d5f0272570bf7cc53f0f7bfa36aa7e520924b7a",
+    "tools/structures/ReplayRenderCheck.java": "637ccaab29b2f62add81592a92bf95ffef2882ac9abf024c888cd3f982dab5b1",
+    "tools/structures/ReplaySceneCheck.java": "a236bf313ce4b6361fd8d9b5dea7bef9feb6f0779593043c0dbb6ff2f7062926",
+    "tools/structures/ReplayChunkGpuCheck.java": "ffb86205ea214e0d40598636f2887d9ab23da11ae31e723f9f0b916168fa9929",
+    "tools/structures/ReplayModelGpuCheck.java": "3762c02929400fbd1b6f6aef051469fdd4acc7614444b7a39fa2c251e63746ee",
+    "tools/structures/ReplayGpuUploadCheck.java": "b7c10b6275432bd5b8f179bcd1d8c427988cf6ebb7e9181fca4a0c3a60b8864c"
+  },
+  "driver_sha256": "3d8350d0138887738ad649d6a530725fb7728711cdbfbc9a28c0c32f987e8e07"
+}

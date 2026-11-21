@@ -1,0 +1,112 @@
+{
+  "status": "passed",
+  "scope": "Production offline prepared-cell placement batches neighbor mesh invalidation by changed source chunk",
+  "parent_head": "277012cb77768e7cbc97c16cf80f4cfb7518ae74",
+  "hosted_parent": {
+    "builds": 8,
+    "result": "success",
+    "publication": "skipped"
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=WorldCellBatchTest,PreparedCellReplayTest,WorldPreparedCellReplacementTest,WorldCellReplacementTest,StructurePreparedCellPublicationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureSaveStagingTest,StructurePublicationStagingTest,StructureRollbackImagesTest,StructureTest,StructureMultiplayerTest,StructurePreparedUndoTest,WorldHistoryIndexTest,WorldHistoryCellCursorTest,EditHistoryTest,HistoryProtocolCompatibilityTest,WorldCellSnapshotTest,WorldSkyVisibilityTest,WorldStreamingTest test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" surefire:test",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "java -Xmx256m -cp target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar deploy/InspectStreamingVideo.java dashboard/evidence/structure-workflow.mp4 dashboard/evidence/structure-cell-batch-midpoint.png dashboard/evidence/structure-cell-batch-media.json"
+  ],
+  "tests": {
+    "targeted": {
+      "suites": 20,
+      "tests": 121,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "exit": 0
+    },
+    "full_regression": {
+      "status": "passed",
+      "exit": 0,
+      "suites": 202,
+      "tests": 1013,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skipped_cases": [
+        "dev.jayms.assets.AssetManagerIntegrationTest.browserWorkflow"
+      ],
+      "skip_reason": "Optional AssetManagerIntegrationTest.browserWorkflow requires asset.browser=true; it was not executed.",
+      "freshness": "All current default-Surefire source suites have reports newer than this command stdout birth time."
+    },
+    "initial_compile": "Test helper overload was initially unqualified; compile failed, helper qualified, final targeted run passed. No failed compile counted as a pass.",
+    "batch_checks": [
+      "Resident/stored fractional geometry, explicit air, multi-chunk replay order/revisions and unload/reload match individual installs.",
+      "Nine same-chunk cell writes notify one loaded neighbor once instead of nine times.",
+      "Nested batches preserve virtual dispatch and flush at the outer boundary.",
+      "Post-install failure flushes notifications and restores normal subsequent edits.",
+      "Null input rejects before mutation; empty batch has no notification.",
+      "Existing production rollback/retry, save failures, worker undo/cancellation, TLS multiplayer, sky and streaming checks pass."
+    ]
+  },
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "35bc33d7a4a0677a6cc727fe2dfadc6b7f9fdf4517ba016ce41a49a8ce9ea4ab",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "media": {
+    "decodedFrames": 24,
+    "durationSeconds": 44.169,
+    "bytes": 463516,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "b9df50376f2ee8f36a548095f6a4bb0cf991ad543e4f0456c0bd4b8b042b5ccb",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+  },
+  "inspection": {
+    "midpoint": "Green footprint and anchor, clear conflict state, world unchanged during staging.",
+    "cancelled_undo": "House retained, red overlap footprint and Cancelled; nothing placed.",
+    "all_frames_decoded": true,
+    "native_source_hashes_match": 228,
+    "synthetic_profile_tmp_files": 0,
+    "browser": "Not applicable to native desktop workflow. Actual Main/GLFW/X11 input used.",
+    "image_files": [
+      "structure-cell-batch-midpoint.png",
+      "structure-undo-cancelled.png"
+    ]
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/World.java": "c5edefc642fa5c35c617411b249bc3cd8e778660a916b450876cc256c3475a84",
+    "src/main/java/dev/jayms/net/LocalGame.java": "f40ec04d8d59d2b191722e70a18d10224f254c9f88c70777328fc5c0c16a5d92",
+    "src/test/java/dev/jayms/WorldCellBatchTest.java": "f26445b11d4e4b585768df69f5e06edaf52e2988a8a4d48a4d52bda176bbba73"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS",
+    "native_heap": "-Xmx1g",
+    "display": "Inherited assigned DISPLAY and XAUTHORITY; no authentication cookie read or printed",
+    "profile": "Synthetic offline; LOW, detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "observed_hud_fps": 1
+  },
+  "limits": [
+    "No wall-clock speedup or main-thread 100 ms stall guarantee measured. Neighbor notification count is the measured deterministic change.",
+    "Geometry/history/resident updates remain per-cell and retain existing order. Authoritative checks, rollback and save publication remain caller-owned.",
+    "The batch helper is not a transaction.",
+    "Package/world formats and geometry/instance/chunk/history caps remain unchanged.",
+    "Live region/root integration, full city/maximum admission, renderer/server/persistence work and all required 20-run game qualification remain pending.",
+    "Physical GPU, shaped 32-client, memory/frame/tick/traffic/stall/ack/durability budgets remain pending; stable rollout stays gated."
+  ],
+  "audit": {
+    "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+    "tracked_deletions": 0,
+    "intended_unrelated_deletions": [],
+    "restored_mp3_and_hub_files_match_base": true
+  },
+  "publication": "New source/tests/media pending controller publication and exact-source hosted checks"
+}

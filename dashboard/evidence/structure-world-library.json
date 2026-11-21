@@ -1,0 +1,69 @@
+{
+  "parent_head": "c5ed6f023a4f101ecc0246c5756489176db2c748",
+  "status": "detached_world_library_checks_passed_production_integration_pending",
+  "source_sha256": {
+    "tools/structures/RegionWorldLibraryPrototype.java": "54d3aaebfb3bc9035053b61def74bd856847b11079d30b44790ae449c0b5486b",
+    "tools/structures/RegionWorldLibraryCheck.java": "9e237fb1f0a89ece94b4ed00e1b06e2523a31555e9d9f475d5aa68de3d10e94c",
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/RegionGenerationEvidence.java": "b29c136c6a2a234fba5f971ec93413f3b78f49bdde2c826fa8152fbacde39a85",
+    "tools/structures/test_region_history.py": "b9a538f3434ba25b8bee61e59b119877a6607cf939be4c63e25b1f2e2004a874",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "5177125851e07673657f52b09c45164a07b67388a745a2d0fef2a1d8a114aaef"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; not measured peak memory",
+    "execution": "Detached Java CLI with synthetic in-memory library and world cells; no game client/server started",
+    "capture": "Window-only capture on inherited DISPLAY/XAUTHORITY; no authentication data read or printed"
+  },
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionWorldLibraryCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionWorldLibraryCheck > target/structure-world-library-check.json",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "java -cp target:target/classes RegionGenerationEvidence RegionWorldLibraryCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-library-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "model_entries": 4,
+    "unplaced_custom_entries": 2,
+    "envelope_bytes": 286,
+    "rejection_cases": 27,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "broad_tool_tests": 39,
+    "final_affected_integration_tests": 6,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "sequence": "39 broad tests passed before the last cancellable restore change. Six affected integration tests passed after it. Final viewer wording was then compiled, run and captured. No unchanged game tests rerun."
+  },
+  "cases": [
+    "Exact stable IDs 42,75,4096 plus engine default; two unused custom entries including duplicate-fingerprint alias; authors and fingerprints preserved",
+    "Placed model ID not remapped; explicit-air cell preserved; default-only empty geometry round trip",
+    "Later mutations of source and returned libraries cannot change sealed envelope",
+    "Missing model, bad outer CRC/version/magic, byte/count/length bounds, invalid and duplicate IDs, invalid author length, truncation and trailing bytes reject",
+    "Pre-cancel, mid-decode cancel, thread interruption reject; clean retry produces identical bytes"
+  ],
+  "implementation": {
+    "scope": "Separate tools-only codec, not connected to private generation authority or game save paths",
+    "bounds": "16 MiB total, 8 MiB library; existing world codec model count/type/mesh limits; private region 8 MiB/100000 cells/1024 regions/131072 leaves",
+    "format": "Magic/version, bounded exact-ID world-library payload, bounded final-cell region payload, CRC32. No remapping or cross-world merge. Uses existing ModelLibrary.writeAll/readAll; no new production format.",
+    "cancellation": "Checks on library I/O, region codec and each restore cell; one model mesh/count validation remains indivisible; no 100 ms main-thread claim"
+  },
+  "playtest": "Playtest: actual Java CLI capture/encode/decode/restore preserved the exact library and geometry. Relevant malformed-input/cancellation edges and source-isolation/default-library regressions passed. Fresh actual child exit 0 and JSON result captured and visually inspected. Browser/game playtesting does not apply to this tools-only codec. All 224 native game/harness source hashes still match prior native workflow.",
+  "image": {
+    "path": "dashboard/evidence/structure-library-cli.png",
+    "bytes": 5637,
+    "sha256": "a402747a9942b27722ee88a89470d11e8067ba872b2c429e3a5308ca285f50c0",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent c5ed6f02 has eight completed successful platform builds and publication skipped. These results do not cover pending edits.",
+  "initial_test_correction": "One malformed-ID test originally wrote the existing ID and correctly failed its rejection assertion. Changed it to an invalid default ID before final passing checks.",
+  "limitations": "Inventory and player/transient metadata remain absent. This envelope is not a complete world save, not wired into generation publication, and has no production or city/maximum qualification. No disk durability, peak memory, latency or 32-client claim. Existing production caps remain unchanged.",
+  "next": "Preserve remaining complete legacy world metadata, then integrate responsive versioned region storage and authoritative publication before full fixture qualification.",
+  "qualification": false
+}

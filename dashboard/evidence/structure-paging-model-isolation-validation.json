@@ -1,0 +1,215 @@
+{
+  "schema": 1,
+  "parent_head": "1ef8d387ad13d2b6e4ac42130ae69e29472d7f26",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Fresh read-only paging-scene preparation copies model-library maps before World/binding creation and the final owner source guard. IDs, revision, counters and immutable frozen definitions are retained. Registration in the retired World cannot change the replacement, invalidate its binding or enter its subsequent save. Candidate-side model mutation still invalidates the candidate journal. Legacy resident current-tail transfer retains its existing shared-model identity contract.",
+  "scope": "Model-map isolation for the existing private paging-session handoff. No Main installation, editable paging, later-live-tail coordination, model-ID remapping, coverage enlargement, package cap or save-authority change.",
+  "focused": {
+    "suites": [
+      {
+        "name": "dev.jayms.net.SavedPagingSessionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingJournalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingTailTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackTailAdoptionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackMetadataTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "tests": 20,
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=SavedPagingSessionTest,SavedPagingJournalTest,SavedPagingTailTest,ReadbackTailAdoptionTest,ReadbackMetadataTest test",
+    "exit_code": 0
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest",
+      "test"
+    ],
+    "tests": 405,
+    "suites": 83,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 326.84269915521145
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.212333157658577,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 807,
+    "shaders_match": 28,
+    "original_cbr_vbr_mp3": "Both packaged fixtures decoded to 44100 Hz, 6.060 s PCM."
+  },
+  "failed_native_attempt": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-paging-model-isolation"
+    ],
+    "exit_code": 1,
+    "failure": "Replay editor World changed outside journal",
+    "cause": "The harness still expected the retired World journal to remain valid after deliberately changing its model library. This is the intended old-World source fence.",
+    "repair": "Expect IOException from the old journal after replacement rendering; retain independent candidate/save/GL assertions. Production and Java test source unchanged.",
+    "status": "failed; not a native pass"
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-paging-model-isolation-final"
+    ],
+    "receipt": "structure-paging-model-isolation-final.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11665347536,
+      "planar_lighting_nanos": 1129798968,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11596461176,
+      "planar_lighting_nanos": 722248567,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "source_files": 612,
+    "compiled_classes": 1268,
+    "all_hashes_match": true
+  },
+  "playtest": "Playtest: actual production replay/save/paging APIs and GLFW/OpenGL on inherited DISPLAY using isolated synthetic v10 worlds. Expected replacement model IDs/definitions and fractional geometry to survive retired-World model registration, worker repeat save/reopen and a second replacement scene, without admitting the retired-only definition. Expected cancellation/stale source rejection to remain retryable, candidate mutation to invalidate its own source journal, legacy current-tail compatibility, correct pending-overlay/sky/planar/model/water rendering and cleanup. Observed all final CLI/native assertions passed; five fresh final framebuffer images inspected. The first native attempt failed on an outdated retired-journal assertion; it was corrected to expect the intended old-World source-fence rejection, then the native check reran. Production and Java test source stayed fixed. Earlier failed-attempt images are diagnostics, not pass evidence. This private noninteractive API change has no browser flow. Main startup/full structure UI was not rerun for this change and remains separately gated; prior parent workflow evidence is historical, not a current-source Main pass.",
+  "media": {
+    "inspected": [
+      "structure-paging-model-isolation-final-session.png",
+      "structure-paging-model-isolation-final-optics.png",
+      "structure-paging-model-isolation-final-pending-optics.png",
+      "structure-paging-model-isolation-final-pending.png",
+      "structure-paging-model-isolation-final-regression.png"
+    ],
+    "scope": "Fresh reloaded-session framebuffer after model-map isolation, plus pending-overlay/optics and renderer regressions. Stable saved model colours render; retired-only model stays absent. Not performance qualification."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "compile_release": 17,
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "1ef8d387ad13d2b6e4ac42130ae69e29472d7f26",
+    "run": 44691479257,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh hosted validation."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Replacement-scene preparation calls isolated model preparation. Its identity test now requires independent maps with equal IDs/definitions/revision. The native harness mutates retired models and verifies repeat-save/reopen isolation. No unrelated feature/test/file deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Provisional 131072-leaf, 256-placement-chunk and 16384-instance caps still reject required city/maximum fixtures.",
+    "Agreed targets remain 1024x256x1024 cells, 4 million occupied cells, 64 MiB compressed, 512 MiB decoded and 512 dependencies.",
+    "Required 20-run city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Private paging-session model-map isolation only. No supported-city, stable-rollout, physical-GPU, 32-client or performance pass.",
+  "artifacts": {
+    "structure-paging-model-isolation-final-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-model-isolation-final-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-paging-model-isolation-final-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-paging-model-isolation-final-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-paging-model-isolation-final-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d",
+    "structure-paging-model-isolation-final.json": "510dbe739fa52b4bec69e0c286012fe350e8fd41c7414211cf5a4933b15becb5",
+    "structure-paging-model-isolation-session.png": "102de7eae20e8c53329adc5f2b98015ba8fa873f84757f33e3a6f08283561f8d"
+  }
+}

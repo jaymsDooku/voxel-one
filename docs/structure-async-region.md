@@ -1,0 +1,27 @@
+# Asynchronous disk-region read adapter
+
+`AsyncRegionReadPrototype` is a private integration step around the bounded disk cache. The game does not use it. Production admission limits, worlds and save formats remain unchanged. Live world/root, renderer, physics, persistence and server integration are still required. City/maximum and physical-GPU/shaped 32-client qualification remain pending; stable rollout stays gated.
+
+The caller submits at most 1,024 positions and receives a future. A completed immutable list contains a present cell or a known-absent result for each position. An unfinished, failed or cancelled future never represents empty terrain. Partial batches are not published. Source open, reads and close run on one storage thread. The diagnostic queue allows 1–128 waiting requests plus one running request. A full queue returns a failed future with `RejectedExecutionException`. No disk I/O or waiting occurs in `request`; copying the bounded input list still runs on the caller.
+
+Each request carries a private generation fence. `invalidate` cancels running/queued futures, drops queued tasks and advances the generation. It invalidates views of the same immutable source; it does not select a new source or publish world roots. A result completed before invalidation may still be held by a caller. Any live integration must compare its own current world/root identity under the authority lock before applying a result. Completion callbacks use normal `CompletableFuture` execution rules; callers must dispatch expensive callbacks away from the game owner thread. No main-thread timing guarantee is claimed.
+
+Cancellation is cooperative. A cancelled batch discards its partial list. Closing cancels outstanding requests and schedules cleanup after the running read exits. `closeAsync` returns the same future for repeated calls and never waits on the caller. Successful completion means the reader has closed on its storage thread. Cleanup failure is visible through that future. Callers must observe cleanup rather than assume that a close request deleted the cache. The generic reader must obey cancellation and release its own resources if startup throws. The actual disk-index factory uses its existing failed-open cleanup.
+
+The deterministic CLI check blocks a synthetic worker with latches to distinguish pending from absent reads. It exercises queue overflow, stale generation cancellation, queued/running cancellation during close, partial-batch cancellation, reentrant cancellation callbacks that submit fresh work, failed startup/retry and visible cleanup failure. Its real disk path opens the existing production-encoded four-cell package through `DiskPackageIndexPrototype` and `DiskRegionCachePrototype`, checks all geometry/material/colour and dependency indices, reads one absent cell, rejects a bad coordinate, retries, and verifies immutable results and cache cleanup. Frozen results remain valid after close. This does not qualify dependency installation, placement, meshing, saves or multiplayer.
+
+```sh
+javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-async-region tools/structures/DiskPackageIndexPrototype.java tools/structures/DiskRegionCachePrototype.java tools/structures/DiskRegionCacheCheck.java tools/structures/AsyncRegionReadPrototype.java tools/structures/AsyncRegionReadCheck.java
+java -Xmx256m -cp target/structure-async-region:target/classes AsyncRegionReadCheck
+python3 -m unittest discover -s tools/structures -p 'test_*.py' -v
+```
+
+Playtest: `AsyncRegionReadCheck --evidence` exercises the same CLI checks and shows their actual result in its own temporary Swing window. Capture uses the inherited assigned display/authentication. Browser and native game playtesting do not apply to this tooling-only change. Production/harness hashes must remain identical to the completed native workflow. The image and sanitized command/results report belong in `dashboard/evidence/structure-async-region.png` and `.json` for controller publication.
+
+The next live integration must define explicit loaded, pending and failed region states, hold immutable world/root identities with every request, and stage updates without interpreting unloaded data as empty. It must preserve explicit-air overrides and legacy worlds, keep owner validation and atomic undo/save publication, and avoid disk reads from synchronous render/physics queries. The adapter alone cannot admit either full fixture or establish the required budgets.
+
+## Validation result
+
+The synthetic CLI passed 11 rejection cases, four exact disk cells and one known-absent result. The full tooling suite passed 59 tests in 137.284 seconds. It started before the final reentrant-callback hardening; both affected async/cache integration tests were rerun on final source and passed in 15.055 seconds. The final evidence CLI also exited 0, and its own-window screenshot was inspected. All 228 production/native harness source hashes remain unchanged. No new Maven or native game run is claimed.
+
+Hosted checks for parent `286983b371915aa5165b212e67887d8dc4856449` passed all eight platform builds; both publication jobs skipped. New tooling, tests, docs and sanitized evidence need controller publication and exact-source checks. No tracked deletions against review base `71612f09bfec4549456b3317676e76cdced085a4`; restored MP3 tests/fixtures and Hub workflows match the base. No unrelated deletions are intended. All live-integration and qualification gates remain open.

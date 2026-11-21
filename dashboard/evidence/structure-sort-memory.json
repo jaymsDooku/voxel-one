@@ -1,0 +1,153 @@
+{
+  "schema": 1,
+  "scope": "Production cancellable spatial ordering; component timing only",
+  "parent": "c7497c6bd55905d9bbdd728caa00c13b43f6226c",
+  "change": "Two integer index buffers plus a first-pass integer key buffer; return final index buffer directly. Stable ordering, key validation, cancellation, formats and admission caps unchanged.",
+  "array_payload_bytes_at_4000000_cells": {
+    "previous": 80065536,
+    "current": 48065536,
+    "reduction": 32000000,
+    "excludes": "array headers, caller input, package geometry and all other process memory"
+  },
+  "environment": {
+    "os": "Debian 12 / Linux 6.1.0-50-cloud-amd64 x86_64",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "25.0.3+9-LTS-195",
+    "heap": "-Xmx256m",
+    "driver": "not applicable to CPU sort; native renderer recorded separately"
+  },
+  "probe": {
+    "command": "java -Xmx256m -cp target/structure-order-final:target/classes dev.jayms.net.structure.SpatialOrderProbe",
+    "compile": "javac -encoding UTF-8 --release 17 -cp target/classes -d target/structure-order-final src/main/java/dev/jayms/net/structure/StructureOrder.java tools/structures/SpatialOrderProbe.java",
+    "runs": 20,
+    "warmups": 2,
+    "statistics": "arithmetic median; nearest-rank p95; worst",
+    "prior": [
+      {
+        "cells": 1000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 108.962,
+        "p95_ms": 135.786,
+        "worst_ms": 155.244,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 1000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 74.852,
+        "p95_ms": 87.814,
+        "worst_ms": 89.253,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 447.477,
+        "p95_ms": 475.966,
+        "worst_ms": 600.7,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 319.26,
+        "p95_ms": 382.178,
+        "worst_ms": 503.763,
+        "qualification": "sorting component only; not populated city/max qualification"
+      }
+    ],
+    "current": [
+      {
+        "cells": 1000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 107.382,
+        "p95_ms": 122.734,
+        "worst_ms": 132.287,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 1000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 63.7,
+        "p95_ms": 78.315,
+        "worst_ms": 80.258,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 459.271,
+        "p95_ms": 501.481,
+        "worst_ms": 504.349,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 369.961,
+        "p95_ms": 443.111,
+        "worst_ms": 547.835,
+        "qualification": "sorting component only; not populated city/max qualification"
+      }
+    ],
+    "limitations": "Shared VPS; prior ran first, tests overlapped both probes and native startup overlapped final probe. Full stable index order checked against sorted key/index control at each size. No peak-memory, frame, tick, traffic, capture, placement, durability or full-fixture qualification."
+  },
+  "tests": {
+    "targeted": {
+      "tests": 73,
+      "classes": 13,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureOrderTest,StructureTest,StructureOccupancyTest,StructureMultiplayerTest,StructurePreviewTest,StructurePackedGeometryTest,StructureUniformCellsTest,StructurePlacementCellsTest,StructureCaptureChunkTest,StructureCaptureModelTest,StructureFileReadTest,StructureEncodeCancellationTest,StructureDecodeCancellationTest test"
+    },
+    "full_suite": {
+      "exit": 0,
+      "current_suites": 198,
+      "tests": 1002,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1,
+      "skip_names": [
+        "dev.jayms.assets.AssetManagerIntegrationTest.browserWorkflow"
+      ],
+      "freshness": "All current default-Surefire source class reports are newer than the full command output birth time; no missing current classes."
+    },
+    "native": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-native-source.json",
+      "source_manifest_sha256": "4b77ca9334234dbebd2afbb3015de1fd355d8a674c00ae149e08551893d87d70",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_hashes": 228,
+    "synthetic_temporary_files": 0,
+    "full_command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" surefire:test"
+  },
+  "discarded_attempt": "Two-index-only draft reduced arrays further but had 1063.116 ms p95 at 4 million keys; not retained. Its native run was stopped with exit 130 and is not a pass.",
+  "qualification": "Full city/maximum admission, live disk-backed regions/roots and physical-GPU/shaped 32-client qualification remain pending; rollout gated.",
+  "publication": "Pending controller publication",
+  "media": {
+    "decodedFrames": 25,
+    "durationSeconds": 47.371,
+    "bytes": 474708,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 12,
+    "videoSha256": "555203631239008a9594aabee5397c4775b0c0e52e4aad59b66d882116bcd4fe",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "Every frame decoded; midpoint green footprint/anchor and undo-cancelled screenshot inspected. HUD 1 FPS; functional evidence only."
+  }
+}

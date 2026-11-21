@@ -1,0 +1,71 @@
+{
+  "commands": [
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionGenerationCheck.java",
+    "java -Xmx512m -cp target:target/classes RegionGenerationCheck target/structure-generation-tests > target/structure-generation-check.json",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionGenerationEvidence.java",
+    "java -cp target:target/classes RegionGenerationEvidence",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-generation-cli.png"
+  ],
+  "environment": {
+    "capture": "Inherited DISPLAY/XAUTHORITY; screenshot restricted to the owned evidence window; no authentication data read into model context",
+    "data": "Isolated synthetic directories below assigned worktree target; removed after each check",
+    "java_heap_cap": "-Xmx512m; cap only, not measured peak memory",
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2"
+  },
+  "hosted_observation": "Fresh PR observation matched exact parent with eight successful platform build entries and publication skipped.",
+  "image": {
+    "bytes": 5984,
+    "description": "Fresh window-only capture of actual synthetic CLI exit0 and JSON results; explicitly labels production and qualification pending. Viewer stopped after capture; child test exit0 is separate from viewer cleanup.",
+    "path": "dashboard/evidence/structure-generation-cli.png",
+    "sha256": "ebeff289995e888c9ad4108190eeb06dc276a1f21cd8b67720c2c86edcc7ee38"
+  },
+  "implementation_refinement": "Read size now comes from the same opened file handle used for bytes, not a pre-open path size. A deterministic replacement hook exercises that race.",
+  "initial_test_correction": "An unused initial small large-fixture constructor used colour0, producing an empty dependency. Removed it before final checks; the intended32-resolution coloured fixture is nonempty.",
+  "limitations": "Tools-only synchronous file store. No live-game save format, live geometry publication, undo, multiplayer or late-join integration. File force and atomic replacement were executed; directory fsync, process-crash/power-loss guarantees and hardware storage qualification were not. Fresh-instance loading is not a simulated machine crash. An I/O error after move may mean publication occurred; exact new bytes recover the tested outcome, otherwise callers must reload rather than assume old state. Current path may only be changed by cooperating locked prototype writers. Byte bounds do not establish peak heap, and complete-file validation under the commit lock is not qualified for a 100 ms owner-thread budget. No orphan-stage recovery protocol is implemented.",
+  "next": "Integrate validated region/dependency generations with legacy save migration and responsive live atomic publication, then conflict-safe undo and late-join transfer. Preserve source revision and filesystem durability gates.",
+  "observed": {
+    "directory_fsync_qualified": false,
+    "final_generation": 4,
+    "large_generation_bytes": 168763,
+    "mid_write_cancel_bytes": 65536,
+    "qualification": false,
+    "rejection_cases": 23,
+    "status": "passed"
+  },
+  "parent_head": "b88d73c376ed13513350780d8079d3204aa878aa",
+  "playtest": "Playtest: CLI exercised actual local NIO file force, file locks, strict atomic rename and restart-by-new-store loading, plus injected failures and cancellation before and after publication. All 23 expected rejection cases passed; final generation 4 loaded correctly. The 168,763-byte generation stopped after 65,536 bytes before force, leaving no stage or published file; subsequent full publication and read retry passed. Actual CLI child exit 0 and its result were displayed on the assigned X display and captured; the image was inspected. This is a CLI-only storage experiment, so browser/game playtesting does not apply. All 224 existing native source hashes remain unchanged.",
+  "qualification": "Full city/maximum admission, 20-run memory/frame/tick/traffic budgets and physical-GPU/shaped-network/32-rendered-client qualification remain unfinished. Production caps and save/network paths are unchanged. Readiness and stable rollout remain gated.",
+  "source_sha256": {
+    "tools/structures/RegionDependencyPrototype.java": "de1a11bea57186181ff232b89c866eb065f17b4d26879a4fca7c89a2da2aa00c",
+    "tools/structures/RegionGenerationCheck.java": "e5538e3dfa854496031ff7b15ec548e615123e85740da056d3d46d8d01ce3930",
+    "tools/structures/RegionGenerationEvidence.java": "e01750dc68ce32a5a343469ce6fcdd9af162dfb9ab6658ac3a0e5d2faa554b4a",
+    "tools/structures/RegionGenerationPrototype.java": "2dc47989e0765fe0b3f6362be45c8c63db6fd9f4bfa3182355814c515e691eb8",
+    "tools/structures/RegionHistoryPrototype.java": "1f8ccbf6a078d6a1e14ffd129e6fd6fac86e52f34ebefe97cb3f8155979b8a00",
+    "tools/structures/test_region_history.py": "b53f532b1bbb936f749f94773af458bf5dec85a453d4fe42fcce62a7e5435aed"
+  },
+  "status": "private_generation_file_checks_passed_production_integration_pending",
+  "tests": {
+    "broad_tool_tests": 37,
+    "cases": [
+      "Private forced stage is invisible until strict atomic replacement; generation1 and restart-by-new-instance load succeed.",
+      "Two store instances stage the same prior generation; stale commit rejects after the winner publishes generation2.",
+      "Cancellation before stage, after file force, during write and before commit leaves prior current bytes intact and removes private files.",
+      "Injected failures before/after force, before move and unsupported atomic move retain prior file; no non-atomic fallback.",
+      "Held OS lock rejects commit; corrupted and valid-but-modified staged bytes reject.",
+      "Uncommitted private stage is ignored by a fresh store instance.",
+      "Injected IOException after actual atomic rename is recognized by exact published bytes and returns a committed receipt.",
+      "Cancellation after the publication point is not reported as an uncommitted operation.",
+      "Restart loading restores model definitions, air and fractional LED geometry.",
+      "Corrupt/version/zero-generation/nested-invalid/truncated/directory/oversized files and exhausted generation counter reject.",
+      "Deterministic atomic replacement with a differently sized valid file between metadata check and open loads the new opened generation correctly.",
+      "Large component generation commits after force; cancelled reads preserve it; thread interruption remains set."
+    ],
+    "errors": 0,
+    "failures": 0,
+    "final_affected_tests": 4,
+    "skips": 0
+  }
+}

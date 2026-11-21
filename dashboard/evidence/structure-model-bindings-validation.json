@@ -1,0 +1,428 @@
+{
+  "schema": 1,
+  "parent_head": "b940242821413dc2d7cf0c0c7e55ae254b7d7b40",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available model-binding and saved-scene checks passed; complete structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "ModelLibrary caches ID-to-fingerprint using the hash already computed when frozen definitions are admitted. Copies and replaceWith retain both fingerprint indexes. Stable binding checks compare exact ID, author and definition identity independently of revision counters. Source-backed save staging now rejects missing/rebound/moved/renamed/reauthored source bindings before creating a save prefix, while allowing added definitions. Metadata tail preparation preserves source bindings; scene preparation requires exact bindings. A new independent current-map copy retains existing frozen definition objects and rebases only its revision to the reopened worker source. The retired library is unchanged. No IDs, values, formats, limits or full source/World/journal/cancellation guards are relaxed. True ID remapping remains unimplemented.",
+  "limits": {
+    "scope": "All previous per-model, world library, package, geometry/surface/chunk/mesh/persistence and qualification limits remain enforced. This is private read-only saved-scene correctness, not Main/editable paging promotion. Cached binding checks do not serialize geometry; no measured 100 ms or whole-workflow performance claim."
+  },
+  "focused": {
+    "status": "passed",
+    "tests": 48,
+    "suites": [
+      {
+        "name": "dev.jayms.net.model.ModelLibraryBindingTest",
+        "tests": "5",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingModelBindingTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingSessionTest",
+        "tests": "3",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingTailTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingJournalTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.SavedPagingReplacementTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackSaveSnapshotTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadbackMetadataTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.VoxelModelTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureModelAdmissionTest",
+        "tests": "2",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "earlier_failures": "Two prior scene/journal assertions required sharing the same frozen ModelDefinition references. Corrected implementation to rebase an independent live-map copy after exact source comparison. Existing assertions retained unchanged."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest",
+      "test"
+    ],
+    "tests": 610,
+    "suites": 132,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 370.86371587216854
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.402776194736362,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 814,
+    "shaders_match": 28,
+    "mp3": "Original shipped CBR/VBR fixtures both decode to 44,100 Hz, 6.060 s PCM."
+  },
+  "native": {
+    "command": [
+      "python3",
+      "tools/structures/run_replay_sky_frame_check.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-model-bindings"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 81.35896004363894,
+      "prefix": "structure-model-bindings"
+    },
+    "receipt": "structure-model-bindings-native.json",
+    "result": {
+      "status": "passed",
+      "paging_model_maps_isolated": true,
+      "published_chunks": 2,
+      "max_owned_uploads": 1,
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 12588268904,
+      "planar_lighting_nanos": 1122594996,
+      "planar_lit_geometry_pixels": 1329,
+      "qualification": false
+    },
+    "pending_result": {
+      "status": "passed",
+      "source_lighting_chunks": 288,
+      "source_lighting_leaves": 515884,
+      "source_lighting_nanos": 11666442635,
+      "planar_lighting_nanos": 796315274,
+      "planar_lit_geometry_pixels": 1329,
+      "sky_columns": 9216,
+      "qualification": false
+    },
+    "all_source_class_helper_hashes_match": true
+  },
+  "playtest": "Playtest: native Java/GLFW/OpenGL saved-paging integration CLI on inherited DISPLAY, isolated synthetic offline v10 sources. Two definitions added by one replaceWith produce owner revision 4 and parsed-source revision 5. Expected matching bindings, new scene normalized to its worker source, accepted source sky receipt, later red geometry surviving candidate retry, repeat save/reopen, and coloured model rendering without saved-byte mutation during capture. Observed all assertions passed. Source-ID deletion, rebinding, renaming, author change and move reject before staging; extra scene bindings reject without metadata consumption. Copy, serialization, duplicate fingerprints at distinct IDs, rollback, caller mutation isolation and existing frozen-definition object sharing pass. Existing retry/cancellation/cleanup/ordinary paging/lighting/sky/planar/model/water checks also passed. This is an internal integration with no browser workflow. Fresh full Main workflow and F10 media are recorded separately because ModelLibrary is shared with ordinary models/editors.",
+  "media": {
+    "inspected": [
+      "structure-model-bindings-main-midpoint.png",
+      "structure-model-bindings-main-structure-storage-limit.png",
+      "structure-model-bindings-main-structure-placement-limit.png",
+      "structure-model-bindings-main-structure-preview-conflict.png",
+      "structure-model-bindings-main-structure-preview-3.png",
+      "structure-model-bindings-main-structure-import-cancelled.png",
+      "structure-model-bindings-main-structure-component-closeup.png",
+      "structure-model-bindings-session.png",
+      "structure-model-bindings-optics.png",
+      "structure-model-bindings-pending-optics.png",
+      "structure-model-bindings-pending.png",
+      "structure-model-bindings-regression.png"
+    ],
+    "scope": "Fresh native Main framebuffers/F10 recording and five paging integration framebuffers, including an added coloured component after multi-model map replacement, source-counter normalization and later edit/save/reopen. Software rendering only; no physical-GPU/frame-time pass."
+  },
+  "source_files_fixed": 662,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "c92738f9acdc6b4212977d737be94421b57e301ab31586e7f05e7a70828f0568",
+    "src/main/java/dev/jayms/net/LocalGame.java": "8644751ed954be1d0080c8582ce246bc11da0bc3c304cde196b56a84669fd236",
+    "src/main/java/dev/jayms/net/ReadbackSaveSnapshot.java": "c384d467ed0b20b46508a796ef6b5ed4e83771e0840cfdfd84ae23edc7265e2f",
+    "src/test/java/dev/jayms/net/model/ModelLibraryBindingTest.java": "be85f836c5cc43692812af546560f9371acd14583a847beeec2d7f0b89c2ac13",
+    "src/test/java/dev/jayms/net/SavedPagingModelBindingTest.java": "3bcfb49a47835b50ada7c7e8cf72031bdc8ef55c0d129a842fa79c5b2ec191fd",
+    "tools/structures/CheckSceneRevision.java": "2822445b3f420e007401450f3d91ad1643042603da938a67c7d9a584ff2ddf18",
+    "tools/structures/SavedPagingSessionFrame.java": "e6e858fad1771ac70ef7e2c81b8518bd937979b806fb556fbc55ede28a502913",
+    "tools/structures/ReplaySkyFrameCheck.java": "624d3e1cb923035aadc2a449b0e17c97e41c8bbd0f646e62116100e136a73650",
+    "tools/structures/run_replay_sky_frame_check.py": "a3e6fc2279e8c422b80ddd14fb57e57656f5307b8142943e16d96a57df93dda8"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true
+  },
+  "parent_hosted": {
+    "head": "b940242821413dc2d7cf0c0c7e55ae254b7d7b40",
+    "run": 44738206455,
+    "platform_builds": [
+      {
+        "name": "build (macos-15-intel, mac-intel)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (ubuntu-latest, linux)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (windows-latest, windows)",
+        "status": "completed",
+        "conclusion": "success"
+      },
+      {
+        "name": "build (macos-latest, mac-arm)",
+        "status": "completed",
+        "conclusion": "success"
+      }
+    ],
+    "publish": "skipped",
+    "scope": "Parent job summaries inspected; changed source requires fresh exact-head hosted checks."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Reuse the existing single admission fingerprint for both indexes; copy a revision-normalized, exactly matching new scene map while preserving frozen object references. Extend native model/sky assertions and progress notes. No production gate or regression case was removed. Prior base-diff world/history/render replacements and protocol compatibility adjustments remain as documented. No unrelated deletion intended."
+  },
+  "remaining": [
+    "Main installation and old World reconciliation remain unfinished; private source coordination is not full in-game integration.",
+    "Editable paging and true model-ID remapping remain unfinished. Scene counter normalization handles only exactly matching ID/author/definition bindings; mismatches still reject.",
+    "City/maximum remain rejected for placement under existing geometry/surface/chunk/mesh/persistence gates. Prior storage-only measurements are not whole-workflow qualification.",
+    "Required 20-run whole-workflow city/maximum benchmarks in reference client/server/network environment, physical GPU, shaped 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Private model-binding/source-counter correctness and available full Main/CLI/native regressions only. No supported-city/limit, whole-workflow, stable-rollout, physical-GPU, 30-FPS or 32-client qualification pass.",
+  "controlled_probe": {
+    "scope": "Same probe bytecode, separate fresh synthetic source contexts. Preserved parent classes matched its published receipt; probe source/bytecode and saved-world bytes are identical; production source differs. No World model mutation at adoption; no Main/performance qualification from this probe.",
+    "source": {
+      "public_source": "tools/structures/CheckSceneRevision.java",
+      "sha256": "2822445b3f420e007401450f3d91ad1643042603da938a67c7d9a584ff2ddf18",
+      "same_as_executed_source": true
+    },
+    "parent_classes": {
+      "parent_head": "b940242821413dc2d7cf0c0c7e55ae254b7d7b40",
+      "published_receipt_classes_match": {
+        "target/classes/dev/jayms/net/model/ModelLibrary.class": "09fd29bfceb2f563d4d74d92be27a619de942bd9351b9380b41810397f383c1c",
+        "target/classes/dev/jayms/net/LocalGame$ReadbackMetadata.class": "bcb44d0baef261a15c1cf0f99ccaf0ebed67538d7f644b9b62662b4864a0bc58",
+        "target/classes/dev/jayms/net/ReadbackSaveSnapshot.class": "bf7c75d47c4ca7f82f10e25a9b340f86f8cf59e8c578722eaa3f30b39676b46c"
+      }
+    },
+    "parent_commands": [
+      [
+        "javac",
+        "--release",
+        "17",
+        "-cp",
+        "target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "-d",
+        "target/model-bindings-validation",
+        "target/model-bindings-validation/CheckSceneRevision.java"
+      ],
+      [
+        "java",
+        "-Xmx256m",
+        "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+        "-cp",
+        "target/model-bindings-validation:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+        "dev.jayms.net.CheckSceneRevision",
+        "target/model-bindings-validation/parent-probe",
+        "target/model-bindings-validation/parent-result.json",
+        "false"
+      ]
+    ],
+    "current_command": [
+      "java",
+      "-Xmx256m",
+      "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-cp",
+      "target/model-bindings-validation:target/classes:target/test-classes:target/structure-limit-audit:target/structure-m2/org/junit/jupiter/junit-jupiter-api/5.12.2/junit-jupiter-api-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter/5.12.2/junit-jupiter-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-params/5.12.2/junit-jupiter-params-5.12.2.jar:target/structure-m2/org/junit/jupiter/junit-jupiter-engine/5.12.2/junit-jupiter-engine-5.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-commons/1.12.2/junit-platform-commons-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-launcher/1.12.2/junit-platform-launcher-1.12.2.jar:target/structure-m2/org/junit/platform/junit-platform-engine/1.12.2/junit-platform-engine-1.12.2.jar:target/structure-m2/org/opentest4j/opentest4j/1.3.0/opentest4j-1.3.0.jar:target/structure-m2/org/apiguardian/apiguardian-api/1.1.2/apiguardian-api-1.1.2.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-stb/3.4.1/lwjgl-stb-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl/3.4.1/lwjgl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-openal/3.4.1/lwjgl-openal-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-glfw/3.4.1/lwjgl-glfw-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-par/3.4.1/lwjgl-par-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-assimp/3.4.1/lwjgl-assimp-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-opengl/3.4.1/lwjgl-opengl-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nanovg/3.4.1/lwjgl-nanovg-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-vulkan/3.4.1/lwjgl-vulkan-3.4.1.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1-natives-linux.jar:target/structure-m2/org/lwjgl/lwjgl-nuklear/3.4.1/lwjgl-nuklear-3.4.1.jar:target/structure-m2/org/joml/joml/1.10.9/joml-1.10.9.jar:target/structure-m2/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar:target/structure-m2/com/googlecode/soundlibs/mp3spi/1.9.5.4/mp3spi-1.9.5.4.jar:target/structure-m2/com/googlecode/soundlibs/jlayer/1.0.1.4/jlayer-1.0.1.4.jar:target/structure-m2/com/googlecode/soundlibs/tritonus-share/0.3.7.4/tritonus-share-0.3.7.4.jar",
+      "dev.jayms.net.CheckSceneRevision",
+      "target/model-bindings-validation/current-probe",
+      "target/model-bindings-validation/current-result.json",
+      "true"
+    ],
+    "parent": {
+      "live_revision": 4,
+      "scene_revision": 4,
+      "parsed_revision": 5,
+      "sky_accepted": false,
+      "binding_data_preserved": true,
+      "retired_revision_unchanged": true,
+      "error": "Replay sky source changed",
+      "qualification": false
+    },
+    "current": {
+      "live_revision": 4,
+      "scene_revision": 5,
+      "parsed_revision": 5,
+      "sky_accepted": true,
+      "binding_data_preserved": true,
+      "retired_revision_unchanged": true,
+      "error": "",
+      "qualification": false
+    },
+    "wire": {
+      "saved_bytes_identical": true,
+      "sha256": {
+        "parent-probe/contexts/probe/world.dat": "d0cc119321987a75571eb63acdde070b2df94d24787d33cc36ab62ffbc9aac6c",
+        "current-probe/contexts/probe/world.dat": "d0cc119321987a75571eb63acdde070b2df94d24787d33cc36ab62ffbc9aac6c"
+      },
+      "scope": "Same synthetic source save bytes across preserved parent and current probes; model revisions are not serialized."
+    },
+    "current_class_sha256": {
+      "target/classes/dev/jayms/net/model/ModelLibrary.class": "fff5097c3de9fcfbdea69ae28db1f2f1be44ead1cd1a0ad14be76ee3f510691b",
+      "target/classes/dev/jayms/net/LocalGame$ReadbackMetadata.class": "3fa010b7e9cb19fa1277c7d83ab60329403ab38a20b9cf6918b183a57de93e63",
+      "target/classes/dev/jayms/net/ReadbackSaveSnapshot.class": "60995b20974ff379b69ae76b7d538c91941ce221b2b3a7c37adfb497dbd500f1"
+    }
+  },
+  "main": {
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 131073-leaf storage import with separate placement rejection and 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-model-bindings-main-structure-native-source.json",
+      "source_manifest_sha256": "f7173688fd7df336063824c60202b3642977241669a5ecda05e69e4ec52cdaaf",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-model-bindings-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 577751,
+      "timeout_seconds": 900
+    },
+    "all_source_hashes_match": true,
+    "source_files": 312,
+    "playtest": "Playtest: production Main/GLFW on inherited DISPLAY, isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Capture/name/anchor/library, long-path import/export, four rotations, clear/blocked footprint, empty-space preservation, player/occupied-cell rejection, cancellation/atomic failure/single-operation undo, repeat placement, unchanged 257-chunk and 131073-leaf storage-versus-placement rejection, dependency/restart and inventory/model-editor regressions all passed. Browser playtesting does not apply to this native Java client. Software HUD around 0\u20131 FPS; no 30 FPS, frame-time or GPU qualification."
+  },
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-model-bindings-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-model-bindings-main-midpoint.png",
+      "dashboard/evidence/structure-model-bindings-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 27,
+      "durationSeconds": 49.959,
+      "bytes": 452091,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "0048a0c09e5705841fa63d2f350b8f375454efedb672c4eafa945918aa647280",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "artifacts": {
+    "structure-model-bindings-main-midpoint.png": "570641d2d1aa6e7aafdca08e2d8642662d1131f46240f20c9193e7eef31ac9c3",
+    "structure-model-bindings-main-structure-component-closeup.png": "fb95cce8351d82780eecfd8349b6e71b7fbe50b2b3db678637d843306220c2f1",
+    "structure-model-bindings-main-structure-export-cancelled.png": "bc992b4e846cd22ca75a6f9b5ce558ffca3af845ba86fadb346c0e20d93e7de5",
+    "structure-model-bindings-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-model-bindings-main-structure-invalid-anchor.png": "a1168fe8770a530315a1aa633586c2ea0d0e7ff26f85983ec387649db0b9fed7",
+    "structure-model-bindings-main-structure-library-capture.png": "65797e71bcebacf26776be53cd34cf7a85431f72d5fab49a0219a94907191d2d",
+    "structure-model-bindings-main-structure-native-execution.json": "4557808d3a377708161b2f71f848caed053756ecad21fce214f920223885ac22",
+    "structure-model-bindings-main-structure-native-lighting.json": "15716de614906691f78f2a5fac0fcd4b7544eff51f548bdca8199e5d6891d41f",
+    "structure-model-bindings-main-structure-native-result.json": "c7fc05a7ffdd44e4cf7cdefa172ce879c7a7d66a84cefdad18b4ee18be30d56e",
+    "structure-model-bindings-main-structure-native-source.json": "a40e4489e6898dc553e55cae66d6093313bded5f0951f913e1d57de2e09dbe83",
+    "structure-model-bindings-main-structure-native-stage.json": "f4d3fdf5e78c1f6b0e9f1e6d85aff9b9a441159fa5269b8839e212321ab274e2",
+    "structure-model-bindings-main-structure-placed.png": "49243cca3954384166a6d759476960676b4b566945261ba8a65a90edf534b519",
+    "structure-model-bindings-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-model-bindings-main-structure-player-conflict.png": "9ca68a1487f0a4fe874000ad85f1182875152b7d90537c4d34566ea78b3cff1f",
+    "structure-model-bindings-main-structure-preview-0.png": "f29284891a82aced2911c7fc737e7b7f5b46ecc469bb27db1e63d33f1789d0a9",
+    "structure-model-bindings-main-structure-preview-1.png": "518fb38039e6dca1c300edd4cce82dd4b9050153d5570f6c5c3abbc4e8b3e4e7",
+    "structure-model-bindings-main-structure-preview-2.png": "d7362c1f98b411f930c1d295d03bd5a6716ed4cebd4338f8396c18bbe551c72d",
+    "structure-model-bindings-main-structure-preview-3.png": "2588d76e796211984970e32801dd42e598e4ba80ba14a0727f08534b813dcce6",
+    "structure-model-bindings-main-structure-preview-conflict.png": "d85830b8160a2a3e4ea564f4f20ada23e845cd13e70728a76c8485119d640064",
+    "structure-model-bindings-main-structure-storage-limit.png": "550bdb8ab9b6b1238215bea423d9c9daa51b3db280385fc4cd187a174a26b8b9",
+    "structure-model-bindings-main-structure-undo-cancelled.png": "05ca86300d46e28a07267e6fcd08049fe073f3294124b9d08181a66c6690dfb8",
+    "structure-model-bindings-main-structure-workflow.mp4": "0048a0c09e5705841fa63d2f350b8f375454efedb672c4eafa945918aa647280",
+    "structure-model-bindings-main-structure-world-placed.png": "6bea6a66b825ecd06da7b44e7d5d6ee3432be5630be9b00fb9a24bab32d84df4",
+    "structure-model-bindings-main-video.json": "c5459cc1c168d1129f1550ca37d245b1986af62f75f3c309b8fa636b9d7aaf28",
+    "structure-model-bindings-native.json": "cf27e14a34299993575f5f7b8a84742caa3b0895ee8e80561a6b4f1494d5bfe7",
+    "structure-model-bindings-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-model-bindings-pending-optics.png": "c265172cb9ebbeb8b4bd15e9cf50073ab31fe9fd5f5c400db5d0836810d535e1",
+    "structure-model-bindings-pending.png": "628b591ed4213e99fd9250e40e973176206275219d1422c1e8b8d6d3d2c03699",
+    "structure-model-bindings-regression.png": "93a4e543b680c080a3078274a61d6078a07e5227b904d4f57a4dc3b2932a0186",
+    "structure-model-bindings-session.png": "c9e9d1548a5ad7c8e7ccde3425beffbad92710034c7dfc4cf242858220bbf72f"
+  }
+}

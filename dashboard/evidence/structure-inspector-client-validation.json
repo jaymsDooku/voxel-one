@@ -1,0 +1,394 @@
+{
+  "schema": 1,
+  "parent_head": "34efb473384737fa1121ea9f0b3d696572b1e669",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available native inspector and ordinary Main regressions passed; full structure implementation and qualification unfinished. Not ready.",
+  "publication": "Local source and media pending controller publication",
+  "change": "Main now dispatches an explicit exclusive --inspect-world FILE mode, with optional bounded --inspect-position X Y Z, before login/config/game startup. The native read-only client uses the existing regional version10 pager, renders selected ordinary/model/fractional geometry and opaque water with simple inspection lighting, and supplies free-camera keyboard controls, progress/loading/hit/miss status, Escape/window cancellation and the engine F10 recorder. Metadata-only LocalGame state remains internal with its incomplete-replay guards closed; no playable game, simulation, edit/capture/save or network path starts. Ordinary Main replay requirements remain. Source/scene/worker close precedes GL teardown; original failures retain suppressed cleanup failures.",
+  "limits": {
+    "regional_version": 10,
+    "default_position": [
+      8,
+      104,
+      24
+    ],
+    "scene_chunks": 2,
+    "geometry_leaves_per_chunk": 8192,
+    "worker_cache_bytes": 4194304,
+    "worker_request_rows": 32768,
+    "ray_reach_world_cells": 32,
+    "gpu_pump_bytes_per_frame": 65536,
+    "gpu_staging_deadline_ms": 2,
+    "scope": "These are bounded initial work budgets, not measured latency/FPS promises. Source staging and cleanup retain existing unqualified owner work. No package, per-model, placement or qualification cap raised."
+  },
+  "focused_final_source_subset": {
+    "tests": 28,
+    "suites": [
+      {
+        "name": "dev.jayms.net.ReadOnlyWorldSessionTest",
+        "tests": "9",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.net.ReadOnlyWorldNavigationTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.SavedWorldInspectorTest",
+        "tests": "7",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.CameraMovementTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "method": "Fresh subset of the final broader Maven invocation below, after the native fixture/error-preservation repair. Earlier focused run is retained privately."
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest,PackedCellReadTest,SparseVoxelPackedCellTest,StructureGeometryDecodeTest,PackedOctreeQueryTest,OctreeValueComparisonTest,StructureRotationTreeTest,StructurePackedGeometryTest,WorldPackedCellImageTest,StructureLeafCountTest,PackedModelSnapshotTest,StructureLeafVisitorTest,PackedCellRotationTest,PackedLeafVisitorTest,StructurePublicationStagingTest,StructureCellReplayTest,StructureOfflineStampTest,StructureCellReadTest,StructureMenuAnchorTest,StructureUniformCacheTest,StructureRollbackImagesTest,StructureRegionSnapshotTest,StructureModelAdmissionTest,StructurePackageAdmissionTest,StructureCaptureModelTest,StructureSaveStagingTest,StructureFileReadTest,StructureValidationStampTest,StructureCaptureChunkTest,StructureDecodeCancellationTest,StructureOfflineHistoryStagingTest,StructureWorkerUndoTest,StructureEncodeCancellationTest,StructurePreparedCellPublicationTest,StructureOfflineSaveTest,StructurePreviewTest,StructureDecodedContentsTest,StructureWirePositionsTest,StructureChunkMeshCountTest,StructureBufferedCodecTest,StructureUniformCellsTest,StructureOrderTest,StructurePreparedUndoTest,StructureBufferedWireTest,StructureModelCodecTest,StructurePlacementCellsTest,SavedPagingReplacementTest,ModelLibraryBindingTest,SavedPagingModelBindingTest,PreparedPagingSceneTest,SavedPagingWarmupTest,SavedPagingRetirementTest,SavedPagingOwnerTest,ColdReplaySceneTest,ReadOnlyWorldSessionTest,ReadOnlyWorldNavigationTest,SavedWorldInspectorTest,CameraMovementTest",
+      "test"
+    ],
+    "tests": 675,
+    "suites": 141,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 373.22927217558026
+  },
+  "python": {
+    "tests": 40,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 8.34928011894226,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 828,
+    "shaders_match": 29,
+    "mp3": "Both original shipped CBR/VBR fixtures decode to 44,100 Hz / 6.060 s PCM.",
+    "obsolete_reservation_class_absent": true,
+    "cli": {
+      "status": "passed",
+      "cases": [
+        {
+          "command": [
+            "java",
+            "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/inspector-replay-validation/package-cli-home",
+            "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/inspector-replay-validation/package-cli-tmp",
+            "-jar",
+            "target/voxel-one-1.0-SNAPSHOT-client.jar",
+            "--inspect-world"
+          ],
+          "exit_code": 1,
+          "expected_argument_rejection": true,
+          "profile_and_scratch_untouched": true
+        },
+        {
+          "command": [
+            "java",
+            "-Duser.home=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/inspector-replay-validation/package-cli-home",
+            "-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/inspector-replay-validation/package-cli-tmp",
+            "-jar",
+            "target/voxel-one-1.0-SNAPSHOT-client.jar",
+            "--inspect-world",
+            "synthetic.dat",
+            "--game",
+            "hcf"
+          ],
+          "exit_code": 1,
+          "expected_argument_rejection": true,
+          "profile_and_scratch_untouched": true
+        }
+      ]
+    }
+  },
+  "inspector_native": {
+    "command": [
+      "python3",
+      "tools/structures/run_saved_world_inspector_playtest.py",
+      "--display",
+      ":121",
+      "--evidence-prefix",
+      "structure-inspector-client"
+    ],
+    "execution": {
+      "exit_code": 0,
+      "elapsed_seconds": 8.29697373136878,
+      "prefix": "structure-inspector-client"
+    },
+    "receipt": "structure-inspector-client-native.json",
+    "result": {
+      "status": "passed",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+      "main_dispatch": true,
+      "camera_crossed_chunk": true,
+      "loading_then_hit": true,
+      "maximum_observed_gpu_chunks": 1,
+      "resident_chunks": 0,
+      "source_bytes_unchanged": true,
+      "invalid_source_isolated": true,
+      "cancel_before_poll": true,
+      "observer_failure_cleanup": true,
+      "scratch_mesh_cleanup": true,
+      "qualification": false
+    },
+    "source_class_hashes_match": true,
+    "initial_repair": {
+      "initial_run_passed": false,
+      "initial_fixture_version": 9,
+      "required_regional_version": 10,
+      "repair": "Use the actual version10 staged writer for the synthetic native fixture. Preserve the original application exception and suppress cleanup failures instead of replacing it. Native failure injection now checks both errors and full cleanup. No source-file conversion or save authority added."
+    }
+  },
+  "ordinary_main": {
+    "execution": {
+      "command": [
+        "python3",
+        "deploy/run_structure_playtest.py",
+        "--display",
+        ":121",
+        "--evidence-prefix",
+        "structure-inspector-main",
+        "--timeout-seconds",
+        "900"
+      ],
+      "exit_code": 0,
+      "elapsed_seconds": 586.065647739917,
+      "prefix": "structure-inspector-main"
+    },
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 131073-leaf storage import with separate placement rejection and 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-inspector-main-structure-native-source.json",
+      "source_manifest_sha256": "afe0f73a6200e080bb6055da15990f45eb162132b5b6e93635a0a8ef9253c9ed",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-inspector-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    },
+    "source_manifest_matches": true,
+    "video": {
+      "decodedFrames": 25,
+      "durationSeconds": 45.668,
+      "bytes": 473095,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 12,
+      "videoSha256": "f9dd24639c5cb0d521847687aa17f6f096fbd5ae0e3b38d071b3ba4c584947c5",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+      "visually_inspected": true,
+      "observed": "Midpoint shows a clear green footprint, anchor and placement staging message in the actual F12 menu. Existing Main HUD and synthetic world are visible; 1 FPS software rendering is functional evidence only."
+    },
+    "video_command": {
+      "command": [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/InspectStreamingVideo.java",
+        "dashboard/evidence/structure-inspector-main-structure-workflow.mp4",
+        "target/inspector-replay-validation/main-video-middle.png",
+        "target/inspector-replay-validation/main-video-check.json"
+      ],
+      "exit_code": 0,
+      "helper_sha256": "d9e8eef23af7aa26dec363aede6a24383158e1bf0078e7b1cc9af3baab79c8f9"
+    },
+    "images_inspected": [
+      "structure-inspector-main-structure-component-closeup.png",
+      "structure-inspector-main-structure-export-cancelled.png",
+      "structure-inspector-main-structure-import-cancelled.png",
+      "structure-inspector-main-structure-invalid-anchor.png",
+      "structure-inspector-main-structure-library-capture.png",
+      "structure-inspector-main-structure-placed.png",
+      "structure-inspector-main-structure-placement-limit.png",
+      "structure-inspector-main-structure-player-conflict.png",
+      "structure-inspector-main-structure-preview-0.png",
+      "structure-inspector-main-structure-preview-1.png",
+      "structure-inspector-main-structure-preview-2.png",
+      "structure-inspector-main-structure-preview-3.png",
+      "structure-inspector-main-structure-preview-conflict.png",
+      "structure-inspector-main-structure-storage-limit.png",
+      "structure-inspector-main-structure-undo-cancelled.png",
+      "structure-inspector-main-structure-world-placed.png"
+    ]
+  },
+  "playtest": "Playtest: actual Main --inspect-world native client on inherited DISPLAY, isolated synthetic saved-file/profile. Expected bounded read-only loading, geometry/model/water rendering, saved-cell query, chunk-crossing camera motion, F10 media, generic malformed-file status and full cancellation/error cleanup. Observed all four native scenarios pass: saved geometry and fractional piece/model/opaque water visible, camera crossed into a negative-X chunk with loading then hit, zero resident chunks, unchanged source bytes, no edit/capture authority, invalid source isolated, cancel before first poll, and original observer error retained with suppressed cleanup error. All scratch and Mesh resources cleaned. A separate ordinary Main/GLFW/X11 structure workflow then exercised F12 capture/browse/export/import, footprint and all four rotations, overlap/empty-space/player conflicts, one-operation undo, placement/undo/export/import cancellation, malformed import atomicity, placement-limit rejection, repeated placement, dependency/restart and inventory/editor regressions. These are functional software-rendering checks. Browser testing does not apply to this native desktop client.",
+  "media": {
+    "inspected": [
+      "structure-inspector-client-ready.png",
+      "structure-inspector-client-moved.png",
+      "structure-inspector-client-invalid.png"
+    ],
+    "observations": [
+      "Ready view shows red/grey wall, blue detailed model, opaque blue water and green fractional geometry, saved-cell hit and read-only controls.",
+      "Moved view shows a negative-X saved-cell hit and retained wall after loading across a chunk boundary, with F10 recorder active.",
+      "Invalid-file view shows generic unavailable status, zero ready regions and no file path, private metadata or raw error."
+    ],
+    "inspector_video": {
+      "decodedFrames": 31,
+      "durationSeconds": 3.004,
+      "bytes": 457617,
+      "width": 816,
+      "height": 544,
+      "midpointIndex": 15,
+      "videoSha256": "0e49ded5a9926eda62e8764cfc1f04e81849aae14917d3284d129c9a49853d2b",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+      "visually_inspected": true,
+      "observed": "Video midpoint shows the grey saved wall after camera crossed to a negative X chunk, saved-cell hit/status, read-only heading, controls and active F10 recorder. Ready capture separately shows red wall, blue model, opaque blue water and green fractional piece."
+    },
+    "inspector_video_command": {
+      "command": [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/InspectStreamingVideo.java",
+        "dashboard/evidence/structure-inspector-client-workflow.mp4",
+        "target/inspector-replay-validation/video-middle.png",
+        "target/inspector-replay-validation/video-check.json"
+      ],
+      "exit_code": 0
+    },
+    "main_images_inspected": [
+      "structure-inspector-main-structure-component-closeup.png",
+      "structure-inspector-main-structure-export-cancelled.png",
+      "structure-inspector-main-structure-import-cancelled.png",
+      "structure-inspector-main-structure-invalid-anchor.png",
+      "structure-inspector-main-structure-library-capture.png",
+      "structure-inspector-main-structure-placed.png",
+      "structure-inspector-main-structure-placement-limit.png",
+      "structure-inspector-main-structure-player-conflict.png",
+      "structure-inspector-main-structure-preview-0.png",
+      "structure-inspector-main-structure-preview-1.png",
+      "structure-inspector-main-structure-preview-2.png",
+      "structure-inspector-main-structure-preview-3.png",
+      "structure-inspector-main-structure-preview-conflict.png",
+      "structure-inspector-main-structure-storage-limit.png",
+      "structure-inspector-main-structure-undo-cancelled.png",
+      "structure-inspector-main-structure-world-placed.png"
+    ],
+    "scope": "Fresh implementation captures and two actual engine-recorder videos; both fully decoded and representative frames inspected. Inspector HUD excludes file paths and raw errors. Ordinary Main uses only synthetic files/profile data. No private account data, prompts or answers in media."
+  },
+  "source_files_fixed": 677,
+  "changed_source_sha256": {
+    "src/main/java/dev/jayms/Main.java": "04684beeddb3928b391f0513ee852efc22d94298053ff17b2da12aca7d5a2aa5",
+    "src/main/java/dev/jayms/SavedWorldInspector.java": "6e34720ebef0eb2598f2645e9773e951e4271f43366ff8faecac49fc69032730",
+    "src/main/resources/shaders/inspection.frag": "fe58f4f0ac17624224ecee7361846968057d1b3d9a6f788dc293c3ced793ee0f",
+    "src/test/java/dev/jayms/SavedWorldInspectorTest.java": "1556e251ee2fbe5adbb3e5a54973faae7919296cf6741b6e20f2cf2ced274828",
+    "tools/structures/SavedWorldInspectorFixture.java": "6ac7ebb711900c04898f4eeca24db43a19a2992d23c32024f9920299fac2214b",
+    "tools/structures/SavedWorldInspectorPlaytest.java": "3528e16b001e4f54a40e3eb9044715afbfc6764f389fdf1e8a2e2e91a7860b25",
+    "tools/structures/run_saved_world_inspector_playtest.py": "38b41320ded734fb18eb61dcbd7cfc73effc3712011f4a32a9233ff3bb4ba7be"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "software_rendering": true,
+    "os_cache_controlled": false
+  },
+  "parent_hosted": {
+    "head": "34efb473384737fa1121ea9f0b3d696572b1e669",
+    "run_id": 44796770590,
+    "method": "Inspected actual job/step summaries via GitHub connector; no runtime logs.",
+    "jobs": {
+      "build (ubuntu-latest, linux)": "success",
+      "build (macos-15-intel, mac-intel)": "success",
+      "build (windows-latest, windows)": "success",
+      "build (macos-latest, mac-arm)": "success",
+      "publish": "skipped"
+    },
+    "new_source_validation": false
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "paths_with_removed_lines": 37,
+    "intended_removed_lines": "Existing Main dispatch gains one early inspection branch; ordinary branches and replay guards remain. New inspector, shader and fixture/harness are additions. Preserve original errors while attaching cleanup failures. Prior base-diff world/history/render replacements and protocol compatibility changes remain documented. No unrelated deletion or removed regression assertion intended."
+  },
+  "remaining": [
+    "Ordinary editable gameplay still requires complete resident replay. Read-only inspection does not complete writable paging, source/owner reconciliation or true model-ID remapping.",
+    "City/maximum still fail placement under existing geometry/surface/chunk/mesh/persistence gates. Storage-only runs do not qualify full workflows.",
+    "Required 20-run whole-workflow reference client/server/network benchmarks, controlled cold OS caches, physical GPU, shaped synchronization to 32 rendered clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Native read-only inspection and available ordinary Main/CLI functional regressions only. No editable partial-world, supported-city/limit, stable-rollout, 30-FPS, controlled cold-cache, whole-workflow or physical-GPU/network qualification pass.",
+  "artifacts": {
+    "structure-inspector-client-invalid.png": "f466f7bd517e3dcc0976cf9499a90e0ae40d1a4952f2d1917e1234c4979016ae",
+    "structure-inspector-client-moved.png": "585a564532f8b0b11f585bea774037d76c8724f8651a0a7c8771e24617953c0f",
+    "structure-inspector-client-native.json": "a97f4043454fa3bc267313dbf9a47674ecc3e3e02fe7d146cfa138139f0d8992",
+    "structure-inspector-client-ready.png": "5d758f1b93eca76abab83041381707e3bfe2a9778a476ab516e2a756c67515a1",
+    "structure-inspector-client-workflow.mp4": "0e49ded5a9926eda62e8764cfc1f04e81849aae14917d3284d129c9a49853d2b",
+    "structure-inspector-main-structure-component-closeup.png": "c1113ede18e032d1f6e507974e18851fed865e14654b34dcbdde2b9144420c5f",
+    "structure-inspector-main-structure-export-cancelled.png": "da3ea2df1c21b732ae974feedd4e0684e6297fb0c64296fb8d27430c682e348f",
+    "structure-inspector-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-inspector-main-structure-invalid-anchor.png": "8d3ea67fddbc522604a95e8c3bd033fa0350efec0d1f29bfe66b3755ea3ec431",
+    "structure-inspector-main-structure-library-capture.png": "1a7eac82c589d060862a931e531b22e5bac0186ee6b770e61af3c04fd5005d05",
+    "structure-inspector-main-structure-native-execution.json": "cfc3ef9c44e4f285e0169a9e6424c08c1aec99a2b335f51154819635e4aa54c3",
+    "structure-inspector-main-structure-native-lighting.json": "c881c3db739872543c7d7bd86fca09b25c530455795cb6b7dadd05370874304e",
+    "structure-inspector-main-structure-native-result.json": "5c0ea5a27d80c92eb30112ee0d614c9e1f04c42afb00ab35be175bfc9d88fd51",
+    "structure-inspector-main-structure-native-source.json": "4df969cdd612e13c3bf15def412dd4dc898fe8f41cdbc907a147b6a04e6f3c94",
+    "structure-inspector-main-structure-native-stage.json": "b5bec11f2bcd92c3f2dfafe206521dd3c7bb49d7a54ac6c61520c3da55b005d0",
+    "structure-inspector-main-structure-placed.png": "e4b43d2b67e72df865a5a134640fa9c05f1f08ddbd5116cbae4d8741b79f20f3",
+    "structure-inspector-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-inspector-main-structure-player-conflict.png": "a2d8aade72d99014de4542c156aa67fc2eac00fe1288e366b35ba54206c1ccb2",
+    "structure-inspector-main-structure-preview-0.png": "2b20f0a074dfdfd4bbdb5eee4daad4367b037b04710df1197ceb64015905324d",
+    "structure-inspector-main-structure-preview-1.png": "518fb38039e6dca1c300edd4cce82dd4b9050153d5570f6c5c3abbc4e8b3e4e7",
+    "structure-inspector-main-structure-preview-2.png": "25cf71c7c9190cb1f99466eec3bade751eee57dab42d536e7e795a720f543936",
+    "structure-inspector-main-structure-preview-3.png": "71afd810668ce0454634094388c7c920d9c443d68743be2a98ece80a9426f860",
+    "structure-inspector-main-structure-preview-conflict.png": "d85830b8160a2a3e4ea564f4f20ada23e845cd13e70728a76c8485119d640064",
+    "structure-inspector-main-structure-storage-limit.png": "550bdb8ab9b6b1238215bea423d9c9daa51b3db280385fc4cd187a174a26b8b9",
+    "structure-inspector-main-structure-undo-cancelled.png": "d83b4e7d9c4c958a18e404be8828186702551c0eac03e14a72d4ad9e504628ea",
+    "structure-inspector-main-structure-workflow.mp4": "f9dd24639c5cb0d521847687aa17f6f096fbd5ae0e3b38d071b3ba4c584947c5",
+    "structure-inspector-main-structure-world-placed.png": "b4fbf14daf278e35e81216a63b5e521e39966ee1dc467ee2c33b2badad514e10"
+  }
+}

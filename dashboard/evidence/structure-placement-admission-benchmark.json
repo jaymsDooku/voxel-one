@@ -1,0 +1,159 @@
+{
+  "schema": 1,
+  "before": {
+    "implementation": "before",
+    "runs": 20,
+    "warmups": 3,
+    "cells": 257,
+    "affected_chunks": 257,
+    "dependencies": 256,
+    "geometry_leaves": 514,
+    "fixture_sha256": "684232bc72fffb50fc137abc2f847784cd9f0c1a7e19877f6fa4dae1b048e7ec",
+    "median_ms": 940.822675,
+    "p95_ms": 1002.812252,
+    "worst_ms": 1073.328729,
+    "median_thread_allocated_bytes": 9073052,
+    "source_model_calls": 40,
+    "source_cell_calls": 5140,
+    "qualification": false
+  },
+  "after": {
+    "implementation": "after",
+    "runs": 20,
+    "warmups": 3,
+    "cells": 257,
+    "affected_chunks": 257,
+    "dependencies": 256,
+    "geometry_leaves": 514,
+    "fixture_sha256": "684232bc72fffb50fc137abc2f847784cd9f0c1a7e19877f6fa4dae1b048e7ec",
+    "median_ms": 0.340834,
+    "p95_ms": 0.626977,
+    "worst_ms": 0.769463,
+    "median_thread_allocated_bytes": 50368,
+    "source_model_calls": 0,
+    "source_cell_calls": 0,
+    "qualification": false
+  },
+  "baseline_engine": {
+    "parent_head": "18f56b1ab6334b6e7f56f396c95171f3338d215e",
+    "engine_class_sha256": "74a388605eab5456c2a3d886fbb588da6da965b16e0b6a3f3c726f1e02fbd304"
+  },
+  "candidate_engine_class_sha256": "a3348a1a44a3738ee3761ad8654d06964ea43aa6604b8c8f79ad9e800aca5a2b",
+  "probe_source_sha256": "29245202d2aa96ee09fefce7071483e9683d9c3bf4c89c9a3ed0e7eb472187c9",
+  "probe_class_sha256": "d65e45bbd83774e2cc30d3ef1a0616e644652fa7ac0ec468edd1e8401db3cb3d",
+  "commands": [
+    [
+      "javac",
+      "--release",
+      "17",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "-d",
+      "target/placement-admission-validation",
+      "tools/structures/PlacementAdmissionProbe.java"
+    ],
+    [
+      "javac",
+      "--release",
+      "17",
+      "-g",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "-d",
+      "target/placement-admission-validation/baseline-classes",
+      "target/placement-admission-validation/baseline-source/dev/jayms/net/structure/StructureEngine.java"
+    ],
+    [
+      "java",
+      "-Xmx512m",
+      "-cp",
+      "target/placement-admission-validation:target/placement-admission-validation/baseline-classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "PlacementAdmissionProbe",
+      "before"
+    ],
+    [
+      "java",
+      "-Xmx512m",
+      "-cp",
+      "target/placement-admission-validation:target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "PlacementAdmissionProbe",
+      "after"
+    ]
+  ],
+  "method": "Separate JVMs, identical encoded fixture SHA-256, three warmups and 20 timed rejection runs each. p95 is sorted sample 19 of 20; median averages samples 10/11. Allocation is current-thread allocated bytes, not retained or peak memory. Final serial pair ran after all local tests/Main stopped; shared VPS load remains uncontrolled. Rebuilt parent Engine class matches the original published-parent class byte-for-byte, with the same candidate JAR supplying unchanged shared dependencies. Initial overlapped observations are retained separately.",
+  "scope": "257 sparse occupied cells over 257 chunks, 514 fractional leaves and 256 declared dependencies. This is a bounded rejection fixture, not the supplied city or maximum-limit fixture. Not upload, placement, durable-save, frame, tick or traffic qualification.",
+  "qualification": false,
+  "serial_pair": {
+    "source_parent": "18f56b1ab6334b6e7f56f396c95171f3338d215e",
+    "baseline_source_sha256": "957f6e211f14f90ef2fc71e63241c162146d23939eaa0ffafeb823ff1b1530a2",
+    "baseline_rebuilt_engine_sha256": "74a388605eab5456c2a3d886fbb588da6da965b16e0b6a3f3c726f1e02fbd304",
+    "matches_published_parent_class": true,
+    "baseline_compile": [
+      "javac",
+      "--release",
+      "17",
+      "-g",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "-d",
+      "target/placement-admission-validation/baseline-classes",
+      "target/placement-admission-validation/baseline-source/dev/jayms/net/structure/StructureEngine.java"
+    ],
+    "commands": [
+      [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "target/placement-admission-validation:target/placement-admission-validation/baseline-classes:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "PlacementAdmissionProbe",
+        "before"
+      ],
+      [
+        "java",
+        "-Xmx512m",
+        "-cp",
+        "target/placement-admission-validation:target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "PlacementAdmissionProbe",
+        "after"
+      ]
+    ],
+    "method": "Serial after all local test/Main jobs finished. Shared VPS load is not controlled; warm diagnostic rejection runs only. Earlier baseline overlapped focused tests and is retained separately."
+  },
+  "initial_observations": {
+    "before": {
+      "implementation": "before",
+      "runs": 20,
+      "warmups": 3,
+      "cells": 257,
+      "affected_chunks": 257,
+      "dependencies": 256,
+      "geometry_leaves": 514,
+      "fixture_sha256": "684232bc72fffb50fc137abc2f847784cd9f0c1a7e19877f6fa4dae1b048e7ec",
+      "median_ms": 964.842717,
+      "p95_ms": 1037.803454,
+      "worst_ms": 1067.050238,
+      "median_thread_allocated_bytes": 9074500,
+      "source_model_calls": 40,
+      "source_cell_calls": 5140,
+      "qualification": false
+    },
+    "after": {
+      "implementation": "after",
+      "runs": 20,
+      "warmups": 3,
+      "cells": 257,
+      "affected_chunks": 257,
+      "dependencies": 256,
+      "geometry_leaves": 514,
+      "fixture_sha256": "684232bc72fffb50fc137abc2f847784cd9f0c1a7e19877f6fa4dae1b048e7ec",
+      "median_ms": 0.333101,
+      "p95_ms": 0.650794,
+      "worst_ms": 0.846094,
+      "median_thread_allocated_bytes": 50368,
+      "source_model_calls": 0,
+      "source_cell_calls": 0,
+      "qualification": false
+    },
+    "scope": "First baseline overlapped focused tests; retained for transparency, not the final timing comparison."
+  }
+}

@@ -1,0 +1,97 @@
+{
+  "schema": 1,
+  "parent_head": "643807dc8d5e120c2b395e478564e523c9e2507e",
+  "status": "City-scale collision optimization validated locally; full acceptance unfinished",
+  "changes": [
+    "Probe changed cells under each body instead of scanning all structure cells against every body",
+    "Preserve live authority locking, body reservation dimensions and whole-cell policy for fractional/model geometry",
+    "Reject nonfinite bounds; exclude out-of-grid bounds and clamp before narrowing to avoid overflow"
+  ],
+  "commands": [
+    "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureOccupancyTest,StructureTest,StructureMultiplayerTest test",
+    "javac --release 17 -cp target/classes -d target/structure-body-probe tools/structures/BodyOccupancyProbe.java",
+    "javac --release 17 -cp target/classes -d target/structure-body-baseline/classes target/structure-body-baseline/src/dev/jayms/net/structure/StructureOccupancy.java",
+    "java -Xmx512m -cp target/classes:target/structure-body-probe BodyOccupancyProbe",
+    "java -Xmx512m -cp target/structure-body-baseline/classes:target/classes:target/structure-body-probe BodyOccupancyProbe",
+    "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\""
+  ],
+  "expected": "Same collision outcome as exhaustive reference; no full changed-cell scan; atomic rejection when bodies enter during staging; no blocked empty undo",
+  "observed": "All 24 tests passed, including 800 seeded comparisons across citizens/horses/cows/players, exact/negative boundaries, huge finite positions, nonfinite rejection and a map which forbids iteration. Offline/server atomic occupancy and real TLS multiplayer regressions passed.",
+  "tests": [
+    {
+      "name": "dev.jayms.StructureOccupancyTest",
+      "tests": "8",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureTest",
+      "tests": "15",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    },
+    {
+      "name": "dev.jayms.StructureMultiplayerTest",
+      "tests": "1",
+      "failures": "0",
+      "errors": "0",
+      "skipped": "0"
+    }
+  ],
+  "probe": {
+    "cells": 1000000,
+    "bodies": 32,
+    "warmups": 3,
+    "runs": 20,
+    "median_ms": 0.044533,
+    "p95_ms": 2.215676,
+    "worst_ms": 2.855196,
+    "qualification": "CPU occupancy microbenchmark only; not city placement or distributed clients"
+  },
+  "baseline_probe": {
+    "cells": 1000000,
+    "bodies": 32,
+    "warmups": 3,
+    "runs": 20,
+    "median_ms": 75.622697,
+    "p95_ms": 86.661445,
+    "worst_ms": 92.663381,
+    "qualification": "CPU occupancy microbenchmark only; not city placement or distributed clients"
+  },
+  "baseline_source": "StructureOccupancy.java read from parent 643807dc and compiled only under target/structure-body-baseline/classes",
+  "probe_limits": "CPU collision guard only; one million synthetic changed cells and 32 synthetic poses, three warmups then 20 measured runs. No package admission, world mutation, rendering, persistence or distributed clients. Native software rendering also active; timings do not qualify city budgets.",
+  "native": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "6cd26dc43b61586369baace012b141a4397183a1eb8270bc03ca899c5a97a523",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "media_inspection": "Fresh player rejection screenshot and decoded F10 frame inspected. H264 17 frames, 30.791 s.",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "logical_cpus": 4,
+    "java": "25.0.3",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "display": "Inherited assigned X11 display; isolated synthetic profile"
+  },
+  "remaining": "City/max admission/persistence/owner-thread application and full 20-run frame/tick/traffic budgets remain unfinished. Physical-GPU and shaped-network qualification pending. No ready or stable rollout claim.",
+  "publication": "Pending controller publication and exact-source hosted validation",
+  "media": {
+    "structure-workflow.mp4": {
+      "sha256": "a4f960e0e56c8d125304d7018c3c92315a2633d7a1ceff91674fdbac1bb6363d",
+      "bytes": 347197
+    },
+    "structure-player-conflict.png": {
+      "sha256": "033099e119e90d80f9e99310222f828242aa235bf068fab6a98ceb73db86f1e6",
+      "bytes": 419847
+    }
+  }
+}

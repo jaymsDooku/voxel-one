@@ -1,0 +1,76 @@
+{
+  "parent_head": "db970e8dca985a6ccd983afbc67c58d09d3ad5b9",
+  "status": "bounded_offline_v8_v9_base_file_import_passed_production_migration_pending",
+  "source_sha256": {
+    "tools/structures/RegionOfflineImportPrototype.java": "8b3e96d376713e829c1ec968447721e78c208a1626218d7a9d1357f37560903a",
+    "tools/structures/RegionOfflineImportCheck.java": "509aec9ee1cf0df161401408c94b2ded8707d665d493b733e21a34086d706239",
+    "tools/structures/RegionHistoryPrototype.java": "3936279654e7b40d6d82f7259237dde14c8967d46fe1748e8f988251a5c1f1a8",
+    "tools/structures/RegionOfflineMetadataPrototype.java": "8e4d2ffc4e65042a45ff55a5669787e377f2adf28f78394444b03906c262fe22",
+    "tools/structures/RegionWorldLibraryPrototype.java": "e7d5f7ea45f33aaa3184d0640df412881866c1af10c138e9fc241d6f2a581f08",
+    "tools/structures/RegionGenerationPrototype.java": "ee745bb42e0c93b1bf7d90ee063ffcab7511e01b9e08bb553bb242e4c0273420",
+    "tools/structures/RegionAuthorityPrototype.java": "fe2dcf6026ff18bc1ee69942c21065ac343ae2991fcf987875c3f94821c25c34",
+    "tools/structures/RegionGenerationEvidence.java": "b31712e02c2d154a55f85564798ab5e01b670d29614a0bc224b576a61a3ee404",
+    "tools/structures/test_region_history.py": "f91ac78fb50b971e219fc133279493247ee214ed8c92ff1dea62714e16269b9f",
+    "src/main/java/dev/jayms/net/LocalGame.java": "21f6b37a42b6c44816fa4016e4d2d0bd5ca4059471c2de6b4319399e28c39972",
+    "src/main/java/dev/jayms/net/model/ModelLibrary.java": "5177125851e07673657f52b09c45164a07b67388a745a2d0fef2a1d8a114aaef",
+    "src/main/java/dev/jayms/net/Protocol.java": "bd5996e71158d569c7e7cefcb5a8b340fa9f316643bf2497288673006e2f30c5"
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "python": "3.11.2",
+    "java_heap_cap": "-Xmx512m; not measured peak memory",
+    "execution": "Actual LocalGame.save and constructor, synthetic temporary base files, private region generations and authority restart. No graphics client/server launched.",
+    "capture": "Window-only actual child CLI output on inherited assigned DISPLAY/XAUTHORITY; no authentication values read or printed"
+  },
+  "commands": [
+    "python3 -m unittest discover -s tools/structures -p 'test_region_history.py'",
+    "python3 -m unittest discover -s tools/structures -p 'test_*.py'",
+    "javac --release 17 -cp target/classes -d target tools/structures/RegionHistoryPrototype.java tools/structures/RegionDependencyPrototype.java tools/structures/RegionOfflineMetadataPrototype.java tools/structures/RegionWorldLibraryPrototype.java tools/structures/RegionGenerationPrototype.java tools/structures/RegionAuthorityPrototype.java tools/structures/RegionOfflineImportPrototype.java tools/structures/RegionOfflineImportCheck.java tools/structures/RegionGenerationEvidence.java",
+    "java -Xmx512m -cp target:target/classes RegionOfflineImportCheck > target/structure-offline-import-check.json",
+    "java -cp target:target/classes RegionGenerationEvidence RegionOfflineImportCheck",
+    "Window-only ImageMagick import on inherited DISPLAY to dashboard/evidence/structure-offline-import-cli.png"
+  ],
+  "observed": {
+    "status": "passed",
+    "offline_versions": 2,
+    "terrain_versions": 3,
+    "production_save_fixtures": 6,
+    "rejection_cases": 91,
+    "production_integration": false,
+    "qualification": false
+  },
+  "tests": {
+    "affected_integration_tests": 8,
+    "final_structure_tool_tests": 41,
+    "final_failures": 0,
+    "final_errors": 0,
+    "final_skips": 0,
+    "initial_corrections": "The first fixture used the wrong Blocks.piece argument list, causing eight compilation-dependent integration errors. The next fixture had inconsistent piece type/depth and the production loader correctly rejected it. Corrected type and depth together before final passing runs. Compiler failures now show bounded stderr rather than repeated full argument lists."
+  },
+  "implementation": {
+    "scope": "Byte-array base-file parser for offline versions 8 and 9 only. Produces a detached world/library/survival candidate; never mutates an existing world or legacy file. No sidecar/server import or automatic migration.",
+    "bounds": "16 MiB uncompressed source, model section bounded to 8 MiB while decoding, at most 200000 source edits, 100000 final cells, 1024 regions, 131072 final leaves; metadata at most 100000 drops/2 MiB; encoded candidate must fit existing private whole-envelope budget before return. These are diagnostic caps, not supported game limits.",
+    "decoding": "Copy bounded source bytes, use existing world-model, Inventory, Protocol.Edit and ItemDrop readers with cancellation. Stream edits directly into private final-cell migration rather than build a duplicate edit list. Validate terrain version, model references, counts, health, drops and exact EOF. Encoding the candidate enforces final geometry/byte bounds before returning it.",
+    "compatibility": "Retain exact model IDs, authors, unused definitions and aliases, inventory/health/drop fields, seeded terrain version, explicit air, fractional geometry and placed models. Unsupported old formats reject rather than assume their codecs."
+  },
+  "fixture_provenance": "LocalGame.save wrote isolated synthetic version-8 and version-9 fixtures. The terrain-version header was changed to 1, 2 or 3 for the six replay cohorts, then the current production LocalGame constructor loaded each as the oracle. All temporary files are removed. No private or existing user saves were read.",
+  "cases": [
+    "Six synthetic production-writer fixtures: v8/v9 times terrain 1/2/3; candidate seed/version matches loaded source",
+    "Full cell, fractional glass, explicit air over seeded terrain, legacy and extended model cells match WorldVoxels replay of the production loader edits; untouched seeded geometry matches",
+    "Exact model definitions, unused alias ID75, authors, survival fields and dropped-item coordinates retained",
+    "Candidate published as a private generation and reopened through the private authority; survival state and unused model survive",
+    "Legacy source bytes stay unchanged; cancellation/interruption reject, then retry returns identical candidate bytes",
+    "Unsupported source version, invalid terrain/health, edit/drop count bounds, invalid position, missing placed-model dependency, duplicate drops, truncation, trailing data and oversize input reject"
+  ],
+  "playtest": "Playtest: actual LocalGame save/load CLI to private importer and private generation restart. Expected geometry, dependencies and survival fields to match the existing loader without changing source bytes; observed passed for six fixtures and 91 rejection cases. Fresh actual child exit 0 and result captured and visually inspected. Browser/game playtesting does not apply to this tools-only importer. All 224 native game/harness source hashes match prior game workflow.",
+  "image": {
+    "path": "dashboard/evidence/structure-offline-import-cli.png",
+    "bytes": 5755,
+    "sha256": "cb732c313cc17047dc1a4a73f1f56cfa356c1899172fc56ecff5225b8633953b",
+    "publication": "Pending controller publication"
+  },
+  "hosted_observation": "Exact parent db970e8d has eight successful platform build entries; publication skipped. These results do not cover pending edits.",
+  "limitations": "No LocalGame/server migration integration, versions 3..7, city-sidecar/simulation state, server-player data, automatic replacement or ordinary-edit persistence. Legacy source lacks a CRC; valid legacy field parsing does not add source-authenticity guarantees. Count/byte bounds are not a peak-memory or owner-thread latency measurement. Existing private and production caps remain. No directory fsync/power-loss or full city/maximum claim.",
+  "qualification": "Full city/maximum admission, 20-run memory/frame/tick/traffic budgets, physical GPU and shaped-network/32-rendered-client qualification remain pending. Stable rollout stays gated.",
+  "next": "Complete remaining legacy/sidecar/server state preservation and responsive region persistence integration, then qualify both full fixtures."
+}

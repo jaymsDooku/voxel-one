@@ -1,0 +1,97 @@
+{
+  "sourceHead": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "runs": [
+    {
+      "id": 39853165169,
+      "status": "completed",
+      "conclusion": "success",
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409"
+    },
+    {
+      "id": 39853169503,
+      "status": "completed",
+      "conclusion": "success",
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409"
+    }
+  ],
+  "summaries": [
+    {
+      "run": 39853165169,
+      "artifact": 12459550264,
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853165169,
+      "artifact": 12459291651,
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853165169,
+      "artifact": 12459028122,
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853165169,
+      "artifact": 12457728899,
+      "head": "963152213368f69f7cef0ec1d93dc7a069ec9409",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853169503,
+      "artifact": 12459222247,
+      "head": "3705dbff129678d1e72b032d4aa1b6e940fa87b7",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853169503,
+      "artifact": 12458927989,
+      "head": "3705dbff129678d1e72b032d4aa1b6e940fa87b7",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853169503,
+      "artifact": 12458332558,
+      "head": "3705dbff129678d1e72b032d4aa1b6e940fa87b7",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    },
+    {
+      "run": 39853169503,
+      "artifact": 12458227934,
+      "head": "3705dbff129678d1e72b032d4aa1b6e940fa87b7",
+      "tests": 800,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 1
+    }
+  ],
+  "verified_pr_merge_parents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "963152213368f69f7cef0ec1d93dc7a069ec9409"
+  ],
+  "scope": "Only actual available sanitized summaries inspected; no pass inferred for absent/pending checks. Does not cover new encoding/save edits or city/max qualification."
+}

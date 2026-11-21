@@ -1,0 +1,50 @@
+{
+  "head": "d55c2ce11d37cabd4936cee44eb322d2297ec9f3",
+  "review_base": "71612f09bfec4549456b3317676e76cdced085a4",
+  "hosted": {
+    "run": 43033096062,
+    "platform_builds": "four succeeded",
+    "publish": "skipped"
+  },
+  "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-sky-main",
+  "exit_code": 143,
+  "status": "interrupted; no final workflow receipt",
+  "termination_cause": "Unknown; no quota or service cause inferred from exit status.",
+  "final_receipt": false,
+  "sanitized_failure_receipt": false,
+  "wrapper_stdout_bytes": 0,
+  "leftover_scoped_process": false,
+  "source_manifest_entries_verified": 254,
+  "image_sha256": "08cee56dfbc4ca0f12553b5269ef0492e67d898bcc45eedb15bbb975cfd07a21",
+  "observed": "Named capture, invalid anchor, player conflict, previews 0/1/2, conflict preview and undo-cancellation screenshots were produced. Inspected rotation-2 preview. Presence of screenshots is not a final workflow pass. HUD shows FPS 1.",
+  "environment": "Inherited role DISPLAY/XAUTHORITY; isolated synthetic offline profile; LOW detail32/horizon512, scale0.5, shadows/AA/dynamic OFF; LIBGL_ALWAYS_SOFTWARE=1, LP_NUM_THREADS=2; -Xmx1g. Native renderer report unavailable because run did not finish.",
+  "prior_local_tests": "103 tests/14 suites and focused native sky/render checks passed in prior phase; not rerun.",
+  "audit": {
+    "restored_base_exact": [
+      ".github/workflows/hub-preview-registration-test.yml",
+      ".github/workflows/hub-publication-prepare.yml",
+      "deploy/tests/test_hub_preview_registration.py",
+      "deploy/MusicMp3DecodeSmoke.java",
+      "deploy/MusicMp3Smoke.java",
+      "deploy/generate_music_mp3_fixtures.py",
+      "deploy/run_music_mp3_smoke.py",
+      "src/test/java/dev/jayms/MusicMp3Test.java",
+      "src/test/resources/music/cbr-stereo.mp3",
+      "src/test/resources/music/vbr-mono.mp3"
+    ],
+    "deleted_paths": 0,
+    "unmerged_paths": 0,
+    "prior_tracked_evidence": "unchanged",
+    "diff_check": "passed"
+  },
+  "qualification": false,
+  "remaining": [
+    "Replay sky/ceiling coverage and explicit lighting-worker admission",
+    "Vertical lighting-window support and full Main paging/lighting integration",
+    "Nonblocking World/sidecar save transactions",
+    "City/max package and placement admission",
+    "All required 20-run physical-GPU/shaped-network 32-client performance budgets",
+    "Latest-master integration and independent review"
+  ],
+  "recovery": "Controller operational repair: determine termination cause and restore a bounded uninterrupted native workflow run on the assigned display; no owner access request or weakened qualification gate."
+}

@@ -1,0 +1,70 @@
+{
+  "schema": 1,
+  "parentHead": "1ff35d4f1b27a9da76ca84430fb4423e3e521aad",
+  "change": "Primitive packed cell coordinates and short model IDs with frozen geometry references; immutable public list and v1 bytes retained. Safety caps unchanged.",
+  "javaTests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=StructureTest,StructureOccupancyTest,StructureMultiplayerTest,MusicMp3Test test",
+    "tests": 32,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "coverage": "Coordinate extremes, model/geometry identities, source mutation isolation, immutable list and sublist, canonical roundtrip, existing offline and TLS multiplayer workflow regressions."
+  },
+  "probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target tools/structures/PackageStorageProbe.java",
+      "java -Xms256m -Xmx256m -cp target/structure-storage-parent-classes:target:target/classes PackageStorageProbe",
+      "java -Xms256m -Xmx256m -cp target:target/classes PackageStorageProbe"
+    ],
+    "parent": [
+      {
+        "export_runs": 20,
+        "median_ms": 377.944,
+        "p95_ms": 403.305,
+        "worst_ms": 419.344,
+        "qualification": "100000-cell CPU microbenchmark only"
+      },
+      {
+        "cells": 100000,
+        "retained_heap_delta_bytes": 7600696,
+        "encoded_sha256": "b877ab590cc521bf53647dc70f5605fab77637fabb0e1e236acf90703e3be771",
+        "encoded_bytes": 178011,
+        "qualification": "single synthetic retained-heap diagnostic, JVM/GC sensitive; not city qualification"
+      }
+    ],
+    "current": [
+      {
+        "export_runs": 20,
+        "median_ms": 373.643,
+        "p95_ms": 436.352,
+        "worst_ms": 466.481,
+        "qualification": "100000-cell CPU microbenchmark only"
+      },
+      {
+        "cells": 100000,
+        "retained_heap_delta_bytes": 3400480,
+        "encoded_sha256": "b877ab590cc521bf53647dc70f5605fab77637fabb0e1e236acf90703e3be771",
+        "encoded_bytes": 178011,
+        "qualification": "single synthetic retained-heap diagnostic, JVM/GC sensitive; not city qualification"
+      }
+    ],
+    "limits": "Single synthetic 100000-cell fixture; warmup3/measured20 export runs, one retained-heap delta per JVM after explicit GC. Parent class compiled from exact parent Git source. Native software-rendered playtest active concurrently; timing tails may reflect shared CPU noise. No city, GPU, network or supported-limit qualification."
+  },
+  "publication": "Local report pending controller publication",
+  "pending": [
+    "Fresh exact-source hosted checks",
+    "City/maximum package/staging/transaction implementation and complete qualification"
+  ],
+  "playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "af976ffbceabe187ab6bb967777535b8b38f83f3973d222adc2ac09cf3a62b49",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "mediaInspection": "Player collision rejection screenshot inspected; F10 H264 video decoded and frame inspected:17 frames,31.884s. Source hashes verified unchanged."
+}

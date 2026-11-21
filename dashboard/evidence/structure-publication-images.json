@@ -1,0 +1,187 @@
+{
+  "schema": 1,
+  "scope": "Production local publication reuse of verified rollback images and retained replay-list removal",
+  "parent_hosted_checks": {
+    "head": "5881aeb29fff05d15efabab99ebafaecd9ef1040",
+    "four_platform_builds": "success",
+    "publish": "skipped"
+  },
+  "initial_run": {
+    "exit_code": 1,
+    "tests": 49,
+    "passed": 48,
+    "errors": 1,
+    "reason": "New fixture called SparseVoxelOctree.set with a world LED colour. Corrected to existing fill API; production source unchanged for correction."
+  },
+  "commands": [
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureRollbackImagesTest,WorldCellReplacementTest,StructurePublicationStagingTest,StructureWorkerUndoTest,StructureTest,StructureValidationStampTest compiler:testCompile surefire:test",
+    "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureMultiplayerTest,StructureSaveStagingTest,StructureOfflineHistoryStagingTest,StructurePreparedUndoTest,StructureRegionSnapshotTest,ChunkCellReplacementTest,HistoryProtocolCompatibilityTest compiler:testCompile surefire:test"
+  ],
+  "command_exit_codes": [
+    0,
+    0
+  ],
+  "tests": [
+    {
+      "tests": 2,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureRollbackImagesTest",
+      "seconds": 0.023
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.WorldCellReplacementTest",
+      "seconds": 0.084
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructurePublicationStagingTest",
+      "seconds": 0.187
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureWorkerUndoTest",
+      "seconds": 0.165
+    },
+    {
+      "tests": 25,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureTest",
+      "seconds": 1.662
+    },
+    {
+      "tests": 7,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureValidationStampTest",
+      "seconds": 0.371
+    },
+    {
+      "tests": 1,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureMultiplayerTest",
+      "seconds": 12.852
+    },
+    {
+      "tests": 6,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureSaveStagingTest",
+      "seconds": 6.047
+    },
+    {
+      "tests": 9,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureOfflineHistoryStagingTest",
+      "seconds": 0.407
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.net.structure.StructurePreparedUndoTest",
+      "seconds": 0.042
+    },
+    {
+      "tests": 4,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.StructureRegionSnapshotTest",
+      "seconds": 0.1
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.ChunkCellReplacementTest",
+      "seconds": 0.101
+    },
+    {
+      "tests": 3,
+      "failures": 0,
+      "errors": 0,
+      "skipped": 0,
+      "class": "dev.jayms.HistoryProtocolCompatibilityTest",
+      "seconds": 3.329
+    }
+  ],
+  "unique_tests": 79,
+  "expected_observed": [
+    "Trusted placement/prepared undo keep authoritative checks and need zero duplicate live rollback reads. Synchronous undo keeps its equality read, while direct legacy commit still snapshots live rollback state.",
+    "Old staging overrides still receive engine publication; cancellation, changed state, model revision and failed publication/rollback/retry regressions pass.",
+    "Packed fractional geometry, redundant air, uniform and empty cells retain canonical replay/history and exact edit revision counts; source/resident/restart regressions pass.",
+    "Real TLS multiplayer, history/save staging, chunk replacement and protocol/history compatibility tests pass.",
+    "Mutable and packed invalid fractional model material rejects before changes to world geometry, history, revision or sky stamp."
+  ],
+  "qualification": [
+    "No full-suite rerun claimed.",
+    "No measured 100 ms stall, memory, frame/tick/network/durability budget or full city/maximum admission claimed.",
+    "Per-cell owner publication and history/model/root work remain; disk-backed live root/region integration and physicalGPU/32client qualification stay pending.",
+    "No wire-supplied before-images; new overload is a trusted engine-internal contract. All admission caps and rollout gates stay unchanged.",
+    "Replay counting still visits/constructs canonical edit records; no allocation-free or per-record latency claim."
+  ],
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "b1058d2941f3f4379dd74630bd1139fbdde5d67444c90520d324f1c4816228e1",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local evidence pending controller publication"
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "0ba2b25e93c77792556535c77a2daa1948557bea5eae07c9794071a60868cf8c",
+    "src/main/java/dev/jayms/net/LocalGame.java": "961be3580865bac8d0fe6c3ed11d150977e84e4484960e839fabb72282e0bcd8",
+    "src/main/java/dev/jayms/World.java": "33688c1211efb2c77edec795094b36cdfaa33ffbdd39b77198b208ba50e1c8d3",
+    "src/main/java/dev/jayms/net/Protocol.java": "64ca66ffb8b5a592385d4ab5b33f8ad854b1c43b6e04242399911fae8a019c11",
+    "src/test/java/dev/jayms/StructureRollbackImagesTest.java": "dcc5f4209565d065cf31014b1a60925ea781108f432c98b929a501bb26aa62c1",
+    "src/test/java/dev/jayms/WorldCellReplacementTest.java": "dd4407dad891d7baed0d8a6d6f405cf3d776d40b96d8dbe0019d655a50b4d9df"
+  },
+  "source_audit_correction": "Raw leaf count could move invalid fractional-material rejection after world mutation. Final implementation counts via the existing canonical visitor before mutation, without retaining a list. Mutable and packed invalid-material rejection regression added.",
+  "interrupted_native": {
+    "exit_code": 130,
+    "passed": false,
+    "reason": "Stopped to apply material-preflight correction; final native rerun required."
+  },
+  "final_test_command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructureRollbackImagesTest,WorldCellReplacementTest,StructurePublicationStagingTest,StructureWorkerUndoTest,StructureTest,StructureValidationStampTest,StructureMultiplayerTest,StructureSaveStagingTest,StructureOfflineHistoryStagingTest,StructurePreparedUndoTest,StructureRegionSnapshotTest,ChunkCellReplacementTest,HistoryProtocolCompatibilityTest test",
+  "final_test_exit_code": 0,
+  "media": {
+    "decodedFrames": 26,
+    "durationSeconds": 48.108,
+    "bytes": 533057,
+    "width": 960,
+    "height": 544,
+    "midpointIndex": 13,
+    "videoSha256": "6e9843d4ea21f362f12686c85f2be8aa6ac6801a8f50d98867be15e445596ee6",
+    "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step.",
+    "inspection": "All 26 frames decoded. Midpoint green footprint/anchor and fresh undo-cancellation screenshot inspected. HUD 1 FPS, software-rendered functional evidence only."
+  },
+  "verified_source_hashes": 228,
+  "publication": "Pending controller publication",
+  "diff_check": "passed",
+  "tracked_deletions_against_review_base": []
+}

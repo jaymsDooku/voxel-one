@@ -1,0 +1,34 @@
+{
+  "head": "9bd30101376639a5a41c57765acc0bf53ca39432",
+  "base": "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+  "pushRun": 39907540785,
+  "pullRequestRun": 39907541854,
+  "mergeHead": "61b239975a37b78ac96d91df5b82c7d68a9a6431",
+  "verifiedMergeParents": [
+    "4a0bbd6a3fa831d7ad9a3c3fa93d7328826fca6a",
+    "9bd30101376639a5a41c57765acc0bf53ca39432"
+  ],
+  "observedSummaries": {
+    "push": [
+      "linux",
+      "mac-arm",
+      "windows"
+    ],
+    "pullRequest": [
+      "linux",
+      "mac-arm",
+      "mac-intel",
+      "windows"
+    ]
+  },
+  "eachObservedSummary": {
+    "tests": 864,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 1
+  },
+  "pushMacIntel": "Not completed in direct observation; not claimed passed. Controller scoped receipt reports four platform success.",
+  "qualification": "Pending: populated city/max admission and 20-run qualification; physical GPU; shaped network with 32 rendered clients; memory/frame/tick/traffic budgets. Safety caps and rollout gates unchanged.",
+  "diffAudit": "No deleted paths against recorded review base; git diff --check passed.",
+  "publication": "Local report pending controller publication. No source changes."
+}

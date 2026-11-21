@@ -1,0 +1,12 @@
+{
+  "status": "passed",
+  "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; sparse maximum-bounds four-cell preview/place/save/undo with distant model/high geometry offsets, preserved empty source space and unrelated later edits. Normal regression workflow runs separately.",
+  "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+  "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+  "workflow": "sparse",
+  "source_manifest": "structure-allocation-repair-sparse-structure-native-source.json",
+  "source_manifest_sha256": "c125460c296998a958a14946ec9a4b344fc03ef5c4c7545f84936f9ecf31bb17",
+  "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-allocation-repair-sparse --timeout-seconds 240 --workflow sparse",
+  "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+  "publication": "Local evidence pending controller publication"
+}

@@ -1,0 +1,1926 @@
+{
+  "schema": 1,
+  "parent_head": "520ccf5a02074c2ed78d743a0c6685817aa3bcb1",
+  "scope": "Primitive per-preparation uniform-material cache; full frozen-cell sharing retained. No package or placement admission changes.",
+  "qualification": "NOT QUALIFIED",
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "cpu_model": "Intel Core Processor (Haswell, no TSX)",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)"
+  },
+  "design": [
+    "The old cache already shares repeated uniform cells. Primitive material keys and tree references replace boxed keys and map entries; retained geometry is unchanged.",
+    "Arrays grow at load at most one half. Entry budget equals the geometry-cell count, bounded by the existing 131,072-leaf admission cap. Each final array has at most 262,144 slots. Old/new arrays coexist during growth.",
+    "All admitted materials remain cached. Model instances retain their separate cache, bounded by 512 dependencies. Fractional geometry bypasses uniform pooling.",
+    "Rehash and long collision scans check cancellation every 1,024 steps. Failed growth leaves the old table intact. Cache state does not survive preparation."
+  ],
+  "rejected_1024_candidate": {
+    "status": "Rejected and never adopted in final production source",
+    "change": "Only insert new uniformGeometry keys while the HashMap size is below 1,024; early keys still share.",
+    "reason": "Late repeated colours cease sharing. With 100,000 cells and 4,096 repeating materials, this proposal retained 76,000 after-image trees and median 14,530,272 heap bytes, versus 4,096 trees and 11,217,400 bytes for the parent.",
+    "source_sha256": "22ef08779682d1bb7227c7f7d284659ba76fcabd6fc535cd2ce6a40bc94bcbca"
+  },
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-offline-history-tmp\" -Dtest='Structure*Test,WorldHistoryIndexTest,EditHistoryTest,WorldVoxelSnapshotTest,ProtocolCompatibilityTest,ShippingProtocolCompatibilityTest,VoxelModelTest' test",
+    "exit_code": 0,
+    "suites": 37,
+    "tests": 170,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "coverage": [
+      "Manual leaf/coordinate rotation reference and exact cell wire bytes, including fractional materials/LEDs, component geometry and instances through all four rotations.",
+      "Early and late palette sharing beyond 1,024 materials; frozen values, unchanged source package, separate preparations and cancellation/retry.",
+      "Seeded 20,000-key map oracle across all key bits; replacement at capacity, absent keys, overflow, zero/invalid bounds, null input and cancelled growth/retry.",
+      "Existing offline history/save/collision/undo/restart, real TLS multiplayer, model and protocol regressions."
+    ],
+    "fixture_correction": "Initial new test fixture used model-only set for a world LED value. It rejected that value; changed to world-compatible fill before final checks."
+  },
+  "cpu_probe": {
+    "commands": [
+      "javac --release 17 -cp target/classes -d target/structure-uniform-parent-classes target/structure-uniform-parent-src/dev/jayms/net/structure/StructureEngine.java",
+      "javac --release 17 -cp target/classes -d target tools/structures/UniformPreparationProbe.java",
+      "java -Xmx1g -cp target/structure-uniform-parent-classes:target:target/classes UniformPreparationProbe cpu parent",
+      "java -Xmx1g -cp target:target/classes UniformPreparationProbe cpu primitive"
+    ],
+    "method": "Exact parent Engine source compiled separately against unchanged dependency classes. Separate JVMs, parent first, three warmups then 20 measured runs per fixture. Current-thread allocation counter; ordered Protocol.CellState bytes hashed outside timing. No competing assigned Maven/native process; shared VPS.",
+    "fixtures": "100,000 cells for one repeated material, all-unique LED materials or 4,096 repeated LED materials. Mixed uses 10,000 cells with 10% two-leaf fractional geometry. Bounds 128x8x128, empty detached source.",
+    "results": {
+      "parent": {
+        "repeated": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 138.2076505,
+          "p95_ms": 200.29241,
+          "worst_ms": 257.011292,
+          "median_thread_allocated_bytes": 43690392.0,
+          "samples": [
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 146.80423,
+              "thread_allocated_bytes": 42426376,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 145.662025,
+              "thread_allocated_bytes": 42229752,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 162.061669,
+              "thread_allocated_bytes": 42229752,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 200.29241,
+              "thread_allocated_bytes": 55690488,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 257.011292,
+              "thread_allocated_bytes": 55690488,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 151.344212,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 162.245079,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 130.966563,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 139.851976,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 133.352408,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 134.536202,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 135.926352,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 128.384553,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 132.506799,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 132.247073,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 131.369806,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 138.840923,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 133.580621,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 137.574378,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "repeated",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 139.430257,
+              "thread_allocated_bytes": 43690392,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            }
+          ]
+        },
+        "unique": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 201.6896505,
+          "p95_ms": 238.215527,
+          "worst_ms": 289.021632,
+          "median_thread_allocated_bytes": 50644400.0,
+          "samples": [
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 208.967059,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 238.215527,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 229.336828,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 202.340001,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 196.233371,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 195.746423,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 181.351461,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 192.414566,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 193.310629,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 215.385304,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 197.60163,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 185.995946,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 289.021632,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 219.313187,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 212.864027,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 201.002049,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 221.398429,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 198.007226,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 201.245018,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "unique",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 202.134283,
+              "thread_allocated_bytes": 50644400,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            }
+          ]
+        },
+        "palette": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 171.254086,
+          "p95_ms": 183.20098,
+          "worst_ms": 202.721863,
+          "median_thread_allocated_bytes": 41650784.0,
+          "samples": [
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 180.665649,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.212653,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 169.996883,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 171.291183,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 202.721863,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 172.084578,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 178.642407,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 180.166916,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 168.806196,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 183.20098,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 168.776707,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 174.091968,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.637181,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 171.216989,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 181.028162,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 169.277997,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 167.40944,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 166.31782,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 163.901165,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "palette",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 177.69456,
+              "thread_allocated_bytes": 41650784,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            }
+          ]
+        },
+        "mixed": {
+          "cells": 10000,
+          "leaves": 11000,
+          "wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 782.1545575,
+          "p95_ms": 842.424956,
+          "worst_ms": 854.068357,
+          "median_thread_allocated_bytes": 7550124.0,
+          "samples": [
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 0,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 837.892206,
+              "thread_allocated_bytes": 8275680,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 1,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 842.424956,
+              "thread_allocated_bytes": 8270208,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 2,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 822.427189,
+              "thread_allocated_bytes": 8079336,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 3,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 834.103832,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 4,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 777.578975,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 5,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 754.515974,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 6,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 778.633703,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 7,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 765.665286,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 8,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 791.938697,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 9,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 777.709641,
+              "thread_allocated_bytes": 7550144,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 10,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 854.068357,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 11,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 837.833591,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 12,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 815.232849,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 13,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 785.675412,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 14,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 772.52658,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 15,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 766.534339,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 16,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 775.158595,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 17,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 764.54883,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 18,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 771.036445,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "parent",
+              "fixture": "mixed",
+              "run": 19,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 789.240776,
+              "thread_allocated_bytes": 7550104,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            }
+          ]
+        }
+      },
+      "primitive": {
+        "repeated": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 137.26761449999998,
+          "p95_ms": 148.276333,
+          "worst_ms": 166.060742,
+          "median_thread_allocated_bytes": 42213384.0,
+          "samples": [
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 166.060742,
+              "thread_allocated_bytes": 42410008,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 147.16444,
+              "thread_allocated_bytes": 42213384,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 133.033413,
+              "thread_allocated_bytes": 42213384,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 143.226114,
+              "thread_allocated_bytes": 42213384,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 137.421947,
+              "thread_allocated_bytes": 42213384,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 148.276333,
+              "thread_allocated_bytes": 42090424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 140.792737,
+              "thread_allocated_bytes": 42090424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 140.039416,
+              "thread_allocated_bytes": 42090424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 140.82994,
+              "thread_allocated_bytes": 42213384,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 135.333084,
+              "thread_allocated_bytes": 42336144,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 138.368226,
+              "thread_allocated_bytes": 43073424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 130.531788,
+              "thread_allocated_bytes": 43073424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 136.533155,
+              "thread_allocated_bytes": 43073424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 137.113282,
+              "thread_allocated_bytes": 43073424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 140.337146,
+              "thread_allocated_bytes": 43073424,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 133.407123,
+              "thread_allocated_bytes": 42090408,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 128.887172,
+              "thread_allocated_bytes": 42090408,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 132.321597,
+              "thread_allocated_bytes": 42090408,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 125.684834,
+              "thread_allocated_bytes": 42090408,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "repeated",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 129.732875,
+              "thread_allocated_bytes": 42090408,
+              "cell_wire_sha256": "940b04d5630d0009d687142d4cebf13f065a24dd7367182c9613edef33abf9f9"
+            }
+          ]
+        },
+        "unique": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 199.6755065,
+          "p95_ms": 232.889373,
+          "worst_ms": 265.63464,
+          "median_thread_allocated_bytes": 46284880.0,
+          "samples": [
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 211.016531,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 265.63464,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 204.502555,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 198.331709,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.074277,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 171.524797,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.498347,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 198.374207,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 232.889373,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 204.534371,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 171.9474,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 200.976806,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 179.15951,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 224.956222,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 203.144265,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 176.380441,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 211.911864,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 180.640089,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 196.153845,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "unique",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 214.51413,
+              "thread_allocated_bytes": 46284880,
+              "cell_wire_sha256": "eec58b434756dea4d463a3f269c35415ddf5c154fc5da84deaab6d6c52b81bf0"
+            }
+          ]
+        },
+        "palette": {
+          "cells": 100000,
+          "leaves": 100000,
+          "wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 169.47583600000002,
+          "p95_ms": 184.161227,
+          "worst_ms": 197.367536,
+          "median_thread_allocated_bytes": 39919792.0,
+          "samples": [
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 0,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 168.106604,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 1,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 178.214841,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 2,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 184.161227,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 3,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 168.393753,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 4,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 165.577823,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 5,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.972585,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 6,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 167.279058,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 7,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 169.918955,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 8,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 167.17194,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 9,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 197.367536,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 10,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 167.715856,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 11,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.848531,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 12,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 170.494051,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 13,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 177.195144,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 14,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 169.97433,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 15,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 165.278937,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 16,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 169.032717,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 17,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 168.217222,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 18,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 173.033076,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "palette",
+              "run": 19,
+              "cells": 100000,
+              "leaves": 100000,
+              "prepare_ms": 165.674735,
+              "thread_allocated_bytes": 39919792,
+              "cell_wire_sha256": "eb35fc41bdf8d866e3687924574bc0aeb67666961f5e0b1f825fdba7b2c1cfd4"
+            }
+          ]
+        },
+        "mixed": {
+          "cells": 10000,
+          "leaves": 11000,
+          "wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd",
+          "warmups": 3,
+          "runs": 20,
+          "median_ms": 784.698815,
+          "p95_ms": 876.299807,
+          "worst_ms": 880.890674,
+          "median_thread_allocated_bytes": 7406140.0,
+          "samples": [
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 0,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 788.43202,
+              "thread_allocated_bytes": 8131696,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 1,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 796.992909,
+              "thread_allocated_bytes": 8126224,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 2,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 776.030333,
+              "thread_allocated_bytes": 7690624,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 3,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 771.609652,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 4,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 766.814797,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 5,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 766.282149,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 6,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 768.761733,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 7,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 773.994079,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 8,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 780.96561,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 9,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 767.113185,
+              "thread_allocated_bytes": 7406160,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 10,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 759.479252,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 11,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 873.359067,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 12,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 779.004493,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 13,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 876.299807,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 14,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 880.890674,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 15,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 846.220525,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 16,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 813.875018,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 17,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 803.613673,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 18,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 794.620332,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            },
+            {
+              "implementation": "primitive",
+              "fixture": "mixed",
+              "run": 19,
+              "cells": 10000,
+              "leaves": 11000,
+              "prepare_ms": 824.706778,
+              "thread_allocated_bytes": 7406120,
+              "cell_wire_sha256": "14da7b89e86b49fe611016f2944ff441fdbaf251ec99f77def2d48771ed8dcdd"
+            }
+          ]
+        }
+      }
+    },
+    "limits": "Preparation CPU/allocation only; no commit, save, rendering, network, peak-memory or full city/maximum qualification. An earlier exploratory 100,000-cell mixed case took parent median 9,033.051 ms. Final mixed size is bounded at 10,000 cells; it is not an acceptance fixture."
+  },
+  "live_heap_probe": {
+    "commands": [
+      "java -Xmx1g -cp target/structure-uniform-parent-classes:target:target/classes UniformPreparationProbe heap parent",
+      "java -Xmx1g -cp target/structure-uniform-rejected-classes:target:target/classes UniformPreparationProbe heap rejected_1024",
+      "java -Xmx1g -cp target:target/classes UniformPreparationProbe heap primitive"
+    ],
+    "method": "100,000 cells and 4,096 materials. Real WorldVoxels geometry and actual StructureEngine commit/undo records remain alive. Synthetic authority publishes geometry without persistence, rendering or networking. One warmup then three post-GC retained heap estimates per mode. Actual undo checked after each sample. This is not peak memory or 20-run memory qualification.",
+    "results": {
+      "parent": {
+        "warmups": 1,
+        "samples": [
+          {
+            "implementation": "parent",
+            "fixture": "palette",
+            "run": 0,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 11222080,
+            "distinct_after_tree_objects": 4096
+          },
+          {
+            "implementation": "parent",
+            "fixture": "palette",
+            "run": 1,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 11217400,
+            "distinct_after_tree_objects": 4096
+          },
+          {
+            "implementation": "parent",
+            "fixture": "palette",
+            "run": 2,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 10958968,
+            "distinct_after_tree_objects": 4096
+          }
+        ],
+        "median_retained_heap_bytes": 11217400,
+        "distinct_after_tree_objects": [
+          4096
+        ]
+      },
+      "rejected": {
+        "warmups": 1,
+        "samples": [
+          {
+            "implementation": "rejected_1024",
+            "fixture": "palette",
+            "run": 0,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 14756472,
+            "distinct_after_tree_objects": 76000
+          },
+          {
+            "implementation": "rejected_1024",
+            "fixture": "palette",
+            "run": 1,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 14488800,
+            "distinct_after_tree_objects": 76000
+          },
+          {
+            "implementation": "rejected_1024",
+            "fixture": "palette",
+            "run": 2,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 14530272,
+            "distinct_after_tree_objects": 76000
+          }
+        ],
+        "median_retained_heap_bytes": 14530272,
+        "distinct_after_tree_objects": [
+          76000
+        ]
+      },
+      "primitive": {
+        "warmups": 1,
+        "samples": [
+          {
+            "implementation": "primitive",
+            "fixture": "palette",
+            "run": 0,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 11246680,
+            "distinct_after_tree_objects": 4096
+          },
+          {
+            "implementation": "primitive",
+            "fixture": "palette",
+            "run": 1,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 11342480,
+            "distinct_after_tree_objects": 4096
+          },
+          {
+            "implementation": "primitive",
+            "fixture": "palette",
+            "run": 2,
+            "cells": 100000,
+            "materials": 4096,
+            "retained_world_and_undo_heap_bytes": 11054976,
+            "distinct_after_tree_objects": 4096
+          }
+        ],
+        "median_retained_heap_bytes": 11246680,
+        "distinct_after_tree_objects": [
+          4096
+        ]
+      }
+    },
+    "interpretation": "Parent and primitive retain 4,096 after-image trees. Primitive median 11,246,680 versus parent 11,217,400 bytes differs by 29,280 bytes in these noisy post-GC estimates. No retained-memory reduction claimed. Rejected cap increases retained objects and heap."
+  },
+  "source_sha256": {
+    "src/main/java/dev/jayms/net/structure/StructureEngine.java": "4b42c313633a36eebe75c965429f960cde16f99ec21d9c2801490532cd3de263",
+    "src/main/java/dev/jayms/net/structure/StructureUniformCells.java": "27dd4f9172aea7eb5dd15c542e0fbdef2bc0a0ae481a537d6b61438faac4049a",
+    "src/test/java/dev/jayms/StructureUniformCacheTest.java": "af8ee4b1b7a0cfbc86a631a8c6381322f2bd1077b1854259658742ecb023dc88",
+    "src/test/java/dev/jayms/net/structure/StructureUniformCellsTest.java": "6a36ef890d91467a1d659247830a59f222ffd2af89f53207cf4e331f42e140d9",
+    "tools/structures/UniformPreparationProbe.java": "c2ba21332f0d090ee7c9432f0bfd28bf2133450906c88db0638b05f8e7587416"
+  },
+  "parent_engine_source_sha256": "ebb8775801c95fe1dab5c22d9492d5cb6be73511dd4f4d87bf957031736b45c6",
+  "native_playtest": {
+    "status": "passed",
+    "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, export and import cancellation, malformed import atomicity, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+    "source_manifest": "structure-native-source.json",
+    "source_manifest_sha256": "da0b7c2e551dbfeb387471a0730326156a280a5ad68c9a8c336c89209eca7f3e",
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\"",
+    "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+    "publication": "Local media/report pending controller publication.",
+    "source_paths_verified": 224,
+    "video": {
+      "file": "structure-workflow.mp4",
+      "bytes": 418769,
+      "sha256": "7f2a4d87e298ab8bfffe4c63a958e5fad5d4da8a3d184b02592b01503032e9b2",
+      "codec": "H264",
+      "frames": 18,
+      "seconds": 29.808
+    },
+    "decode_command": "java -cp /home/debian/.m2/repository/org/jcodec/jcodec/0.2.5/jcodec-0.2.5.jar target/InspectStructureVideo.java dashboard/evidence/structure-workflow.mp4 target/structure-uniform-frame.png",
+    "media_inspected": [
+      "Decoded current frame: clear green footprint/anchor, staging progress, synthetic inventory and HUD 1 FPS. Saved as structure-uniform-workflow.png.",
+      "Fresh blocked-conflict screenshot: red bounds at 90 degrees, occupied destination rejected, HUD 1 FPS.",
+      "Functional software evidence only. No physical GPU or >=30 FPS qualification."
+    ]
+  },
+  "browser_playtest": "Browser playtesting does not apply to this native Java/GLFW engine. Actual Main workflow and CPU integration probes are used.",
+  "parent_hosted_checks": "Observed eight successful platform builds at exact parent 520ccf5a02074c2ed78d743a0c6685817aa3bcb1; publication skipped. Current edits need controller publication and exact-source checks.",
+  "remaining": [
+    "Full city fixture and maximum fragmented fixture are still rejected by provisional geometry/dependency/affected-chunk budgets; no caps raised.",
+    "Canonical partitioned geometry/history persistence and synchronized transfer remain unfinished.",
+    "Offline snapshot/validation/geometry publication, current drop serialization, force/atomic rename and undo still contain owner work. No hard100ms bound.",
+    "Required20-run city/maximum measurements on reference hardware, physical GPU, shaped network and32 rendered clients with empty dependency caches remain pending.",
+    "Peak memory, real frame times, server ticks, traffic and complete workflow/upload/synchronization budgets remain unqualified. Stable rollout and supported-city claims stay gated."
+  ],
+  "audit": {
+    "diff_check": "passed against 71612f09bfec4549456b3317676e76cdced085a4",
+    "deleted_paths": []
+  }
+}

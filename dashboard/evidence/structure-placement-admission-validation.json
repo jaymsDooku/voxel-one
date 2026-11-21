@@ -1,0 +1,237 @@
+{
+  "schema": 1,
+  "parent_head": "18f56b1ab6334b6e7f56f396c95171f3338d215e",
+  "review_base": "a9e8eed8683ccac1c2f6dcde4388c6a198a7d6ef",
+  "status": "Available local checks passed; entire structure implementation and qualification remain pending. Not ready.",
+  "publication": "Local evidence pending controller publication",
+  "change": "Exact rotated occupied-position admission now precedes dependency staging, geometry decoding and authority reads. Offline placement preflights before snapshot capture, client placement before upload encoding, and the server before snapshot capture. Direct engine callers retain an independent admission check. The same destination coordinate calculation is used for staging; authoritative occupancy/source/chunk checks still precede commit. Busy reservations release on error/cancellation. The provisional 256-chunk cap is unchanged.",
+  "scope": "Early bounded rejection only. No cap increase, supported-city claim, Main paging installation, source-coverage expansion or save-authority change.",
+  "focused": {
+    "tests": 38,
+    "suites": [
+      {
+        "name": "dev.jayms.StructurePlacementAdmissionTest",
+        "tests": "4",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureTest",
+        "tests": "25",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureMultiplayerTest",
+        "tests": "1",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      },
+      {
+        "name": "dev.jayms.StructureOccupancyTest",
+        "tests": "8",
+        "failures": "0",
+        "errors": "0",
+        "skipped": "0"
+      }
+    ],
+    "scope": "After corrected rotated-anchor expectation; before adding the multiplayer cap edge. Final expanded run must cover the added edge.",
+    "command": "mvn --batch-mode -q -o -Dmaven.repo.local=\"$PWD/target/structure-ci-repair-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/reviewer-tmp\" -Dtest=StructurePlacementAdmissionTest,StructureTest,StructureMultiplayerTest,StructureOccupancyTest test"
+  },
+  "java": {
+    "command": [
+      "mvn",
+      "--batch-mode",
+      "-q",
+      "-o",
+      "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+      "-DargLine=-Djava.io.tmpdir=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/reviewer-tmp",
+      "-Dtest=RegionReplayEditorTest,ReadbackSaveSnapshotTest,StructureOccupancyTest,ReplayColumnSkyInputTest,RegionReplayLightingPumpTest,ReadbackTailAdoptionTest,RegionReplayLightingWorkerTest,StagedReplayOverlaySaveTest,PublicationProgressTest,StagedWorldSaveTest,RegionReplayWorkerTest,EngineEditorTest,WorldStreamingTest,StructureTest,RegionReplaySkyWorldBridgeTest,BlockRaycasterTest,HistoryProtocolCompatibilityTest,RegionReplaySkyMergeWorkerTest,JournalTailAdoptionTest,PendingReplayOverlayTest,RegionReplaySkyPumpTest,ReadbackWorkerPublicationTest,ReadbackMetadataTest,WorkerPublicationQueueTest,StagedReplaySourceSaveTest,StagedSaveDropCountTest,CityHistoryIntegrationTest,RegionReplaySkyCoverageTest,CitySavesTest,ReplayColumnSpoolTest,SavedPagingTailTest,WorldSavePublicationTest,RegionReplaySkyWorkerTest,RegionReplayJournalTest,SavedPagingFactoryTest,RegionReplayLightingCoverageTest,SealedStagedSaveTest,StructureMultiplayerTest,ProtocolCompatibilityTest,WorldSaveGenerationTest,RegionReplayCacheTest,ReplayColumnGeometryTest,WorkerSaveStagingTest,InventoryHudTest,StagedCleanupQueueTest,CityHistoryTest,MusicMp3Test,ReadbackRepeatSaveTest,RegionReplayChunkTest,VoxelModelTest,MobileGatewayTest,CombatBoundaryTest,CombatSimulationTest,BasaltCourtyardTest,SavedPagingSessionTest,SavedPagingJournalTest,GpuTimestampRingTest,ReplayJointLightingCoverageTest,SkyVisibilitySchedulerTest,SkyMergeBudgetTest,PerformanceRecorderTest,GraphicsTransactionTest,LocalLightingCaptureTest,TransportMipTest,ReplayLightingCaptureTest,GraphicsDisplayRecoveryTest,GraphicsProfileTest,ReplaySkyReadinessTest,SkyBuildBudgetTest,LightingPriorityTest,ReplayLightingBakeTest,DuelTransportTest,DuelLifecycleTest,DuelSessionTest,VerticalLightingTest,HcfSessionTest,HcfStoreTest,HcfTransportTest,OfflineWorldReplayTest,OfflineGameLoadTest,LocalGameSaveIsolationTest,LocalGameSaveLimitTest,LocalGameSaveRowsTest,StructurePlacementAdmissionTest",
+      "test"
+    ],
+    "tests": 409,
+    "suites": 84,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 344.89864777587354
+  },
+  "python": {
+    "tests": 39,
+    "failures": 0,
+    "errors": 0,
+    "skips": 0,
+    "elapsed_seconds": 6.319597937166691,
+    "status": "passed",
+    "patterns": [
+      "test_admission.py",
+      "test_fixtures.py",
+      "test_handoff.py",
+      "test_probe.py",
+      "test_qualification.py",
+      "test_undo_storage.py"
+    ],
+    "extra": "deploy/tests/test_hub_preview_registration.py",
+    "method": "Fresh TestLoader per discovery, serial after Maven"
+  },
+  "package": {
+    "commands": [
+      [
+        "mvn",
+        "--batch-mode",
+        "-q",
+        "-o",
+        "-Dmaven.repo.local=/home/debian/codex/voxel-one-queue-worktrees/38386339653031612d356232622d343634362d616262332d383538623938346339346437/target/structure-ci-repair-m2",
+        "-DskipTests",
+        "package"
+      ],
+      [
+        "java",
+        "-cp",
+        "target/voxel-one-1.0-SNAPSHOT-client.jar",
+        "deploy/MusicMp3DecodeSmoke.java"
+      ]
+    ],
+    "production_classes_match": 807,
+    "shaders_match": 28,
+    "mp3": "Original CBR and VBR fixtures both decoded from shaded client: 44100 Hz, 6.060 s PCM."
+  },
+  "diagnostic": "structure-placement-admission-benchmark.json",
+  "initial_failed_checks": [
+    {
+      "status": "failed before measurement",
+      "error": "IllegalArgumentException: Color must be opaque ARGB or air",
+      "repair": "Use world-material fill instead of model-colour set for the fractional geometry fixture. No baseline timings were produced."
+    },
+    {
+      "status": "failed before measurement",
+      "error": "IndexOutOfBoundsException: SparseVoxelOctree.fill",
+      "repair": "Supply exclusive end coordinates rather than extents. No baseline timings were produced."
+    },
+    {
+      "status": "failed expectation",
+      "test": "unalignedAnchorsCountExactRotatedDestinationChunks",
+      "repair": "A 180-degree turn maps the zero anchor to (255,255). Target (-1,-1) aligns the minima at (-256,-256), so this exact 256-chunk case must admit. Other offset/rotation cases still reject before authority access."
+    }
+  ],
+  "native": {
+    "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-placement-admission-main --timeout-seconds 900",
+    "execution": {
+      "schema": 1,
+      "state": "completed",
+      "return_code": 0,
+      "elapsed_ms": 537426,
+      "timeout_seconds": 900
+    },
+    "source_files": 311,
+    "all_source_hashes_match": true,
+    "result": {
+      "status": "passed",
+      "playtest": "Playtest: production Main, real GLFW/X11 input, isolated synthetic offline profile; F12 marks/anchor/named capture, saved browsing, export/import, footprint and blocking preview, four rotations, empty-space preservation, overlap rejection, live-player collision rejection without mutation, one-operation undo, placement, undo, export and import cancellation, malformed import atomicity, 257-chunk rejection without geometry/dependency/save mutation, repeated placement, 32-resolution dependency and restart recovery; inventory and model editor regressions.",
+      "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+      "qualification": "Experimental functional checks only; physical GPU and city/network budgets pending",
+      "source_manifest": "structure-placement-admission-main-structure-native-source.json",
+      "source_manifest_sha256": "aada0e56459921bbe86995fa6be3ebcc542157453858aedba261cf5b5142f714",
+      "command": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\" --evidence-prefix structure-placement-admission-main --timeout-seconds 900",
+      "profile": "Synthetic offline profile; LOW with detail32/horizon512, scale0.5, shadows/AA/dynamic resolution OFF",
+      "publication": "Local evidence pending controller publication"
+    }
+  },
+  "playtest": "Playtest: production Main/GLFW/X11 on inherited DISPLAY with an isolated synthetic LOW/detail32/horizon512/scale0.5 profile, shadows/AA/dynamic resolution off and LP_NUM_THREADS=2. Expected full capture/anchor/library/import/export/rotation/placement/undo/cancellation/restart and inventory/editor regressions, plus explicit 257-chunk rejection after importing a valid package, with unchanged World edit version, local history size, model-library identity/count and durable save bytes. Observed all workflow assertions passed. Actual TLS server regression also rejects the sparse over-limit request without delivering models/geometry, then accepts the normal four-rotation road workflow. Three clients use unshaped loopback; not 32-client qualification. Browser testing does not apply to this native Java client.",
+  "video": {
+    "command": [
+      "java",
+      "-cp",
+      "target/voxel-one-1.0-SNAPSHOT-client.jar",
+      "deploy/InspectStreamingVideo.java",
+      "dashboard/evidence/structure-placement-admission-main-structure-workflow.mp4",
+      "dashboard/evidence/structure-placement-admission-main-midpoint.png",
+      "dashboard/evidence/structure-placement-admission-main-video.json"
+    ],
+    "result": {
+      "decodedFrames": 26,
+      "durationSeconds": 48.256,
+      "bytes": 479306,
+      "width": 960,
+      "height": 544,
+      "midpointIndex": 13,
+      "videoSha256": "7bac81470f789f1e8117857fccee606728f49e3b4ad020f79378026f738f0bc0",
+      "note": "Every image frame decoded with bundled JCodec; midpoint extracted without retiming. Visual inspection remains a separate step."
+    },
+    "midpoint_inspected": true
+  },
+  "media": {
+    "inspected": [
+      "structure-placement-admission-main-midpoint.png",
+      "structure-placement-admission-main-structure-placement-limit.png",
+      "structure-placement-admission-main-structure-preview-conflict.png",
+      "structure-placement-admission-main-structure-preview-3.png",
+      "structure-placement-admission-main-structure-import-cancelled.png",
+      "structure-placement-admission-main-structure-component-closeup.png"
+    ],
+    "scope": "Fresh full workflow with explicit chunk-limit error, blocked/rotated footprints, cancelled import and lit component geometry. Software HUD remains around 0\u20131 FPS; no performance pass."
+  },
+  "environment": {
+    "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+    "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+    "cpu": "Intel Core Processor (Haswell, no TSX)",
+    "compile_release": 17,
+    "software_rendering": true,
+    "renderer": "llvmpipe (LLVM 15.0.6, 256 bits)",
+    "last_parent_gl_version": "4.5 (Core Profile) Mesa 22.3.6",
+    "gl_version_scope": "Parent native measurement; this Main harness reports renderer only. No current physical-GPU qualification."
+  },
+  "parent_hosted": {
+    "head": "18f56b1ab6334b6e7f56f396c95171f3338d215e",
+    "run": 44695592555,
+    "state": "completed",
+    "conclusion": "success",
+    "platform_builds": 4,
+    "publish": "skipped",
+    "scope": "Parent only; changed source requires fresh hosted checks."
+  },
+  "audit": {
+    "restored_paths_match_base": 29,
+    "master_paths_preserved": 70,
+    "deleted_files": [],
+    "intended_removed_lines": "Exact destination/chunk admission moves before costly placement preparation; staging reuses the coordinate helper and precomputed chunk count. The 256 cap and commit validation remain. UI/server preflight and tests/harness add an explicit rejected-placement edge. No unrelated feature/test/file deletion."
+  },
+  "remaining": [
+    "Main paging installation, old World reconciliation, later live-tail coordination, model-ID rebasing and editable paging remain unfinished.",
+    "Provisional 131072-leaf, 256-placement-chunk and 16384-instance caps still reject required city/maximum fixtures.",
+    "Agreed targets remain 1024x256x1024 cells, 4 million occupied cells, 64 MiB compressed, 512 MiB decoded and 512 dependencies.",
+    "Required 20-run city/maximum benchmarks, physical-GPU qualification, shaped-network synchronization to 32 clients and memory/frame/tick/traffic/upload budgets remain pending.",
+    "Fresh exact-source hosted checks, latest-master integration and independent review remain required."
+  ],
+  "qualification": false,
+  "claims": "Early admission and bounded rejection diagnostics only. No supported-city, supported-limit, stable-rollout, physical-GPU, 32-client or performance qualification pass.",
+  "artifacts": {
+    "structure-placement-admission-benchmark.json": "a3add4d070fa80350337bb20099a9db65688be187a658ff2a3d425dff9f890a7",
+    "structure-placement-admission-main-midpoint.png": "a9ba62e2e46e2045b933eb29e32ed03a3e7017e54893991ebeabbcc9ad6926bb",
+    "structure-placement-admission-main-structure-component-closeup.png": "fbac4f5bb6d62b1b226cdec34d710eb834550dde3001a7a883a55e8ad26cebfa",
+    "structure-placement-admission-main-structure-export-cancelled.png": "bc992b4e846cd22ca75a6f9b5ce558ffca3af845ba86fadb346c0e20d93e7de5",
+    "structure-placement-admission-main-structure-import-cancelled.png": "6c4cc093bb3dd3df0b0888e9de06a65004bd6678ecf0f7eeb25703e032ef0308",
+    "structure-placement-admission-main-structure-invalid-anchor.png": "34cd160f13260ab65466eceb1680b325095716718daba9d12cfb409fed6b797d",
+    "structure-placement-admission-main-structure-library-capture.png": "9dae555751ec784b85cea139a836904533b165a409b8b88ae8cdf4dfdf5da96c",
+    "structure-placement-admission-main-structure-native-execution.json": "473657da2356ac63c178a0f5e4471bd6f5388929652f41170231ad39ee1d9471",
+    "structure-placement-admission-main-structure-native-lighting.json": "c5beb3d67de880b9748ed32baeea310f6382b1ee676dfbe783bae27fd8288287",
+    "structure-placement-admission-main-structure-native-result.json": "f836a9fc215b079bebc422d1e6e7f4b365bcba0c18237469c19473a4d5f4f7ea",
+    "structure-placement-admission-main-structure-native-source.json": "1c1f357ff415d4e4bd29878bf8c1ce23ed286972221f95976b8ee1eeb2ca7e5a",
+    "structure-placement-admission-main-structure-native-stage.json": "7e6deca04c1bc246e2c8137563b3f26a5dac439ad4e14a299f3fdabd21bb77c7",
+    "structure-placement-admission-main-structure-placed.png": "49243cca3954384166a6d759476960676b4b566945261ba8a65a90edf534b519",
+    "structure-placement-admission-main-structure-placement-limit.png": "7d64a9f4b3591755cc08b550d2d90f45793c4241b32be2c0f9c89fd5fb05c736",
+    "structure-placement-admission-main-structure-player-conflict.png": "eee7728bef9f4c8a570d63aeb38d0fcdbdb71462b55006f04ab3d522ef4ea822",
+    "structure-placement-admission-main-structure-preview-0.png": "3d5633481fd98dd7ca21444ed515cfc6d4b4c0ed7b26421b25a18fbd56a05853",
+    "structure-placement-admission-main-structure-preview-1.png": "bde15858aafc6937e17f6fd450068ae119aade8db38027a9239f15b1119d6c4c",
+    "structure-placement-admission-main-structure-preview-2.png": "9efe327c777d1a27a5f9a818c0813e86e11e040d06095b794a0d212bd2938518",
+    "structure-placement-admission-main-structure-preview-3.png": "8cfa1001646a5c3ffd7ac82f7101723b53e7947c0a883204726b93c780e6db36",
+    "structure-placement-admission-main-structure-preview-conflict.png": "25dddabd07a4a21b3676273efd733b4e1de0fa5cf7882b14de3bae91b7d645a6",
+    "structure-placement-admission-main-structure-undo-cancelled.png": "90800649e2779f7649295bd5c983433d0254f38194f0f2ab8527b6a8a73cb0d0",
+    "structure-placement-admission-main-structure-workflow.mp4": "7bac81470f789f1e8117857fccee606728f49e3b4ad020f79378026f738f0bc0",
+    "structure-placement-admission-main-structure-world-placed.png": "4ffdad8f559f3881092b026c48700d0b10dba4f5471b948eb00d50c6d3dc77fa",
+    "structure-placement-admission-main-video.json": "455b56f533fec3b67b6556934e8d0e667031fe8d3519e92941f4462d731031a0"
+  }
+}

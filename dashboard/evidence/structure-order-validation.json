@@ -1,0 +1,71 @@
+{
+  "status": "Local tests, sort diagnostic and fresh final-source native workflow passed; hosted checks and full qualification pending",
+  "tests": {
+    "command": "mvn -q -Dmaven.repo.local=\"$PWD/target/structure-m2\" -DargLine=\"-Djava.io.tmpdir=$PWD/target/structure-audit-tmp\" -Dtest=Structure*Test test",
+    "tests": 75,
+    "failures": 0,
+    "errors": 0,
+    "skipped": 0,
+    "coverage": "Stable reference order across all28keybits, duplicate stability, input unchanged, invalid keys/counts, interruption and cancellation during sort phases; existing structure workflows. Initial new assertions expected wrong exception type; corrected to existing CancellationException API and rerun."
+  },
+  "probe": {
+    "command": "javac --release 17 -cp target/classes -d target tools/structures/SpatialOrderProbe.java; java -Xmx1g -cp target:target/classes dev.jayms.net.structure.SpatialOrderProbe",
+    "warmups": 2,
+    "trials": [
+      {
+        "cells": 1000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 116.285,
+        "p95_ms": 136.783,
+        "worst_ms": 181.533,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 1000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 86.674,
+        "p95_ms": 101.631,
+        "worst_ms": 106.858,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "packed-long-control",
+        "runs": 20,
+        "median_ms": 492.488,
+        "p95_ms": 528.801,
+        "worst_ms": 537.311,
+        "qualification": "sorting component only; not populated city/max qualification"
+      },
+      {
+        "cells": 4000000,
+        "mode": "cancellable-radix",
+        "runs": 20,
+        "median_ms": 380.29,
+        "p95_ms": 445.349,
+        "worst_ms": 456.88,
+        "qualification": "sorting component only; not populated city/max qualification"
+      }
+    ],
+    "memory": "Two long buffers and returned int indices:20 bytes/cell plus65536-byte count array;80065536 bytes at4000000cells versus32000000-byte old packed sort buffer. Array headers excluded.",
+    "environment": {
+      "os": "Linux-6.1.0-50-cloud-amd64-x86_64-with-glibc2.36",
+      "java": "java version \"25.0.3\" 2026-04-21 LTS\nJava(TM) SE Runtime Environment (build 25.0.3+9-LTS-195)\nJava HotSpot(TM) 64-Bit Server VM (build 25.0.3+9-LTS-195, mixed mode, sharing)",
+      "logical_cpus": 4
+    },
+    "limitation": "Shared VPS component timing; discarded intermediate native run overlapped. No populated fixture, frame/tick/network/durability/peak-memory budget qualification."
+  },
+  "Playtest": "python3 deploy/run_structure_playtest.py --display \"$DISPLAY\": passed using inherited display/auth and isolated synthetic profile. Capture/export/import, all four rotations, placement, conflict rejection, cancellation, one-operation undo and inventory/model editor regression. Software rendering: functional evidence only.",
+  "qualification": "Full populated city/max admission,20-run end-to-end,physical GPU and shaped network32renderedclient qualification pending. Existing caps unchanged.",
+  "native_source_manifest_sha256": "2f4e2b500d9484f53e752fb76b407351676089337034a28be1d078111f045ffa",
+  "video": {
+    "bytes": 365404,
+    "sha256": "e0c71941ce41ccce0c66c2b3e0caf86a840d482800b15c06d681eb25196738f7",
+    "publication": "pending controller publication",
+    "codec": "H264",
+    "frames": 17,
+    "duration_seconds": 27.47
+  }
+}
