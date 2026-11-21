@@ -122,9 +122,10 @@ public final class LoginDialog {
         buttons.add(login);
         buttons.add(register);
         buttons.add(offline);
-        JPanel practiceButtons = new JPanel();
+        JPanel practiceButtons = new JPanel(new GridLayout(0, 3, 8, 6));
         if (!gameExplicit) {
-            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB, Kit.TEAMFIGHTING_LAB, Kit.TEAMFIGHTING_30V30}) {
+            for (Kit kit : new Kit[]{Kit.NO_DEBUFF, Kit.KNOCKBACK_LAB, Kit.TEAMFIGHTING_LAB,
+                    Kit.TEAMFIGHTING_30V30, Kit.VAULT_BATTLES}) {
                 JButton practice = new JButton(kit == Kit.NO_DEBUFF ? "PotPvP Practice" : kit.title());
                 practice.addActionListener(e -> {
                     practiceKit = kit;

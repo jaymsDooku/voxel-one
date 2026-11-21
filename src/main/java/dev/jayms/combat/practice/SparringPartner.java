@@ -45,12 +45,7 @@ final class SparringPartner {
         double targetYaw = range == 0 ? bot.yaw() : Math.toDegrees(Math.atan2(offset.z(), offset.x()));
         double targetPitch = Math.toDegrees(Math.atan2(offset.y() - .25, range));
 
-        // A targeted click can stop sprint even when the damage is rejected.
-        int hits = bot.stats().hits();
-        boolean sprintStopped = lastSprintClick >= 0 && bot.sequence() == lastSprintClick && !bot.sprinting();
-        boolean wTap = hits > lastHits || sprintStopped;
-        lastHits = hits;
-        lastSprintClick = -1;
+        boolean wTap = sprintResetNeeded(bot);
         boolean click = clickDue();
         Intent recovery = recoveryInput(tick, bot, opponent, targetYaw);
         if (recovery != null) {
@@ -71,6 +66,38 @@ final class SparringPartner {
         if (swing && forward > 0 && bot.food() > 6) lastSprintClick = tick;
         return new Intent(tick, yaw, pitch, forward, sideways, false, forward > 0,
                 swing, false, 0);
+    }
+
+    Intent navigate(long tick, PlayerState bot, Vec3 goal, boolean arrive, float guardYaw) {
+        boolean resetSprint = sprintResetNeeded(bot);
+        Vec3 offset = goal.minus(bot.feet());
+        double range = Math.hypot(offset.x(), offset.z());
+        boolean stopped = range < .45 && Math.abs(offset.y()) < .8;
+        double course = stopped ? guardYaw : Math.toDegrees(Math.atan2(offset.z(), offset.x()));
+        Intent recovery = recoveryInput(tick, bot, null, course + 180);
+        if (recovery != null) {
+            strafeTicks = 0;
+            return recovery;
+        }
+        float yaw = turnToward(bot.yaw(), course, YAW_STEP);
+        float pitch = turnToward(bot.pitch(), 0, PITCH_STEP);
+        double turn = Math.abs(Math.IEEEremainder(course - yaw, 360));
+        float forward = stopped || turn > 40 || resetSprint ? 0 : arrive && range < 1.8 ? .45f : 1;
+        Vec3 probe = CombatGeometry.direction(yaw, 0).scale(.7);
+        boolean blocked = forward > 0
+                && CombatGeometry.clipMovement(arena, bot.id(), bot.feet(), probe).minus(bot.feet()).length() < .25;
+        boolean jump = bot.grounded() && (offset.y() > .5 || blocked);
+        return new Intent(tick, yaw, pitch, forward, 0, jump, forward == 1, false, false, 0);
+    }
+
+    private boolean sprintResetNeeded(PlayerState bot) {
+        // A targeted click can stop sprint even when the damage is rejected.
+        int hits = bot.stats().hits();
+        boolean sprintStopped = lastSprintClick >= 0 && bot.sequence() == lastSprintClick && !bot.sprinting();
+        boolean wTap = hits > lastHits || sprintStopped;
+        lastHits = hits;
+        lastSprintClick = -1;
+        return wTap;
     }
 
     private Intent recoveryInput(long tick, PlayerState bot, PlayerState opponent, double targetYaw) {
@@ -94,13 +121,8 @@ final class SparringPartner {
         float throwPitch = speed > .11 ? -71 : -74;
         float pitch = turnToward(bot.pitch(), throwPitch, PITCH_STEP);
         // Predict where the pursuer will be when a typical grounded throw lands.
-        Vec3 rivalTravel = new Vec3(opponent.velocity().x(), 0, opponent.velocity().z());
-        double rivalSpeed = rivalTravel.length();
-        if (rivalSpeed > .26) rivalTravel = rivalTravel.scale(.26 / rivalSpeed);
-        Vec3 splashGap = bot.feet().minus(opponent.feet())
-                .add(direction.scale(throwPitch == -71 ? .55 : .35)).minus(rivalTravel.scale(3));
-        boolean space = opponent.health() == MAX_HEALTH
-                || Math.hypot(splashGap.x(), splashGap.z()) >= rules.splashRadius() - .3;
+        boolean space = opponent == null || opponent.health() == MAX_HEALTH
+                || safeSplashGap(bot, opponent, direction, throwPitch);
         boolean stable = bot.grounded() || emergency && bot.velocity().y() <= 0;
         boolean ready = stable && (space && speed > .07 || emergency) && Math.abs(pitch - throwPitch) < .01f
                 && Math.abs(Math.IEEEremainder(course - yaw, 360)) <= 6;
@@ -117,6 +139,15 @@ final class SparringPartner {
             return null;
         }
         return retreat(tick, course, yaw, pitch, ready, slot);
+    }
+
+    private boolean safeSplashGap(PlayerState bot, PlayerState opponent, Vec3 direction, float throwPitch) {
+        Vec3 rivalTravel = new Vec3(opponent.velocity().x(), 0, opponent.velocity().z());
+        double rivalSpeed = rivalTravel.length();
+        if (rivalSpeed > .26) rivalTravel = rivalTravel.scale(.26 / rivalSpeed);
+        Vec3 splashGap = bot.feet().minus(opponent.feet())
+                .add(direction.scale(throwPitch == -71 ? .55 : .35)).minus(rivalTravel.scale(3));
+        return Math.hypot(splashGap.x(), splashGap.z()) >= rules.splashRadius() - .3;
     }
 
     private double retreatCourse(PlayerState bot, double awayYaw) {

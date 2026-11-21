@@ -111,7 +111,7 @@ public final class PracticeServer implements AutoCloseable {
             if (in.readInt() != PracticeWire.MAGIC) return;
             int version = in.readInt();
             if (version < PracticeWire.LEGACY_VERSION || version > PracticeWire.VERSION) return;
-            if (match instanceof PracticeMatch practice && version < minimumVersion(practice.kit())) {
+            if (match instanceof PracticeMatch practice && version < PracticeWire.minimumVersion(practice.kit())) {
                 out.writeInt(-2);
                 out.flush();
                 return;
@@ -164,15 +164,6 @@ public final class PracticeServer implements AutoCloseable {
             connections.remove(socket);
             capacity.release();
         }
-    }
-
-    private static int minimumVersion(PracticeMatch.Kit kit) {
-        return switch (kit) {
-            case KNOCKBACK_LAB -> PracticeWire.KNOCKBACK_LAB_VERSION;
-            case TEAMFIGHTING_LAB -> PracticeWire.TEAMFIGHTING_LAB_VERSION;
-            case TEAMFIGHTING_30V30 -> PracticeWire.BATTLEFIELD_VERSION;
-            default -> PracticeWire.LEGACY_VERSION;
-        };
     }
 
     private boolean authenticate(DataInputStream in, String name, int mode) throws IOException {
@@ -261,7 +252,8 @@ public final class PracticeServer implements AutoCloseable {
             throws Exception {
         var identity = SecureTransport.server(tlsDirectory);
         try (var server = new PracticeServer(bind, port, identity.context(), match, accounts)) {
-            System.out.println("Basalt Courtyard practice server on port " + server.port());
+            String arena = match instanceof PracticeMatch practice ? practice.kit().terrain().title() : "Basalt Courtyard";
+            System.out.println(arena + " practice server on port " + server.port());
             System.out.println("Client --fingerprint " + identity.fingerprint());
             new java.util.concurrent.CountDownLatch(1).await();
         }
