@@ -88,7 +88,8 @@ class PracticeNetworkTest {
             assertEquals(self(bob).hurtTick(), fighter(alice.view(), bob.id()).hurtTick());
             assertEquals(self(bob).hurtTick(), self(bob).impulseTick());
             assertEquals(self(bob).impulseTick(), fighter(alice.view(), bob.id()).impulseTick());
-            assertTrue(self(bob).impulseZ() < -.25f && self(bob).impulseY() > .35f);
+            assertTrue(self(bob).impulseZ() < -.25f);
+            assertEquals(.3208f, self(bob).impulseY(), .0001f);
             await(() -> self(bob).vz() < -.12f, "authoritative knockback velocity");
 
             await(() -> {

@@ -101,7 +101,7 @@ class CombatMovementTest {
 
     @Test
     void groundedJumpSetsVerticalSpeedWithoutDiscardingIncomingHorizontalImpulse() {
-        var hit = new State(SPAWN, new Vec3(.40, .3608, .12), true, 0);
+        var hit = new State(SPAWN, new Vec3(.40, .3208, .12), true, 0);
         var launch = CombatMovement.step(FLOOR, 1, hit, input(0, 0, true, false));
         assertTrue(launch.jumped());
         assertEquals(.42, launch.displacement().y(), EPSILON);

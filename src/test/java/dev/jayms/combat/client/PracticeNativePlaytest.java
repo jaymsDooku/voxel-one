@@ -61,7 +61,7 @@ public final class PracticeNativePlaytest {
         private double peakKnockbackHorizontal, peakKnockbackUp;
         private long lastSprintHit = -1, sampledLaunch = -1;
         private double sampledLaunchSpeed;
-        private int sprintHits, carriedLaunches, immediateImpulseCues;
+        private int sprintHits, carriedLaunches, immediateImpulseCues, groundedSprintCues;
         private int betweenSnapshotFrames;
         private String report;
 
@@ -100,6 +100,7 @@ public final class PracticeNativePlaytest {
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.impulseTick() == view.tick() && Math.hypot(b.impulseX(), b.impulseZ()) > .68) {
                 immediateImpulseCues++;
+                if (Math.abs(b.impulseY() - .4208) < .001) groundedSprintCues++;
             }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.hurtTick() >= 0 && view.tick() > b.hurtTick() && view.tick() <= b.hurtTick() + 3) {
@@ -142,9 +143,11 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
-                    if (sprintHits < 3 || peakKnockbackUp < .34 || peakKnockbackUp > .52)
-                        throw new IllegalStateException("Expected three sprint hits with Paper lift, got "
+                    if (sprintHits < 3 || peakKnockbackUp < .38 || peakKnockbackUp > .462)
+                        throw new IllegalStateException("Expected three sprint hits within the arena lift range, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
+                    if (groundedSprintCues == 0)
+                        throw new IllegalStateException("No sprint cue showed the reduced grounded launch");
                     if (immediateImpulseCues < 3)
                         throw new IllegalStateException("Too few sprint impulses arrived on their hit tick: "
                                 + immediateImpulseCues);
@@ -160,6 +163,7 @@ public final class PracticeNativePlaytest {
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
                             + immediateImpulseCues + " sprint impulses reached the client on their hit tick.\n"
+                            + groundedSprintCues + " sprint cues showed the reduced grounded launch of 0.4208 blocks per tick.\n"
                             + carriedLaunches + " sprint launches kept at least 45% of horizontal speed on the next tick while the defender could steer.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",
