@@ -69,10 +69,7 @@ public class PlayerModel implements AutoCloseable {
         if (cohort >= 0)
             pose = CitizenAnimation.pose(pose, activity, animationSeconds, player.id());
         Matrix4f torso = new Matrix4f(root).rotateY(pose.bodyTwist());
-        Matrix4f head =
-                new Matrix4f(torso)
-                        .translate(0, PlayerSkin.HEAD_BASE, 0)
-                        .rotateX((float) Math.toRadians(-player.pitch()));
+        Matrix4f head = headPose(root, player.pitch());
         skin(shader);
         box(shader, head, HEAD, HEAD, HEAD);
         // Inflated outer skin layer: no visible face shares the base head depth plane.
@@ -141,6 +138,12 @@ public class PlayerModel implements AutoCloseable {
                         .translate(-.5f, -.1f, -.5f),
                 shader,
                 models);
+    }
+
+    static Matrix4f headPose(Matrix4f facing, float pitch) {
+        // The face points down local -Z. Positive camera pitch looks up.
+        return new Matrix4f(facing).translate(0, PlayerSkin.HEAD_BASE, 0)
+                .rotateX((float) Math.toRadians(pitch));
     }
 
     /** Scoped overlay tint for confirmed damage to a practice opponent. */
