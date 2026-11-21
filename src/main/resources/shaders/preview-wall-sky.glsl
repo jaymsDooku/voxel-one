@@ -92,6 +92,21 @@ float previewInclinedExposure(int side,float u,float y,float depth,float height,
     }
     return (depth-first)*depthSpan<=.002?1.:0.;
 }
+bool previewSunReachesLedge(vec3 point){
+    // The last preview cascade includes the entire landmark, even when the
+    // near shadow map only covers one wing. It can see an angled sun opening
+    // between the four directions used to estimate diffuse sky.
+    int layer=uShadowCascades-1;
+    if(layer<0)return false;
+    if(layer==0)return true; // The caller already has coverage from this map.
+    vec4 projected=uShadowMatrix[layer]*vec4(point,1.);
+    vec3 q=projected.xyz/projected.w*.5+.5;
+    if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))return false;
+    ivec2 size=textureSize(uShadow,0).xy;
+    vec2 slope=receiverDepthGradient(mat3(uShadowMatrix[layer]),vec3(0,1,0))/vec2(size);
+    q.xy*=vec2(size);
+    return shadowDepthGap(layer,q,slope,vec2(0),size)<=.00004;
+}
 vec2 previewLedgeVisibility(vec3 point,float overhead,float sunShadow,bool sunMapCovered){
     // Transparent roofs already carry an explicit sky transmission. The
     // depth views contain only opaque casters, so preserve that attenuation.
@@ -104,7 +119,8 @@ vec2 previewLedgeVisibility(vec3 point,float overhead,float sunShadow,bool sunMa
     float opening=.25*(east+west+north+south);
     // An exterior opening admits diffuse illumination from its part of the sky.
     // The independent sun projection determines whether the solar disk is visible.
-    float sunGate=sunMapCovered && opening>0.?1.:overhead;
+    bool sunPath=sunMapCovered && sunShadow>0. && previewSunReachesLedge(point);
+    float sunGate=sunPath?1.:overhead;
     return vec2(sunGate*sunShadow,max(overhead,opening));
 }
 

@@ -330,6 +330,11 @@ public class AtmospherePlaytest {
                 box STONE 224 24 40 225 88 41
                 # Glass above one patch of the uppermost, open terrace.
                 box GLASS 162 144 88 164 146 90
+                # Covered floor reached by oblique sun through a side opening.
+                # From the sample point none of the four axial sky views can see it.
+                box SAND 8 16 192 72 104 256
+                box AIR 10 20 194 70 102 254
+                box AIR 68 32 233 72 64 248
                 box STONE 145 48 144 146 64 152
                 box GLASS 145 64 144 146 80 152
                 box STONE 40 48 16 42 49 18
@@ -526,6 +531,7 @@ public class AtmospherePlaytest {
                 && enclosed[0]<.001f && enclosed[1]<.001f && enclosed[2]<.001f,report.toString());
         require(Math.abs(glass[0]-.7f)<.001f && Math.abs(glass[1]-.7f)<.001f && Math.abs(glass[2]-.7f)<.001f,
                 report.toString());
+        lighting.checkLandmarkCascade(report);
         System.out.print(report);
         Files.writeString(evidence.resolve("preview-ledge-coverage.txt"),report);
     }
@@ -534,33 +540,58 @@ public class AtmospherePlaytest {
                               int texture,int depthFbo,int colorFbo,int vao){
         float[] sample(float x,float y,float z,Vector3f sun){
             boolean enabled=sun.lengthSquared()>0;
-            if(enabled){
-                Vector3f center=new Vector3f(origin).add(x,y,z);
-                Vector3f up=Math.abs(sun.y)>.98f?new Vector3f(0,0,1):new Vector3f(0,1,0);
-                Matrix4f view=new Matrix4f().lookAt(new Vector3f(center).fma(384,sun),center,up);
-                // A 16-block span at 512 pixels matches a 64-block near cascade at 2048 pixels.
-                Matrix4f projection=new Matrix4f().ortho(-8,8,-8,8,1,768);
-                glBindFramebuffer(GL_FRAMEBUFFER,depthFbo);
-                glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,texture,0,0);
-                glViewport(0,0,512,512);
-                glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
-                glClear(GL_DEPTH_BUFFER_BIT);
-                shadow.bind();
-                shadow.setMatrix4("uProjection",projection);
-                shadow.setMatrix4("uView",view);
-                shadow.setMatrix4("uModel",new Matrix4f().translation(origin));
-                chunk.getMesh().render();
-                glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);
-                glBindFramebuffer(GL_FRAMEBUFFER,colorFbo);
-                glBindVertexArray(vao);
-                glViewport(0,0,1,1);
-                probe.bind();
-                probe.setMatrix4("uShadowMatrix[0]",projection.mul(view));
-            }
+            // A 16-block span at 512 pixels matches a 64-block near cascade at 2048 pixels.
+            if(enabled)renderCascade(0,new Vector3f(origin).add(x,y,z),sun,8,384);
             probe.setInt("uShadowEnabled",enabled?1:0);
             probe.setInt("uShadowCascades",1);
             probe.setVector3("uTestSun",sun.x,sun.y,sun.z);
             return wallSample(probe,origin,x,y,z,0,0);
+        }
+
+        void renderCascade(int layer,Vector3f center,Vector3f sun,float extent,float eyeDistance){
+            Vector3f up=Math.abs(sun.y)>.98f?new Vector3f(0,0,1):new Vector3f(0,1,0);
+            Matrix4f view=new Matrix4f().lookAt(new Vector3f(center).fma(eyeDistance,sun),center,up);
+            Matrix4f projection=new Matrix4f().ortho(-extent,extent,-extent,extent,1,eyeDistance*2);
+            glBindFramebuffer(GL_FRAMEBUFFER,depthFbo);
+            glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,texture,0,layer);
+            glViewport(0,0,512,512);
+            glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            shadow.bind();
+            shadow.setMatrix4("uProjection",projection);
+            shadow.setMatrix4("uView",view);
+            shadow.setMatrix4("uModel",new Matrix4f().translation(origin));
+            chunk.getMesh().render();
+            glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);
+            glBindFramebuffer(GL_FRAMEBUFFER,colorFbo);
+            glBindVertexArray(vao);
+            glViewport(0,0,1,1);
+            probe.bind();
+            probe.setMatrix4("uShadowMatrix["+layer+"]",projection.mul(view));
+        }
+
+        void checkLandmarkCascade(StringBuilder report){
+            Vector3f receiver=new Vector3f(origin).add(2.5f,1.251f,13.5f);
+            Vector3f landmarkCenter=new Vector3f(origin).add(8,5,8);
+            probe.setInt("uShadowEnabled",1);
+            for(boolean throughWindow:new boolean[]{true,false}){
+                Vector3f sun=throughWindow?new Vector3f(1,.7f,.7f).normalize():new Vector3f(0,1,0);
+                // Limit the near depth range so the ceiling can only appear in the far map.
+                renderCascade(0,receiver,sun,8,2.5f);
+                renderCascade(1,landmarkCenter,sun,16,32);
+                probe.setVector3("uTestSun",sun.x,sun.y,sun.z);
+                probe.setInt("uShadowCascades",1);
+                float near=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0)[1];
+                probe.setInt("uShadowCascades",2);
+                float[] both=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0);
+                probe.setMatrix4("uShadowMatrix[1]",new Matrix4f().translation(10000,0,0));
+                float missing=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0)[1];
+                report.append(throughWindow?"Diagonal sun through side opening":"Vertical sun blocked by ceiling")
+                        .append(" near=").append(near).append(" near+landmark=").append(both[1])
+                        .append(" missing landmark=").append(missing).append(" diffuse=").append(both[2]).append('\n');
+                require(near>.99f && Math.abs(both[1]-(throughWindow?1:0))<.001f && missing<.001f
+                        && both[0]<.001f && both[2]<.001f,report.toString());
+            }
         }
     }
 
