@@ -81,6 +81,14 @@ public final class PracticeMatch implements ArenaMatch {
     private final Map<Integer, Member> members = new LinkedHashMap<>();
     private final Kit kit;
     private final CombatRules rules;
+    private final CombatEngine.Arena arena = new CombatEngine.Arena() {
+        @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
+        @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
+        @Override public boolean throwableSolid(int x, int y, int z) { return BasaltCourtyard.throwableSolid(x, y, z); }
+        @Override public boolean containsThrowable(Vec3 position) {
+            return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
+        }
+    };
     private final CombatEngine engine;
     private final boolean offline;
     private int nextId = 1;
@@ -102,16 +110,7 @@ public final class PracticeMatch implements ArenaMatch {
         this.kit = kit;
         this.offline = offline;
         rules = kit == Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
-        engine = new CombatEngine(rules, new CombatEngine.Arena() {
-            @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
-            @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
-            @Override public boolean throwableSolid(int x, int y, int z) {
-                return BasaltCourtyard.throwableSolid(x, y, z);
-            }
-            @Override public boolean containsThrowable(Vec3 position) {
-                return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
-            }
-        });
+        engine = new CombatEngine(rules, arena);
         if (offline) {
             join("You");
             join("Sparring partner");
@@ -199,6 +198,9 @@ public final class PracticeMatch implements ArenaMatch {
                     if (event.type() == EventType.HIT && target != null) target.lastHit = tick;
                     if (event.type() == EventType.SWING && actor != null) actor.lastSwing = restartSwing(actor.lastSwing, tick);
                     if (event.type() == EventType.SPLASH) lastSplash = tick;
+                    if (offline && event.actorId() == BOT && event.type() == EventType.THROW && event.item() == Item.HEALING) {
+                        restockBotPotion();
+                    }
                 }
                 var fighters = engine.snapshots();
                 var survivors = fighters.stream().filter(f -> f.health() > 0).toList();
@@ -285,7 +287,7 @@ public final class PracticeMatch implements ArenaMatch {
     private void spawn(int id, int side, boolean reset) {
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
-        if (offline && id == BOT) sparringPartner = new SparringPartner(rules.reach(), RandomGenerator.getDefault());
+        if (offline && id == BOT) sparringPartner = new SparringPartner(rules, arena, RandomGenerator.getDefault());
         float yaw = BasaltCourtyard.spawn(side).yaw();
         if (reset) engine.reset(id, feet(side), yaw);
         else engine.join(id, feet(side), yaw);
@@ -294,5 +296,16 @@ public final class PracticeMatch implements ArenaMatch {
     private static Vec3 feet(int side) {
         var spawn = BasaltCourtyard.spawn(side);
         return new Vec3(spawn.x(), spawn.y(), spawn.z());
+    }
+
+    private void restockBotPotion() {
+        var bot = engine.snapshot(BOT);
+        if (bot.inventory().get(bot.slot()).item() != Item.EMPTY) return;
+        for (int slot = CombatEngine.HOTBAR_SIZE; slot < bot.inventory().size(); slot++) {
+            if (bot.inventory().get(slot).item() == Item.HEALING) {
+                engine.swapInventory(BOT, bot.slot(), slot);
+                return;
+            }
+        }
     }
 }

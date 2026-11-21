@@ -50,6 +50,8 @@ class PracticeTradeResponseTest {
             assertEquals(s.tick, s.second.impulseTick());
         }
         Step opening = exchanges.get(0);
+        assertEquals(18.5, opening.first.health(), .00001);
+        assertEquals(18.5, opening.second.health(), .00001);
         Step second = exchanges.get(1);
         double firstAway = Math.copySign(1, opening.first.z() - opening.second.z()) * opening.first.vz();
         double secondAway = Math.copySign(1, opening.second.z() - opening.first.z()) * opening.second.vz();

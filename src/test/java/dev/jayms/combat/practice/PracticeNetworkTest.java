@@ -82,7 +82,7 @@ class PracticeNetworkTest {
             await(() -> fighter(alice.view(), alice.id()).hits() == 1 && self(bob).health() < 20
                     && bothAgree(alice, bob), "authoritative sword hit on both clients");
             float injured = self(bob).health();
-            assertTrue(injured > 17 && injured < 18);
+            assertEquals(18.5f, injured, .0001f);
             assertTrue(bob.view().lastHit() >= 0);
             assertEquals(bob.view().lastHit(), self(bob).hurtTick());
             assertEquals(self(bob).hurtTick(), fighter(alice.view(), bob.id()).hurtTick());
