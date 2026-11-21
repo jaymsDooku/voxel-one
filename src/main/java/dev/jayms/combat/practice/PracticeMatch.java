@@ -3,7 +3,7 @@ package dev.jayms.combat.practice;
 import dev.jayms.combat.CombatEngine;
 import dev.jayms.combat.CombatEngine.*;
 import dev.jayms.combat.CombatRules;
-import dev.jayms.combat.arena.BasaltCourtyard;
+import dev.jayms.combat.arena.PracticeTerrain;
 
 import java.util.ArrayList;
 import java.util.LinkedHashMap;
@@ -22,22 +22,28 @@ public final class PracticeMatch implements ArenaMatch {
 
     public enum Phase { WAITING, COUNTDOWN, FIGHT, RESULT }
     public enum Kit {
-        NO_DEBUFF(CombatRules.NO_DEBUFF, "No Debuff"),
-        DEBUFF(CombatRules.DEBUFF, "Debuff"),
-        KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab"),
-        TEAMFIGHTING_LAB(CombatRules.NO_DEBUFF, "Teamfighting Lab");
+        NO_DEBUFF(CombatRules.NO_DEBUFF, "No Debuff", 1),
+        DEBUFF(CombatRules.DEBUFF, "Debuff", 1),
+        KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab", 1),
+        TEAMFIGHTING_LAB(CombatRules.NO_DEBUFF, "Teamfighting Lab", 2),
+        TEAMFIGHTING_30V30(CombatRules.NO_DEBUFF, "Teamfighting Lab 30v30", 30);
 
         private final CombatRules rules;
         private final String title;
+        private final int teamSize;
 
-        Kit(CombatRules rules, String title) {
+        Kit(CombatRules rules, String title, int teamSize) {
             this.rules = rules;
             this.title = title;
+            this.teamSize = teamSize;
         }
 
         public CombatRules rules() { return rules; }
         public String title() { return title; }
-        public boolean teamBased() { return this == TEAMFIGHTING_LAB; }
+        public int teamSize() { return teamSize; }
+        public int fighterCapacity() { return 2 * teamSize; }
+        public boolean teamBased() { return teamSize > 1; }
+        public PracticeTerrain terrain() { return this == TEAMFIGHTING_30V30 ? PracticeTerrain.BATTLEFIELD : PracticeTerrain.COURTYARD; }
     }
     public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
 
@@ -96,24 +102,23 @@ public final class PracticeMatch implements ArenaMatch {
     private static final int COUNTDOWN = 3 * TICKS_PER_SECOND;
     private static final int ROUND = 8 * 60 * TICKS_PER_SECOND;
     private static final int RESULT_DELAY = 2 * TICKS_PER_SECOND;
-    private static final int MAX_PEERS = 8;
     private final Map<Integer, Member> members = new LinkedHashMap<>();
     private final Kit kit;
     private final int fighterCapacity;
     private final CombatRules rules;
+    private final PracticeTerrain terrain;
     private final CombatEngine.Arena arena = new CombatEngine.Arena() {
-        @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
-        @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
-        @Override public boolean throwableSolid(int x, int y, int z) { return BasaltCourtyard.throwableSolid(x, y, z); }
-        @Override public boolean containsThrowable(Vec3 position) {
-            return BasaltCourtyard.containsThrowable(position.x(), position.y(), position.z());
-        }
+        @Override public boolean solid(int x, int y, int z) { return terrain.solid(x, y, z); }
+        @Override public boolean contains(Vec3 feet) { return terrain.contains(feet); }
+        @Override public boolean throwableSolid(int x, int y, int z) { return terrain.throwableSolid(x, y, z); }
+        @Override public boolean containsThrowable(Vec3 position) { return terrain.containsThrowable(position); }
         @Override public boolean canHarm(int attacker, int target) {
             return !kit.teamBased() || opposingTeams(attacker, target);
         }
     };
     private final CombatEngine engine;
     private final boolean offline;
+    private List<Fighter> fighterViews;
     private int nextId = 1;
     private long tick, lastSimulationStep, lastSplash = -1;
     private int ticksLeft, winner;
@@ -138,13 +143,19 @@ public final class PracticeMatch implements ArenaMatch {
 
     public PracticeMatch(Kit kit, boolean offline) {
         this.kit = kit;
-        fighterCapacity = kit.teamBased() ? 4 : 2;
+        fighterCapacity = kit.fighterCapacity();
         this.offline = offline;
         rules = kit.rules();
+        terrain = kit.terrain();
         engine = new CombatEngine(rules, arena);
         if (offline) {
             join("You");
-            if (kit.teamBased()) {
+            if (kit == Kit.TEAMFIGHTING_30V30) {
+                for (int i = 1; i < fighterCapacity; i++) {
+                    String team = i % 2 == 0 ? "Ember" : "Slate";
+                    addMember(team + " " + (i / 2 + 1), true);
+                }
+            } else if (kit.teamBased()) {
                 addMember("Rowan", true);
                 addMember("Aster", true);
                 addMember("Briar", true);
@@ -155,13 +166,15 @@ public final class PracticeMatch implements ArenaMatch {
     }
 
     public Kit kit() { return kit; }
+    int peerCapacity() { return Math.max(8, fighterCapacity + 4); }
 
     public synchronized int join(String name) {
         return addMember(name, false);
     }
 
     private int addMember(String name, boolean automated) {
-        if (members.size() >= MAX_PEERS || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
+        if (members.size() >= peerCapacity() || nextId == Integer.MAX_VALUE
+                || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
                 || name.isBlank() || members.values().stream().anyMatch(m -> m.name.equalsIgnoreCase(name)))
             return 0;
         int id = nextId++;
@@ -174,6 +187,7 @@ public final class PracticeMatch implements ArenaMatch {
     public synchronized void leave(int id) {
         Member member = members.remove(id);
         if (member == null || member.seat < 0) return;
+        fighterViews = null;
         engine.leave(id);
         if (phase == Phase.FIGHT) finishIfTeamEliminated(Result.FORFEIT);
         else if (phase == Phase.COUNTDOWN) waitForReady();
@@ -184,7 +198,10 @@ public final class PracticeMatch implements ArenaMatch {
         Member member = members.get(id);
         if (member == null || member.seat < 0 || member.automated) return;
         if (phase == Phase.RESULT && ticksLeft == 0) waitForReady();
-        if (phase == Phase.WAITING) member.ready = !member.ready;
+        if (phase == Phase.WAITING) {
+            member.ready = !member.ready;
+            fighterViews = null;
+        }
         if (phase == Phase.WAITING
                 && members.values().stream().filter(m -> m.seat >= 0 && m.ready).count() == fighterCapacity) {
             for (var entry : members.entrySet())
@@ -198,7 +215,10 @@ public final class PracticeMatch implements ArenaMatch {
         Member member = members.get(id);
         if (member == null || member.seat < 0 || first < 0 || second < 0 || first >= 36 || second >= 36)
             return false;
-        if (phase == Phase.FIGHT) return engine.swapInventory(id, first, second);
+        if (phase == Phase.FIGHT) {
+            fighterViews = null;
+            return engine.swapInventory(id, first, second);
+        }
         if (phase == Phase.WAITING && !member.ready) {
             engine.swapKit(id, first, second);
             spawn(id, true);
@@ -210,7 +230,10 @@ public final class PracticeMatch implements ArenaMatch {
     @Override public synchronized boolean quickMove(int id, int source) {
         Member member = members.get(id);
         if (member == null || member.seat < 0) return false;
-        if (phase == Phase.FIGHT) return engine.quickMoveInventory(id, source);
+        if (phase == Phase.FIGHT) {
+            fighterViews = null;
+            return engine.quickMoveInventory(id, source);
+        }
         if (phase != Phase.WAITING || member.ready || !engine.quickMoveKit(id, source)) return false;
         spawn(id, true);
         return true;
@@ -224,6 +247,7 @@ public final class PracticeMatch implements ArenaMatch {
 
     public synchronized void tick() {
         tick++;
+        fighterViews = null;
         switch (phase) {
             case WAITING -> { }
             case COUNTDOWN -> {
@@ -272,7 +296,8 @@ public final class PracticeMatch implements ArenaMatch {
         return true;
     }
 
-    public synchronized View view(int id) {
+    private List<Fighter> fighters() {
+        if (fighterViews != null) return fighterViews;
         var fighters = new ArrayList<Fighter>(fighterCapacity);
         for (var entry : members.entrySet()) {
             int fighterId = entry.getKey();
@@ -283,13 +308,18 @@ public final class PracticeMatch implements ArenaMatch {
                     member.ready, kit.teamBased() ? member.team() : -1, "",
                     engine.currentTick(), lastSimulationStep, member.lastSwing));
         }
+        fighterViews = List.copyOf(fighters);
+        return fighterViews;
+    }
+
+    public synchronized View view(int id) {
         Member member = members.get(id);
         PlayerState self = member == null || member.seat < 0 ? null : engine.snapshot(id);
         if (kit.teamBased() && phase == Phase.FIGHT && self != null && self.health() <= 0) self = null;
         List<Missile> missiles = phase == Phase.FIGHT ? engine.projectiles().stream().limit(64).map(p ->
                 new Missile(p.id(), p.item(), (float) p.position().x(), (float) p.position().y(),
                         (float) p.position().z())).toList() : List.of();
-        return new View(phase, kit, result, winner, ticksLeft, self == null ? id : 0, tick, List.copyOf(fighters),
+        return new View(phase, kit, result, winner, ticksLeft, self == null ? id : 0, tick, fighters(),
                 self == null ? List.of() : self.inventory(), self == null ? 0 : self.food(),
                 self == null ? 0 : self.pearlCooldownTicks(), self == null ? Map.of() : self.effects(),
                 self == null ? List.of() : self.durability(), missiles, member == null ? -1 : member.lastHit,
@@ -337,11 +367,12 @@ public final class PracticeMatch implements ArenaMatch {
     }
 
     private void spawn(int id, boolean reset) {
+        fighterViews = null;
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
         member.target = 0;
         if (member.automated) member.bot = new SparringPartner(rules, arena, RandomGenerator.getDefault());
-        var spawn = BasaltCourtyard.teamSpawn(member.team(), member.seat / 2);
+        var spawn = terrain.spawn(member.team(), member.seat / 2);
         var feet = new Vec3(spawn.x(), spawn.y(), spawn.z());
         if (reset) engine.reset(id, feet, spawn.yaw());
         else engine.join(id, feet, spawn.yaw());

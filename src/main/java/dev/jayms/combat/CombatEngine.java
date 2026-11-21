@@ -19,7 +19,7 @@ public final class CombatEngine {
     public static final int TICKS_PER_SECOND = 20;
     public static final int INVENTORY_SIZE = 36, HOTBAR_SIZE = 9;
     public static final double MAX_HEALTH = 20;
-    private static final int MAX_ACTORS = 32, MAX_EVENTS = 512, INPUT_TIMEOUT = 12;
+    private static final int MAX_ACTORS = 64, MAX_EVENTS = 2_048, INPUT_TIMEOUT = 12;
     private static final int MAX_REWIND_TICKS = 6, MAX_CLICKS_PER_ACTOR_PER_TICK = 16;
     private static final int ARMOR_DURABILITY = 200;
     // The arena uses diamond piece proportions for its custom full-set reductions, in NMS inventory order.

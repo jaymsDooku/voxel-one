@@ -22,6 +22,7 @@ import java.net.InetAddress;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -36,6 +37,30 @@ class PracticeNetworkTest {
     private static final String LOOPBACK = "127.0.0.1";
     private static final int STARTING_POTS = 31;
     @TempDir Path temporary;
+
+    @Test @Timeout(40)
+    void battlefieldConnectsSixtyClientsAndSharesMovement() throws Exception {
+        var tls = SecureTransport.server(temporary.resolve("tls"));
+        var clients = new ArrayList<PracticeClient>(60);
+        try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), Kit.TEAMFIGHTING_30V30)) {
+            for (int i = 0; i < 60; i++)
+                clients.add(new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Player " + (i + 1)));
+            await(() -> clients.stream().allMatch(client -> client.view().fighters().size() == 60), "full roster");
+            for (var client : clients) {
+                assertEquals(Kit.TEAMFIGHTING_30V30, client.view().kit());
+                assertEquals((client.id() - 1) % 2, self(client).side());
+                assertTrue(client.ready());
+            }
+            await(() -> clients.stream().allMatch(client -> client.view().phase() == Phase.FIGHT), "60-player fight");
+            var first = clients.get(0);
+            float startingZ = self(first).z();
+            assertTrue(input(first, 1, -90, 0, 1, true, false, false, 0));
+            await(() -> clients.stream().allMatch(client -> fighter(client.view(), first.id()).z() < startingZ - .3),
+                    "battlefield movement on all 60 clients");
+        } finally {
+            for (var client : clients) client.close();
+        }
+    }
 
     @ParameterizedTest(name = "No Debuff with {0} ms added RTT on both TLS connections")
     @ValueSource(ints = {0, 80, 150})

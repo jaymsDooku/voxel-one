@@ -38,7 +38,7 @@ public final class PracticeServer implements AutoCloseable {
     private final AccountStore accounts;
     private final ScheduledExecutorService clock = Executors.newSingleThreadScheduledExecutor();
     private final ExecutorService workers = Executors.newCachedThreadPool();
-    private final Semaphore capacity = new Semaphore(12);
+    private final Semaphore capacity;
     private final Semaphore hashing = new Semaphore(2);
     private final Set<Socket> connections = ConcurrentHashMap.newKeySet();
     private final Set<Peer> peers = ConcurrentHashMap.newKeySet();
@@ -52,6 +52,7 @@ public final class PracticeServer implements AutoCloseable {
     public PracticeServer(String host, int port, SSLContext tls, ArenaMatch match, AccountStore accounts) throws IOException {
         this.match = match;
         this.accounts = accounts;
+        capacity = new Semaphore(match instanceof PracticeMatch practice ? Math.max(12, practice.peerCapacity()) : 12);
         listener = (SSLServerSocket) tls.getServerSocketFactory().createServerSocket();
         try {
             listener.setEnabledProtocols(new String[]{"TLSv1.3", "TLSv1.2"});
@@ -169,6 +170,7 @@ public final class PracticeServer implements AutoCloseable {
         return switch (kit) {
             case KNOCKBACK_LAB -> PracticeWire.KNOCKBACK_LAB_VERSION;
             case TEAMFIGHTING_LAB -> PracticeWire.TEAMFIGHTING_LAB_VERSION;
+            case TEAMFIGHTING_30V30 -> PracticeWire.BATTLEFIELD_VERSION;
             default -> PracticeWire.LEGACY_VERSION;
         };
     }

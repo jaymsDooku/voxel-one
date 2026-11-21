@@ -6,6 +6,7 @@ import dev.jayms.ShaderProgram;
 import dev.jayms.VoxelModelRenderer;
 import dev.jayms.World;
 import dev.jayms.combat.CombatEngine;
+import dev.jayms.combat.CombatEngine.Arena;
 import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
@@ -14,8 +15,9 @@ import dev.jayms.combat.CombatEngine.Stack;
 import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.CombatGeometry;
 import dev.jayms.combat.CombatRules;
-import dev.jayms.combat.arena.BasaltCourtyard;
+import dev.jayms.combat.arena.BasaltBattlefieldWorld;
 import dev.jayms.combat.arena.BasaltCourtyardWorld;
+import dev.jayms.combat.arena.PracticeTerrain;
 import dev.jayms.combat.practice.PracticeClient;
 import dev.jayms.combat.practice.PracticeMatch;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
@@ -74,7 +76,8 @@ public final class PracticeGame {
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
     private final ArenaSprintToggle sprintToggle = new ArenaSprintToggle();
     private final ArenaAutoClicker autoClicker = new ArenaAutoClicker();
-    private final ArenaMotionTimeline motion = new ArenaMotionTimeline();
+    private final PracticeTerrain terrain;
+    private final ArenaMotionTimeline motion;
     private final String[] hotbarLabels = new String[SLOTS.length];
     private final Matrix4f projection = new Matrix4f();
     private final Matrix4f clipFromWorld = new Matrix4f();
@@ -118,6 +121,8 @@ public final class PracticeGame {
         this.recordings = recordings;
         offline = remote == null ? new PracticeMatch(kit, true) : null;
         id = remote == null ? 1 : remote.id();
+        terrain = (remote == null ? kit : remote.view().kit()).terrain();
+        motion = new ArenaMotionTimeline(terrain);
     }
 
     public static void launch(String[] args) throws Exception {
@@ -216,8 +221,12 @@ public final class PracticeGame {
              var avatars = new PlayerModel();
              var hitboxes = new PracticeHitboxes();
              var models = new VoxelModelRenderer(world.models())) {
-            BasaltCourtyardWorld.generate(world);
-            world.stream(0, 0, 25);
+            if (terrain == PracticeTerrain.BATTLEFIELD) {
+                BasaltBattlefieldWorld.generate(world);
+            } else {
+                BasaltCourtyardWorld.generate(world);
+                world.stream(0, 0, 25);
+            }
             for (var entry : world.getLoadedChunks().entrySet())
                 if (entry.getKey().chunkY() >= 2) entry.getValue().checkMesh();
             bind(recorder);
@@ -433,17 +442,22 @@ public final class PracticeGame {
     }
 
     private AttackView displayedTarget() {
-        return displayedTarget(camera, view.kit().rules(), localPose, remoteActors);
+        return displayedTarget(camera, view.kit().rules(), localPose, remoteActors, terrain);
     }
 
     static AttackView displayedTarget(Camera camera, CombatRules rules, PoseView localPose,
                                       List<ArenaMotionTimeline.Presented> remoteActors) {
+        return displayedTarget(camera, rules, localPose, remoteActors, ArenaMotionTimeline.TERRAIN);
+    }
+
+    static AttackView displayedTarget(Camera camera, CombatRules rules, PoseView localPose,
+                                      List<ArenaMotionTimeline.Presented> remoteActors, Arena terrain) {
         // The camera can already have moved in response to a hit. Select what its crosshair sees.
         Vector3f position = camera.position();
         Vec3 eye = new Vec3(position.x, position.y, position.z);
         Vec3 ray = CombatGeometry.direction(camera.yaw(), camera.pitch()).scale(rules.reach());
         ArenaMotionTimeline.Presented target = null;
-        double closest = CombatGeometry.firstBlock(ArenaMotionTimeline.TERRAIN, eye, ray);
+        double closest = CombatGeometry.firstBlock(terrain, eye, ray);
         for (var candidate : remoteActors) {
             if (candidate.fighter().health() <= 0) continue;
             double hit = CombatGeometry.firstMeleeBody(eye, ray,
@@ -633,7 +647,7 @@ public final class PracticeGame {
         Fighter actor = self();
         boolean spectator = actor == null || view.spectatorId() == id;
         hitFeedback = spectator ? ArenaMotionTimeline.HitFeedback.NONE : motion.hitFeedback(id, frame.local());
-        var gallery = BasaltCourtyard.spectator();
+        var gallery = terrain.spectator();
         boolean respawn = !positioned || spectator != wasSpectator || view.phase() == Phase.COUNTDOWN && lastPhase != Phase.COUNTDOWN;
         if (respawn) {
             camera.setYaw(spectator ? gallery.yaw() : actor.yaw());
@@ -673,6 +687,8 @@ public final class PracticeGame {
             pipeline.chunk(entry.getValue(), position);
         }
         for (var actor : remoteActors) {
+            if (!frustum.testAab(actor.x() - 1, actor.y() - .2f, actor.z() - 1,
+                    actor.x() + 1, actor.y() + 2.5f, actor.z() + 1)) continue;
             Fighter fighter = actor.fighter();
             var pose = new Protocol.Pose(fighter.id(), actor.x(), actor.y(), actor.z(), actor.yaw(),
                     actor.pitch(), actor.walkPhase(), actor.walkAmount(), false,
@@ -745,7 +761,7 @@ public final class PracticeGame {
         }
         if (showTeams()) drawTeamLabels(ui);
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
-        String heading = "Basalt Courtyard  /  " + (factions ? "Faction Arena" : view.kit().title());
+        String heading = terrain.title() + "  /  " + (factions ? "Faction Arena" : view.kit().title());
         ui.text(heading, 27, 24, Math.min(1.4f, 303f / ui.textWidth(heading, 1f)));
         if (showHitboxes) {
             String label = "Hitboxes  /  " + (hitboxShortcutNeedsControl ? "Ctrl+F12" : "F12");
@@ -802,7 +818,8 @@ public final class PracticeGame {
         float x = 27;
         ui.rectangle(16, 76, 250, 19, .031f, .05f, .065f, .90f);
         for (int side = 0; side < TEAM_NAMES.length; side++) {
-            String team = TEAM_NAMES[side] + " " + living[side] + "/2" + (actor != null && actor.side() == side ? " (you)" : "");
+            String team = TEAM_NAMES[side] + " " + living[side] + "/" + view.kit().teamSize()
+                    + (actor != null && actor.side() == side ? " (you)" : "");
             int color = TEAM_JERSEYS[side];
             ui.text(team, x, 81, 1f, (color >> 16 & 255) / 255f, (color >> 8 & 255) / 255f,
                     (color & 255) / 255f, 1);
@@ -859,8 +876,8 @@ public final class PracticeGame {
                     ? "Eliminated  |  Spectating" : "Spectating";
         }
         return switch (view.phase()) {
-            case WAITING -> view.kit().teamBased() && view.fighters().size() < 4
-                    ? "Waiting for players  /  " + view.fighters().size() + "/4"
+            case WAITING -> view.kit().teamBased() && view.fighters().size() < view.kit().fighterCapacity()
+                    ? "Waiting for players  /  " + view.fighters().size() + "/" + view.kit().fighterCapacity()
                     : actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
             case COUNTDOWN -> "Get ready";
             case FIGHT -> (view.kit().rules().knockbackOnly() ? "Trading  |  "
@@ -874,7 +891,7 @@ public final class PracticeGame {
         if (factions) return "Voxel One | Faction Arena";
         var kit = snapshot().kit();
         return switch (kit) {
-            case KNOCKBACK_LAB, TEAMFIGHTING_LAB -> "Voxel One | " + kit.title();
+            case KNOCKBACK_LAB, TEAMFIGHTING_LAB, TEAMFIGHTING_30V30 -> "Voxel One | " + kit.title();
             default -> "Voxel One | PotPvP Practice";
         };
     }
@@ -907,10 +924,12 @@ public final class PracticeGame {
         Vector3f eye = camera.position();
         Vector3f offset = new Vector3f(fighter.x(), fighter.y() + 1.36f, fighter.z()).sub(eye);
         int count = (int) Math.ceil(offset.length() * 5);
-        if (count < 1 || count > 220) return false;
+        // Team colors still identify distant fighters on the battlefield without stacking nameplates.
+        int maxSamples = terrain == PracticeTerrain.BATTLEFIELD ? 100 : 220;
+        if (count < 1 || count > maxSamples) return false;
         for (int i = 1; i < count; i++) {
             float t = i / (float) count;
-            if (BasaltCourtyard.block((int) Math.floor(eye.x + offset.x * t),
+            if (terrain.block((int) Math.floor(eye.x + offset.x * t),
                     (int) Math.floor(eye.y + offset.y * t),
                     (int) Math.floor(eye.z + offset.z * t)) != Blocks.AIR) return false;
         }
@@ -942,7 +961,7 @@ public final class PracticeGame {
         float timerScale = Math.min(1.02f, 532f / Math.max(1, ui.textWidth(timers, 1f)));
         ui.rectangle(x, y + 48, ui.textWidth(timers, timerScale) + 8, 13, .031f, .05f, .065f, .90f);
         ui.text(timers, x + 4, y + 51, timerScale);
-        if (view.phase() == Phase.RESULT) {
+        if (view.phase() == Phase.RESULT && view.kit() != PracticeMatch.Kit.TEAMFIGHTING_30V30) {
             for (Fighter fighter : view.fighters()) {
                 String result = String.format(Locale.ROOT, "%s  HP %.1f  Hits %d  Combo %d  Pots used %d  Left %d",
                         fighter.name(), fighter.health(), fighter.hits(), fighter.combo(), fighter.used(), fighter.remaining());

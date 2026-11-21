@@ -6,6 +6,7 @@ import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.CombatGeometry;
 import dev.jayms.combat.CombatGeometry.PosePath;
 import dev.jayms.combat.arena.BasaltCourtyard;
+import dev.jayms.combat.arena.PracticeTerrain;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 
 import static dev.jayms.combat.CombatEngine.SPRINT_ATTACK_RETENTION;
@@ -49,10 +50,12 @@ final class ArenaMotionTimeline {
         boolean visible() { return fighter.health() > 0 || hurt > 0; }
     }
 
-    static final Arena TERRAIN = new Arena() {
-        @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
-        @Override public boolean contains(Vec3 feet) { return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z()); }
-    };
+    static final Arena TERRAIN = PracticeTerrain.COURTYARD;
+    private final Arena terrain;
+
+    ArenaMotionTimeline() { this(TERRAIN); }
+
+    ArenaMotionTimeline(Arena terrain) { this.terrain = terrain; }
 
     private record Cue(long tick, double received, long packetTick) {
         double age(Cursor cursor) {
@@ -248,9 +251,9 @@ final class ArenaMotionTimeline {
             if (latest.fighter.health() > 0 && latest.fighter.impulseTick() == latest.tick) {
                 Fighter f = latest.fighter;
                 Vec3 impulse = new Vec3(f.impulseX(), f.impulseY(), f.impulseZ());
-                Vec3 end = CombatGeometry.clipMovement(TERRAIN, id, latest.point, impulse);
+                Vec3 end = CombatGeometry.clipMovement(terrain, id, latest.point, impulse);
                 PosePath route = allowProjection(latest.point, end, factions)
-                        ? CombatGeometry.posePath(TERRAIN, latest.point, end, 1) : null;
+                        ? CombatGeometry.posePath(terrain, latest.point, end, 1) : null;
                 if (route != null && !latest.point.equals(end)) {
                     // A melee snapshot already shows the first upward step. Play that
                     // interval at real speed; only catch up faster when the lift is still pending.
@@ -293,8 +296,8 @@ final class ArenaMotionTimeline {
         if (reconciliation != null) {
             Vec3 candidate = visualPoint.add(reconciliation.offset.scale(correctionFactor));
             if (allowProjection(visualPoint, candidate, factions)
-                    && CombatGeometry.posePath(TERRAIN, visualPoint, candidate, 1) != null
-                    && (localVisualPoint == null || CombatGeometry.posePath(TERRAIN, localVisualPoint, candidate, 1) != null)) {
+                    && CombatGeometry.posePath(terrain, visualPoint, candidate, 1) != null
+                    && (localVisualPoint == null || CombatGeometry.posePath(terrain, localVisualPoint, candidate, 1) != null)) {
                 visualPoint = candidate;
             }
         }
@@ -333,8 +336,8 @@ final class ArenaMotionTimeline {
         Vec3 candidate = point.add(offset);
         Vec3 prior = localVisualPoint.add(sprintClickOffset);
         boolean safe = allowProjection(point, candidate, factions)
-                && CombatGeometry.posePath(TERRAIN, point, candidate, 1) != null
-                && CombatGeometry.posePath(TERRAIN, prior, candidate, 1) != null;
+                && CombatGeometry.posePath(terrain, point, candidate, 1) != null
+                && CombatGeometry.posePath(terrain, prior, candidate, 1) != null;
         sprintClickOffset = safe ? offset : NO_OFFSET;
         return safe ? candidate : point;
     }
@@ -377,7 +380,7 @@ final class ArenaMotionTimeline {
         }
         if (prior != null && fighter.hits() > prior.hits())
             track.hitMarker = new Cue(tick, anchorNanos / NANOS_PER_TICK, tick);
-        PosePath route = previous == null ? null : CombatGeometry.posePath(TERRAIN, previous.point, next, tick - previous.tick);
+        PosePath route = previous == null ? null : CombatGeometry.posePath(terrain, previous.point, next, tick - previous.tick);
         double stride = route == null ? 0 : previous.stride
                 + Math.hypot(next.x() - previous.point.x(), next.z() - previous.point.z()) * 2.5;
         long swing = fighter.swingTick();
