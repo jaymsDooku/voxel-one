@@ -1,6 +1,7 @@
 package dev.jayms.combat.practice;
 
 import dev.jayms.combat.CombatEngine;
+import dev.jayms.combat.CombatEngine.EventType;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.CombatGeometry;
@@ -17,6 +18,13 @@ import java.util.Set;
 import static org.junit.jupiter.api.Assertions.*;
 
 class SparringPartnerTest {
+    private static final CombatRules RULES = CombatRules.NO_DEBUFF;
+    private static final CombatEngine.Arena ARENA = new CombatEngine.Arena() {
+        @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
+        @Override public boolean contains(Vec3 point) { return BasaltCourtyard.contains(point.x(), point.y(), point.z()); }
+        @Override public boolean throwableSolid(int x, int y, int z) { return BasaltCourtyard.throwableSolid(x, y, z); }
+    };
+
     @Test void rejectsAnOverlapBehindTheBotEvenIfTheExpandedHitboxContainsItsEyes() {
         var eye = new Vec3(0, 73 + PlayerDimensions.EYE_HEIGHT, 0);
         var target = new Vec3(-.15, 73, 0);
@@ -29,7 +37,7 @@ class SparringPartnerTest {
 
     @Test void alignedInputVariesBetweenEightAndTenClicksAndStrafesBothWays() {
         var engine = trainingPair();
-        var partner = new SparringPartner(CombatRules.NO_DEBUFF.reach(), new Random(41));
+        var partner = new SparringPartner(RULES, ARENA, new Random(41));
         var bot = engine.snapshot(2);
         var player = engine.snapshot(1);
         var rates = new HashSet<Integer>();
@@ -51,7 +59,7 @@ class SparringPartnerTest {
 
     @Test void confirmedHitReleasesForwardForOneTickAndRearmsSprint() {
         var engine = trainingPair();
-        var partner = new SparringPartner(CombatRules.NO_DEBUFF.reach(), new Random(41));
+        var partner = new SparringPartner(RULES, ARENA, new Random(41));
         engine.submit(2, new Intent(1, 90, 0, 1, 0, false, true, true, false, 0));
         engine.tick();
         var bot = engine.snapshot(2);
@@ -63,6 +71,50 @@ class SparringPartnerTest {
         assertNotEquals(0, release.strafe(), "The bot can keep strafing through the W release");
         var repress = partner.input(3, bot, player);
         assertTrue(repress.forward() > 0 && repress.sprint());
+    }
+
+    @Test void savesPotionsUntilThereIsRoomForTheFullHeal() {
+        var engine = trainingPair();
+        var partner = new SparringPartner(RULES, ARENA, new Random(41));
+        assertTrue(engine.damage(0, 2, 7.5));
+        var input = partner.input(1, engine.snapshot(2), engine.snapshot(1));
+        assertEquals(0, input.slot());
+        assertFalse(input.use());
+    }
+
+    @Test void retreatsBeforePottingAndRunsIntoTheSplash(TestReporter reporter) {
+        var engine = trainingPair();
+        var partner = new SparringPartner(RULES, ARENA, new Random(41));
+        assertTrue(engine.damage(0, 2, 8));
+        assertTrue(engine.damage(0, 1, 8));
+        double startingHealth = engine.snapshot(2).health();
+        int throwsMade = 0;
+        long throwTick = -1;
+        for (int tick = 1; tick <= 24; tick++) {
+            var bot = engine.snapshot(2);
+            var player = engine.snapshot(1);
+            var input = partner.input(tick, bot, player);
+            if (input.use()) {
+                assertTrue(bot.grounded());
+                assertTrue(bot.feet().minus(player.feet()).length() >= 3,
+                        "The bot should open at least one block of space before throwing");
+                throwTick = tick;
+                throwsMade++;
+            }
+            assertTrue(engine.submit(2, input));
+            engine.tick(tick);
+            if (engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.SPLASH)) {
+                double recovered = engine.snapshot(2).health() - startingHealth;
+                double donated = engine.snapshot(1).health() - startingHealth;
+                assertEquals(1, throwsMade);
+                assertTrue(recovered >= 7, "Potions should recover at least 3.5 hearts. Observed " + recovered);
+                assertEquals(0, donated, "The injured opponent should be outside the splash");
+                reporter.publishEntry("Basalt Courtyard", "threw on tick " + throwTick + ", splashed on tick " + tick
+                        + ", restored " + recovered + " self HP and " + donated + " opponent HP");
+                return;
+            }
+        }
+        fail("The bot failed to land a healing potion");
     }
 
     @Test void opponentLandsHitsWithAlignedAimAndSkipsOutOfReachClicks(TestReporter reporter) {
@@ -104,10 +156,7 @@ class SparringPartnerTest {
     }
 
     private static CombatEngine trainingPair() {
-        var engine = new CombatEngine(CombatRules.NO_DEBUFF, new CombatEngine.Arena() {
-            @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
-            @Override public boolean contains(Vec3 point) { return BasaltCourtyard.contains(point.x(), point.y(), point.z()); }
-        });
+        var engine = new CombatEngine(RULES, ARENA);
         double floor = BasaltCourtyard.spawn(0).y();
         assertTrue(engine.join(1, new Vec3(0, floor, 1), -90));
         assertTrue(engine.join(2, new Vec3(0, floor, -1), 90));

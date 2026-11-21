@@ -122,7 +122,7 @@ public final class FactionMatch implements ArenaMatch {
         seasonPhase = state.phase();
         teams = state.teams().toArray(Team[]::new);
         accounts = new LinkedHashMap<>(state.members());
-        engine = new CombatEngine(CombatRules.DEBUFF, new CombatEngine.Arena() {
+        engine = new CombatEngine(CombatRules.FACTION, new CombatEngine.Arena() {
             @Override public boolean solid(int x, int y, int z) { return BasaltCourtyard.solid(x, y, z); }
             @Override public boolean contains(Vec3 feet) {
                 return BasaltCourtyard.contains(feet.x(), feet.y(), feet.z());
@@ -653,7 +653,7 @@ public final class FactionMatch implements ArenaMatch {
             loadRoleKit = true;
         }
         if (loadRoleKit) {
-            var kit = new ArrayList<>(CombatRules.DEBUFF.openingKit());
+            var kit = new ArrayList<>(CombatRules.FACTION.openingKit());
             if (seat.role == Role.ARCHER) {
                 kit.set(5, new Stack(Item.BOW, 1));
                 kit.set(6, new Stack(Item.ARROW, 32));

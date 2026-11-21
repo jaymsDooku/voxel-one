@@ -92,12 +92,12 @@ class CombatEngineTest {
         assertFalse(input(engine, 1, 1, 0, 0, 1.1f, false, true, false, 0));
         assertFalse(input(engine, 1, 1, 0, 0, 0, false, true, false, 36));
         engine.tick();
-        assertEquals(17.44, engine.snapshot(2).health(), .00001);
-        assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
+        assertEquals(18.5, engine.snapshot(2).health(), .00001);
+        assertEquals(List.of(199, 199, 199, 199), engine.snapshot(2).durability());
         assertEquals(1, engine.snapshot(1).stats().hits());
         assertTrue(input(engine, 1, 1, 0, 0, 0, false, true, false, 0));
         engine.tick();
-        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(1).stats().hits());
         assertTrue(engine.drainEvents().stream().anyMatch(event -> event.type() == EventType.SWING));
 
@@ -130,7 +130,7 @@ class CombatEngineTest {
             assertTrue(input(engine, 2, 1, 180, 0, 0, false, false, scenario != 1, scenario == 2 ? 5 : 0));
         }
         engine.tick();
-        assertEquals(initiallyBlocking && scenario != 4 ? 18.56 : 17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(initiallyBlocking && scenario != 4 ? 19.09 : 18.5, engine.snapshot(2).health(), .00001);
     }
 
     @ParameterizedTest
@@ -170,7 +170,7 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         assertTrue(input(engine, 1, 1, 90, 0, 0, false, false, false, 5));
         engine.tick();
-        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(90, engine.snapshot(1).yaw());
         assertEquals(5, engine.snapshot(1).slot());
     }
@@ -244,7 +244,7 @@ class CombatEngineTest {
         assertVector(new Vec3(NORMAL_PUSH, .3208, 0), engine.snapshot(2).velocity());
         input(engine, 1, 1, 0, 0, 1, true, true, false, 0);
         engine.tick();
-        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(2, engine.snapshot(2).impulseTick());
         double strongerLift = (.3208 - .08) * .98 + .10;
@@ -262,7 +262,7 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
         // Paper sword blocking also mitigates an attack from behind.
-        double initialHealth = 20 - (1 + 8) * .5 * .32;
+        double initialHealth = 19.09;
         assertEquals(initialHealth, engine.snapshot(2).health(), .00001);
         assertEquals(List.of(199, 199, 199, 199), engine.snapshot(2).durability());
 
@@ -276,7 +276,7 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 2, 0, 0, 0, false, false, true, 0));
         assertTrue(input(engine, 1, 2, 0, 0, 0, false, true, false, 0));
         engine.tick();
-        double extraRaw = 10.4; // Strength I adds 130% of the eight-point sword hit.
+        double extraRaw = CombatRules.NO_DEBUFF.swordDamage() * 1.3; // Strength I adds 130% of the raw sword hit.
         assertEquals(initialHealth - (1 + extraRaw) * .5 * .32, engine.snapshot(2).health(), .00001);
         assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
         assertEquals(1, engine.snapshot(2).hurtTick());
@@ -289,11 +289,11 @@ class CombatEngineTest {
         var engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);
         int second = 3 - first;
         for (int id : List.of(first, second)) {
-            assertTrue(engine.damage(0, id, 18));
+            assertTrue(engine.damage(0, id, 19));
             assertTrue(input(engine, id, 0, id == 1 ? 0 : 180, 0, 0, false, true, false, 0));
         }
         engine.tick();
-        assertEquals(2, engine.snapshot(first).health());
+        assertEquals(1, engine.snapshot(first).health());
         assertEquals(0, engine.snapshot(second).health());
         assertEquals(1, engine.snapshot(first).stats().hits());
         assertEquals(0, engine.snapshot(second).stats().hits());
@@ -306,8 +306,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 2, 0, 180, 0, 0, false, false, true, 0));
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
-        // Eight raw, 4.5 blocked, eight diamond chestplate points, then Resistance I.
-        assertEquals(17.552, engine.snapshot(2).health(), .00001);
+        // Blocking leaves 2.84375 raw, followed by chestplate mitigation and Resistance I.
+        assertEquals(18.453, engine.snapshot(2).health(), .00001);
         assertEquals(List.of(0, 0, 0, 0), engine.snapshot(2).durability());
     }
 
@@ -323,8 +323,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
         assertEquals(16, engine.snapshot(1).health());
-        // One poison damage grants immunity, so the sword's remaining seven raw points reach armor.
-        assertEquals(16.76, engine.snapshot(2).health(), .00001);
+        // One poison damage grants immunity, so the sword's remaining 3.6875 raw points reach armor.
+        assertEquals(17.82, engine.snapshot(2).health(), .00001);
         assertEquals(-1, engine.snapshot(2).impulseTick());
     }
 
@@ -510,8 +510,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 0, 0, 0, 1, true, true, false, 0));
         assertTrue(input(engine, 2, 0, 180, 0, 1, true, true, false, 0));
         engine.tick();
-        assertEquals(17.44, engine.snapshot(1).health(), .00001);
-        assertEquals(17.44, engine.snapshot(2).health(), .00001);
+        assertEquals(18.5, engine.snapshot(1).health(), .00001);
+        assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(-SPRINT_PUSH + .098, engine.snapshot(1).velocity().x(), .00001);
         assertEquals(SPRINT_PUSH * .6 - .098, engine.snapshot(2).velocity().x(), .00001);
         assertEquals(.4208, engine.snapshot(1).velocity().y(), .00001);
@@ -528,8 +528,8 @@ class CombatEngineTest {
         input(engine, 1, 1, 0, 0, 0, false, true, false, 0);
         input(engine, 2, 1, 180, 0, 0, false, true, false, 0);
         engine.tick();
-        assertEquals(16.16, engine.snapshot(1).health(), .00001);
-        assertEquals(16.16, engine.snapshot(2).health(), .00001);
+        assertEquals(17.75, engine.snapshot(1).health(), .00001);
+        assertEquals(17.75, engine.snapshot(2).health(), .00001);
         assertEquals(8, engine.snapshot(1).hurtTick());
         assertEquals(8, engine.snapshot(2).hurtTick());
         double expectedLift = .36 + (fallingSpeed - .08) * .98 * .5;
@@ -546,7 +546,7 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 1, 0, 0, 1, true, true, false, 0));
         engine.tick();
         assertTrue(engine.snapshot(1).velocity().y() < 0);
-        assertEquals(20 - 8 * 1.5 * .32, engine.snapshot(2).health(), .00001);
+        assertEquals(17.75, engine.snapshot(2).health(), .00001);
         assertFalse(engine.snapshot(1).sprinting());
         assertEquals(SPRINT_PUSH, engine.snapshot(2).velocity().x(), .00001);
     }
@@ -764,12 +764,13 @@ class CombatEngineTest {
         CombatEngine engine = new CombatEngine(CombatRules.NO_DEBUFF, wall, noSpread());
         assertTrue(engine.join(1, ORIGIN, 0));
         assertTrue(engine.join(2, new Vec3(1.5, 1, .5), 0));
+        assertTrue(engine.applyEffect(1, Effect.STRENGTH, 20));
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         assertTrue(input(engine, 2, 0, 0, 0, 0, false, false, true, 1));
         engine.tick();
 
         var landed = engine.snapshot(2);
-        assertEquals(17.44, landed.health(), .00001);
+        assertEquals(16.55, landed.health(), .00001);
         assertEquals(1, landed.motionEpoch());
         assertEquals(15, landed.inventory().get(1).count());
         assertEquals(-1, landed.impulseTick());
@@ -798,12 +799,12 @@ class CombatEngineTest {
         tick(engine, 8);
         assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
         engine.tick();
-        assertEquals(16.16, engine.snapshot(2).health(), .00001);
+        assertEquals(17.75, engine.snapshot(2).health(), .00001);
         for (int i = 0; i < 9 && !engine.snapshot(2).grounded(); i++) engine.tick();
 
         var landed = engine.snapshot(2);
         assertTrue(landed.grounded());
-        assertEquals(16.16, landed.health(), .00001);
+        assertEquals(17.75, landed.health(), .00001);
         assertEquals(9, landed.hurtTick());
         assertEquals(9, landed.impulseTick());
     }

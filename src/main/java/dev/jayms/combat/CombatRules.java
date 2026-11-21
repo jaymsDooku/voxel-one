@@ -21,13 +21,18 @@ public record CombatRules(
     private static final double NORMAL_PUSH = .211457;
     private static final double SPRINT_BONUS = .562670 - NORMAL_PUSH;
     private static final double PROJECTILE_PUSH = .40;
+    private static final double ARENA_ARMOR_REDUCTION = .68;
+    // A full practice kit absorbs 68%. One heart is two health points.
+    private static final double PRACTICE_SWORD_DAMAGE = 1.5 / (1 - ARENA_ARMOR_REDUCTION);
 
-    public static final CombatRules NO_DEBUFF = new CombatRules(
-            false, 3.0, 10, 8.0, 0.68, NORMAL_PUSH, SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0,
-            320, 5.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
-    public static final CombatRules DEBUFF = new CombatRules(
-            true, 3.0, 10, 8.0, 0.68, NORMAL_PUSH, SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0,
-            320, 5.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
+    public static final CombatRules NO_DEBUFF = arena(false, PRACTICE_SWORD_DAMAGE);
+    public static final CombatRules DEBUFF = arena(true, PRACTICE_SWORD_DAMAGE);
+    public static final CombatRules FACTION = arena(true, 8.0);
+
+    private static CombatRules arena(boolean debuffs, double swordDamage) {
+        return new CombatRules(debuffs, 3.0, 10, swordDamage, ARENA_ARMOR_REDUCTION, NORMAL_PUSH,
+                SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0, 320, 5.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
+    }
 
     /** Existing custom rules use the same base push for melee and projectile hits. */
     public CombatRules(boolean debuffs, double reach, int hurtTicks, double swordDamage, double armorReduction,

@@ -846,25 +846,32 @@ public final class PracticeGame {
     };
 
     private static void drawHealthHearts(Overlay ui, float x, float y, float health) {
-        int halfHearts = (int) Math.ceil(Math.max(0, Math.min(20, health)));
         for (int heart = 0; heart < 10; heart++) {
-            int fill = halfHearts - 2 * heart;
+            float fill = Math.max(0, Math.min(1, (health - 2 * heart) / 2));
+            float rightEdge = .5f + fill * (HEART[0].length() - 1);
             for (int row = 0; row < HEART.length; row++) {
                 for (int col = 0; col < HEART[row].length(); col++) {
                     char pixel = HEART[row].charAt(col);
                     if (pixel == '.') continue;
-                    boolean filled = fill >= 2 || fill == 1 && col < 5;
-                    int rgb = switch (pixel) {
-                        case 'o' -> 0x576276;
-                        case 'h' -> filled ? 0xffa39c : 0x303d50;
-                        case 'd' -> filled ? 0xa9253e : 0x172330;
-                        default -> filled ? 0xec4558 : 0x233142;
-                    };
-                    ui.rectangle(x + 21 * heart + 2 * col, y + 2 * row, 2, 2, ((rgb >>> 16) & 255) / 255f,
-                            ((rgb >>> 8) & 255) / 255f, (rgb & 255) / 255f, 1);
+                    float left = x + 21 * heart + 2 * col;
+                    float top = y + 2 * row;
+                    if (pixel == 'o') {
+                        heartPixel(ui, left, top, 2, 0x576276);
+                        continue;
+                    }
+                    float filled = 2 * Math.max(0, Math.min(1, rightEdge - col));
+                    int empty = pixel == 'h' ? 0x303d50 : pixel == 'd' ? 0x172330 : 0x233142;
+                    int full = pixel == 'h' ? 0xffa39c : pixel == 'd' ? 0xa9253e : 0xec4558;
+                    if (filled > 0) heartPixel(ui, left, top, filled, full);
+                    if (filled < 2) heartPixel(ui, left + filled, top, 2 - filled, empty);
                 }
             }
         }
+    }
+
+    private static void heartPixel(Overlay ui, float x, float y, float width, int rgb) {
+        ui.rectangle(x, y, width, 2, ((rgb >>> 16) & 255) / 255f, ((rgb >>> 8) & 255) / 255f,
+                (rgb & 255) / 255f, 1);
     }
 
     private void drawInventory(Overlay ui) {
