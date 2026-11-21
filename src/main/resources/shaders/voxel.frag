@@ -15,62 +15,20 @@ uniform sampler2DArray uShadow;
 uniform sampler2DArray uMaterials;
 uniform mat4 uShadowMatrix[3];
 uniform int uTransportReady,uClusterReady,uProbeReady;
-uniform vec3 uProbeCenter;
-uniform samplerCube uReflectionProbe;
+uniform vec3 uProbeCenter,uPreviousProbeCenter;
+uniform samplerCube uReflectionProbe,uPreviousReflectionProbe;
+uniform int uPreviousProbeReady;
+uniform float uProbeBlend;
 uniform vec3 uClusterOrigin;
 uniform isampler3D uClusters;
 uniform isamplerBuffer uLightIndices;
 uniform samplerBuffer uLights;
-uniform sampler3D uVoxelRadiance,uDistanceField,uCascadeProbes[3];
+// Level zero already contains irradiance integrated from all three cascade intervals.
+uniform sampler3D uVoxelRadiance,uDistanceField,uCascadeProbes[1];
 const float PI=3.14159265;
-vec2 disk(int i,int count){float angle=float(i)*2.39996323;return vec2(cos(angle),sin(angle))*sqrt((float(i)+.5)/float(count));}
-vec2 receiverDepthGradient(mat3 worldToShadow,vec3 normal){
-    // Cofactors transform the geometric plane normal into orthographic shadow space.
-    // Its plane equation gives the change in receiver depth per unit of shadow UV.
-    vec3 plane=cross(worldToShadow[1],worldToShadow[2])*normal.x
-              +cross(worldToShadow[2],worldToShadow[0])*normal.y
-              +cross(worldToShadow[0],worldToShadow[1])*normal.z;
-    if(abs(plane.z)<=1e-5*length(plane))return vec2(0.);
-    return -plane.xy/plane.z;
-}
-float shadowDepthGap(int layer,vec3 receiver,vec2 gradient,vec2 offset,ivec2 size){
-    ivec2 tap=clamp(ivec2(floor(receiver.xy+offset)),ivec2(0),size-1);
-    vec2 center=vec2(tap)+.5;
-    float expected=clamp(receiver.z+dot(center-receiver.xy,gradient),0.,1.);
-    return expected-texelFetch(uShadow,ivec3(tap,layer),0).r;
-}
-float cascadeShadow(int layer,vec3 q,vec3 normal,float bias){
-    ivec2 size=textureSize(uShadow,0).xy;
-    vec2 gradient=receiverDepthGradient(mat3(uShadowMatrix[layer]),normal)/vec2(size);
-    q.xy*=vec2(size);
-    float gap=0.,count=0.;
-    for(int i=0;i<8;i++){
-        float depthGap=shadowDepthGap(layer,q,gradient,disk(i,8)*5.,size);
-        if(depthGap>bias){gap+=depthGap;count++;}}
-    if(count==0.)return 1.;
-    gap/=count;
-    float radius=clamp(gap/max(.001,q.z-gap)*70.,1.,8.);
-    float visible=0.;for(int i=0;i<16;i++)
-        visible+=shadowDepthGap(layer,q,gradient,disk(i,16)*radius,size)<=bias?1.:0.;
-    return visible/16.;
-}
-float shadowAt(vec3 worldPoint,vec3 N,vec3 L){
-    if(uShadowEnabled==0||uHeld==1)return 1.;
-    for(int layer=0;layer<uShadowCascades;layer++){
-        vec4 p=uShadowMatrix[layer]*vec4(worldPoint,1);vec3 q=p.xyz/p.w*.5+.5;
-        if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))continue;
-        float bias=max(.00012*(1.-dot(N,L)),.00004);
-        float result=cascadeShadow(layer,q,N,bias);
-        float edge=max(abs(q.x-.5),abs(q.y-.5))*2.;
-        if(layer<uShadowCascades-1&&edge>.8){vec4 p2=uShadowMatrix[layer+1]*vec4(worldPoint,1);vec3 q2=p2.xyz/p2.w*.5+.5;
-            result=mix(result,cascadeShadow(layer+1,q2,N,bias),smoothstep(.8,.97,edge));}
-        return result;
-    }
-    return 1.;
-}
+#include "shaders/sun-shadow.glsl"
 #include "shaders/irradiance.glsl"
 #include "shaders/preview-wall-sky.glsl"
-float shadow(vec3 N,vec3 L){return shadowAt(vWorldPosition,N,L);}
 vec2 atmosphereVisibility(vec3 point){
     if(uPlanetLighting==0)return vec2(1);
     if(uHasIrradiance==0&&uSkyColumns==0)return vec2(0);
@@ -139,6 +97,15 @@ vec3 probeIrradiance(vec3 p,vec3 N){
     }
     return total/max(.1,weight);
 }
+vec3 localReflection(samplerCube probe,vec3 center,vec3 direction,float lod,vec3 sky){
+    vec3 offset=vWorldPosition-center;
+    float distance=max(abs(offset.x),max(abs(offset.y),abs(offset.z)));
+    if(distance>=32.)return sky;
+    vec3 times=(sign(direction)*32.-offset)/mix(vec3(1.),direction,greaterThan(abs(direction),vec3(.0001)));
+    times=mix(vec3(1.e20),times,greaterThan(abs(direction),vec3(.0001)));
+    vec3 corrected=offset+direction*min(times.x,min(times.y,times.z));
+    return mix(textureLod(probe,corrected,lod).rgb,sky,smoothstep(24.,32.,distance));
+}
 void main(){
     if(vSurface.z==-2.)discard;
     vec3 geometricNormal=normalize(vNormal),N=geometricNormal,L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
@@ -162,11 +129,17 @@ void main(){
     float skyVisibility=uPlanetLighting==1&&uHeld==0?0.:1.;
     if(uPlanetLighting==1&&uHeld==0)indirect=vec3(0);
     if(uHasIrradiance==1||(uPlanetLighting==1&&uHeld==0&&uSkyColumns>0)){vec4 lighting=irradiance(point);indirect=lighting.rgb;skyVisibility=lighting.a;}
+    bool shadowCovered;
+    float sunShadow=shadowAt(vWorldPosition,geometricNormal,L,shadowCovered);
+    float sunVisibility=sunShadow*skyVisibility;
+    vec3 landmarkAmbient=vec3(0);
     if(uPlanetLighting==1&&uHeld==0){
         // Coarse mip radiance approximates diffuse sky; visibility uses exact voxel transport.
         // Inspection fill follows the surface consistently as the local volume moves.
+        bool previewTop=uBuildingPreview==1&&geometricNormal.y>.999&&inPreviewBounds(point);
         if(uBuildingPreview==1){
-            indirect+=vec3(.048,.046,.042);
+            vec3 fill=vec3(.048,.046,.042);
+            if(previewTop)landmarkAmbient=fill;else indirect+=fill;
             skyVisibility=max(skyVisibility,previewSideExposure(point,geometricNormal));
             skyVisibility=previewWallSky(point,geometricNormal,skyVisibility);
             if(skyVisibility==0.&&!inPreviewBounds(point)&&(uHasIrradiance==0||!volumeInside(point))
@@ -174,9 +147,22 @@ void main(){
         }
         vec3 skyDiffuse=textureLod(uEnvironment,N,7.).rgb;
         float diffuseVisibility=skyVisibility;
-        if(uBuildingPreview==1 && skyVisibility<1. && inPreviewBounds(point))
-            diffuseVisibility=max(skyVisibility,previewCourtyardSky(point,geometricNormal));
-        indirect+=skyDiffuse*diffuseVisibility;
+        sunVisibility=sunShadow*skyVisibility;
+        if(uBuildingPreview==1 && skyVisibility<1. && inPreviewBounds(point)){
+            if(geometricNormal.y>.999){
+                vec2 ledge=previewLedgeVisibility(point,skyVisibility,sunShadow,shadowCovered);
+                sunVisibility=ledge.x;diffuseVisibility=ledge.y;
+            }else diffuseVisibility=max(skyVisibility,previewCourtyardSky(point,geometricNormal));
+        }
+        if(previewTop){
+            if(uVoxelAO==1&&skyVisibility>=1.){
+                // Cosine-weight the zenith and the four baked sky directions
+                // (one block of rise per two across) on an open top face.
+                float inclinedWeight=4.*inversesqrt(5.);
+                diffuseVisibility=(1.+inclinedWeight*previewLedgeOpening(point))/(1.+inclinedWeight);
+            }
+            landmarkAmbient+=skyDiffuse*diffuseVisibility;
+        }else indirect+=skyDiffuse*diffuseVisibility;
     }
     float sdfVisibility=1.;
     if(uTransportReady==1&&uHeld==0&&volumeInside(point)){
@@ -190,16 +176,20 @@ void main(){
         indirect+=cones*.025+(uLocalReflection==1?probeIrradiance(point,N)*.08:vec3(0));}
         if(uContactTransport==1)sdfVisibility=distanceShadow(point+N*.6,L);
     }
+    // Landmark sky already includes stable geometric occlusion. Only local
+    // irradiance on a ledge depends on the camera's moving transport field.
+    indirect+=landmarkAmbient;
     vec3 V=uHeld==1?normalize(-vWorldPosition):normalize(uCameraPosition-vWorldPosition);
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
     vec3 reflection=uLocalReflection==1?textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.):vec3(0);
-    if(uLocalReflection==1&&uProbeReady==1&&uHeld==0&&all(lessThan(abs(vWorldPosition-uProbeCenter),vec3(32)))){
-        vec3 direction=reflect(-V,N),safe=sign(direction)*max(abs(direction),vec3(.0001));
-        vec3 bounds=uProbeCenter+sign(direction)*32.;vec3 times=(bounds-vWorldPosition)/safe;
-        float t=min(times.x,min(times.y,times.z));vec3 corrected=vWorldPosition+direction*t-uProbeCenter;
-        float weight=1.-smoothstep(24.,32.,max(abs(vWorldPosition.x-uProbeCenter.x),max(abs(vWorldPosition.y-uProbeCenter.y),abs(vWorldPosition.z-uProbeCenter.z))));
-        reflection=mix(reflection,textureLod(uReflectionProbe,corrected,rough*6.).rgb,weight);
+    if(uLocalReflection==1&&uProbeReady==1&&uHeld==0){
+        vec3 direction=reflect(-V,N);
+        vec3 current=localReflection(uReflectionProbe,uProbeCenter,direction,rough*6.,reflection);
+        if(uProbeBlend<1.){
+            vec3 previous=uPreviousProbeReady==1?localReflection(uPreviousReflectionProbe,uPreviousProbeCenter,direction,rough*6.,reflection):reflection;
+            reflection=mix(previous,current,uProbeBlend);
+        }else reflection=current;
     }
     float emission=uModelEmission+(uVertexColor==1?vSurface.x:0.);
     rough=clamp(rough,.08,1.);vec3 H=normalize(V+L);
@@ -211,7 +201,8 @@ void main(){
     vec3 Fs=vec3(.04)+vec3(.96)*pow(1.-max(dot(H,V),0.),5.);
     vec3 brdf=(1.-Fs)*albedo/PI+D*G*Fs/max(.001,4.*NoL*NoV);
     vec3 solar=uPlanetLighting==1&&uHeld==0?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera):vec3(4.5,4.14,3.45)*uDaylight;
-    vec3 color=albedo*indirect+brdf*solar*NoL*shadow(geometricNormal,L)*sdfVisibility*skyVisibility
+    vec3 direct=brdf*solar*NoL*sdfVisibility*sunVisibility;
+    vec3 color=albedo*indirect+direct
         +reflection*F*(1.-rough*.65)*(uPlanetLighting==1&&uHeld==0?1.:skyVisibility)+albedo*emission;
     if(uClusterReady==1&&uHeld==0){
         ivec3 cluster=ivec3(floor((vWorldPosition-uClusterOrigin)/8.));
@@ -227,9 +218,16 @@ void main(){
         }
     }
     if(uFog==1&&uHeld==0){
-        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;
+        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;direct*=t;
     }
 
     if(uOutputTone==1){vec3 x=color*uOutputExposure;color=pow(clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.),vec3(1./2.2));}
-    fragColor=vec4(color,1.-uTransparency);
+    float outputAlpha=1.-uTransparency;
+    if(uBuildingPreview==1&&uPlanetLighting==1&&uHeld==0&&uTransparency==0.){
+        // In opaque preview pixels HDR alpha carries the fraction of light
+        // that a contact shadow can remove. Blended draws need their opacity.
+        const vec3 luma=vec3(.2126,.7152,.0722);
+        outputAlpha=clamp(dot(direct,luma)/max(.00001,dot(color,luma)),0.,1.);
+    }
+    fragColor=vec4(color,outputAlpha);
 }

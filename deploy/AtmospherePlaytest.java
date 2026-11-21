@@ -212,15 +212,24 @@ public class AtmospherePlaytest {
     static void lifecycleCheck()throws Exception {
         var atmosphere=new PlanetAtmosphere();Vector3f camera=new Vector3f(8,30,24),sun=new Vector3f(.45f,.78f,-.45f).normalize();
         atmosphere.update(camera,sun);require(atmosphere.initialized(),"Bootstrap initialized");
+        require(!atmosphere.viewOnlyPublication(),"Bootstrap has no prior lighting history");
         int initial=(int)field(atmosphere,"trans");long revision=atmosphere.staticRevision;
-        atmosphere.update(camera,new Vector3f(1,1,0).normalize());
+        camera.y+=8;
+        long originalSky=atmosphere.revision;
+        for(int i=0;i<80&&atmosphere.revision==originalSky;i++)atmosphere.update(camera,sun);
+        require(atmosphere.revision>originalSky&&atmosphere.viewOnlyPublication(),"Fixed-sun altitude change preserves lighting history");
+        Vector3f changedSun=new Vector3f(1,1,0).normalize();
+        atmosphere.update(camera,changedSun);
         require(atmosphere.rebuilding(),"Sun change starts view rebuild");
+        for(int i=0;i<80&&atmosphere.rebuilding();i++)atmosphere.update(camera,changedSun);
+        require(!atmosphere.rebuilding()&&!atmosphere.viewOnlyPublication(),"Sunlight change invalidates lighting history");
         require((int)field(atmosphere,"trans")==initial&&atmosphere.staticRevision==revision,"Sun reuses static tables");
         atmosphere.profile(AtmosphereConfig.hazy());atmosphere.update(camera,sun);
         require((int)field(atmosphere,"trans")==initial&&glIsTexture(initial),"Old initialized atlas retained during rebuild");
         atmosphere.profile(AtmosphereConfig.thin());
         int frames=0;do {atmosphere.update(camera,sun);require(atmosphere.lastRowsSubmitted<=PlanetAtmosphere.Quality.LOW.rows,"Row work bounded after bootstrap");}while(atmosphere.rebuilding()&&frames++<160);
         require(!atmosphere.rebuilding()&&atmosphere.config().equals(AtmosphereConfig.thin()),"Rapid profile change cancels and publishes latest complete output");
+        require(!atmosphere.viewOnlyPublication(),"Atmosphere profile change invalidates lighting history");
         require(!glIsTexture(initial),"Replaced atlas deleted");
         int atlas=(int)field(atmosphere,"trans"),sky=(int)field(atmosphere,"sky");
         atmosphere.close();require(!glIsTexture(atlas)&&!glIsTexture(sky),"Close deletes active textures");
@@ -316,6 +325,25 @@ public class AtmospherePlaytest {
                 box SAND 80 16 112 144 120 160
                 box AIR 81 17 113 143 119 159
                 box SAND 48 112 80 176 128 192
+                # A lower projecting course has four exposed top faces beneath
+                # the upper cornice. Leave the hollow shaft's floor untouched.
+                box SAND 48 24 80 80 32 192
+                box SAND 144 24 80 176 32 192
+                box SAND 80 24 80 144 32 112
+                box SAND 80 24 160 144 32 192
+                # A sill and lintel project in front of a recessed window.
+                box STONE 192 16 16 240 24 72
+                box WOOD 192 24 64 240 96 72
+                box STONE 192 88 16 240 96 72
+                # A thin vertical bar in front of one part of the sill.
+                box STONE 224 24 40 225 88 41
+                # Glass above one patch of the uppermost, open terrace.
+                box GLASS 162 144 88 164 146 90
+                # Covered floor reached by oblique sun through a side opening.
+                # From the sample point none of the four axial sky views can see it.
+                box SAND 8 16 192 72 104 256
+                box AIR 10 20 194 70 102 254
+                box AIR 68 32 233 72 64 248
                 box STONE 145 48 144 146 64 152
                 box GLASS 145 64 144 146 80 152
                 box STONE 40 48 16 42 49 18
@@ -350,8 +378,13 @@ public class AtmospherePlaytest {
     private static void checkWallSamples(Path evidence,Chunk chunk)throws Exception {
         var offset=new Vector3f(-16,32,16);
         var upper=new Vector3f(offset).add(16,10,16);
+        // The west cornice and window sill look out across the chunk boundary.
+        // Model those two neighboring outdoor tiles as known, empty geometry.
+        var empty=new dev.jayms.net.model.SparseVoxelOctree(256);
         var sky=WorldSkyVisibility.build(new WorldSkyVisibility.Input(
-                java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(-1,2,1),chunk.snapshot())),
+                java.util.List.of(new WorldSkyVisibility.Geometry(new ChunkPos(-1,2,1),chunk.snapshot()),
+                        new WorldSkyVisibility.Geometry(new ChunkPos(-2,2,1),empty),
+                        new WorldSkyVisibility.Geometry(new ChunkPos(-1,2,0),empty)),
                 java.util.List.of(),new dev.jayms.net.model.ModelLibrary(),true));
         int width=64,height=(sky.data.length+width-1)/width;
         int atlas=glGenTextures(),fbo=glGenFramebuffers(),pixelTexture=glGenTextures(),vao=glGenVertexArrays();
@@ -439,6 +472,9 @@ public class AtmospherePlaytest {
             }
             Files.writeString(evidence.resolve("preview-wall-coverage.txt"),report);
             System.out.print(report);
+            try(var shadow=new ShaderProgram("shaders/shadow.vert","shaders/shadow.frag")){
+                checkLedgeSamples(evidence,new LedgeProbe(probe,shadow,chunk,offset,sideTexture,depthFbo,fbo,vao));
+            }
         }finally{
             glDeleteTextures(sideTexture);glDeleteFramebuffers(depthFbo);
             glDeleteTextures(atlas);glDeleteTextures(pixelTexture);glDeleteFramebuffers(fbo);glDeleteVertexArrays(vao);
@@ -453,6 +489,119 @@ public class AtmospherePlaytest {
         glReadPixels(0,0,1,1,GL_RGBA,GL_FLOAT,pixel);
         require(glGetError()==GL_NO_ERROR,"Wall GPU readback");
         return pixel;
+    }
+
+    private static void checkLedgeSamples(Path evidence,LedgeProbe lighting)throws Exception {
+        record Ledge(String name,float x,float y,float z,int outwardX,int outwardZ){}
+        var ledges=java.util.List.of(
+                new Ledge("East cornice",10.5f,2.001f,8,1,0),
+                new Ledge("West cornice",3.5f,2.001f,8,-1,0),
+                new Ledge("South cornice",7,2.001f,11.5f,0,1),
+                new Ledge("North cornice",7,2.001f,5.5f,0,-1),
+                new Ledge("Window sill",13.5f,1.501f,3.5f,0,-1));
+        var report=new StringBuilder(System.getProperty("os.name")+" / "+glGetString(GL_RENDERER)+"\n");
+        lighting.probe.setInt("uTestLedge",1);
+        for(var ledge:ledges){
+            Vector3f sun=new Vector3f(ledge.outwardX(),1,ledge.outwardZ()).normalize();
+            float[] slanted=lighting.sample(ledge.x(),ledge.y(),ledge.z(),sun);
+            float[] upright=lighting.sample(ledge.x(),ledge.y(),ledge.z(),new Vector3f(0,1,0));
+            float[] intoWall=lighting.sample(ledge.x(),ledge.y(),ledge.z(),
+                    new Vector3f(-sun.x,sun.y,-sun.z));
+            report.append(ledge.name()).append(" zenith=").append(slanted[0]).append(" diffuse=").append(slanted[2])
+                    .append(" slantedSun=").append(slanted[1]).append(" verticalSun=").append(upright[1])
+                    .append(" sunBehindWall=").append(intoWall[1]).append('\n');
+            require(slanted[0]<.001f && slanted[1]>.75f && slanted[2]>.12f
+                    && upright[1]<.001f && intoWall[1]<.001f
+                    && Math.abs(slanted[2]-upright[2])<.001f,report.toString());
+        }
+        // These rays run 1/8 block apart, either intersecting or clearing the 1/16-block bar.
+        Vector3f slantedSun=new Vector3f(0,1,-1).normalize();
+        float blocked=lighting.sample(14.03125f,1.501f,3.5f,slantedSun)[1];
+        float clear=lighting.sample(13.90625f,1.501f,3.5f,slantedSun)[1];
+        report.append("Sill direct sun behind/beside thin bar ").append(blocked).append('/').append(clear).append('\n');
+        require(blocked<.001f && clear>.75f,report.toString());
+        Vector3f diagonalSun=new Vector3f(.5f,1,-1).normalize();
+        float diagonalBlocked=lighting.sample(13.55f,1.501f,3.5f,diagonalSun)[1];
+        float diagonalClear=lighting.sample(13.75f,1.501f,3.5f,diagonalSun)[1];
+        lighting.probe.setMatrix4("uShadowMatrix[0]",new Matrix4f().translation(10000,0,0));
+        float[] missingCascade=wallSample(lighting.probe,lighting.origin,13.5f,1.501f,3.5f,0,0);
+        float[] disabled=lighting.sample(13.5f,1.501f,3.5f,new Vector3f());
+        report.append("Diagonal sill rays behind/beside thin bar ").append(diagonalBlocked).append('/').append(diagonalClear)
+                .append(", missing cascade direct/diffuse ").append(missingCascade[1]).append('/').append(missingCascade[2]).append('\n');
+        require(diagonalBlocked<.001f && diagonalClear>.75f && missingCascade[1]<.001f && missingCascade[2]>.12f
+                && missingCascade[3]==0 && disabled[1]<.001f && disabled[2]>.12f && disabled[3]==0,report.toString());
+        float[] open=lighting.sample(10.5f,8.001f,8,new Vector3f(0,1,0));
+        float[] enclosed=lighting.sample(7,1.0635f,8,new Vector3f(1,1,0).normalize());
+        float[] glass=lighting.sample(10.1875f,8.001f,5.5625f,new Vector3f(0,1,0));
+        report.append("Uppermost ledge zenith/direct/diffuse ").append(java.util.Arrays.toString(open)).append('\n')
+                .append("Enclosed shaft floor zenith/direct/diffuse ").append(java.util.Arrays.toString(enclosed)).append('\n')
+                .append("Ledge below glass zenith/direct/diffuse ").append(java.util.Arrays.toString(glass)).append('\n');
+        require(open[0]>.99f && open[1]>.99f && open[2]>.99f
+                && enclosed[0]<.001f && enclosed[1]<.001f && enclosed[2]<.001f,report.toString());
+        require(Math.abs(glass[0]-.7f)<.001f && Math.abs(glass[1]-.7f)<.001f && Math.abs(glass[2]-.7f)<.001f,
+                report.toString());
+        lighting.checkLandmarkCascade(report);
+        System.out.print(report);
+        Files.writeString(evidence.resolve("preview-ledge-coverage.txt"),report);
+    }
+
+    private record LedgeProbe(ShaderProgram probe,ShaderProgram shadow,Chunk chunk,Vector3f origin,
+                              int texture,int depthFbo,int colorFbo,int vao){
+        float[] sample(float x,float y,float z,Vector3f sun){
+            boolean enabled=sun.lengthSquared()>0;
+            // A 16-block span at 512 pixels matches a 64-block near cascade at 2048 pixels.
+            if(enabled)renderCascade(0,new Vector3f(origin).add(x,y,z),sun,8,384);
+            probe.setInt("uShadowEnabled",enabled?1:0);
+            probe.setInt("uShadowCascades",1);
+            probe.setVector3("uTestSun",sun.x,sun.y,sun.z);
+            return wallSample(probe,origin,x,y,z,0,0);
+        }
+
+        void renderCascade(int layer,Vector3f center,Vector3f sun,float extent,float eyeDistance){
+            Vector3f up=Math.abs(sun.y)>.98f?new Vector3f(0,0,1):new Vector3f(0,1,0);
+            Matrix4f view=new Matrix4f().lookAt(new Vector3f(center).fma(eyeDistance,sun),center,up);
+            Matrix4f projection=new Matrix4f().ortho(-extent,extent,-extent,extent,1,eyeDistance*2);
+            glBindFramebuffer(GL_FRAMEBUFFER,depthFbo);
+            glFramebufferTextureLayer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,texture,0,layer);
+            glViewport(0,0,512,512);
+            glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);
+            glClear(GL_DEPTH_BUFFER_BIT);
+            shadow.bind();
+            shadow.setMatrix4("uProjection",projection);
+            shadow.setMatrix4("uView",view);
+            shadow.setMatrix4("uModel",new Matrix4f().translation(origin));
+            chunk.getMesh().render();
+            glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);
+            glBindFramebuffer(GL_FRAMEBUFFER,colorFbo);
+            glBindVertexArray(vao);
+            glViewport(0,0,1,1);
+            probe.bind();
+            probe.setMatrix4("uShadowMatrix["+layer+"]",projection.mul(view));
+        }
+
+        void checkLandmarkCascade(StringBuilder report){
+            Vector3f receiver=new Vector3f(origin).add(2.5f,1.251f,13.5f);
+            Vector3f landmarkCenter=new Vector3f(origin).add(8,5,8);
+            probe.setInt("uShadowEnabled",1);
+            for(boolean throughWindow:new boolean[]{true,false}){
+                Vector3f sun=throughWindow?new Vector3f(1,.7f,.7f).normalize():new Vector3f(0,1,0);
+                // Limit the near depth range so the ceiling can only appear in the far map.
+                renderCascade(0,receiver,sun,8,2.5f);
+                renderCascade(1,landmarkCenter,sun,16,32);
+                probe.setVector3("uTestSun",sun.x,sun.y,sun.z);
+                probe.setInt("uShadowCascades",1);
+                float near=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0)[1];
+                probe.setInt("uShadowCascades",2);
+                float[] both=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0);
+                probe.setMatrix4("uShadowMatrix[1]",new Matrix4f().translation(10000,0,0));
+                float missing=wallSample(probe,origin,2.5f,1.251f,13.5f,0,0)[1];
+                report.append(throughWindow?"Diagonal sun through side opening":"Vertical sun blocked by ceiling")
+                        .append(" near=").append(near).append(" near+landmark=").append(both[1])
+                        .append(" missing landmark=").append(missing).append(" diffuse=").append(both[2]).append('\n');
+                require(near>.99f && Math.abs(both[1]-(throughWindow?1:0))<.001f && missing<.001f
+                        && both[0]<.001f && both[2]<.001f,report.toString());
+            }
+        }
     }
 
     public static void main(String[] args)throws Exception {
@@ -483,7 +632,7 @@ public class AtmospherePlaytest {
             require(mean(noon)>mean(night)+5,"Noon sky brighter than night at fixed exposure");
             report.append("16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error "+transmittanceReferenceCheck(renderer)+" <= 0.035. Readback used only for correctness, not performance.\n");
             report.append("9 GPU multiple-scattering texels / 27 RGB components compared with 256-direction closure at 256 view/sun samples; normalized error "+multipleReferenceCheck(renderer)+" <= 0.25. Approximation tolerance, not full transport parity.\n");
-            lifecycleCheck();report.append("Lifecycle: static sun reuse, retained initialized atlas, rapid profile cancellation, per-frame row limits and texture cleanup passed.\n");
+            lifecycleCheck();report.append("Lifecycle: camera-only sky publication, sunlight and profile invalidation, static atlas reuse, rapid profile cancellation, row limits and texture cleanup passed.\n");
             renderer.time(new GameConfig(false,true,1200,12),0);
             for(float altitude:new float[]{8000,90000,120000}) {
                 eye.y=24+altitude;var image=settled(renderer,shader,world,eye,false,false);ImageIO.write(image,"png",evidence.resolve("atmosphere-altitude-"+(int)altitude+".png").toFile());

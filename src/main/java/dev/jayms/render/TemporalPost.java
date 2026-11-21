@@ -8,7 +8,7 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Depth-reprojected HDR history and temporal upscaling. UI is drawn after this pass. */
 public final class TemporalPost implements AutoCloseable {
-    public boolean atmosphereComposed;
+    public boolean atmosphereComposed, previewContactWeight;
     private final ShaderProgram effects = new ShaderProgram("shaders/fullscreen.vert", "shaders/effects.frag");
     private final ShaderProgram tone = new ShaderProgram("shaders/fullscreen.vert", "shaders/tonemap.frag");
     private final int vao = glGenVertexArrays(), lutTexture = glGenTextures();
@@ -110,6 +110,7 @@ public final class TemporalPost implements AutoCloseable {
         effects.setInt("uFrame", settings.taa ? frame : 0); effects.setInt("uTAA", settings.taa && valid ? 1 : 0);
         effects.setInt("uAO", settings.ao ? 1 : 0);
         effects.setInt("uContact", settings.contactShadows ? 1 : 0);
+        effects.setInt("uPreviewContactWeight",previewContactWeight ? 1 : 0);
         effects.setInt("uSSR", settings.reflections ? 1 : 0);
         effects.setInt("uGI", settings.screenGi ? 1 : 0);
         effects.setInt("uVolume", settings.volumetrics && !atmosphereComposed ? 1 : 0);

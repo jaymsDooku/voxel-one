@@ -32,6 +32,8 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     private boolean facadeLighting;
     private boolean roofLighting;
     private boolean shaftShadow;
+    private boolean ledgeShadow;
+    private CorniceOrbit corniceOrbit;
     private PreviewFlickerPlaytest flicker;
     private DistantGridMotion distantGrid;
     private int clockFrames;
@@ -55,16 +57,26 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         probe.facadeLighting=probe.grand && args.length==3 && args[2].equals("facade-lighting");
         probe.roofLighting=probe.grand && args.length==3 && args[2].equals("roof-lighting");
         probe.shaftShadow=probe.grand && args.length==3 && args[2].equals("shaft-shadow");
+        probe.ledgeShadow=probe.grand && args.length==3 && args[2].equals("ledge-shadow");
+        if (probe.grand && args.length==3 && args[2].equals("cornice-orbit"))
+            probe.corniceOrbit=new CorniceOrbit();
         if(probe.grand && args.length==3 && args[2].equals("flicker")) probe.flicker=new PreviewFlickerPlaytest(output);
         if(probe.grand && args.length==3 && args[2].equals("distant-grid")) probe.distantGrid=new DistantGridMotion();
         probe.westminster=probe.grand || building.name().equals("westminster");
         game.run(probe);
-        if (probe.stage!=(probe.flicker!=null ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
+        if (probe.corniceOrbit!=null) {
+            if (Files.exists(output.resolve("unused.dat"))) throw new AssertionError("Orbit wrote a world save");
+            probe.corniceOrbit.verify(output);
+            return;
+        }
+        if (probe.stage!=(probe.flicker!=null || probe.ledgeShadow ? 4 : probe.westminster ? 3 : 2) || Files.exists(output.resolve("unused.dat")))
             throw new AssertionError("Preview did not finish or wrote a world save");
         if (probe.facadeLighting) checkTowerLighting(output);
         if (probe.roofLighting) checkRoofLighting(output);
         if (probe.shaftShadow) checkShaftShadow(output);
+        if (probe.ledgeShadow) checkLedgeLighting(output);
         Files.writeString(output.resolve("results.txt"),
+                probe.ledgeShadow ? "Captured stacked tower cornices and window sills on Elizabeth Tower and Westminster Hall at fixed daylight.\n" :
                 probe.shaftShadow ? "Captured the east and west sides of Elizabeth Tower and the approach at fixed daylight.\n" :
                 probe.roofLighting ? "Captured the sunlit central spire, slate dormers and stone facade at rest and in motion.\n" :
                 probe.distantGrid!=null ? "Captured the Palace grid at rest and over a cross-tile flight.\n" :
@@ -79,14 +91,20 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
     @Override public void started(Main game) throws Exception {
         world=(World)field("world").get(game);
         window=((Window)field("window").get(game)).getHandle();
-        if (roofLighting || shaftShadow) glfwSetWindowSize(window,1280,720);
+        if (roofLighting || shaftShadow || ledgeShadow || corniceOrbit!=null) glfwSetWindowSize(window,1280,720);
         else if (facadeLighting || flicker!=null || distantGrid!=null) glfwSetWindowSize(window,800,480);
         else glfwSetWindowSize(window,westminster ? 800 : 960,westminster ? 450 : 600);
         keys=glfwSetKeyCallback(window,null);
         glfwSetKeyCallback(window,keys);
         var cursor = glfwSetCursorPosCallback(window,null);
         if (cursor != null) cursor.free();
-        if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
+        if (ledgeShadow || corniceOrbit!=null) {
+            // A background test window must keep rendering the scene when focus shifts.
+            var focus=glfwSetWindowFocusCallback(window,null);
+            if (focus!=null) focus.free();
+            placeFlying(game,-47,109,37,0,-30);
+        }
+        else if (shaftShadow) placeFlying(game,56,59,-26,110,-6);
         else if (roofLighting) placeFlying(game,99,75,-8,57,-5);
         else if (clockLighting) placeFlying(game,49,77,-3,127,0);
         else if (grand) {
@@ -103,6 +121,24 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         long now=System.nanoTime();
         float dt=Math.min(.04f,(now-previous)/1_000_000_000f);
         previous=now;
+        if (corniceOrbit!=null) {
+            // Keep the approach and camera history leading into the suspect angle.
+            int angle=Math.max(0,clockFrames-35);
+            double azimuth=Math.toRadians((angle>CorniceOrbit.LAST ? CorniceOrbit.HOLD_ANGLE : angle)-90);
+            float x=17+39*(float)Math.cos(azimuth), z=39+39*(float)Math.sin(azimuth);
+            float y=98+5*(float)Math.sin(2*azimuth);
+            float yaw=(float)Math.toDegrees(Math.atan2(39-z,17-x));
+            float pitch=(float)Math.toDegrees(Math.atan2(75-y,39));
+            placeFlying(game,x,y-Player.EYE_HEIGHT,z,yaw,pitch);
+            return;
+        }
+        if (ledgeShadow) {
+            if (stage==1) {
+                float t=Math.min(1,(clockFrames+1)/80f);
+                placeFlying(game,-47+12*t,109-8*t,37+5*t,-5*t,-30-2*t);
+            }
+            return;
+        }
         if (shaftShadow) {
             if (stage==1) {
                 float t=Math.min(1,(clockFrames+1)/96f);
@@ -158,6 +194,45 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
 
     @Override public void afterFrame(Main game) throws Exception {
         long elapsed=System.nanoTime()-since;
+        if (corniceOrbit!=null) {
+            int angle=clockFrames++-35;
+            if (angle>=CorniceOrbit.FIRST) {
+                if (field("framebufferWidth").getInt(game)!=1280 || field("framebufferHeight").getInt(game)!=720)
+                    throw new AssertionError("Cornice orbit requires 1280 x 720");
+                Camera camera=(Camera)field("camera").get(game);
+                var viewProjection=new Matrix4f((Matrix4f)field("projection").get(game)).mul(camera.createViewMatrix());
+                if (angle<=CorniceOrbit.LAST) corniceOrbit.sample(angle,viewProjection,world,camera.position());
+                else {
+                    var renderer=(dev.jayms.render.RenderPipeline)field("rendering").get(game);
+                    if (corniceOrbit.checkRefresh(angle-CorniceOrbit.LAST,viewProjection,world,camera.position(),
+                            renderer,(ShaderProgram)field("shader").get(game))) glfwSetWindowShouldClose(window,true);
+                }
+            }
+            return;
+        }
+        if (ledgeShadow) {
+            clockFrames++;
+            if (stage==0 && clockFrames==240) {
+                var renderer=(dev.jayms.render.RenderPipeline)field("rendering").get(game);
+                Files.writeString(output.resolve("gpu-time.txt"),String.format(Locale.ROOT,
+                        "Settled tower view, smoothed GPU frame %.2f ms and terrain %.2f ms%n",
+                        renderer.gpuMillis(),renderer.terrainGpuMillis()));
+                capture(game,"stacked-ledges.png");
+                pressRecord();
+            } else if (stage==1 && clockFrames==80) {
+                capture(game,"near-ledges.png");
+                pressRecord();
+                placeFlying(game,15,66,-11,88,-19);
+            } else if (stage==2 && clockFrames==100) {
+                capture(game,"window-sills.png");
+                placeFlying(game,13,48,87,57,-22);
+            } else if (stage==3 && clockFrames==96) {
+                capture(game,"hall-sills.png");
+                glfwSetWindowShouldClose(window,true);
+            } else return;
+            stage++;clockFrames=0;
+            return;
+        }
         if (shaftShadow) {
             clockFrames++;
             if (stage==0 && clockFrames==144) {
@@ -299,6 +374,31 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
             stage=3;
             glfwSetWindowShouldClose(window,true);
         }
+    }
+
+    private static void checkLedgeLighting(Path output) throws Exception {
+        var tower=ImageIO.read(output.resolve("stacked-ledges.png").toFile());
+        var windows=ImageIO.read(output.resolve("window-sills.png").toFile());
+        var hall=ImageIO.read(output.resolve("hall-sills.png").toFile());
+        for (var image:new BufferedImage[]{tower,windows,hall})
+            if (image.getWidth()!=1280 || image.getHeight()!=720)
+                throw new AssertionError("Ledge measurements require the 1280 x 720 route");
+        // Fixed-route samples lie inside the narrow top surfaces. The sandstone
+        // front face, recessed wood, and cast shadow below the hall sill are controls.
+        int upper=pixelMedianLuma(tower,598,418,711,419);
+        int lower=pixelMedianLuma(tower,598,475,711,479);
+        int face=pixelMedianLuma(tower,598,480,711,484);
+        int sill=pixelMedianLuma(windows,255,484,267,489);
+        int recess=pixelMedianLuma(windows,254,466,268,474);
+        int hallSill=pixelMedianLuma(hall,417,339,421,341);
+        int shadow=pixelMedianLuma(hall,680,439,687,447);
+        int wall=pixelMedianLuma(hall,668,410,681,419);
+        String report=String.format(Locale.ROOT,
+                "Clock tower upper ledge %d, lower ledge %d, front face %d%nGable sill %d, recessed wood %d%nHall sill %d, cast shadow %d, adjacent wall %d%n",
+                upper,lower,face,sill,recess,hallSill,shadow,wall);
+        Files.writeString(output.resolve("ledge-lighting.txt"),report);
+        if (face<120 || upper<.66*face || lower<.66*face || sill-recess<55 || hallSill<65 || wall-shadow<45)
+            throw new AssertionError(report);
     }
 
     private static void checkShaftShadow(Path output) throws Exception {
@@ -473,6 +573,192 @@ public final class BuildingPreviewWindowsPlaytest implements Main.FrameObserver 
         var field=Main.class.getDeclaredField(name);
         field.setAccessible(true);
         return field;
+    }
+}
+
+/** Measure the same visible upper cornice patch during the Elizabeth Tower orbit. */
+final class CorniceOrbit {
+    static final int FIRST=129,SOUTH_START=149,LAST=177,HOLD_ANGLE=157;
+    private static final int[] VIEWPORT={0,0,1280,720};
+    private final ByteBuffer pixels=BufferUtils.createByteBuffer(16);
+    private final double[] brightness=new double[LAST-FIRST+1];
+    private int frames;
+    private int refreshStart=-1,originalCube,stableFrames,lastCube;
+    private boolean published;
+    private double previousLuma,maxRefreshStep;
+    private dev.jayms.render.ReflectionProbes probes;
+    private static final int TRANSPORT_PHASE=32;
+    private final double[] transportLuma=new double[3*TRANSPORT_PHASE];
+    private int transportFrames,transportAttempts;
+    private Field transportField,readyField;
+    private dev.jayms.render.VoxelTransport parkedTransport;
+
+    void sample(int angle,Matrix4f vp,World world,Vector3f eye) {
+        brightness[angle-FIRST]=measurePatch(angle,vp,world,eye);
+        frames++;
+    }
+
+    private double measurePatch(int angle,Matrix4f vp,World world,Vector3f eye) {
+        var inverse=new Matrix4f(vp).invert();
+        double[] samples=new double[5];
+        int count=0;
+        // All five points are inside the exposed sandstone shelf, half a block
+        // out from the shaft. Compare at world coordinates despite subpixel motion.
+        for (int i=0;i<samples.length;i++) {
+            var point=angle<SOUTH_START ? new Vector3f(28.5f,92,31+i*.5f) : new Vector3f(16+i*.5f,92,50.5f);
+            var p=vp.project(point,VIEWPORT,new Vector3f());
+            int x=(int)Math.floor(p.x-.5f),y=(int)Math.floor(p.y-.5f);
+            if (!seesLedge(inverse,world,eye,x,y)) continue;
+            glReadPixels(x,y,2,2,GL_RGBA,GL_UNSIGNED_BYTE,pixels);
+            double u=p.x-.5-x,v=p.y-.5-y;
+            samples[count++]=(1-v)*((1-u)*luma(0)+u*luma(1))+v*((1-u)*luma(2)+u*luma(3));
+        }
+        if (count<3) throw new AssertionError("Insufficient visible cornice at angle "+angle);
+        java.util.Arrays.sort(samples,0,count);
+        return (samples[(count-1)/2]+samples[count/2])*.5;
+    }
+
+    // A stationary camera isolates probe publication from angular lighting changes.
+    // Wait for a settled, published cubemap, then explicitly request the same
+    // refresh triggered by streaming. Sampling the bound texture proves replacement.
+    boolean checkRefresh(int holdFrame,Matrix4f vp,World world,Vector3f eye,
+                         dev.jayms.render.RenderPipeline renderer,ShaderProgram voxel) throws Exception {
+        if (holdFrame>540) throw new AssertionError("Parked cornice lighting checks timed out");
+        if (probes==null) {
+            var f=dev.jayms.render.RenderPipeline.class.getDeclaredField("probes");
+            f.setAccessible(true);
+            probes=(dev.jayms.render.ReflectionProbes)f.get(renderer);
+        }
+        if (refreshStart>=0 && holdFrame-refreshStart>30) {
+            // A hard scene change must hide the invalid data until six fresh
+            // faces have been rendered. The ordinary lighting refresh above
+            // should keep the last complete cube visible throughout.
+            int rebuiltFrames=holdFrame-refreshStart-30;
+            if (probes.ready() && rebuiltFrames<6) throw new AssertionError("Published incomplete reflection");
+            if (transportAttempts==0 && rebuiltFrames>20) throw new AssertionError("Invalidated reflection did not recover");
+            return probes.ready() && checkTransport(renderer,vp,world,eye);
+        }
+        int program=glGetInteger(GL_CURRENT_PROGRAM),active=glGetInteger(GL_ACTIVE_TEXTURE);
+        voxel.bind();
+        probes.bind(voxel);
+        glActiveTexture(GL_TEXTURE14);
+        int cube=glGetInteger(GL_TEXTURE_BINDING_CUBE_MAP);
+        glActiveTexture(GL_TEXTURE10);
+        int previousCube=glGetInteger(GL_TEXTURE_BINDING_CUBE_MAP);
+        glActiveTexture(active);
+        glUseProgram(program);
+        double value=measurePatch(HOLD_ANGLE,vp,world,eye);
+        if (refreshStart<0) {
+            stableFrames=probes.ready() && cube==lastCube ? stableFrames+1 : 0;
+            lastCube=cube;
+            if (holdFrame>120) throw new AssertionError("Reflection probe did not settle for refresh");
+            if (holdFrame>=32 && stableFrames>=20) {
+                originalCube=cube;
+                refreshStart=holdFrame;
+                probes.requestRefresh();
+                if (!probes.ready()) throw new AssertionError("Refresh discarded published reflection probe");
+            }
+        } else {
+            if (!probes.ready()) throw new AssertionError("Partial reflection replaced published probe");
+            if (!published && cube!=originalCube && previousCube!=originalCube)
+                throw new AssertionError("Replacement lost the previous reflection used for blending");
+            published|=cube!=originalCube;
+            maxRefreshStep=Math.max(maxRefreshStep,Math.abs(value-previousLuma));
+            if (holdFrame-refreshStart==30) {
+                if (!published) throw new AssertionError("Requested reflection was never published");
+                probes.invalidate();
+                if (probes.ready()) throw new AssertionError("Hard invalidation retained stale reflection");
+            }
+        }
+        previousLuma=value;
+        return false;
+    }
+
+    // Toggle availability of the real baked SDF field while the camera and
+    // masonry stay fixed. This reproduces a camera-centered volume reaching
+    // this ledge even when asynchronous bake timing differs between runs.
+    private boolean checkTransport(dev.jayms.render.RenderPipeline renderer,Matrix4f vp,World world,Vector3f eye) throws Exception {
+        if (++transportAttempts>360) throw new AssertionError("No settled transport field covered the south cornice");
+        if (transportField==null) {
+            transportField=renderer.getClass().getDeclaredField("transport");
+            transportField.setAccessible(true);
+            readyField=dev.jayms.render.VoxelTransport.class.getDeclaredField("ready");
+            readyField.setAccessible(true);
+        }
+        var active=(dev.jayms.render.VoxelTransport)transportField.get(renderer);
+        if (active!=parkedTransport) {
+            if (parkedTransport!=null) readyField.setBoolean(parkedTransport,true);
+            parkedTransport=null;
+            transportFrames=0;
+            var volumeField=renderer.getClass().getDeclaredField("volume");
+            volumeField.setAccessible(true);
+            var volume=(dev.jayms.render.LightVolume)volumeField.get(renderer);
+            if (!renderer.lightingReady() || !readyField.getBoolean(active) || volume==null
+                    || volume.x>16 || volume.x+volume.width<=18 || volume.y>92 || volume.y+volume.height<=92
+                    || volume.z>50.5f || volume.z+volume.length<=50.5f) return false;
+            parkedTransport=active;
+        }
+        transportLuma[transportFrames++]=measurePatch(HOLD_ANGLE,vp,world,eye);
+        if (transportFrames==TRANSPORT_PHASE) readyField.setBoolean(active,false);
+        if (transportFrames==2*TRANSPORT_PHASE) readyField.setBoolean(active,true);
+        return transportFrames==transportLuma.length;
+    }
+
+    private boolean seesLedge(Matrix4f inverse,World world,Vector3f eye,int x,int y) {
+        // Reject interpolation footprints containing another face or an occluder.
+        for (int j=0;j<2;j++) for (int i=0;i<2;i++) {
+            var ray=inverse.unprojectInv(x+i+.5f,y+j+.5f,.5f,VIEWPORT,new Vector3f()).sub(eye).normalize();
+            var hit=BlockRaycaster.cast(world,eye,ray,90);
+            if (hit==null || hit.normalY()!=1 || Math.abs(eye.y+ray.y*hit.distance()-92)>.025f) return false;
+        }
+        return true;
+    }
+
+    private double luma(int index) {
+        int offset=index*4;
+        return ((pixels.get(offset)&255)*54+(pixels.get(offset+1)&255)*183+(pixels.get(offset+2)&255)*19)/256.;
+    }
+
+    void verify(Path output) throws Exception {
+        if (frames!=brightness.length) throw new AssertionError("Incomplete cornice orbit");
+        var csv=new StringBuilder("orbit_angle,patch,median_luma\n");
+        var report=new StringBuilder();
+        boolean east=verifyPatch("East",FIRST,SOUTH_START-1,csv,report);
+        boolean south=verifyPatch("South",SOUTH_START,LAST,csv,report);
+        report.append(String.format(Locale.ROOT,"South cornice parked at %d degrees: largest step %.2f / 255 during an observed reflection probe replacement%n",HOLD_ANGLE,maxRefreshStep));
+        if (transportFrames!=transportLuma.length) throw new AssertionError("Incomplete parked transport handoff");
+        double[] settled=new double[3];
+        for (int phase=0;phase<settled.length;phase++) {
+            int end=(phase+1)*TRANSPORT_PHASE;
+            settled[phase]=java.util.Arrays.stream(transportLuma,end-8,end).average().orElseThrow();
+        }
+        double coverageDifference=Math.abs(settled[1]-(settled[0]+settled[2])*.5);
+        report.append(String.format(Locale.ROOT,"Parked SDF coverage present / absent / restored: %.2f / %.2f / %.2f, difference %.2f / 255%n",settled[0],settled[1],settled[2],coverageDifference));
+        Files.writeString(output.resolve("cornice-orbit.csv"),csv);
+        Files.writeString(output.resolve("results.txt"),report);
+        System.out.print(report);
+        if (!east || !south || !published || maxRefreshStep>8 || coverageDifference>4) throw new AssertionError("Unstable cornice lighting");
+    }
+
+    private boolean verifyPatch(String name,int start,int end,StringBuilder csv,StringBuilder report) {
+        double pulse=0,drop=0,rise=0,min=Double.POSITIVE_INFINITY;
+        for (int angle=start;angle<=end;angle++) {
+            int i=angle-FIRST;
+            min=Math.min(min,brightness[i]);
+            csv.append(String.format(Locale.ROOT,"%d,%s,%.2f%n",angle,name,brightness[i]));
+            if (angle>start) {
+                drop=Math.max(drop,brightness[i-1]-brightness[i]);
+                rise=Math.max(rise,brightness[i]-brightness[i-1]);
+            }
+            if (angle>start && angle<end) {
+                // Reject a one-frame dip. Slow changes with view angle or exposure
+                // have little effect on the difference from the two neighbors.
+                pulse=Math.max(pulse,(brightness[i-1]+brightness[i+1])*.5-brightness[i]);
+            }
+        }
+        report.append(String.format(Locale.ROOT,"%s cornice at %d through %d degrees: minimum %.1f / 255, largest adjacent drop %.2f, rise %.2f, one-frame dip %.2f / 255%n",
+                name,start,end,min,drop,rise,pulse));
+        return min>=70 && drop<=10 && rise<=10 && pulse<=8;
     }
 }
 

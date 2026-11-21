@@ -52,6 +52,9 @@ public final class PlanetAtmosphere implements AutoCloseable {
     private Vec lastDirection;
     public double rebuildCpuMillis;
     public long revision;
+    private boolean viewOnlyPublication;
+    /** The latest sky table changed with the observer under the same physical lighting. */
+    public boolean viewOnlyPublication(){return viewOnlyPublication;}
     public AtmosphereConfig config(){return config;}
     public void profile(AtmosphereConfig value) {if(!requestedConfig.equals(value)){requestedConfig=value;dirty=true;}}
     public void quality(Quality value) {if(requestedQuality!=value){requestedQuality=value;dirty=true;}}
@@ -90,6 +93,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
                 if(j.row==total){
                     if(j.stage==1){glDisable(GL_SCISSOR_TEST);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,j.atlas);glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,j.q.transHeight,0,0,j.q.multipleSize,j.q.multipleSize);glEnable(GL_SCISSOR_TEST);}
                     if(j.stage==2){if(trans!=0&&j.ownsAtlas)glDeleteTextures(trans);if(sky!=0)glDeleteTextures(sky);glDeleteTextures(j.multiple);
+                        viewOnlyPublication=!j.ownsAtlas&&j.profile.equals(config)&&j.s.equals(lastDirection);
                         trans=j.atlas;sky=j.image;config=j.profile;quality=j.q;position=planetPosition(config,camera);transform=matrix(config);sun=planetSun(transform,worldSun);
                         lastAltitude=j.p.length()-config.radius();lastSun=j.p.unit().dot(j.s);lastDirection=j.s;dirty=false;revision++;if(j.ownsAtlas)staticRevision++;job=null;
                     }else{j.stage++;j.row=0;}
@@ -126,9 +130,10 @@ public final class PlanetAtmosphere implements AutoCloseable {
         boolean depth=glIsEnabled(GL_DEPTH_TEST),cull=glIsEnabled(GL_CULL_FACE),blend=glIsEnabled(GL_BLEND),scissor=glIsEnabled(GL_SCISSOR_TEST);glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);glDisable(GL_BLEND);glDisable(GL_SCISSOR_TEST);
         glBindFramebuffer(GL_FRAMEBUFFER,fbo);glBindVertexArray(vao);environmentPass.bind();bind(environmentPass);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,cube);
-        // Match local probes and the HDR target; the extra alpha channel is unused.
-        for(int face=0;face<6;face++) {
+        // A face is a renderable attachment only after the cube is complete.
+        for(int face=0;face<6;face++)
             glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGBA16F,128,128,0,GL_RGBA,GL_FLOAT,(java.nio.ByteBuffer)null);
+        for(int face=0;face<6;face++) {
             glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,cube,0);
             glViewport(0,0,128,128);environmentPass.setInt("uFace",face);glDrawArrays(GL_TRIANGLES,0,3);
         }

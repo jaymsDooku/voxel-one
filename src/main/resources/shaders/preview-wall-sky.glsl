@@ -76,6 +76,57 @@ uniform vec3 uPreviewMin,uPreviewMax;
 bool inPreviewBounds(vec3 point){
     return all(greaterThanEqual(point,uPreviewMin))&&all(lessThanEqual(point,uPreviewMax));
 }
+// Inclined views are baked with the landmark meshes and reused as the camera moves.
+float previewInclinedExposure(int side,float u,float y,float depth,float height,float depthSpan,bool upward){
+    float rise=.5*depthSpan;
+    float v=(height*y+rise*depth)/(height+rise);
+    ivec2 tile=textureSize(uShadow,0).xy/2;
+    ivec2 local=clamp(ivec2(vec2(u,v)*vec2(tile)),ivec2(0),tile-1);
+    ivec2 texel=ivec2(side%2,side/2)*tile+local;
+    float first=texelFetch(uShadow,ivec3(texel,7),0).r;
+    if(upward){
+        // On a horizontal ledge the queried plane depth changes with atlas
+        // row. Compare at the texel center used by the depth rasterizer.
+        float centerV=(float(local.y)+.5)/float(tile.y);
+        depth+=(centerV-v)*(height+rise)/rise;
+    }
+    return (depth-first)*depthSpan<=.002?1.:0.;
+}
+bool previewSunReachesLedge(vec3 point){
+    // The last preview cascade includes the entire landmark, even when the
+    // near shadow map only covers one wing. It can see an angled sun opening
+    // between the four directions used to estimate diffuse sky.
+    int layer=uShadowCascades-1;
+    if(layer<0)return false;
+    if(layer==0)return true; // The caller already has coverage from this map.
+    vec4 projected=uShadowMatrix[layer]*vec4(point,1.);
+    vec3 q=projected.xyz/projected.w*.5+.5;
+    if(any(lessThan(q,vec3(.015)))||any(greaterThan(q,vec3(.985))))return false;
+    ivec2 size=textureSize(uShadow,0).xy;
+    vec2 slope=receiverDepthGradient(mat3(uShadowMatrix[layer]),vec3(0,1,0))/vec2(size);
+    q.xy*=vec2(size);
+    return shadowDepthGap(layer,q,slope,vec2(0),size)<=.00004;
+}
+float previewLedgeOpening(vec3 point){
+    vec3 span=uPreviewMax-uPreviewMin,p=(point-uPreviewMin)/span;
+    float east=previewInclinedExposure(0,1.-p.z,p.y,1.-p.x,span.y,span.x,true);
+    float west=previewInclinedExposure(1,p.z,p.y,p.x,span.y,span.x,true);
+    float south=previewInclinedExposure(2,p.x,p.y,1.-p.z,span.y,span.z,true);
+    float north=previewInclinedExposure(3,1.-p.x,p.y,p.z,span.y,span.z,true);
+    return .25*(east+west+north+south);
+}
+vec2 previewLedgeVisibility(vec3 point,float overhead,float sunShadow,bool sunMapCovered){
+    // Transparent roofs already carry an explicit sky transmission. The
+    // depth views contain only opaque casters, so preserve that attenuation.
+    if(overhead>0.||skyHeader(ivec2(floor(point.xz)))<0)return vec2(sunShadow*overhead,overhead);
+    float opening=previewLedgeOpening(point);
+    // An exterior opening admits diffuse illumination from its part of the sky.
+    // The independent sun projection determines whether the solar disk is visible.
+    bool sunPath=sunMapCovered && sunShadow>0. && previewSunReachesLedge(point);
+    float sunGate=sunPath?1.:overhead;
+    return vec2(sunGate*sunShadow,max(overhead,opening));
+}
+
 // Each wall sees the exterior along its own normal if it is the nearest
 // opaque surface in that orthographic side view. Depth is linear in world units.
 float previewSideExposure(vec3 point,vec3 normal){
@@ -96,11 +147,5 @@ float previewSideExposure(vec3 point,vec3 normal){
     if((depth-first)*depthSpan<=.002)return 1.;
     // The horizon can be blocked by an entire opposite wing in a courtyard
     // while the sky above that wing remains open. Match skyProjection's shear.
-    float rise=.5*depthSpan;
-    float v=(span.y*p.y+rise*depth)/(span.y+rise);
-    ivec2 tile=textureSize(uShadow,0).xy/2;
-    ivec2 local=clamp(ivec2(vec2(u,v)*vec2(tile)),ivec2(0),tile-1);
-    ivec2 texel=ivec2(side%2,side/2)*tile+local;
-    first=texelFetch(uShadow,ivec3(texel,7),0).r;
-    return (depth-first)*depthSpan<=.002?1.:0.;
+    return previewInclinedExposure(side,u,p.y,depth,span.y,depthSpan,false);
 }

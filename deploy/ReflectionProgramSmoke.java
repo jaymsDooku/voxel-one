@@ -21,6 +21,14 @@ public class ReflectionProgramSmoke {
      float[][] data=new float[2][64*64*3];int n=0;for(var probes:new ReflectionProbes[]{candidate,control}){glBindTexture(GL_TEXTURE_CUBE_MAP,(int)get(probes,"cube"));glGetTexImage(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,0,GL_RGB,GL_FLOAT,data[n++]);}
      for(int i=0;i<data[0].length;i++){if(Float.floatToIntBits(data[0][i])!=Float.floatToIntBits(data[1][i]))throw new AssertionError("Capture changed face="+face+" channel="+i);compared++;}
     }
+    try(var otherWorld=new World();var otherModels=new VoxelModelRenderer(otherWorld.models())){
+     for(int face=0;face<6;face++){
+      candidate.capture(otherWorld,otherModels,eye,environment,lighting);
+      if(candidate.ready()!=(face==5))throw new AssertionError("New world retained the previous reflection");
+     }
+     candidate.capture(otherWorld,otherModels,new Vector3f(eye).add(128,0,0),environment,lighting);
+     if(candidate.ready())throw new AssertionError("Teleport retained a distant probe");
+    }
     candidate.invalidate();if(candidate.ready())throw new AssertionError("Invalidation");candidate.capture(world,models,eye,environment,lighting);
    }
    if(!glIsProgram(sharedProgram))throw new AssertionError("Borrowed program closed");shared.bind();

@@ -85,7 +85,9 @@ public final class VoxelTransport implements AutoCloseable {
         shader.setInt("uTransportReady",ready?1:0);
         glActiveTexture(GL_TEXTURE6);glBindTexture(GL_TEXTURE_3D,radiance);shader.setInt("uVoxelRadiance",6);
         glActiveTexture(GL_TEXTURE7);glBindTexture(GL_TEXTURE_3D,distance);shader.setInt("uDistanceField",7);
-        for(int i=0;i<3;i++){glActiveTexture(GL_TEXTURE8+i);glBindTexture(GL_TEXTURE_3D,probes[i]);shader.setInt("uCascadeProbes["+i+"]",8+i);}
+        // The base probe contains the merged intervals. Unit 10 is reserved for
+        // the previous reflection cube during its transition to a new capture.
+        glActiveTexture(GL_TEXTURE8);glBindTexture(GL_TEXTURE_3D,probes[0]);shader.setInt("uCascadeProbes[0]",8);
     }
     @Override public void close(){if(closed)return;closed=true;if(stores==null){glDeleteTextures(radiance);glDeleteTextures(distance);for(int p:probes)glDeleteTextures(p);}else{stores.releaseTexture(radiance);stores.releaseTexture(distance);for(int p:probes)stores.releaseTexture(p);}}
 }

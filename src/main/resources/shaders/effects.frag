@@ -7,7 +7,7 @@ uniform mat4 uInverseVP,uVP,uPreviousVP;
 uniform vec3 uCamera,uSun;
 uniform float uDaylight,uAmbient,uFogDensity;
 uniform float uJitterU,uJitterV;
-uniform int uFrame,uTAA,uStationary,uAO,uContact,uSSR,uGI,uVolume;
+uniform int uFrame,uTAA,uStationary,uAO,uContact,uPreviewContactWeight,uSSR,uGI,uVolume;
 uniform int uDecalCount;
 uniform vec3 uDecalCenter[16],uDecalNormal[16],uDecalColor[16];
 uniform float uDecalRadius[16],uDecalDepth[16],uDecalOpacity[16];
@@ -46,7 +46,8 @@ void main(){
     vec2 texel=1./vec2(textureSize(uDepth,0));
     vec2 sceneUV=vUV+vec2(uJitterU,uJitterV);
     float depth=texture(uDepth,sceneUV).r;
-    vec3 color=texture(uScene,sceneUV).rgb,p=world(sceneUV,depth);
+    vec4 scene=texture(uScene,sceneUV);
+    vec3 color=scene.rgb,p=world(sceneUV,depth);
     vec3 V=normalize(uCamera-p),N=vec3(0,1,0);
     if(depth<.999999){
         // Choose the least discontinuous derivative at silhouettes.
@@ -81,7 +82,9 @@ void main(){
         if(uGI==1)color+=bounce;
         vec2 uv;
         vec3 receiverPlane=vec3(useRight?right-depth:depth-left,useUp?up-depth:depth-down,depth);
-        if(uContact==1&&dot(N,uSun)>0.&&hit(p+N*.025,uSun,.08,12,receiverPlane,uv))color*=1.-.35*uDaylight;
+        float directShare=uPreviewContactWeight==1?scene.a:1.;
+        if(uContact==1&&directShare>0.&&dot(N,uSun)>0.&&hit(p+N*.025,uSun,.08,12,receiverPlane,uv))
+            color*=1.-.35*uDaylight*directShare;
         if(uSSR==1&&hit(p+N*.035,reflect(-V,N),.18,32,vec3(0,0,-1),uv)){
             float edge=clamp(min(min(uv.x,uv.y),min(1.-uv.x,1.-uv.y))*12.,0.,1.);
             float fresnel=.04+.96*pow(1.-max(0.,dot(N,V)),5.);
