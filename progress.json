@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T00:33:43+00:00",
+  "updatedAt": "2026-11-21T00:39:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4561,8 +4561,8 @@
         }
       ],
       "status": "in_progress",
-      "note": "Full 651-frame orbit and seven window sills verified. Maximum tower brightness step fell from 20 to 6. Native shadow controls and 88 Maven tests passed. Submitted for CI.",
-      "updatedAt": "2026-11-21T00:33:43+00:00"
+      "note": "Graphics rebuild and complete cube tests pass. A repeat of the packaged camera regression caught an intermittent 13-level south-ledge drop. Tracing the outlier before signoff.",
+      "updatedAt": "2026-11-21T00:39:20+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
