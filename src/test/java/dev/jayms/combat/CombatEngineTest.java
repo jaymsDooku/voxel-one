@@ -144,8 +144,8 @@ class CombatEngineTest {
         assertTrue(input(engine, 1, 3, 90, 0, 1, true, true, false, 0));
         engine.tick();
         assertEquals(2, engine.snapshot(1).stats().hits());
-        assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
-        assertEquals(rearm ? .4208 : .3208, engine.snapshot(3).velocity().y(), .00001);
+        assertEquals(.4088, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(rearm ? .4088 : .3088, engine.snapshot(3).velocity().y(), .00001);
     }
 
     @Test void protectedTargetedClickSlowsTheAttackerAndRequiresFreshSprintInput() {
@@ -192,8 +192,8 @@ class CombatEngineTest {
         var attacker = engine.snapshot(1);
         var defender = engine.snapshot(2);
         double travel = .098 - NORMAL_PUSH * (incomingFirst ? .6 : 1);
-        assertVector(new Vec3(travel, .3208, 0), attacker.velocity());
-        assertVector(new Vec3(travel * .546, (.3208 - .08) * .98, 0), attacker.hitImpulse());
+        assertVector(new Vec3(travel, .3088, 0), attacker.velocity());
+        assertVector(new Vec3(travel * .546, (.3088 - .08) * .98, 0), attacker.hitImpulse());
         assertEquals(2, attacker.impulseTick());
         assertEquals(1, defender.impulseTick());
         assertEquals(18.5, attacker.health(), .00001);
@@ -311,13 +311,13 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(19.68, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(2).impulseTick());
-        assertVector(new Vec3(NORMAL_PUSH, .3208, 0), engine.snapshot(2).velocity());
+        assertVector(new Vec3(NORMAL_PUSH, .3088, 0), engine.snapshot(2).velocity());
         input(engine, 1, 1, 0, 0, 1, true, true, false, 0);
         engine.tick();
         assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(2, engine.snapshot(2).impulseTick());
-        double strongerLift = (.3208 - .08) * .98 + .10;
+        double strongerLift = (.3088 - .08) * .98 + .10;
         assertVector(new Vec3(NORMAL_PUSH * .546 + SPRINT_BONUS, strongerLift, 0), engine.snapshot(2).velocity());
         assertEquals(-1, engine.snapshot(1).impulseTick());
         assertEquals(List.of(198, 198, 198, 198), engine.snapshot(2).durability());
@@ -466,7 +466,7 @@ class CombatEngineTest {
             assertEquals(1 + (hit - 1) * 13, engine.snapshot(2).hurtTick());
 
             assertTrue(engine.snapshot(2).velocity().x() > NORMAL_PUSH, "W release rearms sprint knockback");
-            assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
+            assertEquals(.4088, engine.snapshot(2).velocity().y(), .00001);
             assertTrue(input(engine, 1, sequence++, 0, 0, 0, true, false, false, 0));
             engine.tick();
 
@@ -484,7 +484,8 @@ class CombatEngineTest {
     @ParameterizedTest
     @ValueSource(booleans = {false, true})
     void fullMeleeHitCoastsToTheConfiguredDistanceOnFlatGround(boolean sprint) {
-        for (CombatRules rules : List.of(CombatRules.NO_DEBUFF, CombatRules.DEBUFF)) {
+        for (CombatRules rules : List.of(CombatRules.NO_DEBUFF, CombatRules.DEBUFF,
+                CombatRules.KNOCKBACK_LAB, CombatRules.FACTION)) {
             for (float yaw : new float[]{0, 25, 45, 90, 180, -45}) {
                 var arena = new CombatEngine(rules, field(false, true));
                 Vec3 heading = CombatGeometry.direction(yaw, 0);
@@ -495,7 +496,15 @@ class CombatEngineTest {
                 assertTrue(input(arena, 1, 0, yaw, 0, sprint ? 1 : 0, sprint, true, false, 0));
                 arena.tick();
                 assertEquals(1, arena.snapshot(1).stats().hits());
-                tick(arena, 30);
+                double peakRise = 0;
+                for (int step = 0; step < 30; step++) {
+                    peakRise = Math.max(peakRise, arena.snapshot(2).feet().y() - victimStart.y());
+                    arena.tick();
+                }
+                double normalPeak = rules == CombatRules.FACTION ? .781 : .734;
+                double sprintPeak = rules == CombatRules.FACTION ? 1.253 : 1.195;
+                double expectedPeak = sprint ? sprintPeak : normalPeak;
+                assertEquals(expectedPeak, peakRise, .001);
                 var victim = arena.snapshot(2);
                 assertTrue(victim.grounded());
                 assertEquals(0, victim.velocity().length(), .00001);
@@ -512,14 +521,14 @@ class CombatEngineTest {
         engine.tick();
         assertEquals(1, engine.snapshot(2).hurtTick());
         assertEquals(1, engine.snapshot(2).impulseTick());
-        assertVector(new Vec3(SPRINT_PUSH * .546, (.4208 - .08) * .98, 0), engine.snapshot(2).hitImpulse());
+        assertVector(new Vec3(SPRINT_PUSH * .546, (.4088 - .08) * .98, 0), engine.snapshot(2).hitImpulse());
         var launched = engine.snapshot(2);
         assertEquals(SPRINT_PUSH, launched.velocity().x(), .00001);
-        assertEquals(.4208, launched.velocity().y(), .00001);
+        assertEquals(.4088, launched.velocity().y(), .00001);
         assertFalse(launched.grounded());
         engine.tick();
         assertEquals(SPRINT_PUSH * .546, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals((.4208 - .08) * .98, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals((.4088 - .08) * .98, engine.snapshot(2).velocity().y(), .00001);
 
         int airborneTicks = 0;
         double peak = 1;
@@ -530,7 +539,7 @@ class CombatEngineTest {
         var landed = engine.snapshot(2);
         assertTrue(landed.grounded());
         assertEquals(1, landed.feet().y(), .00001);
-        assertEquals(1.253030, peak - 1, .001);
+        assertEquals(1.195383, peak - 1, .001);
         assertEquals(10, airborneTicks);
         assertTrue(landed.velocity().x() > .06);
         engine.tick();
@@ -560,7 +569,7 @@ class CombatEngineTest {
         Vec3 launch = engine.snapshot(2).velocity();
         assertEquals(offset.x() * NORMAL_PUSH / distance + victim.velocity().x() * .546 * .5, launch.x(), .00001);
         assertEquals(offset.z() * NORMAL_PUSH / distance + victim.velocity().z() * .546 * .5, launch.z(), .00001);
-        assertEquals(.3208, launch.y(), .00001);
+        assertEquals(.3088, launch.y(), .00001);
     }
 
     @Test void baseLiftCapsBeforeTheIndependentSprintAddition() {
@@ -572,7 +581,7 @@ class CombatEngineTest {
         engine.tick();
         var victim = engine.snapshot(2);
         assertEquals(2, victim.impulseTick());
-        assertVector(new Vec3(SPRINT_PUSH, .46, 0), victim.velocity());
+        assertVector(new Vec3(SPRINT_PUSH, .448, 0), victim.velocity());
     }
 
     @Test void simultaneousSprintHitsComposeSlowdownAndKnockbackInReceiptOrder() {
@@ -584,8 +593,8 @@ class CombatEngineTest {
         assertEquals(18.5, engine.snapshot(2).health(), .00001);
         assertEquals(-SPRINT_PUSH + .098, engine.snapshot(1).velocity().x(), .00001);
         assertEquals(SPRINT_PUSH * .6 - .098, engine.snapshot(2).velocity().x(), .00001);
-        assertEquals(.4208, engine.snapshot(1).velocity().y(), .00001);
-        assertEquals(.4208, engine.snapshot(2).velocity().y(), .00001);
+        assertEquals(.4088, engine.snapshot(1).velocity().y(), .00001);
+        assertEquals(.4088, engine.snapshot(2).velocity().y(), .00001);
     }
 
     @Test void hitLiftCannotChangeAnotherPlayersFallingCriticalInTheSameTick() {
@@ -602,7 +611,7 @@ class CombatEngineTest {
         assertEquals(17.75, engine.snapshot(2).health(), .00001);
         assertEquals(8, engine.snapshot(1).hurtTick());
         assertEquals(8, engine.snapshot(2).hurtTick());
-        double expectedLift = .36 + (fallingSpeed - .08) * .98 * .5;
+        double expectedLift = .348 + (fallingSpeed - .08) * .98 * .5;
         assertEquals(expectedLift, engine.snapshot(1).velocity().y(), .00001);
         assertEquals(expectedLift, engine.snapshot(2).velocity().y(), .00001);
     }

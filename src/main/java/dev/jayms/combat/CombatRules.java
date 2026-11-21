@@ -13,8 +13,7 @@ public record CombatRules(
         int pearlCooldown, double pearlDamage, int speedDuration, int fireResistanceDuration,
         int poisonDuration, int slownessDuration, boolean knockbackOnly) {
 
-    // Lower Paper's base vertical lift and cap slightly for arena combos before the sprint bonus.
-    private static final double ARENA_BASE_LIFT = 0.36;
+    private static final double PRACTICE_BASE_LIFT = .348;
     public static final int AUTO_CLICK_CPS = 9;
     // Launch speeds in blocks/tick. With this lift and Paper ground/air drag a settled
     // opponent coasts one block after a normal hit and three after an aligned sprint hit.
@@ -25,18 +24,18 @@ public record CombatRules(
     // A full practice kit absorbs 68%. One heart is two health points.
     private static final double PRACTICE_SWORD_DAMAGE = 1.5 / (1 - ARENA_ARMOR_REDUCTION);
 
-    public static final CombatRules NO_DEBUFF = arena(false, PRACTICE_SWORD_DAMAGE);
-    public static final CombatRules DEBUFF = arena(true, PRACTICE_SWORD_DAMAGE);
-    public static final CombatRules FACTION = arena(true, 8.0);
-    public static final CombatRules KNOCKBACK_LAB = arena(false, PRACTICE_SWORD_DAMAGE, true);
+    public static final CombatRules NO_DEBUFF = practice(false, false);
+    public static final CombatRules DEBUFF = practice(true, false);
+    public static final CombatRules FACTION = arena(true, 8.0, false, .36);
+    public static final CombatRules KNOCKBACK_LAB = practice(false, true);
 
-    private static CombatRules arena(boolean debuffs, double swordDamage) {
-        return arena(debuffs, swordDamage, false);
+    private static CombatRules practice(boolean debuffs, boolean knockbackOnly) {
+        return arena(debuffs, PRACTICE_SWORD_DAMAGE, knockbackOnly, PRACTICE_BASE_LIFT);
     }
 
-    private static CombatRules arena(boolean debuffs, double swordDamage, boolean knockbackOnly) {
+    private static CombatRules arena(boolean debuffs, double swordDamage, boolean knockbackOnly, double lift) {
         return new CombatRules(debuffs, 3.0, 10, swordDamage, ARENA_ARMOR_REDUCTION, NORMAL_PUSH,
-                SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0, 320, 5.0,
+                SPRINT_BONUS, PROJECTILE_PUSH, lift, 8.0, 4.0, 320, 5.0,
                 90 * 20, 180 * 20, 8 * 20, 14 * 20, knockbackOnly);
     }
 

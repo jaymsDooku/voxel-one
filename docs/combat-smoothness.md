@@ -4,7 +4,7 @@ Measure the attacker’s feedback, the defender’s movement on both screens, an
 
 ## Reference and scenarios
 
-The reference is PaperMC/Paper-1.7 at `ab9e48b010f9658c96fdca68b711714bedb42e82`. `EntityLiving.a(Entity,float,double,double)` applies the base impulse. `EntityHuman.attack` adds sprint knockback. `EntityLiving.e(float,float)` moves the body before gravity and drag, and `ba()/bb()` control the arm swing and half-cycle restart. The trajectory checks use Voxel One’s configured 0.36 base vertical lift and cap. Stock Paper uses 0.40. [Paper 1.7 source](https://github.com/PaperMC/Paper-1.7/tree/ab9e48b010f9658c96fdca68b711714bedb42e82)
+The reference is PaperMC/Paper-1.7 at `ab9e48b010f9658c96fdca68b711714bedb42e82`. `EntityLiving.a(Entity,float,double,double)` applies the base impulse. `EntityHuman.attack` adds sprint knockback. `EntityLiving.e(float,float)` moves the body before gravity and drag, and `ba()/bb()` control the arm swing and half-cycle restart. The trajectory checks use Voxel One’s configured 0.348 base vertical lift and cap for practice. Stock Paper uses 0.40. [Paper 1.7 source](https://github.com/PaperMC/Paper-1.7/tree/ab9e48b010f9658c96fdca68b711714bedb42e82)
 
 1. Hit a stationary defender in the center of Basalt Courtyard, then compare the feet against an independent implementation of the Paper travel equations at each tick. Repeat with a sprinting attacker and a defender moving on the hit tick. Both traces run through landing.
 2. Present the stationary victim’s actual arena snapshots at 60 and 144 Hz, first at steady 20 Hz delivery, then with eight offsets of the same 0–34 ms jitter pattern and one dropped snapshot every nine ticks. Observe the victim as local camera and remote model. Measure onset, holds during movement, largest frame step and error relative to a fixed one-tick-delayed reference. Checking delay and frame steps alongside holds prevents trading a freeze for extra buffering or a large jump.
@@ -15,7 +15,7 @@ The reference is PaperMC/Paper-1.7 at `ab9e48b010f9658c96fdca68b711714bedb42e82`
 
 Practice measures sword reach along a three-block ray from the rendered eye to the first visible surface of the selectable hitbox. The server checks the claimed opponent against its own recorded eye and target poses. A target's center can therefore be farther than three blocks away. While the camera previews incoming knockback, a swing at the edge also needs to be in range from the confirmed eye.
 
-The horizontal speeds below are Voxel One arena settings. They use Paper's velocity retention, travel order, ground and air drag, and the arena's 0.36 lift cap. For calibration, a settled opponent on the flat center of Basalt Courtyard takes one hit and supplies no movement input. Measure horizontal travel until the opponent stops.
+The horizontal speeds below are Voxel One arena settings. They use Paper's velocity retention, travel order, ground and air drag, and the practice lift cap. For calibration, a settled opponent on the flat center of Basalt Courtyard takes one hit and supplies no movement input. Measure horizontal travel until the opponent stops.
 
 | Sword hit | Launch speed (blocks/tick) | Previous travel | Tuned travel straight ahead | Tuned travel at 45° |
 |---|---:|---:|---:|---:|
@@ -23,6 +23,8 @@ The horizontal speeds below are Voxel One arena settings. They use Paper's veloc
 | Sprint hit, including a re-armed W-tap | 0.562670 | 4.799 blocks | 3.000 blocks | 2.995 blocks |
 
 Diagonal variation comes from the per-axis velocity cutoff. A moving defender retains momentum, can steer in the air and can collide with terrain, so their actual travel can differ.
+
+Lowering the practice lift from 0.36 to 0.348 changes the stationary normal apex from 0.781 to 0.734 blocks and the sprint apex from 1.253 to 1.195 blocks. On the flat fixture, the landing ticks and settled horizontal distances are the same. Lower settings tested with horizontal travel calibrated to three blocks changed the landing step and broke the existing contested four-hit W-tap replay. The selected lift passed that replay on both sides and in both receipt orders.
 
 Melee now resolves in packet order before the movement step. On contact the victim spends that step moving under knockback, so a defender holding W has less opportunity to run through a hit. The first movement snapshot includes the actual displacement and the remaining velocity for the next step. Reach, hurt protection and the horizontal launch settings above still apply.
 
