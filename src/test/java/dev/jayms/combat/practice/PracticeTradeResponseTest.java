@@ -57,8 +57,8 @@ class PracticeTradeResponseTest {
         double firstAway = Math.copySign(1, opening.first.z() - opening.second.z()) * opening.first.vz();
         double secondAway = Math.copySign(1, opening.second.z() - opening.first.z()) * opening.second.vz();
         assertTrue(firstAway > 0 && secondAway > 0, "Both bodies must move away on impact");
-        assertEquals(.4208, opening.first.vy(), .00001);
-        assertEquals(.4208, opening.second.vy(), .00001);
+        assertEquals(.4088, opening.first.vy(), .00001);
+        assertEquals(.4088, opening.second.vy(), .00001);
         // EntityLiving.a halves carried motion; EntityHuman.attack damps only the successful
         // sprint attacker's X/Z by .6. Applying both in receipt order to equal approach speeds
         // gives a .4 * launch difference after equal forward steering on the impact step.

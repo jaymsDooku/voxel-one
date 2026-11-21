@@ -191,7 +191,7 @@ public final class PracticeNativePlaytest {
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.impulseTick() == view.tick() && sprintImpulse(b)) {
                 immediateImpulseCues++;
-                if (Math.abs(b.vy() - .4208) < .001) groundedSprintCues++;
+                if (Math.abs(b.vy() - .4088) < .001) groundedSprintCues++;
             }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.impulseTick() >= 0 && view.tick() >= b.impulseTick() && view.tick() <= b.impulseTick() + 2) {
@@ -240,7 +240,7 @@ public final class PracticeNativePlaytest {
                         throw new IllegalStateException("Expected repeated two-way exchanges, observed " + mutualExchanges);
                     if (trade && (framesShowingBothHits == 0 || peakHurtRoll == 0))
                         throw new IllegalStateException("The local player did not see both hit cues and a hurt reaction");
-                    if (!trade && (sprintHits < 3 || peakKnockbackUp < .38 || peakKnockbackUp > .462))
+                    if (!trade && (sprintHits < 3 || peakKnockbackUp < .368 || peakKnockbackUp > .450))
                         throw new IllegalStateException("Expected three sprint hits within the arena lift range, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
                     if (!trade && groundedSprintCues == 0)
@@ -263,7 +263,7 @@ public final class PracticeNativePlaytest {
                             + " moving frames between received snapshots after damage.\n"
                             + "Observed " + sprintHits + " distinct sprint knockback launches.\n"
                             + immediateImpulseCues + " sprint impulses reached the client on their hit tick.\n"
-                            + groundedSprintCues + " sprint cues showed the reduced grounded launch of 0.4208 blocks per tick.\n"
+                            + groundedSprintCues + " sprint cues showed the reduced grounded launch of 0.4088 blocks per tick.\n"
                             + carriedLaunches + " sprint launches kept at least 45% of horizontal speed on the next tick while the defender could steer.\n"
                             + String.format(Locale.ROOT,
                             "Peak observed opponent displacement after damage: %.3f horizontal, %.3f upward blocks per tick.%n",

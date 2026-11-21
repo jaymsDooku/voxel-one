@@ -48,16 +48,16 @@ public final class ArenaCombatTrace {
             maxError = Math.max(maxError, error);
             if (samples) print("{\"kind\":\"tick\",\"tick\":%d,\"engine\":%s,\"paper\":%s,\"errorBlocks\":%.9f}", tick, xyz(victim.feet()), xyz(paper.point()), error);
         }
-        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":0.36,\"baseHorizontalPush\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
-                truth.size(), CombatRules.NO_DEBUFF.knockback(), maxError);
+        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":%.3f,\"baseHorizontalPush\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+                truth.size(), CombatRules.NO_DEBUFF.lift(), CombatRules.NO_DEBUFF.knockback(), maxError);
         var replays = new ArrayList<Replay>();
         for (int fps : List.of(60, 144)) {
             replays.add(replay(packets, truth, fps, -1, samples, report));
             for (int phase = 0; phase < JITTER_MS.length; phase++) replays.add(replay(packets, truth, fps, phase, samples, report));
         }
         double sprintError = sprintTrajectory(samples);
-        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":0.36,\"sprintHorizontalBonus\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
-                END + 1, CombatRules.NO_DEBUFF.sprintKnockback(), sprintError);
+        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":%.3f,\"sprintHorizontalBonus\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+                END + 1, CombatRules.NO_DEBUFF.lift(), CombatRules.NO_DEBUFF.sprintKnockback(), sprintError);
         if (maxError > .00001 || sprintError > .00001) throw new AssertionError("Arena profile diverged from Paper travel by " + Math.max(maxError, sprintError));
         return new Run(maxError, sprintError, List.copyOf(replays));
     }
@@ -66,7 +66,8 @@ public final class ArenaCombatTrace {
     // Use the arena horizontal profile and lift with the independent Paper travel equations.
     // A settled target carries the previous grounded tick's gravity into the strike.
     private static final class PaperTravel {
-        double x = START.x(), y = FLOOR, vx = CombatRules.NO_DEBUFF.knockback(), vy = .36 + (-.08 * (double).98F) / 2;
+        double x = START.x(), y = FLOOR, vx = CombatRules.NO_DEBUFF.knockback();
+        double vy = CombatRules.NO_DEBUFF.lift() + (-.08 * (double).98F) / 2;
         boolean grounded = true;
         Vec3 point() { return new Vec3(x, y, START.z()); }
         void advance() {
