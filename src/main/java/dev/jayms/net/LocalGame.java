@@ -20,6 +20,16 @@ public final class LocalGame {
     private int nextDrop;
     private float fallTop;
     private final Path save;
+    private Integer previewEditCeiling;
+
+    /** The inspected plot remains ephemeral, including edits above the normal save format. */
+    public void beginBuildingPreview(int maximumY) {
+        previewEditCeiling = maximumY;
+    }
+
+    public boolean acceptsEdit(Protocol.Edit edit) {
+        return previewEditCeiling == null ? edit.valid() : edit.validThrough(previewEditCeiling);
+    }
 
     public LocalGame(Path save, long requestedSeed) throws IOException {
         this.save = save;
@@ -108,7 +118,7 @@ public final class LocalGame {
     }
 
     public boolean edit(Protocol.Edit e, int old, int slot) {
-        if (!e.valid()) return false;
+        if (!acceptsEdit(e)) return false;
         if (e.type() == 0) {
             if (old == 0 || old == Blocks.PARTIAL) return false;
             ItemDrop d =
@@ -200,6 +210,7 @@ public final class LocalGame {
     }
 
     public void save() throws IOException {
+        if (previewEditCeiling != null) return;
         Files.createDirectories(save.toAbsolutePath().getParent());
         Path temp = save.resolveSibling(save.getFileName() + ".tmp");
         try (var out = new DataOutputStream(Files.newOutputStream(temp))) {

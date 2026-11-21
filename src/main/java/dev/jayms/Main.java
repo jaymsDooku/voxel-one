@@ -409,7 +409,10 @@ public class Main {
             var saved = CitySimulation.load(CitySaves.sidecar(offlineSave,".city"));
             if (saved != null) world.terrain().stressGrid(saved.stressGrid());
         }
-        if (buildingPreview != null) prepareBuildingPlot();
+        if (buildingPreview != null) {
+            prepareBuildingPlot();
+            local.beginBuildingPreview(world.streamCeilingY());
+        }
         modelRenderer = new VoxelModelRenderer(world.models());
         editor = new ModelEditor();
         lightColors = new LightColorMenu(Controls.directory().resolve("light-colour.properties"));
@@ -1849,7 +1852,7 @@ public class Main {
         if (place && Blocks.material(type) == Blocks.LED)
             edit = edit.withColor(lightColors.color());
         int x = edit.x(), y = edit.y(), z = edit.z();
-        if (!edit.valid()
+        if (!(network == null ? local.acceptsEdit(edit) : edit.valid())
                 || !world.isLoaded(x, y, z)
                 || place && world.region(edit) != 0
                 || place && player.overlaps(world, edit)

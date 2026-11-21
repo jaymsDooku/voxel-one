@@ -2,6 +2,10 @@ package dev.jayms;
 
 import dev.jayms.building.BuildingCompiler;
 import dev.jayms.net.Blocks;
+import dev.jayms.net.LocalGame;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import org.junit.jupiter.api.io.TempDir;
 import dev.jayms.net.Protocol;
 import dev.jayms.net.WorldVoxels;
 import dev.jayms.net.city.StressGrid;
@@ -11,6 +15,8 @@ import org.junit.jupiter.api.Test;
 import static org.junit.jupiter.api.Assertions.*;
 
 class BuildingPreviewPlotTest {
+    @TempDir Path temporary;
+
     @Test void upperFinialRemainsPickableAndEditableWhenTheCameraStreamsAway() throws Exception {
         var building=BuildingCompiler.compile("""
                 building tall 256 3264 256 grid16 monument
@@ -30,6 +36,20 @@ class BuildingPreviewPlotTest {
             assertEquals(1,hit.normalY());
 
             var carve=new Protocol.Edit(8,204,8,Blocks.AIR,1,0,0,0);
+            var save=temporary.resolve("ordinary.dat");
+            var ordinary=new LocalGame(save,17);
+            assertFalse(ordinary.acceptsEdit(carve));
+            assertFalse(ordinary.edit(carve,world.region(carve),0));
+            var preview=new LocalGame(temporary.resolve("inspection.dat"),17);
+            preview.beginBuildingPreview(world.streamCeilingY());
+            // The click preflight and the offline inventory transaction share this rule.
+            assertTrue(preview.acceptsEdit(carve));
+            assertTrue(preview.edit(carve,world.region(carve),0));
+            assertFalse(preview.acceptsEdit(new Protocol.Edit(8,world.streamCeilingY()+1,8,Blocks.AIR)));
+            assertFalse(preview.acceptsEdit(new Protocol.Edit(8,204,8,Blocks.STONE).withColor(1)));
+            assertFalse(carve.valid());
+            preview.save();
+            assertFalse(Files.exists(temporary.resolve("inspection.dat")));
             world.apply(carve);
             assertEquals(Blocks.AIR,world.material(8*16+2,204*16+2,8*16+2));
             assertEquals(Blocks.SAND,world.material(8*16+12,204*16+2,8*16+2));

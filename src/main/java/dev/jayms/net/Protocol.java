@@ -264,6 +264,11 @@ public final class Protocol {
         }
 
         public boolean valid() {
+            return validThrough(Terrain.MAX_Y);
+        }
+
+        // Only a local, unsaved building inspection may supply a taller ceiling.
+        boolean validThrough(int maximumY) {
             return color >= 0
                     && color <= 0xffffff
                     && (Blocks.material(type) == Blocks.LED || color == 0)
@@ -279,7 +284,7 @@ public final class Protocol {
                     && Math.abs((long) x) <= Terrain.LIMIT
                     && Math.abs((long) z) <= Terrain.LIMIT
                     && y >= Terrain.MIN_Y
-                    && y <= Terrain.MAX_Y
+                    && y <= maximumY
                     && Blocks.valid(type);
         }
 

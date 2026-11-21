@@ -14,6 +14,10 @@ public class World implements AutoCloseable {
     static final int MIN_CHUNK_Y = -2;
     private int maxChunkY = 7;
 
+    int streamCeilingY() {
+        return (maxChunkY+1)*16-1;
+    }
+
     private int columnHeight() {
         return maxChunkY - MIN_CHUNK_Y + 1;
     }
