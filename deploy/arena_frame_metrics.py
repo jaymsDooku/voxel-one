@@ -69,8 +69,7 @@ def bout(path, clicks_path, times, counts, phases, intervals):
         # Only attribute a rise if the rendered feet were near launch height before this hit.
         launch_y = float(r["remoteY"])
         if (int(r["tick"]) == hurt == int(r["remoteImpulseTick"])
-                and abs(float(r["remoteImpulseY"]) - .4208) < .001
-                and math.hypot(float(r["remoteImpulseX"]), float(r["remoteImpulseZ"])) > .68):
+                and abs(float(r["remoteImpulseY"]) - .4208) < .001):
             counts["grounded"] += 1
             if (i < 1 or not rows[i-1]["remoteDisplayY"]
                     or abs(float(rows[i-1]["remoteDisplayY"]) - launch_y) > .025):

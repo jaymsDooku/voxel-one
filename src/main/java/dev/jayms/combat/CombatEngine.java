@@ -519,7 +519,7 @@ public final class CombatEngine {
         if (!attacker.grounded && attacker.fallDistance > 0) damage *= 1.5;
         boolean sprintHit = sprinting && (attacker.lastSprintHitSequence < 0 || click.sprintReleaseSequence() > attacker.lastSprintHitSequence);
         Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()).add(0, SPRINT_HIT_LIFT, 0) : ZERO;
-        if (strike(attacker, target, damage, sprintPush, weapon, click.blocking().get(target)) && sprintHit) {
+        if (strike(attacker, target, damage, rules.knockback(), sprintPush, weapon, click.blocking().get(target)) && sprintHit) {
             attacker.lastSprintHitSequence = input.sequence();
             Vec3 motion = attacker.motion;
             attacker.motion = new Vec3(motion.x * SPRINT_HIT_RETENTION, motion.y, motion.z * SPRINT_HIT_RETENTION);
@@ -543,7 +543,8 @@ public final class CombatEngine {
         return null;
     }
 
-    private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon, boolean blocking) {
+    private boolean strike(Actor attacker, Actor target, double rawDamage, double basePush, Vec3 sprintPush,
+                           Item weapon, boolean blocking) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
         boolean fullHit = target.hurtTicks == 0;
         double acceptedDamage = acceptRawDamage(target, rawDamage);
@@ -559,7 +560,7 @@ public final class CombatEngine {
         if (target.has(Effect.RESISTANCE)) dealt *= .8;
         if (target.has(Effect.MARK)) dealt *= 1.12;
 
-        if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target));
+        if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target), basePush);
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
         if (sprintPush.y > 0) {
             target.motion = target.motion.add(sprintPush);
@@ -592,8 +593,8 @@ public final class CombatEngine {
                 : direction(attacker.yaw, 0);
     }
 
-    private void beginHitMotion(Actor target, Vec3 away) {
-        Vec3 motion = target.motion.scale(HIT_MOTION_RETENTION).add(away.scale(rules.knockback()));
+    private void beginHitMotion(Actor target, Vec3 away, double basePush) {
+        Vec3 motion = target.motion.scale(HIT_MOTION_RETENTION).add(away.scale(basePush));
         target.motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y + rules.lift()), motion.z);
         target.impulseTick = currentTick;
         target.hitImpulse = target.motion;
@@ -741,7 +742,7 @@ public final class CombatEngine {
                 }
                 case ARROW -> {
                     if (target != null && target != owner) {
-                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), ZERO, Item.ARROW,
+                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), rules.projectileKnockback(), ZERO, Item.ARROW,
                                 target.useHeld && target.selected() == Item.SWORD);
                     }
                 }
@@ -767,7 +768,7 @@ public final class CombatEngine {
         target.hurtTick = currentTick;
         target.recentAttacker = owner.id;
         target.lastDamageTick = currentTick;
-        beginHitMotion(target, knockbackDirection(owner, target));
+        beginHitMotion(target, knockbackDirection(owner, target), rules.projectileKnockback());
         emit(EventType.HIT, owner.id, target.id, Item.PEARL, contact, 0);
     }
 

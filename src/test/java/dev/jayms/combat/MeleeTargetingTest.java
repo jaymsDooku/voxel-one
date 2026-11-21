@@ -31,6 +31,39 @@ class MeleeTargetingTest {
     }
 
     @Test
+    void anUpwardSwingMeasuresThreeBlocksAlongTheEyeRay() {
+        Vec3 ray = CombatGeometry.direction(0, 30).scale(3);
+        Vec3 limit = EYE.add(ray).add(0, .1, 0);
+        assertTrue(Double.isFinite(CombatGeometry.firstMeleeBody(EYE, ray, limit.add(0, -.0001, 0))));
+        assertFalse(Double.isFinite(CombatGeometry.firstMeleeBody(EYE, ray, limit.add(0, .0001, 0))));
+    }
+
+    @Test
+    void liveAndDisplayedSwingsEnforceThreeBlocksAlongTheDiagonalAndStopAtCover() {
+        for (boolean shown : new boolean[]{false, true}) {
+            for (CombatRules kit : new CombatRules[]{CombatRules.NO_DEBUFF, CombatRules.DEBUFF}) {
+                // Both leading faces intersect a 45-degree ray at the same distance.
+                double edge = 3 / Math.sqrt(2) + .4;
+                assertEquals(1, swingHits(kit, shown, false, 45, new Vec3(edge - .0001, 0, edge - .0001)));
+                assertEquals(0, swingHits(kit, shown, false, 45, new Vec3(edge + .0001, 0, edge + .0001)));
+                assertEquals(0, swingHits(kit, shown, true, 0, new Vec3(2.5, 0, 0)));
+            }
+        }
+    }
+
+    private static int swingHits(CombatRules rules, boolean shown, boolean wall, float yaw, Vec3 target) {
+        var engine = new CombatEngine(rules, arena(wall));
+        assertTrue(engine.join(1, FEET, yaw));
+        assertTrue(engine.join(2, target, 0));
+        engine.tick();
+        long tick = engine.currentTick();
+        var view = shown ? new CombatEngine.AttackView(2, tick, tick) : null;
+        assertTrue(engine.submit(1, new CombatEngine.Intent(1, yaw, 0, 0, 0, false, false, true, false, 0, view)));
+        engine.tick();
+        return engine.snapshot(1).stats().hits();
+    }
+
+    @Test
     void packetAcceptanceUsesCurrentThreeDimensionalDistanceAndEyeVisibility() {
         Arena clear = arena(false), wall = arena(true);
         assertTrue(CombatGeometry.withinMeleePacketRange(clear, FEET, new Vec3(5.999, 0, 0)));

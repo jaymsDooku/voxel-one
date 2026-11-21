@@ -3,6 +3,7 @@ package dev.jayms.combat.client;
 import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.CombatEngine.Vec3;
+import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.practice.PracticeClient;
 import dev.jayms.combat.practice.PracticeMatch.*;
 import dev.jayms.combat.practice.PracticeServer;
@@ -120,23 +121,23 @@ public final class PracticeNativePlaytest {
             }
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
-                    && b.impulseTick() == view.tick() && Math.hypot(b.impulseX(), b.impulseZ()) > .68) {
+                    && b.impulseTick() == view.tick() && sprintImpulse(b)) {
                 immediateImpulseCues++;
                 if (Math.abs(b.impulseY() - .4208) < .001) groundedSprintCues++;
             }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
-                    && b.hurtTick() >= 0 && view.tick() > b.hurtTick() && view.tick() <= b.hurtTick() + 3) {
+                    && b.impulseTick() >= 0 && view.tick() > b.impulseTick() && view.tick() <= b.impulseTick() + 3) {
                 double horizontal = Math.hypot(b.vx(), b.vz());
                 peakKnockbackHorizontal = Math.max(peakKnockbackHorizontal, horizontal);
                 peakKnockbackUp = Math.max(peakKnockbackUp, b.vy());
-                if (view.tick() == b.hurtTick() + 1 && horizontal > .68) {
-                    if (b.hurtTick() > lastSprintHit) {
-                        lastSprintHit = b.hurtTick();
+                if (view.tick() == b.impulseTick() + 1 && sprintImpulse(b) && horizontal > 0) {
+                    if (b.impulseTick() > lastSprintHit) {
+                        lastSprintHit = b.impulseTick();
                         sprintHits++;
                     }
-                    sampledLaunch = b.hurtTick();
+                    sampledLaunch = b.impulseTick();
                     sampledLaunchSpeed = horizontal;
-                } else if (view.tick() == b.hurtTick() + 2 && sampledLaunch == b.hurtTick()
+                } else if (view.tick() == b.impulseTick() + 2 && sampledLaunch == b.impulseTick()
                         && horizontal >= .45 * sampledLaunchSpeed) {
                     carriedLaunches++;
                 }
@@ -219,16 +220,21 @@ public final class PracticeNativePlaytest {
             }
         }
         boolean combo = primary && self.used() > 0;
-        boolean wTap = combo && other.hurtTick() >= 0 && view.tick() - other.hurtTick() < 2;
-        boolean advance = !wTap && range > (combo ? .65 : 2.35);
+        boolean wTap = combo && other.impulseTick() >= 0 && view.tick() - other.impulseTick() < 2;
+        boolean advance = !wTap && range > (combo ? 2.75 : 2.35);
         float forward = heal ? -.2f : advance ? 1 : 0;
-        boolean swing = primary ? combo && !wTap : self.hits() < 2;
+        boolean swing = !primary || combo && !wTap;
         return new Intent(sequence, yaw, heal ? -85 : pitch, forward, 0, false, forward > 0,
-                !heal && range < 3.05 && swing && sequence % 3 == 0, heal, slot);
+                !heal && swing && sequence % 3 == 0, heal, slot);
     }
 
     private static Fighter fighter(View view, int id) {
         return view.fighters().stream().filter(f -> f.id() == id).findFirst().orElse(null);
+    }
+
+    private static boolean sprintImpulse(Fighter fighter) {
+        // A stronger hit during hurt protection can apply the sprint bonus on its own.
+        return fighter.impulseTick() > fighter.hurtTick() || fighter.impulseY() > (float) CombatRules.NO_DEBUFF.lift();
     }
 
     static void screenshot(Path destination, int width, int height) throws Exception {

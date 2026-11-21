@@ -48,22 +48,25 @@ public final class ArenaCombatTrace {
             maxError = Math.max(maxError, error);
             if (samples) print("{\"kind\":\"tick\",\"tick\":%d,\"engine\":%s,\"paper\":%s,\"errorBlocks\":%.9f}", tick, xyz(victim.feet()), xyz(paper.point()), error);
         }
-        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":0.36,\"maxPositionErrorBlocks\":%.9f}", truth.size(), maxError);
+        if (report) print("{\"kind\":\"physics\",\"ticks\":%d,\"baseLift\":0.36,\"baseHorizontalPush\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+                truth.size(), CombatRules.NO_DEBUFF.knockback(), maxError);
         var replays = new ArrayList<Replay>();
         for (int fps : List.of(60, 144)) {
             replays.add(replay(packets, truth, fps, -1, samples, report));
             for (int phase = 0; phase < JITTER_MS.length; phase++) replays.add(replay(packets, truth, fps, phase, samples, report));
         }
         double sprintError = sprintTrajectory(samples);
-        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":0.36,\"maxPositionErrorBlocks\":%.9f}", END + 1, sprintError);
-        if (maxError > .00001 || sprintError > .00001) throw new AssertionError("Paper trajectory diverged by " + Math.max(maxError, sprintError));
+        if (report) print("{\"kind\":\"sprintPhysics\",\"ticks\":%d,\"baseLift\":0.36,\"sprintHorizontalBonus\":%.6f,\"maxPositionErrorBlocks\":%.9f}",
+                END + 1, CombatRules.NO_DEBUFF.sprintKnockback(), sprintError);
+        if (maxError > .00001 || sprintError > .00001) throw new AssertionError("Arena profile diverged from Paper travel by " + Math.max(maxError, sprintError));
         return new Run(maxError, sprintError, List.copyOf(replays));
     }
 
     // PaperSpigot 1.7.10 EntityLiving.a(Entity,float,double,double), e(float,float) and e().
+    // Use the arena horizontal profile and lift with the independent Paper travel equations.
     // Stationary target already carries the previous grounded tick's gravity when hit after travel.
     private static final class PaperTravel {
-        double x = START.x(), y = FLOOR, vx = .4, vy = .36 + (-.08 * (double).98F) / 2;
+        double x = START.x(), y = FLOOR, vx = CombatRules.NO_DEBUFF.knockback(), vy = .36 + (-.08 * (double).98F) / 2;
         boolean grounded = true;
         Vec3 point() { return new Vec3(x, y, START.z()); }
         void advance() {
@@ -95,7 +98,7 @@ public final class ArenaCombatTrace {
                 float acceleration = .1F * (.16277136F / (friction * friction * friction));
                 double forward = .98F * acceleration;
                 paper.x += forward;
-                paper.vx = forward * friction / 2 + .4 + .5;
+                paper.vx = forward * friction / 2 + CombatRules.NO_DEBUFF.knockback() + CombatRules.NO_DEBUFF.sprintKnockback();
                 paper.vy += .1;
             }
             if (tick == HIT + 1) engine.submit(2, new Intent(1, 0, 0, 0, 0, false, false, false, false, 0));
