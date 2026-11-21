@@ -336,6 +336,7 @@ public final class CombatEngine {
     }
 
     public boolean damage(int sourceId, int targetId, double amount) {
+        if (rules.knockbackOnly()) return false;
         Actor target = actors.get(targetId);
         if (target == null || !target.alive() || !Double.isFinite(amount) || amount <= 0 || amount > MAX_HEALTH
                 || sourceId != targetId && sourceId != 0 && !arena.canHarm(sourceId, targetId)) return false;
@@ -419,6 +420,7 @@ public final class CombatEngine {
         actor.effects.replaceAll((effect, ticks) -> ticks - 1);
         actor.effects.values().removeIf(ticks -> ticks <= 0);
         if (actor.pearlCooldown > 0) actor.pearlCooldown--;
+        if (rules.knockbackOnly()) return;
         if (actor.food >= 18 && actor.health < MAX_HEALTH && ++actor.foodRegeneration >= 80) {
             heal(actor, 1);
             actor.exhaustion += 3;
@@ -473,8 +475,10 @@ public final class CombatEngine {
         actor.grounded = step.state().grounded();
         actor.jumpCooldown = step.state().jumpCooldown();
         actor.velocity = step.displacement();
-        if (step.jumped()) actor.exhaustion += actor.sprinting ? .2 : .05;
-        if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
+        if (!rules.knockbackOnly()) {
+            if (step.jumped()) actor.exhaustion += actor.sprinting ? .2 : .05;
+            if (actor.sprinting) actor.exhaustion += Math.hypot(actor.velocity.x, actor.velocity.z) * .10;
+        }
         actor.hitHorizontalWall = step.hitHorizontalWall();
         if (actor.hitHorizontalWall) {
             actor.sprinting = false;
@@ -558,16 +562,6 @@ public final class CombatEngine {
         double acceptedDamage = acceptRawDamage(target, rawDamage);
         if (acceptedDamage <= 0) return;
 
-        double armorDamage = blocking ? (acceptedDamage + 1) * .5 : acceptedDamage;
-        int armorPoints = 0;
-        for (int i = 0; i < target.armor.length; i++) {
-            if (target.armor[i] > 0) armorPoints += ARMOR_POINTS[i];
-        }
-        double mitigation = target.armorReduction * armorPoints / 20;
-        double dealt = armorDamage * (1 - mitigation);
-        if (target.has(Effect.RESISTANCE)) dealt *= .8;
-        if (target.has(Effect.MARK)) dealt *= 1.12;
-
         if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target), basePush);
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
         if (sprintPush.y > 0) {
@@ -581,16 +575,32 @@ public final class CombatEngine {
         attacker.longestCombo = Math.max(attacker.longestCombo, ++attacker.combo);
         attacker.hits++;
         target.combo = 0;
+        double dealt = rules.knockbackOnly() ? 0 : strikeDamage(attacker, target, acceptedDamage, weapon, blocking);
+        emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
+        if (rules.knockbackOnly()) {
+            // Keep the hurt reaction and protection clock so trades match live combat.
+            if (fullHit) target.hurtTick = currentTick;
+        } else {
+            applyDamage(target, attacker.id, dealt, fullHit);
+        }
+    }
+
+    private double strikeDamage(Actor attacker, Actor target, double acceptedDamage, Item weapon, boolean blocking) {
+        double armorDamage = blocking ? (acceptedDamage + 1) * .5 : acceptedDamage;
+        int armorPoints = 0;
         if (weapon != Item.ARROW) attacker.exhaustion += .3;
         target.exhaustion += .3;
         int armorWear = Math.max(1, (int) (armorDamage / 4));
         for (int i = 0; i < target.armor.length; i++) {
             if (target.armor[i] <= 0) continue;
+            armorPoints += ARMOR_POINTS[i];
             target.armor[i] = Math.max(0, target.armor[i] - armorWear);
             if (target.armor[i] == 0) emit(EventType.ARMOR_BREAK, target.id, 0, Item.EMPTY, target.feet, i);
         }
-        emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
-        applyDamage(target, attacker.id, dealt, fullHit);
+        double dealt = armorDamage * (1 - target.armorReduction * armorPoints / 20);
+        if (target.has(Effect.RESISTANCE)) dealt *= .8;
+        if (target.has(Effect.MARK)) dealt *= 1.12;
+        return dealt;
     }
 
     private Vec3 knockbackDirection(Actor attacker, Actor target) {
@@ -625,7 +635,7 @@ public final class CombatEngine {
     }
 
     private void applyUnarmoredDamage(Actor target, int sourceId, double amount) {
-        if (amount <= 0) return;
+        if (rules.knockbackOnly() || amount <= 0) return;
         boolean fullHit = target.hurtTicks == 0;
         double damage = acceptRawDamage(target, amount);
         if (target.has(Effect.RESISTANCE)) damage *= .8;

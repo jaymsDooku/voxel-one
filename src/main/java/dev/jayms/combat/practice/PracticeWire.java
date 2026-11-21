@@ -13,7 +13,8 @@ import java.util.List;
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
     static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3,
-            WALL_VERSION = 4, IMPULSE_VERSION = 5, SWING_VERSION = 6, VERSION = SWING_VERSION;
+            WALL_VERSION = 4, IMPULSE_VERSION = 5, SWING_VERSION = 6, KNOCKBACK_LAB_VERSION = 7,
+            VERSION = KNOCKBACK_LAB_VERSION;
     static final float MAX_VELOCITY = 3.9f; // Paper 1.7.10 entity velocity packet component bound.
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.

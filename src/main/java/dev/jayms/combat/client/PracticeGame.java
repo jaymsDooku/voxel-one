@@ -182,7 +182,7 @@ public final class PracticeGame {
             throw new IllegalStateException("Unable to initialize practice window");
         }
         try {
-            window = new Window(1120, 680, factions ? "Voxel One | Faction Arena" : "Voxel One | PotPvP Practice", false, true);
+            window = new Window(1120, 680, title(), false, true);
             window.center();
             window.setOpenGlContext();
             window.vSync();
@@ -423,8 +423,7 @@ public final class PracticeGame {
     }
 
     private AttackView displayedTarget() {
-        CombatRules rules = view.kit() == PracticeMatch.Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
-        return displayedTarget(camera, rules, localPose, remoteActors);
+        return displayedTarget(camera, view.kit().rules(), localPose, remoteActors);
     }
 
     static AttackView displayedTarget(Camera camera, CombatRules rules, PoseView localPose,
@@ -729,15 +728,14 @@ public final class PracticeGame {
                 ui.line(x + 10, y + 10, x + 5, y + 5, 2, 1, .45f, .20f, alpha);
             }
         }
-        if (hitFeedback.received() > 0) {
+        if (hitFeedback.received() > 0 && !view.kit().rules().knockbackOnly()) {
             float alpha = .75f * hitFeedback.received();
             ui.rectangle(0, 0, width, 8, 1, .16f, .12f, alpha);
             ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, alpha);
         }
         if (factions) drawTeamLabels(ui);
-        String title = factions ? "Faction Arena" : view.kit() == PracticeMatch.Kit.DEBUFF ? "Debuff" : "No Debuff";
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
-        ui.text("Basalt Courtyard  /  " + title, 27, 24, 1.4f);
+        ui.text("Basalt Courtyard  /  " + (factions ? "Faction Arena" : view.kit().title()), 27, 24, 1.4f);
         if (showHitboxes) {
             String label = "Hitboxes  /  " + (hitboxShortcutNeedsControl ? "Ctrl+F12" : "F12");
             float labelWidth = ui.textWidth(label, 1.1f) + 20;
@@ -783,10 +781,16 @@ public final class PracticeGame {
         return switch (view.phase()) {
             case WAITING -> actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
             case COUNTDOWN -> "Get ready";
-            case FIGHT -> "Fight  /  " + (view.ticksLeft() / 20) + "s  |  "
+            case FIGHT -> (view.kit().rules().knockbackOnly() ? "Trading  |  "
+                    : "Fight  /  " + (view.ticksLeft() / 20) + "s  |  ")
                     + Controls.keyName(controls.code(AUTO_CLICK)) + "  Auto-click " + (autoClicker.enabled() ? "ON (9 CPS)" : "off");
             case RESULT -> view.ticksLeft() > 0 ? "Round complete" : "Enter: ready for another round";
         };
+    }
+
+    private String title() {
+        if (factions) return "Voxel One | Faction Arena";
+        return snapshot().kit().rules().knockbackOnly() ? "Voxel One | Knockback Lab" : "Voxel One | PotPvP Practice";
     }
 
     private String resultText() {
@@ -828,14 +832,21 @@ public final class PracticeGame {
 
     private void drawPlayerHud(Overlay ui, Fighter actor) {
         float x = (width - 540) / 2f, y = height - 74;
+        for (int i = 0; i < 9; i++)
+            drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
+        if (view.kit().rules().knockbackOnly()) {
+            String summary = String.format(Locale.ROOT, "HITS %d   BEST COMBO %d   H %.2f   V %+.2f  BLOCKS/TICK",
+                    actor.hits(), actor.combo(), Math.hypot(actor.vx(), actor.vz()), actor.vy());
+            ui.rectangle(x, y - 30, 540, 29, .031f, .05f, .065f, .92f);
+            ui.text(summary, x + 9, y - 20, Math.min(1.1f, 522f / ui.textWidth(summary, 1f)));
+            return;
+        }
         String summary = String.format(Locale.ROOT, "FOOD %d   HITS %d   COMBO %d   POTS %d / %d",
                 view.food(), actor.hits(), actor.combo(), actor.used(), actor.remaining());
         ui.rectangle(x, y - 30, 540, 29, .031f, .05f, .065f, .92f);
         drawHealthHearts(ui, x + 9, y - 25, actor.health());
         float summaryScale = Math.min(1.15f, 307f / Math.max(1, ui.textWidth(summary, 1f)));
         ui.text(summary, x + 224, y - 20, summaryScale);
-        for (int i = 0; i < 9; i++)
-            drawSlot(ui, view.inventory().get(i), hotbarLabels[i], x + i * 60, y, i == slot, false);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
         String held = PracticeItemIcons.name(selectedItem());
         String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor

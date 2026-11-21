@@ -87,6 +87,12 @@ The local view can preview the horizontal slowdown for up to one 50 ms tick whil
 
 In Basalt Courtyard, paired runs at 8, 9 and 10 CPS covered both spawn orientations and receipt orders. When a protected targeted click followed an incoming hit on the same tick, the horizontal contribution from that hit fell from 0.211457 to 0.126874 blocks for a normal hit and from 0.562670 to 0.337602 blocks for a sprint hit. These are first-step contributions with steering removed. Vertical displacement, health and hit counts matched the controls. An incoming hit processed afterward carried its full new impulse. An air swing matched the no-click control.
 
+## Knockback Lab
+
+Use **Knockback Lab** on the desktop Play screen to spar offline, or pass `--game practice --offline --kit knockback-lab`. For two players, start a dedicated server with `--practice-server --kit knockback-lab` and connect with up-to-date practice clients using the server's usual host, port and fingerprint.
+
+Both fighters start with a sword and empty reserve slots. They can trade indefinitely, with no health loss, armor wear, hunger drain or round timer. Hit confirmations, the hurt protection window, base and sprint knockback, and targeted sprint-click slowdown follow the standard practice rules. The HUD shows hits, best combo, and the last tick's horizontal and vertical movement in blocks per tick. Press Enter to ready up, and use F12 for the practice hitbox overlay.
+
 ## Reproduce
 
 These PowerShell commands use the current build’s desktop dependencies. Set up a graphics-capable desktop for the native run. The deterministic tests run headless.

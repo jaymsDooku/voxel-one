@@ -11,7 +11,7 @@ public record CombatRules(
         boolean debuffs, double reach, int hurtTicks, double swordDamage, double armorReduction,
         double knockback, double sprintKnockback, double projectileKnockback, double lift, double healing, double splashRadius,
         int pearlCooldown, double pearlDamage, int speedDuration, int fireResistanceDuration,
-        int poisonDuration, int slownessDuration) {
+        int poisonDuration, int slownessDuration, boolean knockbackOnly) {
 
     // Lower Paper's base vertical lift and cap slightly for arena combos before the sprint bonus.
     private static final double ARENA_BASE_LIFT = 0.36;
@@ -28,10 +28,25 @@ public record CombatRules(
     public static final CombatRules NO_DEBUFF = arena(false, PRACTICE_SWORD_DAMAGE);
     public static final CombatRules DEBUFF = arena(true, PRACTICE_SWORD_DAMAGE);
     public static final CombatRules FACTION = arena(true, 8.0);
+    public static final CombatRules KNOCKBACK_LAB = arena(false, PRACTICE_SWORD_DAMAGE, true);
 
     private static CombatRules arena(boolean debuffs, double swordDamage) {
+        return arena(debuffs, swordDamage, false);
+    }
+
+    private static CombatRules arena(boolean debuffs, double swordDamage, boolean knockbackOnly) {
         return new CombatRules(debuffs, 3.0, 10, swordDamage, ARENA_ARMOR_REDUCTION, NORMAL_PUSH,
-                SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0, 320, 5.0, 90 * 20, 180 * 20, 8 * 20, 14 * 20);
+                SPRINT_BONUS, PROJECTILE_PUSH, ARENA_BASE_LIFT, 8.0, 4.0, 320, 5.0,
+                90 * 20, 180 * 20, 8 * 20, 14 * 20, knockbackOnly);
+    }
+
+    public CombatRules(boolean debuffs, double reach, int hurtTicks, double swordDamage, double armorReduction,
+                       double knockback, double sprintKnockback, double projectileKnockback, double lift,
+                       double healing, double splashRadius, int pearlCooldown, double pearlDamage,
+                       int speedDuration, int fireResistanceDuration, int poisonDuration, int slownessDuration) {
+        this(debuffs, reach, hurtTicks, swordDamage, armorReduction, knockback, sprintKnockback, projectileKnockback,
+                lift, healing, splashRadius, pearlCooldown, pearlDamage, speedDuration, fireResistanceDuration,
+                poisonDuration, slownessDuration, false);
     }
 
     /** Existing custom rules use the same base push for melee and projectile hits. */
@@ -59,6 +74,10 @@ public record CombatRules(
     public List<Stack> openingKit() {
         var kit = new ArrayList<Stack>(CombatEngine.INVENTORY_SIZE);
         kit.add(new Stack(Item.SWORD, 1));
+        if (knockbackOnly) {
+            while (kit.size() < CombatEngine.INVENTORY_SIZE) kit.add(new Stack(Item.EMPTY, 0));
+            return List.copyOf(kit);
+        }
         kit.add(new Stack(Item.PEARL, 16));
         kit.add(new Stack(Item.FOOD, 32));
         kit.add(new Stack(Item.SPEED, 1));

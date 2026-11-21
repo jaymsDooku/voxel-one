@@ -23,6 +23,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.nio.file.Path;
 import java.util.Arrays;
+import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -145,6 +146,34 @@ class PracticeNetworkTest {
             await(() -> self(bob).health() < 20 && bothAgree(alice, bob), "poison damage on both clients");
             assertEquals(Item.EMPTY, alice.view().inventory().get(5).item());
             assertEquals(0, self(alice).used(), "Poison does not count as a healing potion");
+        }
+    }
+
+    @Test @Timeout(20)
+    void knockbackLabPushesPlayersOverTlsWithoutHealthLossOrConsumables() throws Exception {
+        var tls = SecureTransport.server(temporary.resolve("tls"));
+        try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), Kit.KNOCKBACK_LAB);
+             var alice = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Alice");
+             var bob = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Bob")) {
+            for (var client : List.of(alice, bob)) {
+                var view = client.view();
+                assertEquals(Kit.KNOCKBACK_LAB, view.kit());
+                assertEquals(Item.SWORD, view.inventory().get(0).item());
+                assertTrue(view.inventory().subList(1, 36).stream().allMatch(stack -> stack.item() == Item.EMPTY));
+                assertTrue(client.ready());
+            }
+            await(() -> bothPhase(alice, bob, Phase.FIGHT), "lab countdown");
+            long sequence = approach(alice, bob);
+            float beforeZ = self(bob).z();
+            assertTrue(alice.input(new Intent(sequence, -90, 0, 0, 0, false, false, true, false, 0)));
+            await(() -> self(alice).hits() == 1 && self(bob).hurtTick() > 0 && bothAgree(alice, bob),
+                    "shared lab hit and hurt reaction");
+            assertEquals(self(bob).hurtTick(), self(bob).impulseTick());
+            await(() -> self(bob).vz() == 0 && Math.abs(beforeZ - self(bob).z() - 1) < .001,
+                    "one block of settled knockback in the lab");
+            assertEquals(20, self(bob).health());
+            assertEquals(0, bob.view().ticksLeft());
+            assertTrue(bob.view().missiles().isEmpty());
         }
     }
 

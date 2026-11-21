@@ -11,7 +11,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.random.RandomGenerator;
 
-/** Owns one isolated, first-to-one practice match and its spectators. */
+/** Owns one isolated practice match and its spectators. */
 public final class PracticeMatch implements ArenaMatch {
     public static final int TICKS_PER_SECOND = 20;
     public static final int SWING_TICKS = 6;
@@ -21,7 +21,22 @@ public final class PracticeMatch implements ArenaMatch {
     }
 
     public enum Phase { WAITING, COUNTDOWN, FIGHT, RESULT }
-    public enum Kit { NO_DEBUFF, DEBUFF }
+    public enum Kit {
+        NO_DEBUFF(CombatRules.NO_DEBUFF, "No Debuff"),
+        DEBUFF(CombatRules.DEBUFF, "Debuff"),
+        KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab");
+
+        private final CombatRules rules;
+        private final String title;
+
+        Kit(CombatRules rules, String title) {
+            this.rules = rules;
+            this.title = title;
+        }
+
+        public CombatRules rules() { return rules; }
+        public String title() { return title; }
+    }
     public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
 
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
@@ -109,7 +124,7 @@ public final class PracticeMatch implements ArenaMatch {
     public PracticeMatch(Kit kit, boolean offline) {
         this.kit = kit;
         this.offline = offline;
-        rules = kit == Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
+        rules = kit.rules();
         engine = new CombatEngine(rules, arena);
         if (offline) {
             join("You");
@@ -117,6 +132,8 @@ public final class PracticeMatch implements ArenaMatch {
             members.get(BOT).ready = true;
         }
     }
+
+    public Kit kit() { return kit; }
 
     public synchronized int join(String name) {
         if (members.size() >= MAX_PEERS || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
@@ -186,7 +203,7 @@ public final class PracticeMatch implements ArenaMatch {
             case COUNTDOWN -> {
                 if (--ticksLeft == 0) {
                     phase = Phase.FIGHT;
-                    ticksLeft = ROUND;
+                    ticksLeft = rules.knockbackOnly() ? 0 : ROUND;
                 }
             }
             case FIGHT -> {
@@ -202,18 +219,22 @@ public final class PracticeMatch implements ArenaMatch {
                         restockBotPotion();
                     }
                 }
-                var fighters = engine.snapshots();
-                var survivors = fighters.stream().filter(f -> f.health() > 0).toList();
-                if (survivors.size() < fighters.size()) {
-                    finish(survivors.size() == 1 ? survivors.get(0).id() : 0, Result.KNOCKOUT);
-                } else if (--ticksLeft == 0) {
-                    finish(0, Result.TIMEOUT);
-                }
+                if (!rules.knockbackOnly()) updateRoundResult();
             }
             case RESULT -> {
                 if (ticksLeft > 0) ticksLeft--;
                 if (ticksLeft == 0 && members.values().stream().noneMatch(m -> m.side >= 0)) waitForReady();
             }
+        }
+    }
+
+    private void updateRoundResult() {
+        var fighters = engine.snapshots();
+        var survivors = fighters.stream().filter(f -> f.health() > 0).toList();
+        if (survivors.size() < fighters.size()) {
+            finish(survivors.size() == 1 ? survivors.get(0).id() : 0, Result.KNOCKOUT);
+        } else if (--ticksLeft == 0) {
+            finish(0, Result.TIMEOUT);
         }
     }
 
