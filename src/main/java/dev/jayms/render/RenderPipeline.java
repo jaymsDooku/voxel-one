@@ -253,7 +253,7 @@ public final class RenderPipeline implements AutoCloseable {
                 desiredVolume=volume;desiredVolumeFence=null;lighting.invalidateAccepted();obsoleteVolumes++;
             }
         }
-        if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); probes.invalidate(); }
+        if (clusters.update(world,x,z,Math.min(deadline,stage+250_000L))) { particles.emitters(clusters.emitters()); refreshProbes(world); }
         boolean worldOrEditsChanged=sceneWorld!=world || worldRevision!=world.editsVersion();
         boolean changed=sceneChanged(world) || worldOrEditsChanged;
         sceneNanos=System.nanoTime()-stage;
@@ -312,7 +312,7 @@ public final class RenderPipeline implements AutoCloseable {
         if(skyLightingUpload.ready()&&skyLightingUpload.valid(world)&&skyLightingUpload.skyCurrent(world)
                 &&!(activeSky!=null&&activeSky.valid(world)&&losesSky(worldSky,skyLightingUpload.sky.data,x,z))){
             var data=skyLightingUpload.take();lightingStores.releaseTexture(fineRoots);fineRoots=data.atlas();worldSky=skyLightingUpload.sky.data;activeSky=skyLightingUpload.sky;skyBufferOffset=skyLightingUpload.offset;
-            probes.invalidate();skyLightingUpload.close();skyLightingUpload=null;
+            refreshProbes(world);skyLightingUpload.close();skyLightingUpload=null;
         }
         return sent;
     }
@@ -369,7 +369,7 @@ public final class RenderPipeline implements AutoCloseable {
         }
         if(!lightingUpload.separateRoots){worldSky=lightingUpload.sky==null?null:lightingUpload.sky.data;activeSky=lightingUpload.sky;skyBufferOffset=lightingUpload.offset;}
         activeLightingBytes=(long)lightingUpload.width*lightingUpload.height*lightingUpload.depth*4+(volume==null?0:volume.rgba.length+volume.fine.length*4L+transport.estimatedBytes());
-        probes.invalidate();lightingUpload.close();lightingUpload=null;glActiveTexture(GL_TEXTURE0);
+        refreshProbes(world);lightingUpload.close();lightingUpload=null;glActiveTexture(GL_TEXTURE0);
     }
 
     /** Start before lighting uploads, shadows and probes. begin() remains a fallback for isolated renderers. */
@@ -472,6 +472,9 @@ public final class RenderPipeline implements AutoCloseable {
         }
         models.render(world, frustum, shadow);
     }
+    private void refreshProbes(World world){
+        if(previewWorld==world)probes.requestRefresh();else probes.invalidate();
+    }
     private void captureProbes(World world,VoxelModelRenderer models,Vector3f position){
         long start=System.nanoTime();try{captureProbesImpl(world,models,position);}finally{probeCpuNanos=System.nanoTime()-start;}
     }
@@ -498,7 +501,11 @@ public final class RenderPipeline implements AutoCloseable {
         atmosphere.view(view,isometric,settings.overviewHaze);
         atmosphere.quality(settings.atmosphereQuality);
         atmosphere.update(camera,sun);
-        if(atmosphereEnvironmentRevision!=atmosphere.revision) { updateEnvironment(); probes.invalidate(); temporal.reset(); }
+        if(atmosphereEnvironmentRevision!=atmosphere.revision) {
+            updateEnvironment();
+            if(previewWorld!=null&&atmosphere.viewOnlyPublication())probes.requestRefresh();
+            else {probes.invalidate();temporal.reset();}
+        }
         frameBudget.atmosphereMark(1);
         viewProjection.set(projection).mul(view);
         visibleChunks = occludedChunks = 0;
@@ -632,6 +639,7 @@ public final class RenderPipeline implements AutoCloseable {
         // Mixed opaque/transparent depth cannot be a safe occluder. The measured CPU
         // readback is kept in the diagnostic fixture only; production uses frustum culling.
         hiZ.invalidate();
+        temporal.previewContactWeight=previewWorld!=null;
         temporal.finish(resolveTexture, resolveDepth, sun, daylight, ambient);
         frameBudget.postEnd();frameBudget.end();
     }

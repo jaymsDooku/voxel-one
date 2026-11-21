@@ -15,13 +15,16 @@ uniform sampler2DArray uShadow;
 uniform sampler2DArray uMaterials;
 uniform mat4 uShadowMatrix[3];
 uniform int uTransportReady,uClusterReady,uProbeReady;
-uniform vec3 uProbeCenter;
-uniform samplerCube uReflectionProbe;
+uniform vec3 uProbeCenter,uPreviousProbeCenter;
+uniform samplerCube uReflectionProbe,uPreviousReflectionProbe;
+uniform int uPreviousProbeReady;
+uniform float uProbeBlend;
 uniform vec3 uClusterOrigin;
 uniform isampler3D uClusters;
 uniform isamplerBuffer uLightIndices;
 uniform samplerBuffer uLights;
-uniform sampler3D uVoxelRadiance,uDistanceField,uCascadeProbes[3];
+// Level zero already contains irradiance integrated from all three cascade intervals.
+uniform sampler3D uVoxelRadiance,uDistanceField,uCascadeProbes[1];
 const float PI=3.14159265;
 #include "shaders/sun-shadow.glsl"
 #include "shaders/irradiance.glsl"
@@ -94,6 +97,15 @@ vec3 probeIrradiance(vec3 p,vec3 N){
     }
     return total/max(.1,weight);
 }
+vec3 localReflection(samplerCube probe,vec3 center,vec3 direction,float lod,vec3 sky){
+    vec3 offset=vWorldPosition-center;
+    float distance=max(abs(offset.x),max(abs(offset.y),abs(offset.z)));
+    if(distance>=32.)return sky;
+    vec3 times=(sign(direction)*32.-offset)/mix(vec3(1.),direction,greaterThan(abs(direction),vec3(.0001)));
+    times=mix(vec3(1.e20),times,greaterThan(abs(direction),vec3(.0001)));
+    vec3 corrected=offset+direction*min(times.x,min(times.y,times.z));
+    return mix(textureLod(probe,corrected,lod).rgb,sky,smoothstep(24.,32.,distance));
+}
 void main(){
     if(vSurface.z==-2.)discard;
     vec3 geometricNormal=normalize(vNormal),N=geometricNormal,L=normalize(-uLightDirection);vec3 albedo=uVertexColor==1?vColor:uColor;
@@ -157,12 +169,13 @@ void main(){
     float rough=uVertexColor==1?vSurface.y:.85;
     vec3 F=vec3(.04)+(1.-vec3(.04))*pow(1.-max(dot(N,V),0.),5.);
     vec3 reflection=uLocalReflection==1?textureLod(uEnvironment,reflect(-V,N),rough*7.).rgb*(uPlanetLighting==1&&uHeld==0?skyVisibility:1.):vec3(0);
-    if(uLocalReflection==1&&uProbeReady==1&&uHeld==0&&all(lessThan(abs(vWorldPosition-uProbeCenter),vec3(32)))){
-        vec3 direction=reflect(-V,N),safe=sign(direction)*max(abs(direction),vec3(.0001));
-        vec3 bounds=uProbeCenter+sign(direction)*32.;vec3 times=(bounds-vWorldPosition)/safe;
-        float t=min(times.x,min(times.y,times.z));vec3 corrected=vWorldPosition+direction*t-uProbeCenter;
-        float weight=1.-smoothstep(24.,32.,max(abs(vWorldPosition.x-uProbeCenter.x),max(abs(vWorldPosition.y-uProbeCenter.y),abs(vWorldPosition.z-uProbeCenter.z))));
-        reflection=mix(reflection,textureLod(uReflectionProbe,corrected,rough*6.).rgb,weight);
+    if(uLocalReflection==1&&uProbeReady==1&&uHeld==0){
+        vec3 direction=reflect(-V,N);
+        vec3 current=localReflection(uReflectionProbe,uProbeCenter,direction,rough*6.,reflection);
+        if(uProbeBlend<1.){
+            vec3 previous=uPreviousProbeReady==1?localReflection(uPreviousReflectionProbe,uPreviousProbeCenter,direction,rough*6.,reflection):reflection;
+            reflection=mix(previous,current,uProbeBlend);
+        }else reflection=current;
     }
     float emission=uModelEmission+(uVertexColor==1?vSurface.x:0.);
     rough=clamp(rough,.08,1.);vec3 H=normalize(V+L);
@@ -174,7 +187,8 @@ void main(){
     vec3 Fs=vec3(.04)+vec3(.96)*pow(1.-max(dot(H,V),0.),5.);
     vec3 brdf=(1.-Fs)*albedo/PI+D*G*Fs/max(.001,4.*NoL*NoV);
     vec3 solar=uPlanetLighting==1&&uHeld==0?atmosphereDirect(vWorldPosition-uAtmosphereWorldCamera):vec3(4.5,4.14,3.45)*uDaylight;
-    vec3 color=albedo*indirect+brdf*solar*NoL*sdfVisibility*sunVisibility
+    vec3 direct=brdf*solar*NoL*sdfVisibility*sunVisibility;
+    vec3 color=albedo*indirect+direct
         +reflection*F*(1.-rough*.65)*(uPlanetLighting==1&&uHeld==0?1.:skyVisibility)+albedo*emission;
     if(uClusterReady==1&&uHeld==0){
         ivec3 cluster=ivec3(floor((vWorldPosition-uClusterOrigin)/8.));
@@ -190,9 +204,16 @@ void main(){
         }
     }
     if(uFog==1&&uHeld==0){
-        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;
+        vec3 t,l;atmosphereAerial(vWorldPosition,8,t,l);color=color*t+l;direct*=t;
     }
 
     if(uOutputTone==1){vec3 x=color*uOutputExposure;color=pow(clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.),vec3(1./2.2));}
-    fragColor=vec4(color,1.-uTransparency);
+    float outputAlpha=1.-uTransparency;
+    if(uBuildingPreview==1&&uPlanetLighting==1&&uHeld==0&&uTransparency==0.){
+        // In opaque preview pixels HDR alpha carries the fraction of light
+        // that a contact shadow can remove. Blended draws need their opacity.
+        const vec3 luma=vec3(.2126,.7152,.0722);
+        outputAlpha=clamp(dot(direct,luma)/max(.00001,dot(color,luma)),0.,1.);
+    }
+    fragColor=vec4(color,outputAlpha);
 }

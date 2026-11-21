@@ -212,15 +212,24 @@ public class AtmospherePlaytest {
     static void lifecycleCheck()throws Exception {
         var atmosphere=new PlanetAtmosphere();Vector3f camera=new Vector3f(8,30,24),sun=new Vector3f(.45f,.78f,-.45f).normalize();
         atmosphere.update(camera,sun);require(atmosphere.initialized(),"Bootstrap initialized");
+        require(!atmosphere.viewOnlyPublication(),"Bootstrap has no prior lighting history");
         int initial=(int)field(atmosphere,"trans");long revision=atmosphere.staticRevision;
-        atmosphere.update(camera,new Vector3f(1,1,0).normalize());
+        camera.y+=8;
+        long originalSky=atmosphere.revision;
+        for(int i=0;i<80&&atmosphere.revision==originalSky;i++)atmosphere.update(camera,sun);
+        require(atmosphere.revision>originalSky&&atmosphere.viewOnlyPublication(),"Fixed-sun altitude change preserves lighting history");
+        Vector3f changedSun=new Vector3f(1,1,0).normalize();
+        atmosphere.update(camera,changedSun);
         require(atmosphere.rebuilding(),"Sun change starts view rebuild");
+        for(int i=0;i<80&&atmosphere.rebuilding();i++)atmosphere.update(camera,changedSun);
+        require(!atmosphere.rebuilding()&&!atmosphere.viewOnlyPublication(),"Sunlight change invalidates lighting history");
         require((int)field(atmosphere,"trans")==initial&&atmosphere.staticRevision==revision,"Sun reuses static tables");
         atmosphere.profile(AtmosphereConfig.hazy());atmosphere.update(camera,sun);
         require((int)field(atmosphere,"trans")==initial&&glIsTexture(initial),"Old initialized atlas retained during rebuild");
         atmosphere.profile(AtmosphereConfig.thin());
         int frames=0;do {atmosphere.update(camera,sun);require(atmosphere.lastRowsSubmitted<=PlanetAtmosphere.Quality.LOW.rows,"Row work bounded after bootstrap");}while(atmosphere.rebuilding()&&frames++<160);
         require(!atmosphere.rebuilding()&&atmosphere.config().equals(AtmosphereConfig.thin()),"Rapid profile change cancels and publishes latest complete output");
+        require(!atmosphere.viewOnlyPublication(),"Atmosphere profile change invalidates lighting history");
         require(!glIsTexture(initial),"Replaced atlas deleted");
         int atlas=(int)field(atmosphere,"trans"),sky=(int)field(atmosphere,"sky");
         atmosphere.close();require(!glIsTexture(atlas)&&!glIsTexture(sky),"Close deletes active textures");
@@ -623,7 +632,7 @@ public class AtmospherePlaytest {
             require(mean(noon)>mean(night)+5,"Noon sky brighter than night at fixed exposure");
             report.append("16 GPU transmittance texels / 48 RGB components compared with double 4096-sample reference, upward and low-sun paths at four heights; maximum absolute error "+transmittanceReferenceCheck(renderer)+" <= 0.035. Readback used only for correctness, not performance.\n");
             report.append("9 GPU multiple-scattering texels / 27 RGB components compared with 256-direction closure at 256 view/sun samples; normalized error "+multipleReferenceCheck(renderer)+" <= 0.25. Approximation tolerance, not full transport parity.\n");
-            lifecycleCheck();report.append("Lifecycle: static sun reuse, retained initialized atlas, rapid profile cancellation, per-frame row limits and texture cleanup passed.\n");
+            lifecycleCheck();report.append("Lifecycle: camera-only sky publication, sunlight and profile invalidation, static atlas reuse, rapid profile cancellation, row limits and texture cleanup passed.\n");
             renderer.time(new GameConfig(false,true,1200,12),0);
             for(float altitude:new float[]{8000,90000,120000}) {
                 eye.y=24+altitude;var image=settled(renderer,shader,world,eye,false,false);ImageIO.write(image,"png",evidence.resolve("atmosphere-altitude-"+(int)altitude+".png").toFile());

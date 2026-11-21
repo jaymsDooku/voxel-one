@@ -9,18 +9,29 @@ import static org.lwjgl.opengl.GL33.*;
 
 /** Rolling six-face local reflection capture; sky is used until all faces are complete. */
 public final class ReflectionProbes implements AutoCloseable {
-    private final int cube=glGenTextures(),fbo=glGenFramebuffers(),depth=glGenRenderbuffers(),vao=glGenVertexArrays();
+    private int cube=glGenTextures(),spareCube=glGenTextures();
+    private final int fbo=glGenFramebuffers(),depth=glGenRenderbuffers(),vao=glGenVertexArrays();
     private final ShaderProgram voxel;
     private final boolean ownsVoxel;
     private final ShaderProgram sky=new ShaderProgram("shaders/fullscreen.vert","shaders/probe-sky.frag");
-    private final Vector3f center=new Vector3f();
-    private int face=-1,frames;private long revision=-1;private boolean ready;
+    private final Vector3f center=new Vector3f(),captureCenter=new Vector3f(),previousCenter=new Vector3f();
+    private static final int BLEND_FRAMES=8;
+    private int face=-1,frames,blendFrames;
+    private long revision=-1,modelsRevision=-1;
+    private World owner;
+    private boolean ready,previousReady,refresh;
     public ReflectionProbes(){this(null);}
     /** A shared voxel program reuses driver variants; its owner keeps responsibility for closing it. */
     public ReflectionProbes(ShaderProgram sharedVoxel){
         ownsVoxel=sharedVoxel==null;
         voxel=ownsVoxel?new ShaderProgram("shaders/voxel.vert","shaders/voxel.frag"):sharedVoxel;
-        glBindTexture(GL_TEXTURE_CUBE_MAP,cube);
+        allocateCube(cube);
+        allocateCube(spareCube);
+        glBindRenderbuffer(GL_RENDERBUFFER,depth);glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT24,64,64);
+        glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER,depth);glBindFramebuffer(GL_FRAMEBUFFER,0);
+    }
+    private static void allocateCube(int texture){
+        glBindTexture(GL_TEXTURE_CUBE_MAP,texture);
         // Keep the sampler complete from its first draw. Adding the mip chain only
         // after the sixth captured face changes the driver's sampler state and can
         // compile new terrain, glass and held-object variants during play.
@@ -31,32 +42,42 @@ public final class ReflectionProbes implements AutoCloseable {
                 glTexImage2D(GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,level,GL_RGBA16F,size,size,0,GL_RGBA,GL_FLOAT,(ByteBuffer)null);
         glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MIN_FILTER,GL_LINEAR_MIPMAP_LINEAR);glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_MAG_FILTER,GL_LINEAR);
         glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_S,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_T,GL_CLAMP_TO_EDGE);glTexParameteri(GL_TEXTURE_CUBE_MAP,GL_TEXTURE_WRAP_R,GL_CLAMP_TO_EDGE);
-        glBindRenderbuffer(GL_RENDERBUFFER,depth);glRenderbufferStorage(GL_RENDERBUFFER,GL_DEPTH_COMPONENT24,64,64);
-        glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferRenderbuffer(GL_FRAMEBUFFER,GL_DEPTH_ATTACHMENT,GL_RENDERBUFFER,depth);glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
-    public void invalidate(){ready=false;face=-1;revision=-1;}
+    public void invalidate(){ready=false;previousReady=false;blendFrames=0;face=-1;refresh=true;}
+    /** Moving the lighting volume requests a new capture without discarding the published reflection. */
+    public void requestRefresh(){refresh=true;}
     public void capture(World world,VoxelModelRenderer models,Vector3f eye,int environment,java.util.function.Consumer<ShaderProgram> lighting){
-        if(revision!=world.editsVersion())invalidate();
-        if(face<0&&(revision!=world.editsVersion()||center.distanceSquared(eye)>256||frames++%120==0)){
-            if(center.distanceSquared(eye)>256)ready=false;
-            center.set(eye);revision=world.editsVersion();face=0;
+        if(owner!=world||revision!=world.editsVersion()||modelsRevision!=world.models().revision()
+                ||(ready?center:captureCenter).distanceSquared(eye)>64*64){
+            invalidate();owner=world;revision=world.editsVersion();modelsRevision=world.models().revision();
+        }
+        // Both complete cubes are sampled during a transition. Leave the spare
+        // untouched until its last contribution has faded out.
+        if(blendFrames>0){blendFrames--;if(blendFrames>0)return;previousReady=false;}
+        if(face<0&&(!ready||refresh||center.distanceSquared(eye)>256||frames++%120==0)){
+            captureCenter.set(eye);face=0;refresh=false;
         }
         if(face<0)return;
+        int destination=ready?spareCube:cube;
         Vector3f[] direction={new Vector3f(1,0,0),new Vector3f(-1,0,0),new Vector3f(0,1,0),new Vector3f(0,-1,0),new Vector3f(0,0,1),new Vector3f(0,0,-1)};
         Vector3f[] up={new Vector3f(0,-1,0),new Vector3f(0,-1,0),new Vector3f(0,0,1),new Vector3f(0,0,-1),new Vector3f(0,-1,0),new Vector3f(0,-1,0)};
-        Matrix4f projection=new Matrix4f().perspective((float)Math.PI/2,1,.1f,96),view=new Matrix4f().lookAt(center,new Vector3f(center).add(direction[face]),up[face]);
+        Matrix4f projection=new Matrix4f().perspective((float)Math.PI/2,1,.1f,96),view=new Matrix4f().lookAt(captureCenter,new Vector3f(captureCenter).add(direction[face]),up[face]);
         Matrix4f vp=new Matrix4f(projection).mul(view);FrustumIntersection frustum=new FrustumIntersection(vp);
-        glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,cube,0);
+        glBindFramebuffer(GL_FRAMEBUFFER,fbo);glFramebufferTexture2D(GL_FRAMEBUFFER,GL_COLOR_ATTACHMENT0,GL_TEXTURE_CUBE_MAP_POSITIVE_X+face,destination,0);
         glViewport(0,0,64,64);glClear(GL_DEPTH_BUFFER_BIT);glDisable(GL_DEPTH_TEST);glDisable(GL_CULL_FACE);
-        sky.bind();sky.setMatrix4("uInverseVP",new Matrix4f(vp).invert());sky.setVector3("uCenter",center.x,center.y,center.z);sky.setInt("uEnvironment",0);
+        sky.bind();sky.setMatrix4("uInverseVP",new Matrix4f(vp).invert());sky.setVector3("uCenter",captureCenter.x,captureCenter.y,captureCenter.z);sky.setInt("uEnvironment",0);
         glActiveTexture(GL_TEXTURE0);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);glBindVertexArray(vao);glDrawArrays(GL_TRIANGLES,0,3);glBindVertexArray(0);
-        glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);bindVoxel(projection,view,center,environment,lighting);
+        glEnable(GL_DEPTH_TEST);glEnable(GL_CULL_FACE);bindVoxel(projection,view,captureCenter,environment,lighting);
         for(var entry:world.getLoadedChunks().entrySet()){
             var p=entry.getKey();if(entry.getValue().getMesh()==null||!frustum.testAab(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16,p.chunkX()*16+16,p.chunkY()*16+16,p.chunkZ()*16+16))continue;
             voxel.setMatrix4("uModel",new Matrix4f().translation(p.chunkX()*16,p.chunkY()*16,p.chunkZ()*16));entry.getValue().getMesh().render();
         }
         models.render(world,frustum,voxel);
-        if(++face==6){glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,cube);glGenerateMipmap(GL_TEXTURE_CUBE_MAP);ready=true;face=-1;}
+        if(++face==6){
+            glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,destination);glGenerateMipmap(GL_TEXTURE_CUBE_MAP);
+            if(ready){spareCube=cube;cube=destination;previousCenter.set(center);previousReady=true;}
+            center.set(captureCenter);ready=true;blendFrames=BLEND_FRAMES;face=-1;
+        }
         glBindFramebuffer(GL_FRAMEBUFFER,0);
     }
     private void bindVoxel(Matrix4f projection,Matrix4f view,Vector3f eye,int environment,java.util.function.Consumer<ShaderProgram> lighting){
@@ -71,11 +92,17 @@ public final class ReflectionProbes implements AutoCloseable {
         // Do not bind the cube being rendered to any active sampler, even with recursion off.
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);
         voxel.setInt("uReflectionProbe",14);
+        glActiveTexture(GL_TEXTURE10);glBindTexture(GL_TEXTURE_CUBE_MAP,environment);
+        voxel.setInt("uPreviousReflectionProbe",10);
     }
     public void bind(ShaderProgram shader){
         glActiveTexture(GL_TEXTURE14);glBindTexture(GL_TEXTURE_CUBE_MAP,cube);shader.setInt("uReflectionProbe",14);shader.setInt("uProbeReady",ready?1:0);
         shader.setVector3("uProbeCenter",center.x,center.y,center.z);
+        glActiveTexture(GL_TEXTURE10);glBindTexture(GL_TEXTURE_CUBE_MAP,spareCube);
+        shader.setInt("uPreviousReflectionProbe",10);shader.setInt("uPreviousProbeReady",previousReady?1:0);
+        shader.setVector3("uPreviousProbeCenter",previousCenter.x,previousCenter.y,previousCenter.z);
+        shader.setFloat("uProbeBlend",1f-(float)blendFrames/BLEND_FRAMES);
     }
     public boolean ready(){return ready;}
-    @Override public void close(){glDeleteTextures(cube);glDeleteFramebuffers(fbo);glDeleteRenderbuffers(depth);glDeleteVertexArrays(vao);if(ownsVoxel)voxel.close();sky.close();}
+    @Override public void close(){glDeleteTextures(cube);glDeleteTextures(spareCube);glDeleteFramebuffers(fbo);glDeleteRenderbuffers(depth);glDeleteVertexArrays(vao);if(ownsVoxel)voxel.close();sky.close();}
 }

@@ -52,6 +52,9 @@ public final class PlanetAtmosphere implements AutoCloseable {
     private Vec lastDirection;
     public double rebuildCpuMillis;
     public long revision;
+    private boolean viewOnlyPublication;
+    /** The latest sky table changed with the observer under the same physical lighting. */
+    public boolean viewOnlyPublication(){return viewOnlyPublication;}
     public AtmosphereConfig config(){return config;}
     public void profile(AtmosphereConfig value) {if(!requestedConfig.equals(value)){requestedConfig=value;dirty=true;}}
     public void quality(Quality value) {if(requestedQuality!=value){requestedQuality=value;dirty=true;}}
@@ -90,6 +93,7 @@ public final class PlanetAtmosphere implements AutoCloseable {
                 if(j.row==total){
                     if(j.stage==1){glDisable(GL_SCISSOR_TEST);glActiveTexture(GL_TEXTURE15);glBindTexture(GL_TEXTURE_2D,j.atlas);glCopyTexSubImage2D(GL_TEXTURE_2D,0,0,j.q.transHeight,0,0,j.q.multipleSize,j.q.multipleSize);glEnable(GL_SCISSOR_TEST);}
                     if(j.stage==2){if(trans!=0&&j.ownsAtlas)glDeleteTextures(trans);if(sky!=0)glDeleteTextures(sky);glDeleteTextures(j.multiple);
+                        viewOnlyPublication=!j.ownsAtlas&&j.profile.equals(config)&&j.s.equals(lastDirection);
                         trans=j.atlas;sky=j.image;config=j.profile;quality=j.q;position=planetPosition(config,camera);transform=matrix(config);sun=planetSun(transform,worldSun);
                         lastAltitude=j.p.length()-config.radius();lastSun=j.p.unit().dot(j.s);lastDirection=j.s;dirty=false;revision++;if(j.ownsAtlas)staticRevision++;job=null;
                     }else{j.stage++;j.row=0;}

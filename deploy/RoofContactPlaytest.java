@@ -34,6 +34,11 @@ public final class RoofContactPlaytest {
     }
 
     private static void check(ShaderProgram shader, Wall wall, float distance, float jitter, boolean trim) {
+        check(shader,wall,distance,jitter,trim,false,1);
+    }
+
+    private static void check(ShaderProgram shader, Wall wall, float distance, float jitter, boolean trim,
+                              boolean preview,float directShare) {
         float[] depths = new float[WIDTH*HEIGHT];
         boolean[] measured = new boolean[depths.length];
         float startHeight = wall.normal.z*distance, startTangent = wall.tangent.z*distance;
@@ -54,22 +59,27 @@ public final class RoofContactPlaytest {
             measured[i] = !trim || (offset>-.87f && offset<-.48f);
         }
 
+        // White surface with a known direct-light fraction in preview scene alpha.
+        glActiveTexture(GL_TEXTURE0);
+        glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA16F,1,1,0,GL_RGBA,GL_FLOAT,new float[]{1,1,1,directShare});
         glActiveTexture(GL_TEXTURE1);
         glTexImage2D(GL_TEXTURE_2D,0,GL_DEPTH_COMPONENT24,WIDTH,HEIGHT,0,GL_DEPTH_COMPONENT,GL_FLOAT,depths);
         shader.setFloat("uJitterU",jitter/WIDTH);
         shader.setFloat("uJitterV",-jitter/HEIGHT);
         shader.setVector3("uSun",wall.sun.x,wall.sun.y,wall.sun.z);
+        shader.setInt("uPreviewContactWeight",preview?1:0);
         glDrawArrays(GL_TRIANGLES,0,3);
         float[] pixels = new float[depths.length];
         glReadPixels(0,0,WIDTH,HEIGHT,GL_RED,GL_FLOAT,pixels);
-        int shadowed = 0, samples = 0;
+        float expected=trim ? 1-.35f*(preview?directShare:1) : 1;
+        int matched = 0, samples = 0;
         for (int i=0; i<pixels.length; i++) if (measured[i]) {
             samples++;
-            if (pixels[i]<.83f) shadowed++;
+            if (Math.abs(pixels[i]-expected)<.01f) matched++;
         }
-        System.out.printf(Locale.ROOT,"distance %.0f normal (%.2f,%.2f,%.2f) jitter %.3f trim %s: %d/%d shadowed%n",
-                distance,wall.normal.x,wall.normal.y,wall.normal.z,jitter,trim,shadowed,samples);
-        if (samples<100 || (trim ? shadowed<samples*.85f : shadowed!=0))
+        System.out.printf(Locale.ROOT,"distance %.0f normal (%.2f,%.2f,%.2f) jitter %.3f trim %s preview %s direct %.2f: %d/%d at expected %.3f%n",
+                distance,wall.normal.x,wall.normal.y,wall.normal.z,jitter,trim,preview,directShare,matched,samples,expected);
+        if (samples<100 || (expected<1 ? matched<samples*.85f : matched!=samples))
             throw new AssertionError("Incorrect contact visibility");
     }
 
@@ -90,7 +100,6 @@ public final class RoofContactPlaytest {
                 glBindVertexArray(glGenVertexArrays());
                 glActiveTexture(GL_TEXTURE0);
                 glBindTexture(GL_TEXTURE_2D,glGenTextures());
-                glTexImage2D(GL_TEXTURE_2D,0,GL_RGBA8,1,1,0,GL_RGBA,GL_UNSIGNED_BYTE,new int[]{-1});
                 glTexParameteri(GL_TEXTURE_2D,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
                 glActiveTexture(GL_TEXTURE1);
                 glBindTexture(GL_TEXTURE_2D,glGenTextures());
@@ -110,6 +119,8 @@ public final class RoofContactPlaytest {
                         check(shader,wall,distance,.375f,false);
                     }
                     check(shader,wall,10,0,true);
+                    for (float direct : new float[]{0,.5f,1}) check(shader,wall,10,0,true,true,direct);
+                    check(shader,wall,10,0,true,false,0);
                 }
                 if (glGetError()!=GL_NO_ERROR) throw new AssertionError("OpenGL error");
             }
