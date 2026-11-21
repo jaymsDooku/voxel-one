@@ -11,6 +11,18 @@ public final class ChunkGenerator {
 
     public static Chunk generate(ChunkPos p, Terrain terrain) {
         Chunk c = new Chunk();
+        int bottom=p.chunkY()*16, top=bottom+15, sx=p.chunkX()*16, sz=p.chunkZ()*16;
+        var grid=terrain.stressGrid();
+        boolean gridChunk=grid!=null && grid.contains(sx,sz) && grid.contains(sx+15,sz+15);
+        boolean air=bottom>Terrain.MAX_Y || top<Terrain.MIN_Y || gridChunk && bottom>grid.grade();
+        if (gridChunk && bottom>=Terrain.MIN_Y && top<=grid.grade()-5) {
+            c.fillTerrain(STONE);
+        } else if (!air) generateCells(c,p,terrain);
+        c.terrainPosition=p;c.terrainSeed=terrain.seed;c.terrainVersion=terrain.version;c.terrainGrid=grid;c.terrainEquivalent=true;
+        return c;
+    }
+
+    private static void generateCells(Chunk c,ChunkPos p,Terrain terrain) {
         for (int x = 0; x < 16; x++) {
             if(Thread.currentThread().isInterrupted())throw new java.util.concurrent.CancellationException();
             for (int z = 0; z < 16; z++)
@@ -21,8 +33,7 @@ public final class ChunkGenerator {
                     if (type != 0) c.setBlock(x, y, z, type);
                 }
         }
-        c.terrainPosition=p;c.terrainSeed=terrain.seed;c.terrainVersion=terrain.version;c.terrainGrid=terrain.stressGrid();c.terrainEquivalent=true;
-        return c;
+
     }
 
     public static Chunk createExampleChunk() {

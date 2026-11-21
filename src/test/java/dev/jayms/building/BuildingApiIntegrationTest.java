@@ -33,6 +33,9 @@ class BuildingApiIntegrationTest {
             var schema=send(client,authorized(server,SCHEMA).build());
             assertTrue(schema.body().contains("\"monument\""));
             assertTrue(schema.body().contains("masonry MATERIAL"));
+            assertTrue(schema.body().contains("monument large"));
+            String large=source.replace("4800","9600").replace("grid16 monument","grid16 monument large");
+            assertEquals(200,post(client,server,large.getBytes(StandardCharsets.UTF_8)).statusCode());
             var response=post(client,server,source.getBytes(StandardCharsets.UTF_8));
             assertEquals(200,response.statusCode());
             var expected=new ByteArrayOutputStream();

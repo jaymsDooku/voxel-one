@@ -27,6 +27,8 @@ public final class BuildingCompiler {
     public static final int MAX_OCTREE_WORK = 2_000_000;
     public static final int MONUMENT_AXIS = 8192, MONUMENT_EDITS = 1_200_000, MONUMENT_WORK = 16_000_000;
 
+    public static final int LARGE_MONUMENT_AXIS = 16_384, LARGE_MONUMENT_EDITS = 3_500_000;
+
     private static final Pattern ID = Pattern.compile("[A-Za-z0-9][A-Za-z0-9_-]{0,47}");
     private static final Pattern RGB = Pattern.compile("[0-9a-fA-F]{6}");
     private static final Map<String, Integer> MATERIALS = Map.ofEntries(
@@ -139,17 +141,19 @@ public final class BuildingCompiler {
     }
 
     private static Grid header(String[] words) {
-        boolean monument = words.length == 7 && words[5].equals("grid16") && words[6].equals("monument");
+        boolean large = words.length == 8 && words[7].equals("large");
+        boolean monument = (words.length == 7 || large) && words[5].equals("grid16") && words[6].equals("monument");
         boolean fine = monument || words.length == 6 && words[5].equals("grid16");
         if (!fine && words.length != 5)
-            throw new IllegalArgumentException("Expected 'building ID WIDTH HEIGHT DEPTH [grid16 [monument]]'");
+            throw new IllegalArgumentException("Expected 'building ID WIDTH HEIGHT DEPTH [grid16 [monument [large]]]'");
         requireId(words[1]);
-        int max = monument ? MONUMENT_AXIS : fine ? MAX_FINE_DIMENSION : MAX_DIMENSION;
+        int max = large ? LARGE_MONUMENT_AXIS : monument ? MONUMENT_AXIS : fine ? MAX_FINE_DIMENSION : MAX_DIMENSION;
         int w = dimension(words[2],max), h = dimension(words[3],max), d = dimension(words[4],max);
         var bounds = new Bounds(0, 0, 0, w, h, d);
         if (!fine && bounds.volume() > MAX_VOLUME)
             throw new IllegalArgumentException("Building volume exceeds " + MAX_VOLUME + " half-block cells");
-        return new Grid(words[1],bounds,fine ? 1 : 8,monument);
+        int editLimit = large ? LARGE_MONUMENT_EDITS : monument ? MONUMENT_EDITS : MAX_EDITS;
+        return new Grid(words[1],bounds,fine ? 1 : 8,editLimit,monument ? MONUMENT_WORK : MAX_OCTREE_WORK);
     }
 
     private static void requireId(String value) {
@@ -228,7 +232,7 @@ public final class BuildingCompiler {
     /** Forest of engine octrees. A tile covers sixteen game blocks on each axis. */
     private static final class Grid {
         private static final int TILE = 256;
-        private final int tilesPerAxis, blocksPerAxis, maxEdits, maxWork;
+        private final int tilesX, tilesZ, blocksY, blocksZ, maxEdits, maxWork;
         private final String name;
         private final Bounds bounds;
         private final int scale;
@@ -236,16 +240,18 @@ public final class BuildingCompiler {
         private long fineWork;
         private int masonryStones;
 
-        Grid(String name, Bounds bounds, int scale, boolean monument) {
+        Grid(String name, Bounds bounds, int scale, int maxEdits, int maxWork) {
             this.name = name;
             this.bounds = bounds;
             this.scale = scale;
-            int extent = Math.max(bounds.x1, Math.max(bounds.y1,bounds.z1))*scale;
-            tilesPerAxis = (extent+TILE-1)/TILE;
-            blocksPerAxis = tilesPerAxis*(TILE/16);
-            tiles = new SparseVoxelOctree[tilesPerAxis*tilesPerAxis*tilesPerAxis];
-            maxEdits = monument ? MONUMENT_EDITS : MAX_EDITS;
-            maxWork = monument ? MONUMENT_WORK : MAX_OCTREE_WORK;
+            tilesX = (bounds.x1*scale+TILE-1)/TILE;
+            tilesZ = (bounds.z1*scale+TILE-1)/TILE;
+            int tilesY = (bounds.y1*scale+TILE-1)/TILE;
+            tiles = new SparseVoxelOctree[tilesX*tilesY*tilesZ];
+            blocksY = (bounds.y1*scale+15)/16;
+            blocksZ = (bounds.z1*scale+15)/16;
+            this.maxEdits = maxEdits;
+            this.maxWork = maxWork;
         }
 
         Bounds bounds() { return bounds; }
@@ -327,45 +333,49 @@ public final class BuildingCompiler {
         }
 
         private int index(int x, int y, int z) {
-            return (y*tilesPerAxis+z)*tilesPerAxis+x;
+            return (y*tilesZ+z)*tilesX+x;
         }
 
         Building build() {
             List<Protocol.Edit> edits=new ArrayList<>();
-            BitSet occupiedBlocks = new BitSet();
+            BitSet[] occupiedRows = new BitSet[blocksY*blocksZ];
             for (int i=0; i<tiles.length; i++) {
                 SparseVoxelOctree tree = tiles[i];
                 if (tree == null || tree.isEmpty()) continue;
-                int x = i % tilesPerAxis * TILE;
-                int z = i / tilesPerAxis % tilesPerAxis * TILE;
-                int y = i / tilesPerAxis / tilesPerAxis * TILE;
-                collectBlocks(occupiedBlocks,tree,x,y,z,TILE);
+                int x = i % tilesX * TILE;
+                int z = i / tilesX % tilesZ * TILE;
+                int y = i / tilesX / tilesZ * TILE;
+                collectBlocks(occupiedRows,tree,x,y,z,TILE);
             }
             // Keep the canonical block order of existing recipes across tile boundaries.
             long occupied=0;
-            for (int block=occupiedBlocks.nextSetBit(0); block>=0; block=occupiedBlocks.nextSetBit(block+1)) {
-                int x = block % blocksPerAxis * 16;
-                int z = block / blocksPerAxis % blocksPerAxis * 16;
-                int y = block / blocksPerAxis / blocksPerAxis * 16;
-                occupied += emit(edits,tiles[index(x/TILE,y/TILE,z/TILE)],x,y,z,16,0);
+            for (int row=0; row<occupiedRows.length; row++) {
+                BitSet blocks=occupiedRows[row];
+                if (blocks==null) continue;
+                int y=row/blocksZ*16, z=row%blocksZ*16;
+                for (int block=blocks.nextSetBit(0);block>=0;block=blocks.nextSetBit(block+1)) {
+                    int x=block*16;
+                    occupied += emit(edits,tiles[index(x/TILE,y/TILE,z/TILE)],x,y,z,16,0);
+                }
             }
             if (occupied==0) throw new IllegalArgumentException("Recipe leaves an empty building");
             return new Building(name,bounds.x1,bounds.y1,bounds.z1,edits,occupied,16/scale);
         }
 
-        private void collectBlocks(BitSet blocks,SparseVoxelOctree tree,int x,int y,int z,int side) {
+        private void collectBlocks(BitSet[] rows,SparseVoxelOctree tree,int x,int y,int z,int side) {
             int value = tree.uniform(x%TILE,y%TILE,z%TILE,side);
             if (value == 0) return;
             if (value == -1 && side > 16) {
                 int half = side/2;
                 for (int i=0; i<8; i++)
-                    collectBlocks(blocks,tree,x+(i&1)*half,y+(i>>2)*half,z+((i>>1)&1)*half,half);
+                    collectBlocks(rows,tree,x+(i&1)*half,y+(i>>2)*half,z+((i>>1)&1)*half,half);
                 return;
             }
             int span = side/16;
             for (int by=y/16; by<y/16+span; by++) for (int bz=z/16; bz<z/16+span; bz++) {
-                int first = (by*blocksPerAxis+bz)*blocksPerAxis+x/16;
-                blocks.set(first,first+span);
+                int row=by*blocksZ+bz;
+                if (rows[row]==null) rows[row]=new BitSet();
+                rows[row].set(x/16,x/16+span);
             }
         }
 

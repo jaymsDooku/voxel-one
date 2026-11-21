@@ -41,3 +41,20 @@ java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --building-preview assets/bui
 ```
 
 Walk towards the terrace for the façade or press **F** to fly up to the clock and over the courts. The model preview is temporary.
+
+## Double-scale palace
+
+Use `westminster-grand` as the dimensional reference. Its 16 parts include both end towers, the Central Tower, Westminster Hall, the Thames range, two open courts, the connecting wings, and their roofs and ornament. The double-scale copy uses the same axes and ground datum. Every horizontal distance and elevation doubles, including the setbacks, the width of the clock hands, and the depth of the masonry joints.
+
+| Measurement in blocks | Grand | Double |
+| --- | ---: | ---: |
+| Site width × depth | 300 × 152 | 600 × 304 |
+| Recipe height | 102 | 204 |
+| Elizabeth Tower cap above base | 96 | 192 |
+| Central Tower cap above base | 92 | 184 |
+| Victoria Tower cap above base | 98 | 196 |
+
+1. **Lay out the palace.** Double each part boundary and each row stride. Keep the bay, hour-mark, and turret counts. Scale the AIR cuts with the surrounding stone so that galleries, windows, and courts retain their proportions.
+2. **Compile the detail.** Build a separate grid16 asset from the grand recipe. Check the material geometry against its source and require exactly eight times the occupied volume. Keep limits on authoring operations, octree work, and emitted placements.
+3. **Place the site.** Size the resident chunk range for the built height and keep the higher tower meshes available when the camera crosses the site. Frame both ends of the riverfront from the opening spawn.
+4. **Inspect at both distances.** In the native client, verify all three tower caps above the old height limit and check for paving and open space in both courts. Capture the opening silhouette, fly to the four-faced clock, then follow the riverfront to inspect the sills, buttresses, and roof.

@@ -350,7 +350,12 @@ public class Main {
         if(framebufferWidth>0&&framebufferHeight>0){
             org.lwjgl.opengl.GL30.glBindFramebuffer(org.lwjgl.opengl.GL30.GL_FRAMEBUFFER,0);glViewport(0,0,framebufferWidth,framebufferHeight);
             glClear(GL_COLOR_BUFFER_BIT|GL_DEPTH_BUFFER_BIT);overlay.begin(framebufferWidth,framebufferHeight);
-            overlay.text(stage.equals("lighting")?"Loading nearby lighting...":"Loading nearby terrain...",24,40,2);
+            String message=switch(stage) {
+                case "lighting" -> "Loading nearby lighting...";
+                case "building" -> "Preparing building geometry...";
+                default -> "Loading nearby terrain...";
+            };
+            overlay.text(message,24,40,2);
             overlay.text("Escape: cancel",24,72,1.3f);overlay.end();
             if(frameObserver!=null)frameObserver.loading(this,stage);
         }
@@ -532,43 +537,22 @@ public class Main {
     private void prepareBuildingPlot() throws Exception {
         int grade=buildingPreviewGrade();
         world.terrain().stressGrid(new dev.jayms.net.city.StressGrid(grade));
-        int grid = buildingPreview.unitsPerBlock();
-        int width = (buildingPreview.width()+grid-1)/grid, depth = (buildingPreview.depth()+grid-1)/grid;
-        world.trackPreviewMeshes(width, depth);
-        var spawn = buildingPreviewSpawn();
-        int front = -19;
-        // Prepare the spawn before adding any exterior detail columns.
-        world.stream(spawn.x(),spawn.z(),9);
-        // Keep only columns containing the asset resident, so camera travel can
-        // stream surrounding terrain without replacing the landmark with terrain LOD.
-        int columns=(width+15)/16;
-        BitSet footprint=new BitSet();
-        for (var edit:buildingPreview.edits()) footprint.set((edit.z()/16)*columns+edit.x()/16);
-        for (int cz=0; cz<=(depth-1)/16; cz++) for (int cx=0; cx<=(width-1)/16; cx++) {
-            if (!footprint.get(cz*columns+cx)) continue;
-            world.retainPreviewColumn(cx,cz);
-            for (int cy=-2; cy<=7; cy++) {
-                var position = new ChunkPos(cx,cy,cz);
-                if (!world.getLoadedChunks().containsKey(position))
-                    world.addChunk(position,ChunkGenerator.generate(position,world.terrain()));
-            }
+        BuildingPreviewPlot.install(world, buildingPreview, grade, this::pollBuildingPreview);
+        for (Chunk chunk : world.getLoadedChunks().values()) {
+            chunk.checkMesh();
+            pollBuildingPreview();
         }
-        for (int z=front; z<=depth+4; z++) for (int x=-7; x<=width+7; x++) {
-            int material = z < -6 ? Blocks.ASPHALT : z <= -4 ? Blocks.SNOW : Blocks.STONE;
-            world.setBlock(x,grade,z,material);
-        }
-        for (var e : buildingPreview.edits()) {
-            world.apply(new Protocol.Edit(e.x(),e.y()+grade+1,e.z(),e.type(),
-                    e.depth(),e.ix(),e.iy(),e.iz(),e.color()));
-        }
-        // A detail column replaces the distant mesh only when all of its chunks
-        // are ready. Finish the asset plot before showing the first preview frame.
-        for (var entry : world.getLoadedChunks().entrySet()) {
-            var pos = entry.getKey();
-            if (pos.chunkX() >= 0 && pos.chunkX() <= (width-1)/16
-                    && pos.chunkZ() >= 0 && pos.chunkZ() <= (depth-1)/16)
-                entry.getValue().checkMesh();
-        }
+    }
+
+    private long lastPreviewPoll;
+
+    private void pollBuildingPreview() throws Exception {
+        long now=System.nanoTime();
+        if (now-lastPreviewPoll < 150_000_000L) return;
+        lastPreviewPoll=now;
+        loadingFrame("building");
+        if(window.shouldClose() || glfwGetKey(window.getHandle(),GLFW_KEY_ESCAPE)==GLFW_PRESS)
+            throw new java.util.concurrent.CancellationException("Building loading cancelled");
     }
 
     private void saveCurrentSimulation() throws java.io.IOException {
