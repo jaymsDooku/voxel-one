@@ -85,6 +85,7 @@ public final class PracticeGame {
     private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
     private boolean inventory, usePressed, previousIntentUse, firstMouse = true, positioned;
     private boolean sprintReleased, showHitboxes, hitboxShortcutNeedsControl;
+    private boolean showSparringStats;
     private final ArrayDeque<Intent> pendingCombatInputs = new ArrayDeque<>();
     private PoseView localPose;
     private Boolean scriptedUse;
@@ -382,6 +383,10 @@ public final class PracticeGame {
     }
 
     private void combatPress(int key) {
+        if (offline != null && controls.matches(SPARRING_STATS, key)) {
+            showSparringStats = !showSparringStats;
+            return;
+        }
         if (controls.matches(AUTO_CLICK, key)) {
             autoClicker.toggle();
             return;
@@ -742,6 +747,7 @@ public final class PracticeGame {
             ui.rectangle(width - labelWidth - 16, 13, labelWidth, 24, .031f, .05f, .065f, .90f);
             ui.text(label, width - labelWidth - 6, 20, 1.1f, .72f, 1, .72f, 1);
         }
+        if (offline != null && !inventory) drawSparringStats(ui);
         String state = stateText(actor);
         ui.text(state, 27, 47, 1.05f, .66f, .84f, .90f, 1);
         if (factions) {
@@ -773,6 +779,45 @@ public final class PracticeGame {
         String recording = recorder.status(Controls.keyName(controls.code(RECORD)));
         if (!recording.isBlank()) ui.text(recording, 20, height - (factions ? 42 : 22), 1);
         ui.end();
+    }
+
+    private void drawSparringStats(Overlay ui) {
+        float top = showHitboxes ? 44 : 13;
+        String key = Controls.keyName(controls.code(SPARRING_STATS));
+        if (!showSparringStats) {
+            if (view.phase() == Phase.WAITING) {
+                String hint = key + "  Partner stats";
+                float boxWidth = ui.textWidth(hint, 1.1f) + 20;
+                ui.rectangle(width - boxWidth - 16, top, boxWidth, 24, .031f, .05f, .065f, .90f);
+                ui.text(hint, width - boxWidth - 6, top + 7, 1.1f);
+            }
+            return;
+        }
+        Fighter partner = view.fighters().stream().filter(fighter -> fighter.id() != id).findFirst().orElse(null);
+        if (partner == null) return;
+
+        boolean lab = view.kit().rules().knockbackOnly();
+        float left = width - 276;
+        ui.rectangle(left, top, 260, lab ? 112 : 166, .031f, .05f, .065f, .94f);
+        ui.text(partner.name(), left + 10, top + 9, 1.3f);
+        ui.text(key, left + 250 - ui.textWidth(key, 1f), top + 11, 1f, .66f, .84f, .90f, 1);
+        ui.rectangle(left + 10, top + 28, 240, 1, .22f, .33f, .41f, 1);
+        sparringStat(ui, left, top + 37, "Hits", Integer.toString(partner.hits()));
+        sparringStat(ui, left, top + 55, "Best combo", Integer.toString(partner.combo()));
+        sparringStat(ui, left, top + 73, "H / V (blocks per tick)", String.format(Locale.ROOT, "%.2f / %+.2f",
+                Math.hypot(partner.vx(), partner.vz()), partner.vy()));
+        sparringStat(ui, left, top + 91, "Held item",
+                partner.held() == Item.EMPTY ? "Empty hand" : PracticeItemIcons.name(partner.held()));
+        if (!lab) {
+            sparringStat(ui, left, top + 109, "Health", String.format(Locale.ROOT, "%.2f / 10 hearts", partner.health() / 2));
+            sparringStat(ui, left, top + 127, "Potions used", Integer.toString(partner.used()));
+            sparringStat(ui, left, top + 145, "Potions left", Integer.toString(partner.remaining()));
+        }
+    }
+
+    private static void sparringStat(Overlay ui, float left, float top, String label, String value) {
+        ui.text(label, left + 10, top, 1.05f, .66f, .84f, .90f, 1);
+        ui.text(value, left + 250 - ui.textWidth(value, 1.05f), top, 1.05f);
     }
 
     private String stateText(Fighter actor) {

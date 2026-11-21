@@ -104,6 +104,16 @@ class ControlsTest {
     }
 
     @Test
+    void newSparringShortcutPreservesAnOlderCustomF3Binding() throws Exception {
+        Path file = temp.resolve("before-sparring-stats.properties");
+        Files.writeString(file, "FORWARD=" + SPARRING_STATS.defaultCode + "\nSLOT_5=88\n");
+        var loaded = new Controls(file);
+        assertEquals(SPARRING_STATS.defaultCode, loaded.code(FORWARD));
+        assertEquals(88, loaded.code(SLOT_5));
+        assertNotEquals(loaded.code(FORWARD), loaded.code(SPARRING_STATS));
+    }
+
+    @Test
     void escapeIsReservedAndCorruptConfigFallsBack() throws Exception {
         Path file = temp.resolve("controls.properties");
         var c = new Controls(file);
