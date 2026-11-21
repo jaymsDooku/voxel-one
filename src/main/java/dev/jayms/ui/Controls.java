@@ -50,7 +50,8 @@ public final class Controls {
         CHEAT_MONEY("Cheats: add $10,000 to city budget", GLFW_KEY_INSERT),
         ENGINE_EDITOR("Game engine workspace", GLFW_KEY_F11),
         DROP_ITEM("Drop one held item", GLFW_KEY_Q),
-        AUTO_CLICK("Toggle arena auto-click (9 CPS)", GLFW_KEY_G);
+        AUTO_CLICK("Toggle arena auto-click (9 CPS)", GLFW_KEY_G),
+        SPARRING_STATS("Toggle sparring partner stats", GLFW_KEY_F3);
         public final String label;
         public final int defaultCode;
 
@@ -75,34 +76,30 @@ public final class Controls {
             EnumMap<Action, Integer> loaded = new EnumMap<>(Action.class);
             Set<Integer> used = new HashSet<>();
             boolean validFile = true;
+            // Reserve the saved keys before assigning actions added in newer releases.
             for (Action a : Action.values()) {
+                if (!p.containsKey(a.name())) continue;
                 try {
-                    int preferred = a.defaultCode;
-                    if (!p.containsKey(a.name()) && used.contains(preferred)) {
-                        preferred = 0;
-                        for (int candidate = GLFW_KEY_F1; candidate <= GLFW_KEY_F25; candidate++)
-                            if (!used.contains(candidate)) {
-                                preferred = candidate;
-                                break;
-                            }
-                        if (preferred == 0)
-                            for (int candidate = GLFW_KEY_SPACE;
-                                    candidate <= GLFW_KEY_LAST;
-                                    candidate++)
-                                if (valid(candidate) && !used.contains(candidate)) {
-                                    preferred = candidate;
-                                    break;
-                                }
-                    }
-                    int code =
-                            Integer.parseInt(p.getProperty(a.name(), Integer.toString(preferred)));
+                    int code = Integer.parseInt(p.getProperty(a.name()));
                     if (!valid(code) || !used.add(code)) validFile = false;
                     loaded.put(a, code);
                 } catch (NumberFormatException ignored) {
                     validFile = false;
                 }
             }
-            if (validFile) bindings.putAll(loaded);
+            if (validFile) {
+                for (Action a : Action.values()) {
+                    if (loaded.containsKey(a)) continue;
+                    int code = availableBinding(a.defaultCode, used);
+                    if (code == 0) {
+                        validFile = false;
+                        break;
+                    }
+                    loaded.put(a, code);
+                    used.add(code);
+                }
+                if (validFile) bindings.putAll(loaded);
+            }
             try {
                 sensitivity =
                         Math.max(
@@ -129,6 +126,15 @@ public final class Controls {
                 && code != 0
                 && code != GLFW_KEY_ESCAPE
                 && (code < 0 || code >= GLFW_KEY_SPACE && code <= GLFW_KEY_LAST);
+    }
+
+    private static int availableBinding(int preferred, Set<Integer> used) {
+        if (!used.contains(preferred)) return preferred;
+        for (int candidate = GLFW_KEY_F1; candidate <= GLFW_KEY_F25; candidate++)
+            if (!used.contains(candidate)) return candidate;
+        for (int candidate = GLFW_KEY_SPACE; candidate <= GLFW_KEY_LAST; candidate++)
+            if (valid(candidate) && !used.contains(candidate)) return candidate;
+        return 0;
     }
 
     public int code(Action action) {
