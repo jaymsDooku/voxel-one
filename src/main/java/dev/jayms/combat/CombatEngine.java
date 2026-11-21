@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.EnumMap;
 import java.util.Iterator;
+import java.util.IdentityHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -19,8 +20,10 @@ public final class CombatEngine {
     public static final int INVENTORY_SIZE = 36, HOTBAR_SIZE = 9;
     public static final double MAX_HEALTH = 20;
     private static final int MAX_ACTORS = 32, MAX_EVENTS = 512, INPUT_TIMEOUT = 12;
-    private static final int MAX_REWIND_TICKS = 6;
+    private static final int MAX_REWIND_TICKS = 6, MAX_CLICKS_PER_ACTOR_PER_TICK = 16;
     private static final int ARMOR_DURABILITY = 200;
+    // The arena uses diamond piece proportions for its custom full-set reductions, in NMS inventory order.
+    private static final int[] ARMOR_POINTS = {3, 6, 8, 3}; // boots, leggings, chestplate, helmet
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
     private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_RETENTION = .6, SPRINT_HIT_LIFT = .10;
     private static final double USE_MOVEMENT_SCALE = .2;
@@ -109,6 +112,7 @@ public final class CombatEngine {
     private final Arena arena;
     private final RandomGenerator throwableRandom;
     private final Map<Integer, Actor> actors = new TreeMap<>();
+    private final ArrayDeque<Click> pendingMelee = new ArrayDeque<>();
     private final List<Projectile> shots = new ArrayList<>();
     private final ArrayDeque<Event> events = new ArrayDeque<>();
     private long currentTick, arenaTick, nextProjectile;
@@ -135,7 +139,8 @@ public final class CombatEngine {
     }
 
     public void leave(int playerId) {
-        actors.remove(playerId);
+        Actor actor = actors.remove(playerId);
+        if (actor != null) clearClicks(actor);
         shots.removeIf(shot -> shot.ownerId == playerId);
     }
 
@@ -146,6 +151,7 @@ public final class CombatEngine {
         replacement.grounded = supported(arena, feet);
         replacement.sequence = old.sequence;
         replacement.motionEpoch = old.motionEpoch + 1;
+        clearClicks(old);
         actors.put(playerId, replacement);
         shots.removeIf(shot -> shot.ownerId == playerId);
         return true;
@@ -167,8 +173,21 @@ public final class CombatEngine {
         actor.lastInputTick = currentTick;
         actor.intent = intent;
         if (!intent.sprint() || intent.forward() <= 0) actor.lastSprintReleaseSequence = intent.sequence();
-        if (intent.attack() && actor.attack == null)
-            actor.attack = new Click(intent, actor.sprintReady());
+        if (intent.attack() && actor.queuedClicks < MAX_CLICKS_PER_ACTOR_PER_TICK) {
+            // Target selection uses the movement phase, but a later packet cannot raise or lower a prior block.
+            var blocking = new IdentityHashMap<Actor, Boolean>();
+            for (Actor other : actors.values()) {
+                if (other != actor && other.alive()) {
+                    Intent held = other.intent;
+                    blocking.put(other, held != null && currentTick + 1 - other.lastInputTick <= INPUT_TIMEOUT
+                            && held.use() && other.inventory.get(held.slot()).item() == Item.SWORD);
+                }
+            }
+            Item selected = actor.inventory.get(intent.slot()).item();
+            boolean usingItem = actor.useTicks > 0 && actor.slot == intent.slot() && intent.use();
+            pendingMelee.addLast(new Click(actor, intent, selected, usingItem, actor.lastSprintReleaseSequence, blocking));
+            actor.queuedClicks++;
+        }
         if (intent.use() && !actor.submittedUse) actor.usePressed = true;
         if (!intent.use() && actor.submittedUse) actor.useReleased = true;
         actor.submittedUse = intent.use();
@@ -180,12 +199,17 @@ public final class CombatEngine {
         Actor actor = actors.get(playerId);
         if (actor == null) return;
         actor.intent = null;
-        actor.attack = null;
+        clearClicks(actor);
         actor.useHeld = false;
         actor.submittedUse = false;
         actor.usePressed = false;
         actor.useReleased = false;
         actor.cancelUse();
+    }
+
+    private void clearClicks(Actor actor) {
+        pendingMelee.removeIf(click -> click.attacker() == actor);
+        actor.queuedClicks = 0;
     }
 
     /** Reorders trusted server kit items for future rounds. Call at a match boundary. */
@@ -357,21 +381,22 @@ public final class CombatEngine {
                 if (actor.alive()) move(actor);
             }
         }
+        // Paper handles attack packets in receipt order, including lethal hits in a single tick.
+        for (Click click : pendingMelee) {
+            Actor actor = click.attacker();
+            if (actor.alive()) melee(actor, click);
+            actor.queuedClicks--;
+        }
+        pendingMelee.clear();
         for (Actor actor : actors.values()) {
-            if (actor.alive()) {
-                if (actor.attack != null) melee(actor, actor.attack);
-                use(actor);
-            }
-            actor.attack = null;
+            if (actor.alive()) use(actor);
             actor.usePressed = false;
             actor.useReleased = false;
         }
         for (Iterator<Projectile> iterator = shots.iterator(); iterator.hasNext();) {
             if (advance(iterator.next())) iterator.remove();
         }
-        // Finish every attack against the same movement phase before changing any fighter's motion.
         for (Actor actor : actors.values()) {
-            resolveHitMotion(actor);
             if (actor.alive()) {
                 actor.history.addLast(new Pose(arenaTick, actor.feet));
                 if (actor.history.size() > MAX_REWIND_TICKS + 1) actor.history.removeFirst();
@@ -380,12 +405,14 @@ public final class CombatEngine {
     }
 
     private void tickEffects(Actor actor) {
+        if (actor.hurtTicks > 0) actor.hurtTicks--;
+        int poison = actor.effects.getOrDefault(Effect.POISON, 0);
+        if (poison > 0 && poison % 25 == 0 && actor.health > 1) applyUnarmoredDamage(actor, 0, 1);
+        int regen = actor.effects.getOrDefault(Effect.REGENERATION, 0);
+        if (regen > 0 && regen % 50 == 0) heal(actor, 1);
         actor.effects.replaceAll((effect, ticks) -> ticks - 1);
         actor.effects.values().removeIf(ticks -> ticks <= 0);
         if (actor.pearlCooldown > 0) actor.pearlCooldown--;
-        if (actor.hurtTicks > 0) actor.hurtTicks--;
-        if (actor.has(Effect.POISON) && currentTick % 25 == 0) applyNonlethalDamage(actor);
-        if (actor.has(Effect.REGENERATION) && currentTick % 25 == 0) heal(actor, 1);
         if (actor.food >= 18 && actor.health < MAX_HEALTH && ++actor.foodRegeneration >= 80) {
             heal(actor, 1);
             actor.exhaustion += 3;
@@ -429,8 +456,8 @@ public final class CombatEngine {
                 || actor.usePressed && startsTimedUse(selected, actor.food));
         actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using && actor.sprintReady();
         double speedMultiplier = 1;
-        if (actor.has(Effect.SPEED)) speedMultiplier *= 1.35;
-        if (actor.has(Effect.SLOWNESS)) speedMultiplier *= .72;
+        if (actor.has(Effect.SPEED)) speedMultiplier *= 1.20;
+        if (actor.has(Effect.SLOWNESS)) speedMultiplier *= .85;
         var input = new CombatMovement.Input(actor.yaw, forward, strafe, fresh && intent.jump(),
                 actor.sprinting, speedMultiplier, using ? USE_MOVEMENT_SCALE : 1);
         var state = new CombatMovement.State(actor.feet, actor.motion, actor.grounded, actor.jumpCooldown);
@@ -448,43 +475,18 @@ public final class CombatEngine {
             actor.lastHorizontalWallTick = arenaTick;
         }
         if (actor.grounded) {
-            applyFallDamage(actor, 0, Math.ceil(actor.fallDistance - 3));
+            applyUnarmoredDamage(actor, 0, Math.ceil(actor.fallDistance - 3));
             actor.fallDistance = 0;
         } else if (actor.velocity.y < 0) {
             actor.fallDistance -= actor.velocity.y;
         }
     }
 
-    private void resolveHitMotion(Actor actor) {
-        boolean sprintHit = actor.slowAfterSprintHit;
-        Vec3 incoming = actor.pendingKnockback;
-        Vec3 sprintPush = actor.pendingSprintPush;
-        actor.slowAfterSprintHit = false;
-        actor.pendingKnockback = null;
-        actor.pendingSprintPush = ZERO;
-        if (!actor.alive()) return;
-        Vec3 motion = actor.motion;
-        if (sprintHit) {
-            motion = new Vec3(motion.x * SPRINT_HIT_RETENTION, motion.y, motion.z * SPRINT_HIT_RETENTION);
-            actor.sprinting = false;
-        }
-        if (incoming != null) {
-            motion = motion.scale(HIT_MOTION_RETENTION).add(incoming);
-            motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y), motion.z);
-        }
-        // Paper caps base lift before applying the independent sprint impulse.
-        actor.motion = motion.add(sprintPush);
-        if (incoming != null || sprintPush.y > 0) {
-            actor.impulseTick = currentTick;
-            actor.hitImpulse = actor.motion;
-        }
-    }
-
     private void melee(Actor attacker, Click click) {
         Intent input = click.input();
-        Item selected = attacker.inventory.get(input.slot()).item();
+        Item selected = click.selected();
         Item weapon = selected == Item.SWORD ? Item.SWORD : Item.EMPTY;
-        if (input.use() && weapon == Item.SWORD || attacker.useTicks > 0) return;
+        if (input.use() && weapon == Item.SWORD || click.usingItem()) return;
         AttackView shown = input.attackView();
         Vec3 origin = attacker.feet.add(0, EYE_HEIGHT, 0);
         emit(EventType.SWING, attacker.id, 0, weapon, origin, 0);
@@ -498,28 +500,31 @@ public final class CombatEngine {
         Actor target = null;
         double nearest = firstBlock(arena, origin, aim);
         for (Actor other : actors.values()) {
-            if (other == attacker || !other.alive()) continue;
+            if (!other.alive() || !click.blocking().containsKey(other)) continue;
             Vec3 feet = shown == null ? other.feet : historicalFeet(other, shown.target());
             if (feet == null) continue;
-            double hit = firstBody(origin, aim, feet);
+            double hit = firstMeleeBody(origin, aim, feet);
             if (hit < nearest) {
                 target = other;
                 nearest = hit;
             }
         }
-        if (target == null || shown != null && (target.id != shown.targetId()
-                || target.feet.minus(attacker.feet).length() > rules.reach() + 1)) return;
+        if (target == null || shown != null && target.id != shown.targetId()
+                || !withinMeleePacketRange(arena, attacker.feet, target.feet)) return;
         boolean startingUse = input.use() && startsTimedUse(selected, attacker.food);
         boolean sprinting = input.sprint() && input.forward() > 0 && attacker.food > 6
                 && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
-        if (attacker.has(Effect.STRENGTH)) damage *= 1.28;
+        if (attacker.has(Effect.STRENGTH)) damage *= 2.3;
         if (!attacker.grounded && attacker.fallDistance > 0) damage *= 1.5;
-        boolean sprintHit = sprinting && click.sprintReady();
+        boolean sprintHit = sprinting && (attacker.lastSprintHitSequence < 0 || click.sprintReleaseSequence() > attacker.lastSprintHitSequence);
         Vec3 sprintPush = sprintHit ? direction(input.yaw(), 0).scale(rules.sprintKnockback()).add(0, SPRINT_HIT_LIFT, 0) : ZERO;
-        if (strike(attacker, target, damage, sprintPush, weapon) && sprintHit) {
+        if (strike(attacker, target, damage, sprintPush, weapon, click.blocking().get(target)) && sprintHit) {
             attacker.lastSprintHitSequence = input.sequence();
-            attacker.slowAfterSprintHit = true;
+            Vec3 motion = attacker.motion;
+            attacker.motion = new Vec3(motion.x * SPRINT_HIT_RETENTION, motion.y, motion.z * SPRINT_HIT_RETENTION);
+            attacker.sprinting = false;
+            if (attacker.impulseTick == currentTick) attacker.hitImpulse = attacker.motion;
         }
     }
 
@@ -538,30 +543,37 @@ public final class CombatEngine {
         return null;
     }
 
-    private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon) {
+    private boolean strike(Actor attacker, Actor target, double rawDamage, Vec3 sprintPush, Item weapon, boolean blocking) {
         if (!target.alive() || !arena.canHarm(attacker.id, target.id)) return false;
         boolean fullHit = target.hurtTicks == 0;
         double acceptedDamage = acceptRawDamage(target, rawDamage);
         if (acceptedDamage <= 0) return false;
 
-        double armorDamage = target.useHeld && target.selected() == Item.SWORD
-                ? (acceptedDamage + 1) * .5 : acceptedDamage;
-        double mitigation = java.util.Arrays.stream(target.armor).filter(value -> value > 0).count()
-                * target.armorReduction / target.armor.length;
+        double armorDamage = blocking ? (acceptedDamage + 1) * .5 : acceptedDamage;
+        int armorPoints = 0;
+        for (int i = 0; i < target.armor.length; i++) {
+            if (target.armor[i] > 0) armorPoints += ARMOR_POINTS[i];
+        }
+        double mitigation = target.armorReduction * armorPoints / 20;
         double dealt = armorDamage * (1 - mitigation);
         if (target.has(Effect.RESISTANCE)) dealt *= .8;
         if (target.has(Effect.MARK)) dealt *= 1.12;
 
         if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target));
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
-        target.pendingSprintPush = target.pendingSprintPush.add(sprintPush);
+        if (sprintPush.y > 0) {
+            target.motion = target.motion.add(sprintPush);
+            target.impulseTick = currentTick;
+            target.hitImpulse = target.motion;
+        }
         if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
         attacker.lastHit = currentTick;
         attacker.lastComboTarget = target.id;
         attacker.longestCombo = Math.max(attacker.longestCombo, ++attacker.combo);
         attacker.hits++;
         target.combo = 0;
-        attacker.exhaustion += .13;
+        if (weapon != Item.ARROW) attacker.exhaustion += .3;
+        target.exhaustion += .3;
         int armorWear = Math.max(1, (int) (armorDamage / 4));
         for (int i = 0; i < target.armor.length; i++) {
             if (target.armor[i] <= 0) continue;
@@ -581,7 +593,10 @@ public final class CombatEngine {
     }
 
     private void beginHitMotion(Actor target, Vec3 away) {
-        target.pendingKnockback = away.scale(rules.knockback()).add(0, rules.lift(), 0);
+        Vec3 motion = target.motion.scale(HIT_MOTION_RETENTION).add(away.scale(rules.knockback()));
+        target.motion = new Vec3(motion.x, Math.min(rules.lift(), motion.y + rules.lift()), motion.z);
+        target.impulseTick = currentTick;
+        target.hitImpulse = target.motion;
     }
 
     private double acceptRawDamage(Actor target, double amount) {
@@ -596,7 +611,7 @@ public final class CombatEngine {
         return difference;
     }
 
-    private void applyFallDamage(Actor target, int sourceId, double amount) {
+    private void applyUnarmoredDamage(Actor target, int sourceId, double amount) {
         if (amount <= 0) return;
         boolean fullHit = target.hurtTicks == 0;
         double damage = acceptRawDamage(target, amount);
@@ -726,7 +741,8 @@ public final class CombatEngine {
                 }
                 case ARROW -> {
                     if (target != null && target != owner) {
-                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), ZERO, Item.ARROW);
+                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), ZERO, Item.ARROW,
+                                target.useHeld && target.selected() == Item.SWORD);
                     }
                 }
                 default -> splash(owner, shot.item, shot.position, target);
@@ -802,14 +818,12 @@ public final class CombatEngine {
         owner.hitHorizontalWall = false;
         owner.lastHorizontalWallTick = -1;
         owner.jumpCooldown = 0;
-        owner.pendingKnockback = null;
-        owner.pendingSprintPush = ZERO;
         owner.impulseTick = -1;
         owner.hitImpulse = ZERO;
         owner.history.clear();
         owner.motionEpoch++;
         emit(EventType.TELEPORT, owner.id, owner.id, Item.PEARL, feet, rules.pearlDamage());
-        applyFallDamage(owner, owner.id, rules.pearlDamage());
+        applyUnarmoredDamage(owner, owner.id, rules.pearlDamage());
     }
 
     private Vec3 pearlDestination(Actor owner, Vec3 previousPosition, Vec3 velocity) {
@@ -853,17 +867,16 @@ public final class CombatEngine {
         final EnumMap<Effect, Integer> effects = new EnumMap<>(Effect.class);
         List<Stack> kit;
         Vec3 feet, motion = ZERO, velocity = ZERO;
-        Vec3 pendingKnockback;
-        Vec3 pendingSprintPush = ZERO, hitImpulse = ZERO;
+        Vec3 hitImpulse = ZERO;
         final ArrayDeque<Pose> history = new ArrayDeque<>();
         Intent intent;
-        Click attack;
+        int queuedClicks;
         Item useItem = Item.EMPTY;
         long sequence = -1, lastInputTick, lastHit, lastDamageTick, hurtTick = -1, motionEpoch;
         long impulseTick = -1;
         long lastSprintReleaseSequence = -1, lastSprintHitSequence = -1, lastHorizontalWallTick = -1;
         float yaw, pitch;
-        boolean grounded, sprinting, slowAfterSprintHit, hitHorizontalWall;
+        boolean grounded, sprinting, hitHorizontalWall;
         boolean useHeld, submittedUse, usePressed, useReleased;
         int food = 20, foodRegeneration, slot, useTicks, pearlCooldown, hurtTicks, recentAttacker, killerId;
         int hits, combo, longestCombo, lastComboTarget, potsUsed, jumpCooldown;
@@ -900,7 +913,8 @@ public final class CombatEngine {
         }
     }
 
-    private record Click(Intent input, boolean sprintReady) {}
+    private record Click(Actor attacker, Intent input, Item selected, boolean usingItem,
+                         long sprintReleaseSequence, Map<Actor, Boolean> blocking) {}
     private record Pose(long tick, Vec3 feet) {}
 
     private static final class Projectile {

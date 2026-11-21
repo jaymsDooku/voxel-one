@@ -49,6 +49,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPasswordField;
 import java.io.IOException;
 import java.nio.file.Path;
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -83,8 +84,7 @@ public final class PracticeGame {
     private final List<ArenaMotionTimeline.Presented> remoteActors = new ArrayList<>(4);
     private boolean inventory, usePressed, previousIntentUse, firstMouse = true, positioned;
     private boolean sprintReleased, showHitboxes, hitboxShortcutNeedsControl;
-    private Intent pendingClick;
-    private boolean pendingClickRearm;
+    private final ArrayDeque<Intent> pendingCombatInputs = new ArrayDeque<>();
     private PoseView localPose;
     private Vec3 confirmedLocalEye;
     private Boolean scriptedUse;
@@ -271,7 +271,7 @@ public final class PracticeGame {
             firstMouse = true;
             if (!focused) {
                 usePressed = sprintReleased = false;
-                pendingClick = null;
+                pendingCombatInputs.clear();
                 sprintToggle.suspend();
             }
         });
@@ -280,6 +280,7 @@ public final class PracticeGame {
         });
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
             sprintInput(w, -button - 1, action);
+            if (action == GLFW_RELEASE) releaseSwordBlock(-button - 1);
             if (action != GLFW_PRESS) return;
             if (inventory) {
                 if (button == GLFW_MOUSE_BUTTON_LEFT && (mods & GLFW_MOD_SHIFT) != 0) {
@@ -296,6 +297,7 @@ public final class PracticeGame {
                 return;
             }
             sprintInput(w, key, action);
+            if (action == GLFW_RELEASE) releaseSwordBlock(key);
             if (action != GLFW_PRESS) return;
             if (key == GLFW_KEY_ESCAPE) {
                 if (inventory) setInventory(false);
@@ -371,33 +373,46 @@ public final class PracticeGame {
     private void combatPress(int key) {
         if (controls.matches(BREAK, key) && canAnimateCombat()) {
             hand.attack(selectedItem(), useHeld(), System.nanoTime());
-            if (pendingClick == null) captureClick();
-            flushClick();
+            sendCombatEdge(true, useHeld() || selectedItem() != Item.SWORD && usePressed);
         }
         if (controls.matches(PLACE, key)) {
-            usePressed = true;
+            usePressed = selectedItem() != Item.SWORD;
             if (canAnimateCombat()) hand.use(selectedItem(), System.nanoTime());
+            if (selectedItem() == Item.SWORD && canAnimateCombat()) sendCombatEdge(false, true);
         }
     }
 
-    private void captureClick() {
+    private void releaseSwordBlock(int code) {
+        if (!inventory && controls.matches(PLACE, code) && selectedItem() == Item.SWORD && canAnimateCombat()
+                && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE)
+            sendCombatEdge(false, false);
+    }
+
+    private void sendCombatEdge(boolean attack, boolean use) {
         long handle = window.getHandle();
+        if (glfwGetWindowAttrib(handle, GLFW_FOCUSED) != GLFW_TRUE) return;
+        // Reserve two slots for a W-tap release and its following input when the writer is busy.
+        if (!flushCombatInputs() && pendingCombatInputs.size() > 30) return;
         float forward = axis(handle, FORWARD, BACKWARD), strafe = axis(handle, RIGHT, LEFT);
         boolean sprint = sprintRequested(forward);
-        pendingClick = new Intent(0, camera.yaw(), camera.pitch(), forward, strafe, controls.down(handle, JUMP),
-                sprint, true, usePressed || useHeld(), slot, displayedTarget());
-        pendingClickRearm = sprintReleased && sprint && forward > 0;
+        boolean jump = controls.down(handle, JUMP);
+        if (sprintReleased && sprint && forward > 0)
+            pendingCombatInputs.add(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
+                    jump, false, false, use, slot));
+        pendingCombatInputs.add(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
+                jump, sprint, attack, use, slot, attack ? displayedTarget() : null));
         sprintReleased = false;
+        flushCombatInputs();
     }
 
     private AttackView displayedTarget() {
         CombatRules rules = view.kit() == PracticeMatch.Kit.DEBUFF ? CombatRules.DEBUFF : CombatRules.NO_DEBUFF;
         Vec3 ray = CombatGeometry.direction(camera.yaw(), camera.pitch()).scale(rules.reach());
         ArenaMotionTimeline.Presented target = null;
-        double closest = Double.POSITIVE_INFINITY;
+        double closest = CombatGeometry.firstBlock(ArenaMotionTimeline.TERRAIN, confirmedLocalEye, ray);
         for (var candidate : remoteActors) {
             if (candidate.fighter().health() <= 0) continue;
-            double hit = CombatGeometry.firstBody(confirmedLocalEye, ray,
+            double hit = CombatGeometry.firstMeleeBody(confirmedLocalEye, ray,
                     new Vec3(candidate.x(), candidate.y(), candidate.z()));
             if (hit < closest) {
                 closest = hit;
@@ -409,17 +424,11 @@ public final class PracticeGame {
         return new AttackView(target.fighter().id(), localPose, target.pose());
     }
 
-    private boolean flushClick() {
-        Intent click = pendingClick;
-        if (click == null) return true;
-        if (pendingClickRearm) {
-            if (!submitInput(new Intent(++sequence, click.yaw(), click.pitch(), click.forward(), click.strafe(),
-                    click.jump(), false, false, click.use(), click.slot()))) return false;
-            pendingClickRearm = false;
+    private boolean flushCombatInputs() {
+        while (!pendingCombatInputs.isEmpty()) {
+            if (!submitInput(pendingCombatInputs.peek())) return false;
+            pendingCombatInputs.remove();
         }
-        if (!submitInput(new Intent(++sequence, click.yaw(), click.pitch(), click.forward(), click.strafe(),
-                click.jump(), click.sprint(), true, click.use(), click.slot(), click.attackView()))) return false;
-        pendingClick = null;
         return true;
     }
 
@@ -462,7 +471,7 @@ public final class PracticeGame {
     private void setInventory(boolean open) {
         if (inventory == open) return;
         inventory = open; source = -1; firstMouse = true; usePressed = sprintReleased = false;
-        pendingClick = null;
+        pendingCombatInputs.clear();
         if (open) sprintToggle.suspend();
         int inventoryCursor = glfwGetPlatform() == GLFW_PLATFORM_WIN32 ? GLFW_CURSOR_CAPTURED : GLFW_CURSOR_NORMAL;
         glfwSetInputMode(window.getHandle(), GLFW_CURSOR, open ? inventoryCursor : GLFW_CURSOR_DISABLED);
@@ -509,12 +518,12 @@ public final class PracticeGame {
         float strafe = enabled ? axis(w, RIGHT, LEFT) : 0;
         boolean jump = enabled && controls.down(w, JUMP);
         boolean sprint = enabled && sprintRequested(forward);
-        boolean use = enabled && (usePressed || controls.down(w, PLACE));
+        boolean use = enabled && (controls.down(w, PLACE) || selectedItem() != Item.SWORD && usePressed);
         if (!enabled || !canAnimateCombat()) {
             sprintReleased = false;
-            pendingClick = null;
+            pendingCombatInputs.clear();
         }
-        if (!flushClick()) return;
+        if (!flushCombatInputs()) return;
         // Preserve a release and repress that both happened between movement samples.
         if (sprintReleased && sprint && forward > 0) {
             if (!submitInput(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
@@ -535,7 +544,14 @@ public final class PracticeGame {
             if (scriptedUse != null && !inventory && canAnimateCombat()) {
                 Item item = selectedItem();
                 if (startingUse && !usePressed) hand.use(item, now);
-                if (intent.attack()) hand.attack(item, scriptedUse, now);
+                if (intent.attack()) {
+                    hand.attack(item, scriptedUse, now);
+                    // Exercise the rendered crosshair and historical pose check on native playtest swings.
+                    if (intent.attackView() == null) {
+                        intent = new Intent(intent.sequence(), intent.yaw(), intent.pitch(), intent.forward(), intent.strafe(),
+                                intent.jump(), intent.sprint(), true, intent.use(), intent.slot(), displayedTarget());
+                    }
+                }
             }
         }
         if (submitInput(intent)) usePressed = sprintReleased = false;
