@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T00:48:44+00:00",
+  "updatedAt": "2026-11-21T03:36:45+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4563,6 +4563,15 @@
       "status": "in_progress",
       "note": "Verified final Windows build 8bcc61a3. Full orbit worst tower step 20 to 4. Three focused runs passed. Parked volume handoff 13.49 before and at most 0.19 after. Independent review passed. PR 99 awaits CI.",
       "updatedAt": "2026-11-21T00:48:44+00:00"
+    },
+    {
+      "id": "voxel-westminster-double",
+      "title": "Westminster Palace at double scale",
+      "description": "Building a separate 600 by 304 by 204 block palace and verifying the silhouette, towers and courts in the native preview.",
+      "evidence": [],
+      "status": "in_progress",
+      "note": "Building a separate 600 by 304 by 204 block palace and verifying the silhouette, towers and courts in the native preview.",
+      "updatedAt": "2026-11-21T03:36:45+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
