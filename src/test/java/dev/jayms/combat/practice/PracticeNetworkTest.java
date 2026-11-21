@@ -4,17 +4,21 @@ import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.AttackView;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.CombatEngine.Effect;
+import dev.jayms.combat.CombatEngine.Vec3;
 import dev.jayms.combat.arena.BasaltCourtyard;
+import dev.jayms.combat.arena.VaultBattlefield;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 import dev.jayms.combat.practice.PracticeMatch.Kit;
 import dev.jayms.combat.practice.PracticeMatch.Phase;
 import dev.jayms.combat.practice.PracticeMatch.Result;
+import dev.jayms.combat.practice.PracticeMatch.VaultStage;
 import dev.jayms.combat.practice.PracticeMatch.View;
 import dev.jayms.net.SecureTransport;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.Timeout;
 import org.junit.jupiter.api.io.TempDir;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.ValueSource;
 
 import java.io.IOException;
@@ -26,9 +30,11 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.concurrent.ArrayBlockingQueue;
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicLong;
 import java.util.function.BooleanSupplier;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -38,28 +44,95 @@ class PracticeNetworkTest {
     private static final int STARTING_POTS = 31;
     @TempDir Path temporary;
 
-    @Test @Timeout(40)
-    void battlefieldConnectsSixtyClientsAndSharesMovement() throws Exception {
+    @ParameterizedTest
+    @EnumSource(value = Kit.class, names = {"TEAMFIGHTING_30V30", "VAULT_BATTLES"})
+    @Timeout(75)
+    void largeArenaConnectsSixtyClientsAndSharesMovement(Kit kit) throws Exception {
         var tls = SecureTransport.server(temporary.resolve("tls"));
         var clients = new ArrayList<PracticeClient>(60);
-        try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), Kit.TEAMFIGHTING_30V30)) {
-            for (int i = 0; i < 60; i++)
-                clients.add(new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Player " + (i + 1)));
+        var idlePlayers = new CopyOnWriteArrayList<PracticeClient>();
+        var idleSequence = new AtomicLong();
+        var controls = Executors.newSingleThreadScheduledExecutor();
+        try (var server = new PracticeServer(LOOPBACK, 0, tls.context(), kit)) {
+            // Like the desktop, unattended connections still send neutral controls to stay in the match.
+            controls.scheduleAtFixedRate(() -> {
+                long sequence = idleSequence.incrementAndGet();
+                idlePlayers.forEach(client -> input(client, sequence, 0, 0, 0, false, false, false, 0));
+            }, 0, 1, TimeUnit.SECONDS);
+            for (int i = 0; i < 60; i++) {
+                var client = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Player " + (i + 1));
+                clients.add(client);
+                idlePlayers.add(client);
+            }
+            var moving = clients.get(kit == Kit.VAULT_BATTLES ? 1 : 0);
+            idlePlayers.remove(moving);
             await(() -> clients.stream().allMatch(client -> client.view().fighters().size() == 60), "full roster");
             for (var client : clients) {
-                assertEquals(Kit.TEAMFIGHTING_30V30, client.view().kit());
+                assertEquals(kit, client.view().kit());
                 assertEquals((client.id() - 1) % 2, self(client).side());
                 assertTrue(client.ready());
             }
             await(() -> clients.stream().allMatch(client -> client.view().phase() == Phase.FIGHT), "60-player fight");
-            var first = clients.get(0);
-            float startingZ = self(first).z();
-            assertTrue(input(first, 1, -90, 0, 1, true, false, false, 0));
-            await(() -> clients.stream().allMatch(client -> fighter(client.view(), first.id()).z() < startingZ - .3),
-                    "battlefield movement on all 60 clients");
+            var start = self(moving);
+            assertTrue(input(moving, 1, start.yaw(), 0, 1, true, false, false, 0));
+            await(() -> clients.stream().allMatch(client -> {
+                var fighter = fighter(client.view(), moving.id());
+                return Math.hypot(fighter.x() - start.x(), fighter.z() - start.z()) > .3;
+            }), "movement on all 60 clients");
+            if (kit == Kit.VAULT_BATTLES) {
+                var objective = moving.view().status();
+                assertFalse(objective.isEmpty());
+                assertTrue(clients.stream().allMatch(client -> client.view().status().equals(objective)));
+                try (var spectator = new PracticeClient(LOOPBACK, server.port(), tls.fingerprint(), "Spectator")) {
+                    idlePlayers.add(spectator);
+                    assertEquals(spectator.id(), spectator.view().spectatorId());
+                    assertEquals(60, spectator.view().fighters().size());
+                    assertEquals(objective, spectator.view().status());
+                    assertTrue(spectator.view().inventory().isEmpty());
+                    long sequence = followRoute(moving, VaultBattlefield.attackRoute(1, false), 2);
+                    await(() -> clients.stream().allMatch(c -> c.view().vaultStage() == VaultStage.VAULT_CORE)
+                            && spectator.view().vaultStage() == VaultStage.VAULT_CORE,
+                            "outer ring secured on every connection", 10);
+                    var coreRoute = VaultBattlefield.attackRoute(1, true);
+                    int ringWaypoint = coreRoute.indexOf(VaultBattlefield.breachMarker());
+                    assertTrue(ringWaypoint >= 0);
+                    followRoute(moving, coreRoute.subList(ringWaypoint + 1, coreRoute.size()), sequence);
+                    await(() -> clients.stream().allMatch(PracticeNetworkTest::vaultCaptured)
+                            && vaultCaptured(spectator), "core captured on every connection", 13);
+                    idlePlayers.remove(spectator);
+                }
+            }
         } finally {
+            controls.shutdownNow();
             for (var client : clients) client.close();
         }
+    }
+
+    private static boolean vaultCaptured(PracticeClient client) {
+        View view = client.view();
+        return view.phase() == Phase.RESULT && view.result() == Result.OBJECTIVE && view.winningTeam() == 1
+                && view.vaultStage() == VaultStage.CAPTURED;
+    }
+
+    private static long followRoute(PracticeClient client, List<Vec3> waypoints,
+                                    long sequence) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(35);
+        for (var waypoint : waypoints) {
+            for (;;) {
+                assertEquals(Phase.FIGHT, client.view().phase(), "Moving fighter lost the live round");
+                Fighter fighter = self(client);
+                var dx = waypoint.x() - fighter.x();
+                var dz = waypoint.z() - fighter.z();
+                double distance = Math.hypot(dx, dz);
+                if (distance < .9) break;
+                if (System.nanoTime() >= deadline) fail("Timed out moving from " + fighter + " to " + waypoint);
+                float yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
+                assertTrue(input(client, sequence++, yaw, 0, 1, true, false, false, 0));
+                Thread.sleep(35);
+            }
+        }
+        assertTrue(input(client, sequence++, self(client).yaw(), 0, 0, false, false, false, 0));
+        return sequence;
     }
 
     @ParameterizedTest(name = "No Debuff with {0} ms added RTT on both TLS connections")
@@ -301,7 +374,11 @@ class PracticeNetworkTest {
     }
 
     private static void await(BooleanSupplier condition, String label) throws InterruptedException {
-        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(5);
+        await(condition, label, 5);
+    }
+
+    private static void await(BooleanSupplier condition, String label, int seconds) throws InterruptedException {
+        long deadline = System.nanoTime() + TimeUnit.SECONDS.toNanos(seconds);
         while (!condition.getAsBoolean()) {
             if (System.nanoTime() >= deadline) fail("Timed out waiting for " + label);
             Thread.sleep(10);

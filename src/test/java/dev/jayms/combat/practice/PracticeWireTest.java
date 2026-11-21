@@ -15,6 +15,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.IOException;
 import java.net.InetAddress;
 import java.nio.file.Path;
 import java.util.List;
@@ -63,6 +64,53 @@ class PracticeWireTest {
             out.writeInt(PracticeWire.SWING_VERSION);
             out.flush();
             assertEquals(-2, in.readInt());
+        }
+    }
+
+    @Test @Timeout(15)
+    void battlefieldClientIsToldToUpgradeBeforeJoiningVaultBattles() throws Exception {
+        var identity = SecureTransport.server(temporary.resolve("tls"));
+        try (var server = new PracticeServer(HOST, 0, identity.context(), Kit.VAULT_BATTLES);
+             var client = SecureTransport.connect(HOST, server.port(), identity.fingerprint())) {
+            var out = new DataOutputStream(client.getOutputStream());
+            var in = new DataInputStream(client.getInputStream());
+            out.writeInt(PracticeWire.MAGIC);
+            out.writeInt(PracticeWire.BATTLEFIELD_VERSION);
+            out.flush();
+            assertEquals(-2, in.readInt());
+        }
+    }
+
+    @Test void vaultSnapshotCarriesSixtyFightersWithAProtocolAndRosterBound() throws Exception {
+        var view = new PracticeMatch(Kit.VAULT_BATTLES, true).view(1);
+        assertEquals(60, view.fighters().size());
+        assertEquals(view, roundTrip(view, PracticeWire.VAULT_BATTLES_VERSION));
+        assertThrows(IOException.class, () -> roundTrip(view, PracticeWire.BATTLEFIELD_VERSION));
+
+        var bytes = new ByteArrayOutputStream();
+        try (var out = new DataOutputStream(bytes)) {
+            out.writeByte(Phase.WAITING.ordinal());
+            out.writeByte(Kit.VAULT_BATTLES.ordinal());
+            out.writeByte(Result.NONE.ordinal());
+            out.writeInt(0); // Winner
+            out.writeShort(0); // Ticks left
+            out.writeInt(0); // Spectator ID
+            out.writeLong(0); // Tick
+            out.writeByte(61);
+        }
+        try (var in = new DataInputStream(new ByteArrayInputStream(bytes.toByteArray()))) {
+            var failure = assertThrows(IOException.class, () -> PracticeWire.readView(in, PracticeWire.VAULT_BATTLES_VERSION));
+            assertEquals("Invalid practice frame", failure.getMessage());
+        }
+    }
+
+    @Test void vaultStageRoundTripsIndependentlyOfDisplayText() throws Exception {
+        for (VaultStage stage : VaultStage.values()) {
+            boolean captured = stage == VaultStage.CAPTURED;
+            var view = new View(captured ? Phase.RESULT : Phase.FIGHT, Kit.VAULT_BATTLES,
+                    captured ? Result.OBJECTIVE : Result.NONE, captured ? 2 : 0, 0, 0, 120,
+                    List.of(), List.of(), 20, 0, Map.of(), List.of(), List.of(), -1, -1, List.of(), stage);
+            assertEquals(view, roundTrip(view, PracticeWire.VAULT_BATTLES_VERSION));
         }
     }
 

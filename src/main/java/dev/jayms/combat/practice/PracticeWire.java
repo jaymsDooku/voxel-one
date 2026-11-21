@@ -14,13 +14,24 @@ import java.util.List;
 final class PracticeWire {
     static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3,
             WALL_VERSION = 4, IMPULSE_VERSION = 5, SWING_VERSION = 6, KNOCKBACK_LAB_VERSION = 7,
-            TEAMFIGHTING_LAB_VERSION = 8, BATTLEFIELD_VERSION = 9, VERSION = BATTLEFIELD_VERSION;
+            TEAMFIGHTING_LAB_VERSION = 8, BATTLEFIELD_VERSION = 9, VAULT_BATTLES_VERSION = 10,
+            VERSION = VAULT_BATTLES_VERSION;
     static final float MAX_VELOCITY = 3.9f; // Paper 1.7.10 entity velocity packet component bound.
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
     static final int QUICK_MOVE = 255;
 
     private PracticeWire() { }
+
+    static int minimumVersion(Kit kit) {
+        return switch (kit) {
+            case KNOCKBACK_LAB -> KNOCKBACK_LAB_VERSION;
+            case TEAMFIGHTING_LAB -> TEAMFIGHTING_LAB_VERSION;
+            case TEAMFIGHTING_30V30 -> BATTLEFIELD_VERSION;
+            case VAULT_BATTLES -> VAULT_BATTLES_VERSION;
+            default -> LEGACY_VERSION;
+        };
+    }
 
     static void writeIntent(DataOutputStream out, Intent i, int version) throws IOException {
         out.writeByte(CONTROL);
@@ -72,6 +83,8 @@ final class PracticeWire {
     }
 
     static void writeView(DataOutputStream out, View v, int version) throws IOException {
+        if (version < minimumVersion(v.kit())) throw new IOException("Practice mode requires a newer protocol");
+        if (v.kit() == Kit.VAULT_BATTLES && v.vaultStage() == null) throw new IOException("Missing vault stage");
         out.writeByte(v.phase().ordinal());
         out.writeByte(v.kit().ordinal());
         out.writeByte(v.result().ordinal());
@@ -140,16 +153,18 @@ final class PracticeWire {
             String line = v.status().get(i);
             out.writeUTF(line.substring(0, Math.min(line.length(), 120)));
         }
+        if (v.kit() == Kit.VAULT_BATTLES) out.writeByte(v.vaultStage().ordinal());
     }
 
     static View readView(DataInputStream in, int version) throws IOException {
         Phase phase = readEnum(in, Phase.values());
         Kit kit = readEnum(in, Kit.values());
+        if (version < minimumVersion(kit)) throw new IOException("Practice mode requires a newer protocol");
         Result result = readEnum(in, Result.values());
         int winner = in.readInt(), ticksLeft = in.readUnsignedShort(), spectatorId = in.readInt();
         if (kit.teamBased() && (winner < 0 || winner > 2)) throw new IOException("Invalid winning team");
         long tick = in.readLong();
-        int count = count(in, kit == Kit.TEAMFIGHTING_30V30 ? kit.fighterCapacity() : 4);
+        int count = count(in, Math.max(4, kit.fighterCapacity()));
         List<Fighter> fighters = new ArrayList<>(count);
         for (int i = 0; i < count; i++) {
             int id = in.readInt();
@@ -217,9 +232,10 @@ final class PracticeWire {
             if (line.length() > 120) throw new IOException("Invalid arena status");
             status.add(line);
         }
+        VaultStage vaultStage = kit == Kit.VAULT_BATTLES ? readEnum(in, VaultStage.values()) : null;
         return new View(phase, kit, result, winner, ticksLeft, spectatorId, tick, List.copyOf(fighters),
                 List.copyOf(inventory), food, cooldown, java.util.Map.copyOf(effects), List.copyOf(durability),
-                List.copyOf(missiles), hit, splash, List.copyOf(status));
+                List.copyOf(missiles), hit, splash, List.copyOf(status), vaultStage);
     }
 
     private static int count(DataInputStream in, int max) throws IOException {

@@ -26,7 +26,8 @@ public final class PracticeMatch implements ArenaMatch {
         DEBUFF(CombatRules.DEBUFF, "Debuff", 1),
         KNOCKBACK_LAB(CombatRules.KNOCKBACK_LAB, "Knockback Lab", 1),
         TEAMFIGHTING_LAB(CombatRules.NO_DEBUFF, "Teamfighting Lab", 2),
-        TEAMFIGHTING_30V30(CombatRules.NO_DEBUFF, "Teamfighting Lab 30v30", 30);
+        TEAMFIGHTING_30V30(CombatRules.NO_DEBUFF, "Teamfighting Lab 30v30", 30),
+        VAULT_BATTLES(CombatRules.NO_DEBUFF, "Vault Battles", 30);
 
         private final CombatRules rules;
         private final String title;
@@ -43,9 +44,21 @@ public final class PracticeMatch implements ArenaMatch {
         public int teamSize() { return teamSize; }
         public int fighterCapacity() { return 2 * teamSize; }
         public boolean teamBased() { return teamSize > 1; }
-        public PracticeTerrain terrain() { return this == TEAMFIGHTING_30V30 ? PracticeTerrain.BATTLEFIELD : PracticeTerrain.COURTYARD; }
+        public String teamName(int side) {
+            if (this == VAULT_BATTLES) return side == VaultObjective.DEFENDERS ? "Defenders" : "Attackers";
+            return side == 0 ? "Ember" : "Slate";
+        }
+
+        public PracticeTerrain terrain() {
+            return switch (this) {
+                case TEAMFIGHTING_30V30 -> PracticeTerrain.BATTLEFIELD;
+                case VAULT_BATTLES -> PracticeTerrain.VAULT_BATTLEFIELD;
+                default -> PracticeTerrain.COURTYARD;
+            };
+        }
     }
     public enum Result { NONE, KNOCKOUT, FORFEIT, TIMEOUT, INTERRUPTED, OBJECTIVE }
+    public enum VaultStage { OUTER_RING, VAULT_CORE, CAPTURED }
 
     public record Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
@@ -94,8 +107,16 @@ public final class PracticeMatch implements ArenaMatch {
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
                        Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
-                       long lastHit, long lastSplash, List<String> status) {
-        /** Teamfighting Lab publishes the winning side plus one in place of a fighter ID. */
+                       long lastHit, long lastSplash, List<String> status, VaultStage vaultStage) {
+        public View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
+                    long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
+                    Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
+                    long lastHit, long lastSplash, List<String> status) {
+            this(phase, kit, result, winner, ticksLeft, spectatorId, tick, fighters, inventory, food, cooldown,
+                    effects, durability, missiles, lastHit, lastSplash, status, null);
+        }
+
+        /** Team modes publish the winning side plus one in place of a fighter ID. */
         public int winningTeam() { return kit.teamBased() ? winner - 1 : -1; }
     }
 
@@ -118,6 +139,7 @@ public final class PracticeMatch implements ArenaMatch {
     };
     private final CombatEngine engine;
     private final boolean offline;
+    private final VaultObjective vault;
     private List<Fighter> fighterViews;
     private int nextId = 1;
     private long tick, lastSimulationStep, lastSplash = -1;
@@ -130,6 +152,7 @@ public final class PracticeMatch implements ArenaMatch {
         final boolean automated;
         int seat, target;
         SparringPartner bot;
+        VaultBot vaultBot;
         boolean ready;
         long lastHit = -1, lastSwing = -1;
         Member(String name, int seat, boolean automated) {
@@ -147,13 +170,15 @@ public final class PracticeMatch implements ArenaMatch {
         this.offline = offline;
         rules = kit.rules();
         terrain = kit.terrain();
+        vault = kit == Kit.VAULT_BATTLES ? new VaultObjective() : null;
         engine = new CombatEngine(rules, arena);
         if (offline) {
-            join("You");
-            if (kit == Kit.TEAMFIGHTING_30V30) {
-                for (int i = 1; i < fighterCapacity; i++) {
-                    String team = i % 2 == 0 ? "Ember" : "Slate";
-                    addMember(team + " " + (i / 2 + 1), true);
+            int localSeat = vault == null ? 0 : VaultObjective.ATTACKERS;
+            addMember("You", false, localSeat);
+            if (kit.teamSize() == 30) {
+                for (int seat = 0; seat < fighterCapacity; seat++) {
+                    if (seat == localSeat) continue;
+                    addMember(kit.teamName(seat % 2) + " " + (seat / 2 + 1), true, seat);
                 }
             } else if (kit.teamBased()) {
                 addMember("Rowan", true);
@@ -173,12 +198,16 @@ public final class PracticeMatch implements ArenaMatch {
     }
 
     private int addMember(String name, boolean automated) {
+        int seat = phase == Phase.WAITING ? freeSeat() : -1;
+        return addMember(name, automated, seat);
+    }
+
+    private int addMember(String name, boolean automated, int seat) {
         if (members.size() >= peerCapacity() || nextId == Integer.MAX_VALUE
                 || name == null || !name.matches("[A-Za-z0-9_ ]{1,16}")
                 || name.isBlank() || members.values().stream().anyMatch(m -> m.name.equalsIgnoreCase(name)))
             return 0;
         int id = nextId++;
-        int seat = phase == Phase.WAITING ? freeSeat() : -1;
         members.put(id, new Member(name, seat, automated));
         if (seat >= 0) spawn(id, false);
         return id;
@@ -279,14 +308,32 @@ public final class PracticeMatch implements ArenaMatch {
     }
 
     private void updateRoundResult() {
-        if (!finishIfTeamEliminated(Result.KNOCKOUT) && --ticksLeft == 0) {
-            finish(0, Result.TIMEOUT);
+        var fighters = engine.snapshots();
+        if (finishIfTeamEliminated(fighters, Result.KNOCKOUT)) return;
+        if (vault != null) {
+            boolean attackersPresent = false, defendersPresent = false;
+            for (PlayerState fighter : fighters) {
+                if (fighter.health() <= 0 || !vault.inActiveZone(fighter.feet())) continue;
+                if (members.get(fighter.id()).team() == VaultObjective.ATTACKERS) attackersPresent = true;
+                else defendersPresent = true;
+            }
+            if (vault.advance(attackersPresent, defendersPresent)) {
+                finish(VaultObjective.ATTACKERS + 1, Result.OBJECTIVE);
+                return;
+            }
+        }
+        if (--ticksLeft == 0) {
+            finish(vault == null ? 0 : VaultObjective.DEFENDERS + 1, Result.TIMEOUT);
         }
     }
 
     private boolean finishIfTeamEliminated(Result cause) {
+        return finishIfTeamEliminated(engine.snapshots(), cause);
+    }
+
+    private boolean finishIfTeamEliminated(List<PlayerState> fighters, Result cause) {
         int[] survivors = new int[2];
-        for (PlayerState fighter : engine.snapshots()) {
+        for (PlayerState fighter : fighters) {
             if (fighter.health() > 0) survivors[members.get(fighter.id()).team()] = fighter.id();
         }
         if (survivors[0] != 0 && survivors[1] != 0) return false;
@@ -305,7 +352,8 @@ public final class PracticeMatch implements ArenaMatch {
             if (member.seat < 0) continue;
             PlayerState f = engine.snapshot(fighterId);
             fighters.add(Fighter.fromCombat(f, member.name, member.lastSwing >= 0 && tick - member.lastSwing < SWING_TICKS,
-                    member.ready, kit.teamBased() ? member.team() : -1, "",
+                    member.ready, kit.teamBased() ? member.team() : -1,
+                    vault == null ? "" : kit.teamName(member.team()),
                     engine.currentTick(), lastSimulationStep, member.lastSwing));
         }
         fighterViews = List.copyOf(fighters);
@@ -323,7 +371,8 @@ public final class PracticeMatch implements ArenaMatch {
                 self == null ? List.of() : self.inventory(), self == null ? 0 : self.food(),
                 self == null ? 0 : self.pearlCooldownTicks(), self == null ? Map.of() : self.effects(),
                 self == null ? List.of() : self.durability(), missiles, member == null ? -1 : member.lastHit,
-                lastSplash, List.of());
+                lastSplash, vault == null ? List.of() : vault.status(phase, result),
+                vault == null ? null : vault.stage());
     }
 
     private int freeSeat() {
@@ -351,6 +400,7 @@ public final class PracticeMatch implements ArenaMatch {
         winner = 0;
         ticksLeft = 0;
         lastSplash = -1;
+        if (vault != null) vault.reset();
         promoteSpectators();
         for (var entry : members.entrySet()) {
             Member m = entry.getValue();
@@ -371,8 +421,11 @@ public final class PracticeMatch implements ArenaMatch {
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
         member.target = 0;
-        if (member.automated) member.bot = new SparringPartner(rules, arena, RandomGenerator.getDefault());
         var spawn = terrain.spawn(member.team(), member.seat / 2);
+        if (member.automated) {
+            member.bot = new SparringPartner(rules, arena, RandomGenerator.getDefault());
+            if (vault != null) member.vaultBot = new VaultBot(member.team(), member.seat / 2, arena, rules);
+        }
         var feet = new Vec3(spawn.x(), spawn.y(), spawn.z());
         if (reset) engine.reset(id, feet, spawn.yaw());
         else engine.join(id, feet, spawn.yaw());
@@ -393,10 +446,18 @@ public final class PracticeMatch implements ArenaMatch {
             for (PlayerState candidate : fighters) {
                 if (candidate.health() <= 0 || !opposingTeams(bot.id(), candidate.id())) continue;
                 // Keep chasing a selected opponent until another target is clearly closer.
-                double distance = candidate.feet().minus(bot.feet()).length() - (candidate.id() == member.target ? 1 : 0);
-                if (distance >= bestDistance) continue;
-                bestDistance = distance;
+                var offset = candidate.feet().minus(bot.feet());
+                double distance = offset.length();
+                double priority = distance - (candidate.id() == member.target ? 1 : 0);
+                if (priority >= bestDistance || member.vaultBot != null
+                        && !member.vaultBot.canEngage(bot, offset, distance)) continue;
+                bestDistance = priority;
                 opponent = candidate;
+            }
+            if (member.vaultBot != null) {
+                input(bot.id(), member.vaultBot.input(tick, bot, opponent, vault.stage(), member.bot));
+                member.target = opponent == null ? 0 : opponent.id();
+                continue;
             }
             if (opponent == null) continue;
             member.target = opponent.id();

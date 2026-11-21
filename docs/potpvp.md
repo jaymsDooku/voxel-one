@@ -31,6 +31,23 @@ The lobby listens on port 25567 on loopback by default. Use `--bind` on the serv
 
 No Debuff starts players with a sword, armor, healing, speed, fire resistance, food, and pearls. Debuff adds poison and slowness. The server simulates combat at 20 ticks per second with a 3.05-block melee reach, a 10-tick damage immunity window, and a 16-second pearl cooldown. Splash healing fades with distance and can heal your opponent. Break forward movement or sprint to rearm sprint knockback. Player state and supplies reset for the next duel. The results show each fighter’s health, hits, longest combo, potions used, and potions remaining.
 
+## Vault Battles
+
+Choose **Vault Battles** on the Play screen to attack a defended vault with 29 teammates and 30 opponents controlled by the game. Both teams use the No Debuff kit. Start from the staging vault and choose the west, center, or east approach through the defensive rings.
+
+1. Secure the outer ring by keeping a living attacker in its marked zone for five uncontested seconds.
+2. Capture the vault core by holding its marked zone for eight uncontested seconds. The outer ring stays secured for the rest of the round.
+3. A living defender in the active zone contests it. Progress pauses while contested or while no attackers are present, then resumes when attackers regain control.
+
+Defenders win when the eight-minute timer expires. Either team can also win by eliminating the opposition. Knocked-out players spectate until the next round. Dedicated lobbies seat 30 fighters on each side in alternating join order and support up to four spectators. Press Enter to ready up. The countdown starts when all 60 fighters are ready.
+
+```text
+java -jar target/voxel-one-1.0-SNAPSHOT-client.jar --game practice --offline --kit vault-battles
+java -jar target/voxel-one-1.0-SNAPSHOT-server.jar --practice-server --kit vault-battles --tls ./vault-tls
+```
+
+Use the connection command in [Run a match](#run-a-match) with a current client and the Vault Battles server's fingerprint. The battlefield takes inspiration from Civ's defensive rings, ground vault, elevated bunker, and separate attack bunker. [CivWiki vault architecture](https://civwiki.news/newsletter/newsletter-11-14/) · [CivWiki attack bunker example](https://civwiki.news/newsletter/newsletter-06-19/)
+
 ## Run the HCF kit map
 
 ```text

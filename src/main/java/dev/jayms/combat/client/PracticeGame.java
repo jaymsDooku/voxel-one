@@ -18,9 +18,12 @@ import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.arena.BasaltBattlefieldWorld;
 import dev.jayms.combat.arena.BasaltCourtyardWorld;
 import dev.jayms.combat.arena.PracticeTerrain;
+import dev.jayms.combat.arena.VaultBattlefield;
+import dev.jayms.combat.arena.VaultBattlefieldWorld;
 import dev.jayms.combat.practice.PracticeClient;
 import dev.jayms.combat.practice.PracticeMatch;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
+import dev.jayms.combat.practice.PracticeMatch.Kit;
 import dev.jayms.combat.practice.PracticeMatch.Phase;
 import dev.jayms.combat.practice.PracticeMatch.View;
 import dev.jayms.combat.practice.PracticeServer;
@@ -221,11 +224,13 @@ public final class PracticeGame {
              var avatars = new PlayerModel();
              var hitboxes = new PracticeHitboxes();
              var models = new VoxelModelRenderer(world.models())) {
-            if (terrain == PracticeTerrain.BATTLEFIELD) {
-                BasaltBattlefieldWorld.generate(world);
-            } else {
-                BasaltCourtyardWorld.generate(world);
-                world.stream(0, 0, 25);
+            switch (terrain) {
+                case BATTLEFIELD -> BasaltBattlefieldWorld.generate(world);
+                case VAULT_BATTLEFIELD -> VaultBattlefieldWorld.generate(world);
+                case COURTYARD -> {
+                    BasaltCourtyardWorld.generate(world);
+                    world.stream(0, 0, 25);
+                }
             }
             for (var entry : world.getLoadedChunks().entrySet())
                 if (entry.getKey().chunkY() >= 2) entry.getValue().checkMesh();
@@ -760,6 +765,7 @@ public final class PracticeGame {
             ui.rectangle(0, height - 8, width, 8, 1, .16f, .12f, alpha);
         }
         if (showTeams()) drawTeamLabels(ui);
+        if (!inventory && view.kit() == Kit.VAULT_BATTLES && view.phase() == Phase.FIGHT) drawVaultMarker(ui);
         ui.rectangle(16, 13, 325, 59, .031f, .05f, .065f, .90f);
         String heading = terrain.title() + "  /  " + (factions ? "Faction Arena" : view.kit().title());
         ui.text(heading, 27, 24, Math.min(1.4f, 303f / ui.textWidth(heading, 1f)));
@@ -784,7 +790,9 @@ public final class PracticeGame {
         }
         for (String status : view.status()) {
             ui.rectangle(16, 76 + line * 19, ui.textWidth(status, 1f) + 22, 19, .031f, .05f, .065f, .86f);
-            ui.text(status, 27, 81 + line++ * 19, 1);
+            float y = 81 + line++ * 19;
+            if (view.kit() == Kit.VAULT_BATTLES && line == 2) ui.text(status, 27, y, 1, 1, .83f, .42f, 1);
+            else ui.text(status, 27, y, 1);
         }
         String sprintStatus = sprintToggle.status();
         if (actor != null && actor.health() > 0 && !sprintStatus.isEmpty()) {
@@ -815,16 +823,44 @@ public final class PracticeGame {
         int[] living = new int[2];
         for (Fighter fighter : view.fighters())
             if (fighter.side() >= 0 && fighter.health() > 0) living[fighter.side()]++;
-        float x = 27;
-        ui.rectangle(16, 76, 250, 19, .031f, .05f, .065f, .90f);
-        for (int side = 0; side < TEAM_NAMES.length; side++) {
-            String team = TEAM_NAMES[side] + " " + living[side] + "/" + view.kit().teamSize()
+        String[] labels = new String[living.length];
+        float panelWidth = 4;
+        for (int side = 0; side < labels.length; side++) {
+            labels[side] = view.kit().teamName(side) + " " + living[side] + "/" + view.kit().teamSize()
                     + (actor != null && actor.side() == side ? " (you)" : "");
+            panelWidth += ui.textWidth(labels[side], 1f) + 18;
+        }
+        float x = 27;
+        ui.rectangle(16, 76, panelWidth, 19, .031f, .05f, .065f, .90f);
+        for (int side = 0; side < labels.length; side++) {
+            String team = labels[side];
             int color = TEAM_JERSEYS[side];
             ui.text(team, x, 81, 1f, (color >> 16 & 255) / 255f, (color >> 8 & 255) / 255f,
                     (color & 255) / 255f, 1);
-            x += ui.textWidth(team, 1f) + 20;
+            x += ui.textWidth(team, 1f) + 18;
         }
+    }
+
+    private void drawVaultMarker(Overlay ui) {
+        var stage = view.vaultStage();
+        if (stage == PracticeMatch.VaultStage.CAPTURED) return;
+        boolean outer = stage == PracticeMatch.VaultStage.OUTER_RING;
+        Vec3 marker = outer ? VaultBattlefield.breachMarker() : VaultBattlefield.coreMarker();
+        // Keep the waypoint readable over the route and intervening defenses.
+        Vector4f clip = clipFromWorld.transform(new Vector4f((float) marker.x(), (float) marker.y() + 3.5f,
+                (float) marker.z(), 1));
+        if (clip.w <= 0 || Math.abs(clip.x) > .90f * clip.w || Math.abs(clip.y) > .74f * clip.w
+                || Math.abs(clip.z) > clip.w) return;
+        float x = (clip.x / clip.w * .5f + .5f) * width;
+        float y = (.5f - clip.y / clip.w * .5f) * height;
+        Vector3f eye = camera.position();
+        int distance = (int) Math.round(Math.hypot(marker.x() - eye.x, marker.z() - eye.z));
+        String text = (outer ? "Outer Ring" : "Vault Core") + "  " + distance + " blocks";
+        float textWidth = ui.textWidth(text, 1.05f);
+        ui.rectangle(x - textWidth / 2 - 8, y - 23, textWidth + 16, 19, .031f, .05f, .065f, .92f);
+        ui.text(text, x - textWidth / 2, y - 18, 1.05f, 1, .83f, .42f, 1);
+        ui.line(x - 4, y, x, y + 4, 2, 1, .83f, .42f, 1);
+        ui.line(x, y + 4, x + 4, y, 2, 1, .83f, .42f, 1);
     }
 
     private void drawSparringStats(Overlay ui) {
@@ -872,33 +908,47 @@ public final class PracticeGame {
     private String stateText(Fighter actor) {
         if (remote != null && !remote.connected()) return "Disconnected  /  Esc to exit";
         if (view.spectatorId() == id) {
-            return view.kit().teamBased() && actor != null && actor.health() <= 0
+            String state = view.kit().teamBased() && actor != null && actor.health() <= 0
                     ? "Eliminated  |  Spectating" : "Spectating";
+            return view.kit() == Kit.VAULT_BATTLES && view.phase() == Phase.FIGHT
+                    ? state + "  /  " + vaultClock(view.ticksLeft()) : state;
         }
         return switch (view.phase()) {
             case WAITING -> view.kit().teamBased() && view.fighters().size() < view.kit().fighterCapacity()
                     ? "Waiting for players  /  " + view.fighters().size() + "/" + view.kit().fighterCapacity()
                     : actor != null && actor.ready() ? "Ready  |  Enter: cancel" : "Enter: ready  |  E: edit kit";
             case COUNTDOWN -> "Get ready";
-            case FIGHT -> (view.kit().rules().knockbackOnly() ? "Trading  |  "
-                    : "Fight  /  " + (view.ticksLeft() / 20) + "s  |  ")
-                    + Controls.keyName(controls.code(AUTO_CLICK)) + "  Auto-click " + (autoClicker.enabled() ? "ON (9 CPS)" : "off");
+            case FIGHT -> fightState() + "  |  " + Controls.keyName(controls.code(AUTO_CLICK)) + "  Auto-click "
+                    + (autoClicker.enabled() ? "ON (9 CPS)" : "off");
             case RESULT -> view.ticksLeft() > 0 ? "Round complete" : "Enter: ready for another round";
         };
+    }
+
+    private String fightState() {
+        if (view.kit() == Kit.VAULT_BATTLES) return "Siege  /  " + vaultClock(view.ticksLeft());
+        if (view.kit().rules().knockbackOnly()) return "Trading";
+        return "Fight  /  " + view.ticksLeft() / PracticeMatch.TICKS_PER_SECOND + "s";
+    }
+
+    private static String vaultClock(int ticks) {
+        int seconds = (ticks + PracticeMatch.TICKS_PER_SECOND - 1) / PracticeMatch.TICKS_PER_SECOND;
+        return seconds / 60 + ":" + (seconds % 60 < 10 ? "0" : "") + seconds % 60;
     }
 
     private String title() {
         if (factions) return "Voxel One | Faction Arena";
         var kit = snapshot().kit();
         return switch (kit) {
-            case KNOCKBACK_LAB, TEAMFIGHTING_LAB, TEAMFIGHTING_30V30 -> "Voxel One | " + kit.title();
+            case KNOCKBACK_LAB, TEAMFIGHTING_LAB, TEAMFIGHTING_30V30, VAULT_BATTLES -> "Voxel One | " + kit.title();
             default -> "Voxel One | PotPvP Practice";
         };
     }
 
     private String resultText() {
         if (view.winner() == 0) return "Draw";
-        if (view.kit().teamBased()) return TEAM_NAMES[view.winningTeam()] + " wins";
+        if (view.kit().teamBased()) {
+            return view.kit().teamName(view.winningTeam()) + (view.kit() == Kit.VAULT_BATTLES ? " win" : " wins");
+        }
         return view.fighters().stream().filter(f -> f.id() == view.winner()).findFirst()
                 .map(f -> (f.side() < 0 ? f.name() : TEAM_NAMES[f.side()]) + " wins").orElse("Faction victory");
     }
@@ -911,7 +961,7 @@ public final class PracticeGame {
             if (clip.w <= 0 || Math.abs(clip.x) > clip.w || Math.abs(clip.y) > clip.w || Math.abs(clip.z) > clip.w) continue;
             float x = (clip.x / clip.w * .5f + .5f) * width;
             float y = (.5f - clip.y / clip.w * .5f) * height;
-            String text = fighter.role().isEmpty() ? fighter.name() : fighter.name() + " / " + fighter.role();
+            String text = factions && !fighter.role().isEmpty() ? fighter.name() + " / " + fighter.role() : fighter.name();
             float boxWidth = ui.textWidth(text, 1.15f) + 14;
             int color = TEAM_JERSEYS[fighter.side()];
             ui.rectangle(x - boxWidth / 2, y - 3, boxWidth, 16, .031f, .05f, .065f, .83f);
@@ -925,7 +975,7 @@ public final class PracticeGame {
         Vector3f offset = new Vector3f(fighter.x(), fighter.y() + 1.36f, fighter.z()).sub(eye);
         int count = (int) Math.ceil(offset.length() * 5);
         // Team colors still identify distant fighters on the battlefield without stacking nameplates.
-        int maxSamples = terrain == PracticeTerrain.BATTLEFIELD ? 100 : 220;
+        int maxSamples = terrain == PracticeTerrain.COURTYARD ? 220 : 100;
         if (count < 1 || count > maxSamples) return false;
         for (int i = 1; i < count; i++) {
             float t = i / (float) count;
@@ -961,7 +1011,7 @@ public final class PracticeGame {
         float timerScale = Math.min(1.02f, 532f / Math.max(1, ui.textWidth(timers, 1f)));
         ui.rectangle(x, y + 48, ui.textWidth(timers, timerScale) + 8, 13, .031f, .05f, .065f, .90f);
         ui.text(timers, x + 4, y + 51, timerScale);
-        if (view.phase() == Phase.RESULT && view.kit() != PracticeMatch.Kit.TEAMFIGHTING_30V30) {
+        if (view.phase() == Phase.RESULT && view.kit().teamSize() <= 2) {
             for (Fighter fighter : view.fighters()) {
                 String result = String.format(Locale.ROOT, "%s  HP %.1f  Hits %d  Combo %d  Pots used %d  Left %d",
                         fighter.name(), fighter.health(), fighter.hits(), fighter.combo(), fighter.used(), fighter.remaining());
