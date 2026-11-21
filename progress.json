@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T00:11:25+00:00",
+  "updatedAt": "2026-11-21T00:20:01+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4521,12 +4521,33 @@
     },
     {
       "id": "voxel-ledge-shadow",
-      "title": "Westminster ledge and window sill lighting",
-      "description": "Checking Elizabeth Tower cornices in a full orbit and tower and Hall window sills on closer arcs.",
-      "evidence": [],
+      "title": "Westminster cornice and window sill shadows",
+      "description": "Comparing stacked tower cornices, window sills and true recesses in the native building preview.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Ledge lighting PR 99",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/99"
+        },
+        {
+          "kind": "image",
+          "label": "westminster ledge lighting comparison.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-comparison.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster ledge lighting flight.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-flight.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster ledge lighting results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-results.txt"
+        }
+      ],
       "status": "in_progress",
-      "note": "Checking Elizabeth Tower cornices in a full orbit and tower and Hall window sills on closer arcs.",
-      "updatedAt": "2026-11-21T00:11:25+00:00"
+      "note": "A 360-degree Windows flight reproduced an upper east cornice pulse. Contact-shadow weighting removes the measured east pulse. Investigating a second two-frame dip on the south cornice before signoff.",
+      "updatedAt": "2026-11-21T00:20:01+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
