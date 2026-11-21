@@ -15,6 +15,7 @@ import org.junit.jupiter.params.provider.ValueSource;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Random;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static dev.jayms.combat.ThrowablePhysicsTest.assertVector;
@@ -26,6 +27,37 @@ class CombatEngineTest {
     private static final double NORMAL_PUSH = CombatRules.NO_DEBUFF.knockback();
     private static final double SPRINT_BONUS = CombatRules.NO_DEBUFF.sprintKnockback();
     private static final double SPRINT_PUSH = NORMAL_PUSH + SPRINT_BONUS;
+
+    @ParameterizedTest
+    @ValueSource(doubles = {0, .009})
+    void nearlyCoincidentTradersGetIndependentBaseDirections(double separation) {
+        var engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, true), new Random(0));
+        assertTrue(engine.join(1, ORIGIN, 0));
+        assertTrue(engine.join(2, ORIGIN.add(0, 0, separation), 0));
+        assertTrue(input(engine, 1, 0, 90, 0, 0, false, true, false, 0));
+        assertTrue(input(engine, 2, 0, -90, 0, 0, false, true, false, 0));
+        engine.tick();
+
+        Vec3 first = engine.snapshot(1).velocity(), second = engine.snapshot(2).velocity();
+        assertEquals(NORMAL_PUSH, Math.hypot(first.x(), first.z()), 1e-6);
+        assertEquals(NORMAL_PUSH, Math.hypot(second.x(), second.z()), 1e-6);
+        // Paper's seeded, accepted samples for the first hit (fighter 2) and return hit.
+        assertEquals(-.896712 * NORMAL_PUSH, second.x(), 1e-6);
+        assertEquals(.442615 * NORMAL_PUSH, second.z(), 1e-6);
+        assertEquals(.845456 * NORMAL_PUSH, first.x(), 1e-6);
+        assertEquals(.534046 * NORMAL_PUSH, first.z(), 1e-6);
+    }
+
+    @Test void baseDirectionUsesActualOffsetAtTheSamplingThreshold() {
+        var engine = new CombatEngine(CombatRules.NO_DEBUFF, field(false, true), new Random(0));
+        assertTrue(engine.join(1, new Vec3(0, 1, 0), 0));
+        assertTrue(engine.join(2, new Vec3(0, 1, .01), 0));
+        assertTrue(input(engine, 1, 0, 0, 0, 0, false, true, false, 0));
+        engine.tick();
+        Vec3 launch = engine.snapshot(2).velocity();
+        assertEquals(0, launch.x(), 1e-6);
+        assertEquals(NORMAL_PUSH, launch.z(), 1e-6);
+    }
 
     @Test void inventoryQuickMoveMergesAcrossSectionsWithoutDroppingOverflow() {
         CombatEngine engine = duel(CombatRules.NO_DEBUFF, field(false, true), 2);

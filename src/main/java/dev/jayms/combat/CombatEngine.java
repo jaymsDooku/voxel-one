@@ -110,7 +110,7 @@ public final class CombatEngine {
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
     private final CombatRules rules;
     private final Arena arena;
-    private final RandomGenerator throwableRandom;
+    private final RandomGenerator combatRandom;
     private final Map<Integer, Actor> actors = new TreeMap<>();
     private final ArrayDeque<Click> pendingMelee = new ArrayDeque<>();
     private final List<Projectile> shots = new ArrayList<>();
@@ -121,10 +121,10 @@ public final class CombatEngine {
         this(rules, arena, RandomGenerator.getDefault());
     }
 
-    CombatEngine(CombatRules rules, Arena arena, RandomGenerator throwableRandom) {
+    CombatEngine(CombatRules rules, Arena arena, RandomGenerator combatRandom) {
         this.rules = Objects.requireNonNull(rules);
         this.arena = Objects.requireNonNull(arena);
-        this.throwableRandom = Objects.requireNonNull(throwableRandom);
+        this.combatRandom = Objects.requireNonNull(combatRandom);
     }
 
     public boolean join(int playerId, Vec3 feet, float yaw) {
@@ -591,11 +591,16 @@ public final class CombatEngine {
         return true;
     }
 
-    private static Vec3 knockbackDirection(Actor attacker, Actor target) {
-        Vec3 relative = target.feet.minus(attacker.feet);
-        double distance = Math.hypot(relative.x, relative.z);
-        return distance > .01 ? new Vec3(relative.x / distance, 0, relative.z / distance)
-                : direction(attacker.yaw, 0);
+    private Vec3 knockbackDirection(Actor attacker, Actor target) {
+        double dx = attacker.feet.x - target.feet.x, dz = attacker.feet.z - target.feet.z;
+        // EntityLiving.damageEntity samples a new horizontal offset when the centers coincide.
+        // Only the separate sprint bonus uses the attacking player's facing.
+        while (dx * dx + dz * dz < 1e-4) {
+            dx = (combatRandom.nextDouble() - combatRandom.nextDouble()) * .01;
+            dz = (combatRandom.nextDouble() - combatRandom.nextDouble()) * .01;
+        }
+        double distance = Math.hypot(dx, dz);
+        return new Vec3(-dx / distance, 0, -dz / distance);
     }
 
     private void beginHitMotion(Actor target, Vec3 away, double basePush) {
@@ -713,7 +718,7 @@ public final class CombatEngine {
     }
 
     private void launchThrowable(Actor actor, Item item) {
-        var launch = ThrowablePhysics.launch(actor.feet, actor.yaw, actor.pitch, item, throwableRandom);
+        var launch = ThrowablePhysics.launch(actor.feet, actor.yaw, actor.pitch, item, combatRandom);
         launch(actor, item, launch.position(), launch.velocity());
     }
 

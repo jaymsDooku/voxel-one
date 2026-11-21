@@ -56,10 +56,11 @@ class ArenaSwingTimelineTest {
         assertEquals(0, phase(101));
         var later = timeline.frame(399_500_000).remote();
         assertEquals(.5, timeline.sample(1, later).swingProgress(), .00001);
-        assertEquals(2.0 / 3, timeline.sample(1, later).hurt(), .00001);
+        assertEquals(.875, timeline.sample(1, later).hurt(), .00001);
         var ended = timeline.frame(549_500_000).remote();
         assertEquals(1, timeline.sample(1, ended).swingProgress());
-        assertEquals(0, timeline.sample(1, ended).hurt());
+        assertEquals(.5, timeline.sample(1, ended).hurt(), .00001);
+        assertEquals(0, timeline.sample(1, timeline.frame(749_500_000).remote()).hurt());
     }
 
     private Fighter cues(int id, long start) {

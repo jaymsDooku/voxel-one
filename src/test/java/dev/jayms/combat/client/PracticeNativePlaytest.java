@@ -35,8 +35,10 @@ public final class PracticeNativePlaytest {
     private PracticeNativePlaytest() { }
 
     public static void main(String[] args) throws Exception {
-        if (args.length < 1 || args.length > 2 || args.length == 2 && !args[1].equals("--trace-only"))
-            throw new IllegalArgumentException("Expected output directory and optional --trace-only");
+        if (args.length < 1 || List.of(args).subList(1, args.length).stream()
+                .anyMatch(flag -> !flag.equals("--trade") && !flag.equals("--trace-only")))
+            throw new IllegalArgumentException("Expected output directory and optional --trade and --trace-only");
+        boolean trade = List.of(args).contains("--trade");
         Path output = Path.of(args[0]).toAbsolutePath();
         Files.createDirectories(output);
         var identity = SecureTransport.server(Files.createTempDirectory(output.getParent(), "practice-tls-"));
@@ -47,13 +49,13 @@ public final class PracticeNativePlaytest {
             var peer = Executors.newSingleThreadScheduledExecutor();
             peer.scheduleAtFixedRate(new CounterPlayer(second, first.id()), 0, 16_666_667, TimeUnit.NANOSECONDS);
             try {
-                Observer observer = new Observer(first, second, output, args.length == 1);
+                Observer observer = new Observer(first, second, output, !List.of(args).contains("--trace-only"), trade);
                 try {
                     new PracticeGame(first, Kit.NO_DEBUFF, false, output).run(observer);
                 } finally {
                     observer.trace.save(output);
                 }
-                if (observer.report == null) throw new IllegalStateException("Desktop playtest ended before exchanging hits and healing");
+                if (observer.report == null) throw new IllegalStateException("Desktop playtest ended before both clients confirmed the round");
                 Files.writeString(output.resolve("desktop-playtest.txt"), observer.report);
                 System.out.println(observer.report);
             } finally {
@@ -105,6 +107,11 @@ public final class PracticeNativePlaytest {
         private final PracticeClient first, second;
         private final Path output;
         private final boolean captureMedia;
+        private final boolean trade;
+        private long lastTrade = -1;
+        private int mutualExchanges;
+        private int framesShowingBothHits;
+        private double peakHurtRoll;
         private long start, recordedAt, previousTick = -1;
         private boolean ready, captured, capturedFlash, stopped, remotePresented;
         private float presentX, presentY, presentZ, hurtTint, previousX, previousY, previousZ;
@@ -119,11 +126,12 @@ public final class PracticeNativePlaytest {
         private String report;
         private final NativeFrameTrace trace = new NativeFrameTrace();
 
-        Observer(PracticeClient first, PracticeClient second, Path output, boolean captureMedia) {
+        Observer(PracticeClient first, PracticeClient second, Path output, boolean captureMedia, boolean trade) {
             this.first = first;
             this.second = second;
             this.output = output;
             this.captureMedia = captureMedia;
+            this.trade = trade;
             clicks.toggle();
         }
 
@@ -132,7 +140,7 @@ public final class PracticeNativePlaytest {
             Vec3 offset = displayedFeet == null ? new Vec3(0, 0, 0)
                     : new Vec3(presentX, presentY, presentZ).minus(displayedFeet);
             Intent input = intent(view, first.id(), controls.sequence(), offset, clicks.poll(System.nanoTime(), view.phase() == Phase.FIGHT),
-                    self != null && self.hits() > previousHits);
+                    self != null && self.hits() > previousHits, trade);
             if (self != null) previousHits = self.hits();
             return input;
         }
@@ -144,6 +152,11 @@ public final class PracticeNativePlaytest {
 
         @Override public void submitted(long now, Intent intent) {
             trace.click(now, intent);
+        }
+
+        @Override public void hitFeedback(long tick, float received, float dealt, float rollRadians) {
+            if (received > 0 && dealt > 0) framesShowingBothHits++;
+            peakHurtRoll = Math.max(peakHurtRoll, Math.abs(Math.toDegrees(rollRadians)));
         }
 
         @Override public void presented(int id, float x, float y, float z, float hurtTint, float swingProgress) {
@@ -170,6 +183,11 @@ public final class PracticeNativePlaytest {
                 recordedAt = now;
             }
             Fighter a = fighter(view, first.id()), b = fighter(view, second.id());
+            if (a != null && b != null && a.hurtTick() >= 0 && b.hurtTick() >= 0
+                    && Math.min(a.hurtTick(), b.hurtTick()) > lastTrade && Math.abs(a.hurtTick() - b.hurtTick()) <= 2) {
+                mutualExchanges++;
+                lastTrade = Math.max(a.hurtTick(), b.hurtTick());
+            }
             if (view.phase() == Phase.FIGHT && view.tick() != previousTick && b != null
                     && b.impulseTick() == view.tick() && sprintImpulse(b)) {
                 immediateImpulseCues++;
@@ -206,7 +224,7 @@ public final class PracticeNativePlaytest {
             previousY = presentY;
             previousZ = presentZ;
             remotePresented = false;
-            if (!captured && a != null && b != null && a.hits() > 0 && b.hits() > 0 && a.used() > 0
+            if (!captured && a != null && b != null && a.hits() > 0 && b.hits() > 0 && (trade || a.used() > 0)
                     && a.pitch() > -40) {
                 if (captureMedia) screenshot(output.resolve("basalt-courtyard.png"), width, height);
                 captured = true;
@@ -218,15 +236,19 @@ public final class PracticeNativePlaytest {
                 if (acknowledged.phase() == Phase.RESULT && acknowledged.winner() == view.winner()) {
                     if (!capturedFlash || betweenSnapshotFrames == 0)
                         throw new IllegalStateException("Missing native evidence for damage tint or motion between snapshots");
-                    if (sprintHits < 3 || peakKnockbackUp < .38 || peakKnockbackUp > .462)
+                    if (trade && mutualExchanges < 2)
+                        throw new IllegalStateException("Expected repeated two-way exchanges, observed " + mutualExchanges);
+                    if (trade && (framesShowingBothHits == 0 || peakHurtRoll == 0))
+                        throw new IllegalStateException("The local player did not see both hit cues and a hurt reaction");
+                    if (!trade && (sprintHits < 3 || peakKnockbackUp < .38 || peakKnockbackUp > .462))
                         throw new IllegalStateException("Expected three sprint hits within the arena lift range, got "
                                 + sprintHits + " hits and " + peakKnockbackUp + " upward blocks per tick");
-                    if (groundedSprintCues == 0)
+                    if (!trade && groundedSprintCues == 0)
                         throw new IllegalStateException("No sprint cue showed the reduced grounded launch");
-                    if (immediateImpulseCues < 3)
+                    if (!trade && immediateImpulseCues < 3)
                         throw new IllegalStateException("Too few sprint impulses arrived on their hit tick: "
                                 + immediateImpulseCues);
-                    if (carriedLaunches == 0)
+                    if (!trade && carriedLaunches == 0)
                         throw new IllegalStateException("No adjacent sprint launch snapshots retained momentum");
                     if (recorder.active()) recorder.toggle(width, height);
                     stopped = true;
@@ -234,9 +256,12 @@ public final class PracticeNativePlaytest {
                             + "Both clients agreed on " + view.result() + " and winner " + view.winner() + ".\n"
                             + a.name() + " hits " + a.hits() + ", longest combo " + a.combo() + ", pots used " + a.used() + ".\n"
                             + b.name() + " hits " + b.hits() + ", longest combo " + b.combo() + ", pots used " + b.used() + ".\n"
+                            + mutualExchanges + " exchanges in which both fighters took a full hit within two server ticks.\n"
+                            + String.format(Locale.ROOT, "%d frames showed incoming and outgoing hit cues together; peak first-person roll %.2f degrees.%n",
+                            framesShowingBothHits, peakHurtRoll)
                             + "Observed the opponent's red flash and " + betweenSnapshotFrames
                             + " moving frames between received snapshots after damage.\n"
-                            + "Observed " + sprintHits + " distinct sprint knockback launches during the W-tap combo.\n"
+                            + "Observed " + sprintHits + " distinct sprint knockback launches.\n"
                             + immediateImpulseCues + " sprint impulses reached the client on their hit tick.\n"
                             + groundedSprintCues + " sprint cues showed the reduced grounded launch of 0.4208 blocks per tick.\n"
                             + carriedLaunches + " sprint launches kept at least 45% of horizontal speed on the next tick while the defender could steer.\n"
@@ -254,7 +279,7 @@ public final class PracticeNativePlaytest {
         }
     }
 
-    private static Intent intent(View view, int id, long sequence, Vec3 displayedOffset, boolean swing, boolean wTap) {
+    private static Intent intent(View view, int id, long sequence, Vec3 displayedOffset, boolean swing, boolean wTap, boolean trade) {
         Fighter self = fighter(view, id);
         Fighter other = view.fighters().stream().filter(f -> f.id() != id).findFirst().orElse(null);
         if (self == null || other == null || view.phase() != Phase.FIGHT)
@@ -262,6 +287,7 @@ public final class PracticeNativePlaytest {
         double dx = displayedOffset.x(), dz = displayedOffset.z(), range = Math.hypot(dx, dz);
         float yaw = (float) Math.toDegrees(Math.atan2(dz, dx));
         float pitch = aimPitch(displayedOffset.y(), range);
+        if (trade) return new Intent(sequence, yaw, pitch, 1, 0, false, true, swing, false, 0);
         boolean heal = self.health() < 17 && self.used() == 0;
         int slot = 0;
         if (heal) {
