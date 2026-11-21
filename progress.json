@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T00:20:01+00:00",
+  "updatedAt": "2026-11-21T00:33:43+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4543,11 +4543,26 @@
           "kind": "report",
           "label": "westminster ledge lighting results.txt",
           "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-ledge-lighting-results.txt"
+        },
+        {
+          "kind": "video",
+          "label": "westminster tower orbit.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-tower-orbit.mp4"
+        },
+        {
+          "kind": "image",
+          "label": "westminster tower orbit angles.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-tower-orbit-angles.png"
+        },
+        {
+          "kind": "report",
+          "label": "westminster tower orbit results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-tower-orbit-results.txt"
         }
       ],
       "status": "in_progress",
-      "note": "A 360-degree Windows flight reproduced an upper east cornice pulse. Contact-shadow weighting removes the measured east pulse. Investigating a second two-frame dip on the south cornice before signoff.",
-      "updatedAt": "2026-11-21T00:20:01+00:00"
+      "note": "Full 651-frame orbit and seven window sills verified. Maximum tower brightness step fell from 20 to 6. Native shadow controls and 88 Maven tests passed. Submitted for CI.",
+      "updatedAt": "2026-11-21T00:33:43+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
