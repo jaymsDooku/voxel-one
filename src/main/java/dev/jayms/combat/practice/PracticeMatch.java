@@ -88,7 +88,10 @@ public final class PracticeMatch implements ArenaMatch {
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
                        Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
-                       long lastHit, long lastSplash, List<String> status) { }
+                       long lastHit, long lastSplash, List<String> status) {
+        /** Teamfighting Lab publishes the winning side plus one in place of a fighter ID. */
+        public int winningTeam() { return kit.teamBased() ? winner - 1 : -1; }
+    }
 
     private static final int COUNTDOWN = 3 * TICKS_PER_SECOND;
     private static final int ROUND = 8 * 60 * TICKS_PER_SECOND;
@@ -263,7 +266,9 @@ public final class PracticeMatch implements ArenaMatch {
             if (fighter.health() > 0) survivors[members.get(fighter.id()).team()] = fighter.id();
         }
         if (survivors[0] != 0 && survivors[1] != 0) return false;
-        finish(Math.max(survivors[0], survivors[1]), cause);
+        int survivingId = Math.max(survivors[0], survivors[1]);
+        int winner = kit.teamBased() && survivingId != 0 ? members.get(survivingId).team() + 1 : survivingId;
+        finish(winner, cause);
         return true;
     }
 

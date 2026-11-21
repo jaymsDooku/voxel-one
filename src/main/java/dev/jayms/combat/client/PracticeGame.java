@@ -881,6 +881,7 @@ public final class PracticeGame {
 
     private String resultText() {
         if (view.winner() == 0) return "Draw";
+        if (view.kit().teamBased()) return TEAM_NAMES[view.winningTeam()] + " wins";
         return view.fighters().stream().filter(f -> f.id() == view.winner()).findFirst()
                 .map(f -> (f.side() < 0 ? f.name() : TEAM_NAMES[f.side()]) + " wins").orElse("Faction victory");
     }

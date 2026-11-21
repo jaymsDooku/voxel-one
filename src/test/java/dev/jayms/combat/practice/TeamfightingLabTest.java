@@ -71,11 +71,27 @@ class TeamfightingLabTest {
         }
         assertEquals(Phase.RESULT, match.view(1).phase());
         assertEquals(Result.KNOCKOUT, match.view(1).result());
-        assertEquals(0, fighter(match, match.view(1).winner()).side());
+        assertEquals(0, match.view(1).winningTeam());
         while (match.view(1).ticksLeft() > 0) match.tick();
         for (int id = 1; id <= 4; id++) match.ready(id);
         assertEquals(Phase.COUNTDOWN, match.view(1).phase());
         assertTrue(match.view(1).fighters().stream().allMatch(f -> f.health() == 20 && f.remaining() == 31));
+    }
+
+    @Test void teamResultRemainsVisibleToSpectatorsAfterTheWinnersLeave() {
+        var match = start(false);
+        int spectator = match.join("Spectator");
+        match.leave(1);
+        assertEquals(Phase.FIGHT, match.view(spectator).phase());
+        match.leave(3);
+        assertEquals(Result.FORFEIT, match.view(spectator).result());
+        assertEquals(1, match.view(spectator).winningTeam());
+        match.leave(2);
+        match.leave(4);
+        var result = match.view(spectator);
+        assertTrue(result.fighters().isEmpty());
+        assertEquals(Phase.RESULT, result.phase());
+        assertEquals(1, result.winningTeam());
     }
 
     @Test void offlineBothTeamsHaveBotsAndTheyEngage() {

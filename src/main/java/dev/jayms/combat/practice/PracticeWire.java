@@ -147,6 +147,7 @@ final class PracticeWire {
         Kit kit = readEnum(in, Kit.values());
         Result result = readEnum(in, Result.values());
         int winner = in.readInt(), ticksLeft = in.readUnsignedShort(), spectatorId = in.readInt();
+        if (kit.teamBased() && (winner < 0 || winner > 2)) throw new IOException("Invalid winning team");
         long tick = in.readLong();
         int count = count(in, 4);
         List<Fighter> fighters = new ArrayList<>(count);

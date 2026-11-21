@@ -203,6 +203,11 @@ class PracticeNetworkTest {
             assertTrue(input(alice, sequence, -90, 0, 0, false, true, false, 0));
             await(() -> clients.stream().allMatch(c -> fighter(c.view(), alice.id()).hits() == 1
                     && fighter(c.view(), bob.id()).health() == 18.5f), "enemy hit synchronized to all four clients");
+            alice.close();
+            carol.close();
+            await(() -> bothPhase(bob, dan, Phase.RESULT), "team forfeit synchronized");
+            assertEquals(1, bob.view().winningTeam());
+            assertEquals(1, dan.view().winningTeam());
         }
     }
 
