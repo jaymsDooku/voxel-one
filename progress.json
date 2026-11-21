@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-21T03:36:45+00:00",
+  "updatedAt": "2026-11-21T11:50:20+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -4568,10 +4568,31 @@
       "id": "voxel-westminster-double",
       "title": "Westminster Palace at double scale",
       "description": "Building a separate 600 by 304 by 204 block palace and verifying the silhouette, towers and courts in the native preview.",
-      "evidence": [],
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Double Palace PR",
+          "url": "https://github.com/jaymsDooku/voxel-one/pull/105"
+        },
+        {
+          "kind": "image",
+          "label": "westminster double size.png",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-double-size.png"
+        },
+        {
+          "kind": "video",
+          "label": "westminster double flight.mp4",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-double-flight.mp4"
+        },
+        {
+          "kind": "report",
+          "label": "westminster double results.txt",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/westminster-double-results.txt"
+        }
+      ],
       "status": "in_progress",
-      "note": "Building a separate 600 by 304 by 204 block palace and verifying the silhouette, towers and courts in the native preview.",
-      "updatedAt": "2026-11-21T03:36:45+00:00"
+      "note": "Palace built and verified on Windows. Independent review approved 6d0a3a19. PR 105 is awaiting platform checks and merge.",
+      "updatedAt": "2026-11-21T11:50:20+00:00"
     }
   ],
   "website": "https://voxel-one.jamesleaver1.chatgpt.site"
