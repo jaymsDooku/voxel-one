@@ -1,0 +1,28 @@
+Windows, NVIDIA GeForce RTX 3060, native OpenGL, 1280 x 720, fixed daylight.
+651 measured frames: a 360-degree orbit (radius 39 blocks, varying height), then lower arcs past the tower and Westminster Hall.
+Values are displayed luminance on a 0-255 scale. Probes follow the same world-space stone; surrounding pixel rays must hit an upward face at its height. HUD regions and occluded probes are excluded.
+
+Before (fd848def)
+tower 360-degree orbit: 27 visible points, 2578 adjacent pairs, p99 jump 7, maximum jump 20, luminance range 38..232
+three tower sills: 3 visible points, 447 adjacent pairs, p99 jump 3, maximum jump 4, luminance range 151..179
+four Hall sills: 4 visible points, 524 adjacent pairs, p99 jump 3, maximum jump 6, luminance range 159..182
+E92_-7 frames 135..143: 112, 114, 114, 99, 119, 110, 114, 116, 121
+S92_0 frames 148..155: 122, 120, 119, 105, 106, 106, 106, 104
+
+After (e3e71f19)
+tower 360-degree orbit: 27 visible points, 2578 adjacent pairs, p99 jump 2, maximum jump 6, luminance range 44..230
+three tower sills: 3 visible points, 447 adjacent pairs, p99 jump 2, maximum jump 3, luminance range 157..178
+four Hall sills: 4 visible points, 524 adjacent pairs, p99 jump 3, maximum jump 4, luminance range 163..181
+E92_-7 frames 135..143: 109, 110, 110, 111, 112, 113, 114, 115, 116
+S92_0 frames 148..155: 113, 112, 111, 111, 111, 111, 111, 110
+
+Packaged client, ray-validated subpixel patch measurements
+East cornice at 129 through 148 degrees: minimum 103.3 / 255, largest adjacent drop 0.11, rise 2.50, one-frame dip 0.56 / 255
+South cornice at 149 through 177 degrees: minimum 118.7 / 255, largest adjacent drop 1.19, rise 0.55, one-frame dip 0.47 / 255
+South cornice parked at 157 degrees: largest step 0.21 / 255 during an observed reflection probe replacement
+Thin-blocker positive control (1066 pixel locations): preview direct fractions 0, 0.5, 1 produced linear intensity 1.000, 0.825, 0.650. Ordinary world contact shadows retained.
+Maven verify: 88 selected tests passed.
+Fixed-angle legacy daylight controls on the same packaged client
+Clock tower upper ledge 196, lower ledge 198, front face 223
+Gable sill 164, recessed wood 24
+Hall sill 132, cast shadow 69, adjacent wall 176
