@@ -9,20 +9,37 @@ four Hall sills: 4 visible points, 524 adjacent pairs, p99 jump 3, maximum jump 
 E92_-7 frames 135..143: 112, 114, 114, 99, 119, 110, 114, 116, 121
 S92_0 frames 148..155: 122, 120, 119, 105, 106, 106, 106, 104
 
-After (e3e71f19)
-tower 360-degree orbit: 27 visible points, 2578 adjacent pairs, p99 jump 2, maximum jump 6, luminance range 44..230
-three tower sills: 3 visible points, 447 adjacent pairs, p99 jump 2, maximum jump 3, luminance range 157..178
-four Hall sills: 4 visible points, 524 adjacent pairs, p99 jump 3, maximum jump 4, luminance range 163..181
-E92_-7 frames 135..143: 109, 110, 110, 111, 112, 113, 114, 115, 116
-S92_0 frames 148..155: 113, 112, 111, 111, 111, 111, 111, 110
+After (8bcc61a3)
+tower 360-degree orbit: 27 visible points, 2578 adjacent pairs, p99 jump 2, maximum jump 4, luminance range 59..231
+three tower sills: 3 visible points, 447 adjacent pairs, p99 jump 2, maximum jump 3, luminance range 159..179
+four Hall sills: 4 visible points, 524 adjacent pairs, p99 jump 3, maximum jump 4, luminance range 159..179
+E92_-7 frames 135..143: 115, 117, 118, 120, 121, 121, 122, 123, 123
+S92_0 frames 148..155: 122, 119, 119, 117, 117, 117, 117, 117
 
-Packaged client, ray-validated subpixel patch measurements
-East cornice at 129 through 148 degrees: minimum 103.3 / 255, largest adjacent drop 0.11, rise 2.50, one-frame dip 0.56 / 255
-South cornice at 149 through 177 degrees: minimum 118.7 / 255, largest adjacent drop 1.19, rise 0.55, one-frame dip 0.47 / 255
-South cornice parked at 157 degrees: largest step 0.21 / 255 during an observed reflection probe replacement
-Thin-blocker positive control (1066 pixel locations): preview direct fractions 0, 0.5, 1 produced linear intensity 1.000, 0.825, 0.650. Ordinary world contact shadows retained.
-Maven verify: 88 selected tests passed.
-Fixed-angle legacy daylight controls on the same packaged client
+Parked south cornice handoff, camera held at the same angle
+Before final skylight correction (0ee79f9f): Parked SDF coverage present / absent / restored: 101.91 / 115.17 / 101.43, difference 13.49 / 255
+After (8bcc61a3), process 1
+East cornice at 129 through 148 degrees: minimum 108.5 / 255, largest adjacent drop 0.04, rise 2.38, one-frame dip 0.62 / 255
+South cornice at 149 through 177 degrees: minimum 110.3 / 255, largest adjacent drop 1.04, rise 0.60, one-frame dip 0.43 / 255
+South cornice parked at 157 degrees: largest step 0.16 / 255 during an observed reflection probe replacement
+Parked SDF coverage present / absent / restored: 108.77 / 108.41 / 107.99, difference 0.02 / 255
+
+Fixed-angle tower, gable and Hall controls
 Clock tower upper ledge 196, lower ledge 198, front face 223
 Gable sill 164, recessed wood 24
 Hall sill 132, cast shadow 69, adjacent wall 176
+Thin-blocker control: all 1066 sampled pixels matched expected contact darkness for direct-light fractions 0, 0.5 and 1; RGB intensity 1.000, 0.825, 0.650.
+OpenGL: all 73,728 compared reflection RGB channels matched. Six-face readiness, world replacement, teleport, graphics rebuild/restore, and sky publication lifecycle passed.
+Maven verify: 88 selected tests passed; final Windows jar SHA-256 143600d50403a834fccbe8029b25cfd450c24e7c729ce5674c51d24203ee1366.
+
+Two additional packaged client launches, each with an isolated profile
+East cornice at 129 through 148 degrees: minimum 108.3 / 255, largest adjacent drop 0.00, rise 2.22, one-frame dip 0.48 / 255
+South cornice at 149 through 177 degrees: minimum 112.0 / 255, largest adjacent drop 1.11, rise 0.57, one-frame dip 0.58 / 255
+South cornice parked at 157 degrees: largest step 0.17 / 255 during an observed reflection probe replacement
+Parked SDF coverage present / absent / restored: 108.66 / 108.43 / 107.95, difference 0.13 / 255
+East cornice at 129 through 148 degrees: minimum 108.6 / 255, largest adjacent drop 0.00, rise 2.73, one-frame dip 0.96 / 255
+South cornice at 149 through 177 degrees: minimum 112.2 / 255, largest adjacent drop 1.21, rise 0.48, one-frame dip 0.41 / 255
+South cornice parked at 157 degrees: largest step 0.16 / 255 during an observed reflection probe replacement
+Parked SDF coverage present / absent / restored: 108.47 / 108.45 / 108.06, difference 0.19 / 255
+PASS: real OpenGL bootstrap, fixed-sun 8m climb, changed solar direction, profile rebuild, and GL cleanup.
+Playtest: PASS. Shared-program RGBA16F and private-program RGB16F terrain captures: 73728 bit-identical RGB channels; six-face readiness, invalidation, borrowed-program ownership, actual graphics rebuild/restore, discarded-candidate cleanup passed. Terrain meshes=4; Renderer=NVIDIA GeForce RTX 3060/PCIe/SSE2
