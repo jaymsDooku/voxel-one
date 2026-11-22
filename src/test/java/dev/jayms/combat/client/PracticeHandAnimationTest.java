@@ -76,6 +76,20 @@ class PracticeHandAnimationTest {
     }
 
     @Test
+    void bowRaisesImmediatelyAndCannotPredictMoreThanTwoTicksAheadOfTheServer() {
+        var hand = new PracticeHandAnimation();
+        hand.reset(Item.BOW, ms(0));
+        hand.use(Item.BOW, ms(10));
+        assertEquals(1, hand.pose(Item.BOW, true, false, 0, true, true, ms(10)).bowDrawTicks());
+        assertEquals(2, hand.pose(Item.BOW, true, false, 0, true, true, ms(510)).bowDrawTicks());
+        assertEquals(11, hand.pose(Item.BOW, true, false, 9, true, true, ms(510)).bowDrawTicks());
+        assertEquals(20, hand.pose(Item.BOW, true, false, 20, true, true, ms(1050)).bowDrawTicks());
+        assertEquals(0, hand.pose(Item.BOW, false, false, 20, true, true, ms(1051)).bowDrawTicks());
+        assertEquals(0, hand.pose(Item.BOW, true, false, 0, false, true, ms(1052)).bowDrawTicks());
+        assertEquals(20, hand.pose(Item.BOW, true, false, 0, true, false, ms(1053)).bowDrawTicks());
+    }
+
+    @Test
     void usePulseDoesNotDelayEquipmentOrReplaceSwordGuard() {
         var hand = new PracticeHandAnimation();
         hand.reset(Item.PEARL, ms(0));

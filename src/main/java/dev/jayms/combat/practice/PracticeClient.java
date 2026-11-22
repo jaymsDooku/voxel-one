@@ -101,6 +101,7 @@ public final class PracticeClient implements AutoCloseable {
     public int id() { return id; }
     public PracticeMatch.View view() { return view; }
     public boolean connected() { return !socket.isClosed(); }
+    public boolean supportsBowState() { return version >= PracticeWire.BOW_VERSION; }
     public boolean input(Intent intent) { return offer(out -> PracticeWire.writeIntent(out, intent, version)); }
     public boolean ready() { return offer(out -> out.writeByte(PracticeWire.READY)); }
     public boolean action(int action) {

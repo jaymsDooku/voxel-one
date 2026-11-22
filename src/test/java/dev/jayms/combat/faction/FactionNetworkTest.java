@@ -5,6 +5,7 @@ import dev.jayms.combat.CombatEngine.Intent;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.arena.BasaltCourtyard;
 import dev.jayms.combat.practice.PracticeClient;
+import dev.jayms.combat.practice.PracticeMatch;
 import dev.jayms.combat.practice.PracticeMatch.Fighter;
 import dev.jayms.combat.practice.PracticeMatch.Kit;
 import dev.jayms.combat.practice.PracticeMatch.Phase;
@@ -24,12 +25,15 @@ import java.util.concurrent.TimeUnit;
 import java.util.function.BooleanSupplier;
 import java.util.regex.Pattern;
 
+import static dev.jayms.combat.CombatEngine.BOW_DURABILITY;
+import static dev.jayms.combat.CombatEngine.BOW_FULL_DRAW_TICKS;
 import static org.junit.jupiter.api.Assertions.*;
 
 class FactionNetworkTest {
     private static final String HOST = "127.0.0.1";
     private static final String PASSWORD = "synthetic-faction-fixture";
     private static final int BARD = 2;
+    private static final int ARCHER = 3;
     private static final int ROGUE = 4;
     private static final Pattern ENERGY = Pattern.compile("([0-9]+) energy");
     @TempDir Path temporary;
@@ -122,6 +126,74 @@ class FactionNetworkTest {
             assertTrue(guest.view().status().isEmpty());
             assertTrue(guest.connected());
         }
+    }
+
+    @Test @Timeout(24)
+    void archerCancelsADrawThenFiresAndRetrievesAnEmbeddedArrowOverTls() throws Exception {
+        var identity = SecureTransport.server(temporary.resolve("bow-tls"));
+        var accounts = new AccountStore(temporary.resolve("bow-accounts"));
+        var settings = new FactionMatch.Settings(6, 1_200, 10, 100, 0, 120, 120, 30_000, 20_000, 10_000);
+        var factions = new FactionMatch(temporary.resolve("bow-season"), settings, Clock.systemUTC());
+        try (var server = new PracticeServer(HOST, 0, identity.context(), factions, accounts);
+             var archer = connect(server, identity, "Archer", true);
+             var opponent = connect(server, identity, "Opponent", true)) {
+            assertTrue(archer.supportsBowState());
+            assertTrue(archer.action(ARCHER));
+            await(() -> self(archer).role().equals("Archer"), "archer loadout");
+            assertEquals(Item.BOW, archer.view().inventory().get(5).item());
+            assertEquals(32, archer.view().inventory().get(6).count());
+            assertTrue(archer.ready());
+            assertTrue(opponent.ready());
+            await(() -> phase(List.of(archer, opponent), Phase.FIGHT), "bow round");
+
+            long sequence = draw(archer, opponent, 1, 6);
+            assertTrue(archer.action(PracticeMatch.CANCEL_BOW_ACTION));
+            bowInput(archer, sequence++, 0, false);
+            await(() -> self(archer).bowDrawTicks() == 0 && fighter(opponent, archer.id()).bowDrawTicks() == 0,
+                    "cancelled draw clears on both connections");
+            assertEquals(32, archer.view().inventory().get(6).count());
+            assertEquals(BOW_DURABILITY, self(archer).bowDurability());
+            assertTrue(opponent.view().missiles().isEmpty());
+
+            sequence = draw(archer, opponent, sequence, BOW_FULL_DRAW_TICKS);
+            bowInput(archer, sequence++, 0, false);
+            await(() -> archer.view().inventory().get(6).count() == 31
+                    && opponent.view().missiles().stream().anyMatch(PracticeMatch.Missile::embedded),
+                    "release spends one arrow and embeds it in the wall");
+            var arrow = opponent.view().missiles().stream().filter(PracticeMatch.Missile::embedded).findFirst().orElseThrow();
+            assertEquals(Item.ARROW, arrow.item());
+            assertTrue(arrow.vz() > 0);
+            assertEquals(BOW_DURABILITY - 1, self(archer).bowDurability());
+            assertEquals(BOW_DURABILITY - 1, archer.view().inventory().get(5).durability());
+
+            long deadline = deadline();
+            while (archer.view().inventory().get(6).count() < 32) {
+                if (System.nanoTime() >= deadline) fail("Timed out walking into the embedded arrow");
+                bowInput(archer, sequence, 1, false);
+                assertTrue(opponent.input(new Intent(sequence++, 90, 0, 0, 0, false, false, false, false, 0)));
+                Thread.sleep(30);
+            }
+            await(() -> opponent.view().missiles().stream().noneMatch(m -> m.id() == arrow.id()),
+                    "picked-up arrow disappears from the remote view");
+            assertEquals(BOW_DURABILITY - 1, self(archer).bowDurability());
+        }
+    }
+
+    private static long draw(PracticeClient archer, PracticeClient opponent, long sequence, int ticks)
+            throws InterruptedException {
+        long deadline = deadline();
+        while (self(archer).bowDrawTicks() < ticks || fighter(opponent, archer.id()).bowDrawTicks() < ticks) {
+            if (System.nanoTime() >= deadline) fail("Timed out synchronizing bow draw for " + ticks + " ticks");
+            bowInput(archer, sequence, 0, true);
+            assertTrue(opponent.input(new Intent(sequence++, 90, 0, 0, 0, false, false, false, false, 0)));
+            Thread.sleep(30);
+        }
+        return sequence;
+    }
+
+    private static void bowInput(PracticeClient archer, long sequence, float forward, boolean using) {
+        // The short route hits the rear wall below eye height for an unambiguous pickup.
+        assertTrue(archer.input(new Intent(sequence, 90, -12, forward, 0, false, false, false, using, 5)));
     }
 
     private static PracticeClient connect(PracticeServer server, SecureTransport.ServerIdentity identity,

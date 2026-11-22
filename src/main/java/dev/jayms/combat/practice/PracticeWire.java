@@ -10,12 +10,16 @@ import java.util.ArrayList;
 import java.util.EnumMap;
 import java.util.List;
 
+import static dev.jayms.combat.CombatEngine.BOW_DURABILITY;
+import static dev.jayms.combat.CombatEngine.BOW_FULL_DRAW_TICKS;
+import static dev.jayms.combat.practice.PracticeMatch.MAX_VISIBLE_MISSILES;
+
 /** Independent practice protocol. Legacy City and Sandbox frames use their existing protocol. */
 final class PracticeWire {
     static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3,
             WALL_VERSION = 4, IMPULSE_VERSION = 5, SWING_VERSION = 6, KNOCKBACK_LAB_VERSION = 7,
             TEAMFIGHTING_LAB_VERSION = 8, BATTLEFIELD_VERSION = 9, VAULT_BATTLES_VERSION = 10,
-            VERSION = VAULT_BATTLES_VERSION;
+            BOW_VERSION = 11, VERSION = BOW_VERSION;
     static final float MAX_VELOCITY = 3.9f; // Paper 1.7.10 entity velocity packet component bound.
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
@@ -127,11 +131,16 @@ final class PracticeWire {
                 out.writeFloat(f.impulseZ());
             }
             if (version >= SWING_VERSION) out.writeLong(f.swingTick());
+            if (version >= BOW_VERSION && f.held() == Item.BOW) {
+                out.writeByte(f.bowDrawTicks());
+                out.writeShort(f.bowDurability());
+            }
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
             out.writeByte(stack.item().ordinal());
             out.writeShort(stack.count());
+            if (version >= BOW_VERSION && stack.item() == Item.BOW) out.writeShort(stack.durability());
         }
         out.writeByte(v.food());
         out.writeShort(v.cooldown());
@@ -145,6 +154,12 @@ final class PracticeWire {
             out.writeFloat(m.x());
             out.writeFloat(m.y());
             out.writeFloat(m.z());
+            if (version >= BOW_VERSION && m.item() == Item.ARROW) {
+                out.writeFloat(m.vx());
+                out.writeFloat(m.vy());
+                out.writeFloat(m.vz());
+                out.writeByte((m.critical() ? 1 : 0) | (m.embedded() ? 2 : 0));
+            }
         }
         out.writeLong(v.lastHit());
         out.writeLong(v.lastSplash());
@@ -203,14 +218,25 @@ final class PracticeWire {
             }
             long swingTick = version >= SWING_VERSION ? in.readLong() : -1;
             if (swingTick < -1 || swingTick > tick) throw new IOException("Invalid fighter swing timing");
+            int bowDraw = 0, bowDurability = 0;
+            if (version >= BOW_VERSION && held == Item.BOW) {
+                bowDraw = count(in, BOW_FULL_DRAW_TICKS);
+                bowDurability = readBowDurability(in);
+            }
             fighters.add(new Fighter(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready,
                     held, hits, combo, used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch,
-                    lastHorizontalWallTick, impulseTick, impulseX, impulseY, impulseZ, swingTick));
+                    lastHorizontalWallTick, impulseTick, impulseX, impulseY, impulseZ, swingTick,
+                    bowDraw, bowDurability));
         }
         count = count(in, 36);
         if (count != 0 && count != 36) throw new IOException("Invalid practice inventory");
         List<Stack> inventory = new ArrayList<>(count);
-        for (int i = 0; i < count; i++) inventory.add(new Stack(readEnum(in, Item.values()), in.readUnsignedShort()));
+        for (int i = 0; i < count; i++) {
+            Item item = readEnum(in, Item.values());
+            int size = in.readUnsignedShort();
+            inventory.add(version >= BOW_VERSION && item == Item.BOW
+                    ? new Stack(item, size, readBowDurability(in)) : new Stack(item, size));
+        }
         int food = in.readUnsignedByte(), cooldown = in.readUnsignedShort();
         var effects = new EnumMap<Effect, Integer>(Effect.class);
         for (Effect effect : Effect.values()) {
@@ -220,10 +246,20 @@ final class PracticeWire {
         count = count(in, 4);
         var durability = new ArrayList<Integer>(count);
         for (int i = 0; i < count; i++) durability.add(in.readUnsignedShort());
-        count = count(in, 64);
+        count = count(in, MAX_VISIBLE_MISSILES);
         var missiles = new ArrayList<Missile>(count);
-        for (int i = 0; i < count; i++)
-            missiles.add(new Missile(in.readLong(), readEnum(in, Item.values()), finite(in), finite(in), finite(in)));
+        for (int i = 0; i < count; i++) {
+            long id = in.readLong();
+            Item item = readEnum(in, Item.values());
+            float x = finite(in), y = finite(in), z = finite(in);
+            if (version >= BOW_VERSION && item == Item.ARROW) {
+                float vx = finite(in), vy = finite(in), vz = finite(in);
+                int flags = count(in, 3);
+                missiles.add(new Missile(id, item, x, y, z, vx, vy, vz, (flags & 1) != 0, (flags & 2) != 0));
+            } else {
+                missiles.add(new Missile(id, item, x, y, z));
+            }
+        }
         long hit = in.readLong(), splash = in.readLong();
         count = count(in, 8);
         var status = new ArrayList<String>(count);
@@ -253,6 +289,12 @@ final class PracticeWire {
         float value = in.readFloat();
         if (!Float.isFinite(value)) throw new IOException("Invalid practice coordinates");
         return value;
+    }
+
+    private static int readBowDurability(DataInputStream in) throws IOException {
+        int durability = in.readUnsignedShort();
+        if (durability > BOW_DURABILITY) throw new IOException("Invalid bow durability");
+        return durability;
     }
 
     private static float velocity(DataInputStream in) throws IOException {

@@ -6,6 +6,7 @@ import dev.jayms.combat.CombatRules;
 import dev.jayms.combat.arena.PracticeTerrain;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -15,6 +16,8 @@ import java.util.random.RandomGenerator;
 public final class PracticeMatch implements ArenaMatch {
     public static final int TICKS_PER_SECOND = 20;
     public static final int SWING_TICKS = 6;
+    public static final int CANCEL_BOW_ACTION = 240;
+    static final int MAX_VISIBLE_MISSILES = 64;
 
     public static long restartSwing(long previous, long tick) {
         return previous < 0 || tick - previous >= SWING_TICKS / 2 ? tick : previous;
@@ -64,7 +67,18 @@ public final class PracticeMatch implements ArenaMatch {
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
                           int hits, int combo, int used, int remaining, int side, String role,
                           float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick,
-                          long impulseTick, float impulseX, float impulseY, float impulseZ, long swingTick) {
+                          long impulseTick, float impulseX, float impulseY, float impulseZ, long swingTick,
+                          int bowDrawTicks, int bowDurability) {
+        public Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
+                       float health, boolean moving, boolean swinging, boolean ready, Item held,
+                       int hits, int combo, int used, int remaining, int side, String role,
+                       float vx, float vy, float vz, long hurtTick, long motionEpoch, long lastHorizontalWallTick,
+                       long impulseTick, float impulseX, float impulseY, float impulseZ, long swingTick) {
+            this(id, name, x, y, z, yaw, pitch, health, moving, swinging, ready, held, hits, combo,
+                    used, remaining, side, role, vx, vy, vz, hurtTick, motionEpoch, lastHorizontalWallTick,
+                    impulseTick, impulseX, impulseY, impulseZ, swingTick, 0, 0);
+        }
+
         public Fighter(int id, String name, float x, float y, float z, float yaw, float pitch,
                           float health, boolean moving, boolean swinging, boolean ready, Item held,
                           int hits, int combo, int used, int remaining, int side, String role,
@@ -96,14 +110,46 @@ public final class PracticeMatch implements ArenaMatch {
                     state.inventory().get(state.slot()).item(), stats.hits(), stats.longestCombo(),
                     stats.potsUsed(), stats.potsRemaining(), side, role,
                     (float) v.x(), (float) v.y(), (float) v.z(), hurt, state.motionEpoch(), state.lastHorizontalWallTick(),
-                    impulseTick, wireImpulse(impulse.x()), wireImpulse(impulse.y()), wireImpulse(impulse.z()), swingTick);
+                    impulseTick, wireImpulse(impulse.x()), wireImpulse(impulse.y()), wireImpulse(impulse.z()), swingTick,
+                    state.bowDrawTicks(), state.bowDurability());
         }
 
         private static float wireImpulse(double component) {
             return (float) Math.max(-PracticeWire.MAX_VELOCITY, Math.min(PracticeWire.MAX_VELOCITY, component));
         }
     }
-    public record Missile(long id, Item item, float x, float y, float z) { }
+    public record Missile(long id, Item item, float x, float y, float z,
+                          float vx, float vy, float vz, boolean critical, boolean embedded) {
+        public Missile(long id, Item item, float x, float y, float z) {
+            this(id, item, x, y, z, 0, 0, 0, false, false);
+        }
+
+        public static List<Missile> visible(List<ProjectileState> projectiles) {
+            if (projectiles.size() <= MAX_VISIBLE_MISSILES) {
+                return projectiles.stream().map(Missile::fromCombat).toList();
+            }
+            // Keep live throws and flying arrows visible when a volley leaves many arrows in the terrain.
+            return projectiles.stream()
+                    .sorted(Comparator.comparingInt(Missile::visibilityPriority)
+                            .thenComparing(Comparator.comparingLong(ProjectileState::id).reversed()))
+                    .limit(MAX_VISIBLE_MISSILES).map(Missile::fromCombat).toList();
+        }
+
+        private static int visibilityPriority(ProjectileState projectile) {
+            if (projectile.item() != Item.ARROW) return 0;
+            return projectile.embedded() ? 2 : 1;
+        }
+
+        private static Missile fromCombat(ProjectileState projectile) {
+            Vec3 p = projectile.position();
+            if (projectile.item() != Item.ARROW) {
+                return new Missile(projectile.id(), projectile.item(), (float) p.x(), (float) p.y(), (float) p.z());
+            }
+            Vec3 v = projectile.velocity();
+            return new Missile(projectile.id(), projectile.item(), (float) p.x(), (float) p.y(), (float) p.z(),
+                    (float) v.x(), (float) v.y(), (float) v.z(), projectile.critical(), projectile.embedded());
+        }
+    }
     public record View(Phase phase, Kit kit, Result result, int winner, int ticksLeft, int spectatorId,
                        long tick, List<Fighter> fighters, List<Stack> inventory, int food, int cooldown,
                        Map<Effect, Integer> effects, List<Integer> durability, List<Missile> missiles,
@@ -140,7 +186,9 @@ public final class PracticeMatch implements ArenaMatch {
     private final CombatEngine engine;
     private final boolean offline;
     private final VaultObjective vault;
+    private final List<Stack> vaultLoadout;
     private List<Fighter> fighterViews;
+    private List<Missile> missileViews;
     private int nextId = 1;
     private long tick, lastSimulationStep, lastSplash = -1;
     private int ticksLeft, winner;
@@ -171,6 +219,14 @@ public final class PracticeMatch implements ArenaMatch {
         rules = kit.rules();
         terrain = kit.terrain();
         vault = kit == Kit.VAULT_BATTLES ? new VaultObjective() : null;
+        if (vault != null) {
+            var loadout = new ArrayList<>(rules.openingKit());
+            loadout.set(CombatEngine.HOTBAR_SIZE - 1, new Stack(Item.BOW, 1));
+            loadout.set(CombatEngine.INVENTORY_SIZE - 1, new Stack(Item.ARROW, 32));
+            vaultLoadout = List.copyOf(loadout);
+        } else {
+            vaultLoadout = List.of();
+        }
         engine = new CombatEngine(rules, arena);
         if (offline) {
             int localSeat = vault == null ? 0 : VaultObjective.ATTACKERS;
@@ -217,6 +273,7 @@ public final class PracticeMatch implements ArenaMatch {
         Member member = members.remove(id);
         if (member == null || member.seat < 0) return;
         fighterViews = null;
+        missileViews = null;
         engine.leave(id);
         if (phase == Phase.FIGHT) finishIfTeamEliminated(Result.FORFEIT);
         else if (phase == Phase.COUNTDOWN) waitForReady();
@@ -274,9 +331,18 @@ public final class PracticeMatch implements ArenaMatch {
         engine.submit(id, intent);
     }
 
+    @Override public synchronized void action(int id, int action) {
+        if (action != CANCEL_BOW_ACTION || phase != Phase.FIGHT) return;
+        Member member = members.get(id);
+        if (member == null || member.seat < 0) return;
+        engine.cancelBow(id);
+        fighterViews = null;
+    }
+
     public synchronized void tick() {
         tick++;
         fighterViews = null;
+        missileViews = null;
         switch (phase) {
             case WAITING -> { }
             case COUNTDOWN -> {
@@ -364,13 +430,13 @@ public final class PracticeMatch implements ArenaMatch {
         Member member = members.get(id);
         PlayerState self = member == null || member.seat < 0 ? null : engine.snapshot(id);
         if (kit.teamBased() && phase == Phase.FIGHT && self != null && self.health() <= 0) self = null;
-        List<Missile> missiles = phase == Phase.FIGHT ? engine.projectiles().stream().limit(64).map(p ->
-                new Missile(p.id(), p.item(), (float) p.position().x(), (float) p.position().y(),
-                        (float) p.position().z())).toList() : List.of();
+        if (missileViews == null) {
+            missileViews = phase == Phase.FIGHT ? Missile.visible(engine.projectiles()) : List.of();
+        }
         return new View(phase, kit, result, winner, ticksLeft, self == null ? id : 0, tick, fighters(),
                 self == null ? List.of() : self.inventory(), self == null ? 0 : self.food(),
                 self == null ? 0 : self.pearlCooldownTicks(), self == null ? Map.of() : self.effects(),
-                self == null ? List.of() : self.durability(), missiles, member == null ? -1 : member.lastHit,
+                self == null ? List.of() : self.durability(), missileViews, member == null ? -1 : member.lastHit,
                 lastSplash, vault == null ? List.of() : vault.status(phase, result),
                 vault == null ? null : vault.stage());
     }
@@ -418,6 +484,7 @@ public final class PracticeMatch implements ArenaMatch {
 
     private void spawn(int id, boolean reset) {
         fighterViews = null;
+        missileViews = null;
         Member member = members.get(id);
         member.lastHit = member.lastSwing = -1;
         member.target = 0;
@@ -427,8 +494,12 @@ public final class PracticeMatch implements ArenaMatch {
             if (vault != null) member.vaultBot = new VaultBot(member.team(), member.seat / 2, arena, rules);
         }
         var feet = new Vec3(spawn.x(), spawn.y(), spawn.z());
-        if (reset) engine.reset(id, feet, spawn.yaw());
-        else engine.join(id, feet, spawn.yaw());
+        if (reset) {
+            engine.reset(id, feet, spawn.yaw());
+        } else if (engine.join(id, feet, spawn.yaw()) && !vaultLoadout.isEmpty()) {
+            engine.setKit(id, vaultLoadout);
+            engine.reset(id, feet, spawn.yaw());
+        }
     }
 
     private boolean opposingTeams(int attacker, int target) {
