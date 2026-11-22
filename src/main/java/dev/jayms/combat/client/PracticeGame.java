@@ -77,6 +77,7 @@ public final class PracticeGame {
     private final int id;
     private final Camera camera = new Camera();
     private final PracticeHandAnimation hand = new PracticeHandAnimation();
+    private final PracticeArrowTimeline arrows = new PracticeArrowTimeline();
     private final ArenaSprintToggle sprintToggle = new ArenaSprintToggle();
     private final ArenaAutoClicker autoClicker = new ArenaAutoClicker();
     private final PracticeTerrain terrain;
@@ -92,6 +93,7 @@ public final class PracticeGame {
     private boolean inventory, usePressed, previousIntentUse, firstMouse = true, positioned;
     private boolean sprintReleased, showHitboxes, hitboxShortcutNeedsControl;
     private boolean showSparringStats;
+    private boolean bowUseBlocked, bowCancellationPending;
     private final ArrayDeque<Intent> pendingCombatInputs = new ArrayDeque<>();
     private PoseView localPose;
     private Boolean scriptedUse;
@@ -296,6 +298,7 @@ public final class PracticeGame {
         glfwSetWindowFocusCallback(handle, (w, focused) -> {
             firstMouse = true;
             if (!focused) {
+                abandonBowUse();
                 usePressed = sprintReleased = false;
                 pendingCombatInputs.clear();
                 sprintToggle.suspend();
@@ -306,7 +309,7 @@ public final class PracticeGame {
         });
         glfwSetMouseButtonCallback(handle, (w, button, action, mods) -> {
             sprintInput(w, -button - 1, action);
-            if (action == GLFW_RELEASE) releaseSwordBlock(-button - 1);
+            if (action == GLFW_RELEASE) releaseUse(-button - 1);
             if (action != GLFW_PRESS) return;
             if (inventory) {
                 if (button == GLFW_MOUSE_BUTTON_LEFT && (mods & GLFW_MOD_SHIFT) != 0) {
@@ -323,7 +326,7 @@ public final class PracticeGame {
                 return;
             }
             sprintInput(w, key, action);
-            if (action == GLFW_RELEASE) releaseSwordBlock(key);
+            if (action == GLFW_RELEASE) releaseUse(key);
             if (action != GLFW_PRESS) return;
             if (key == GLFW_KEY_ESCAPE) {
                 if (inventory) setInventory(false);
@@ -371,7 +374,8 @@ public final class PracticeGame {
     private boolean canContinueSprint(float forward) {
         if (forward <= 0 || view == null || view.food() <= 6) return false;
         Item item = selectedItem();
-        if (useHeld() && (item == Item.SWORD || CombatEngine.startsTimedUse(item, view.food()))) return false;
+        if (useHeld() && (item == Item.SWORD || item == Item.BOW && arrowCount() > 0
+                || item != Item.BOW && CombatEngine.startsTimedUse(item, view.food()))) return false;
         var fighter = self();
         return fighter != null && fighter.health() > 0 && fighter.moving()
                 && fighter.lastHorizontalWallTick() != view.tick();
@@ -412,9 +416,13 @@ public final class PracticeGame {
         }
         if (controls.matches(BREAK, key) && !autoClicker.enabled() && canAnimateCombat()) attack(System.nanoTime());
         if (controls.matches(PLACE, key)) {
-            usePressed = selectedItem() != Item.SWORD;
-            if (canAnimateCombat()) hand.use(selectedItem(), System.nanoTime());
-            if (selectedItem() == Item.SWORD && canAnimateCombat()) sendCombatEdge(false, true);
+            Item item = selectedItem();
+            if (item == Item.BOW && bowUseBlocked) return;
+            usePressed = item != Item.SWORD && item != Item.BOW;
+            if (canAnimateCombat()) {
+                hand.use(item, System.nanoTime());
+                if (item == Item.SWORD || item == Item.BOW) sendCombatEdge(false, true);
+            }
         }
     }
 
@@ -423,15 +431,18 @@ public final class PracticeGame {
         sendCombatEdge(true, useHeld() || selectedItem() != Item.SWORD && usePressed);
     }
 
-    private void releaseSwordBlock(int code) {
-        if (!inventory && controls.matches(PLACE, code) && selectedItem() == Item.SWORD && canAnimateCombat()
-                && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE)
+    private void releaseUse(int code) {
+        if (!controls.matches(PLACE, code) || glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) != GLFW_TRUE) return;
+        boolean cancelled = bowUseBlocked;
+        bowUseBlocked = false;
+        Item item = selectedItem();
+        if (!inventory && (item == Item.SWORD || item == Item.BOW && !cancelled) && canAnimateCombat())
             sendCombatEdge(false, false);
     }
 
     private void sendCombatEdge(boolean attack, boolean use) {
         long handle = window.getHandle();
-        if (glfwGetWindowAttrib(handle, GLFW_FOCUSED) != GLFW_TRUE) return;
+        if (glfwGetWindowAttrib(handle, GLFW_FOCUSED) != GLFW_TRUE || !flushBowCancellation()) return;
         // Reserve two slots for a W-tap release and its following input when the writer is busy.
         if (!flushCombatInputs() && pendingCombatInputs.size() > 30) return;
         float forward = axis(handle, FORWARD, BACKWARD), strafe = axis(handle, RIGHT, LEFT);
@@ -486,6 +497,7 @@ public final class PracticeGame {
     }
 
     private void selectSlot(int index, long now) {
+        if (index != slot && selectedItem() == Item.BOW) abandonBowUse();
         slot = index;
         hand.select(selectedItem(), now);
     }
@@ -497,8 +509,34 @@ public final class PracticeGame {
 
     private boolean useHeld() {
         long w = window.getHandle();
+        if (selectedItem() == Item.BOW && bowUseBlocked) return false;
         return !inventory && (scriptedUse != null ? scriptedUse
                 : glfwGetWindowAttrib(w, GLFW_FOCUSED) == GLFW_TRUE && controls.down(w, PLACE));
+    }
+
+    private int arrowCount() {
+        int ammo = 0;
+        for (var stack : view.inventory()) if (stack.item() == Item.ARROW) ammo += stack.count();
+        return ammo;
+    }
+
+    private boolean supportsBowState() { return offline != null || remote.supportsBowState(); }
+
+    private void abandonBowUse() {
+        if (selectedItem() != Item.BOW) return;
+        bowUseBlocked = true;
+        if (canAnimateCombat() && supportsBowState()) bowCancellationPending = true;
+    }
+
+    private boolean flushBowCancellation() {
+        if (!bowCancellationPending) return true;
+        if (remote != null) {
+            if (!remote.action(PracticeMatch.CANCEL_BOW_ACTION)) return false;
+        } else {
+            offline.action(id, PracticeMatch.CANCEL_BOW_ACTION);
+        }
+        bowCancellationPending = false;
+        return true;
     }
 
     private boolean canAnimateCombat() {
@@ -523,6 +561,8 @@ public final class PracticeGame {
 
     private void setInventory(boolean open) {
         if (inventory == open) return;
+        if (open) abandonBowUse();
+        else if (selectedItem() == Item.BOW && controls.down(window.getHandle(), PLACE)) bowUseBlocked = true;
         inventory = open; source = -1; firstMouse = true; usePressed = sprintReleased = false;
         pendingCombatInputs.clear();
         if (open) sprintToggle.suspend();
@@ -567,16 +607,18 @@ public final class PracticeGame {
     private void sendInput(FrameObserver observer, long now) {
         boolean enabled = !inventory && glfwGetWindowAttrib(window.getHandle(), GLFW_FOCUSED) == GLFW_TRUE;
         long w = window.getHandle();
+        if (enabled && !controls.down(w, PLACE)) bowUseBlocked = false;
         float forward = enabled ? axis(w, FORWARD, BACKWARD) : 0;
         float strafe = enabled ? axis(w, RIGHT, LEFT) : 0;
         boolean jump = enabled && controls.down(w, JUMP);
         boolean sprint = enabled && sprintRequested(forward);
         boolean use = enabled && (controls.down(w, PLACE) || selectedItem() != Item.SWORD && usePressed);
+        if (selectedItem() == Item.BOW && bowUseBlocked) use = false;
         if (!enabled || !canAnimateCombat()) {
             sprintReleased = false;
             pendingCombatInputs.clear();
         }
-        if (!flushCombatInputs()) return;
+        if (!flushBowCancellation() || !flushCombatInputs()) return;
         // Preserve a release and repress that both happened between movement samples.
         if (sprintReleased && sprint && forward > 0) {
             if (!submitInput(new Intent(++sequence, camera.yaw(), camera.pitch(), forward, strafe,
@@ -642,6 +684,7 @@ public final class PracticeGame {
 
     private void updatePresentation(long now, FrameObserver observer) {
         motion.observe(view.tick(), view.fighters(), now, id, view.lastHit());
+        arrows.observe(view.tick(), view.missiles(), now);
         var frame = motion.frame(now);
         remoteActors.clear();
         for (Fighter fighter : view.fighters()) {
@@ -699,11 +742,19 @@ public final class PracticeGame {
                     actor.pitch(), actor.walkPhase(), actor.walkAmount(), false,
                     actor.swingProgress(), renderItem(fighter.held()));
             avatars.renderPracticeAvatar(pose, shader, models,
-                    fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()], actor.hurt());
+                    fighter.side() < 0 ? -1 : TEAM_JERSEYS[fighter.side()], actor.hurt(),
+                    fighter.held() == Item.BOW, actor.bowDrawTicks());
         }
         for (var missile : view.missiles()) {
+            if (missile.item() == Item.ARROW) continue;
             var drop = new ItemDrop((int) missile.id(), renderItem(missile.item()), 1, missile.x(), missile.y(), missile.z());
             avatars.renderDrop(drop, view.tick() / 20f, shader);
+        }
+        for (var arrow : arrows.sample(now)) {
+            if (!frustum.testAab(arrow.x() - 1, arrow.y() - 1, arrow.z() - 1,
+                    arrow.x() + 1, arrow.y() + 1, arrow.z() + 1)) continue;
+            avatars.renderPracticeArrow(arrow.x(), arrow.y(), arrow.z(), arrow.vx(), arrow.vy(), arrow.vz(),
+                    arrow.critical(), arrow.embedded(), shader);
         }
         if (showHitboxes && !remoteActors.isEmpty()) hitboxes.render(clipFromWorld, remoteActors);
         pipeline.finish();
@@ -718,9 +769,12 @@ public final class PracticeGame {
             shader.setVector3("uLightDirection", -.35f, -.70f, -.62f);
             shader.setMatrix4("uProjection", new Matrix4f().perspective((float) Math.toRadians(70), (float) width / height, .03f, 10));
             shader.setMatrix4("uView", new Matrix4f());
-            var held = hand.pose(selectedItem(), canAnimateCombat() && useHeld(), actor.moving(), now);
+            Item selected = selectedItem();
+            var held = hand.pose(selected, canAnimateCombat() && useHeld(), actor.moving(),
+                    actor.bowDrawTicks(), selected == Item.BOW && arrowCount() > 0, supportsBowState(), now);
             avatars.renderPracticeFirstPerson(held.walkPhase(), held.walkAmount(), held.swing(),
-                    held.equipDrop(), held.blocking(), renderItem(held.item()), 0xffffff, shader, models);
+                    held.equipDrop(), held.blocking(), held.item() == Item.BOW, held.bowDrawTicks(),
+                    renderItem(held.item()), 0xffffff, shader, models);
             shader.setInt("uHeld", 0);
         }
     }
@@ -1004,7 +1058,9 @@ public final class PracticeGame {
         float summaryScale = Math.min(1.15f, 307f / Math.max(1, ui.textWidth(summary, 1f)));
         ui.text(summary, x + 224, y - 20, summaryScale);
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
-        String held = PracticeItemIcons.name(selectedItem());
+        Stack selected = view.inventory().get(slot);
+        String held = itemDescription(selected);
+        if (selected.item() == Item.BOW) held += "   Arrows " + arrowCount();
         String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor
                 + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";
@@ -1068,12 +1124,17 @@ public final class PracticeGame {
         ui.text("Click two slots  |  Shift-click to move  |  Hotbar key to swap hovered slot", x, y - 15, 1.05f);
         int hovered = hoveredInventorySlot();
         if (hovered >= 0) {
-            String name = PracticeItemIcons.name(view.inventory().get(hovered).item());
+            String name = itemDescription(view.inventory().get(hovered));
             if (!name.isEmpty()) ui.text(name, x + 540 - ui.textWidth(name, 1.2f), y - 32, 1.2f);
         }
         for (int i = 0; i < 36; i++)
             drawSlot(ui, view.inventory().get(i), i < 9 ? hotbarLabels[i] : null,
                     x + i % 9 * 60, y + i / 9 * 46, i == source, i == hovered);
+    }
+
+    private static String itemDescription(Stack stack) {
+        String name = PracticeItemIcons.name(stack.item());
+        return stack.item() == Item.BOW ? name + " " + stack.durability() + "/" + CombatEngine.BOW_DURABILITY : name;
     }
 
     private static void drawSlot(Overlay ui, Stack stack, String key, float x, float y, boolean selected, boolean hovered) {
@@ -1085,6 +1146,11 @@ public final class PracticeGame {
         }
         if (stack.count() == 0) return;
         PracticeItemIcons.draw(ui, stack.item(), x + 14, y + 9, 32);
+        if (stack.item() == Item.BOW && stack.durability() < CombatEngine.BOW_DURABILITY) {
+            float remaining = (float) stack.durability() / CombatEngine.BOW_DURABILITY;
+            ui.rectangle(x + 14, y + 41, 32, 2, .08f, .10f, .12f, 1);
+            ui.rectangle(x + 14, y + 41, 32 * remaining, 2, 1 - remaining, remaining, .20f, 1);
+        }
         if (stack.count() > 1) {
             String count = Integer.toString(stack.count());
             float countX = x + 55 - ui.textWidth(count, 1.1f);

@@ -254,6 +254,7 @@ public final class FactionMatch implements ArenaMatch {
             return;
         }
         switch (action) {
+            case PracticeMatch.CANCEL_BOW_ACTION -> engine.cancelBow(id);
             case ABILITY -> ability(id, seat);
             case RESUPPLY -> supplies(id, seat, false);
             case RAID -> supplies(id, seat, true);
@@ -299,9 +300,7 @@ public final class FactionMatch implements ArenaMatch {
         Seat seat = seats.get(id);
         PlayerState self = seat == null || !seat.online || seat.side < 0 || seat.eliminated
                 ? null : engine.snapshot(id);
-        List<Missile> missiles = phase == Phase.FIGHT ? engine.projectiles().stream().limit(64).map(p ->
-                new Missile(p.id(), p.item(), (float) p.position().x(), (float) p.position().y(),
-                        (float) p.position().z())).toList() : List.of();
+        List<Missile> missiles = phase == Phase.FIGHT ? Missile.visible(engine.projectiles()) : List.of();
         return new View(phase, Kit.DEBUFF, result, winner, ticksLeft, self == null ? id : 0, tick,
                 List.copyOf(fighters), self == null ? List.of() : self.inventory(), self == null ? 0 : self.food(),
                 self == null ? 0 : self.pearlCooldownTicks(), self == null ? Map.of() : self.effects(),

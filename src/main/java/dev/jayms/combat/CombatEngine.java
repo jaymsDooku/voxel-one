@@ -18,6 +18,7 @@ import static dev.jayms.combat.CombatGeometry.*;
 public final class CombatEngine {
     public static final int TICKS_PER_SECOND = 20;
     public static final int INVENTORY_SIZE = 36, HOTBAR_SIZE = 9;
+    public static final int BOW_DURABILITY = 384, BOW_FULL_DRAW_TICKS = 20;
     public static final double MAX_HEALTH = 20;
     private static final int MAX_ACTORS = 64, MAX_EVENTS = 2_048, INPUT_TIMEOUT = 12;
     private static final int MAX_REWIND_TICKS = 6, MAX_CLICKS_PER_ACTOR_PER_TICK = 16;
@@ -25,6 +26,7 @@ public final class CombatEngine {
     // The arena uses diamond piece proportions for its custom full-set reductions, in NMS inventory order.
     private static final int[] ARMOR_POINTS = {3, 6, 8, 3}; // boots, leggings, chestplate, helmet
     private static final int ITEM_USE_TICKS = 32, PROJECTILE_LIFETIME = 100, MAX_EFFECT_TICKS = 24_000;
+    private static final int MAX_ARROWS = 512, BOW_USE_LIMIT = 72_000;
     public static final double SPRINT_ATTACK_RETENTION = .6;
     private static final double HIT_MOTION_RETENTION = .5, SPRINT_HIT_LIFT = .10;
     private static final double USE_MOVEMENT_SCALE = .2;
@@ -60,10 +62,16 @@ public final class CombatEngine {
     public enum Effect { SPEED, FIRE_RESISTANCE, POISON, SLOWNESS, STRENGTH, RESISTANCE, MARK, REGENERATION }
     public enum EventType { SWING, HIT, THROW, SPLASH, DRINK, TELEPORT, DEATH, REJECTED_PEARL, ARMOR_BREAK, DEBUFF }
 
-    public record Stack(Item item, int count) {
+    /** Durability is the remaining damage points before a bow's final shot. */
+    public record Stack(Item item, int count, int durability) {
+        public Stack(Item item, int count) {
+            this(item, count, item == Item.BOW ? BOW_DURABILITY : 0);
+        }
+
         public Stack {
             if (item == null || count < 0 || count > 64 || (item == Item.EMPTY) != (count == 0)
-                    || count > 1 && item != Item.FOOD && item != Item.PEARL && item != Item.ARROW) {
+                    || count > 1 && item != Item.FOOD && item != Item.PEARL && item != Item.ARROW
+                    || durability < 0 || durability > (item == Item.BOW ? BOW_DURABILITY : 0)) {
                 throw new IllegalArgumentException("Invalid combat stack");
             }
         }
@@ -98,14 +106,21 @@ public final class CombatEngine {
         }
     }
     public record Stats(int hits, int longestCombo, int potsUsed, int potsRemaining) {}
-    public record ProjectileState(long id, int ownerId, Item item, Vec3 position) {}
+    public record ProjectileState(long id, int ownerId, Item item, Vec3 position, Vec3 velocity,
+                                  boolean critical, boolean embedded) {
+        public ProjectileState(long id, int ownerId, Item item, Vec3 position) {
+            this(id, ownerId, item, position, ZERO, false, false);
+        }
+    }
     public record Event(EventType type, int actorId, int targetId, Item item, Vec3 position, double amount) {}
     /** Velocity describes the last step. A hit impulse is the carried motion for the next step. */
     public record PlayerState(int id, Vec3 feet, Vec3 velocity, float yaw, float pitch, boolean grounded,
                               boolean sprinting, double health, int food, int slot, List<Stack> inventory,
                               List<Integer> durability, Map<Effect, Integer> effects, int pearlCooldownTicks,
                               Stats stats, int killerId, long sequence, long hurtTick, long motionEpoch,
-                              long lastHorizontalWallTick, long impulseTick, Vec3 hitImpulse) {}
+                              long lastHorizontalWallTick, long impulseTick, Vec3 hitImpulse, int bowDrawTicks) {
+        public int bowDurability() { return inventory.get(slot).durability(); }
+    }
 
     private static final Stack EMPTY = new Stack(Item.EMPTY, 0);
     private static final Vec3 ZERO = new Vec3(0, 0, 0);
@@ -172,6 +187,7 @@ public final class CombatEngine {
                 || intent.slot() < 0 || intent.slot() >= HOTBAR_SIZE) return false;
         actor.sequence = intent.sequence();
         actor.lastInputTick = currentTick;
+        if (actor.useItem == Item.BOW && actor.slot != intent.slot()) actor.cancelUse();
         actor.intent = intent;
         if (!intent.sprint() || intent.forward() <= 0) actor.lastSprintReleaseSequence = intent.sequence();
         if (intent.attack() && actor.queuedClicks < MAX_CLICKS_PER_ACTOR_PER_TICK) {
@@ -206,6 +222,16 @@ public final class CombatEngine {
         actor.usePressed = false;
         actor.useReleased = false;
         actor.cancelUse();
+    }
+
+    /** Cancels the bow when the player opens a menu or loses input focus. A use edge must start a new draw. */
+    public void cancelBow(int playerId) {
+        Actor actor = actors.get(playerId);
+        if (actor == null) return;
+        Intent pending = actor.intent;
+        if (actor.useItem != Item.BOW && (pending == null || actor.inventory.get(pending.slot()).item() != Item.BOW)) return;
+        if (actor.useItem == Item.BOW) actor.cancelUse();
+        actor.usePressed = actor.useReleased = false;
     }
 
     private void clearClicks(Actor actor) {
@@ -278,7 +304,7 @@ public final class CombatEngine {
             }
         }
         if (remaining > 0 && empty >= 0) {
-            slots.set(empty, new Stack(stack.item(), remaining));
+            slots.set(empty, remaining == stack.count() ? stack : new Stack(stack.item(), remaining));
             remaining = 0;
         }
         if (remaining == stack.count()) return false;
@@ -358,7 +384,8 @@ public final class CombatEngine {
     public List<PlayerState> snapshots() { return actors.values().stream().map(Actor::snapshot).toList(); }
 
     public List<ProjectileState> projectiles() {
-        return shots.stream().map(shot -> new ProjectileState(shot.id, shot.ownerId, shot.item, shot.position)).toList();
+        return shots.stream().map(shot -> new ProjectileState(shot.id, shot.ownerId, shot.item, shot.position,
+                shot.velocity, shot.critical, shot.embedded)).toList();
     }
 
     /** Ends in-flight effects at a match phase boundary without resetting participants. */
@@ -461,7 +488,7 @@ public final class CombatEngine {
         actor.useHeld = fresh && intent.use();
         Item selected = actor.selected();
         boolean using = actor.useHeld && (selected == Item.SWORD || actor.useItem == selected && selected != Item.EMPTY
-                || actor.usePressed && startsTimedUse(selected, actor.food));
+                || actor.usePressed && canStartTimedUse(actor, selected));
         actor.sprinting = fresh && intent.sprint() && forward > 0 && actor.food > 6 && !using && actor.sprintReady();
         double speedMultiplier = 1;
         if (actor.has(Effect.SPEED)) speedMultiplier *= 1.20;
@@ -522,7 +549,7 @@ public final class CombatEngine {
         if (target == null || shown != null && target.id != shown.targetId()
                 || !withinMeleePacketRange(arena, attacker.feet, target.feet)
                 || !arena.canHarm(attacker.id, target.id)) return;
-        boolean startingUse = input.use() && startsTimedUse(selected, attacker.food);
+        boolean startingUse = input.use() && canStartTimedUse(attacker, selected);
         boolean sprinting = input.sprint() && input.forward() > 0 && attacker.food > 6
                 && !startingUse && !attacker.hitHorizontalWall;
         double damage = weapon == Item.SWORD ? rules.swordDamage() : 1;
@@ -556,11 +583,11 @@ public final class CombatEngine {
         return null;
     }
 
-    private void strike(Actor attacker, Actor target, double rawDamage, double basePush, Vec3 sprintPush,
-                        Item weapon, boolean blocking) {
+    private boolean strike(Actor attacker, Actor target, double rawDamage, double basePush, Vec3 sprintPush,
+                           Item weapon, boolean blocking) {
         boolean fullHit = target.hurtTicks == 0;
         double acceptedDamage = acceptRawDamage(target, rawDamage);
-        if (acceptedDamage <= 0) return;
+        if (acceptedDamage <= 0) return false;
 
         if (fullHit) beginHitMotion(target, knockbackDirection(attacker, target), basePush);
         // A stronger hit inside the hurt window can still deliver the sprint bonus.
@@ -569,11 +596,13 @@ public final class CombatEngine {
             target.impulseTick = currentTick;
             target.hitImpulse = target.motion;
         }
-        if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
-        attacker.lastHit = currentTick;
-        attacker.lastComboTarget = target.id;
-        attacker.longestCombo = Math.max(attacker.longestCombo, ++attacker.combo);
-        attacker.hits++;
+        if (attacker != target) {
+            if (currentTick - attacker.lastHit > 26 || attacker.lastComboTarget != target.id) attacker.combo = 0;
+            attacker.lastHit = currentTick;
+            attacker.lastComboTarget = target.id;
+            attacker.longestCombo = Math.max(attacker.longestCombo, ++attacker.combo);
+            attacker.hits++;
+        }
         target.combo = 0;
         double dealt = rules.knockbackOnly() ? 0 : strikeDamage(attacker, target, acceptedDamage, weapon, blocking);
         emit(EventType.HIT, attacker.id, target.id, weapon, target.feet.add(0, EYE_HEIGHT * .65, 0), dealt);
@@ -583,6 +612,7 @@ public final class CombatEngine {
         } else {
             applyDamage(target, attacker.id, dealt, fullHit);
         }
+        return true;
     }
 
     private double strikeDamage(Actor attacker, Actor target, double acceptedDamage, Item weapon, boolean blocking) {
@@ -667,10 +697,9 @@ public final class CombatEngine {
     private void use(Actor actor) {
         Item selected = actor.selected();
         if (actor.useReleased) {
-            if (selected == Item.BOW && actor.useItem == Item.BOW && actor.useTicks >= 3 && consumeArrow(actor)) {
-                launchArrow(actor, Math.min(2.55, actor.useTicks * .1275) + .15);
-            }
+            if (selected == Item.BOW && actor.useItem == Item.BOW) releaseBow(actor);
             actor.cancelUse();
+            selected = actor.selected();
         }
         if (actor.usePressed) {
             if (selected == Item.HEALING || (isDebuff(selected) && rules.debuffs())) {
@@ -681,20 +710,25 @@ public final class CombatEngine {
                 actor.consume(actor.slot);
                 actor.pearlCooldown = rules.pearlCooldown();
                 launchThrowable(actor, selected);
-            } else if (actor.useHeld && startsTimedUse(selected, actor.food)) {
+            } else if (actor.useHeld && canStartTimedUse(actor, selected)) {
                 actor.useItem = selected;
                 actor.useTicks = 0;
             }
         }
         if (actor.useHeld && actor.useItem != Item.EMPTY && actor.useItem == selected) {
-            actor.useTicks = Math.min(ITEM_USE_TICKS, actor.useTicks + 1);
-            if (actor.useTicks == ITEM_USE_TICKS && selected != Item.BOW) finishConsumable(actor, selected);
+            actor.useTicks++;
+            if (selected == Item.BOW && actor.useTicks == BOW_USE_LIMIT) actor.cancelUse();
+            if (selected != Item.BOW && actor.useTicks == ITEM_USE_TICKS) finishConsumable(actor, selected);
         }
     }
 
     public static boolean startsTimedUse(Item item, int food) {
         return item == Item.SPEED || item == Item.FIRE_RESISTANCE || item == Item.BOW
                 || item == Item.FOOD && food < 20;
+    }
+
+    private static boolean canStartTimedUse(Actor actor, Item item) {
+        return startsTimedUse(item, actor.food) && (item != Item.BOW || arrowSlot(actor) >= 0);
     }
 
     private void finishConsumable(Actor actor, Item item) {
@@ -712,21 +746,38 @@ public final class CombatEngine {
         emit(EventType.DRINK, actor.id, actor.id, item, actor.feet, 0);
     }
 
-    private static boolean consumeArrow(Actor actor) {
+    private static int arrowSlot(Actor actor) {
         for (int slot = 0; slot < INVENTORY_SIZE; slot++) {
-            if (actor.inventory.get(slot).item() == Item.ARROW) {
-                actor.consume(slot);
-                return true;
-            }
+            if (actor.inventory.get(slot).item() == Item.ARROW) return slot;
         }
-        return false;
+        return -1;
     }
 
-    private void launchArrow(Actor actor, double speed) {
-        Vec3 aim = direction(actor.yaw, actor.pitch);
-        Vec3 position = actor.feet.add(0, EYE_HEIGHT - .12, 0);
-        Vec3 velocity = aim.scale(speed).add(actor.velocity.x * .35, 0, actor.velocity.z * .35);
-        launch(actor, Item.ARROW, position, velocity);
+    private void releaseBow(Actor actor) {
+        float force = BowPhysics.force(actor.useTicks);
+        if (force == 0) return;
+        int ammo = arrowSlot(actor);
+        if (ammo < 0) return;
+
+        Vec3 position = BowPhysics.origin(actor.feet, actor.yaw);
+        Vec3 velocity = BowPhysics.launchVelocity(actor.yaw, actor.pitch, force, combatRandom);
+        var shot = new Projectile(++nextProjectile, actor.id, Item.ARROW, position, velocity);
+        shot.critical = force == 1;
+        // Keep busy matches bounded without discarding a flying shot when a ground arrow can be retired.
+        int arrowCount = 0, firstArrow = -1, firstEmbedded = -1;
+        for (int i = 0; i < shots.size(); i++) {
+            Projectile existing = shots.get(i);
+            if (existing.item != Item.ARROW) continue;
+            arrowCount++;
+            if (firstArrow < 0) firstArrow = i;
+            if (existing.embedded && firstEmbedded < 0) firstEmbedded = i;
+        }
+        if (arrowCount >= MAX_ARROWS) shots.remove(firstEmbedded < 0 ? firstArrow : firstEmbedded);
+        shots.add(shot);
+        emit(EventType.THROW, actor.id, 0, Item.ARROW, position, force);
+        actor.consume(ammo);
+        int durability = actor.inventory.get(actor.slot).durability();
+        actor.inventory.set(actor.slot, durability == 0 ? EMPTY : new Stack(Item.BOW, 1, durability - 1));
     }
 
     private void launchThrowable(Actor actor, Item item) {
@@ -741,16 +792,14 @@ public final class CombatEngine {
 
     private boolean advance(Projectile shot) {
         Actor owner = actors.get(shot.ownerId);
+        if (shot.item == Item.ARROW) return owner == null || advanceArrow(shot, owner);
         if (owner == null || !owner.alive() || shot.age++ >= PROJECTILE_LIFETIME) return true;
-        boolean arrow = shot.item == Item.ARROW;
-        double impact = arrow ? firstBlock(arena, shot.position, shot.velocity)
-                : firstThrowableBlock(arena, shot.position, shot.velocity);
+        double impact = firstThrowableBlock(arena, shot.position, shot.velocity);
         Actor target = null;
         for (Actor actor : actors.values()) {
-            if (!actor.alive() || (actor == owner && shot.age < (arrow ? 4 : 5))) continue;
-            double bodyHit = arrow ? firstBody(shot.position, shot.velocity, actor.feet)
-                    : firstThrowableBody(shot.position, shot.velocity, actor.feet);
-            if (bodyHit < impact || (!arrow && target == null && bodyHit <= 1 && bodyHit == impact)) {
+            if (!actor.alive() || (actor == owner && shot.age < 5)) continue;
+            double bodyHit = firstThrowableBody(shot.position, shot.velocity, actor.feet);
+            if (bodyHit < impact || target == null && bodyHit <= 1 && bodyHit == impact) {
                 impact = bodyHit;
                 target = actor;
             }
@@ -762,24 +811,68 @@ public final class CombatEngine {
                     pearlHit(owner, target, hit);
                     landPearl(owner, shot.position, hit, shot.velocity);
                 }
-                case ARROW -> {
-                    if (target != null && target != owner && arena.canHarm(owner.id, target.id)) {
-                        strike(owner, target, Math.max(2, shot.velocity.length() * 3.2), rules.projectileKnockback(), ZERO, Item.ARROW,
-                                target.useHeld && target.selected() == Item.SWORD);
-                    }
-                }
                 default -> splash(owner, shot.item, shot.position, target);
             }
             return true;
         }
         Vec3 next = shot.position.add(shot.velocity);
-        if (!(arrow ? arena.contains(next) : arena.containsThrowable(next))) {
+        if (!arena.containsThrowable(next)) {
             if (shot.item == Item.PEARL) emit(EventType.REJECTED_PEARL, owner.id, owner.id, Item.PEARL, next, 0);
             return true;
         }
-        shot.velocity = arrow ? shot.velocity.scale(.985).add(0, -.05, 0)
-                : ThrowablePhysics.nextVelocity(shot.item, shot.velocity, arena.throwableInWater(shot.position));
+        shot.velocity = ThrowablePhysics.nextVelocity(shot.item, shot.velocity, arena.throwableInWater(shot.position));
         shot.position = next;
+        return false;
+    }
+
+    private boolean advanceArrow(Projectile shot, Actor owner) {
+        if (shot.embedded) {
+            if (++shot.age >= BowPhysics.GROUND_LIFETIME) return true;
+            return shot.age >= BowPhysics.PICKUP_DELAY && pickUpArrow(shot.position);
+        }
+        shot.age++;
+        double impact = firstThrowableBlock(arena, shot.position, shot.velocity);
+        Actor target = null;
+        for (Actor actor : actors.values()) {
+            if (!actor.alive() || actor == owner && shot.age < 5 || !arena.canHarm(owner.id, actor.id)) continue;
+            double contact = firstThrowableBody(shot.position, shot.velocity, actor.feet);
+            if (contact < impact) {
+                impact = contact;
+                target = actor;
+            }
+        }
+        if (target != null) {
+            int damage = BowPhysics.damage(shot.velocity, shot.critical, combatRandom);
+            if (strike(owner, target, damage, rules.projectileKnockback(), ZERO, Item.ARROW,
+                    target.useHeld && target.selected() == Item.SWORD)) return true;
+            // Hurt protection rejects the hit. Paper reverses the shaft and starts its owner grace again.
+            shot.velocity = shot.velocity.scale(-.1f);
+            shot.age = 0;
+        } else if (impact <= 1) {
+            Vec3 contact = shot.position.add(shot.velocity.scale(impact));
+            shot.position = contact.add(shot.velocity.scale(-.05f / shot.velocity.length()));
+            shot.critical = false;
+            shot.embedded = true;
+            shot.age = 0;
+            return false;
+        }
+
+        Vec3 next = shot.position.add(shot.velocity);
+        if (!arena.containsThrowable(next)) return true;
+        shot.velocity = BowPhysics.nextVelocity(shot.velocity, arena.throwableInWater(next));
+        shot.position = next;
+        return false;
+    }
+
+    private boolean pickUpArrow(Vec3 position) {
+        double radius = BODY_RADIUS + 1 + .25;
+        for (Actor actor : actors.values()) {
+            if (!actor.alive()) continue;
+            Vec3 relative = position.minus(actor.feet);
+            if (Math.abs(relative.x) < radius && Math.abs(relative.z) < radius
+                    && relative.y > -1 && relative.y < BODY_HEIGHT + .5
+                    && grant(actor.id, new Stack(Item.ARROW, 1))) return true;
+        }
         return false;
     }
 
@@ -936,7 +1029,7 @@ public final class CombatEngine {
                     List.copyOf(inventory), List.of(armor[0], armor[1], armor[2], armor[3]), Map.copyOf(effects),
                     pearlCooldown, new Stats(hits, longestCombo, potsUsed, potsRemaining), killerId, sequence,
                     hurtTick, motionEpoch, lastHorizontalWallTick, alive() ? impulseTick : -1,
-                    alive() ? hitImpulse : ZERO);
+                    alive() ? hitImpulse : ZERO, useItem == Item.BOW ? Math.min(useTicks, BOW_FULL_DRAW_TICKS) : 0);
         }
     }
 
@@ -950,6 +1043,7 @@ public final class CombatEngine {
         final Item item;
         Vec3 position, velocity;
         int age;
+        boolean critical, embedded;
 
         Projectile(long id, int ownerId, Item item, Vec3 position, Vec3 velocity) {
             this.id = id;

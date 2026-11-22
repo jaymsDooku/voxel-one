@@ -46,7 +46,7 @@ final class ArenaMotionTimeline {
     }
     record LocalView(Vec3 point, Vec3 confirmedPoint, PoseView pose) {}
     record Presented(Fighter fighter, float x, float y, float z, float yaw, float pitch,
-                     float walkPhase, float walkAmount, float hurt, float swingProgress, PoseView pose) {
+                     float walkPhase, float walkAmount, float hurt, float swingProgress, float bowDrawTicks, PoseView pose) {
         boolean visible() { return fighter.health() > 0 || hurt > 0; }
     }
 
@@ -196,6 +196,7 @@ final class ArenaMotionTimeline {
         Vec3 point = left.point;
         PoseView pose = new PoseView(left.tick, left.tick, left.tick);
         float yaw = discrete.yaw(), pitch = discrete.pitch(), amount = walkAmount(discrete);
+        float bowDraw = discrete.bowDrawTicks();
         double stride = left.stride;
         if (left != right && right.fromPrevious != null && left.tick < tick) {
             double progress = Math.min(1, (tick - left.tick) / (right.tick - left.tick));
@@ -205,12 +206,15 @@ final class ArenaMotionTimeline {
             pitch += (float) ((right.fighter.pitch() - pitch) * progress);
             stride += (right.stride - stride) * progress;
             amount += (float) ((walkAmount(right.fighter) - amount) * progress);
+            if (bowDraw > 0 && right.fighter.bowDrawTicks() > 0) {
+                bowDraw += (float) ((right.fighter.bowDrawTicks() - bowDraw) * progress);
+            }
         }
         // The pose holds at the freshest sample during a stall. Visual feedback keeps expiring.
         float hurt = hurtCue == null ? 0 : injuryStrength(hurtCue.age(cursor));
         float swingProgress = swingCue == null ? 1 : (float) Math.min(1, swingCue.age(cursor) / SWING_TICKS);
         return new Presented(discrete, (float) point.x(), (float) point.y(), (float) point.z(), yaw, pitch,
-                (float) (stride % (2 * Math.PI)), amount, hurt, swingProgress, pose);
+                (float) (stride % (2 * Math.PI)), amount, hurt, swingProgress, bowDraw, pose);
     }
 
     HitFeedback hitFeedback(int id, Cursor cursor) {

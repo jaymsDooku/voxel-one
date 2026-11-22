@@ -6,6 +6,8 @@ import dev.jayms.*;
 import dev.jayms.net.*;
 
 import org.joml.Matrix4f;
+import org.joml.Quaternionf;
+import org.joml.Vector3f;
 
 public class PlayerModel implements AutoCloseable {
     private final Mesh cube;
@@ -50,6 +52,11 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void render(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models, int jerseyColor) {
+        render(player, shader, models, jerseyColor, false, 0);
+    }
+
+    private void render(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models, int jerseyColor,
+                        boolean hasBow, float drawTicks) {
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
         Matrix4f root = new Matrix4f().translate(player.x(), player.y(), player.z());
@@ -68,7 +75,8 @@ public class PlayerModel implements AutoCloseable {
                         player.placingSwing());
         if (cohort >= 0)
             pose = CitizenAnimation.pose(pose, activity, animationSeconds, player.id());
-        Matrix4f torso = new Matrix4f(root).rotateY(pose.bodyTwist());
+        boolean drawingBow = hasBow && drawTicks > 0;
+        Matrix4f torso = new Matrix4f(root).rotateY(drawingBow ? 0 : pose.bodyTwist());
         Matrix4f head = headPose(root, player.pitch());
         skin(shader);
         box(shader, head, HEAD, HEAD, HEAD);
@@ -111,20 +119,32 @@ public class PlayerModel implements AutoCloseable {
                 BODY_WIDTH,
                 BODY_HEIGHT,
                 DEPTH);
-        arm(
-                shader,
-                new Matrix4f(torso).translate(-5 * PIXEL, 22 * PIXEL, 0).rotateX(pose.leftArm()),
-                -1, jerseyColor);
         Matrix4f rightArm =
                 new Matrix4f(torso)
                         .translate(5 * PIXEL, 22 * PIXEL, 0)
                         .rotateY(-pose.attack() * .3f)
                         .rotateZ(-pose.attack() * .2f)
                         .rotateX(pose.rightArm());
-        arm(shader, rightArm, 1, jerseyColor);
+        if (drawingBow) {
+            var bowPose = PracticeBowPose.aimingAvatar(player.pitch());
+            bowArm(shader, torso, jerseyColor, 6 * PIXEL, bowPose.getTranslation(new Vector3f()));
+            bowArm(shader, torso, jerseyColor, -6 * PIXEL, bowPose.transformPosition(new Vector3f(
+                    0, PracticeBowPose.NOCK_Y, PracticeBowPose.stringZ(drawTicks))));
+            bow(shader, new Matrix4f(torso).mul(bowPose), drawTicks);
+        } else {
+            arm(shader, new Matrix4f(torso).translate(-5 * PIXEL, 22 * PIXEL, 0).rotateX(pose.leftArm()),
+                    -1, jerseyColor);
+            arm(shader, rightArm, 1, jerseyColor);
+        }
         shader.setVector3("uColor", .17f, .22f, .40f);
         leg(shader, root, -2 * PIXEL, seated ? -1.25f : pose.leftLeg());
         leg(shader, root, 2 * PIXEL, seated ? -1.25f : pose.rightLeg());
+        if (hasBow) {
+            if (!drawingBow) bow(shader, new Matrix4f(rightArm)
+                    .translate(PIXEL, -9 * PIXEL, -.11f)
+                    .rotateX(-pose.rightArm() - .22f).rotateY(-.55f).rotateZ(.20f).scale(.8f), 0);
+            return;
+        }
         held(
                 player.heldItem(),
                 player.heldColor(),
@@ -148,10 +168,10 @@ public class PlayerModel implements AutoCloseable {
 
     /** Scoped overlay tint for confirmed damage to a practice opponent. */
     public void renderPracticeAvatar(Protocol.Pose player, ShaderProgram shader, VoxelModelRenderer models,
-                                     int jerseyColor, float hurt) {
+                                     int jerseyColor, float hurt, boolean bow, float drawTicks) {
         shader.setFloat("uAvatarHurt", hurt);
         try {
-            render(player, shader, models, jerseyColor);
+            render(player, shader, models, jerseyColor, bow, drawTicks);
         } finally {
             shader.setFloat("uAvatarHurt", 0);
         }
@@ -195,11 +215,24 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void renderPracticeFirstPerson(float walkPhase, float walkAmount, float swing, float equipDrop,
-                                          boolean blocking, int item, int color, ShaderProgram shader,
+                                          boolean blocking, boolean hasBow, float drawTicks,
+                                          int item, int color, ShaderProgram shader,
                                           VoxelModelRenderer models) {
-        var pose = PracticeHandPose.sample(walkPhase, walkAmount, swing, equipDrop, blocking, item);
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
+        if (hasBow) {
+            var grip = PracticeBowPose.firstPerson(walkPhase, walkAmount, equipDrop, drawTicks);
+            firstPersonBowArm(shader, grip, .84f);
+            if (drawTicks > 0) {
+                var pullHand = new Matrix4f(grip).translate(.045f, PracticeBowPose.NOCK_Y - .035f,
+                                PracticeBowPose.stringZ(drawTicks) + .08f)
+                        .rotateZ(.34f).scale(.78f);
+                firstPersonBowArm(shader, pullHand, .62f);
+            }
+            bow(shader, grip, drawTicks);
+            return;
+        }
+        var pose = PracticeHandPose.sample(walkPhase, walkAmount, swing, equipDrop, blocking, item);
         skin(shader);
         box(shader, new Matrix4f(pose.hand()).translate(0, PracticeHandPose.PALM_BOTTOM, 0),
                 PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_TOP - PracticeHandPose.PALM_BOTTOM,
@@ -209,6 +242,73 @@ public class PlayerModel implements AutoCloseable {
                 PracticeHandPose.PALM_WIDTH, PracticeHandPose.PALM_BOTTOM - PracticeHandPose.SLEEVE_BOTTOM,
                 PracticeHandPose.PALM_DEPTH);
         held(item, color, pose.item(), shader, models);
+    }
+
+    private void firstPersonBowArm(ShaderProgram shader, Matrix4f grip, float sleeveLength) {
+        skin(shader);
+        box(shader, new Matrix4f(grip).translate(0, -.115f, .035f), .153f, .18f, .145f);
+        shirt(shader, -1);
+        box(shader, new Matrix4f(grip).translate(0, -.115f - sleeveLength, .05f), .153f, sleeveLength, .145f);
+    }
+
+    private void bowArm(ShaderProgram shader, Matrix4f torso, int jersey, float shoulderX, Vector3f fist) {
+        var toShoulder = new Vector3f(shoulderX, 22 * PIXEL, 0).sub(fist);
+        float length = toShoulder.length();
+        var arm = new Matrix4f(torso).translate(fist)
+                .rotate(new Quaternionf().rotationTo(0, 1, 0,
+                        toShoulder.x / length, toShoulder.y / length, toShoulder.z / length));
+        skin(shader);
+        box(shader, new Matrix4f(arm).translate(0, -.065f, 0), LIMB_WIDTH, length * .67f + .065f, DEPTH);
+        shirt(shader, jersey);
+        box(shader, new Matrix4f(arm).translate(0, length * .67f, 0), LIMB_WIDTH, length * .33f + .045f, DEPTH);
+    }
+
+    private void bow(ShaderProgram shader, Matrix4f grip, float drawTicks) {
+        shader.setVector3("uColor", .30f, .16f, .12f);
+        box(shader, new Matrix4f(grip).translate(0, -.098f, 0), .068f, .196f, .067f);
+        float tipY = PracticeBowPose.tipY(drawTicks), tipZ = PracticeBowPose.tipZ(drawTicks);
+        float pull = PracticeBowPose.fraction(drawTicks);
+        float innerZ = -.02f + .02f * pull, outerZ = .024f + .04f * pull;
+        for (int side : new int[]{-1, 1}) {
+            shader.setVector3("uColor", .60f, .33f, .17f);
+            segment(shader, grip, side * .078f, 0, side * .233f, innerZ, .055f, .060f);
+            shader.setVector3("uColor", .70f, .42f, .23f);
+            segment(shader, grip, side * .23f, innerZ, side * .344f, outerZ, .042f, .047f);
+            shader.setVector3("uColor", .78f, .54f, .32f);
+            segment(shader, grip, side * .341f, outerZ, side * tipY, tipZ, .030f, .038f);
+            shader.setVector3("uColor", .80f, .85f, .78f);
+            segment(shader, grip, side * tipY, tipZ, PracticeBowPose.NOCK_Y,
+                    PracticeBowPose.stringZ(drawTicks), .007f, .007f);
+        }
+        if (drawTicks > 0) {
+            var tip = new Matrix4f(grip).translate(0, PracticeBowPose.NOCK_Y,
+                    PracticeBowPose.stringZ(drawTicks) - PracticeBowPose.ARROW_LENGTH);
+            arrow(shader, tip, false);
+        }
+    }
+
+    private void segment(ShaderProgram shader, Matrix4f frame, float startY, float startZ,
+                         float endY, float endZ, float width, float depth) {
+        var pose = new Matrix4f(frame).translate(0, startY, startZ)
+                .rotateX((float) Math.atan2(endZ - startZ, endY - startY));
+        box(shader, pose, width, (float) Math.hypot(endY - startY, endZ - startZ), depth);
+    }
+
+    public void renderPracticeArrow(float x, float y, float z, float vx, float vy, float vz,
+                                    boolean critical, boolean embedded, ShaderProgram shader) {
+        shader.setInt("uVertexColor", 0);
+        shader.setInt("uInstanced", 0);
+        arrow(shader, PracticeBowPose.arrow(x, y, z, vx, vy, vz), critical && !embedded);
+    }
+
+    private void arrow(ShaderProgram shader, Matrix4f tip, boolean critical) {
+        shader.setVector3("uColor", .65f, .42f, .23f);
+        box(shader, new Matrix4f(tip).translate(0, -.014f, .342f), .028f, .028f, .596f);
+        shader.setVector3("uColor", critical ? 1 : .68f, critical ? .81f : .77f, critical ? .42f : .79f);
+        box(shader, new Matrix4f(tip).translate(0, -.02f, .035f), .052f, .04f, .058f);
+        shader.setVector3("uColor", .88f, .91f, .87f);
+        box(shader, new Matrix4f(tip).translate(0, -.038f, .59f), .015f, .076f, .10f);
+        box(shader, new Matrix4f(tip).translate(0, -.008f, .59f), .076f, .016f, .10f);
     }
 
     private void held(

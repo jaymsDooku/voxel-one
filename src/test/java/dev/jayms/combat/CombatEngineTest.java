@@ -960,7 +960,7 @@ class CombatEngineTest {
                 engine.tick();
             }
             input(engine, 1, 22, 0, 0, 0, false, false, false, 0);
-            tick(engine, 10);
+            tick(engine, 4);
             assertEquals(4, engine.snapshot(1).inventory().get(35).count());
             if (cover) assertEquals(20, engine.snapshot(2).health());
             else {
