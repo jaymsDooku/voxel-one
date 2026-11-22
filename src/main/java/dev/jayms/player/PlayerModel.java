@@ -283,7 +283,7 @@ public class PlayerModel implements AutoCloseable {
         if (drawTicks > 0) {
             var tip = new Matrix4f(grip).translate(0, PracticeBowPose.NOCK_Y,
                     PracticeBowPose.stringZ(drawTicks) - PracticeBowPose.ARROW_LENGTH);
-            arrow(shader, tip, false);
+            arrow(shader, tip, false, false);
         }
     }
 
@@ -295,17 +295,42 @@ public class PlayerModel implements AutoCloseable {
     }
 
     public void renderPracticeArrow(float x, float y, float z, float vx, float vy, float vz,
-                                    boolean critical, boolean embedded, ShaderProgram shader) {
+                                    boolean critical, boolean embedded, boolean explosive, ShaderProgram shader) {
         shader.setInt("uVertexColor", 0);
         shader.setInt("uInstanced", 0);
-        arrow(shader, PracticeBowPose.arrow(x, y, z, vx, vy, vz), critical && !embedded);
+        arrow(shader, PracticeBowPose.arrow(x, y, z, vx, vy, vz), critical && !embedded, explosive);
     }
 
-    private void arrow(ShaderProgram shader, Matrix4f tip, boolean critical) {
+    public void renderPracticeArrowBlast(float x, float y, float z, float progress, ShaderProgram shader) {
+        shader.setInt("uVertexColor", 0);
+        shader.setInt("uInstanced", 0);
+        float size = .28f * (1 - progress);
+        if (size <= 0) return;
+        float reach = .18f + 1.12f * progress;
+        shader.setVector3("uColor", 1, .72f, .22f);
+        box(shader, new Matrix4f().translation(x, y - size, z), size * 2, size * 2, size * 2);
+        shader.setVector3("uColor", 1 - .32f * progress, .45f - .26f * progress, .10f);
+        for (int axis = 0; axis < 3; axis++) {
+            for (int sign = -1; sign <= 1; sign += 2) {
+                float offset = reach * sign;
+                var shard = new Matrix4f().translation(x + (axis == 0 ? offset : 0),
+                        y + (axis == 1 ? offset : .18f * progress), z + (axis == 2 ? offset : 0))
+                        .rotateXYZ(.5f + progress, axis + progress, sign * .6f);
+                box(shader, shard, size, size, size);
+            }
+        }
+    }
+
+    private void arrow(ShaderProgram shader, Matrix4f tip, boolean critical, boolean explosive) {
         shader.setVector3("uColor", .65f, .42f, .23f);
         box(shader, new Matrix4f(tip).translate(0, -.014f, .342f), .028f, .028f, .596f);
-        shader.setVector3("uColor", critical ? 1 : .68f, critical ? .81f : .77f, critical ? .42f : .79f);
-        box(shader, new Matrix4f(tip).translate(0, -.02f, .035f), .052f, .04f, .058f);
+        if (explosive) {
+            shader.setVector3("uColor", 1, .45f, .12f);
+            box(shader, new Matrix4f(tip).translate(0, -.055f, .06f), .11f, .11f, .18f);
+        } else {
+            shader.setVector3("uColor", critical ? 1 : .68f, critical ? .81f : .77f, critical ? .42f : .79f);
+            box(shader, new Matrix4f(tip).translate(0, -.02f, .035f), .052f, .04f, .058f);
+        }
         shader.setVector3("uColor", .88f, .91f, .87f);
         box(shader, new Matrix4f(tip).translate(0, -.038f, .59f), .015f, .076f, .10f);
         box(shader, new Matrix4f(tip).translate(0, -.008f, .59f), .076f, .016f, .10f);

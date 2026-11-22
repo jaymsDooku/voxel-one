@@ -374,7 +374,7 @@ public final class PracticeGame {
     private boolean canContinueSprint(float forward) {
         if (forward <= 0 || view == null || view.food() <= 6) return false;
         Item item = selectedItem();
-        if (useHeld() && (item == Item.SWORD || item == Item.BOW && arrowCount() > 0
+        if (useHeld() && (item == Item.SWORD || item == Item.BOW && nextAmmunition() != Item.EMPTY
                 || item != Item.BOW && CombatEngine.startsTimedUse(item, view.food()))) return false;
         var fighter = self();
         return fighter != null && fighter.health() > 0 && fighter.moving()
@@ -514,9 +514,14 @@ public final class PracticeGame {
                 : glfwGetWindowAttrib(w, GLFW_FOCUSED) == GLFW_TRUE && controls.down(w, PLACE));
     }
 
-    private int arrowCount() {
+    private Item nextAmmunition() {
+        for (var stack : view.inventory()) if (stack.item().isArrow()) return stack.item();
+        return Item.EMPTY;
+    }
+
+    private int arrowCount(Item ammunition) {
         int ammo = 0;
-        for (var stack : view.inventory()) if (stack.item() == Item.ARROW) ammo += stack.count();
+        for (var stack : view.inventory()) if (stack.item() == ammunition) ammo += stack.count();
         return ammo;
     }
 
@@ -746,15 +751,19 @@ public final class PracticeGame {
                     fighter.held() == Item.BOW, actor.bowDrawTicks());
         }
         for (var missile : view.missiles()) {
-            if (missile.item() == Item.ARROW) continue;
+            if (missile.item().isArrow()) continue;
             var drop = new ItemDrop((int) missile.id(), renderItem(missile.item()), 1, missile.x(), missile.y(), missile.z());
             avatars.renderDrop(drop, view.tick() / 20f, shader);
         }
         for (var arrow : arrows.sample(now)) {
             if (!frustum.testAab(arrow.x() - 1, arrow.y() - 1, arrow.z() - 1,
                     arrow.x() + 1, arrow.y() + 1, arrow.z() + 1)) continue;
-            avatars.renderPracticeArrow(arrow.x(), arrow.y(), arrow.z(), arrow.vx(), arrow.vy(), arrow.vz(),
-                    arrow.critical(), arrow.embedded(), shader);
+            if (arrow.blastProgress() >= 0) {
+                avatars.renderPracticeArrowBlast(arrow.x(), arrow.y(), arrow.z(), arrow.blastProgress(), shader);
+            } else {
+                avatars.renderPracticeArrow(arrow.x(), arrow.y(), arrow.z(), arrow.vx(), arrow.vy(), arrow.vz(),
+                        arrow.critical(), arrow.embedded(), arrow.explosive(), shader);
+            }
         }
         if (showHitboxes && !remoteActors.isEmpty()) hitboxes.render(clipFromWorld, remoteActors);
         pipeline.finish();
@@ -771,7 +780,7 @@ public final class PracticeGame {
             shader.setMatrix4("uView", new Matrix4f());
             Item selected = selectedItem();
             var held = hand.pose(selected, canAnimateCombat() && useHeld(), actor.moving(),
-                    actor.bowDrawTicks(), selected == Item.BOW && arrowCount() > 0, supportsBowState(), now);
+                    actor.bowDrawTicks(), selected == Item.BOW && nextAmmunition() != Item.EMPTY, supportsBowState(), now);
             avatars.renderPracticeFirstPerson(held.walkPhase(), held.walkAmount(), held.swing(),
                     held.equipDrop(), held.blocking(), held.item() == Item.BOW, held.bowDrawTicks(),
                     renderItem(held.item()), 0xffffff, shader, models);
@@ -794,7 +803,7 @@ public final class PracticeGame {
             case PEARL -> Blocks.LEAVES;
             case POISON -> Blocks.GRASS;
             case SLOWNESS -> Blocks.GLASS;
-            case FOOD, BOW, ARROW -> Blocks.WOOD;
+            case FOOD, BOW, ARROW, EXPLOSIVE_ARROW -> Blocks.WOOD;
         };
     }
 
@@ -1060,7 +1069,12 @@ public final class PracticeGame {
         int armor = view.durability().stream().mapToInt(Integer::intValue).sum();
         Stack selected = view.inventory().get(slot);
         String held = itemDescription(selected);
-        if (selected.item() == Item.BOW) held += "   Arrows " + arrowCount();
+        if (selected.item() == Item.BOW) {
+            held += "   Arrows " + arrowCount(Item.ARROW);
+            int explosives = arrowCount(Item.EXPLOSIVE_ARROW);
+            if (explosives > 0) held += "   Explosive " + explosives
+                    + "   Next " + (nextAmmunition() == Item.EXPLOSIVE_ARROW ? "explosive" : "standard");
+        }
         String timers = (held.isEmpty() ? "" : held + "   ") + "Armor " + armor
                 + (view.cooldown() > 0 ? "   Pearl " + (view.cooldown() + 19) / 20 + "s" : "");
         for (var effect : view.effects().entrySet()) timers += "   " + effect.getKey().name() + " " + (effect.getValue() + 19) / 20 + "s";

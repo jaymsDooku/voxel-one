@@ -124,6 +124,8 @@ public final class PracticeMatch implements ArenaMatch {
             this(id, item, x, y, z, 0, 0, 0, false, false);
         }
 
+        public boolean blast() { return item == Item.EXPLOSIVE_ARROW && embedded; }
+
         public static List<Missile> visible(List<ProjectileState> projectiles) {
             if (projectiles.size() <= MAX_VISIBLE_MISSILES) {
                 return projectiles.stream().map(Missile::fromCombat).toList();
@@ -136,13 +138,13 @@ public final class PracticeMatch implements ArenaMatch {
         }
 
         private static int visibilityPriority(ProjectileState projectile) {
-            if (projectile.item() != Item.ARROW) return 0;
+            if (!projectile.item().isArrow() || projectile.item() == Item.EXPLOSIVE_ARROW && projectile.embedded()) return 0;
             return projectile.embedded() ? 2 : 1;
         }
 
         private static Missile fromCombat(ProjectileState projectile) {
             Vec3 p = projectile.position();
-            if (projectile.item() != Item.ARROW) {
+            if (!projectile.item().isArrow()) {
                 return new Missile(projectile.id(), projectile.item(), (float) p.x(), (float) p.y(), (float) p.z());
             }
             Vec3 v = projectile.velocity();
@@ -222,6 +224,7 @@ public final class PracticeMatch implements ArenaMatch {
         if (vault != null) {
             var loadout = new ArrayList<>(rules.openingKit());
             loadout.set(CombatEngine.HOTBAR_SIZE - 1, new Stack(Item.BOW, 1));
+            loadout.set(CombatEngine.INVENTORY_SIZE - 2, new Stack(Item.EXPLOSIVE_ARROW, 8));
             loadout.set(CombatEngine.INVENTORY_SIZE - 1, new Stack(Item.ARROW, 32));
             vaultLoadout = List.copyOf(loadout);
         } else {

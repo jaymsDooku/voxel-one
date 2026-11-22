@@ -90,7 +90,8 @@ class PracticeWireTest {
     @Test void vaultSnapshotCarriesSixtyFightersWithAProtocolAndRosterBound() throws Exception {
         var view = new PracticeMatch(Kit.VAULT_BATTLES, true).view(1);
         assertEquals(60, view.fighters().size());
-        assertEquals(view, roundTrip(view, PracticeWire.VAULT_BATTLES_VERSION));
+        assertEquals(view, roundTrip(view, PracticeWire.VERSION));
+        assertEquals(view.fighters(), roundTrip(view, PracticeWire.VAULT_BATTLES_VERSION).fighters());
         assertThrows(IOException.class, () -> roundTrip(view, PracticeWire.BATTLEFIELD_VERSION));
 
         var bytes = new ByteArrayOutputStream();
@@ -155,6 +156,25 @@ class PracticeWireTest {
         assertEquals(64, visible.size());
         assertEquals(List.of(83L, 82L, 81L), visible.subList(0, 3).stream().map(Missile::id).toList());
         assertTrue(visible.subList(3, 64).stream().allMatch(Missile::embedded));
+    }
+
+    @Test void explosiveAmmoAndBlastsRoundTripAndOlderClientsReceiveCompatibleArrows() throws Exception {
+        var explosive = new Stack(Item.EXPLOSIVE_ARROW, 8);
+        var flying = new Missile(1, Item.EXPLOSIVE_ARROW, 1, 75, 1, -2.9f, .5f, .08f, false, false);
+        var blast = new Missile(2, Item.EXPLOSIVE_ARROW, 1, 75, -5, 0, 0, 0, false, true);
+        var inventory = new ArrayList<>(Collections.nCopies(36, new Stack(Item.EMPTY, 0)));
+        inventory.set(34, explosive);
+        var view = new View(Phase.FIGHT, Kit.VAULT_BATTLES, Result.NONE, 0, 140, 0, 44,
+                List.of(), inventory, 20, 0, Map.of(), List.of(), List.of(flying, blast), 42, -1, List.of(),
+                VaultStage.OUTER_RING);
+        assertEquals(view, roundTrip(view, PracticeWire.EXPLOSIVE_ARROW_VERSION));
+        var legacy = roundTrip(view, PracticeWire.BOW_VERSION);
+        assertEquals(new Stack(Item.ARROW, 8), legacy.inventory().get(34));
+        assertEquals(List.of(new Missile(1, Item.ARROW, 1, 75, 1, -2.9f, .5f, .08f, false, false)), legacy.missiles());
+        var versionTen = roundTrip(view, PracticeWire.VAULT_BATTLES_VERSION);
+        assertEquals(new Stack(Item.ARROW, 8), versionTen.inventory().get(34));
+        assertEquals(List.of(new Missile(1, Item.ARROW, 1, 75, 1)), versionTen.missiles());
+        assertTrue(roundTrip(view, PracticeWire.VERSION).missiles().get(1).blast());
     }
 
     @Test void attackViewRoundTripsWithoutChangingLegacyControls() throws Exception {

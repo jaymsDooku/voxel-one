@@ -1,5 +1,6 @@
 package dev.jayms.combat.client;
 
+import dev.jayms.combat.CombatEngine;
 import dev.jayms.combat.CombatEngine.Item;
 import dev.jayms.combat.practice.PracticeMatch.Missile;
 
@@ -11,12 +12,17 @@ import java.util.Map;
 final class PracticeArrowTimeline {
     private static final long TICK_NANOS = 50_000_000;
 
-    record Arrow(float x, float y, float z, float vx, float vy, float vz, boolean critical, boolean embedded) {}
+    record Arrow(float x, float y, float z, float vx, float vy, float vz, boolean critical, boolean embedded,
+                 boolean explosive, float blastProgress) {}
 
-    private record Flight(Missile before, Missile after) {
-        Arrow at(float fraction) {
+    private record Flight(Missile before, Missile after, long blastTick) {
+        Arrow at(float fraction, long tick) {
             var to = after;
             var from = before;
+            if (to.blast()) {
+                float progress = Math.min(1, (tick - blastTick + fraction) / CombatEngine.ARROW_BLAST_TICKS);
+                return new Arrow(to.x(), to.y(), to.z(), 0, 0, 0, false, true, true, progress);
+            }
             float vx = to.vx(), vy = to.vy(), vz = to.vz();
             // Older servers report only positions. They can still show the observed direction of flight.
             if (vx == 0 && vy == 0 && vz == 0) {
@@ -26,7 +32,7 @@ final class PracticeArrowTimeline {
                     from.x() + (to.x() - from.x()) * fraction,
                     from.y() + (to.y() - from.y()) * fraction,
                     from.z() + (to.z() - from.z()) * fraction,
-                    vx, vy, vz, to.critical(), to.embedded());
+                    vx, vy, vz, to.critical(), to.embedded(), to.item() == Item.EXPLOSIVE_ARROW, -1);
         }
     }
 
@@ -38,9 +44,12 @@ final class PracticeArrowTimeline {
         boolean adjacent = snapshotTick == tick + 1;
         Map<Long, Flight> next = new HashMap<>();
         for (var missile : missiles) {
-            if (missile.item() != Item.ARROW) continue;
-            Flight previous = adjacent ? active.get(missile.id()) : null;
-            next.put(missile.id(), new Flight(previous == null ? missile : previous.after(), missile));
+            if (!missile.item().isArrow()) continue;
+            Flight previous = active.get(missile.id());
+            long blastTick = missile.blast() && previous != null && previous.after().blast()
+                    ? previous.blastTick() : snapshotTick;
+            Missile before = adjacent && previous != null ? previous.after() : missile;
+            next.put(missile.id(), new Flight(before, missile, blastTick));
         }
         active = next;
         tick = snapshotTick;
@@ -49,6 +58,6 @@ final class PracticeArrowTimeline {
 
     List<Arrow> sample(long now) {
         float fraction = Math.max(0, Math.min(1, (now - receivedAt) / (float) TICK_NANOS));
-        return active.isEmpty() ? List.of() : active.values().stream().map(flight -> flight.at(fraction)).toList();
+        return active.isEmpty() ? List.of() : active.values().stream().map(flight -> flight.at(fraction, tick)).toList();
     }
 }

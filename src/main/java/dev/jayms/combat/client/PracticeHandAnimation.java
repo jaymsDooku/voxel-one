@@ -61,7 +61,7 @@ final class PracticeHandAnimation {
 
     void use(Item item, long now) {
         select(item, now);
-        if (item == Item.EMPTY || item == Item.SWORD || item == Item.ARROW) return;
+        if (item == Item.EMPTY || item == Item.SWORD || item.isArrow()) return;
         useItem = item;
         useAt = now;
     }

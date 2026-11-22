@@ -104,8 +104,7 @@ final class PracticeItemIcons {
             ................
             ................
             """);
-    private static final Icon ARROW = icon("Arrow", "oshlwb",
-            new int[]{0x283341, 0x68869e, 0xafd1e1, 0xf0f8ff, 0xaf754a, 0x608da8}, """
+    private static final String ARROW_SPRITE = """
             ................
             ............ooo.
             ...........ohlo.
@@ -122,7 +121,11 @@ final class PracticeItemIcons {
             ..obboo.........
             ..ooo...........
             ................
-            """);
+            """;
+    private static final Icon ARROW = icon("Arrow", "oshlwb",
+            new int[]{0x283341, 0x68869e, 0xafd1e1, 0xf0f8ff, 0xaf754a, 0x608da8}, ARROW_SPRITE);
+    private static final Icon EXPLOSIVE_ARROW = icon("Explosive Arrow", "oshlwb",
+            new int[]{0x482b28, 0xac3e25, 0xf6742d, 0xffdc79, 0xb1743c, 0xe85829}, ARROW_SPRITE);
     private static final Icon HEALING = potion("Healing Potion", 0x993548, 0xf05262, 0xffa29a,
             ".....", "..#..", ".###.", "..#..", ".....");
     private static final Icon SPEED = potion("Speed Potion", 0x245c99, 0x38a1e8, 0x9aeaff,
@@ -161,6 +164,7 @@ final class PracticeItemIcons {
             case SLOWNESS -> SLOWNESS;
             case BOW -> BOW;
             case ARROW -> ARROW;
+            case EXPLOSIVE_ARROW -> EXPLOSIVE_ARROW;
         };
     }
 
