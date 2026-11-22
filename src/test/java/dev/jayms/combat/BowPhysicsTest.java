@@ -210,6 +210,73 @@ class BowPhysicsTest {
                 && shot.position().y() > 5 && !shot.embedded()));
     }
 
+    @Test void explosiveArrowPassesThroughAnAllyAndOnlyPushesAndDamagesExposedEnemies() {
+        var e = explosiveField(false);
+        Vec3 ally = new Vec3(1.6, 1, .5);
+        assertTrue(e.join(2, ally, 180));
+        assertTrue(e.join(3, new Vec3(3.5, 1, .5), 180));
+        assertTrue(e.join(4, new Vec3(4.2, 1, 2), 180));
+        assertTrue(e.join(5, new Vec3(8, 1, .5), 180));
+        var allyArmor = e.snapshot(2).durability();
+
+        draw(e, 1, 20);
+        release(e, 1);
+
+        var blast = e.projectiles().get(0);
+        assertEquals(Item.EXPLOSIVE_ARROW, blast.item());
+        assertTrue(blast.embedded());
+        assertTrue(blast.position().x() > 2.5, "The arrow passed the ally before detonating");
+        assertEquals(20, e.snapshot(1).health());
+        assertEquals(-1, e.snapshot(1).impulseTick());
+        assertEquals(20, e.snapshot(2).health());
+        assertEquals(allyArmor, e.snapshot(2).durability());
+        assertEquals(-1, e.snapshot(2).hurtTick());
+        assertEquals(-1, e.snapshot(2).impulseTick());
+        assertTrue(e.snapshot(3).health() < e.snapshot(4).health());
+        assertTrue(e.snapshot(4).health() < 20);
+        assertTrue(e.snapshot(3).hitImpulse().x() > 0);
+        assertTrue(e.snapshot(4).hitImpulse().z() > 0);
+        assertEquals(20, e.snapshot(5).health());
+        assertEquals(2, e.snapshot(1).stats().hits());
+    }
+
+    @Test void wallsStopAnExplosiveArrowAndShieldEnemiesBehindThem() {
+        var e = explosiveField(true);
+        assertTrue(e.join(3, new Vec3(2.3, 1, 1.8), 180));
+        assertTrue(e.join(4, new Vec3(4.5, 1, .5), 180));
+        draw(e, 1, 20);
+        release(e, 1);
+
+        assertTrue(e.projectiles().get(0).embedded());
+        assertEquals(20, e.snapshot(4).health());
+        assertEquals(-1, e.snapshot(4).impulseTick());
+        assertTrue(e.snapshot(3).health() < 20);
+        assertEquals(383, e.snapshot(1).bowDurability());
+        assertEquals(Item.EMPTY, e.snapshot(1).inventory().get(34).item());
+        for (int tick = 0; tick < CombatEngine.ARROW_BLAST_TICKS; tick++) e.tick();
+        assertTrue(e.projectiles().isEmpty());
+        assertEquals(Item.EMPTY, e.snapshot(1).inventory().get(34).item());
+        draw(e, 1, 20);
+        release(e, 1);
+        assertEquals(Item.ARROW, e.projectiles().get(0).item());
+        assertEquals(1, e.snapshot(1).inventory().get(35).count());
+    }
+
+    private static CombatEngine explosiveField(boolean wall) {
+        var terrain = field(wall);
+        var e = engine(new Arena() {
+            @Override public boolean solid(int x, int y, int z) { return terrain.solid(x, y, z); }
+            @Override public boolean contains(Vec3 point) { return terrain.contains(point); }
+            @Override public boolean canHarm(int shooter, int target) { return target != 2; }
+        });
+        arm(e, 1, SPAWN, 2, 384);
+        var kit = new ArrayList<>(e.snapshot(1).inventory());
+        kit.set(34, new Stack(Item.EXPLOSIVE_ARROW, 1));
+        assertTrue(e.setKit(1, kit));
+        assertTrue(e.reset(1, SPAWN, 0));
+        return e;
+    }
+
     private static CombatEngine engine(Arena arena) {
         return new CombatEngine(CombatRules.NO_DEBUFF, arena, new Random(2) {
             @Override public double nextGaussian() { return 0; }

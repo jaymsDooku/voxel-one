@@ -19,7 +19,7 @@ final class PracticeWire {
     static final int MAGIC = 0x56505241, LEGACY_VERSION = 1, POSE_VERSION = 2, CLICK_VERSION = 3,
             WALL_VERSION = 4, IMPULSE_VERSION = 5, SWING_VERSION = 6, KNOCKBACK_LAB_VERSION = 7,
             TEAMFIGHTING_LAB_VERSION = 8, BATTLEFIELD_VERSION = 9, VAULT_BATTLES_VERSION = 10,
-            BOW_VERSION = 11, VERSION = BOW_VERSION;
+            BOW_VERSION = 11, EXPLOSIVE_ARROW_VERSION = 12, VERSION = EXPLOSIVE_ARROW_VERSION;
     static final float MAX_VELOCITY = 3.9f; // Paper 1.7.10 entity velocity packet component bound.
     static final int CONTROL = 1, READY = 2, SWAP = 3, ACTION = 4;
     // SWAP with an out-of-range destination is ignored by older arena servers.
@@ -109,7 +109,7 @@ final class PracticeWire {
             out.writeBoolean(f.moving());
             out.writeBoolean(f.swinging());
             out.writeBoolean(f.ready());
-            out.writeByte(f.held().ordinal());
+            out.writeByte(wireItem(f.held(), version).ordinal());
             out.writeInt(f.hits());
             out.writeInt(f.combo());
             out.writeInt(f.used());
@@ -138,7 +138,7 @@ final class PracticeWire {
         }
         out.writeByte(v.inventory().size());
         for (Stack stack : v.inventory()) {
-            out.writeByte(stack.item().ordinal());
+            out.writeByte(wireItem(stack.item(), version).ordinal());
             out.writeShort(stack.count());
             if (version >= BOW_VERSION && stack.item() == Item.BOW) out.writeShort(stack.durability());
         }
@@ -147,14 +147,18 @@ final class PracticeWire {
         for (Effect effect : Effect.values()) out.writeInt(v.effects().getOrDefault(effect, 0));
         out.writeByte(v.durability().size());
         for (int value : v.durability()) out.writeShort(value);
-        out.writeByte(v.missiles().size());
+        boolean explosiveArrows = version >= EXPLOSIVE_ARROW_VERSION;
+        int visibleMissiles = explosiveArrows ? v.missiles().size()
+                : (int) v.missiles().stream().filter(m -> !m.blast()).count();
+        out.writeByte(visibleMissiles);
         for (Missile m : v.missiles()) {
+            if (!explosiveArrows && m.blast()) continue;
             out.writeLong(m.id());
-            out.writeByte(m.item().ordinal());
+            out.writeByte(wireItem(m.item(), version).ordinal());
             out.writeFloat(m.x());
             out.writeFloat(m.y());
             out.writeFloat(m.z());
-            if (version >= BOW_VERSION && m.item() == Item.ARROW) {
+            if (version >= BOW_VERSION && m.item().isArrow()) {
                 out.writeFloat(m.vx());
                 out.writeFloat(m.vy());
                 out.writeFloat(m.vz());
@@ -252,7 +256,7 @@ final class PracticeWire {
             long id = in.readLong();
             Item item = readEnum(in, Item.values());
             float x = finite(in), y = finite(in), z = finite(in);
-            if (version >= BOW_VERSION && item == Item.ARROW) {
+            if (version >= BOW_VERSION && item.isArrow()) {
                 float vx = finite(in), vy = finite(in), vz = finite(in);
                 int flags = count(in, 3);
                 missiles.add(new Missile(id, item, x, y, z, vx, vy, vz, (flags & 1) != 0, (flags & 2) != 0));
@@ -272,6 +276,10 @@ final class PracticeWire {
         return new View(phase, kit, result, winner, ticksLeft, spectatorId, tick, List.copyOf(fighters),
                 List.copyOf(inventory), food, cooldown, java.util.Map.copyOf(effects), List.copyOf(durability),
                 List.copyOf(missiles), hit, splash, List.copyOf(status), vaultStage);
+    }
+
+    private static Item wireItem(Item item, int version) {
+        return item == Item.EXPLOSIVE_ARROW && version < EXPLOSIVE_ARROW_VERSION ? Item.ARROW : item;
     }
 
     private static int count(DataInputStream in, int max) throws IOException {

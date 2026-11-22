@@ -33,7 +33,7 @@ No Debuff starts players with a sword, armor, healing, speed, fire resistance, f
 
 ## Vault Battles
 
-Choose **Vault Battles** on the Play screen to attack a defended vault with 29 teammates and 30 opponents controlled by the game. Both teams use No Debuff combat and start with a bow in hotbar slot 9 and 32 arrows in reserve. Start from the staging vault and choose the west, center, or east approach through the defensive rings.
+Choose **Vault Battles** on the Play screen to attack a defended vault with 29 teammates and 30 opponents controlled by the game. Both teams use No Debuff combat and start with a bow in hotbar slot 9, eight explosive arrows, and 32 standard arrows. Start from the staging vault and choose the west, center, or east approach through the defensive rings.
 
 1. Secure the outer ring by keeping a living attacker in its marked zone for five uncontested seconds.
 2. Capture the vault core by holding its marked zone for eight uncontested seconds. The outer ring stays secured for the rest of the round.
@@ -53,6 +53,8 @@ Use the connection command in [Run a match](#run-a-match) with a current client 
 Select a bow and hold the use key (right click by default) to draw it. Release to shoot. The draw slows movement and reaches full strength after roughly one second. Full draws fire critical arrows. A tap that fails to draw the bow far enough costs no ammo or durability. Arrows can be anywhere in your inventory, and a fired shot costs one arrow and one durability.
 
 Arrows arc downward, stop on walls, and can be recovered by walking up to them after they settle. The faction Archer also uses these bow mechanics. Bow charge and arrow flight are based on `ItemBow` and `EntityArrow` from the Paper 1.7.10 server. [Paper 1.7 source](https://github.com/PaperMC/Paper-1.7)
+
+In Vault Battles, the bow draws from the earliest ammo slot, with explosive arrows first in the starting kit. Move the standard arrows ahead of them in the inventory to save the explosives. Explosive arrows pass through teammates and burst on terrain or an enemy. The burst damages and pushes exposed enemies within three blocks. Damage and horizontal knockback fall off with distance. The shooter and teammates are immune, and solid cover shields enemies behind it.
 
 ## Run the HCF kit map
 
