@@ -8,7 +8,8 @@ public enum GameIdentity {
     CITY("city", "Voxel City One", "Plan a city, then explore its living world.", 25566, "offline-city.dat"),
     MUSIC("music", "Voxel Music Visualizer", "Local audio becomes a living voxel sculpture.", 0, ""),
     PRACTICE("practice", "Voxel Practice Duels", "Opt-in No Debuff and Debuff duels, or an offline drill target.", 25567, "practice"),
-    HCF("hcf", "Voxel HCF Factions", "Opt-in faction combat, armor classes, claims and KOTH.", 25568, "hcf");
+    HCF("hcf", "Voxel HCF Factions", "Opt-in faction combat, armor classes, claims and KOTH.", 25568, "hcf"),
+    BATTLE("battle", "Voxel Battle Simulator", "Offline six-part fighters, physical knockdowns and breakup.", 0, "");
 
     public final String key, title, description, saveName;
     public final int port;
@@ -18,7 +19,7 @@ public enum GameIdentity {
     }
     public static GameIdentity parse(String key) {
         for (var game : values()) if (game.key.equals(key)) return game;
-        throw new IllegalArgumentException("Game must be city, sandbox, music, practice or hcf");
+        throw new IllegalArgumentException("Game must be city, sandbox, music, practice, hcf or battle");
     }
     public static GameIdentity of(boolean city) { return city ? CITY : SANDBOX; }
     public int launchPort(Integer explicitPort) {

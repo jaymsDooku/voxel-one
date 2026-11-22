@@ -1,7 +1,7 @@
 {
   "schemaVersion": 1,
   "project": "Voxel One",
-  "updatedAt": "2026-11-20T05:22:08+00:00",
+  "updatedAt": "2026-11-22T00:50:54+00:00",
   "release": {
     "name": "Playtest 28",
     "url": "https://github.com/jaymsDooku/voxel-one/releases/tag/playtest-28",
@@ -14,6 +14,21 @@
     "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/development-progress/evidence/lighting-occlusion-release-checks.json"
   },
   "items": [
+    {
+      "id": "893fdc56-722d-4959-9eac-c7a0aa57aa22",
+      "title": "Voxel Battle Simulator offline arena",
+      "description": "Inspecting desktop routes and shared 120 Hz physics; bounded prototype uses two six-part fighters, ten attachments, no persistence. Runner owns publication.",
+      "evidence": [
+        {
+          "kind": "link",
+          "label": "Fight, knockdown and symmetric breakup fixtures; pending runner publication",
+          "url": "https://raw.githubusercontent.com/jaymsDooku/voxel-one/feature/queue-38393366646335362d373232642d343935392d396561632d633761306161353761613232/dashboard/evidence/battle-fight.mp4"
+        }
+      ],
+      "status": "in_progress",
+      "note": "Implementation and local validation finished: 73 distinct focused/compatibility tests, packaged jars, native combat/action-loss/reset, CLI/catalog launches and bounded desktop references passed. Fresh 14.143 s F10 clip and PNGs await runner publication. Exact-head hosted CI, synchronized-base validation, independent review and physical-GPU 60 FPS qualification remain pending.",
+      "updatedAt": "2026-11-22T00:50:54+00:00"
+    },
     {
       "id": "d04d25bc-dc2f-47a8-963f-e48398746f43",
       "title": "HCF / PotPvP 3 \u2014 Faction combat, classes and objectives",
