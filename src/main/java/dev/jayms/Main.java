@@ -1843,6 +1843,9 @@ public class Main {
     }
 
     public static void main(String[] args) throws Exception {
+        for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("battle")) {
+            dev.jayms.battle.BattleApp.main(args);return;
+        }
         for(int i=0;i+1<args.length;i++) if(args[i].equals("--game") && args[i+1].equals("practice")) {
             dev.jayms.combat.duel.PracticeApp.main(args);return;
         }
@@ -1924,7 +1927,8 @@ public class Main {
                         if (LoginDialog.musicSelected) new dev.jayms.music.MusicVisualizer().run(null);
                         if (LoginDialog.practiceSelected) dev.jayms.combat.duel.PracticeApp.main(new String[0]);
                         if (LoginDialog.hcfSelected) dev.jayms.combat.hcf.HcfApp.main(new String[0]);
-                    } while (LoginDialog.musicSelected || LoginDialog.practiceSelected || LoginDialog.hcfSelected);
+                        if (LoginDialog.battleSelected) dev.jayms.battle.BattleApp.main(new String[]{"--game", "battle"});
+                    } while (LoginDialog.musicSelected || LoginDialog.practiceSelected || LoginDialog.hcfSelected || LoginDialog.battleSelected);
                 } catch (java.util.concurrent.CancellationException e) {
                     return;
                 } catch (java.util.concurrent.ExecutionException e) {
